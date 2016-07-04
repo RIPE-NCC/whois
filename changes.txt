@@ -1,5 +1,11 @@
 ## next
 
+# 'next version'
+[all] delete power mntners and use alloc mntners instead
+[all] separate the RPSL parsing in a separate module.
+[all] add 'default_maintainer_history' table
+[update] apply an transform pipepline to unify processing before the actual update
+
 # 1.87.4
 [update] bugfix allow adding mnt-lower attribute for inet(6)nums
 [update] bugfix allow updates to netname attribute for inet(6)nums, unless it has the RIPE-NCC-HM-MNT

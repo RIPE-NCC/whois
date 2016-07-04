@@ -791,22 +791,40 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <!-- TODO [TP]: if spring-aspects lib is removed from whois-rpsl/pom.xml,
-                                    then we need to exclude the paths to that module here.
-
-                                    In any case, we do not have aspects in that module.
-
-                                    (It would be even nicer if we had inclusion paths
-                                    for the modules/packages we actually need aspects)
-
+                    <!-- [TP] This is a bit ugly part.
+                        aspectjweaver, spring-context, spring-tx libs were removed from whois-rpsl/pom.xml, because they
+                        pull many deps, and no aspects are/should be present in this module. By removing the libs, a lot of
+                        warnings are thrown so it is good to exlude this module from weaver's visibility. However the
+                        aspectj maven plugin, cannot exclude a whole module, and also it expects one source at least
+                        to be found in main and in test in each module, otherwise it fails the compilation with "No sources found".
+                        That is why almost all packages/classes from whois-rpsl are excluded except one in main and one
+                        in test (the commented out ones). There mignt be a better way to do this, but I could not find one.
+                        Ideally whois-rpsl module, should have its unique package name, and not packages shared with other modules.
+                    -->
                     <excludes>
                         <exclude>**/generated/**</exclude>
                         <exclude>**/net/ripe/db/whois/common/rpsl/**</exclude>
                         <exclude>**/net/ripe/db/whois/common/domain/**</exclude>
-                        <exclude>**/net/ripe/db/whois/common/io/**</exclude>
                         <exclude>**/net/ripe/db/whois/common/ip/**</exclude>
+
+                        <exclude>**/net/ripe/db/whois/common/io/ByteArrayInput.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/io/ByteArrayOutput.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/io/RpslObjectFileReader.java</exclude>
+
+                        <!--<exclude>**/net/ripe/db/whois/common/CharacterSetConversion.java</exclude>-->
+
+                        <exclude>**/net/ripe/db/whois/common/io/ByteArrayInputTest.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/io/ByteArrayOutputTest.java</exclude>
+
+                        <exclude>**/net/ripe/db/whois/common/IllegalArgumentExceptionMessage.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
+                        <!--<exclude>**/net/ripe/db/whois/common/CharacterSetConversionTest.java</exclude>-->
+                        <exclude>**/net/ripe/db/whois/common/EndToEndTest.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/IntegrationTest.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>
                     </excludes>
-                    -->
+
                     <complianceLevel>${java.version}</complianceLevel>
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>

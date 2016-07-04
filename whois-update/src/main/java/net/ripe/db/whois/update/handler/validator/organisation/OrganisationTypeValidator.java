@@ -36,7 +36,7 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
         final RpslAttribute attribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
         final CIString orgType = attribute.getCleanValue();
 
-        if (!OTHER.equals(orgType) && orgTypeHasChanged(update, orgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+        if (!OTHER.equals(orgType) && orgTypeHasChanged(update, orgType) && !subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
             updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(orgType));
         }
     }
