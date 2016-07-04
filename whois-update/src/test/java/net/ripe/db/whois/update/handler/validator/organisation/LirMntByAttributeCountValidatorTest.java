@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_MULTIPLE_USER_MNTNER;
@@ -124,7 +125,7 @@ public class LirMntByAttributeCountValidatorTest {
         verifyNoMoreInteractions(maintainers);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.multipleUserMntBy(new CIString[]{ciString("MNT1-LIR"), ciString("MNT2-LIR")}));
+        verify(updateContext).addMessage(update, UpdateMessages.multipleUserMntBy(ciImmutableSet("MNT1-LIR", "MNT2-LIR")));
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
     }

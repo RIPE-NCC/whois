@@ -5,6 +5,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -600,7 +601,19 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "The \"netname\" attribute can only be changed by the RIPE NCC");
     }
 
-    public static Message multipleUserMntBy(Object[] userMntners) {
+    public static Message descrCannotBeAdded() {
+        return new Message(Type.ERROR, "The first \"descr\" attribute can only be added by the RIPE NCC");
+    }
+
+    public static Message descrCannotBeChanged() {
+        return new Message(Type.ERROR, "The first \"descr\" attribute can only be changed by the RIPE NCC");
+    }
+
+    public static Message descrCannotBeRemoved() {
+        return new Message(Type.ERROR, "The first \"descr\" attribute can only be removed by the RIPE NCC");
+    }
+
+    public static Message multipleUserMntBy(Set<CIString> userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }
 }
