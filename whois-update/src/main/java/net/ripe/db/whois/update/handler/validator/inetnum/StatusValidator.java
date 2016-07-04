@@ -259,6 +259,12 @@ public class StatusValidator implements BusinessRuleValidator {
         final CIString originalStatus = update.getReferenceObject() != null ? update.getReferenceObject().getValueForAttribute(AttributeType.STATUS) : null;
         final CIString updateStatus = update.getUpdatedObject() != null ? update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS) : null;
 
+        // NOT-SET is the only status which is modifiable
+        if(originalStatus.equals(NOT_SET)) {
+            // and for changing the status we can follow the exact same rules as a create
+            validateCreate(update, updateContext);
+            return;
+        }
 
         if (!Objects.equals(originalStatus, updateStatus)) {
             updateContext.addMessage(update, UpdateMessages.statusChange());
