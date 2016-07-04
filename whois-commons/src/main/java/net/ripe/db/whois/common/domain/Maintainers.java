@@ -14,7 +14,6 @@ import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
 
 @Component
 public class Maintainers {
-    private final Set<CIString> powerMaintainers;
     private final Set<CIString> enduserMaintainers;
     private final Set<CIString> legacyMaintainers;
     private final Set<CIString> allocMaintainers;
@@ -24,25 +23,19 @@ public class Maintainers {
 
     @Autowired
     public Maintainers(
-            @Value("${whois.maintainers.power}") final String[] powerMaintainers,
             @Value("${whois.maintainers.enduser}") final String[] enduserMaintainers,
             @Value("${whois.maintainers.legacy}") final String[] legacyMaintainers,
             @Value("${whois.maintainers.alloc}") final String[] allocMaintainers,
             @Value("${whois.maintainers.enum}") final String[] enumMaintainers,
             @Value("${whois.maintainers.dbm}") final String[] dbmMaintainers) {
 
-        this.powerMaintainers = ciImmutableSet(powerMaintainers);
         this.enduserMaintainers = ciImmutableSet(enduserMaintainers);
         this.legacyMaintainers = ciImmutableSet(legacyMaintainers);
         this.allocMaintainers = ciImmutableSet(allocMaintainers);
         this.enumMaintainers = ciImmutableSet(enumMaintainers);
         this.dbmMaintainers = ciImmutableSet(dbmMaintainers);
 
-        this.rsMaintainers = ImmutableSet.copyOf(Iterables.concat(this.powerMaintainers, this.enduserMaintainers, this.legacyMaintainers, this.allocMaintainers));
-    }
-
-    public Set<CIString> getPowerMaintainers() {
-        return powerMaintainers;
+        this.rsMaintainers = ImmutableSet.copyOf(Iterables.concat(this.enduserMaintainers, this.legacyMaintainers, this.allocMaintainers));
     }
 
     public Set<CIString> getEnduserMaintainers() {
