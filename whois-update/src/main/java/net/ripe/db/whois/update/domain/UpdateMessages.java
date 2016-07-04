@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 
+import java.util.List;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.FormatHelper.prettyPrint;
@@ -613,7 +614,7 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "The first \"descr\" attribute can only be removed by the RIPE NCC");
     }
 
-    public static Message multipleUserMntBy(Set<CIString> userMntners) {
+    public static Message multipleUserMntBy(List<CIString> userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }
 }
