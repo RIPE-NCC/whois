@@ -72,7 +72,6 @@ public class Authenticator {
         this.authenticationStrategies = Arrays.asList(authenticationStrategies);
 
         final Map<CIString, Set<Principal>> tempPrincipalsMap = Maps.newHashMap();
-        addMaintainers(tempPrincipalsMap, maintainers.getPowerMaintainers(), Principal.POWER_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getEnduserMaintainers(), Principal.ENDUSER_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getLegacyMaintainers(), Principal.LEGACY_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getAllocMaintainers(), Principal.ALLOC_MAINTAINER);
