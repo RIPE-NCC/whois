@@ -2007,7 +2007,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
-                ["Multiple user-'mnt-by:' are not allowed, found are: 'owner3-mnt, owner2-mnt'"]
+                ["Multiple user-'mnt-by:' are not allowed, found are: 'owner2-mnt, owner3-mnt'"]
 
         query_object_matches("-r -GBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "LIR")
     }
