@@ -20,17 +20,28 @@ import net.ripe.db.whois.common.support.database.diff.Row;
 import net.ripe.db.whois.common.support.database.diff.Rows;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.support.database.diff.Rows.with;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+@Ignore("[ES] TODO slow build")
 public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
     @Autowired RpslObjectUpdateDao subject;
 

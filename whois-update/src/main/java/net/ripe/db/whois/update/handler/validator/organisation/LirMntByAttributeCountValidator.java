@@ -14,6 +14,10 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
 @Component
 // Validates that their is at most 1 single user mntner for an LIR
 public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
@@ -38,17 +42,17 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
-        Object[] userMntner = filterUserMntner(updatedObject);
-        if (1 < userMntner.length) {
+        final Collection<CIString> userMntner = filterUserMntner(updatedObject);
+        if (userMntner.size() > 1) {
             updateContext.addMessage(update, UpdateMessages.multipleUserMntBy(userMntner));
         }
     }
 
-    private Object[] filterUserMntner(RpslObject rpslObject) {
+    private Collection<CIString> filterUserMntner(final RpslObject rpslObject) {
         return rpslObject.getValuesForAttribute(AttributeType.MNT_BY)
                 .stream()
                 .filter(mntby -> !maintainers.isRsMaintainer(mntby))
-                .toArray();
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Override

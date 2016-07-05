@@ -37,7 +37,7 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
             return;
         }
 

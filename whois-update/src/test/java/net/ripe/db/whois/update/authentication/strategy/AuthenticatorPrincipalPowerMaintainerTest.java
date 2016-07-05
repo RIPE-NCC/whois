@@ -70,7 +70,6 @@ public class AuthenticatorPrincipalPowerMaintainerTest {
         when(authenticationStrategy1.compareTo(authenticationStrategy2)).thenReturn(-1);
         when(authenticationStrategy2.compareTo(authenticationStrategy1)).thenReturn(1);
 
-        when(maintainers.getPowerMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT"));
         when(maintainers.getEnduserMaintainers()).thenReturn(ciSet("RIPE-NCC-END-MNT"));
         when(maintainers.getAllocMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT", "AARDVARK-MNT"));
         when(update.getCredentials()).thenReturn(new Credentials());
