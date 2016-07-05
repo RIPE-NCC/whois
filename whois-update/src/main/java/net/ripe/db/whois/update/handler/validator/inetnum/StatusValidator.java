@@ -83,14 +83,16 @@ public class StatusValidator implements BusinessRuleValidator {
         final CIString statusValue = update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS);
         if (statusValue.equals(NOT_SET)) {
             updateContext.addMessage(update, UpdateMessages.statusRequiresAuthorization(NOT_SET.toString()));
-        } else {
-            final IpInterval ipInterval = IpInterval.parse(update.getUpdatedObject().getKey());
-            if (update.getType().equals(ObjectType.INETNUM)) {
-                validateStatusAgainstResourcesInTree(update, updateContext, ipv4Tree, ipInterval);
-            } else {
-                validateStatusAgainstResourcesInTree(update, updateContext, ipv6Tree, ipInterval);
-            }
+            return;
         }
+
+        final IpInterval ipInterval = IpInterval.parse(update.getUpdatedObject().getKey());
+        if (update.getType().equals(ObjectType.INETNUM)) {
+            validateStatusAgainstResourcesInTree(update, updateContext, ipv4Tree, ipInterval);
+        } else {
+            validateStatusAgainstResourcesInTree(update, updateContext, ipv6Tree, ipInterval);
+        }
+
     }
 
     @SuppressWarnings("unchecked")
@@ -262,7 +264,7 @@ public class StatusValidator implements BusinessRuleValidator {
 
         if (!Objects.equals(originalStatus, updateStatus)) {
             // NOT-SET is the only status which is modifiable
-            if(originalStatus.equals(NOT_SET) ) {
+            if(NOT_SET.equals(originalStatus) ) {
                 final IpInterval ipInterval = IpInterval.parse(update.getUpdatedObject().getKey());
                 // there are no v6 resources with NOT-SET and never will be
                 validateStatusAgainstResourcesInTree(update, updateContext, ipv4Tree, ipInterval);
@@ -288,11 +290,6 @@ public class StatusValidator implements BusinessRuleValidator {
             }
         } catch (IllegalArgumentException e) {
             // status attribute not found
-            return;
-        }
-
-        if (status.equals(InetnumStatus.NOT_SET)) {
-            updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(NOT_SET));
             return;
         }
 
