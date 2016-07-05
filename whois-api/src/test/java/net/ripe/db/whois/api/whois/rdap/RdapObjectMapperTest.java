@@ -13,6 +13,9 @@ import net.ripe.db.whois.api.whois.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
@@ -24,8 +27,14 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RdapObjectMapperTest {
+
     private static final LocalDateTime VERSION_TIMESTAMP = LocalDateTime.parse("2044-04-26T00:02:03.000");
+
+    @Mock
+    private NoticeFactory noticeFactory;
+
 
     @Test
     public void ip() {
@@ -49,12 +58,13 @@ public class RdapObjectMapperTest {
                         "changed:        ripe@test.net 20120101\n" +
                         "source:         TEST"),
                 RpslObject.parse(
-                        "role: Abuse Contact\n" +
-                        "nic-hdl: AB-TEST\n" +
-                        "mnt-by:  TEST-MNT\n" +
-                        "admin-c: TP1-TEST\n" +
-                        "tech-c:  TP2-TEST\n" +
-                        "phone:   +31 12345678"
+                        "role:           Abuse Contact\n" +
+                        "nic-hdl:        AB-TEST\n" +
+                        "mnt-by:         TEST-MNT\n" +
+                        "admin-c:        TP1-TEST\n" +
+                        "tech-c:         TP2-TEST\n" +
+                        "phone:          +31 12345678\n" +
+                        "source:         TEST"
                 ));
 
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
@@ -124,8 +134,7 @@ public class RdapObjectMapperTest {
                 "mnt-routes:     UPD-MNT\n" +
                 "mnt-by:         UPD-MNT\n" +
                 "changed:        noreply@ripe.net 20120101\n" +
-                "source:         TEST\n" +
-                "password:       update")));
+                "source:         TEST\n")));
 
         assertThat(result.getHandle(), is("AS102"));
         assertThat(result.getStartAutnum(), is(nullValue()));
@@ -169,8 +178,7 @@ public class RdapObjectMapperTest {
                 "mnt-by:          RIPE-NCC-MNT\n" +
                 "ds-rdata:        52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF\n" +
                 "changed:         test@ripe.net 20120505\n" +
-                "source:          TEST\n" +
-                "password:        update")));
+                "source:          TEST")));
 
         assertThat(result.getHandle(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
         assertThat(result.getLdhName(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
@@ -382,25 +390,21 @@ public class RdapObjectMapperTest {
                 RpslObject.parse("organisation: ORG-TST-TEST\norg-name: Test Company\nstatus: OTHER\ndescr: comment 2\nsource: TEST")
         );
 
-        final Object result = mapSearch(objects, Lists.newArrayList(new LocalDateTime(8929334857l), new LocalDateTime(823488725938l)));
-        final SearchResult response = (SearchResult)result;
+        final SearchResult response = (SearchResult)mapSearch(objects, Lists.newArrayList(LocalDateTime.parse("1970-04-14T09:22:14.857"), LocalDateTime.parse("1996-02-05T03:52:05.938")));
 
         assertThat(response.getEntitySearchResults(), hasSize(2));
+
         final Entity first = response.getEntitySearchResults().get(0);
         assertThat(first.getHandle(), is("ORG-TOL-TEST"));
-
         assertThat(first.getEvents(), hasSize(1));
         assertThat(first.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
-
         assertThat(first.getRemarks(), hasSize(1));
         assertThat(first.getRemarks().get(0).getDescription().get(0), is("comment 1"));
 
         final Entity last = response.getEntitySearchResults().get(1);
         assertThat(last.getHandle(), is("ORG-TST-TEST"));
-
         assertThat(last.getEvents(), hasSize(1));
         assertThat(last.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
-
         assertThat(last.getRemarks(), hasSize(1));
         assertThat(last.getRemarks().get(0).getDescription().get(0), is("comment 2"));
     }
@@ -410,10 +414,10 @@ public class RdapObjectMapperTest {
     }
 
     private Object map(final RpslObject rpslObject, final RpslObject abuseContact) {
-        return new RdapObjectMapper(new NoticeFactory("", "", "", "", "", "", "", "", "", ""), "whois.ripe.net").map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContact);
+        return new RdapObjectMapper(noticeFactory, "whois.ripe.net").map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
-        return new RdapObjectMapper(new NoticeFactory("", "", "", "", "", "", "", "", "", ""), "whois.ripe.net").mapSearch("http://localhost", objects, lastUpdateds);
+        return new RdapObjectMapper(noticeFactory, "whois.ripe.net").mapSearch("http://localhost", objects, lastUpdateds);
     }
 }
