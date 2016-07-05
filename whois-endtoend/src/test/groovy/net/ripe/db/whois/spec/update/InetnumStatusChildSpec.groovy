@@ -203,7 +203,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-            "NOTSET-ALLOC": """\
+            "NOTSET": """\
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      RIPE-NET1
                 descr:        /16 ERX
@@ -213,248 +213,8 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       NOT-SET
                 mnt-by:       RIPE-NCC-HM-MNT
                 source:       TEST
-                """,
-            "NOTSET": """\
-                inetnum:    192.168.1.0 - 192.168.1.255
-                netname:    TEST-NETNAME
-                country:    NL
-                admin-c:    TP1-TEST
-                tech-c:     TP1-TEST
-                status:     NOT-SET
-                mnt-by:     LIR-MNT
-                source:     TEST
-            """,
-            "NOTSET-200": """\
-                inetnum:    192.168.200.0 - 192.168.200.50
-                netname:    TEST-NETNAME
-                country:    NL
-                admin-c:    TP1-TEST
-                tech-c:     TP1-TEST
-                status:     NOT-SET
-                mnt-by:     LIR-MNT
-                source:     TEST
-            """
+                """
     ]}
-
-    def "change NOT-SET status to ASSIGNED PA with ALLOCATED PA parent"() {
-        given:
-            syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm\npassword: lir")
-            syncUpdate(getTransient("NOTSET") + "override: denis,override1")
-
-
-        expect:
-            queryObject("-r -T inetnum 192.168.1.0 - 192.168.1.255", "inetnum", "192.168.1.0 - 192.168.1.255")
-            queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
-        when:
-        def ack = syncUpdateWithResponse("""\
-                inetnum:    192.168.1.0 - 192.168.1.255
-                netname:    TEST-NETNAME
-                country:    NL
-                admin-c:    TP1-TEST
-                tech-c:     TP1-TEST
-                status:     ASSIGNED PA
-                mnt-by:     LIR-MNT
-                source:     TEST
-
-                password: hm
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
-
-        queryObject("-rGBT inetnum 192.168.1.0 - 192.168.1.255", "inetnum", "192.168.1.0 - 192.168.1.255")
-    }
-
-    def "change NOT-SET status to ASSIGNED PI with ALLOCATED PA parent"() {
-        given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm\npassword: lir")
-        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
-
-
-        expect:
-        queryObject("-r -T inetnum 192.168.1.0 - 192.168.1.255", "inetnum", "192.168.1.0 - 192.168.1.255")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
-        when:
-        def ack = syncUpdateWithResponse("""\
-                inetnum:    192.168.1.0 - 192.168.1.255
-                netname:    TEST-NETNAME
-                country:    NL
-                admin-c:    TP1-TEST
-                tech-c:     TP1-TEST
-                status:     ASSIGNED PI
-                mnt-by:     LIR-MNT
-                source:     TEST
-
-                password: hm
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.1.0 - 192.168.1.255") == ["inetnum parent has incorrect status: ALLOCATED PA"]
-    }
-
-    def "change NOT-SET status to LIR-PARTITIONED PA with ALLOCATED PA parent"() {
-        given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm\npassword: lir")
-        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
-
-
-        expect:
-        queryObject("-r -T inetnum 192.168.1.0 - 192.168.1.255", "inetnum", "192.168.1.0 - 192.168.1.255")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
-        when:
-        def ack = syncUpdateWithResponse("""\
-                inetnum:    192.168.1.0 - 192.168.1.255
-                netname:    TEST-NETNAME
-                country:    NL
-                admin-c:    TP1-TEST
-                tech-c:     TP1-TEST
-                status:     LIR-PARTITIONED PA
-                mnt-by:     LIR-MNT
-                source:     TEST
-
-                password: hm
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
-
-        queryObject("-rGBT inetnum 192.168.1.0 - 192.168.1.255", "inetnum", "192.168.1.0 - 192.168.1.255")
-    }
-
-    def "change NOT-SET status to LIR-PARTITIONED PI with ALLOCATED PA parent"() {
-        given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm\npassword: lir")
-        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
-
-
-        expect:
-        queryObject("-r -T inetnum 192.168.1.0 - 192.168.1.255", "inetnum", "192.168.1.0 - 192.168.1.255")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
-        when:
-        def ack = syncUpdateWithResponse("""\
-                inetnum:    192.168.1.0 - 192.168.1.255
-                netname:    TEST-NETNAME
-                country:    NL
-                admin-c:    TP1-TEST
-                tech-c:     TP1-TEST
-                status:     LIR-PARTITIONED PI
-                mnt-by:     LIR-MNT
-                source:     TEST
-
-                password: hm
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.1.0 - 192.168.1.255") == ["inetnum parent has incorrect status: ALLOCATED PA"]
-    }
-
-    def "change NOT-SET status to ASSIGNED PA with ASSIGNED PA parent"() {
-        given:
-        syncUpdate(getTransient("ASS-END") + "password: end\npassword: hm")
-        syncUpdate(getTransient("NOTSET-200") + "override: denis,override1")
-
-        expect:
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.50", "inetnum", "192.168.200.0 - 192.168.200.50")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-        when:
-        def ack = syncUpdateWithResponse("""\
-                inetnum:    192.168.200.0 - 192.168.200.50
-                netname:    TEST-NETNAME
-                country:    NL
-                admin-c:    TP1-TEST
-                tech-c:     TP1-TEST
-                status:     ASSIGNED PA
-                mnt-by:     LIR-MNT
-                source:     TEST
-
-                password: hm
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.50" }
-
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.50", "inetnum", "192.168.200.0 - 192.168.200.50")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-    }
-
-    def "change NOT-SET status to ASSIGNED PI with ASSIGNED PA parent"() {
-        given:
-        syncUpdate(getTransient("ASS-END") + "password: end\npassword: hm")
-        syncUpdate(getTransient("NOTSET-200") + "override: denis,override1")
-
-        expect:
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.50", "inetnum", "192.168.200.0 - 192.168.200.50")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-        when:
-        def ack = syncUpdateWithResponse("""\
-                inetnum:    192.168.200.0 - 192.168.200.50
-                netname:    TEST-NETNAME
-                country:    NL
-                admin-c:    TP1-TEST
-                tech-c:     TP1-TEST
-                status:     ASSIGNED PI
-                mnt-by:     LIR-MNT
-                source:     TEST
-
-                password: hm
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        then:
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.50" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.50") == ["inetnum parent has incorrect status: ASSIGNED PA"]
-    }
 
     def "create ASSIGNED PA, with multiple parent objects"() {
       given:
@@ -1016,7 +776,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ALLOCATED UNSPECIFIED, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -1765,7 +1525,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ALLOCATED PA, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -2474,7 +2234,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ALLOCATED PI, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3262,7 +3022,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child SUB-ALLOCATED PA, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -3996,7 +3756,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child LIR-PARTITIONED PA, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -4735,7 +4495,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child LIR-PARTITIONED PI, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -5500,7 +5260,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED ANYCAST, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -6299,7 +6059,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED PI, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
@@ -7020,7 +6780,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED PA, parent status NOT-SET"() {
       given:
-        syncUpdate(getTransient("NOTSET-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       expect:
