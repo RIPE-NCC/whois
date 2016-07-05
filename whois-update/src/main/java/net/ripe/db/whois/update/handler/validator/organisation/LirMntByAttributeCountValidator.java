@@ -14,7 +14,8 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Component
@@ -41,17 +42,17 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
-        Set<CIString> userMntner = filterUserMntner(updatedObject);
-        if (1 < userMntner.size()) {
+        final Collection<CIString> userMntner = filterUserMntner(updatedObject);
+        if (userMntner.size() > 1) {
             updateContext.addMessage(update, UpdateMessages.multipleUserMntBy(userMntner));
         }
     }
 
-    private Set<CIString> filterUserMntner(RpslObject rpslObject) {
+    private Collection<CIString> filterUserMntner(final RpslObject rpslObject) {
         return rpslObject.getValuesForAttribute(AttributeType.MNT_BY)
                 .stream()
                 .filter(mntby -> !maintainers.isRsMaintainer(mntby))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Override
