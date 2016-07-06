@@ -67,7 +67,8 @@ public class RdapResponseJsonTest {
                 " [ \"n\", { }, \"text\", [ \"User\", \"Joe\", \"\", [ \"ing. jr\", \"M.Sc.\" ] ] ]," +
                 " [ \"gender\", { }, \"text\", \"M\" ], [ \"lang\", {\n" +
                 "    \"pref\" : \"1\"\n" +
-                "  }, \"language-tag\", \"fr\" ] ] ]\n" +
+                "  }, \"language-tag\", \"fr\" ] ] ],\n" +
+                "  \"objectClassName\" : \"entity\"\n" +
                 "}"));
     }
 
@@ -198,7 +199,8 @@ public class RdapResponseJsonTest {
                 "    \"eventDate\" : \"" + DATE_TIME + "\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
-                "  \"port43\" : \"whois.example.net\"\n" +
+                "  \"port43\" : \"whois.example.net\",\n" +
+                "  \"objectClassName\" : \"nameserver\"\n" +
                 "}"));
     }
 
@@ -280,9 +282,11 @@ public class RdapResponseJsonTest {
                 "  \"handle\" : \"XXXX\",\n" +
                 "  \"ldhName\" : \"192.in-addr.arpa\",\n" +
                 "  \"nameServers\" : [ {\n" +
-                "    \"ldhName\" : \"ns1.rir.example\"\n" +
+                "    \"ldhName\" : \"ns1.rir.example\",\n" +
+                "    \"objectClassName\" : \"nameserver\"\n" +
                 "  }, {\n" +
-                "    \"ldhName\" : \"ns2.rir.example\"\n" +
+                "    \"ldhName\" : \"ns2.rir.example\",\n" +
+                "    \"objectClassName\" : \"nameserver\"\n" +
                 "  } ],\n" +
                 "  \"secureDNS\" : {\n" +
                 "    \"delegationSigned\" : true,\n" +
@@ -321,7 +325,8 @@ public class RdapResponseJsonTest {
                 "      \"eventAction\" : \"last changed\",\n" +
                 "      \"eventDate\" : \"2013-06-26T04:48:44Z\",\n" +
                 "      \"eventActor\" : \"joe@example.com\"\n" +
-                "    } ]\n" +
+                "    } ],\n" +
+                "    \"objectClassName\" : \"entity\"\n" +
                 "  } ],\n" +
                 "  \"remarks\" : [ {\n" +
                 "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
@@ -338,7 +343,8 @@ public class RdapResponseJsonTest {
                 "    \"eventAction\" : \"last changed\",\n" +
                 "    \"eventDate\" : \"2013-06-26T04:48:44Z\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
-                "  } ]\n" +
+                "  } ],\n" +
+                "  \"objectClassName\" : \"domain\"\n" +
                 "}"));
     }
 
@@ -437,7 +443,8 @@ public class RdapResponseJsonTest {
                 "      \"eventAction\" : \"last changed\",\n" +
                 "      \"eventDate\" : \"" + DATE_TIME + "\",\n" +
                 "      \"eventActor\" : \"joe@example.com\"\n" +
-                "    } ]\n" +
+                "    } ],\n" +
+                "    \"objectClassName\" : \"entity\"\n" +
                 "  } ],\n" +
                 "  \"remarks\" : [ {\n" +
                 "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
@@ -458,7 +465,8 @@ public class RdapResponseJsonTest {
                 "    \"eventAction\" : \"last changed\",\n" +
                 "    \"eventDate\" : \"" + DATE_TIME + "\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
-                "  } ]\n" +
+                "  } ],\n" +
+                "  \"objectClassName\" : \"ip network\"\n" +
                 "}"));
     }
 
