@@ -32,6 +32,7 @@ import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.attrs.RangeOperation;
+import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -150,8 +151,7 @@ public interface AttributeSyntax extends Documented {
             "\n" +
             "For more details, see RFC4034.\n");
 
-    AttributeSyntax EMAIL_SYNTAX = new AttributeSyntaxRegexp(80, Pattern.compile("(?i)^.+@([^.]+[.])+[^.]+$"),
-            "An e-mail address as defined in RFC 2822.\n");
+    AttributeSyntax EMAIL_SYNTAX = new EmailSyntaxRegexp();
 
     AttributeSyntax EXPORT_COMPS_SYNTAX = new ExportCompsSyntax();
 
@@ -522,6 +522,24 @@ public interface AttributeSyntax extends Documented {
         @Override
         public String getDescription(final ObjectType objectType) {
             return description;
+        }
+    }
+
+    class EmailSyntaxRegexp implements AttributeSyntax {
+        private static final EmailValidator EMAIL_VALIDATOR = EmailValidator.getInstance();
+        private static String DESCRIPTION = "An e-mail address as defined in RFC 2822.\n";
+
+        EmailSyntaxRegexp() {
+        }
+
+        @Override
+        public boolean matches(final ObjectType objectType, final String value) {
+            return EMAIL_VALIDATOR.isValid(value);
+        }
+
+        @Override
+        public String getDescription(final ObjectType objectType) {
+            return DESCRIPTION;
         }
     }
 

@@ -231,12 +231,20 @@ public class AttributeSyntaxTest {
     @Test
     public void email() throws Exception {
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a@a");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a@a.a");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a.a.a");
 
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "foo@provider.com");
-        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a.a");
-        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "'anthingcan1242go!@(&)^!(&@^21here\"@0.2345678901234567890123456789012345678901");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "foo,bar@provider.com");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@aa.com");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "'noteverythingcan1242go!@(&)^!(&@^21here\"@provider.com");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
+
+        verifySuccess(ObjectType.MNTNER, AttributeType.UPD_TO, "foo@provider.com");
+        verifyFailure(ObjectType.MNTNER, AttributeType.UPD_TO, "foo,bar@provider.com");
+        verifySuccess(ObjectType.MNTNER, AttributeType.UPD_TO, "a@a.com");
+        verifyFailure(ObjectType.MNTNER, AttributeType.UPD_TO, "'noteverythingcan1242go!@(&)^!(&@^21here\"@provider.com");
+        verifyFailure(ObjectType.MNTNER, AttributeType.UPD_TO, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
     }
 
     @Test
