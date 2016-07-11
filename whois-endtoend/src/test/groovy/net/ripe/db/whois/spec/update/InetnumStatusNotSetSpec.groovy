@@ -238,47 +238,4 @@ class InetnumStatusNotSetSpec extends BaseQueryUpdateSpec {
 
         queryObjectNotFound("-rGBT inetnum 192.168.1.0 - 192.168.1.255", "inetnum", "192.168.1.0 - 192.168.1.255")
     }
-
-    def "delete resource with NOT-SET status and LEGACY child"() {
-        given:
-        syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm\npassword: lir")
-        syncUpdate(getTransient("NOTSET") + "override: denis,override1")
-        syncUpdate(getTransient("LEGACY-CHILD") + "override: denis,override1")
-
-        expect:
-        queryObject("-r -T inetnum 192.168.1.0 - 192.168.1.255", "inetnum", "192.168.1.0 - 192.168.1.255")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T inetnum 192.168.1.0 - 192.168.1.50", "inetnum", "192.168.1.0 - 192.168.1.50")
-
-        when:
-        def ack = syncUpdateWithResponse("""\
-                inetnum:    192.168.1.0 - 192.168.1.255
-                netname:    TEST-NETNAME
-                country:    NL
-                admin-c:    TP1-TEST
-                tech-c:     TP1-TEST
-                status:     NOT-SET
-                mnt-by:     LIR-MNT
-                source:     TEST
-                delete: testing
-
-                password: lir
-                """.stripIndent());
-
-        then:
-        ack.success
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 1, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
-
-        queryObjectNotFound("-rGBT inetnum 192.168.1.0 - 192.168.1.255", "inetnum", "192.168.1.0 - 192.168.1.255")
-        //new parent
-        queryObject("-lrT inetnum 192.168.1.0 - 192.168.1.50", "inetnum", "192.168.0.0 - 192.169.255.255")
-        //for this child
-        queryObject("-rT inetnum 192.168.1.0 - 192.168.1.50", "inetnum", "192.168.1.0 - 192.168.1.50")
-    }
 }
