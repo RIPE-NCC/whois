@@ -63,7 +63,7 @@
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.8.3</jsoup.version>
         <junit.version>4.12</junit.version>
-        <jetty.version>8.1.18.v20150929</jetty.version>
+        <jetty.version>9.3.10.v20160621</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.11</jersey.version>
         <jackson.version>2.7.2</jackson.version>

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.collect.Lists;
-import org.eclipse.jetty.http.HttpHeaders;
+import com.google.common.net.HttpHeaders;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;

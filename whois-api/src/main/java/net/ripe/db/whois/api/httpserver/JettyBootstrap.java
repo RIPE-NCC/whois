@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.aspects.RetryFor;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.jmx.ConnectorServer;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -96,7 +97,7 @@ public class JettyBootstrap implements ApplicationService {
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
         server.start();
-        this.port = server.getConnectors()[0].getLocalPort();
+        this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
         LOGGER.info("Jetty started on port {}", this.port);
         return server;
     }
