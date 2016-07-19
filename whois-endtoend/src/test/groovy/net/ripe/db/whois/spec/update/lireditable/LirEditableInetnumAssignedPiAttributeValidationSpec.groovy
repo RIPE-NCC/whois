@@ -235,7 +235,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                "You cannot add or remove a RIPE NCC maintainer"
         ]
     }
 
@@ -277,7 +277,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                "You cannot add or remove a RIPE NCC maintainer"
         ]
     }
 
@@ -321,7 +321,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                "You cannot add or remove a RIPE NCC maintainer"
         ]
     }
 

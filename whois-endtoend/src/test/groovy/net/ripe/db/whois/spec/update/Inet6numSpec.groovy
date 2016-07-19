@@ -942,7 +942,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/30") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation",
+                "You cannot add or remove a RIPE NCC maintainer",
                 "Status ALLOCATED-BY-RIR can only be created by the database administrator"
         ]
 

@@ -892,7 +892,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     then:
       insertResponse =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      insertResponse =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+      insertResponse =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
   }
 
   def "create status LEGACY, parent not legacy or allocated unspecified, RS"() {
@@ -1441,7 +1441,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+      response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
   }
 
  def "modify LEGACY status, legacy maintainer mnt-lower reference cannot be added by enduser maintainer"() {
@@ -1487,7 +1487,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+      response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
   }
 
   def "modify LEGACY status, legacy maintainer mnt-by reference cannot be removed by enduser maintainer"() {
@@ -1532,7 +1532,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+      response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
   }
 
   def "modify LEGACY status, add legacy maintainer mnt-by reference with override"() {
