@@ -387,7 +387,7 @@ public final class UpdateMessages {
 
     // NOTE: this errormessage is being used by webupdates.
     public static Message authorisationRequiredForChangingRipeMaintainer() {
-        return new Message(Type.ERROR, "Adding or removing a RIPE NCC maintainer requires administrative authorisation");
+        return new Message(Type.ERROR, "You cannot add or remove a RIPE NCC maintainer");
     }
 
     public static Message poemRequiresPublicMaintainer() {

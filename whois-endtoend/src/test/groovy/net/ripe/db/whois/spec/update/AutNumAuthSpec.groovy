@@ -1784,7 +1784,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS200" }
         ack.errorMessagesFor("Modify", "[aut-num] AS200") ==
-                ["Adding or removing a RIPE NCC maintainer requires administrative authorisation"]
+                ["You cannot add or remove a RIPE NCC maintainer"]
 
         query_object_matches("-rGBT aut-num AS200", "aut-num", "AS200", "RIPE-NCC-END-MNT")
     }
