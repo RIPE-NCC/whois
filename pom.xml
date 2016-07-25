@@ -36,13 +36,12 @@
 
         <c3po.version>0.9.5.1</c3po.version>
         <commons-compress.version>1.10</commons-compress.version>
-        <commons-validator>1.5.0</commons-validator>
         <commons-net.version>3.4</commons-net.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.10</commons-codec.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-validator.version>1.4.1</commons-validator.version>
+        <commons-validator.version>1.5.1</commons-validator.version>
         <commons-ip-math.version>1.23</commons-ip-math.version>
 
         <diffutils.version>1.3.0</diffutils.version>
@@ -396,7 +395,7 @@
             <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
-                <version>${commons-validator}</version>
+                <version>${commons-validator.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
