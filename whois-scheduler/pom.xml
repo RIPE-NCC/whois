@@ -3,7 +3,7 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.88-SNAPSHOT</version>
+        <version>1.88-5311902c99232718fd3b4823d7d714726b2f52e0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
