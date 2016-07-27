@@ -10,6 +10,8 @@ CREATE TABLE `object_version` (
   UNIQUE KEY `unique_version` (`pkey`,`object_type`,`revision`),
   KEY `pkey` (`pkey`),
   KEY `object_type` (`object_type`),
+  KEY `from_timestamp` (`from_timestamp`),
+  KEY `to_timestamp` (`to_timestamp`),
   KEY `revision` (`revision`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
