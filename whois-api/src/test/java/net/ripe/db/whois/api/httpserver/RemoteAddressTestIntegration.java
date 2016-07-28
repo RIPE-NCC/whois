@@ -1,10 +1,10 @@
 package net.ripe.db.whois.api.httpserver;
 
+import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
-import org.eclipse.jetty.http.HttpHeaders;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
