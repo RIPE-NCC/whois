@@ -1015,7 +1015,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
 
         assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
-        assertThat(objectExists(ObjectType.PERSON, "TR2-TEST"), is(true));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(true));
 
         RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
                 .queryParam("override", "personadmin,secret,reason")
@@ -1023,7 +1023,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 .delete();
 
         assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(false));
-        assertThat(objectExists(ObjectType.PERSON, "TR2-TEST"), is(false));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(false));
 
     }
 
