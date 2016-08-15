@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -64,6 +65,23 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST");
 
+    private static final RpslObject ANOTHER_MNT = RpslObject.parse("" +
+            "mntner:        ANOTHER-MNT\n" +
+            "descr:         Owner Maintainer\n" +
+            "admin-c:       TR1-TEST\n" +
+            "upd-to:        noreply@ripe.net\n" +
+            "auth:          MD5-PW $1$1ZnhrEYU$h8QUAsDPLZYOYVjm3uGQr1 #secondmnt\n" +
+            "mnt-by:        ANOTHER-MNT\n" +
+            "source:        TEST");
+
+    private static final RpslObject TEST_ROLE = RpslObject.parse("" +
+            "person:        Test ROle\n" +
+            "address:       Singel 258\n" +
+            "phone:         +31 6 12345678\n" +
+            "nic-hdl:       TR1-TEST\n" +
+            "mnt-by:        ANOTHER-MNT\n" +
+            "source:        TEST\n");
+
     @Autowired
     RestClient restClient;
 
@@ -71,7 +89,11 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void setup() throws Exception {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
-
+        databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", "secret", ObjectType.values()));
+        databaseHelper.addObject(
+                "role:          dummy role\n" +
+                        "nic-hdl:       DR1-TEST\n" +
+                        "source:        TEST");
 
         ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%d/whois", getPort()));
         ReflectionTestUtils.setField(restClient, "sourceName", "TEST");
@@ -262,12 +284,12 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void lookup_maintainer_password_parameter_must_be_encoded() throws Exception {
         databaseHelper.addObject(
                 "mntner:        AA1-MNT\n" +
-                "descr:         testing\n" +
-                "admin-c:       TP1-TEST\n" +
-                "upd-to:        noreply@ripe.net\n" +
-                "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
-                "mnt-by:        AA1-MNT\n" +
-                "source:        TEST");
+                        "descr:         testing\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
+                        "mnt-by:        AA1-MNT\n" +
+                        "source:        TEST");
 
         final RpslObject object = restClient.request()
                 .addParam("password", "pass %95{word}?")
@@ -324,9 +346,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         } catch (RestClientException e) {
             assertThat(e.getErrorMessages().get(0).getText(), is(
                     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                    "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
-                    "<message>No abuse contact found for 10.0.0.1</message>" +
-                    "</abuse-resources>"));
+                            "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
+                            "<message>No abuse contact found for 10.0.0.1</message>" +
+                            "</abuse-resources>"));
         }
     }
 
@@ -334,18 +356,18 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void lookup_person_multiple_matches() {
         databaseHelper.addObject(
                 "person:        WW Person\n" +
-                "address:       Singel 258\n" +
-                "phone:         +31 6 12345678\n" +
-                "nic-hdl:       WP1-TEST\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST\n");
+                        "address:       Singel 258\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "nic-hdl:       WP1-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST\n");
         databaseHelper.addObject(
                 "person:        Someone Else\n" +
-                "address:       Singel 258\n" +
-                "phone:         +31 6 12345678\n" +
-                "nic-hdl:       WW\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST\n");
+                        "address:       Singel 258\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "nic-hdl:       WW\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST\n");
 
         final RpslObject response = restClient.request().lookup(ObjectType.PERSON, "WW");
 
@@ -356,42 +378,42 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void lookup_route_primary_key_must_be_fully_defined() {
         databaseHelper.addObject(
                 "inetnum:       193.0.0.0 - 193.0.0.255\n" +
-                "netname:       RIPE-NCC\n" +
-                "descr:         some description\n" +
-                "country:       NL\n" +
-                "admin-c:       TP1-TEST\n" +
-                "tech-c:        TP1-TEST\n" +
-                "status:        SUB-ALLOCATED PA\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+                        "netname:       RIPE-NCC\n" +
+                        "descr:         some description\n" +
+                        "country:       NL\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "tech-c:        TP1-TEST\n" +
+                        "status:        SUB-ALLOCATED PA\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
         databaseHelper.addObject(
                 "aut-num:       AS3333\n" +
-                "as-name:       RIPE-NCC-ONE\n" +
-                "descr:         RIPE-NCC\n" +
-                "admin-c:       TP1-TEST\n" +
-                "tech-c:        TP1-TEST\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+                        "as-name:       RIPE-NCC-ONE\n" +
+                        "descr:         RIPE-NCC\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "tech-c:        TP1-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
         databaseHelper.addObject(
                 "aut-num:       AS3334\n" +
-                "as-name:       RIPE-NCC-TWO\n" +
-                "descr:         RIPE-NCC\n" +
-                "admin-c:       TP1-TEST\n" +
-                "tech-c:        TP1-TEST\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+                        "as-name:       RIPE-NCC-TWO\n" +
+                        "descr:         RIPE-NCC\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "tech-c:        TP1-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
         databaseHelper.addObject(
                 "route:         193.0.0.0/21\n" +
-                "descr:         RIPE-NCC\n" +
-                "origin:        AS3333\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+                        "descr:         RIPE-NCC\n" +
+                        "origin:        AS3333\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
         databaseHelper.addObject(
                 "route:         193.0.0.0/21\n" +
-                "descr:         RIPE-NCC\n" +
-                "origin:        AS3334\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+                        "descr:         RIPE-NCC\n" +
+                        "origin:        AS3334\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
         resetIpTrees();
 
         // return nothing on partial primary key
@@ -513,8 +535,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             // therefore the databaseHelper.lookup with unsanitised key fails.
         }
 
-       restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa");
-       restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa.");
+        restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa");
+        restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa.");
     }
 
     @Test
@@ -583,6 +605,42 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (EmptyResultDataAccessException ignored) {
             // expected
+        }
+    }
+
+    @Test
+    public void delete_person_maintainer_pair() {
+
+        restClient.request()
+                .addParam("override", "personadmin,secret,reason")
+                .deleteReferences(ObjectType.MNTNER, "OWNER-MNT");
+
+        try {
+            databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER-MNT");
+            fail("mntner was not deleted");
+        } catch (EmptyResultDataAccessException ignored) {
+            // expected
+        }
+
+        try {
+            databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
+            fail("person was not deleted");
+        } catch (EmptyResultDataAccessException ignored) {
+            // expected
+        }
+    }
+
+    @Test
+    public void delete_person_maintainer_pair_bad_request() {
+
+        try {
+            restClient.request()
+                    .addParam("override", "personadmin,secretbad,reason")
+                    .deleteReferences(ObjectType.MNTNER, "OWNER-MNT");
+
+            fail("it did not throw an exception");
+        } catch (RestClientException ex) {
+
         }
     }
 
