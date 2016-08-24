@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 @Component
 public class ReferencedTypeResolver {
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
-    private static final Pattern MNT_ROUTES_NO_REFERENCE = Pattern.compile("(?i)^\\s*(ANY|\\{.*\\})$");
+    private static final Pattern MNT_ROUTES_NO_REFERENCE = Pattern.compile("(?i)\\s+(ANY|\\{.*\\})");
 
     private final RpslObjectDao rpslObjectDao;
 
@@ -63,7 +63,7 @@ public class ReferencedTypeResolver {
                     }
                 }
                 if (AttributeType.MNT_ROUTES.equals(attributeType)) {
-                    if (MNT_ROUTES_NO_REFERENCE.matcher(value).matches()) {
+                    if (MNT_ROUTES_NO_REFERENCE.matcher(value).find()) {
                         return null;
                     }
                 }

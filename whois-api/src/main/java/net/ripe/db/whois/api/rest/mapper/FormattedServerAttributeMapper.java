@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest.mapper;
 
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +34,7 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
 
     @Override
     public Collection<Attribute> map(final RpslAttribute rpslAttribute, final String source) {
-        final List<Attribute> result = new ArrayList(4);
+        final List<Attribute> result = Lists.newArrayList();
         for (CIString value : rpslAttribute.getCleanValues()) {
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
             final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), value) : null;
