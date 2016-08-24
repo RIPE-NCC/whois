@@ -45,7 +45,7 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
         for (CIString value : rpslAttribute.getCleanValues()) {
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
             final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), value) : null;
-            final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, getLinkKey(rpslAttribute.getType(), value)) : null;
+            final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, getLinkValue(rpslAttribute.getType(), value)) : null;
             result.add(new Attribute(rpslAttribute.getKey(), value.toString(), rpslAttribute.getCleanComment(), referencedType, link));
         }
         return result;
@@ -64,7 +64,7 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
         }
     }
 
-    private static String getLinkKey(final AttributeType attributeType, final CIString value) {
+    private static String getLinkValue(final AttributeType attributeType, final CIString value) {
         switch (attributeType) {
             case MNT_ROUTES:
                 try {
