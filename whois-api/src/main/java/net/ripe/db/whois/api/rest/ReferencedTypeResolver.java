@@ -3,21 +3,22 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeParser.MntRoutesParser;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 @Component
 public class ReferencedTypeResolver {
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
-    private static final Pattern MNT_ROUTES_NO_REFERENCE = Pattern.compile("(?i)\\s+(ANY|\\{.*\\})");
+    private static final MntRoutesParser MNT_ROUTES_PARSER = new MntRoutesParser();
 
     private final RpslObjectDao rpslObjectDao;
 
@@ -63,7 +64,10 @@ public class ReferencedTypeResolver {
                     }
                 }
                 if (AttributeType.MNT_ROUTES.equals(attributeType)) {
-                    if (MNT_ROUTES_NO_REFERENCE.matcher(value).find()) {
+                    try {
+                        MNT_ROUTES_PARSER.parse(value.toString());
+                        return ObjectType.MNTNER.getName();
+                    } catch (AttributeParseException e) {
                         return null;
                     }
                 }
