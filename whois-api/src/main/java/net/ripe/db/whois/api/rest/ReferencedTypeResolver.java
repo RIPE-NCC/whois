@@ -66,7 +66,6 @@ public class ReferencedTypeResolver {
                 if (AttributeType.MNT_ROUTES.equals(attributeType)) {
                     try {
                         MNT_ROUTES_PARSER.parse(value.toString());
-                        return ObjectType.MNTNER.getName();
                     } catch (AttributeParseException e) {
                         return null;
                     }
