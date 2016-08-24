@@ -5,7 +5,11 @@ import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeParser;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
+import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +21,9 @@ import java.util.List;
 
 @Component
 public class FormattedServerAttributeMapper implements AttributeMapper {
+
+    private static final AttributeParser.MntRoutesParser MNT_ROUTES_PARSER = new AttributeParser.MntRoutesParser();
+
     private final ReferencedTypeResolver referencedTypeResolver;
     private final String baseUrl;
 
@@ -38,7 +45,7 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
         for (CIString value : rpslAttribute.getCleanValues()) {
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
             final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), value) : null;
-            final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, value.toString()) : null;
+            final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, getLinkKey(rpslAttribute.getType(), value)) : null;
             result.add(new Attribute(rpslAttribute.getKey(), value.toString(), rpslAttribute.getCleanComment(), referencedType, link));
         }
         return result;
@@ -54,6 +61,20 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
             } else {
                 return String.format("%s # %s", attribute.getValue(), attribute.getComment());
             }
+        }
+    }
+
+    private static String getLinkKey(final AttributeType attributeType, final CIString value) {
+        switch (attributeType) {
+            case MNT_ROUTES:
+                try {
+                    final MntRoutes mntRoutes = MNT_ROUTES_PARSER.parse(value.toString());
+                    return mntRoutes.getMaintainer().toString();
+                } catch (AttributeParseException e) {
+                    return value.toString();
+                }
+            default:
+                return value.toString();
         }
     }
 }

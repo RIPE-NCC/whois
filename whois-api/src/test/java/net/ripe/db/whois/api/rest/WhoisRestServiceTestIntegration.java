@@ -546,7 +546,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("descr", "Test route"),
                 new Attribute("origin", "AS12726", null, "aut-num", Link.create("http://rest-test.db.ripe.net/test/aut-num/AS12726")),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("mnt-routes", "OWNER-MNT {192.168.0.0/16}"),
+                new Attribute("mnt-routes", "OWNER-MNT {192.168.0.0/16}", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST")
         ));
     }
