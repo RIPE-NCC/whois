@@ -27,6 +27,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -759,6 +760,36 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("mnt-by", "SSO-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/SSO-MNT"))));
     }
 
+    @Ignore("[ES] TODO multiple references to person not handled properly")
+    @Test
+    public void delete_mntner_person_pair_multiple_references() {
+        databaseHelper.addObject(
+                "person:        Another Person\n" +
+                "nic-hdl:       AP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "mntner:         DUMMY-MNT\n" +
+                "descr:          Startup maintainer\n" +
+                "admin-c:        AP1-TEST\n" +
+                "mnt-by:         DUMMY-MNT\n" +
+                "admin-c:        AP1-TEST\n" +
+                "tech-c:         AP1-TEST\n" +
+                "source:         RIPE");
+        databaseHelper.updateObject(
+                "person:        Another Person\n" +
+                "nic-hdl:       AP1-TEST\n" +
+                "mnt-by:        DUMMY-MNT\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/DUMMY-MNT?password=test")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .delete(WhoisResources.class);
+
+        assertThat(objectExists(ObjectType.MNTNER, "DUMMY-MNT"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "AP1-TEST"), is(false));
+    }
+
     @Test
     public void delete_object_multiple_references_succeeds() {
         databaseHelper.addObject(
@@ -883,7 +914,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(entity, not(containsString("$1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/")));
     }
 
-
     @Test
     public void delete_person_fails_because_of_authorisation() {
         try {
@@ -925,6 +955,131 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                     "mntner", "OWNER-MNT", "mnt-by", "OWNER-MNT, OWNER-MNT");
         }
     }
+
+    @Test
+    public void delete_person_mnter_pair_with_override() {
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "person:        Test Person2\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.updateObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "admin-c:       TP2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(true));
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                .queryParam("override", "personadmin,secret,reason")
+                .request()
+                .delete();
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(false));
+    }
+
+    @Test
+    public void delete_person_mnter_pair_with_override_bad_password() {
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "person:        Test Person2\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.updateObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "admin-c:       TP2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(true));
+
+        final Response response = RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                .queryParam("override", "personadmin,wrongsecret,reason")
+                .request()
+                .delete();
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(true));
+        assertThat(response.getStatus(), is(Response.Status.UNAUTHORIZED.getStatusCode()));
+        assertThat(response.readEntity(String.class), containsString("Override authentication failed"));
+    }
+
+    @Test
+    public void delete_role_mnter_pair_with_override() {
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "role:        Test Role2\n" +
+                "nic-hdl:       TR2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.updateObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "admin-c:       TR2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(true));
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                .queryParam("override", "personadmin,secret,reason")
+                .request()
+                .delete();
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(false));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(false));
+
+    }
+
+    @Test
+    public void delete_mntner_fails_person_referenced_from_another_mntner_with_override() {
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "descr:         Another Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+
+        final Response response = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT")
+                .queryParam("override", "personadmin,secret,reason")
+                .request()
+                .delete();
+
+        assertThat(response.getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+        final String entity = response.readEntity(String.class);
+        assertThat(entity, containsString("Referencing object TP1-TEST itself is referenced by ANOTHER-MNT"));
+        assertThat(entity, not(containsString("$1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/")));
+    }
+
 
     // helper methods
 

@@ -10,6 +10,8 @@ CREATE TABLE `object_version` (
   UNIQUE KEY `unique_version` (`pkey`,`object_type`,`revision`),
   KEY `pkey` (`pkey`),
   KEY `object_type` (`object_type`),
+  KEY `from_timestamp` (`from_timestamp`),
+  KEY `to_timestamp` (`to_timestamp`),
   KEY `revision` (`revision`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -24,4 +26,10 @@ CREATE TABLE `object_reference` (
   KEY `to_version` (`to_version`),
   CONSTRAINT FOREIGN KEY (`from_version`) REFERENCES `object_version` (`id`),
   CONSTRAINT FOREIGN KEY (`to_version`) REFERENCES `object_version` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `update_lock`;
+CREATE TABLE `update_lock` (
+  `global_lock` int(11) NOT NULL,
+  PRIMARY KEY (`global_lock`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

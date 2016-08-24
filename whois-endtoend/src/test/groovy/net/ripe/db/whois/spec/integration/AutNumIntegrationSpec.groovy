@@ -1370,7 +1370,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
       then:
         response =~ /Create FAILED: \[aut-num\] AS103/
-        response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+        response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
     }
 
     def "modify aut-num, legacy maintainer reference cannot be added by enduser maintainer"() {
@@ -1401,6 +1401,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
       then:
         response =~ /Modify FAILED: \[aut-num\] AS103/
-        response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+        response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
     }
 }

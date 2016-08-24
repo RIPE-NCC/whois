@@ -220,6 +220,34 @@ public class RestClientTarget {
         }
     }
 
+    public WhoisResources deleteReferences(final ObjectType objectType, final String pkey) {
+        try {
+            WebTarget webTarget = client.target(baseUrl)
+                    .path("references")
+                    .path(source)
+                    .path(objectType.getName())
+                    .path(pkey);
+
+            webTarget = setParams(webTarget);
+
+            final Invocation.Builder request = webTarget.request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            final WhoisResources whoisResources = request.delete(WhoisResources.class);
+
+            if (notifierCallback != null) {
+                notifierCallback.notify(whoisResources.getErrorMessages());
+            }
+
+            return whoisResources;
+
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
+    }
+
     public RpslObject lookup(final ObjectType objectType, final String pkey) {
         return mapper.map(lookupRaw(objectType, pkey), attributeMapper);
     }
