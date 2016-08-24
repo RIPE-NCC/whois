@@ -27,6 +27,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -757,6 +758,36 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("admin-c", "SP1-TEST"),
                 new Attribute("auth", "SSO person@net.net"),
                 new Attribute("mnt-by", "SSO-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/SSO-MNT"))));
+    }
+
+    @Ignore("[ES] TODO multiple references to person not handled properly")
+    @Test
+    public void delete_mntner_person_pair_multiple_references() {
+        databaseHelper.addObject(
+                "person:        Another Person\n" +
+                "nic-hdl:       AP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "mntner:         DUMMY-MNT\n" +
+                "descr:          Startup maintainer\n" +
+                "admin-c:        AP1-TEST\n" +
+                "mnt-by:         DUMMY-MNT\n" +
+                "admin-c:        AP1-TEST\n" +
+                "tech-c:         AP1-TEST\n" +
+                "source:         RIPE");
+        databaseHelper.updateObject(
+                "person:        Another Person\n" +
+                "nic-hdl:       AP1-TEST\n" +
+                "mnt-by:        DUMMY-MNT\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/DUMMY-MNT?password=test")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .delete(WhoisResources.class);
+
+        assertThat(objectExists(ObjectType.MNTNER, "DUMMY-MNT"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "AP1-TEST"), is(false));
     }
 
     @Test
