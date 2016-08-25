@@ -82,7 +82,7 @@ public class JdbcRpslObjectOperations {
         final Set<CIString> uniqueValues = Sets.newHashSet();
         final List<RpslAttribute> attributes = rpslObject.findAttributes(attributeType);
         for (final RpslAttribute attribute : attributes) {
-            for (final CIString value : attribute.getCleanValues()) {
+            for (final CIString value : attribute.getReferenceValues()) {
                 if (uniqueValues.add(value)) {
                     try {
                         final int rows = indexStrategy.addToIndex(jdbcTemplate, rpslObjectInfo, rpslObject, value.toString());
