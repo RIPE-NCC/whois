@@ -89,18 +89,23 @@ public class ReferencedTypeResolverTest {
     }
 
     @Test
-    public void mnt_routes_any() {
-        assertThat(subject.getReferencedType(AttributeType.MNT_ROUTES, CIString.ciString("ANY")), is(nullValue()));
-    }
-
-    @Test
-    public void mnt_routes_with_curly_braces() {
-        assertThat(subject.getReferencedType(AttributeType.MNT_ROUTES, CIString.ciString("{2a00:c00::/24,2a00:c00::/16}")), is(nullValue()));
-    }
-
-    @Test
     public void mnt_routes_mntner() {
         assertThat(subject.getReferencedType(AttributeType.MNT_ROUTES, CIString.ciString("OWNER-MNT")), is("mntner"));
+    }
+
+    @Test
+    public void mnt_routes_mntner_any() {
+        assertThat(subject.getReferencedType(AttributeType.MNT_ROUTES, CIString.ciString("OWNER-MNT ANY")), is("mntner"));
+    }
+
+    @Test
+    public void mnt_routes_mntner_with_curly_braces() {
+        assertThat(subject.getReferencedType(AttributeType.MNT_ROUTES, CIString.ciString("OWNER-MNT {2a00:c00::/24,2a00:c00::/16}")), is("mntner"));
+    }
+
+    @Test
+    public void mnt_routes_invalid_syntax() {
+        assertThat(subject.getReferencedType(AttributeType.MNT_ROUTES, CIString.ciString("NONE NONE")), is(nullValue()));
     }
 
     @Test
