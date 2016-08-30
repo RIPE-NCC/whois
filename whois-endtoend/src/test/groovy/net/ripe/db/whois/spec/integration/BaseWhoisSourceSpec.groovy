@@ -65,10 +65,6 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
         return whoisFixture.getTagsDao().getTags(objectId)
     }
 
-    def unrefCleanup() {
-        whoisFixture.unrefCleanup()
-    }
-
     def oneBasicFixture(String key) {
         def s = fixtures[key]
         if (s == null) {
