@@ -86,8 +86,6 @@ import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
-//import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.MANDATORY;
-
 @Component
 @Path("/references")
 public class ReferencesService {
@@ -102,8 +100,8 @@ public class ReferencesService {
     private final WhoisService whoisService;
     private final LoggerContext loggerContext;
     private final WhoisObjectMapper whoisObjectMapper;
+    private final Map dummyMap;
     private final String dummyRole;
-    private final String dummyAuth;
 
     @Autowired
     public ReferencesService(
@@ -115,8 +113,7 @@ public class ReferencesService {
             final WhoisService whoisService,
             final LoggerContext loggerContext,
             final WhoisObjectMapper whoisObjectMapper,
-            @Value("${whois.dummy_role.nichdl}") final String dummyRole,
-            @Value("${whois.dummy.auth}") final String dummyAuth) {
+            final @Value("#{${whois.dummy}}") Map<String, String> dummyMap) {
 
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
@@ -126,8 +123,9 @@ public class ReferencesService {
         this.whoisService = whoisService;
         this.loggerContext = loggerContext;
         this.whoisObjectMapper = whoisObjectMapper;
-        this.dummyRole = dummyRole;
-        this.dummyAuth = dummyAuth;
+        this.dummyMap = dummyMap;
+        // cannot have '-' in spring property map keys so we use _ for retrieving
+        this.dummyRole = dummyMap.get(AttributeType.ADMIN_C.toString().replaceFirst("-", "_"));
     }
 
     /**
@@ -437,7 +435,7 @@ public class ReferencesService {
             // check objects are correctly formed, modify rpsl if not
             tmpMntnerWithReplacements.rpslObject = correctAnySyntaxErrors(tmpMntnerWithReplacements.rpslObject);
 
-            // create action for modification
+            // modify maintainer
             actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.MODIFY));
 
             // delete the person / role objects
@@ -671,7 +669,7 @@ public class ReferencesService {
             attributeCount.put(attributeTemplate.getAttributeType(), 0);
         }
 
-        // count instances of attributes in object to check that mandatory attributes are present
+        // count instances of each attribute
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             final AttributeType attributeType = attribute.getType();
 
@@ -695,16 +693,8 @@ public class ReferencesService {
 
     public RpslObject addDummyAttribute(RpslObject rpslObject, final AttributeType attributeType) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
-        switch(attributeType) {
-            case AUTH:
-                final RpslAttribute authAttr = new RpslAttribute(attributeType, dummyAuth);
-                builder.addAttributeSorted(authAttr);
-                rpslObject = builder.get();
-                break;
-            default:
-                break;
-        }
-        return rpslObject;
+        final RpslAttribute attr = new RpslAttribute(attributeType, dummyMap.get(attributeType.toString().replaceFirst("-","_")).toString());
+        return builder.addAttributeSorted(attr).get();
     }
 
     private boolean referenceMatches(final RpslObjectInfo reference, final RpslObject rpslObject) {
@@ -840,17 +830,4 @@ public class ReferencesService {
             this.whoisResources = whoisResources;
         }
     }
-
-//    @Component("PropertySplitter")
-//    private class PropertySplitter {
-//
-//        public Map<String, String> map(String property) {
-//            return this.map(property, ",");
-//        }
-//
-//        private Map<String, String> map(String property, String splitter) {
-//            return Splitter.on(splitter).omitEmptyStrings().trimResults().withKeyValueSeparator(":").split(property);
-//        }
-//
-//    }
 }
