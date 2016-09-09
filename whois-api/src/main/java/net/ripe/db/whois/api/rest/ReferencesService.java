@@ -21,7 +21,9 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.rpsl.AttributeTemplate;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -84,6 +86,8 @@ import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
+//import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.MANDATORY;
+
 @Component
 @Path("/references")
 public class ReferencesService {
@@ -99,6 +103,7 @@ public class ReferencesService {
     private final LoggerContext loggerContext;
     private final WhoisObjectMapper whoisObjectMapper;
     private final String dummyRole;
+    private final String dummyAuth;
 
     @Autowired
     public ReferencesService(
@@ -110,7 +115,8 @@ public class ReferencesService {
             final WhoisService whoisService,
             final LoggerContext loggerContext,
             final WhoisObjectMapper whoisObjectMapper,
-            @Value("${whois.dummy_role.nichdl}") final String dummyRole) {
+            @Value("${whois.dummy_role.nichdl}") final String dummyRole,
+            @Value("${whois.dummy.auth}") final String dummyAuth) {
 
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
@@ -121,6 +127,7 @@ public class ReferencesService {
         this.loggerContext = loggerContext;
         this.whoisObjectMapper = whoisObjectMapper;
         this.dummyRole = dummyRole;
+        this.dummyAuth = dummyAuth;
     }
 
     /**
@@ -424,8 +431,13 @@ public class ReferencesService {
 
             // update the maintainer to point to a dummy person / role
 
-            final RpslObjectWithReplacements tmpMntnerWithReplacements = replaceReferencesInMntner(allObjects);
+            // replace any possible referenes with dummy values
+            RpslObjectWithReplacements tmpMntnerWithReplacements = replaceReferencesInMntner(allObjects);
 
+            // check objects are correctly formed, modify rpsl if not
+            tmpMntnerWithReplacements.rpslObject = correctAnySyntaxErrors(tmpMntnerWithReplacements.rpslObject);
+
+            // create action for modification
             actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.MODIFY));
 
             // delete the person / role objects
@@ -539,7 +551,6 @@ public class ReferencesService {
     private void validateReferences(final RpslObject primaryObject, final Map<RpslObjectInfo, RpslObject> references) {
 
         // make sure that primary object, and all references, are of a valid type
-
         if (primaryObject.getType().equals(ObjectType.MNTNER)) {
 
             // references must be of person / role only
@@ -624,10 +635,10 @@ public class ReferencesService {
         throw new IllegalStateException("No maintainer found");
     }
 
-    private RpslObjectWithReplacements replaceReferences(final RpslObject mntner, final Collection<RpslObject> references) {
+    private RpslObjectWithReplacements replaceReferences(final RpslObject object, final Collection<RpslObject> references) {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
 
-        for (final RpslAttribute rpslAttribute : mntner.getAttributes()) {
+        for (final RpslAttribute rpslAttribute : object.getAttributes()) {
             for (final RpslObject reference : references) {
                 if (rpslAttribute.getCleanValue().equals(reference.getKey()) &&
                         rpslAttribute.getType().getReferences().contains(ObjectType.PERSON) ||
@@ -638,14 +649,62 @@ public class ReferencesService {
         }
 
         if (replacements.isEmpty()) {
-            return new RpslObjectWithReplacements(mntner, replacements);
+            return new RpslObjectWithReplacements(object, replacements);
         }
 
-        final RpslObjectBuilder builder = new RpslObjectBuilder(mntner);
+        final RpslObjectBuilder builder = new RpslObjectBuilder(object);
         for (Map.Entry<RpslAttribute, RpslAttribute> entry : replacements.entrySet()) {
             builder.replaceAttribute(entry.getKey(), entry.getValue());
         }
         return new RpslObjectWithReplacements(builder.get(), replacements);
+    }
+
+    public RpslObject correctAnySyntaxErrors(RpslObject rpslObject) {
+        final ObjectType rpslObjectType = rpslObject.getType();
+        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObjectType);
+
+        final Map<AttributeType, Integer> attributeCount = Maps.newEnumMap(AttributeType.class);
+        final List<AttributeTemplate> attributeTemplates = objectTemplate.getAttributeTemplates();
+
+        // determine possible attributes for object type
+        for (final AttributeTemplate attributeTemplate : objectTemplate.getAttributeTemplates()) {
+            attributeCount.put(attributeTemplate.getAttributeType(), 0);
+        }
+
+        // count instances of attributes in object to check that mandatory attributes are present
+        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
+            final AttributeType attributeType = attribute.getType();
+
+            if (attributeType != null) {
+                attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
+            }
+        }
+
+        // iterate through possible object attributes and check against what we have in the submitted object
+        for (final AttributeTemplate attributeTemplate : attributeTemplates) {
+            final AttributeType attributeType = attributeTemplate.getAttributeType();
+            final int attributeTypeCount = attributeCount.get(attributeType);
+
+            // if we are missing any mandatory attributes add a dummy attribute so the object is valid
+            if (attributeTemplate.getRequirement() == AttributeTemplate.Requirement.MANDATORY && attributeTypeCount == 0) {
+                rpslObject = addDummyAttribute(rpslObject, attributeType);
+            }
+        }
+        return rpslObject;
+    }
+
+    public RpslObject addDummyAttribute(RpslObject rpslObject, final AttributeType attributeType) {
+        final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
+        switch(attributeType) {
+            case AUTH:
+                final RpslAttribute authAttr = new RpslAttribute(attributeType, dummyAuth);
+                builder.addAttributeSorted(authAttr);
+                rpslObject = builder.get();
+                break;
+            default:
+                break;
+        }
+        return rpslObject;
     }
 
     private boolean referenceMatches(final RpslObjectInfo reference, final RpslObject rpslObject) {
@@ -716,7 +775,7 @@ public class ReferencesService {
     // model classes
 
     static class RpslObjectWithReplacements {
-        private final RpslObject rpslObject;
+        private RpslObject rpslObject;
         private final Map<RpslAttribute, RpslAttribute> replacements;
 
         RpslObjectWithReplacements(final RpslObject rpslObject, final Map<RpslAttribute, RpslAttribute> replacements) {
@@ -781,4 +840,17 @@ public class ReferencesService {
             this.whoisResources = whoisResources;
         }
     }
+
+//    @Component("PropertySplitter")
+//    private class PropertySplitter {
+//
+//        public Map<String, String> map(String property) {
+//            return this.map(property, ",");
+//        }
+//
+//        private Map<String, String> map(String property, String splitter) {
+//            return Splitter.on(splitter).omitEmptyStrings().trimResults().withKeyValueSeparator(":").split(property);
+//        }
+//
+//    }
 }
