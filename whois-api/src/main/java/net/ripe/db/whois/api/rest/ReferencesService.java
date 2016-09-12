@@ -693,7 +693,7 @@ public class ReferencesService {
 
     public RpslObject addDummyAttribute(RpslObject rpslObject, final AttributeType attributeType) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
-        Object dummyValue = dummyMap.get(attributeType.toString().replaceFirst("-", "_"));
+        final Object dummyValue = dummyMap.get(attributeType.toString().replaceFirst("-", "_"));
         if(dummyValue != null)
         {
             final RpslAttribute attr = new RpslAttribute(attributeType, dummyValue.toString());
