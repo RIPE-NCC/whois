@@ -991,6 +991,41 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void delete_person_mnter_pair_with_override_duplicate_adminc() {
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+        databaseHelper.addObject(
+                "person:        Test Person2\n" +
+                        "nic-hdl:       TP2-TEST\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+        databaseHelper.updateObject(
+                "mntner:        ANOTHER-MNT\n" +
+                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "admin-c:       TP2-TEST\n" +
+                        "admin-c:       TP2-TEST\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(true));
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                .queryParam("override", "personadmin,secret,reason")
+                .request()
+                .delete();
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(false));
+    }
+
+
+    @Test
     public void delete_person_mnter_pair_with_override_bad_password() {
         databaseHelper.addObject(
                 "mntner:        ANOTHER-MNT\n" +

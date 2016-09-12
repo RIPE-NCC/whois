@@ -650,9 +650,8 @@ public class ReferencesService {
         }
 
         final RpslObjectBuilder builder = new RpslObjectBuilder(object);
-        for (Map.Entry<RpslAttribute, RpslAttribute> entry : replacements.entrySet()) {
-            builder.replaceAttribute(entry.getKey(), entry.getValue());
-        }
+        builder.replaceAttributes(replacements);
+
         return new RpslObjectWithReplacements(builder.get(), replacements);
     }
 
