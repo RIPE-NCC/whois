@@ -124,8 +124,7 @@ public class ReferencesService {
         this.loggerContext = loggerContext;
         this.whoisObjectMapper = whoisObjectMapper;
         this.dummyMap = dummyMap;
-        // cannot have '-' in spring property map keys so we use _ for retrieving
-        this.dummyRole = dummyMap.get(AttributeType.ADMIN_C.toString().replaceFirst("-", "_"));
+        this.dummyRole = dummyMap.get(AttributeType.ADMIN_C.toString());
     }
 
     /**
@@ -693,7 +692,7 @@ public class ReferencesService {
 
     public RpslObject addDummyAttribute(RpslObject rpslObject, final AttributeType attributeType) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
-        final Object dummyValue = dummyMap.get(attributeType.toString().replaceFirst("-", "_"));
+        final Object dummyValue = dummyMap.get(attributeType.toString());
         if(dummyValue != null)
         {
             final RpslAttribute attr = new RpslAttribute(attributeType, dummyValue.toString());
