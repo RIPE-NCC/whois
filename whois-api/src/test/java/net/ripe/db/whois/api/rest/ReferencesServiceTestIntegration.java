@@ -1092,6 +1092,37 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void delete_role_mnter_pair_with_override_missing_mandatory_attribute_not_in_map() {
+        // upd-to: not in map. no maintainers in db missing this mandatory attr, always been mandatory so should never be missing?
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+        databaseHelper.addObject(
+                "role:        Test Role2\n" +
+                        "nic-hdl:       TR2-TEST\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+        databaseHelper.updateObject(
+                "mntner:        ANOTHER-MNT\n" +
+                        "admin-c:       TR2-TEST\n" +
+                        "mnt-by:        ANOTHER-MNT\n" +
+                        "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(true));
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                .queryParam("override", "personadmin,secret,reason")
+                .request()
+                .delete();
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(true));
+
+    }
+
+    @Test
     public void delete_mntner_fails_person_referenced_from_another_mntner_with_override() {
         databaseHelper.addObject(
                 "mntner:        ANOTHER-MNT\n" +

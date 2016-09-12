@@ -693,8 +693,15 @@ public class ReferencesService {
 
     public RpslObject addDummyAttribute(RpslObject rpslObject, final AttributeType attributeType) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
-        final RpslAttribute attr = new RpslAttribute(attributeType, dummyMap.get(attributeType.toString().replaceFirst("-","_")).toString());
-        return builder.addAttributeSorted(attr).get();
+        Object dummyValue = dummyMap.get(attributeType.toString().replaceFirst("-", "_"));
+        if(dummyValue != null)
+        {
+            final RpslAttribute attr = new RpslAttribute(attributeType, dummyValue.toString());
+            return builder.addAttributeSorted(attr).get();
+        }
+        else {
+            return rpslObject;
+        }
     }
 
     private boolean referenceMatches(final RpslObjectInfo reference, final RpslObject rpslObject) {
