@@ -54,7 +54,7 @@ import java.util.Set;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 @Component
-@Path("/domainobject")
+@Path("/domain-objects")
 public class DomainObjectService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainObjectService.class);

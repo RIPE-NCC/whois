@@ -72,7 +72,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "mnt-domains:   TEST-MNT\n" +
                 "source:        TEST");
 
-        DatabaseHelper.dumpSchema(whoisTemplate.getDataSource());
+//        DatabaseHelper.dumpSchema(whoisTemplate.getDataSource());
 
         final List<RpslObject> domains = Lists.newArrayList();
 
@@ -91,7 +91,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             domains.add(domain);
         }
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/domainobject")
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(mapRpslObjects(domains.toArray(new RpslObject[0])), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
