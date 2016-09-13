@@ -721,7 +721,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
     }
 
-    @Test\
+    @Test
     public void delete_pair_using_sso_succeeds() {
         create_person_mntner_pair_success_using_sso();
 
