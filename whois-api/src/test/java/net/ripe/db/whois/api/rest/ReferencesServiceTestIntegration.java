@@ -761,7 +761,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("mnt-by", "SSO-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/SSO-MNT"))));
     }
 
-    @Ignore("[ES] TODO multiple references to person not handled properly")
     @Test
     public void delete_mntner_person_pair_multiple_references() {
         databaseHelper.addObject(
@@ -772,11 +771,13 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(
                 "mntner:         DUMMY-MNT\n" +
                 "descr:          Startup maintainer\n" +
+                "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "upd-to:         noreply@ripe.net\n" +
                 "admin-c:        AP1-TEST\n" +
                 "mnt-by:         DUMMY-MNT\n" +
                 "admin-c:        AP1-TEST\n" +
                 "tech-c:         AP1-TEST\n" +
-                "source:         RIPE");
+                "source:         TEST");
         databaseHelper.updateObject(
                 "person:        Another Person\n" +
                 "nic-hdl:       AP1-TEST\n" +
