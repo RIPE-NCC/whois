@@ -190,7 +190,7 @@ public class ReferencesService {
             final RpslObject updatedMntner = replaceAdminC(mntner, "AUTO-1");
             actionRequests.add(new ActionRequest(updatedMntner, Action.MODIFY));
 
-            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.ACCOUNT);
+            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.ACCOUNT, null);
             return createResponse(request, filterWhoisObjects(whoisResources), Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -242,7 +242,8 @@ public class ReferencesService {
             final List<String> passwords,
             final String crowdTokenKey,
             final String override,
-            final SsoAuthForm ssoAuthForm) {
+            final SsoAuthForm ssoAuthForm,
+            final String reason) {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
@@ -252,7 +253,7 @@ public class ReferencesService {
 
             final List<Update> updates = Lists.newArrayList();
             for (ActionRequest actionRequest : actionRequests) {
-                final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? "--" : null;
+                final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? (reason != null ? reason : "--") : null;
 
                 final RpslObject rpslObject;
                 if (ssoAuthForm == SsoAuthForm.UUID){
@@ -361,7 +362,7 @@ public class ReferencesService {
         checkForMainSource(request, sourceParam);
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), Collections.<String>emptyList(), "", override, SsoAuthForm.ACCOUNT);
+            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), Collections.<String>emptyList(), "", override, SsoAuthForm.ACCOUNT, null);
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -449,7 +450,7 @@ public class ReferencesService {
             actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.DELETE));
 
             // batch update
-            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, override, SsoAuthForm.UUID);
+            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, override, SsoAuthForm.UUID, reason);
 
             removeDuplicatesAndRestoreReplacedReferences(whoisResources, tmpMntnerWithReplacements);
 

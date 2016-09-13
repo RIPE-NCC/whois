@@ -34,12 +34,14 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nullable;
+import javax.mail.MessagingException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -705,6 +707,32 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(false));
         assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
+    }
+
+    @Test
+    public void delete_mntner_with_reason() throws MessagingException, IOException {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test&reason=some%20delete%20reason")
+                .request()
+                .delete(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(getPKeysFromWhoisResources(whoisResources), containsInAnyOrder("OWNER-MNT", "TP1-TEST"));
+
+        assertThat(mailSenderStub.getMessage("notify@ripe.net").getContent().toString(), containsString("Info:    some delete reason"));
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
+    }
+
+    @Test
+    public void delete_mntner_without_reason() throws MessagingException, IOException {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
+                .request()
+                .delete(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(getPKeysFromWhoisResources(whoisResources), containsInAnyOrder("OWNER-MNT", "TP1-TEST"));
+
+        assertThat(mailSenderStub.getMessage("notify@ripe.net").getContent().toString(), containsString("Info:    --"));
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     // TP1-TEST <- OWNER-MNT
