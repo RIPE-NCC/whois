@@ -30,6 +30,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LogCallback;
@@ -92,7 +93,10 @@ public class InternalUpdatePerformer {
     public WhoisResources performUpdates(final UpdateContext updateContext, final Origin origin, final Collection<Update> updates, final Keyword keyword, final HttpServletRequest request) {
         loggerContext.log("msg-in.txt", new UpdateLogCallback(updates));
 
-        updateRequestHandler.handle(new UpdateRequest(origin, keyword, updates), updateContext);
+        final UpdateResponse updateResponse = updateRequestHandler.handle(new UpdateRequest(origin, keyword, updates), updateContext);
+        if (updateResponse != null) {
+            System.out.println(updateResponse);
+        }
 
         return performUpdates(request, updateContext, updates);
     }

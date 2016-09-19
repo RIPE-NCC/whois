@@ -87,12 +87,13 @@ public class DomainObjectService {
             final Origin origin = updatePerformer.createOrigin(request);
 
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            updateContext.setBatchUpdate();
 
             final Credentials credentials = createCredentials(updateContext.getUserSession(), passwords, /* override= */null);
 
             final List<Update> updates = extractUpdates(resources, credentials);
 
-            final WhoisResources updatedResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
+            final WhoisResources updatedResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NEW, request);
 
             validateUpdates(updateContext, updates, resources);
 
