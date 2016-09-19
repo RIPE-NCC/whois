@@ -8,7 +8,6 @@ import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
@@ -22,7 +21,6 @@ import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -74,9 +72,11 @@ public class DomainObjectService {
     @POST
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Path("/{source}")
     public Response create(
             final WhoisResources resources,
             @Context final HttpServletRequest request,
+            @PathParam("source") final String sourceParam,
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
 

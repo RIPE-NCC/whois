@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api;
 
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
+import net.ripe.db.whois.api.rest.YieldToTestServer;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.support.AbstractDaoTest;
 import org.junit.After;
@@ -17,6 +18,7 @@ public abstract class AbstractIntegrationTest extends AbstractDaoTest {
 
     @Before
     public void startServer() throws Exception {
+        jettyBootstrap.setPort(42300);
         for (final ApplicationService applicationService : applicationServices) {
             applicationService.start();
         }
@@ -31,5 +33,9 @@ public abstract class AbstractIntegrationTest extends AbstractDaoTest {
 
     public int getPort() {
         return jettyBootstrap.getPort();
+    }
+
+    protected synchronized void stopTestHereButKeepLocalServerRunning() {
+        YieldToTestServer.yield(this);
     }
 }

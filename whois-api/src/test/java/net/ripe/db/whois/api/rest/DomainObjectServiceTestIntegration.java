@@ -3,16 +3,11 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
-import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,12 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
@@ -37,8 +29,6 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
 
     @Before
     public void setup() {
-      //  databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", "secret", ObjectType.values()));
-
         databaseHelper.addObject("" +
                 "person:        Jaap Veldhuis\n" +
                 "nic-hdl:       JAAP-TEST\n" +
@@ -49,6 +39,16 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "descr:         Test Maintainer\n" +
                 "admin-c:       JAAP-TEST\n" +
                 "auth:          SSO person@net.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "mntner:        XS4ALL-MNT\n" +
+                "descr:         XS4ALL Maintainer\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "auth:          SSO person@net.net\n" +
+                "auth:          MD5-PW $1$Y8rG1Ste$QzFB.VSD5mDy7nlb/BJix/ #XS4ALL-MNT\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "source:        TEST");
 
@@ -59,6 +59,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       JAAP-TEST\n" +
                 "mnt-by:        TEST-MNT\n" +
+                "mnt-by:        XS4ALL-MNT\n" +
                 "source:        TEST"
         );
     }
@@ -70,9 +71,10 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "inet6num:      2a01:500::/22\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "mnt-domains:   TEST-MNT\n" +
+                "mnt-domains:   XS4ALL-MNT\n" +
                 "source:        TEST");
 
-//        DatabaseHelper.dumpSchema(whoisTemplate.getDataSource());
+        stopTestHereButKeepLocalServerRunning();
 
         final List<RpslObject> domains = Lists.newArrayList();
 
@@ -91,7 +93,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             domains.add(domain);
         }
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects")
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(mapRpslObjects(domains.toArray(new RpslObject[0])), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
