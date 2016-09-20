@@ -74,7 +74,8 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "mnt-domains:   XS4ALL-MNT\n" +
                 "source:        TEST");
 
-        stopTestHereButKeepLocalServerRunning();
+// uncomment line below to debug the server on a local machine
+//       stopExecutionHereButKeepTheServerRunning();
 
         final List<RpslObject> domains = Lists.newArrayList();
 
