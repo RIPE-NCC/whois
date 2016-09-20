@@ -39,7 +39,7 @@ public abstract class AbstractIntegrationTest extends AbstractDaoTest {
     * This method can be called anywhere in a derived test class to
     * be able to debug the server on a local development machine.
     */
-    public synchronized void stopExecutionHereButKeepTheServerRunning() {
+    protected synchronized void stopExecutionHereButKeepTheServerRunning() {
         Instant start = Instant.now();
 
         while (!Thread.currentThread().isInterrupted()) {
