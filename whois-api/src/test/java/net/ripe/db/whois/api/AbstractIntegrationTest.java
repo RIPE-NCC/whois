@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
@@ -31,5 +33,24 @@ public abstract class AbstractIntegrationTest extends AbstractDaoTest {
 
     public int getPort() {
         return jettyBootstrap.getPort();
+    }
+
+   /**
+    * This method can be called anywhere in a derived test class to
+    * be able to debug the server on a local development machine.
+    */
+    public synchronized void stopExecutionHereButKeepTheServerRunning() {
+        Instant start = Instant.now();
+
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                Instant end = Instant.now();
+                Duration timeElapsed = Duration.between(start, end);
+                System.out.println(String.format("Server listening for %d minutes on port %d", timeElapsed.toMinutes(), getPort()));
+                wait(60000);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }
