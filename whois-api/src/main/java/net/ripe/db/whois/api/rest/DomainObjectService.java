@@ -95,7 +95,7 @@ public class DomainObjectService {
 
             final WhoisResources updatedResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NEW, request);
 
-            validateUpdates(updateContext, updates, resources);
+            validateUpdates(updateContext, updates, updatedResources);
 
             return createResponse(request, updatedResources, Response.Status.OK);
 
