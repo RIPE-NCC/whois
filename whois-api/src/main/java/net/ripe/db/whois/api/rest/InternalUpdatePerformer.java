@@ -94,9 +94,6 @@ public class InternalUpdatePerformer {
         loggerContext.log("msg-in.txt", new UpdateLogCallback(updates));
 
         final UpdateResponse updateResponse = updateRequestHandler.handle(new UpdateRequest(origin, keyword, updates), updateContext);
-        if (updateResponse != null) {
-            System.out.println(updateResponse);
-        }
 
         return performUpdates(request, updateContext, updates);
     }
