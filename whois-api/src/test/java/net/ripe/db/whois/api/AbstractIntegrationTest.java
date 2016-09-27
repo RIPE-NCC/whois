@@ -19,7 +19,6 @@ public abstract class AbstractIntegrationTest extends AbstractDaoTest {
 
     @Before
     public void startServer() throws Exception {
-        jettyBootstrap.setPort(42300);
         for (final ApplicationService applicationService : applicationServices) {
             applicationService.start();
         }
