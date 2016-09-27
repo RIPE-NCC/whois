@@ -1560,9 +1560,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("TODO: [ES] response object should be latin1")
     @Test
-    public void create_succeeds_non_latin1_chars_not_substituted_in_response() throws Exception {
+    public void create_succeeds_non_latin1_chars_substituted_in_response() throws Exception {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
             .post(Entity.entity(
@@ -1583,7 +1582,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
-        assertThat(response, not(containsString("<attribute name=\"remarks\" value=\"ελληνικά\"/>")));      // TODO: text not substituted
+        assertThat(response, not(containsString("<attribute name=\"remarks\" value=\"ελληνικά\"/>")));
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"????????\"/>"));
         assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Attribute &quot;%s&quot; value changed due to conversion into the ISO-8859-1 (Latin-1) character set\">"));
     }

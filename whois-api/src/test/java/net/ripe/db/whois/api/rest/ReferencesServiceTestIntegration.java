@@ -18,6 +18,7 @@ import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -33,12 +34,14 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nullable;
+import javax.mail.MessagingException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -304,11 +307,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void update_create_multiple_objects_and_delete_successfully() {
         final RpslObject firstPerson = RpslObject.parse(
                 "person:        Test Person\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TP2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
         final RpslObject secondPerson = RpslObject.parse(
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
@@ -350,12 +353,12 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void update_modify_with_sso_auth_succeeds() {
         final RpslObject ssomnt = RpslObject.parse(
                 "mntner:        SSO-MNT\n" +
-                        "descr:         Maintainer\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "upd-to:        person@net.net\n" +
-                        "auth:          SSO person@net.net\n" +
-                        "mnt-by:        SSO-MNT\n" +
-                        "source:        TEST");
+                "descr:         Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        person@net.net\n" +
+                "auth:          SSO person@net.net\n" +
+                "mnt-by:        SSO-MNT\n" +
+                "source:        TEST");
 
         //databaseHelper.addObject does not translate account to UUID, so we do it via classic REST @POST
         RestTest.target(getPort(), "whois/test/mntner")
@@ -385,12 +388,12 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void update_delete_with_sso_auth_succeeds() {
         final RpslObject ssomnt = RpslObject.parse(
                 "mntner:        SSO-MNT\n" +
-                        "descr:         Maintainer\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "upd-to:        person@net.net\n" +
-                        "auth:          SSO person@net.net\n" +
-                        "mnt-by:        SSO-MNT\n" +
-                        "source:        TEST");
+                "descr:         Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        person@net.net\n" +
+                "auth:          SSO person@net.net\n" +
+                "mnt-by:        SSO-MNT\n" +
+                "source:        TEST");
 
         //databaseHelper.addObject does not translate account to UUID, so we do it via classic REST @POST
         RestTest.target(getPort(), "whois/test/mntner")
@@ -532,13 +535,13 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         final RpslObject updatedRole = RpslObject.parse(
                 "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "e-mail:        noreply@ripe.net\n" +
-                        "remarks:       updated role\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR1-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
+                "address:       Singel 258\n" +
+                "e-mail:        noreply@ripe.net\n" +
+                "remarks:       updated role\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
 
         final WhoisResources response = RestTest.target(getPort(), "whois/references/test")
                 .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
@@ -706,6 +709,32 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
     }
 
+    @Test
+    public void delete_mntner_with_reason() throws MessagingException, IOException {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test&reason=some%20delete%20reason")
+                .request()
+                .delete(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(getPKeysFromWhoisResources(whoisResources), containsInAnyOrder("OWNER-MNT", "TP1-TEST"));
+
+        assertThat(mailSenderStub.getMessage("notify@ripe.net").getContent().toString(), containsString("Info:    some delete reason"));
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
+    }
+
+    @Test
+    public void delete_mntner_without_reason() throws MessagingException, IOException {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
+                .request()
+                .delete(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(getPKeysFromWhoisResources(whoisResources), containsInAnyOrder("OWNER-MNT", "TP1-TEST"));
+
+        assertThat(mailSenderStub.getMessage("notify@ripe.net").getContent().toString(), containsString("Info:    --"));
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
+    }
+
     // TP1-TEST <- OWNER-MNT
     @Test
     public void delete_person_success() {
@@ -760,7 +789,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("mnt-by", "SSO-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/SSO-MNT"))));
     }
 
-    @Ignore("[ES] TODO multiple references to person not handled properly")
     @Test
     public void delete_mntner_person_pair_multiple_references() {
         databaseHelper.addObject(
@@ -771,11 +799,13 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(
                 "mntner:         DUMMY-MNT\n" +
                 "descr:          Startup maintainer\n" +
+                "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "upd-to:         noreply@ripe.net\n" +
                 "admin-c:        AP1-TEST\n" +
                 "mnt-by:         DUMMY-MNT\n" +
                 "admin-c:        AP1-TEST\n" +
                 "tech-c:         AP1-TEST\n" +
-                "source:         RIPE");
+                "source:         TEST");
         databaseHelper.updateObject(
                 "person:        Another Person\n" +
                 "nic-hdl:       AP1-TEST\n" +
@@ -802,11 +832,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         databaseHelper.addObject(
                 "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -824,11 +854,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_object_with_outgoing_references_only() {
         databaseHelper.addObject(
                 "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/role/TR2-TEST?password=test")
                 .request()
@@ -844,11 +874,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_object_with_outgoing_references_only_fails() {
         databaseHelper.addObject(
                 "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
 
         try {
             RestTest.target(getPort(), "whois/references/TEST/role/TR2-TEST")
@@ -873,12 +903,12 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_non_mntner_or_role() {
         databaseHelper.addObject(
                 "organisation:    ORG-TO1-TEST\n" +
-                        "org-type:        other\n" +
-                        "org-name:        First Org\n" +
-                        "address:         RIPE NCC\n" +
-                        "e-mail:          dbtest@ripe.net\n" +
-                        "mnt-by:          OWNER-MNT\n" +
-                        "source:          TEST");
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "source:          TEST");
         try {
             RestTest.target(getPort(), "whois/references/TEST/organisation/ORG-TO1-TEST?password=test")
                     .request()
@@ -897,12 +927,12 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_mntner_fails_person_referenced_from_another_mntner() {
         databaseHelper.addObject(
                 "mntner:        ANOTHER-MNT\n" +
-                        "descr:         Another Maintainer\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "upd-to:        noreply@ripe.net\n" +
-                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                        "mnt-by:        ANOTHER-MNT\n" +
-                        "source:        TEST");
+                "descr:         Another Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
 
         final Response response = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT")
                                     .request()
@@ -990,6 +1020,41 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void delete_person_mnter_pair_with_override_duplicate_adminc() {
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "person:        Test Person2\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.updateObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "admin-c:       TP2-TEST\n" +
+                "admin-c:       TP2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(true));
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                .queryParam("override", "personadmin,secret,reason")
+                .request()
+                .delete();
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(false));
+    }
+
+
+    @Test
     public void delete_person_mnter_pair_with_override_bad_password() {
         databaseHelper.addObject(
                 "mntner:        ANOTHER-MNT\n" +
@@ -1055,6 +1120,69 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(false));
         assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(false));
+
+    }
+
+    @Test
+    public void delete_role_mnter_pair_with_override_missing_mandatory_attribute() {
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "role:        Test Role2\n" +
+                "nic-hdl:       TR2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.updateObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "admin-c:       TR2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(true));
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                .queryParam("override", "personadmin,secret,reason")
+                .request()
+                .delete();
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(false));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(false));
+
+    }
+
+    @Test
+    public void delete_role_mnter_pair_with_override_missing_mandatory_attribute_not_in_map() {
+        // upd-to: not in map. no maintainers in db missing this mandatory attr, always been mandatory so should never be missing?
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "role:        Test Role2\n" +
+                "nic-hdl:       TR2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.updateObject(
+                "mntner:        ANOTHER-MNT\n" +
+                "admin-c:       TR2-TEST\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(true));
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/ANOTHER-MNT")
+                .queryParam("override", "personadmin,secret,reason")
+                .request()
+                .delete();
+
+        assertThat(objectExists(ObjectType.MNTNER, "ANOTHER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(true));
 
     }
 
