@@ -140,7 +140,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void create_multiple_domain_objects_fail_non_existent_mntner() {
+    public void create_domain_object_fail_non_existent_mntner() {
 
         databaseHelper.addObject("" +
                 "inet6num:      1a00:fb8::/23\n" +
@@ -150,7 +150,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
 
         final RpslObject domain = RpslObject.parse("" +
                 "domain:        e.0.0.0.a.1.ip6.arpa\n" +
-                "descr:         Reverse delegation for 2a01:500::/22\n" +
+                "descr:         Reverse delegation for 1a00:fb8::/23\n" +
                 "admin-c:       JAAP-TEST\n" +
                 "tech-c:        JAAP-TEST\n" +
                 "zone-c:        JAAP-TEST\n" +
