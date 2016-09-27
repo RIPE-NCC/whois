@@ -14,12 +14,14 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest {
@@ -104,7 +106,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void create_multiple_domain_objects_fail_bad_domain() {
+    public void create_multiple_domain_objects_fail_bad_domain_syntacs() {
 
         databaseHelper.addObject("" +
                 "inet6num:      2a01:500::/21\n" +
@@ -134,6 +136,44 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
 
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error", "Syntax error in %s", "bug!-4.0.1.0.a.2.ip6.arpa");
+        }
+    }
+
+    @Test
+    public void create_multiple_domain_objects_fail_non_existent_mntner() {
+
+        databaseHelper.addObject("" +
+                "inet6num:      1a00:fb8::/23\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   XS4ALL-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        e.0.0.0.a.1.ip6.arpa\n" +
+                "descr:         Reverse delegation for 2a01:500::/22\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.example.com\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        NON-EXISTING-MNT\n" +
+                "source:        TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .post(Entity.entity(mapRpslObjects(new RpslObject[]{domain}), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (NotAuthorizedException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+
+            RestTest.assertErrorCount(response, 3);
+
+            RestTest.assertErrorMessage(response, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nno valid maintainer found\n",
+                    "domain", "e.0.0.0.a.1.ip6.arpa", "mnt-by", ""); // todo: [TK] suspicious extra (empty) argument
+            RestTest.assertErrorMessage(response, 1, "Error", "The maintainer '%s' was not found in the database", "NON-EXISTING-MNT");
+            RestTest.assertErrorMessage(response, 2, "Error", "Unknown object referenced %s", "NON-EXISTING-MNT");
         }
     }
 

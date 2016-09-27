@@ -65,12 +65,16 @@ public class RestTest {
     }
 
     public static void assertErrorMessage(final WhoisResources whoisResources, final int number, final String severity, final String text, final String... argument) {
-        assertEquals(text, whoisResources.getErrorMessages().get(number).getText());
-        assertThat(whoisResources.getErrorMessages().get(number).getSeverity(), is(severity));
+
+        ErrorMessage errorMsg = whoisResources.getErrorMessages().get(number);
+
+        assertEquals(text, errorMsg.getText());
+        assertThat(errorMsg.getSeverity(), is(severity));
+
         if (argument.length > 0) {
-            assertThat(whoisResources.getErrorMessages().get(number).getArgs(), hasSize(argument.length));
+            assertThat(errorMsg.getArgs(), hasSize(argument.length));
             for (int i = 0; i < argument.length; i++) {
-                assertThat(whoisResources.getErrorMessages().get(number).getArgs().get(i).getValue(), is(argument[i]));
+                assertThat(errorMsg.getArgs().get(i).getValue(), is(argument[i]));
             }
         }
     }
