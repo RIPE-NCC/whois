@@ -32,18 +32,17 @@
         <aspectj.version>1.8.8</aspectj.version>
         <awaitility.version>1.3.5</awaitility.version>
 
-        <bouncycastle.version>1.54</bouncycastle.version>
+        <bouncycastle.version>1.55</bouncycastle.version>
 
         <c3po.version>0.9.5.1</c3po.version>
         <commons-compress.version>1.10</commons-compress.version>
-        <commons-validator>1.5.0</commons-validator>
         <commons-net.version>3.4</commons-net.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.10</commons-codec.version>
         <commons-collections.version>3.2.1</commons-collections.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-validator.version>1.4.1</commons-validator.version>
+        <commons-validator.version>1.5.1</commons-validator.version>
         <commons-ip-math.version>1.23</commons-ip-math.version>
 
         <diffutils.version>1.3.0</diffutils.version>
@@ -66,7 +65,7 @@
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.8.3</jsoup.version>
         <junit.version>4.12</junit.version>
-        <jetty.version>8.1.18.v20150929</jetty.version>
+        <jetty.version>9.3.10.v20160621</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.11</jersey.version>
         <jackson.version>2.7.2</jackson.version>
@@ -86,7 +85,7 @@
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.18</slf4j.version>
-        <spring.version>4.2.5.RELEASE</spring.version>
+        <spring.version>4.3.2.RELEASE</spring.version>
         <springockito.version>1.0.5</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
@@ -399,7 +398,7 @@
             <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
-                <version>${commons-validator}</version>
+                <version>${commons-validator.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>

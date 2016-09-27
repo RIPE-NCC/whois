@@ -42,7 +42,7 @@ public class Link {
         return create(String.format("%s/%s/%s/%s", baseUrl, source, type, key));
     }
 
-    public static Link create(String href) {
+    public static Link create(final String href) {
         return new Link("locator", href);
     }
 
