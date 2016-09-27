@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -28,6 +29,9 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
+
+    @Autowired
+    private DnsGatewayStub dnsGatewayStub;
 
     @Before
     public void setup() {
@@ -174,6 +178,42 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                     "domain", "e.0.0.0.a.1.ip6.arpa", "mnt-by", ""); // todo: [TK] suspicious extra (empty) argument
             RestTest.assertErrorMessage(response, 1, "Error", "The maintainer '%s' was not found in the database", "NON-EXISTING-MNT");
             RestTest.assertErrorMessage(response, 2, "Error", "Unknown object referenced %s", "NON-EXISTING-MNT");
+        }
+    }
+
+    @Test
+    public void create_domain_object_fail_dns_timeout() {
+
+        databaseHelper.addObject("" +
+                "inet6num:      1a00:fb8::/23\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   XS4ALL-MNT\n" +
+                "source:        TEST");
+
+        dnsGatewayStub.setProduceTimeouts(true);
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        e.0.0.0.a.1.ip6.arpa\n" +
+                "descr:         Reverse delegation for 1a00:fb8::/23\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.xs4all.nl\n" +
+                "nserver:       ns2.xs4all.nl\n" +
+                "mnt-by:        NON-EXISTING-MNT\n" +
+                "source:        TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .post(Entity.entity(mapRpslObjects(new RpslObject[]{domain}), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+
+            RestTest.assertErrorCount(response, 1);
+            RestTest.assertErrorMessage(response, 0, "Error", "Timeout performing DNS check");
         }
     }
 
