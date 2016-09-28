@@ -16,7 +16,6 @@ import javax.ws.rs.client.WebTarget;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class RestTest {
@@ -65,12 +64,16 @@ public class RestTest {
     }
 
     public static void assertErrorMessage(final WhoisResources whoisResources, final int number, final String severity, final String text, final String... argument) {
-        assertEquals(text, whoisResources.getErrorMessages().get(number).getText());
-        assertThat(whoisResources.getErrorMessages().get(number).getSeverity(), is(severity));
+
+        ErrorMessage errorMsg = whoisResources.getErrorMessages().get(number);
+
+        assertThat(errorMsg.getText(), is(text));
+        assertThat(errorMsg.getSeverity(), is(severity));
+
         if (argument.length > 0) {
-            assertThat(whoisResources.getErrorMessages().get(number).getArgs(), hasSize(argument.length));
+            assertThat(errorMsg.getArgs(), hasSize(argument.length));
             for (int i = 0; i < argument.length; i++) {
-                assertThat(whoisResources.getErrorMessages().get(number).getArgs().get(i).getValue(), is(argument[i]));
+                assertThat(errorMsg.getArgs().get(i).getValue(), is(argument[i]));
             }
         }
     }

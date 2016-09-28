@@ -248,7 +248,7 @@ public class ReferencesService {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
-            updateContext.batchUpdate();
+            updateContext.setBatchUpdate();
             auditlogRequest(request);
 
             final List<Update> updates = Lists.newArrayList();
