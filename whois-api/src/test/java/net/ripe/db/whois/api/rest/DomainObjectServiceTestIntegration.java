@@ -217,6 +217,34 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
         }
     }
 
+    @Test
+    public void create_domain_object_unparsable_json() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.33.0/22\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   XS4ALL-MNT\n" +
+                "source:        TEST");
+
+        String badJson = "{ \"objects\": { \"object\": [ bad syntacs right here! ]}}";
+
+        try {
+            RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .post(Entity.entity(badJson, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(response, 1);
+            RestTest.assertErrorMessage(response, 0, "Error", "JSON processing exception: %s (line: %s, column: %s)",
+                    "Unrecognized token 'bad': was expecting", "1", "28");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
 
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);

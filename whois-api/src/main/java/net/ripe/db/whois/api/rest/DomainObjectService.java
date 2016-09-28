@@ -80,9 +80,10 @@ public class DomainObjectService {
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
-        if (resources == null) {
+        if (resources == null || resources.getWhoisObjects().size() == 0) {
             return badRequest("WhoisResources is mandatory");
         }
+
         try {
             final Origin origin = updatePerformer.createOrigin(request);
 
