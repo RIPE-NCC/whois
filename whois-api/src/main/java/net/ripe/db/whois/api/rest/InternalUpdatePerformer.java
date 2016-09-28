@@ -93,7 +93,8 @@ public class InternalUpdatePerformer {
     public WhoisResources performUpdates(final UpdateContext updateContext, final Origin origin, final Collection<Update> updates, final Keyword keyword, final HttpServletRequest request) {
         loggerContext.log("msg-in.txt", new UpdateLogCallback(updates));
 
-        final UpdateResponse updateResponse = updateRequestHandler.handle(new UpdateRequest(origin, keyword, updates), updateContext);
+        // todo: [TK] use response?
+        updateRequestHandler.handle(new UpdateRequest(origin, keyword, updates), updateContext);
 
         return performUpdates(request, updateContext, updates);
     }

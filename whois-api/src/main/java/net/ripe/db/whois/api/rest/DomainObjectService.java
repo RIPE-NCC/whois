@@ -14,7 +14,6 @@ import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.OverrideCredential;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.SsoCredential;
@@ -90,7 +89,7 @@ public class DomainObjectService {
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
             updateContext.setBatchUpdate();
 
-            final Credentials credentials = createCredentials(updateContext.getUserSession(), passwords, /* override= */null);
+            final Credentials credentials = createCredentials(updateContext.getUserSession(), passwords);
 
             final List<Update> updates = extractUpdates(resources, credentials);
 
@@ -179,16 +178,12 @@ public class DomainObjectService {
         return result;
     }
 
-    private Credentials createCredentials(final UserSession userSession, final List<String> passwords, final String override) {
+    private Credentials createCredentials(final UserSession userSession, final List<String> passwords) {
 
         final Set<Credential> credentials = Sets.newHashSet();
 
         for (String password : passwords) {
             credentials.add(new PasswordCredential(password));
-        }
-
-        if (override != null) {
-            credentials.add(OverrideCredential.parse(override));
         }
 
         if (userSession != null) {

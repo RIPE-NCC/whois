@@ -36,7 +36,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
     @Before
     public void setup() {
         databaseHelper.addObject("" +
-                "person:        Jaap Veldhuis\n" +
+                "person:        Jaap Knasterhuis\n" +
                 "nic-hdl:       JAAP-TEST\n" +
                 "source:        TEST");
 
@@ -50,11 +50,11 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "source:        TEST");
 
         databaseHelper.addObject("" +
-                "mntner:        XS4ALL-MNT\n" +
+                "mntner:        TEST2-MNT\n" +
                 "descr:         XS4ALL Maintainer\n" +
                 "admin-c:       JAAP-TEST\n" +
                 "auth:          SSO person@net.net\n" +
-                "auth:          MD5-PW $1$Y8rG1Ste$QzFB.VSD5mDy7nlb/BJix/ #XS4ALL-MNT\n" +
+                "auth:          MD5-PW $1$Y8rG1Ste$QzFB.VSD5mDy7nlb/BJix/ #TEST2-MNT\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "source:        TEST");
 
@@ -65,7 +65,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       JAAP-TEST\n" +
                 "mnt-by:        TEST-MNT\n" +
-                "mnt-by:        XS4ALL-MNT\n" +
+                "mnt-by:        TEST2-MNT\n" +
                 "source:        TEST"
         );
     }
@@ -77,7 +77,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "inet6num:      2a01:500::/22\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "mnt-domains:   TEST-MNT\n" +
-                "mnt-domains:   XS4ALL-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
 
 // uncomment line below to debug the server on a local machine
@@ -116,7 +116,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "inet6num:      2a01:500::/21\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "mnt-domains:   TEST-MNT\n" +
-                "mnt-domains:   XS4ALL-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
 
         final RpslObject domain = RpslObject.parse("" +
@@ -135,6 +135,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                     .request()
                     .cookie("crowd.token_key", "valid-token")
                     .post(Entity.entity(mapRpslObjects(new RpslObject[]{domain}), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
 
@@ -149,7 +150,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("" +
                 "inet6num:      1a00:fb8::/23\n" +
                 "mnt-by:        TEST-MNT\n" +
-                "mnt-domains:   XS4ALL-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
 
         final RpslObject domain = RpslObject.parse("" +
@@ -187,7 +188,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("" +
                 "inet6num:      1a00:fb8::/23\n" +
                 "mnt-by:        TEST-MNT\n" +
-                "mnt-domains:   XS4ALL-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
 
         dnsGatewayStub.setProduceTimeouts(true);
@@ -223,7 +224,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("" +
                 "inetnum:      33.33.33.0/22\n" +
                 "mnt-by:        TEST-MNT\n" +
-                "mnt-domains:   XS4ALL-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
 
         String badJson = "{ \"objects\": { \"object\": [ bad syntacs right here! ]}}";
