@@ -3,14 +3,10 @@ package net.ripe.db.whois.api.transfer;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.HttpRequestMessage;
 import net.ripe.db.whois.api.rest.InternalUpdatePerformer;
-import net.ripe.db.whois.api.rest.StreamingHelper;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
-import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.transfer.lock.TransferUpdateLockDao;
-import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.domain.*;
@@ -19,11 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,7 +41,7 @@ public abstract class AbstractTransferService {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, null);
-            updateContext.batchUpdate();
+            updateContext.setBatchUpdate();
             auditlogRequest(request);
 
             final List<Update> updates = Lists.newArrayList();
