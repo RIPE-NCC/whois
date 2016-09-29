@@ -2022,16 +2022,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test
-    public void create_delete_method_not_allowed() {
-        try {
-            RestTest.target(getPort(), "whois/test/person")
-                    .request()
-                    .delete(String.class);
-            fail();
-        } catch (NotAllowedException e) {
-            // expected
-        }
+    @Test(expected = NotAllowedException.class)
+    public void get_method_without_primary_key_not_allowed() {
+        RestTest.target(getPort(), "whois/ripe/route6")
+                .request()
+                .get(String.class);
+    }
+
+    @Test(expected = NotAllowedException.class)
+    public void delete_method_without_primary_key_not_allowed() {
+        RestTest.target(getPort(), "whois/test/person")
+                .request()
+                .delete(String.class);
     }
 
     @Test
