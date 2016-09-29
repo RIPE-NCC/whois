@@ -589,7 +589,8 @@ e164.arpa
 -i mb aardvARk-mnt
 -i mnt-routes RIPE-NCC-MNT
 -i mu RIPE-NCC-MNT
--r -i mb,ml ripe-ncc-hm-mnt
+# massive query causes timeout
+#-r -i mb,ml ripe-ncc-hm-mnt
 -i mnt-by RIPE-NCC-MNT
 -i mb RIPE-NCC-MNT
 -i mnt-lower RIPE-NCC-MNT
