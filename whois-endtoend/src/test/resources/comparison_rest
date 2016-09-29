@@ -96,8 +96,8 @@ whois/ripe/aut-num/AS/versions/3.json
 
 # metadata
 
-whois/ripe/metadata/sources.json
-whois/ripe/metadata/sources.xml
+whois/metadata/sources.json
+whois/metadata/sources.xml
 
-whois/ripe/metadata/templates/route.xml
-whois/ripe/metadata/templates/route6.json
+whois/metadata/templates/route.xml
+whois/metadata/templates/route6.json
