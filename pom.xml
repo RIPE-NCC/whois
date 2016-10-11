@@ -64,8 +64,8 @@
         <junit.version>4.12</junit.version>
         <jetty.version>9.3.12.v20160915</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
-        <jackson.version>2.7.2</jackson.version>
         <jersey.version>2.23.2</jersey.version>
+        <jackson.version>2.8.3</jackson.version>
 
         <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
         <log4j.version>1.2.17</log4j.version>
