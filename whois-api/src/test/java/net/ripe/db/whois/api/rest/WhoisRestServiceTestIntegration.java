@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -54,6 +55,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.BadRequestException;
@@ -64,9 +66,13 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Variant;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,6 +85,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
@@ -2418,6 +2425,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
+    }
+
+    @Ignore("TODO: [ES] empty response body")
+    @Test
+    public void update_huge_object_with_syntax_error_compressed_response() throws IOException {
+        databaseHelper.addObject("aut-num: AS3333\nsource: TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/test/aut-num/AS3333.json?password=123")
+                    .request()
+                    .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+                    .put(Entity.entity(gunzip(new ClassPathResource("as3333.json.gz").getFile()), MediaType.APPLICATION_JSON), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final String response = gunzip(e.getResponse().readEntity(byte[].class));
+            assertThat(response, containsString("some text"));
+        }
     }
 
     @Test
@@ -5321,4 +5345,26 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     private String queryTelnet(final String query) {
         return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
+
+    private static String gunzip(final byte[] bytes) {
+        try {
+            return new String(
+                    ByteStreams.toByteArray(
+                            new GZIPInputStream(
+                                    new ByteArrayInputStream(bytes))));
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private static String gunzip(final File file) {
+        try {
+            return gunzip(
+                    ByteStreams.toByteArray(new FileInputStream(file)));
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+
+        }
+    }
+
 }
