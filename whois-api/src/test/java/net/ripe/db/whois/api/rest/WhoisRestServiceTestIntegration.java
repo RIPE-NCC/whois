@@ -1916,7 +1916,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
             assertThat(whoisResources.getErrorMessages().get(0).toString(),
-                is("JSON processing exception: Unexpected end-of-input: expected close marker for OBJECT (line: 1, column: 3)"));
+                is("JSON processing exception: Unexpected end-of-input: expected close marker for Object (line: 1, column: 3)"));
         }
     }
 
@@ -2427,7 +2427,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(object.getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
     }
 
-    @Ignore("TODO: [ES] empty response body (confirmed FIXED by Jersey 2.22)")
     @Test
     public void update_huge_object_with_syntax_error_compressed_response() throws IOException {
         databaseHelper.addObject("aut-num: AS3333\nsource: TEST");
