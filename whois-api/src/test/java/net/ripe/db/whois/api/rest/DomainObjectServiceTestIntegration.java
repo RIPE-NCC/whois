@@ -80,9 +80,6 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
 
-// uncomment line below to debug the server on a local machine
-//        stopExecutionHereButKeepTheServerRunning();
-
         final List<RpslObject> domains = Lists.newArrayList();
 
         for (int i = 4; i < 8; i++) {
@@ -184,15 +181,11 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void create_domain_object_fail_dns_timeout() {
-
         databaseHelper.addObject("" +
                 "inet6num:      1a00:fb8::/23\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
-
-        dnsGatewayStub.setProduceTimeouts(true);
-
         final RpslObject domain = RpslObject.parse("" +
                 "domain:        e.0.0.0.a.1.ip6.arpa\n" +
                 "descr:         Reverse delegation for 1a00:fb8::/23\n" +
@@ -205,6 +198,8 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "source:        TEST");
 
         try {
+            dnsGatewayStub.setProduceTimeouts(true);
+
             RestTest.target(getPort(), "whois/domain-objects/TEST")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
@@ -215,6 +210,8 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
 
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error", "Timeout performing DNS check");
+        } finally {
+            dnsGatewayStub.setProduceTimeouts(false);
         }
     }
 
@@ -241,13 +238,10 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error", "JSON processing exception: %s (line: %s, column: %s)",
                     "Unrecognized token 'bad': was expecting", "1", "28");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
         }
     }
 
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
-
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
 }
