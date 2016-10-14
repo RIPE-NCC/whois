@@ -42,13 +42,10 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.*;
 
 @Component
 @Path("/domain-objects")
@@ -80,7 +77,7 @@ public class DomainObjectService {
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
         if (resources == null || resources.getWhoisObjects().size() == 0) {
-            return badRequest("WhoisResources is mandatory");
+            return Response.status(BAD_REQUEST).entity("WhoisResources is mandatory").build();
         }
 
         try {
@@ -97,19 +94,17 @@ public class DomainObjectService {
 
             validateUpdates(updateContext, updates, updatedResources);
 
-            return createResponse(request, updatedResources, Response.Status.OK);
+            return createResponse(OK, updatedResources);
 
         } catch (WebApplicationException e) {
-            throw specializeWebApplicationException(e, request, resources); // note: response is attached to exception
+            throw specializeWebApplicationException(e, resources); // note: response is attached to exception
 
         } catch (UpdateFailedException e) {
-            return createResponse(request, e.whoisResources, e.status);
-
+            return createResponse(e.status, e.whoisResources);
         } catch (Exception e) {
             updatePerformer.logError(e);
             LOGGER.error("Unexpected", e);
-            return createResponse(request, resources, Response.Status.INTERNAL_SERVER_ERROR);
-
+            return createResponse(INTERNAL_SERVER_ERROR, resources);
         } finally {
             updatePerformer.closeContext();
         }
@@ -117,20 +112,19 @@ public class DomainObjectService {
 
     private WebApplicationException specializeWebApplicationException(
             final WebApplicationException e,
-            final HttpServletRequest request,
             final WhoisResources resources) {
 
         final Response response = e.getResponse();
 
         switch (response.getStatus()) {
             case HttpStatus.UNAUTHORIZED_401:
-                return new NotAuthorizedException(createResponse(request, resources, Response.Status.UNAUTHORIZED));
+                return new NotAuthorizedException(createResponse(UNAUTHORIZED, resources));
 
             case HttpStatus.INTERNAL_SERVER_ERROR_500:
-                return new InternalServerErrorException(createResponse(request, resources, Response.Status.INTERNAL_SERVER_ERROR));
+                return new InternalServerErrorException(createResponse(INTERNAL_SERVER_ERROR, resources));
 
             default:
-                return new BadRequestException(createResponse(request, resources, BAD_REQUEST));
+                return new BadRequestException(createResponse(BAD_REQUEST, resources));
         }
     }
 
@@ -144,14 +138,14 @@ public class DomainObjectService {
                     break;
 
                 case FAILED_AUTHENTICATION:
-                    throw new UpdateFailedException(Response.Status.UNAUTHORIZED, resources);
+                    throw new UpdateFailedException(UNAUTHORIZED, resources);
 
                 case EXCEPTION:
-                    throw new UpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR, resources);
+                    throw new UpdateFailedException(INTERNAL_SERVER_ERROR, resources);
 
                 default:
                     if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
-                        throw new UpdateFailedException(Response.Status.CONFLICT, resources);
+                        throw new UpdateFailedException(CONFLICT, resources);
                     } else {
                         throw new UpdateFailedException(BAD_REQUEST, resources);
                     }
@@ -192,18 +186,8 @@ public class DomainObjectService {
         return new Credentials(credentials);
     }
 
-    private Response createResponse(final HttpServletRequest request, final WhoisResources whoisResources, final Response.Status status) {
-        final Response.ResponseBuilder responseBuilder = Response.status(status);
-        return responseBuilder.entity(new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                StreamingHelper.getStreamingMarshal(request, output).singleton(whoisResources);
-            }
-        }).build();
-    }
-
-    private Response badRequest(final String message) {
-        return Response.status(BAD_REQUEST).entity(message).build();
+    private Response createResponse(Response.Status status, WhoisResources updatedResources) {
+        return Response.status(status).entity(updatedResources).build();
     }
 
     private class UpdateFailedException extends RuntimeException {
