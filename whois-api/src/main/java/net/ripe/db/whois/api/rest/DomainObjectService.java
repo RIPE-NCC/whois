@@ -21,6 +21,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
+import net.ripe.db.whois.update.log.LoggerContext;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,14 +56,16 @@ public class DomainObjectService {
 
     private final InternalUpdatePerformer updatePerformer;
     private final WhoisObjectMapper whoisObjectMapper;
+    private final LoggerContext loggerContext;
 
     @Autowired
     public DomainObjectService(
             final WhoisObjectMapper whoisObjectMapper,
-            final InternalUpdatePerformer updatePerformer) {
-
+            final InternalUpdatePerformer updatePerformer,
+            final LoggerContext loggerContext) {
         this.whoisObjectMapper = whoisObjectMapper;
         this.updatePerformer = updatePerformer;
+        this.loggerContext = loggerContext;
     }
 
     @POST
@@ -85,6 +88,8 @@ public class DomainObjectService {
 
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
             updateContext.setBatchUpdate();
+
+            auditlogRequest(request);
 
             final Credentials credentials = createCredentials(updateContext.getUserSession(), passwords);
 
@@ -188,6 +193,10 @@ public class DomainObjectService {
 
     private Response createResponse(Response.Status status, WhoisResources updatedResources) {
         return Response.status(status).entity(updatedResources).build();
+    }
+
+    private void auditlogRequest(final HttpServletRequest request) {
+        loggerContext.log(new HttpRequestMessage(request));
     }
 
     private class UpdateFailedException extends RuntimeException {
