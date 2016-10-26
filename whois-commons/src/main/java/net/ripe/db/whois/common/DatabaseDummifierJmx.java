@@ -110,9 +110,9 @@ public class DatabaseDummifierJmx extends JmxBase {
         });
     }
 
-    private void validateJdbcUrl(final String user, final String password) {
-        if (!user.equals(password) || !password.equals(new StringBuilder(user).reverse().toString())) {
-            throw new IllegalArgumentException("dummifier runs on non-production environments only (user==password).");
+   public void validateJdbcUrl(final String user, final String password) {
+        if (!user.equals(password) && !password.equals(new StringBuilder(user).reverse().toString())) {
+            throw new IllegalArgumentException("dummifier runs on non-production environments only (user==password)");
         }
     }
 
