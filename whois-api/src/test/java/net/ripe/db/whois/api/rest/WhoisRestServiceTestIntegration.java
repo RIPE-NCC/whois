@@ -5325,6 +5325,48 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
     }
 
+    @Test
+    public void primary_key_comment() throws Exception {
+        final RpslObject createPerson = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST # create comment\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources createResponse = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertInfoCount(createResponse, 1);
+        RestTest.assertErrorMessage(createResponse, 0, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
+        assertThat(createResponse.getErrorMessages().get(0).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # create comment")));
+
+        final RpslObject updatePerson = RpslObject.parse("" +
+                "person:    Pauleth Palthen # comment\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "remarks:   updated\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST   # update comment\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources updateResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .put(Entity.entity(map(updatePerson), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertInfoCount(updateResponse, 2);
+        RestTest.assertErrorMessage(updateResponse, 0, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
+        assertThat(updateResponse.getErrorMessages().get(0).getAttribute(), is(new Attribute("person", "Pauleth Palthen # comment")));
+        RestTest.assertErrorMessage(updateResponse, 1, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
+        assertThat(updateResponse.getErrorMessages().get(1).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # update comment")));
+    }
+
     // helper methods
 
     private String encode(final String input) {
