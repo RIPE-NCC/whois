@@ -468,6 +468,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 prefix, "comment");
     }
 
+    public void clearAclMirrors() {
+        aclTemplate.update("DELETE FROM acl_mirror");
+    }
+
     public List<Map<String, Object>> listAclEvents() {
         return aclTemplate.queryForList(
                 "SELECT * FROM acl_event"

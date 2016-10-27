@@ -105,7 +105,6 @@ class NrtmClientFactory {
             }
         }
 
-        // TODO: [ES] detect error on connect, and do not retry (e.g. %ERROR:402: not authorised to mirror the database from IP address x.y.z)
         @RetryFor(value = IOException.class, attempts = 100, intervalMs = 10 * 1000)
         private void connect() throws IOException {
             try {
@@ -122,8 +121,13 @@ class NrtmClientFactory {
             readEmptyLine();
         }
 
+        private static final String ERROR_RESPONSE = "%ERROR:";
+
         private String readLineWithExpected(final String expected) throws IOException {
             final String line = reader.readLine();
+            if (line.startsWith(ERROR_RESPONSE)) {
+                throw new IllegalStateException(line);
+            }
             if (!line.contains(expected)) {
                 throw new IllegalStateException("Expected to read: \"" + expected + "\", but actually read: \"" + line + "\"");
             }
