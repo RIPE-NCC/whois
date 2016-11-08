@@ -72,7 +72,6 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void create_multiple_domain_objects_success() {
-
         databaseHelper.addObject("" +
                 "inet6num:      2a01:500::/22\n" +
                 "mnt-by:        TEST-MNT\n" +
@@ -108,14 +107,12 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void create_multiple_domain_objects_fail_bad_domain_syntacs() {
-
         databaseHelper.addObject("" +
                 "inet6num:      2a01:500::/21\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "mnt-domains:   TEST-MNT\n" +
                 "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
-
         final RpslObject domain = RpslObject.parse("" +
                     "domain:        bug!-4.0.1.0.a.2.ip6.arpa\n" +
                     "descr:         Reverse delegation for 2a01:500::/22\n" +
@@ -143,13 +140,11 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void create_domain_object_fail_non_existent_mntner() {
-
         databaseHelper.addObject("" +
                 "inet6num:      1a00:fb8::/23\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
-
         final RpslObject domain = RpslObject.parse("" +
                 "domain:        e.0.0.0.a.1.ip6.arpa\n" +
                 "descr:         Reverse delegation for 1a00:fb8::/23\n" +
@@ -217,23 +212,19 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void create_domain_object_unparsable_json() {
-
         databaseHelper.addObject("" +
                 "inetnum:      33.33.33.0/22\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
 
-        String badJson = "{ \"objects\": { \"object\": [ bad syntacs right here! ]}}";
-
         try {
             RestTest.target(getPort(), "whois/domain-objects/TEST")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
-                    .post(Entity.entity(badJson, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+                    .post(Entity.entity("{ \"objects\": { \"object\": [ bad syntacs right here! ]}}", MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error", "JSON processing exception: %s (line: %s, column: %s)",
