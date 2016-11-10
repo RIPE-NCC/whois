@@ -297,7 +297,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getLang(), is(nullValue()));
     }
 
-//    @Ignore("TODO: if 0/0 is found, then return 404 (or redirect if found in GRS)")
     @Test
     public void lookup_inetnum_not_found() {
         try {
@@ -307,6 +306,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (final NotFoundException e) {
             // expected
+            assertErrorTitle(e, "not found");
         }
     }
 
@@ -433,7 +433,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getName(), is("RIPE-NCC"));
     }
 
-//    @Ignore("TODO: if ::0 is found, then return 404 (or redirect if found in GRS)")
     @Test
     public void lookup_inet6num_not_found() {
         try {
@@ -442,7 +441,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Ip.class);
             fail();
         } catch (final NotFoundException e) {
-            // expected
+            assertErrorTitle(e, "not found");
         }
     }
 
