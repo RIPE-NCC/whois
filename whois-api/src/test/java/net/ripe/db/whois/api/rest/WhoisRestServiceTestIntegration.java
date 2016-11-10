@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -54,6 +55,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.BadRequestException;
@@ -64,9 +66,13 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Variant;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,6 +85,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
@@ -1560,9 +1567,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("TODO: [ES] response object should be latin1")
     @Test
-    public void create_succeeds_non_latin1_chars_not_substituted_in_response() throws Exception {
+    public void create_succeeds_non_latin1_chars_substituted_in_response() throws Exception {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
             .post(Entity.entity(
@@ -1583,7 +1589,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
-        assertThat(response, not(containsString("<attribute name=\"remarks\" value=\"ελληνικά\"/>")));      // TODO: text not substituted
+        assertThat(response, not(containsString("<attribute name=\"remarks\" value=\"ελληνικά\"/>")));
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"????????\"/>"));
         assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Attribute &quot;%s&quot; value changed due to conversion into the ISO-8859-1 (Latin-1) character set\">"));
     }
@@ -2023,16 +2029,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test
-    public void create_delete_method_not_allowed() {
-        try {
-            RestTest.target(getPort(), "whois/test/person")
-                    .request()
-                    .delete(String.class);
-            fail();
-        } catch (NotAllowedException e) {
-            // expected
-        }
+    @Test(expected = NotAllowedException.class)
+    public void get_method_without_primary_key_not_allowed() {
+        RestTest.target(getPort(), "whois/ripe/route6")
+                .request()
+                .get(String.class);
+    }
+
+    @Test(expected = NotAllowedException.class)
+    public void delete_method_without_primary_key_not_allowed() {
+        RestTest.target(getPort(), "whois/test/person")
+                .request()
+                .delete(String.class);
     }
 
     @Test
@@ -2417,6 +2425,25 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
+    }
+
+    @Ignore("TODO: [ES] empty response body (confirmed FIXED by Jersey 2.22)")
+    @Test
+    public void update_huge_object_with_syntax_error_compressed_response() throws IOException {
+        databaseHelper.addObject("aut-num: AS3333\nsource: TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/test/aut-num/AS3333.json?password=123")
+                    .request()
+                    .header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+                    .put(Entity.entity(gunzip(new ClassPathResource("as3333.json.gz").getFile()), MediaType.APPLICATION_JSON), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+
+
+            final String response = gunzip(e.getResponse().readEntity(byte[].class));
+            assertThat(response, containsString("Unrecognized source: %s"));
+        }
     }
 
     @Test
@@ -5298,6 +5325,48 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
     }
 
+    @Test
+    public void primary_key_comment() throws Exception {
+        final RpslObject createPerson = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST # create comment\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources createResponse = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertInfoCount(createResponse, 1);
+        RestTest.assertErrorMessage(createResponse, 0, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
+        assertThat(createResponse.getErrorMessages().get(0).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # create comment")));
+
+        final RpslObject updatePerson = RpslObject.parse("" +
+                "person:    Pauleth Palthen # comment\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "remarks:   updated\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST   # update comment\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final WhoisResources updateResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .put(Entity.entity(map(updatePerson), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertInfoCount(updateResponse, 2);
+        RestTest.assertErrorMessage(updateResponse, 0, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
+        assertThat(updateResponse.getErrorMessages().get(0).getAttribute(), is(new Attribute("person", "Pauleth Palthen # comment")));
+        RestTest.assertErrorMessage(updateResponse, 1, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
+        assertThat(updateResponse.getErrorMessages().get(1).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # update comment")));
+    }
+
     // helper methods
 
     private String encode(final String input) {
@@ -5320,4 +5389,26 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     private String queryTelnet(final String query) {
         return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
+
+    private static String gunzip(final byte[] bytes) {
+        try {
+            return new String(
+                    ByteStreams.toByteArray(
+                            new GZIPInputStream(
+                                    new ByteArrayInputStream(bytes))));
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private static String gunzip(final File file) {
+        try {
+            return gunzip(
+                    ByteStreams.toByteArray(new FileInputStream(file)));
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+
+        }
+    }
+
 }

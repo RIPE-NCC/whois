@@ -63,7 +63,7 @@ public class UpdateContext {
         return batchUpdate;
     }
 
-    public void batchUpdate() {
+    public void setBatchUpdate() {
         loggerContext.logBatchUpdate();
         batchUpdate = true;
     }

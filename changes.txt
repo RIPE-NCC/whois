@@ -1,10 +1,26 @@
-## next
+# next
 
-# 'next version'
-[all] delete power mntners and use alloc mntners instead
+# 1.88
+[api] DBF-71 delete syntactically incorrect objects with delete referenced objects call
+[api] DBF-70 fixed substitution for multiple identical references in delete referenced objects call
+
+# 1.87.6
+[all] increased ARIN mirror sanity check to 30M objects
+[all] removed legacy Unreferenced Cleanup job
+[api] added reason to delete referenced objects call
+[all] Bouncycastle 1.55
+
+# 1.87.5
 [all] separate the RPSL parsing in a separate module.
+[update] apply an transform pipepline to unify RPSL object processing before the actual update
 [all] add 'default_maintainer_history' table
-[update] apply an transform pipepline to unify processing before the actual update
+[all] delete power mntners and use alloc mntners instead
+[update] allow NOT-SET status to be changed or deleted
+[update] catch database errors when calling dnscheck
+[api] support override in delete referenced objects call
+[all] fixed mntner reference in mnt-routes attribute
+[all] Jetty 9.3.10
+[all] Spring Framework 4.3.2
 
 # 1.87.4
 [update] bugfix allow adding mnt-lower attribute for inet(6)nums

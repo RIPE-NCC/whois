@@ -28,8 +28,8 @@ CREATE TABLE `object_reference` (
   CONSTRAINT FOREIGN KEY (`to_version`) REFERENCES `object_version` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `update_lock`;
-CREATE TABLE `update_lock` (
-  `global_lock` int(11) NOT NULL,
-  PRIMARY KEY (`global_lock`)
+DROP TABLE IF EXISTS `serials`;
+CREATE TABLE `serials` (
+  `serial_id` int(11) NOT NULL,
+  PRIMARY KEY (`serial_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
