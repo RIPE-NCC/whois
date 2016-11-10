@@ -22,7 +22,6 @@ import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.RedirectionException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -664,19 +662,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (NotFoundException e) {
             assertErrorStatus(e, 404);
-        }
-    }
-
-    @Ignore("TODO: [ES] fix test data")
-    @Test
-    public void lookup_autnum_redirect_to_test() {
-        try {
-            createResource("autnum/102")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Ip.class);
-            fail();
-        } catch (final RedirectionException e) {
-            assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.test.net/autnum/102"));
         }
     }
 
