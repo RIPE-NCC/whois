@@ -250,7 +250,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(0).getDescription(), contains("This output has been filtered."));
         assertThat(notices.get(0).getLinks(), hasSize(0));
-        assertThat(notices.get(1).getTitle(), is("Source"));                                                            // TODO: [ES] should source be specified?
+        assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(1).getDescription(), contains("Objects returned came from source", "TEST"));
         assertThat(notices.get(1).getLinks(), hasSize(0));
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
