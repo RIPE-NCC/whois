@@ -312,7 +312,27 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /\*\*\*Info:    Value 192.0.0.0\/24 converted to 192.0.0.0 - 192.0.0.255/
   }
 
-  def "modify status ALLOCATED PI has reference to RIR organisation"() {
+    def "handle failure of out-of-range CIDR notation"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.1/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PI
+                    mnt-by: RIPE-NCC-HM-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                    password: hm
+                    """.stripIndent()))
+        then:
+        response =~ /Create FAILED: \[inetnum\] 192.0.0.1\/24/
+    }
+
+    def "modify status ALLOCATED PI has reference to RIR organisation"() {
     given:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
                             inetnum: 192.0.0.0 - 192.0.0.255
