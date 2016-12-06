@@ -51,7 +51,26 @@ public class Ipv4ResourceTest {
         assertThat(subject.end(), eq(3571122687L));
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
+    public void ipv4_with_prefix_21_fails() {
+        subject = Ipv4Resource.parse("151.64.0.1/21\r\n");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void ipv4_with_prefix_23_fails() {
+        subject = Ipv4Resource.parse("109.73.65.0/23\r\n");
+        assertThat(subject.begin(), eq(1833517056L));
+        assertThat(subject.end(), eq(1833517567L));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void ipv4_with_prefix_28_fails() {
+        subject = Ipv4Resource.parse("62.219.43.72/28\r\n");
+        assertThat(subject.begin(), eq(1054550848L));
+        assertThat(subject.end(), eq(1054550863L));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
     public void ipv4_with_prefix_21() {
         subject = Ipv4Resource.parse("151.64.0.1/21\r\n");
         assertThat(subject.begin(), eq(2537553920L));
@@ -60,14 +79,14 @@ public class Ipv4ResourceTest {
 
     @Test
     public void ipv4_with_prefix_23() {
-        subject = Ipv4Resource.parse("109.73.65.0/23\r\n");
+        subject = Ipv4Resource.parse("109.73.64.0/23\r\n");
         assertThat(subject.begin(), eq(1833517056L));
         assertThat(subject.end(), eq(1833517567L));
     }
 
     @Test
     public void ipv4_with_prefix_28() {
-        subject = Ipv4Resource.parse("62.219.43.72/28\r\n");
+        subject = Ipv4Resource.parse("62.219.43.64/28\r\n");
         assertThat(subject.begin(), eq(1054550848L));
         assertThat(subject.end(), eq(1054550863L));
     }
