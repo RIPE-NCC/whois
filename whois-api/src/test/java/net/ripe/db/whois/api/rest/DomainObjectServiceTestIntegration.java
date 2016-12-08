@@ -216,7 +216,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
     @Test
     public void create_domain_object_unparsable_json() {
         databaseHelper.addObject("" +
-                "inetnum:      33.33.33.0/22\n" +
+                "inetnum:      33.33.33.0/24\n" +
                 "mnt-by:        TEST-MNT\n" +
                 "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
