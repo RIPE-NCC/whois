@@ -264,7 +264,7 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
         databaseHelper.addObject(getTransient("ROUTE"))
 
       expect:
-        queryObject("--one-more 99.13.0.0/8", "route", "99.13.0.0/16")
+        queryObject("--one-more 99.0.0.0/8", "route", "99.13.0.0/16")
     }
 
     def "--one-more route6 found"() {
