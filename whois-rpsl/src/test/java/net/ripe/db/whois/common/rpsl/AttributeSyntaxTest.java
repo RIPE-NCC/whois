@@ -673,7 +673,7 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "rmws-foo-bar.nu.bogus.net");
         verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "ams-foo.foobar.net");
         verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "213.232.64.1");
-        verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "2001:1578::/32, 2002:1578::/32, 213.232.64.1/24");
+        verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "2001:1578::/32, 2002:1578::/32, 213.232.64.0/24");
 
         verifySuccess(ObjectType.RTR_SET, AttributeType.MP_MEMBERS, "2a00:10C0::/32");
     }
