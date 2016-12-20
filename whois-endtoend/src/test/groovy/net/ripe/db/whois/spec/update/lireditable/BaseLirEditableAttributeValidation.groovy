@@ -1,6 +1,9 @@
 package net.ripe.db.whois.spec.update.lireditable
 
-public class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
+import spock.lang.Ignore;
+
+@Ignore("base class don't run tests here directly")
+class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
 
     //  MODIFY resource attributes by LIR
 
