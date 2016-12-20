@@ -2968,12 +2968,10 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        ack.countErrorWarnInfo(1, 0, 0)
     }
 
     def "create assignment, mnt-routes op data invalid prefix >32"() {
