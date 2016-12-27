@@ -32,6 +32,7 @@ import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.attrs.RangeOperation;
+import org.apache.commons.validator.routines.RegexValidator;
 
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -150,8 +151,7 @@ public interface AttributeSyntax extends Documented {
             "\n" +
             "For more details, see RFC4034.\n");
 
-    AttributeSyntax EMAIL_SYNTAX = new AttributeSyntaxRegexp(80, Pattern.compile("(?i)^.+@([^.]+[.])+[^.]+$"),
-            "An e-mail address as defined in RFC 2822.\n");
+    AttributeSyntax EMAIL_SYNTAX = new EmailSyntaxRegexp();
 
     AttributeSyntax EXPORT_COMPS_SYNTAX = new ExportCompsSyntax();
 
@@ -522,6 +522,63 @@ public interface AttributeSyntax extends Documented {
         @Override
         public String getDescription(final ObjectType objectType) {
             return description;
+        }
+    }
+
+    class EmailSyntaxRegexp implements AttributeSyntax {
+        private static final String DESCRIPTION = "An e-mail address as defined in RFC 2822.\n";
+
+        // taken from org.apache.commons.validator.routines.EmailValidator
+        private static final String SPECIAL_CHARS = "\\p{Cntrl}\\(\\)<>@,;:'\\\\\\\"\\.\\[\\]";
+        private static final String VALID_CHARS = "(\\\\.)|[^\\s" + SPECIAL_CHARS + "]";
+        private static final String QUOTED_USER = "(\"(\\\\\"|[^\"])*\")";
+        private static final String WORD = "((" + VALID_CHARS + "|')+|" + QUOTED_USER + ")";
+        private static final String USER_REGEX = "^\\s*" + WORD + "(\\." + WORD + ")*$";
+        private static final Pattern USER_PATTERN = Pattern.compile(USER_REGEX);
+
+        private static final int MAX_USERNAME_LEN = 64;
+
+        // DOMAIN: max 63 characters, just '-', a-z and A-z
+        private static final String DOMAIN_LABEL_REGEX = "[a-zA-Z0-9][a-zA-Z0-9-]{0,62}";
+        private static final RegexValidator DOMAIN_LABEL_VALIDATOR = new RegexValidator(DOMAIN_LABEL_REGEX);
+        // TLD:  max 63 characters, just a-z and A-z
+        private static final String TOP_LABEL_REGEX = "[a-zA-Z]{2,63}";
+        private static final RegexValidator TOP_LABEL_VALIDATOR = new RegexValidator(TOP_LABEL_REGEX);
+
+
+        EmailSyntaxRegexp() {
+        }
+
+        @Override
+        public boolean matches(final ObjectType objectType, final String value) {
+            String[] portions = value.split("@", 3);
+            if (portions.length != 2) {
+                return false;
+            }
+            if (portions[0].length() > MAX_USERNAME_LEN) {
+                return false;
+            }
+            if (!USER_PATTERN.matcher(portions[0]).matches()) {
+                return false;
+            }
+            String[] domainParts = portions[1].split("\\.");
+            if (domainParts.length < 2) {
+                return false;
+            }
+            for (int i = 0; i < (domainParts.length - 1); i++) {
+                if (!DOMAIN_LABEL_VALIDATOR.isValid(domainParts[i])) {
+                    return false;
+                }
+            }
+            if (!TOP_LABEL_VALIDATOR.isValid(domainParts[(domainParts.length-1)])) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String getDescription(final ObjectType objectType) {
+            return DESCRIPTION;
         }
     }
 
