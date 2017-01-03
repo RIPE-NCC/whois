@@ -2,11 +2,13 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.net.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
@@ -15,6 +17,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 // Ref. http://www.w3.org/TR/cors/
 public class CrossOriginFilter implements ContainerResponseFilter {
@@ -23,18 +27,23 @@ public class CrossOriginFilter implements ContainerResponseFilter {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
-    private static final String ALLOWED_ORIGIN = ".ripe.net";
     private static final List<String> ALLOWED_METHODS = Lists.newArrayList(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.HEAD);
     private static final List<String> ALLOWED_HEADERS = Lists.newArrayList(HttpHeaders.X_REQUESTED_WITH, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT, HttpHeaders.ORIGIN);
+
+    private static final Map<Pattern, Pattern> ALLOWED_ORIGINS_TO_HOSTS = Maps.newHashMap();
+    static {
+        ALLOWED_ORIGINS_TO_HOSTS.put(Pattern.compile("^.*\\.ripe\\.net$"), Pattern.compile(".*"));
+        ALLOWED_ORIGINS_TO_HOSTS.put(Pattern.compile(".*"), Pattern.compile("rdap\\.db\\.ripe\\.net"));
+    }
 
     @Override
     public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext) throws IOException {
         final String origin = requestContext.getHeaderString(HttpHeaders.ORIGIN);
         if (!StringUtils.isEmpty(origin)) {
-
-            if (!originMatches(origin)) {
+            final String host = requestContext.getHeaderString(HttpHeaders.HOST);
+            if (!isOriginAllowed(origin, host)) {
                 final String path = requestContext.getUriInfo().getPath();
-                LOGGER.info("Request to {}, not allowing origin {}", path, origin);
+                LOGGER.info("Request to {}{}, not allowing origin {}", host, path, origin);
                 return;
             }
 
@@ -62,12 +71,34 @@ public class CrossOriginFilter implements ContainerResponseFilter {
         }
     }
 
-    private boolean originMatches(final String origin) {
-        try {
-            return (new URL(origin)).getHost().endsWith(ALLOWED_ORIGIN);
-        } catch (MalformedURLException e) {
-            LOGGER.debug("malformed URL " + origin);
+    private boolean isOriginAllowed(final String origin, final String host) {
+        final String originHost = getHostFromUrl(origin);
+        if (originHost == null) {
             return false;
+        }
+
+        if (StringUtils.isEmpty(host)) {
+            LOGGER.warn("Required host header is empty");
+            return false;
+        }
+
+        for (Map.Entry<Pattern, Pattern> entry : ALLOWED_ORIGINS_TO_HOSTS.entrySet()) {
+            if (entry.getKey().matcher(originHost).matches() &&
+                    entry.getValue().matcher(host).matches()) {
+                // allow origin to connect to host
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Nullable
+    private String getHostFromUrl(final String url) {
+        try {
+            return new URL(url).getHost();
+        } catch (MalformedURLException e) {
+            return null;
         }
     }
 }

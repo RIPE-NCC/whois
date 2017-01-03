@@ -44,7 +44,7 @@ public class CrossOriginFilterTest {
 
     @Test
     public void get_request_from_apps_db_ripe_net_is_allowed() throws Exception {
-        configureRequestContext(HttpMethod.GET, "https://apps.db.ripe.net", "/some/path");
+        configureRequestContext(HttpMethod.GET, "https://apps.db.ripe.net", "rest.db.ripe.net", "/some/path");
 
         subject.filter(requestContext, responseContext);
 
@@ -53,7 +53,7 @@ public class CrossOriginFilterTest {
 
     @Test
     public void get_request_from_outside_ripe_net_is_not_allowed() throws Exception {
-        configureRequestContext(HttpMethod.GET, "https://www.foo.net", "/some/path");
+        configureRequestContext(HttpMethod.GET, "https://www.foo.net", "rest.db.ripe.net", "/some/path");
 
         subject.filter(requestContext, responseContext);
 
@@ -61,8 +61,17 @@ public class CrossOriginFilterTest {
     }
 
     @Test
+    public void get_request_from_outside_ripe_net_to_rdap_is_allowed() throws Exception {
+        configureRequestContext(HttpMethod.GET, "https://www.foo.net", "rdap.db.ripe.net", "/some/path");
+
+        subject.filter(requestContext, responseContext);
+
+        verify(responseHeaders).putSingle(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "https://www.foo.net");
+    }
+
+    @Test
     public void preflight_request_from_apps_db_ripe_net_is_allowed() throws Exception {
-        configureRequestContext(HttpMethod.OPTIONS, "https://apps.db.ripe.net", "/some/path");
+        configureRequestContext(HttpMethod.OPTIONS, "https://apps.db.ripe.net", "rest.db.ripe.net", "/some/path");
         when(requestContext.getHeaderString(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD)).thenReturn(HttpMethod.POST);
         when(requestContext.getHeaderString(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS)).thenReturn(HttpHeaders.X_USER_IP);
 
@@ -75,7 +84,7 @@ public class CrossOriginFilterTest {
 
     @Test
     public void preflight_request_from_outside_ripe_net_is_not_allowed() throws Exception {
-        configureRequestContext(HttpMethod.OPTIONS, "https://www.foo.net", "/some/path");
+        configureRequestContext(HttpMethod.OPTIONS, "https://www.foo.net",  "rest.db.ripe.net", "/some/path");
         when(requestContext.getHeaderString(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD)).thenReturn(HttpMethod.POST);
         when(requestContext.getHeaderString(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS)).thenReturn(HttpHeaders.X_USER_IP);
 
@@ -88,7 +97,7 @@ public class CrossOriginFilterTest {
 
     @Test
     public void malformed_origin() throws Exception {
-        configureRequestContext(HttpMethod.GET, "?invalid?", "/some/path");
+        configureRequestContext(HttpMethod.GET, "?invalid?", "rest.db.ripe.net", "/some/path");
 
         subject.filter(requestContext, responseContext);
 
@@ -97,7 +106,7 @@ public class CrossOriginFilterTest {
 
     @Test
     public void host_and_port() throws Exception {
-        configureRequestContext(HttpMethod.GET, "http://host.ripe.net:8443", "/some/path");
+        configureRequestContext(HttpMethod.GET, "http://host.ripe.net:8443", "rest.db.ripe.net", "/some/path");
 
         subject.filter(requestContext, responseContext);
 
@@ -106,9 +115,10 @@ public class CrossOriginFilterTest {
 
     // helper methods
 
-    private void configureRequestContext(final String method, final String origin, final String path) {
+    private void configureRequestContext(final String method, final String origin, final String host, final String path) {
         when(requestContext.getMethod()).thenReturn(method);
         when(requestContext.getHeaderString(HttpHeaders.ORIGIN)).thenReturn(origin);
+        when(requestContext.getHeaderString(HttpHeaders.HOST)).thenReturn(host);
         when(uriInfo.getPath()).thenReturn(path);
     }
 
