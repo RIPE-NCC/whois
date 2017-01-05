@@ -8,9 +8,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */
-public class ZonemasterGetTestResultsRequest {
+class ZonemasterGetTestResultsRequest {
 
     ZonemasterGetTestResultsRequest(String id) {
+        JsonNodeFactory factory = JsonNodeFactory.instance;
         json = factory.objectNode()
                 .put("jsonrpc", "2.0")
                 .put("id", 6)
@@ -18,7 +19,7 @@ public class ZonemasterGetTestResultsRequest {
         json.putObject("params").put("id", id).put("language", "en");
     }
 
-    public String asJson() {
+    String asJson() {
         return json.toString();
     }
 
@@ -28,6 +29,5 @@ public class ZonemasterGetTestResultsRequest {
     }
 
     private ObjectNode json;
-    private JsonNodeFactory factory = JsonNodeFactory.instance;
 
 }

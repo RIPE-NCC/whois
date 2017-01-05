@@ -35,13 +35,13 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DnsCheckerTest {
+public class DnsCheckerImplTest {
     @Mock Update update;
     @Mock UpdateRequest updateRequest;
     @Mock UpdateContext updateContext;
     @Mock DnsGateway dnsGateway;
 
-    @InjectMocks DnsChecker subject;
+    @InjectMocks DnsCheckerImpl subject;
 
     @Before
     public void setup() {

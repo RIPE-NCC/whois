@@ -51,14 +51,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *      }
  * </pre>
  */
-public class ZonemasterStartDomainTestRequest {
+class ZonemasterStartDomainTestRequest {
 
     ZonemasterStartDomainTestRequest() {
-        json = factory.objectNode()
+        json = JsonNodeFactory.instance.objectNode()
                 .put("jsonrpc", "2.0")
                 .put("id", 4)
                 .put("method", "start_domain_test");
-        ObjectNode params = factory.objectNode()
+        ObjectNode params = JsonNodeFactory.instance.objectNode()
                 .put("client_id", "Zonemaster Dancer Frontend")
                 .put("domain", "zonemaster.net")
                 .put("profile", "default_profile")
@@ -71,15 +71,15 @@ public class ZonemasterStartDomainTestRequest {
         json.putObject("params").setAll(params);
     }
 
-    public ZonemasterStartDomainTestRequest addNameserver(final String ip, final String nameserver) {
-        ObjectNode nsNode = factory.objectNode();
+    ZonemasterStartDomainTestRequest addNameserver(final String ip, final String nameserver) {
+        ObjectNode nsNode = JsonNodeFactory.instance.objectNode();
         nsNode.put("ip", ip);
         nsNode.put("ns", nameserver);
         nameservers.add(nsNode);
         return this;
     }
 
-    public String asJson() {
+    String asJson() {
         return json.toString();
     }
 
@@ -91,6 +91,5 @@ public class ZonemasterStartDomainTestRequest {
 
     private ObjectNode json;
     private ArrayNode nameservers;
-    private JsonNodeFactory factory = JsonNodeFactory.instance;
 
 }
