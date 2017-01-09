@@ -38,6 +38,7 @@ public class DailyScheduler {
         this.scheduledTasks = Lists.newArrayList(scheduledTasks);
     }
 
+    // TODO: [ES] leap-seconds not handled properly, causes difference between scheduled time and current time, no scheduled jobs will run
     @Scheduled(cron = "0 0 0 * * *")
     public void executeScheduledTasks() {
 

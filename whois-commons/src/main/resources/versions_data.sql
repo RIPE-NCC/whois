@@ -1,1 +1,1 @@
-INSERT INTO update_lock VALUES (0);
+INSERT INTO serials (serial_id) VALUES (0);
