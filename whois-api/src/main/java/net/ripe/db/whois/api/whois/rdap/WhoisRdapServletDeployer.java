@@ -9,6 +9,9 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.DispatcherType;
+import java.util.EnumSet;
+
 @Component
 public class WhoisRdapServletDeployer implements ServletDeployer {
 
@@ -27,7 +30,8 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
         rdapJsonProvider.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);
         rdapJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
 
-        // TODO: [ES] update CrossOriginFilter to allow ANY origin for RDAP specifically, and register here
+        // allow cross-origin requests from ANY origin (by default)
+        context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/rdap/*", EnumSet.allOf(DispatcherType.class));
 
         final ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.register(whoisRDAPService);
