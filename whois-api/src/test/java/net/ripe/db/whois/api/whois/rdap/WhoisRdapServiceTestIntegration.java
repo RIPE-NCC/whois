@@ -227,7 +227,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getType(), is("OTHER"));
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getObjectClassName(), is("ip"));
+        assertThat(ip.getObjectClassName(), is("ip network"));
 
         final List<String> rdapConformance = ip.getRdapConformance();
         assertThat(rdapConformance, hasSize(1));
@@ -373,7 +373,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
         assertThat(ip.getName(), is("RIPE-NCC"));
         assertThat(ip.getType(), is("ASSIGNED PA"));
-        assertThat(ip.getObjectClassName(), is("ip"));
+        assertThat(ip.getObjectClassName(), is("ip network"));
 
         final List<String> rdapConformance = ip.getRdapConformance();
         assertThat(rdapConformance, hasSize(1));
