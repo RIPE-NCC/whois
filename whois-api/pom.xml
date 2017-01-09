@@ -45,6 +45,10 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-jmx</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+        </dependency>
 
         <!-- Jersey JAX-RS 2.0 implementation -->
         <dependency>
