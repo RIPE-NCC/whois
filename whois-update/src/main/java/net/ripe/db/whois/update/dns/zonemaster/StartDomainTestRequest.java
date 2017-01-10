@@ -1,8 +1,14 @@
-package net.ripe.db.whois.update.dns;
+package net.ripe.db.whois.update.dns.zonemaster;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.dns.DnsCheckRequest;
+
+import java.util.Set;
 
 /**
  * Taken from Zonemaster documentation
@@ -51,45 +57,62 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *      }
  * </pre>
  */
-class ZonemasterStartDomainTestRequest {
+class StartDomainTestRequest {
 
-    ZonemasterStartDomainTestRequest() {
+    StartDomainTestRequest(DnsCheckRequest dnsCheckRequest) {
+        init(dnsCheckRequest);
+    }
+
+    private void init(DnsCheckRequest dnsCheckRequest) {
         json = JsonNodeFactory.instance.objectNode()
                 .put("jsonrpc", "2.0")
                 .put("id", 4)
                 .put("method", "start_domain_test");
         ObjectNode params = JsonNodeFactory.instance.objectNode()
-                .put("client_id", "Zonemaster Dancer Frontend")
-                .put("domain", "zonemaster.net")
-                .put("profile", "default_profile")
-                .put("client_version", "1.0.1")
-                .put("advanced", true)
+                .put("domain", dnsCheckRequest.getDomain())
                 .put("ipv6", true)
                 .put("ipv4", true);
-        params.putArray("ds_info");
+        dsRdataArray = params.putArray("ds_info");
         nameservers = params.putArray("nameservers");
         json.putObject("params").setAll(params);
+
+        RpslObject rpslObject = dnsCheckRequest.getUpdate().getSubmittedObject();
+
+        if (rpslObject.containsAttribute(AttributeType.DS_RDATA)) {
+            parseDsRdata(rpslObject.getValuesForAttribute(AttributeType.DS_RDATA));
+        }
+
     }
 
-    ZonemasterStartDomainTestRequest addNameserver(final String ip, final String nameserver) {
+    private void parseDsRdata(Set<CIString> dsRdata) {
+        for (CIString dsRdataLine : dsRdata) {
+            String[] dsParts = dsRdataLine.toString().split(" ");
+            if (dsParts.length == 4) {
+                ObjectNode dsRdataNode = JsonNodeFactory.instance.objectNode();
+                dsRdataNode.put("keytag", dsParts[0])
+                        .put("algorithm", dsParts[1])
+                        .put("digtype", dsParts[2])
+                        .put("digest", dsParts[3]);
+                dsRdataArray.add(dsRdataNode);
+            } else {
+                // doesn't look like good dsRdata. now what?
+            }
+        }
+    }
+
+    private void addNameserver(final String ip, final String nameserver) {
         ObjectNode nsNode = JsonNodeFactory.instance.objectNode();
         nsNode.put("ip", ip);
         nsNode.put("ns", nameserver);
         nameservers.add(nsNode);
-        return this;
     }
 
     String asJson() {
         return json.toString();
     }
 
-    public static void main(String[] args) {
-        ZonemasterStartDomainTestRequest req = new ZonemasterStartDomainTestRequest();
-        req.addNameserver("1.1.1.1", "ns.whereever.ns").addNameserver("2.2.2.2", "buckle.my.shoe");
-        System.out.println("request:\n" + req.asJson());
-    }
-
     private ObjectNode json;
     private ArrayNode nameservers;
+    private ArrayNode dsRdataArray;
 
 }

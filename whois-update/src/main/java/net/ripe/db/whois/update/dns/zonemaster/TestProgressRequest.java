@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.dns;
+package net.ripe.db.whois.update.dns.zonemaster;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -8,15 +8,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */
-class ZonemasterGetTestResultsRequest {
+class TestProgressRequest {
 
-    ZonemasterGetTestResultsRequest(String id) {
+    TestProgressRequest(String id) {
         JsonNodeFactory factory = JsonNodeFactory.instance;
         json = factory.objectNode()
                 .put("jsonrpc", "2.0")
-                .put("id", 6)
-                .put("method", "get_test_results");
-        json.putObject("params").put("id", id).put("language", "en");
+                .put("id", 5)
+                .put("method", "test_progress")
+                .put("params", id);
     }
 
     String asJson() {
@@ -24,7 +24,7 @@ class ZonemasterGetTestResultsRequest {
     }
 
     public static void main(String[] args) {
-        ZonemasterGetTestResultsRequest req = new ZonemasterGetTestResultsRequest("i ij i ij oo");
+        TestProgressRequest req = new TestProgressRequest("old macdonald had a farm");
         System.out.println("request:\n" + req.asJson());
     }
 

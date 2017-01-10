@@ -41,7 +41,8 @@ public class DnsCheckerImplTest {
     @Mock UpdateContext updateContext;
     @Mock DnsGateway dnsGateway;
 
-    @InjectMocks DnsCheckerImpl subject;
+    @InjectMocks
+    DnsChecker subject;
 
     @Before
     public void setup() {
