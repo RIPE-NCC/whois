@@ -57,7 +57,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     FreeTextIndex freeTextIndex;
 
     @BeforeClass
-    public static void setProperties() throws Exception {
+    public static void rdapSetProperties() throws Exception {
         System.setProperty("rdap.sources", "TEST-GRS");
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
@@ -70,7 +70,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @AfterClass
-    public static void clearProperties() throws Exception {
+    public static void rdapClearProperties() throws Exception {
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.test");
         System.clearProperty("rdap.public.baseUrl");
