@@ -64,9 +64,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
         // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
         System.setProperty("dir.freetext.index", "var${jvmId:}/idx");
-
-        // allow setting Origin header
-        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
     }
 
     @AfterClass
@@ -75,7 +72,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         System.clearProperty("rdap.redirect.test");
         System.clearProperty("rdap.public.baseUrl");
         System.clearProperty("dir.freetext.index");
-        System.clearProperty("sun.net.http.allowRestrictedHeaders");
     }
 
     @Before

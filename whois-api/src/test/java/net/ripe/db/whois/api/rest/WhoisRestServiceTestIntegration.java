@@ -51,9 +51,7 @@ import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -217,17 +215,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
-
-    @BeforeClass
-    public static void restBeforeClass() {
-        // allow setting Origin header
-        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
-    }
-
-    @AfterClass
-    public static void restAfterClass() {
-        System.clearProperty("sun.net.http.allowRestrictedHeaders");
-    }
 
     @Before
     public void setup() {

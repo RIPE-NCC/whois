@@ -50,6 +50,9 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("grs.sources.dummify", "TEST-GRS");
         System.setProperty("api.rest.baseurl", "http://rest-test.db.ripe.net");
+
+        // allow setting Origin header
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
     }
 
     @AfterClass
