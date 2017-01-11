@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.collect.Lists;
+import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
@@ -18,6 +19,7 @@ import net.ripe.db.whois.api.whois.rdap.domain.Remark;
 import net.ripe.db.whois.api.whois.rdap.domain.Role;
 import net.ripe.db.whois.api.whois.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.IntegrationTest;
+import org.hamcrest.Matchers;
 import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -28,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -54,7 +57,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     FreeTextIndex freeTextIndex;
 
     @BeforeClass
-    public static void setProperties() throws Exception {
+    public static void rdapSetProperties() throws Exception {
         System.setProperty("rdap.sources", "TEST-GRS");
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
@@ -64,7 +67,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @AfterClass
-    public static void clearProperties() throws Exception {
+    public static void rdapClearProperties() throws Exception {
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.test");
         System.clearProperty("rdap.public.baseUrl");
@@ -1427,6 +1430,107 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             containsInAnyOrder("Source", "Filtered"));
         assertThat(result.getNotices(), hasSize(1));
         assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
+    }
+
+    // Cross-origin requests
+
+    @Test
+    public void cross_origin_preflight_request_from_apps_db_ripe_net_is_allowed() throws Exception {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .options();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+    }
+
+    @Test
+    public void cross_origin_preflight_request_from_outside_ripe_net_is_allowed() throws Exception {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .options();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+    }
+
+    @Test
+    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_allowed() throws Exception {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
+                .options();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), Matchers.arrayContainingInAnyOrder("GET","POST","HEAD"));
+    }
+
+    @Test
+    public void cross_origin_get_request_from_apps_db_ripe_net_is_allowed() throws Exception {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .get();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
+    }
+
+    @Test
+    public void cross_origin_get_request_from_outside_ripe_net_is_allowed() throws Exception {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "https://www.foo.net")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .get();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
+
+    }
+
+    @Test
+    public void cross_origin_preflight_request_malformed_origin() throws Exception {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "?invalid?")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .options();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("?invalid?"));
+    }
+
+    @Test
+    public void cross_origin_get_request_malformed_origin() throws Exception {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "?invalid?")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .get();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("?invalid?"));
+        assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
+    }
+
+    @Test
+    public void cross_origin_get_request_host_and_port() throws Exception {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "https://www.foo.net:8443")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .get();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net:8443"));
+        assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
     // helper methods
