@@ -57,7 +57,7 @@ import java.util.Set;
  *      }
  * </pre>
  */
-class StartDomainTestRequest implements ZonemasterRequest {
+class StartDomainTestRequest extends ZonemasterRequestSupport {
 
     StartDomainTestRequest(DnsCheckRequest dnsCheckRequest) {
         init(dnsCheckRequest);
@@ -129,8 +129,8 @@ class StartDomainTestRequest implements ZonemasterRequest {
         nameservers.add(nsNode);
     }
 
-    public String asJson() {
-        return json.toString();
+    public ObjectNode json() {
+        return json;
     }
 
     private ObjectNode json;

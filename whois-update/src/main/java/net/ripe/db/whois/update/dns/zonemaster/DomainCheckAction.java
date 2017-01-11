@@ -1,15 +1,10 @@
 package net.ripe.db.whois.update.dns.zonemaster;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import java.util.Map;
 import java.util.concurrent.RecursiveAction;
 
@@ -39,31 +34,31 @@ public class DomainCheckAction extends RecursiveAction {
         for (int index = mStart; index < mStart + mLength; index++) {
 
             DnsCheckRequest dnsCheckRequest = dnsCheckRequests[index];
-            DnsCheckResponse response = null;
+            DnsCheckResponse dnsCheckResponse = null;
 
             // Fire request
             StartDomainTestRequest req = new StartDomainTestRequest(dnsCheckRequest);
+            String checkInstanceId = req.execute().readEntity(StartDomainTestResponse.class).getResult();
 
+            String percentageComplete;
+            try {
+                do {
+                    Thread.sleep(1_000);
+                    // Poll 'test' until result is 100%
+                    TestProgressRequest tpRequest = new TestProgressRequest(checkInstanceId);
+                    percentageComplete = tpRequest.execute().readEntity(StartDomainTestResponse.class).getResult();
+                } while (!"100".equals(percentageComplete));
 
-            LOGGER.debug("StartDomainTestRequest.asJson(): " + req.asJson());
+                GetTestResultsRequest gtrRequest = new GetTestResultsRequest(checkInstanceId);
 
+                GetTestResultsResponse gtrResponse = gtrRequest.execute().readEntity(GetTestResultsResponse.class);
 
-            // Poll 'test' until result is 100%
-
-            // Get the result and store message
-            responseMap.put(dnsCheckRequest, response);
+                // Get the result and store message
+                responseMap.put(dnsCheckRequest, dnsCheckResponse);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-
-    }
-
-    private static Client createClient() {
-        final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
-        jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
-        jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        return ClientBuilder.newBuilder()
-                .register(MultiPartFeature.class)
-                .register(jsonProvider)
-                .build();
     }
 
     private int mStart;

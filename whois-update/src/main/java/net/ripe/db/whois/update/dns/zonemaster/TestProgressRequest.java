@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */
-class TestProgressRequest implements ZonemasterRequest {
+class TestProgressRequest extends ZonemasterRequestSupport {
 
     TestProgressRequest(String id) {
         JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -19,13 +19,8 @@ class TestProgressRequest implements ZonemasterRequest {
                 .put("params", id);
     }
 
-    public String asJson() {
-        return json.toString();
-    }
-
-    public static void main(String[] args) {
-        TestProgressRequest req = new TestProgressRequest("old macdonald had a farm");
-        System.out.println("request:\n" + req.asJson());
+    public ObjectNode json() {
+        return json;
     }
 
     private ObjectNode json;

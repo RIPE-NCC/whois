@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */
-class VersionInfoRequest implements ZonemasterRequest {
+class VersionInfoRequest extends ZonemasterRequestSupport {
 
     VersionInfoRequest() {
         JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -18,8 +18,8 @@ class VersionInfoRequest implements ZonemasterRequest {
                 .put("method", "version_info");
     }
 
-    public String asJson() {
-        return json.toString();
+    public ObjectNode json() {
+        return json;
     }
 
     private ObjectNode json;
