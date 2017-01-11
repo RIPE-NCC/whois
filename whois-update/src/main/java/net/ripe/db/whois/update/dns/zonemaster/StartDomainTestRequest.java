@@ -57,7 +57,7 @@ import java.util.Set;
  *      }
  * </pre>
  */
-class StartDomainTestRequest {
+class StartDomainTestRequest implements ZonemasterRequest {
 
     StartDomainTestRequest(DnsCheckRequest dnsCheckRequest) {
         init(dnsCheckRequest);
@@ -78,15 +78,31 @@ class StartDomainTestRequest {
 
         RpslObject rpslObject = dnsCheckRequest.getUpdate().getSubmittedObject();
 
+        if (rpslObject.containsAttribute(AttributeType.NSERVER)) {
+            parseNameservers(rpslObject.getValuesForAttribute(AttributeType.DS_RDATA));
+        }
+
         if (rpslObject.containsAttribute(AttributeType.DS_RDATA)) {
             parseDsRdata(rpslObject.getValuesForAttribute(AttributeType.DS_RDATA));
         }
+    }
 
+    private void parseNameservers(Set<CIString> nserverValues) {
+        for (CIString nserverValue : nserverValues) {
+            String cleanNs = nserverValue.toString().trim();
+            String[] splits = cleanNs.split(" ");
+            if (splits.length > 1) {
+                // contains both name and ip address
+                addNameserver(splits[0], splits[1]);
+            } else {
+                addNameserver(splits[0]);
+            }
+        }
     }
 
     private void parseDsRdata(Set<CIString> dsRdata) {
         for (CIString dsRdataLine : dsRdata) {
-            String[] dsParts = dsRdataLine.toString().split(" ");
+            String[] dsParts = dsRdataLine.toString().trim().split(" ");
             if (dsParts.length == 4) {
                 ObjectNode dsRdataNode = JsonNodeFactory.instance.objectNode();
                 dsRdataNode.put("keytag", dsParts[0])
@@ -100,14 +116,20 @@ class StartDomainTestRequest {
         }
     }
 
-    private void addNameserver(final String ip, final String nameserver) {
+    private void addNameserver(final String nameserver) {
+        addNameserver(nameserver, null);
+    }
+
+    private void addNameserver(final String nameserver, final String ip) {
         ObjectNode nsNode = JsonNodeFactory.instance.objectNode();
-        nsNode.put("ip", ip);
         nsNode.put("ns", nameserver);
+        if (ip != null) {
+            nsNode.put("ip", ip);
+        }
         nameservers.add(nsNode);
     }
 
-    String asJson() {
+    public String asJson() {
         return json.toString();
     }
 

@@ -1,8 +1,15 @@
 package net.ripe.db.whois.update.dns.zonemaster;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import java.util.Map;
 import java.util.concurrent.RecursiveAction;
 
@@ -37,6 +44,10 @@ public class DomainCheckAction extends RecursiveAction {
             // Fire request
             StartDomainTestRequest req = new StartDomainTestRequest(dnsCheckRequest);
 
+
+            LOGGER.debug("StartDomainTestRequest.asJson(): " + req.asJson());
+
+
             // Poll 'test' until result is 100%
 
             // Get the result and store message
@@ -45,8 +56,21 @@ public class DomainCheckAction extends RecursiveAction {
 
     }
 
+    private static Client createClient() {
+        final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
+        jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
+        jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        return ClientBuilder.newBuilder()
+                .register(MultiPartFeature.class)
+                .register(jsonProvider)
+                .build();
+    }
+
     private int mStart;
     private int mLength;
     private DnsCheckRequest[] dnsCheckRequests;
     private Map<DnsCheckRequest, DnsCheckResponse> responseMap;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DomainCheckAction.class);
+
 }
