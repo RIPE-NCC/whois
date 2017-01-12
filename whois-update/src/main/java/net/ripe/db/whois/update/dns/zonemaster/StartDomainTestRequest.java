@@ -59,11 +59,11 @@ import java.util.Set;
  */
 class StartDomainTestRequest extends ZonemasterRequestSupport {
 
-    StartDomainTestRequest(DnsCheckRequest dnsCheckRequest) {
+    StartDomainTestRequest(final DnsCheckRequest dnsCheckRequest) {
         init(dnsCheckRequest);
     }
 
-    private void init(DnsCheckRequest dnsCheckRequest) {
+    private void init(final DnsCheckRequest dnsCheckRequest) {
         json = JsonNodeFactory.instance.objectNode()
                 .put("jsonrpc", "2.0")
                 .put("id", 4)
@@ -87,7 +87,7 @@ class StartDomainTestRequest extends ZonemasterRequestSupport {
         }
     }
 
-    private void parseNameservers(Set<CIString> nserverValues) {
+    private void parseNameservers(final Set<CIString> nserverValues) {
         for (CIString nserverValue : nserverValues) {
             String cleanNs = nserverValue.toString().trim();
             String[] splits = cleanNs.split(" ");
@@ -100,7 +100,7 @@ class StartDomainTestRequest extends ZonemasterRequestSupport {
         }
     }
 
-    private void parseDsRdata(Set<CIString> dsRdata) {
+    private void parseDsRdata(final Set<CIString> dsRdata) {
         for (CIString dsRdataLine : dsRdata) {
             String[] dsParts = dsRdataLine.toString().trim().split(" ");
             if (dsParts.length == 4) {

@@ -30,11 +30,13 @@ public class ZonemasterRestClient {
                 .build();
     }
 
-    public static void main(String[] args) {
-        ZonemasterRequest req = new VersionInfoRequest();
-        System.out.println(">>> response version-info: " + req.execute().readEntity(VersionInfoResponse.class));
+    public static void main(final String[] args) {
+        ZonemasterRequest req1 = new VersionInfoRequest();
+        System.out.println(">>> VersionInfoResponse: " + req1.execute().readEntity(VersionInfoResponse.class));
+        ZonemasterRequest req2 = new GetTestResultsRequest("974995af7d7b59c9");
+        System.out.println(">>> GetTestResultsResponse: " + req2.execute().readEntity(GetTestResultsResponse.class));
     }
 
-    final private WebTarget target;
+    private final WebTarget target;
 
 }

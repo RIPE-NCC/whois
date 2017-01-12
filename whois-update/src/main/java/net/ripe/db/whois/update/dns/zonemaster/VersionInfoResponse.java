@@ -26,7 +26,7 @@ public class VersionInfoResponse {
         return result;
     }
 
-    public void setResult(Map<String, String> result) {
+    public void setResult(final Map<String, String> result) {
         this.result = result;
     }
 

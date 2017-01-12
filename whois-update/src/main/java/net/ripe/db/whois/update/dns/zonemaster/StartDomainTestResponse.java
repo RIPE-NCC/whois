@@ -6,7 +6,7 @@ public class StartDomainTestResponse {
         return jsonrpc;
     }
 
-    public void setJsonrpc(String jsonrpc) {
+    public void setJsonrpc(final String jsonrpc) {
         this.jsonrpc = jsonrpc;
     }
 
@@ -14,7 +14,7 @@ public class StartDomainTestResponse {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -22,7 +22,7 @@ public class StartDomainTestResponse {
         return result;
     }
 
-    public void setResult(String result) {
+    public void setResult(final String result) {
         this.result = result;
     }
 

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 class TestProgressRequest extends ZonemasterRequestSupport {
 
-    TestProgressRequest(String id) {
+    TestProgressRequest(final String id) {
         JsonNodeFactory factory = JsonNodeFactory.instance;
         json = factory.objectNode()
                 .put("jsonrpc", "2.0")

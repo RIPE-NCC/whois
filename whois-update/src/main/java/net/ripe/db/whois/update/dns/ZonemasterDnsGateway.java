@@ -18,7 +18,7 @@ import java.util.concurrent.ForkJoinPool;
 public class ZonemasterDnsGateway implements DnsGateway {
 
     @Override
-    public Map<DnsCheckRequest, DnsCheckResponse> performDnsChecks(Set<DnsCheckRequest> dnsCheckRequests) {
+    public Map<DnsCheckRequest, DnsCheckResponse> performDnsChecks(final Set<DnsCheckRequest> dnsCheckRequests) {
         final Map<DnsCheckRequest, DnsCheckResponse> dnsResults = Maps.newHashMap();
         DomainCheckAction domainCheckAction = new DomainCheckAction(dnsCheckRequests.toArray(new DnsCheckRequest[0]), 0, 0, dnsResults);
         ForkJoinPool pool = new ForkJoinPool();
