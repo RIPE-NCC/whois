@@ -625,7 +625,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:          description
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
-                    members:        10.0.0.0/8, 10.0.0.1/8
+                    members:        10.0.0.0/8, 10.0.0.1/32
                     mnt-by:         TEST-MNT
                     source:         TEST
                     password:       emptypassword

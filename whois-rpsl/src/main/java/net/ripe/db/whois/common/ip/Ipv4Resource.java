@@ -94,8 +94,8 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
         if (indexOfSlash >= 0) {
             int begin = textToNumericFormat(resource.substring(0, indexOfSlash).trim());
             final int prefixLength = Integer.parseInt(resource.substring(indexOfSlash+1, resource.length()).trim());
-            if (prefixLength < 0 || prefixLength > 32) {
-                throw new IllegalArgumentException("prefix length "+prefixLength+" is invalid");
+            if (prefixLength < 0 || prefixLength > 32 || (prefixLength < 32 && begin << prefixLength != 0)) {
+                throw new IllegalArgumentException("prefix length " + prefixLength + " is invalid");
             }
             final int mask = (int)((1L << (32-prefixLength)) - 1);
             final int end = begin | mask;
