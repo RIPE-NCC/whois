@@ -74,7 +74,6 @@ public class DnsChecker {
             return false;
         }
 
-        LOGGER.debug("DNS check required for update: {}", update);
         return true;
     }
 

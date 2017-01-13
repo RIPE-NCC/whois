@@ -17,7 +17,7 @@ import static net.ripe.db.whois.common.Messages.Type.ERROR;
 
 public class DomainCheckAction extends RecursiveAction {
 
-    private static final int sThreshold = 2;
+    private static final int sThreshold = 4;
     private static final ImmutableSet<String> ERROR_LEVELS = ImmutableSet.of("CRITICAL", "ERROR");
 
     public DomainCheckAction(
@@ -45,6 +45,7 @@ public class DomainCheckAction extends RecursiveAction {
 
     private void computeDirectly() {
 
+        LOGGER.info("computeDirectly called with start {} and length {}", mStart, mStart + mLength);
         for (int index = mStart; index < mStart + mLength; index++) {
 
             DnsCheckRequest dnsCheckRequest = dnsCheckRequests[index];
@@ -53,30 +54,34 @@ public class DomainCheckAction extends RecursiveAction {
             // Fire request
             StartDomainTestRequest req = new StartDomainTestRequest(dnsCheckRequest);
             String checkInstanceId = req.execute().readEntity(StartDomainTestResponse.class).getResult();
+            LOGGER.debug("Started domain test for {} with checkInstanceId: {}", dnsCheckRequest.getDomain(), checkInstanceId);
 
             String percentageComplete;
             try {
                 do {
                     Thread.sleep(1_000);
+                    LOGGER.debug("computeDirectly sleeping for one second");
                     // Poll 'test' until result is 100%
                     TestProgressRequest tpRequest = new TestProgressRequest(checkInstanceId);
                     percentageComplete = tpRequest.execute().readEntity(StartDomainTestResponse.class).getResult();
                 } while (!"100".equals(percentageComplete));
 
+                LOGGER.debug("computeDirectly detected a Zonemaster result \\o/");
+
                 GetTestResultsRequest gtrRequest = new GetTestResultsRequest(checkInstanceId);
 
                 GetTestResultsResponse gtrResponse = gtrRequest.execute().readEntity(GetTestResultsResponse.class);
-                //System.out.println("gtrResponse: " + gtrResponse);
                 List<Message> errorMessages = Arrays.stream(gtrResponse.getResult().getResults())
                         .filter(m->ERROR_LEVELS.contains(m.getLevel()))
                         .map(m->new Message(ERROR, m.getMessage()))
                         .collect(Collectors.toList());
+                LOGGER.debug("computeDirectly found {} error messages for checkInstanceId: {}", errorMessages.size(), checkInstanceId);
                 dnsCheckResponse = new DnsCheckResponse(errorMessages);
 
                 // Get the result and store message
                 responseMap.put(dnsCheckRequest, dnsCheckResponse);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.warn("DomainCheckAction.computeDirectly caught {}: {}", e.getClass().getName(), e.getMessage());
             }
         }
     }

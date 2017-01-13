@@ -70,6 +70,7 @@ class StartDomainTestRequest extends ZonemasterRequestSupport {
                 .put("method", "start_domain_test");
         ObjectNode params = JsonNodeFactory.instance.objectNode()
                 .put("domain", dnsCheckRequest.getDomain())
+                .put("config", "predelegation_config") // Special flag for ns.ripe.net
                 .put("ipv6", true)
                 .put("ipv4", true);
         dsRdataArray = params.putArray("ds_info");
