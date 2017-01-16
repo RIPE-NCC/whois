@@ -4,16 +4,26 @@ package net.ripe.db.whois.update.dns.zonemaster;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "response")
 public class GetTestResultsResponse {
 
-    public String getJsonrpc() {
-        return jsonrpc;
+    @JsonProperty("jsonrpc")
+    private String jsonRpc;
+    private String id;
+    private Result result;
+
+    public String getJsonRpc() {
+        return jsonRpc;
     }
 
-    public void setJsonrpc(final String jsonrpc) {
-        this.jsonrpc = jsonrpc;
+    public void setJsonRpc(final String jsonRpc) {
+        this.jsonRpc = jsonRpc;
     }
 
     public String getId() {
@@ -32,15 +42,25 @@ public class GetTestResultsResponse {
         this.result = result;
     }
 
+    @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("jsonrpc", jsonrpc)
+                .append("jsonrpc", jsonRpc)
                 .append("id", id)
                 .append("result", result)
                 .toString();
     }
 
     static class Result {
+
+        private Map params;
+        @JsonProperty("hash_id")
+        private String hashId;
+        @JsonProperty("creation_time")
+        private String creationTime;
+        private String id;
+        private Message[] results;
+
         public Map getParams() {
             return params;
         }
@@ -91,6 +111,12 @@ public class GetTestResultsResponse {
         }
 
         static class Message {
+
+            private String message;
+            private String level;
+            private String module;
+            private String ns;
+
             public String getMessage() {
                 return message;
             }
@@ -123,6 +149,7 @@ public class GetTestResultsResponse {
                 this.ns = ns;
             }
 
+            @Override
             public String toString() {
                 return new ToStringBuilder(this)
                         .append("message", message)
@@ -131,23 +158,7 @@ public class GetTestResultsResponse {
                         .append("ns", ns)
                         .toString();
             }
-
-            private String message;
-            private String level;
-            private String module;
-            private String ns;
         }
-
-        private Map params;
-        @JsonProperty("hash_id")
-        private String hashId;
-        @JsonProperty("creation_time")
-        private String creationTime;
-        private String id;
-        private Message[] results;
     }
 
-    private String jsonrpc;
-    private String id;
-    private Result result;
 }

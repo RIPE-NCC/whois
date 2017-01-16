@@ -2,6 +2,11 @@ package net.ripe.db.whois.update.dns.zonemaster;
 
 
 public class StartDomainTestResponse {
+
+    private String jsonrpc;
+    private String id;
+    private String result;
+
     public String getJsonrpc() {
         return jsonrpc;
     }
@@ -25,8 +30,4 @@ public class StartDomainTestResponse {
     public void setResult(final String result) {
         this.result = result;
     }
-
-    private String jsonrpc;
-    private String id;
-    private String result;
 }
