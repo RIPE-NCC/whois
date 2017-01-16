@@ -17,6 +17,8 @@ import java.util.concurrent.ForkJoinPool;
 @Component
 public class ZonemasterDnsGateway implements DnsGateway {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDnsGateway.class);
+
     @Override
     public Map<DnsCheckRequest, DnsCheckResponse> performDnsChecks(final Set<DnsCheckRequest> dnsCheckRequests) {
         final Map<DnsCheckRequest, DnsCheckResponse> dnsResults = Maps.newHashMap();
@@ -25,7 +27,4 @@ public class ZonemasterDnsGateway implements DnsGateway {
         pool.invoke(domainCheckAction);
         return dnsResults;
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDnsGateway.class);
-
 }
