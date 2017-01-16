@@ -1,13 +1,13 @@
 package net.ripe.db.whois.update.dns.zonemaster;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -59,83 +59,59 @@ import java.util.Set;
  */
 class StartDomainTestRequest extends ZonemasterRequestSupport {
 
+    private static Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
+
+    final Request request;
+
     StartDomainTestRequest(final DnsCheckRequest dnsCheckRequest) {
-        init(dnsCheckRequest);
+        this.request = createRequest(dnsCheckRequest);
     }
 
-    private void init(final DnsCheckRequest dnsCheckRequest) {
-        json = JsonNodeFactory.instance.objectNode()
-                .put("jsonrpc", "2.0")
-                .put("id", 4)
-                .put("method", "start_domain_test");
-        ObjectNode params = JsonNodeFactory.instance.objectNode()
-                .put("domain", dnsCheckRequest.getDomain())
-                .put("config", "predelegation_config") // Special flag for ns.ripe.net
-                .put("ipv6", true)
-                .put("ipv4", true);
-        dsRdataArray = params.putArray("ds_info");
-        nameservers = params.putArray("nameservers");
-        json.putObject("params").setAll(params);
+    @Override
+    public Request getRequest() {
+        return request;
+    }
 
-        RpslObject rpslObject = dnsCheckRequest.getUpdate().getSubmittedObject();
+    private Request createRequest(final DnsCheckRequest dnsCheckRequest) {
+        final Request request = new Request();
+        request.setMethod(Request.Method.START_DOMAIN_TEST);
+        final Request.Params params = new Request.Params();
+        params.setDomain(dnsCheckRequest.getDomain());
+        params.setConfig("predelegation_config");           // Special flag for ns.ripe.net
+
+        final RpslObject rpslObject = dnsCheckRequest.getUpdate().getSubmittedObject();
 
         if (rpslObject.containsAttribute(AttributeType.NSERVER)) {
-            parseNameservers(rpslObject.getValuesForAttribute(AttributeType.DS_RDATA));
+            params.setNameservers(parseNameservers(rpslObject.getValuesForAttribute(AttributeType.DS_RDATA)));      // TODO: is this the correct attribute type?
         }
 
         if (rpslObject.containsAttribute(AttributeType.DS_RDATA)) {
-            parseDsRdata(rpslObject.getValuesForAttribute(AttributeType.DS_RDATA));
+            params.setDsInfos(parseDsRdata(rpslObject.getValuesForAttribute(AttributeType.DS_RDATA)));
         }
+
+        return request;
     }
 
-    private void parseNameservers(final Set<CIString> nserverValues) {
+    private List<Request.Nameserver> parseNameservers(final Set<CIString> nserverValues) {
+        final List<Request.Nameserver> nameservers = Lists.newArrayList();
         for (CIString nserverValue : nserverValues) {
-            String cleanNs = nserverValue.toString().trim();
-            String[] splits = cleanNs.split(" ");
-            if (splits.length > 1) {
-                // contains both name and ip address
-                addNameserver(splits[0], splits[1]);
-            } else {
-                addNameserver(splits[0]);
-            }
+            final List<String> splits = SPACE_SPLITTER.splitToList(nserverValue.toString().trim());
+            nameservers.add(new Request.Nameserver(splits.get(0), (splits.size() > 1) ? splits.get(1) : null));
         }
+        return nameservers;
     }
 
-    private void parseDsRdata(final Set<CIString> dsRdata) {
+    private List<Request.DsInfo> parseDsRdata(final Set<CIString> dsRdata) {
+        final List<Request.DsInfo> dsInfos = Lists.newArrayList();
         for (CIString dsRdataLine : dsRdata) {
-            String[] dsParts = dsRdataLine.toString().trim().split(" ");
-            if (dsParts.length == 4) {
-                ObjectNode dsRdataNode = JsonNodeFactory.instance.objectNode();
-                dsRdataNode.put("keytag", dsParts[0])
-                        .put("algorithm", dsParts[1])
-                        .put("digtype", dsParts[2])
-                        .put("digest", dsParts[3]);
-                dsRdataArray.add(dsRdataNode);
+            final List<String> dsParts = SPACE_SPLITTER.splitToList(dsRdataLine.toString().trim());
+            if (dsParts.size() == 4) {
+                dsInfos.add(new Request.DsInfo(dsParts.get(0), dsParts.get(1), dsParts.get(2), dsParts.get(3)));
             } else {
-                // doesn't look like good dsRdata. now what?
+                // TODO: doesn't look like good dsRdata. now what?
+                throw new IllegalArgumentException("invalid dsRdata: " + dsRdataLine);
             }
         }
+        return dsInfos;
     }
-
-    private void addNameserver(final String nameserver) {
-        addNameserver(nameserver, null);
-    }
-
-    private void addNameserver(final String nameserver, final String ip) {
-        ObjectNode nsNode = JsonNodeFactory.instance.objectNode();
-        nsNode.put("ns", nameserver);
-        if (ip != null) {
-            nsNode.put("ip", ip);
-        }
-        nameservers.add(nsNode);
-    }
-
-    public ObjectNode json() {
-        return json;
-    }
-
-    private ObjectNode json;
-    private ArrayNode nameservers;
-    private ArrayNode dsRdataArray;
-
 }

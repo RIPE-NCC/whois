@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.dns.zonemaster;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,13 +24,15 @@ public class ZonemasterRestClient {
     }
 
     Response sendRequest(final ZonemasterRequest request) {
-        return target.request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(request.json(), MediaType.APPLICATION_JSON));
+        return target.request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(request.getRequest(), MediaType.APPLICATION_JSON));
     }
 
     private static Client createClient() {
         final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
         jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
         jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        jsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
+        jsonProvider.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);
         return ClientBuilder.newBuilder()
                 .register(jsonProvider)
                 .build();

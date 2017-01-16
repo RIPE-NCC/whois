@@ -1,8 +1,5 @@
 package net.ripe.db.whois.update.dns.zonemaster;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 /**
  * Taken from Zonemaster documentation
  *
@@ -10,18 +7,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 class VersionInfoRequest extends ZonemasterRequestSupport {
 
+    private final Request request;
+
     VersionInfoRequest() {
-        JsonNodeFactory factory = JsonNodeFactory.instance;
-        json = factory.objectNode()
-                .put("jsonrpc", "2.0")
-                .put("id", 1)
-                .put("method", "version_info");
+        this.request = new Request();
+        this.request.setMethod(Request.Method.VERSION_INFO);
     }
 
-    public ObjectNode json() {
-        return json;
+    @Override
+    public Request getRequest() {
+        return this.request;
     }
-
-    private ObjectNode json;
 
 }

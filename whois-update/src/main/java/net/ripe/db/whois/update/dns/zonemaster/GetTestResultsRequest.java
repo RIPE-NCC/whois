@@ -1,8 +1,5 @@
 package net.ripe.db.whois.update.dns.zonemaster;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 /**
  * Taken from Zonemaster documentation
  *
@@ -10,24 +7,23 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 class GetTestResultsRequest extends ZonemasterRequestSupport {
 
+    final Request request;
+
     GetTestResultsRequest(String id) {
-        JsonNodeFactory factory = JsonNodeFactory.instance;
-        json = factory.objectNode()
-                .put("jsonrpc", "2.0")
-                .put("id", 6)
-                .put("method", "get_test_results");
-        json.putObject("params").put("id", id).put("language", "en");
+        this.request = new Request();
+        request.setMethod(Request.Method.GET_TEST_RESULTS);
+        final Request.Params params = new Request.Params();
+        params.setId(id);
+        params.setLanguage("en");
     }
 
-    public ObjectNode json() {
-        return json;
+    @Override
+    public Request getRequest() {
+        return request;
     }
 
     public static void main(String[] args) {
         GetTestResultsRequest req = new GetTestResultsRequest("i ij i ij oo");
-        System.out.println("request:\n" + req.json());
+        System.out.println("request:\n" + req.getRequest());
     }
-
-    private ObjectNode json;
-
 }
