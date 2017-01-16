@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.dns;
+package net.ripe.db.whois.update.dns.zonemaster;
 
 
 import com.google.common.collect.ImmutableList;
@@ -7,7 +7,9 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
-import net.ripe.db.whois.update.dns.zonemaster.ZonemasterRestClient;
+import net.ripe.db.whois.update.dns.DnsCheckRequest;
+import net.ripe.db.whois.update.dns.DnsCheckResponse;
+import net.ripe.db.whois.update.dns.DnsGateway;
 import net.ripe.db.whois.update.dns.zonemaster.domain.GetTestResultsRequest;
 import net.ripe.db.whois.update.dns.zonemaster.domain.GetTestResultsResponse;
 import net.ripe.db.whois.update.dns.zonemaster.domain.StartDomainTestRequest;
