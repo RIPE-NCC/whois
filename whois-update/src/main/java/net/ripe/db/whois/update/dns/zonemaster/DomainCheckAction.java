@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.dns.zonemaster;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
@@ -11,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.Messages.Type.ERROR;
@@ -63,33 +65,30 @@ public class DomainCheckAction extends RecursiveAction {
             String checkInstanceId = req.execute().readEntity(StartDomainTestResponse.class).getResult();
             LOGGER.debug("Started domain test for {} with checkInstanceId: {}", dnsCheckRequest.getDomain(), checkInstanceId);
 
+            // TODO: [ES] may run forever
             String percentageComplete;
-            try {
-                do {
-                    Thread.sleep(1_000);
-                    LOGGER.debug("computeDirectly sleeping for one second");
-                    // Poll 'test' until result is 100%
-                    TestProgressRequest tpRequest = new TestProgressRequest(checkInstanceId);
-                    percentageComplete = tpRequest.execute().readEntity(StartDomainTestResponse.class).getResult();
-                } while (!"100".equals(percentageComplete));
+            do {
+                LOGGER.debug("computeDirectly sleeping for one second");
+                Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+                // Poll 'test' until result is 100%
+                TestProgressRequest tpRequest = new TestProgressRequest(checkInstanceId);
+                percentageComplete = tpRequest.execute().readEntity(StartDomainTestResponse.class).getResult();
+            } while (!"100".equals(percentageComplete));
 
-                LOGGER.debug("computeDirectly detected a Zonemaster result \\o/");
+            LOGGER.debug("computeDirectly detected a Zonemaster result \\o/");
 
-                GetTestResultsRequest gtrRequest = new GetTestResultsRequest(checkInstanceId);
+            GetTestResultsRequest gtrRequest = new GetTestResultsRequest(checkInstanceId);
 
-                GetTestResultsResponse gtrResponse = gtrRequest.execute().readEntity(GetTestResultsResponse.class);
-                List<Message> errorMessages = Arrays.stream(gtrResponse.getResult().getResults())
-                        .filter(m->ERROR_LEVELS.contains(m.getLevel()))
-                        .map(m->new Message(ERROR, m.getMessage()))
-                        .collect(Collectors.toList());
-                LOGGER.debug("computeDirectly found {} error messages for checkInstanceId: {}", errorMessages.size(), checkInstanceId);
-                dnsCheckResponse = new DnsCheckResponse(errorMessages);
+            GetTestResultsResponse gtrResponse = gtrRequest.execute().readEntity(GetTestResultsResponse.class);
+            List<Message> errorMessages = Arrays.stream(gtrResponse.getResult().getResults())
+                    .filter(m->ERROR_LEVELS.contains(m.getLevel()))
+                    .map(m->new Message(ERROR, m.getMessage()))
+                    .collect(Collectors.toList());
+            LOGGER.debug("computeDirectly found {} error messages for checkInstanceId: {}", errorMessages.size(), checkInstanceId);
+            dnsCheckResponse = new DnsCheckResponse(errorMessages);
 
-                // Get the result and store message
-                responseMap.put(dnsCheckRequest, dnsCheckResponse);
-            } catch (InterruptedException e) {
-                LOGGER.warn("DomainCheckAction.computeDirectly caught {}: {}", e.getClass().getName(), e.getMessage());
-            }
+            // Get the result and store message
+            responseMap.put(dnsCheckRequest, dnsCheckResponse);
         }
     }
 }
