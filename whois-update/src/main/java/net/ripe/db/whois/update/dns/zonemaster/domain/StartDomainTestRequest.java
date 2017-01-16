@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.dns.zonemaster;
+package net.ripe.db.whois.update.dns.zonemaster.domain;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -57,13 +57,13 @@ import java.util.Set;
  *      }
  * </pre>
  */
-class StartDomainTestRequest extends ZonemasterRequestSupport {
+public  class StartDomainTestRequest implements ZonemasterRequest {
 
     private static Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
 
     final Request request;
 
-    StartDomainTestRequest(final DnsCheckRequest dnsCheckRequest) {
+    public StartDomainTestRequest(final DnsCheckRequest dnsCheckRequest) {
         this.request = createRequest(dnsCheckRequest);
     }
 

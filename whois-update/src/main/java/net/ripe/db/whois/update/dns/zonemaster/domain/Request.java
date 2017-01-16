@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.dns.zonemaster;
+package net.ripe.db.whois.update.dns.zonemaster.domain;
 
 import com.google.common.base.MoreObjects;
 

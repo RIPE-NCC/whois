@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.dns.zonemaster;
+package net.ripe.db.whois.update.dns.zonemaster.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -51,7 +51,7 @@ public class GetTestResultsResponse {
                 .toString();
     }
 
-    static class Result {
+    static public class Result {
 
         private Map params;
         @JsonProperty("hash_id")
@@ -110,7 +110,7 @@ public class GetTestResultsResponse {
                     .toString();
         }
 
-        static class Message {
+        static public class Message {
 
             private String message;
             private String level;

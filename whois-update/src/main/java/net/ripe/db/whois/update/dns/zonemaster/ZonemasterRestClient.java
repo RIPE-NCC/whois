@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.dns.zonemaster;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,7 @@ public class ZonemasterRestClient {
         this.client = createClient();
     }
 
-    Response sendRequest(final ZonemasterRequest request) {
+    public Response sendRequest(final ZonemasterRequest request) {
         return client
             .target(baseUrl)
             .request(MediaType.APPLICATION_JSON_TYPE)

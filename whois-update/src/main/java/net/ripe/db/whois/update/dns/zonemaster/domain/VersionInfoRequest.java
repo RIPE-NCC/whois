@@ -1,11 +1,11 @@
-package net.ripe.db.whois.update.dns.zonemaster;
+package net.ripe.db.whois.update.dns.zonemaster.domain;
 
 /**
  * Taken from Zonemaster documentation
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */
-class VersionInfoRequest extends ZonemasterRequestSupport {
+class VersionInfoRequest implements ZonemasterRequest {
 
     private final Request request;
 

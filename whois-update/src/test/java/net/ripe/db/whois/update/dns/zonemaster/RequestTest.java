@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.update.dns.zonemaster.domain.Request;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;

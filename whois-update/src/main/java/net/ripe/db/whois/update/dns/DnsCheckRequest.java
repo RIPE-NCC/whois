@@ -10,7 +10,7 @@ public class DnsCheckRequest {
     private final String domain;
     private final String glue;
 
-    DnsCheckRequest(final Update update, final String domain, final String glue) {
+    public DnsCheckRequest(final Update update, final String domain, final String glue) {
         this.update = update;
         this.domain = domain;
         this.glue = glue;
