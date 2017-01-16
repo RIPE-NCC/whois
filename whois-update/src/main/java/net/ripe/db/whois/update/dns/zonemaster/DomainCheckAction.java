@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.dns.zonemaster;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
@@ -17,8 +17,15 @@ import static net.ripe.db.whois.common.Messages.Type.ERROR;
 
 public class DomainCheckAction extends RecursiveAction {
 
-    private static final int sThreshold = 4;
-    private static final ImmutableSet<String> ERROR_LEVELS = ImmutableSet.of("CRITICAL", "ERROR");
+    private static final Logger LOGGER = LoggerFactory.getLogger(DomainCheckAction.class);
+
+    private static final int THRESHOLD = 4;
+    private static final ImmutableList<String> ERROR_LEVELS = ImmutableList.of("CRITICAL", "ERROR");
+
+    private int mStart;
+    private int mLength;
+    private DnsCheckRequest[] dnsCheckRequests;
+    private Map<DnsCheckRequest, DnsCheckResponse> responseMap;
 
     public DomainCheckAction(
             final DnsCheckRequest[] dnsCheckRequests,
@@ -34,7 +41,7 @@ public class DomainCheckAction extends RecursiveAction {
 
     @Override
     protected void compute() {
-        if (mLength < sThreshold) {
+        if (mLength < THRESHOLD) {
             computeDirectly();
             return;
         }
@@ -85,12 +92,4 @@ public class DomainCheckAction extends RecursiveAction {
             }
         }
     }
-
-    private int mStart;
-    private int mLength;
-    private DnsCheckRequest[] dnsCheckRequests;
-    private Map<DnsCheckRequest, DnsCheckResponse> responseMap;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DomainCheckAction.class);
-
 }
