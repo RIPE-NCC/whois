@@ -31,7 +31,7 @@ public class ZonemasterRestClient {
         return client
             .target(baseUrl)
             .request(MediaType.APPLICATION_JSON_TYPE)
-            .post(Entity.entity(request.getRequest(), MediaType.APPLICATION_JSON));
+            .post(Entity.entity(request, MediaType.APPLICATION_JSON));
     }
 
     private static Client createClient() {

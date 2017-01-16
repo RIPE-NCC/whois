@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.dns.zonemaster.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -11,28 +12,9 @@ import java.util.Map;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "response")
-public class GetTestResultsResponse {
+public class GetTestResultsResponse extends ZonemasterResponse {
 
-    @JsonProperty("jsonrpc")
-    private String jsonRpc;
-    private String id;
     private Result result;
-
-    public String getJsonRpc() {
-        return jsonRpc;
-    }
-
-    public void setJsonRpc(final String jsonRpc) {
-        this.jsonRpc = jsonRpc;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(final String id) {
-        this.id = id;
-    }
 
     public Result getResult() {
         return result;
@@ -43,15 +25,12 @@ public class GetTestResultsResponse {
     }
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("jsonrpc", jsonRpc)
-                .append("id", id)
-                .append("result", result)
-                .toString();
+    protected MoreObjects.ToStringHelper toStringHelper() {
+        return super.toStringHelper()
+                .add("result", result);
     }
 
-    static public class Result {
+    public static class Result {
 
         private Map params;
         @JsonProperty("hash_id")
@@ -110,7 +89,7 @@ public class GetTestResultsResponse {
                     .toString();
         }
 
-        static public class Message {
+        public static class Message {
 
             private String message;
             private String level;

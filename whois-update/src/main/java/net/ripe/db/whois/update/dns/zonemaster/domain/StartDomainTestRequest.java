@@ -57,25 +57,14 @@ import java.util.Set;
  *      }
  * </pre>
  */
-public  class StartDomainTestRequest implements ZonemasterRequest {
+public  class StartDomainTestRequest extends ZonemasterRequest {
 
     private static Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
 
-    final Request request;
-
     public StartDomainTestRequest(final DnsCheckRequest dnsCheckRequest) {
-        this.request = createRequest(dnsCheckRequest);
-    }
+        super.setMethod(ZonemasterRequest.Method.START_DOMAIN_TEST);
 
-    @Override
-    public Request getRequest() {
-        return request;
-    }
-
-    private Request createRequest(final DnsCheckRequest dnsCheckRequest) {
-        final Request request = new Request();
-        request.setMethod(Request.Method.START_DOMAIN_TEST);
-        final Request.Params params = new Request.Params();
+        final ZonemasterRequest.Params params = new ZonemasterRequest.Params();
         params.setDomain(dnsCheckRequest.getDomain());
         params.setConfig("predelegation_config");           // Special flag for ns.ripe.net
 
@@ -89,24 +78,24 @@ public  class StartDomainTestRequest implements ZonemasterRequest {
             params.setDsInfos(parseDsRdata(rpslObject.getValuesForAttribute(AttributeType.DS_RDATA)));
         }
 
-        return request;
+        super.setParams(params);
     }
 
-    private List<Request.Nameserver> parseNameservers(final Set<CIString> nserverValues) {
-        final List<Request.Nameserver> nameservers = Lists.newArrayList();
+    private List<ZonemasterRequest.Nameserver> parseNameservers(final Set<CIString> nserverValues) {
+        final List<ZonemasterRequest.Nameserver> nameservers = Lists.newArrayList();
         for (CIString nserverValue : nserverValues) {
             final List<String> splits = SPACE_SPLITTER.splitToList(nserverValue.toString().trim());
-            nameservers.add(new Request.Nameserver(splits.get(0), (splits.size() > 1) ? splits.get(1) : null));
+            nameservers.add(new ZonemasterRequest.Nameserver(splits.get(0), (splits.size() > 1) ? splits.get(1) : null));
         }
         return nameservers;
     }
 
-    private List<Request.DsInfo> parseDsRdata(final Set<CIString> dsRdata) {
-        final List<Request.DsInfo> dsInfos = Lists.newArrayList();
+    private List<ZonemasterRequest.DsInfo> parseDsRdata(final Set<CIString> dsRdata) {
+        final List<ZonemasterRequest.DsInfo> dsInfos = Lists.newArrayList();
         for (CIString dsRdataLine : dsRdata) {
             final List<String> dsParts = SPACE_SPLITTER.splitToList(dsRdataLine.toString().trim());
             if (dsParts.size() == 4) {
-                dsInfos.add(new Request.DsInfo(dsParts.get(0), dsParts.get(1), dsParts.get(2), dsParts.get(3)));
+                dsInfos.add(new ZonemasterRequest.DsInfo(dsParts.get(0), dsParts.get(1), dsParts.get(2), dsParts.get(3)));
             } else {
                 // TODO: doesn't look like good dsRdata. now what?
                 throw new IllegalArgumentException("invalid dsRdata: " + dsRdataLine);

@@ -5,20 +5,15 @@ package net.ripe.db.whois.update.dns.zonemaster.domain;
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */
-public class GetTestResultsRequest implements ZonemasterRequest {
+public class GetTestResultsRequest extends ZonemasterRequest {
 
-    final Request request;
+    private static final String LANGUAGE = "en";
 
-    public GetTestResultsRequest(String id) {
-        this.request = new Request();
-        request.setMethod(Request.Method.GET_TEST_RESULTS);
-        final Request.Params params = new Request.Params();
+    public GetTestResultsRequest(final String id) {
+        super.setMethod(ZonemasterRequest.Method.GET_TEST_RESULTS);
+        final ZonemasterRequest.Params params = new ZonemasterRequest.Params();
         params.setId(id);
-        params.setLanguage("en");
-    }
-
-    @Override
-    public Request getRequest() {
-        return request;
+        params.setLanguage(LANGUAGE);
+        super.setParams(params);
     }
 }

@@ -1,32 +1,12 @@
 package net.ripe.db.whois.update.dns.zonemaster.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import com.google.common.base.MoreObjects;
 
 import java.util.Map;
 
-public class VersionInfoResponse {
+public class VersionInfoResponse extends ZonemasterResponse {
 
-    @JsonProperty("jsonRpc")
-    private String jsonRpc;
-    private String id;
     private Map<String, String> result;
-
-    public String getJsonRpc() {
-        return jsonRpc;
-    }
-
-    public void setJsonRpc(final String jsonRpc) {
-        this.jsonRpc = jsonRpc;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(final String id) {
-        this.id = id;
-    }
 
     public Map<String, String> getResult() {
         return result;
@@ -36,12 +16,9 @@ public class VersionInfoResponse {
         this.result = result;
     }
 
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("jsonrpc", jsonRpc)
-                .append("id", id)
-                .append("result", result)
-                .toString();
+    @Override
+    protected MoreObjects.ToStringHelper toStringHelper() {
+        return super.toStringHelper()
+            .add("result", result);
     }
-
 }
