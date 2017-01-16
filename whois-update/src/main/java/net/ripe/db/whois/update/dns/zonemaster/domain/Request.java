@@ -45,7 +45,7 @@ public class Request {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "params")
-    static class Params {
+    public static class Params {
 
         @XmlElement(name = "client_id")
         private String clientId = "Zonemaster Dancer Frontend";
@@ -120,7 +120,7 @@ public class Request {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "nameserver")
-    static class Nameserver {
+    public static class Nameserver {
 
         @XmlElement(name = "ip")
         private String ip;
@@ -144,7 +144,7 @@ public class Request {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "dsinfo")
-    static class DsInfo {
+    public static class DsInfo {
         @XmlElement(name = "keytag")
         private String keyTag;
 
@@ -171,7 +171,7 @@ public class Request {
         }
     }
 
-    enum Method {
+    public enum Method {
         VERSION_INFO("version_info", 1),
         GET_NS_IPS("get_ns_ips", 2),
         GET_DATA_FROM_PARENT_ZONE("get_data_from_parent_zone", 3),
