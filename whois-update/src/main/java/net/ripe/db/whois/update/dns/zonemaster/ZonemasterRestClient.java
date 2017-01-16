@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -18,13 +17,20 @@ import javax.ws.rs.core.Response;
 @Component
 public class ZonemasterRestClient {
 
+    private Client client;
+    private String baseUrl;
+
     @Autowired
     public ZonemasterRestClient(@Value("${whois.zonemaster.baseUrl}") final String baseUrl) {
-        target = createClient().target(baseUrl);
+        this.baseUrl = baseUrl;
+        this.client = createClient();
     }
 
     Response sendRequest(final ZonemasterRequest request) {
-        return target.request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(request.getRequest(), MediaType.APPLICATION_JSON));
+        return client
+            .target(baseUrl)
+            .request(MediaType.APPLICATION_JSON_TYPE)
+            .post(Entity.entity(request.getRequest(), MediaType.APPLICATION_JSON));
     }
 
     private static Client createClient() {
@@ -37,7 +43,4 @@ public class ZonemasterRestClient {
                 .register(jsonProvider)
                 .build();
     }
-
-    private final WebTarget target;
-
 }
