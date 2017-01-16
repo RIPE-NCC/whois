@@ -26,6 +26,10 @@ public class StartDomainTestResponse {
         this.id = id;
     }
 
+    /**
+     * Percentage complete for Start Domain Test in progress
+     * @return
+     */
     public String getResult() {
         return result;
     }

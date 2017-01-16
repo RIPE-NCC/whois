@@ -21,16 +21,17 @@ public class DomainCheckAction extends RecursiveAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainCheckAction.class);
 
+    private static String PERCENTAGE_COMPLETE = "100";
     private static final int THRESHOLD = 4;
     private static final ImmutableList<String> ERROR_LEVELS = ImmutableList.of("CRITICAL", "ERROR");
 
     private int mStart;
     private int mLength;
-    private DnsCheckRequest[] dnsCheckRequests;
+    private List<DnsCheckRequest> dnsCheckRequests;
     private Map<DnsCheckRequest, DnsCheckResponse> responseMap;
 
     public DomainCheckAction(
-            final DnsCheckRequest[] dnsCheckRequests,
+            final List<DnsCheckRequest> dnsCheckRequests,
             final int start,
             final int length,
             final Map<DnsCheckRequest, DnsCheckResponse> responseMap) {
@@ -57,38 +58,52 @@ public class DomainCheckAction extends RecursiveAction {
         LOGGER.info("computeDirectly called with start {} and length {}", mStart, mStart + mLength);
         for (int index = mStart; index < mStart + mLength; index++) {
 
-            DnsCheckRequest dnsCheckRequest = dnsCheckRequests[index];
-            DnsCheckResponse dnsCheckResponse;
+            final DnsCheckRequest dnsCheckRequest = dnsCheckRequests.get(index);
 
-            // Fire request
-            StartDomainTestRequest req = new StartDomainTestRequest(dnsCheckRequest);
-            String checkInstanceId = req.execute().readEntity(StartDomainTestResponse.class).getResult();
+            final String checkInstanceId = makeRequest(dnsCheckRequest);
             LOGGER.debug("Started domain test for {} with checkInstanceId: {}", dnsCheckRequest.getDomain(), checkInstanceId);
 
             // TODO: [ES] may run forever
-            String percentageComplete;
             do {
                 LOGGER.debug("computeDirectly sleeping for one second");
                 Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
-                // Poll 'test' until result is 100%
-                TestProgressRequest tpRequest = new TestProgressRequest(checkInstanceId);
-                percentageComplete = tpRequest.execute().readEntity(StartDomainTestResponse.class).getResult();
-            } while (!"100".equals(percentageComplete));
+            } while (!PERCENTAGE_COMPLETE.equals(testProgress(checkInstanceId)));
 
             LOGGER.debug("computeDirectly detected a Zonemaster result \\o/");
 
-            GetTestResultsRequest gtrRequest = new GetTestResultsRequest(checkInstanceId);
+            final GetTestResultsResponse testResults = getResults(checkInstanceId);
+            final List<Message> errorMessages = getErrorsFromResults(testResults);
 
-            GetTestResultsResponse gtrResponse = gtrRequest.execute().readEntity(GetTestResultsResponse.class);
-            List<Message> errorMessages = Arrays.stream(gtrResponse.getResult().getResults())
-                    .filter(m->ERROR_LEVELS.contains(m.getLevel()))
-                    .map(m->new Message(ERROR, m.getMessage()))
-                    .collect(Collectors.toList());
             LOGGER.debug("computeDirectly found {} error messages for checkInstanceId: {}", errorMessages.size(), checkInstanceId);
-            dnsCheckResponse = new DnsCheckResponse(errorMessages);
+            final DnsCheckResponse dnsCheckResponse = new DnsCheckResponse(errorMessages);
 
             // Get the result and store message
             responseMap.put(dnsCheckRequest, dnsCheckResponse);
         }
+    }
+
+    /**
+     * @return check instance id
+     */
+    private String makeRequest(final DnsCheckRequest dnsCheckRequest) {
+        return new StartDomainTestRequest(dnsCheckRequest).execute().readEntity(StartDomainTestResponse.class).getResult();
+    }
+
+    /**
+     * @return percentage complete
+     */
+    private String testProgress(final String id) {
+        return new TestProgressRequest(id).execute().readEntity(StartDomainTestResponse.class).getResult();
+    }
+
+    private GetTestResultsResponse getResults(final String id) {
+        return new GetTestResultsRequest(id).execute().readEntity(GetTestResultsResponse.class);
+    }
+
+    private List<Message> getErrorsFromResults(final GetTestResultsResponse testResults) {
+        return Arrays.stream(testResults.getResult().getResults())
+                .filter(m->ERROR_LEVELS.contains(m.getLevel()))
+                .map(m->new Message(ERROR, m.getMessage()))
+                .collect(Collectors.toList());
     }
 }
