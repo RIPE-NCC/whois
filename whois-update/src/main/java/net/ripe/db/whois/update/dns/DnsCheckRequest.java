@@ -47,7 +47,7 @@ public class DnsCheckRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(domain, glue);
+        return Objects.hash(update, domain, glue);
     }
 
     @Override

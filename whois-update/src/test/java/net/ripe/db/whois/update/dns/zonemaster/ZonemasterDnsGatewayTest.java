@@ -13,7 +13,6 @@ import net.ripe.db.whois.update.dns.zonemaster.domain.TestProgressResponse;
 import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
 import net.ripe.db.whois.update.domain.Update;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -84,7 +83,6 @@ public class ZonemasterDnsGatewayTest {
         assertThat(messages, contains(new Message(Messages.Type.ERROR, "check failed")));
     }
 
-    @Ignore("TODO: [ES] test fails, split is not working")
     @Test
     public void odd_number_of_domain_objects_above_threshold() {
         mock(RpslObject.parse("domain: 22.0.193.in-addr.arpa"));
@@ -122,10 +120,17 @@ public class ZonemasterDnsGatewayTest {
                 new DnsCheckRequest(update, "3.ripe.net", null),
                 new DnsCheckRequest(update, "4.ripe.net", null),
                 new DnsCheckRequest(update, "5.ripe.net", null),
-                new DnsCheckRequest(update, "6.ripe.net", null)
+                new DnsCheckRequest(update, "6.ripe.net", null),
+                new DnsCheckRequest(update, "7.ripe.net", null),
+                new DnsCheckRequest(update, "8.ripe.net", null),
+                new DnsCheckRequest(update, "9.ripe.net", null),
+                new DnsCheckRequest(update, "10.ripe.net", null),
+                new DnsCheckRequest(update, "11.ripe.net", null),
+                new DnsCheckRequest(update, "12.ripe.net", null)
+
             ));
 
-        assertThat(response.values(), hasSize(6));
+        assertThat(response.values(), hasSize(12));
     }
 
     // helper methods
