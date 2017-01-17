@@ -35,7 +35,7 @@ public abstract class ZonemasterRequest {
         GET_DATA_FROM_PARENT_ZONE("get_data_from_parent_zone", 3),
         START_DOMAIN_TEST("start_domain_test", 4),
         TEST_PROGRESS("test_progress", 5),
-        GET_TEST_RESULTS("get_test_result", 6),
+        GET_TEST_RESULTS("get_test_results", 6),
         GET_TEST_HISTORY("get_test_history", 7);
 
         private String method;
