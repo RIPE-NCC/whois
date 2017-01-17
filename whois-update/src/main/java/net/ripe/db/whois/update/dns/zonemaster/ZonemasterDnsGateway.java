@@ -57,13 +57,12 @@ public class ZonemasterDnsGateway implements DnsGateway {
 
     @Override
     public Map<DnsCheckRequest, DnsCheckResponse> performDnsChecks(final Set<DnsCheckRequest> dnsCheckRequests) {
-        final Map<DnsCheckRequest, DnsCheckResponse> dnsResults = Maps.newHashMap();
-        (new ForkJoinPool()).invoke(new DomainCheckAction(Lists.newArrayList(dnsCheckRequests), dnsResults));
+        final Map<DnsCheckRequest, DnsCheckResponse> dnsResults = Maps.newConcurrentMap();
+        new ForkJoinPool().invoke(new DomainCheckAction(Lists.newArrayList(dnsCheckRequests), dnsResults));
         return dnsResults;
     }
 
     private class DomainCheckAction extends RecursiveAction {
-
         private final List<DnsCheckRequest> dnsCheckRequests;
         private final Map<DnsCheckRequest, DnsCheckResponse> responseMap;
 

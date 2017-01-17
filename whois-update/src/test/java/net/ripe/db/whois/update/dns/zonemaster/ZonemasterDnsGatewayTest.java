@@ -88,9 +88,6 @@ public class ZonemasterDnsGatewayTest {
         mock(RpslObject.parse("domain: 22.0.193.in-addr.arpa"));
         when(startDomainTestResponse.getResult()).thenReturn("1");
         when(testProgressResponse.getResult()).thenReturn("100");
-        when(result.getResults()).thenReturn(Lists.newArrayList(message));
-        when(message.getMessage()).thenReturn("check failed");
-        when(message.getLevel()).thenReturn("ERROR");
 
         final Map<DnsCheckRequest, DnsCheckResponse> response =
             subject.performDnsChecks(Sets.newHashSet(
@@ -115,24 +112,21 @@ public class ZonemasterDnsGatewayTest {
         mock(RpslObject.parse("domain: 22.0.193.in-addr.arpa"));
         when(startDomainTestResponse.getResult()).thenReturn("1");
         when(testProgressResponse.getResult()).thenReturn("100");
-        when(result.getResults()).thenReturn(Lists.newArrayList(message));
-        when(message.getMessage()).thenReturn("check failed");
-        when(message.getLevel()).thenReturn("ERROR");
 
         final Map<DnsCheckRequest, DnsCheckResponse> response =
             subject.performDnsChecks(Sets.newHashSet(
+                new DnsCheckRequest(update, "1.ripe.net", null),
+                new DnsCheckRequest(update, "2.ripe.net", null),
+                new DnsCheckRequest(update, "3.ripe.net", null),
+                new DnsCheckRequest(update, "4.ripe.net", null),
+                new DnsCheckRequest(update, "5.ripe.net", null),
+                new DnsCheckRequest(update, "6.ripe.net", null),
+                new DnsCheckRequest(update, "7.ripe.net", null),
+                new DnsCheckRequest(update, "8.ripe.net", null),
+                new DnsCheckRequest(update, "9.ripe.net", null),
                 new DnsCheckRequest(update, "10.ripe.net", null),
-                new DnsCheckRequest(update, "20.ripe.net", null),
-                new DnsCheckRequest(update, "30.ripe.net", null),
-                new DnsCheckRequest(update, "40.ripe.net", null),
-                new DnsCheckRequest(update, "50.ripe.net", null),
-                new DnsCheckRequest(update, "60.ripe.net", null),
-                new DnsCheckRequest(update, "70.ripe.net", null),
-                new DnsCheckRequest(update, "80.ripe.net", null),
-                new DnsCheckRequest(update, "90.ripe.net", null),
-                new DnsCheckRequest(update, "100.ripe.net", null),
-                new DnsCheckRequest(update, "110.ripe.net", null),
-                new DnsCheckRequest(update, "120.ripe.net", null)
+                new DnsCheckRequest(update, "11.ripe.net", null),
+                new DnsCheckRequest(update, "12.ripe.net", null)
             ));
 
         assertThat(response.values(), hasSize(12));
@@ -143,5 +137,4 @@ public class ZonemasterDnsGatewayTest {
     private void mock(final RpslObject rpslObject) {
         when(update.getSubmittedObject()).thenReturn(rpslObject);
     }
-
 }
