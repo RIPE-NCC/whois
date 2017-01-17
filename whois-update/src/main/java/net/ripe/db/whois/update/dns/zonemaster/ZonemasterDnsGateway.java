@@ -26,6 +26,9 @@ import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static net.ripe.db.whois.common.Messages.Type.ERROR;
 
 // TODO: [ES] DnsCheckRequest glue is never read, is it needed?
 @DeployedProfile
@@ -162,50 +165,19 @@ public class ZonemasterDnsGateway implements DnsGateway {
         private GetTestResultsResponse getResults(final String id) {
             LOGGER.info("getResults request : {}", id);
 
-//            final GetTestResultsResponse response = zonemasterRestClient
-//                .sendRequest(new GetTestResultsRequest(id))
-//                .readEntity(GetTestResultsResponse.class);
+            final GetTestResultsResponse response = zonemasterRestClient
+                .sendRequest(new GetTestResultsRequest(id))
+                .readEntity(GetTestResultsResponse.class);
 
-            final String response = zonemasterRestClient
-                    .sendRequest(new GetTestResultsRequest(id))
-                    .readEntity(String.class);
-
-            LOGGER.info("getResults response is : ", response);
-            return null;
+            LOGGER.info("getResults response is : {}", response.toString());
+            return response;
         }
 
         private List<Message> getErrorsFromResults(final GetTestResultsResponse testResults) {
-            if (testResults == null) {
-                throw new IllegalArgumentException("null testResults");
-            }
-
-            if (testResults.getResult() == null) {      // TODO
-                throw new IllegalArgumentException("null testResults.getResult");
-            }
-
-            if (testResults.getResult().getResults() == null) {
-                throw new IllegalArgumentException("null testResults.getResult.getResults");
-            }
-
-            for (GetTestResultsResponse.Result.Message message : testResults.getResult().getResults()) {
-                if (message.getLevel() == null) {
-                    throw new IllegalArgumentException("message level null");
-                }
-
-                if (message.getMessage() == null) {
-                    throw new IllegalArgumentException("message message null");
-                }
-
-                LOGGER.info("Message {} Level {} Module {} Ns {} toString {}", message.getMessage(), message.getLevel(), message.getModule(), message.getNs(), message.toString());
-            }
-
-
-            //            return Arrays.stream(testResults.getResult().getResults())
-//                    .filter(m->ERROR_LEVELS.contains(m.getLevel()))
-//                    .map(m->new Message(ERROR, m.getMessage()))
-//                    .collect(Collectors.toList());
-
-            return Lists.newArrayList();
+            return testResults.getResult().getResults().stream()
+                .filter(m->ERROR_LEVELS.contains(m.getLevel()))
+                .map(m->new Message(ERROR, m.getMessage()))
+                .collect(Collectors.toList());
         }
     }
 
