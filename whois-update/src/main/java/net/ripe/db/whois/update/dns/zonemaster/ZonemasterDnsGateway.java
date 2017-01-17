@@ -55,9 +55,8 @@ public class ZonemasterDnsGateway implements DnsGateway {
     @Override
     public Map<DnsCheckRequest, DnsCheckResponse> performDnsChecks(final Set<DnsCheckRequest> dnsCheckRequests) {
         final Map<DnsCheckRequest, DnsCheckResponse> dnsResults = Maps.newHashMap();
-        DomainCheckAction domainCheckAction = new DomainCheckAction(Lists.newArrayList(dnsCheckRequests), 0, dnsCheckRequests.size(), dnsResults);      // TODO: size - 1 ?
-        ForkJoinPool pool = new ForkJoinPool();
-        pool.invoke(domainCheckAction);
+        final DomainCheckAction domainCheckAction = new DomainCheckAction(Lists.newArrayList(dnsCheckRequests), 0, dnsCheckRequests.size(), dnsResults);
+        (new ForkJoinPool()).invoke(domainCheckAction);
         return dnsResults;
     }
 
