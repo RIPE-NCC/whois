@@ -1,10 +1,12 @@
 package net.ripe.db.whois.update.dns.zonemaster.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 import javax.annotation.Nullable;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class ZonemasterResponse {
 
     @JsonProperty("jsonrpc")
