@@ -36,7 +36,7 @@ public class ZonemasterDummy implements Stub {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDummy.class);
 
-    private static final Map<String, List<String>> responses = Maps.newHashMap();
+    private static final Map<String, List<String>> RESPONSES = Maps.newHashMap();
 
     private Server server;
     private int port = 0;
@@ -53,7 +53,7 @@ public class ZonemasterDummy implements Stub {
         @Override
         public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
             final String requestBody = getRequestBody(request);
-            for (Map.Entry<String, List<String>> entry : responses.entrySet()) {
+            for (Map.Entry<String, List<String>> entry : RESPONSES.entrySet()) {
                 if (requestBody.contains(entry.getKey())) {
                     putResponseBody(response, removeFirst(entry.getValue()));
                     return;
@@ -82,7 +82,7 @@ public class ZonemasterDummy implements Stub {
         private String removeFirst(final List<String> list) {
             final ListIterator<String> iterator = list.listIterator();
             if (!iterator.hasNext()) {
-                throw new IllegalStateException("No responses left");
+                throw new IllegalStateException("No RESPONSES left");
             } else {
                 final String response = iterator.next();
                 iterator.remove();
@@ -110,11 +110,11 @@ public class ZonemasterDummy implements Stub {
     }
 
     public void whenThen(final String when, final String then) {
-        final List<String> values = responses.get(when);
+        final List<String> values = RESPONSES.get(when);
         if (values != null) {
             values.add(then);
         } else {
-            responses.put(when, Lists.newArrayList(then));
+            RESPONSES.put(when, Lists.newArrayList(then));
         }
     }
 

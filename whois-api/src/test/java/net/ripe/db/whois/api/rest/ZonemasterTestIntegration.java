@@ -4,22 +4,18 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.ZonemasterDummy;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.update.dns.zonemaster.ZonemasterRestClient;
-import net.ripe.db.whois.update.dns.zonemaster.domain.GetTestResultsRequest;
-import net.ripe.db.whois.update.dns.zonemaster.domain.GetTestResultsResponse;
+import net.ripe.db.whois.update.dns.zonemaster.domain.VersionInfoRequest;
+import net.ripe.db.whois.update.dns.zonemaster.domain.VersionInfoResponse;
 import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.File;
-import java.nio.file.Files;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 public class ZonemasterTestIntegration extends AbstractIntegrationTest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterTestIntegration.class);
 
     @Autowired
     private ZonemasterDummy zonemasterDummy;
@@ -27,11 +23,12 @@ public class ZonemasterTestIntegration extends AbstractIntegrationTest {
     private ZonemasterRestClient zonemasterRestClient;
 
     @Test
-    public void test() throws Exception {
-        zonemasterDummy.whenThen(ZonemasterRequest.Method.GET_TEST_RESULTS.getMethod(), new String(Files.readAllBytes(new File("result.json").toPath())));
+    public void version_info() throws Exception {
+        zonemasterDummy.whenThen(ZonemasterRequest.Method.VERSION_INFO.getMethod(), "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"zonemaster_backend\":\"1.1.0\",\"zonemaster_engine\":\"v1.0.16\"}}\n");
 
-        LOGGER.info("response = {}", zonemasterRestClient.sendRequest(new GetTestResultsRequest("abcd")).readEntity(GetTestResultsResponse.class).toString());
+        final VersionInfoResponse response = zonemasterRestClient.sendRequest(new VersionInfoRequest()).readEntity(VersionInfoResponse.class);
+
+        assertThat(response.getId(), is("1"));
+        assertThat(response.getResult().get("zonemaster_backend"), is("1.1.0"));
     }
-
-
 }
