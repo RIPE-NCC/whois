@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.dns.zonemaster.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 
 /**
  * Taken from Zonemaster documentation
@@ -15,5 +16,11 @@ public class TestProgressRequest extends ZonemasterRequest {
     public TestProgressRequest(final String id) {
         super.setMethod(ZonemasterRequest.Method.TEST_PROGRESS);
         this.params = id;
+    }
+
+    @Override
+    protected MoreObjects.ToStringHelper toStringHelper() {
+        return super.toStringHelper()
+            .add("params", params);
     }
 }
