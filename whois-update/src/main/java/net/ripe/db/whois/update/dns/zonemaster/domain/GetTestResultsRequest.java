@@ -1,5 +1,9 @@
 package net.ripe.db.whois.update.dns.zonemaster.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
+import com.google.common.base.MoreObjects;
+
 /**
  * Taken from Zonemaster documentation
  *
@@ -9,11 +13,38 @@ public class GetTestResultsRequest extends ZonemasterRequest {
 
     private static final String LANGUAGE = "en";
 
+    @JsonProperty
+    final GetTestResultsRequest.Params params;
+
     public GetTestResultsRequest(final String id) {
         super.setMethod(ZonemasterRequest.Method.GET_TEST_RESULTS);
-        final ZonemasterRequest.Params params = new ZonemasterRequest.Params();
-        params.setId(id);
-        params.setLanguage(LANGUAGE);
-        super.setParams(params);
+        this.params = new GetTestResultsRequest.Params(id, LANGUAGE);
+    }
+
+    @Override
+    protected MoreObjects.ToStringHelper toStringHelper() {
+        return super.toStringHelper()
+            .add("params", params);
+    }
+
+    @JsonRootName("params")
+    public static class Params {
+        @JsonProperty
+        private String id;
+        @JsonProperty
+        private String language;
+
+        public Params(final String id, final String language) {
+            this.id = id;
+            this.language = language;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("language", language)
+                .toString();
+        }
     }
 }

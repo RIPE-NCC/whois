@@ -5,15 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
+import java.util.List;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "response")
 public class GetTestResultsResponse extends ZonemasterResponse {
 
+    @JsonProperty(value = "result")
     private Result result;
 
     public Result getResult() {
@@ -32,65 +28,46 @@ public class GetTestResultsResponse extends ZonemasterResponse {
 
     public static class Result {
 
-        private Map params;
+        // private Map params;
         @JsonProperty("hash_id")
         private String hashId;
         @JsonProperty("creation_time")
         private String creationTime;
+        @JsonProperty
         private String id;
-        private Message[] results;
+        @JsonProperty(value = "results")
+        private List<Message> messages;
 
-        public Map getParams() {
-            return params;
-        }
-
-        public void setParams(final Map params) {
-            this.params = params;
-        }
+//        public Map getParams() {
+//            return params;
+//        }
 
         public String getHashId() {
             return hashId;
-        }
-
-        public void setHashId(final String hashId) {
-            this.hashId = hashId;
         }
 
         public String getCreationTime() {
             return creationTime;
         }
 
-        public void setCreationTime(final String creationTime) {
-            this.creationTime = creationTime;
-        }
-
         public String getId() {
             return id;
         }
 
-        public void setId(final String id) {
-            this.id = id;
-        }
-
-        public Message[] getResults() {
-            return results;
-        }
-
-        public void setResults(final Message[] results) {
-            this.results = results;
+        public List<Message> getResults() {
+            return messages;
         }
 
         public String toString() {
             return new ToStringBuilder(this)
-                    .append("params", params)
+//                    .append("params", params)
                     .append("hashId", hashId)
                     .append("creationTime", creationTime)
-                    .append("results", results)
+                    .append("results", messages)
                     .toString();
         }
 
         public static class Message {
-
             private String message;
             private String level;
             private String module;
@@ -100,41 +77,25 @@ public class GetTestResultsResponse extends ZonemasterResponse {
                 return message;
             }
 
-            public void setMessage(final String message) {
-                this.message = message;
-            }
-
             public String getLevel() {
                 return level;
-            }
-
-            public void setLevel(final String level) {
-                this.level = level;
             }
 
             public String getModule() {
                 return module;
             }
 
-            public void setModule(final String module) {
-                this.module = module;
-            }
-
             public String getNs() {
                 return ns;
             }
 
-            public void setNs(final String ns) {
-                this.ns = ns;
-            }
-
             @Override
             public String toString() {
-                return new ToStringBuilder(this)
-                        .append("message", message)
-                        .append("level", level)
-                        .append("module", module)
-                        .append("ns", ns)
+                return MoreObjects.toStringHelper(this)
+                        .add("message", message)
+                        .add("level", level)
+                        .add("module", module)
+                        .add("ns", ns)
                         .toString();
             }
         }

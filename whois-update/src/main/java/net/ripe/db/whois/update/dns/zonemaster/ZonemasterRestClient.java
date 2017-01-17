@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.dns.zonemaster;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
@@ -40,6 +41,7 @@ public class ZonemasterRestClient {
         jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         jsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jsonProvider.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);
+        jsonProvider.locateMapper(ZonemasterRequest.class, MediaType.APPLICATION_JSON_TYPE).setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return ClientBuilder.newBuilder()
                 .register(jsonProvider)
                 .build();

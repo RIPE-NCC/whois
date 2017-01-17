@@ -15,23 +15,21 @@ import net.ripe.db.whois.update.dns.zonemaster.domain.GetTestResultsResponse;
 import net.ripe.db.whois.update.dns.zonemaster.domain.StartDomainTestRequest;
 import net.ripe.db.whois.update.dns.zonemaster.domain.StartDomainTestResponse;
 import net.ripe.db.whois.update.dns.zonemaster.domain.TestProgressRequest;
+import net.ripe.db.whois.update.dns.zonemaster.domain.TestProgressResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.common.Messages.Type.ERROR;
-
+// TODO: [ES] DnsCheckRequest glue is never read, is it needed?
 @DeployedProfile
-//@Primary
+//@Primary      // TODO: [ES] DnsGatewayImpl is deployed instead
 @Component
 public class ZonemasterDnsGateway implements DnsGateway {
 
@@ -93,21 +91,20 @@ public class ZonemasterDnsGateway implements DnsGateway {
 
                 final DnsCheckRequest dnsCheckRequest = dnsCheckRequests.get(index);
 
-                final String checkInstanceId = makeRequest(dnsCheckRequest);
-                LOGGER.debug("Started domain test for {} with checkInstanceId: {}", dnsCheckRequest.getDomain(), checkInstanceId);
+                final String id = makeRequest(dnsCheckRequest);
+                LOGGER.info("Started domain test for {} with id: {}", dnsCheckRequest.getDomain(), id);
 
-                // TODO: [ES] may run forever
                 do {
-                    LOGGER.debug("computeDirectly sleeping for one second");
+                    // TODO: [ES] may run forever
                     Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
-                } while (!PERCENTAGE_COMPLETE.equals(testProgress(checkInstanceId)));
+                } while (!PERCENTAGE_COMPLETE.equals(testProgress(id)));
 
-                LOGGER.debug("computeDirectly detected a Zonemaster result \\o/");
+                LOGGER.info("computeDirectly detected a Zonemaster result \\o/");
 
-                final GetTestResultsResponse testResults = getResults(checkInstanceId);
+                final GetTestResultsResponse testResults = getResults(id);
                 final List<Message> errorMessages = getErrorsFromResults(testResults);
 
-                LOGGER.debug("computeDirectly found {} error messages for checkInstanceId: {}", errorMessages.size(), checkInstanceId);
+                LOGGER.debug("computeDirectly found {} error messages for checkInstanceId: {}", errorMessages.size(), id);
                 final DnsCheckResponse dnsCheckResponse = new DnsCheckResponse(errorMessages);
 
                 // Get the result and store message
@@ -116,35 +113,99 @@ public class ZonemasterDnsGateway implements DnsGateway {
         }
 
         /**
+         * Call start_domain_test API method.
          * @return check instance id
          */
         private String makeRequest(final DnsCheckRequest dnsCheckRequest) {
-            return zonemasterRestClient
-                .sendRequest(new StartDomainTestRequest(dnsCheckRequest))
-                .readEntity(StartDomainTestResponse.class)
-                    .getResult();
+            final StartDomainTestRequest request = new StartDomainTestRequest(dnsCheckRequest);
+
+            LOGGER.info("makeRequest request : {}", request.toString());
+
+            final StartDomainTestResponse response = zonemasterRestClient
+                .sendRequest(request)
+                .readEntity(StartDomainTestResponse.class);
+
+            if (response.getError() != null) {
+                LOGGER.warn("makeRequest error: {}", response.getError().toString());
+                throw new IllegalArgumentException(response.getError().getMessage());
+            }
+
+            LOGGER.info("makeRequest result ok : {}", response.getResult());
+            return response.getResult();
         }
 
         /**
+         * Call test_progress API method.
          * @return percentage complete
          */
         private String testProgress(final String id) {
-            return zonemasterRestClient
+            LOGGER.info("testProgress request : {}", id);
+
+            final TestProgressResponse response = zonemasterRestClient
                 .sendRequest(new TestProgressRequest(id))
-                .readEntity(StartDomainTestResponse.class).getResult();
+                .readEntity(TestProgressResponse.class);
+
+            if (response.getError() != null) {
+                LOGGER.warn("testProgress error: {}", response.getError().toString());
+                throw new IllegalArgumentException(response.getError().getMessage());
+            }
+
+            LOGGER.info("testProgress ok : {}%", response.getResult());
+            return response.getResult();
         }
 
+        /**
+         * Call get_test_results API method.
+         * @param id
+         * @return API response
+         */
         private GetTestResultsResponse getResults(final String id) {
-            return zonemasterRestClient
-                .sendRequest(new GetTestResultsRequest(id))
-                .readEntity(GetTestResultsResponse.class);
+            LOGGER.info("getResults request : {}", id);
+
+//            final GetTestResultsResponse response = zonemasterRestClient
+//                .sendRequest(new GetTestResultsRequest(id))
+//                .readEntity(GetTestResultsResponse.class);
+
+            final String response = zonemasterRestClient
+                    .sendRequest(new GetTestResultsRequest(id))
+                    .readEntity(String.class);
+
+            LOGGER.info("getResults response is : ", response);
+            return null;
         }
 
         private List<Message> getErrorsFromResults(final GetTestResultsResponse testResults) {
-            return Arrays.stream(testResults.getResult().getResults())
-                    .filter(m->ERROR_LEVELS.contains(m.getLevel()))
-                    .map(m->new Message(ERROR, m.getMessage()))
-                    .collect(Collectors.toList());
+            if (testResults == null) {
+                throw new IllegalArgumentException("null testResults");
+            }
+
+            if (testResults.getResult() == null) {      // TODO
+                throw new IllegalArgumentException("null testResults.getResult");
+            }
+
+            if (testResults.getResult().getResults() == null) {
+                throw new IllegalArgumentException("null testResults.getResult.getResults");
+            }
+
+            for (GetTestResultsResponse.Result.Message message : testResults.getResult().getResults()) {
+                if (message.getLevel() == null) {
+                    throw new IllegalArgumentException("message level null");
+                }
+
+                if (message.getMessage() == null) {
+                    throw new IllegalArgumentException("message message null");
+                }
+
+                LOGGER.info("Message {} Level {} Module {} Ns {} toString {}", message.getMessage(), message.getLevel(), message.getModule(), message.getNs(), message.toString());
+            }
+
+
+            //            return Arrays.stream(testResults.getResult().getResults())
+//                    .filter(m->ERROR_LEVELS.contains(m.getLevel()))
+//                    .map(m->new Message(ERROR, m.getMessage()))
+//                    .collect(Collectors.toList());
+
+            return Lists.newArrayList();
         }
     }
 

@@ -3,18 +3,16 @@ package net.ripe.db.whois.update.dns.zonemaster.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.annotation.Nullable;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "response")
 public abstract class ZonemasterResponse {
 
     @JsonProperty("jsonrpc")
     private String jsonRpc;
-
+    @JsonProperty
     private String id;
+    @JsonProperty
+    private Error error;
 
     public String getJsonRpc() {
         return jsonRpc;
@@ -24,14 +22,42 @@ public abstract class ZonemasterResponse {
         return id;
     }
 
+    @Nullable
+    public Error getError() {
+        return error;
+    }
+
     protected MoreObjects.ToStringHelper toStringHelper() {
         return MoreObjects.toStringHelper(this)
                 .add("jsonRpc", jsonRpc)
-                .add("id", id);
+                .add("id", id)
+                .add("error", error);
     }
 
     @Override
     public String toString() {
         return toStringHelper().toString();
     }
+
+    public static class Error {
+        private String message;
+        private int code;
+
+        public String getMessage() {
+            return message;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                    .add("message", message)
+                    .add("code", code)
+                    .toString();
+        }
+    }
+
 }

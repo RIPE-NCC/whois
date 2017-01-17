@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.dns.zonemaster.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Taken from Zonemaster documentation
  *
@@ -7,10 +9,11 @@ package net.ripe.db.whois.update.dns.zonemaster.domain;
  */
 public class TestProgressRequest extends ZonemasterRequest {
 
+    @JsonProperty
+    private String params;
+
     public TestProgressRequest(final String id) {
         super.setMethod(ZonemasterRequest.Method.TEST_PROGRESS);
-        final ZonemasterRequest.Params params = new ZonemasterRequest.Params();
-        params.setId(id);
-        super.setParams(params);
+        this.params = id;
     }
 }
