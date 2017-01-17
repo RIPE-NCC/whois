@@ -91,23 +91,17 @@ public class ZonemasterDnsGateway implements DnsGateway {
         }
 
         private void computeDirectly() {
-
-            LOGGER.info("computeDirectly called with start {} and length {}", mStart, mStart + mLength);
             for (int index = mStart; index < mStart + mLength; index++) {
 
                 final DnsCheckRequest dnsCheckRequest = dnsCheckRequests.get(index);
 
                 final String id = makeRequest(dnsCheckRequest);
-                LOGGER.info("Started domain test for {} with id: {}", dnsCheckRequest.getDomain(), id);
 
                 testProgressUntilComplete(id);
-
-                LOGGER.info("computeDirectly detected a Zonemaster result \\o/");
 
                 final GetTestResultsResponse testResults = getResults(id);
                 final List<Message> errorMessages = getErrorsFromResults(testResults);
 
-                LOGGER.debug("computeDirectly found {} error messages for checkInstanceId: {}", errorMessages.size(), id);
                 final DnsCheckResponse dnsCheckResponse = new DnsCheckResponse(errorMessages);
 
                 // Get the result and store message
@@ -122,8 +116,6 @@ public class ZonemasterDnsGateway implements DnsGateway {
         private String makeRequest(final DnsCheckRequest dnsCheckRequest) {
             final StartDomainTestRequest request = new StartDomainTestRequest(dnsCheckRequest);
 
-            LOGGER.info("makeRequest request : {}", request.toString());
-
             final StartDomainTestResponse response = zonemasterRestClient
                 .sendRequest(request)
                 .readEntity(StartDomainTestResponse.class);
@@ -133,7 +125,6 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 throw new IllegalArgumentException(response.getError().getMessage());
             }
 
-            LOGGER.info("makeRequest result ok : {}", response.getResult());
             return response.getResult();
         }
 
@@ -152,8 +143,6 @@ public class ZonemasterDnsGateway implements DnsGateway {
          * @return percentage complete
          */
         private String testProgress(final String id) {
-            LOGGER.info("testProgress request : {}", id);
-
             final TestProgressResponse response = zonemasterRestClient
                 .sendRequest(new TestProgressRequest(id))
                 .readEntity(TestProgressResponse.class);
@@ -163,7 +152,6 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 throw new IllegalArgumentException(response.getError().getMessage());
             }
 
-            LOGGER.info("testProgress ok : {}%", response.getResult());
             return response.getResult();
         }
 
@@ -173,13 +161,10 @@ public class ZonemasterDnsGateway implements DnsGateway {
          * @return API response
          */
         private GetTestResultsResponse getResults(final String id) {
-            LOGGER.info("getResults request : {}", id);
-
             final GetTestResultsResponse response = zonemasterRestClient
                 .sendRequest(new GetTestResultsRequest(id))
                 .readEntity(GetTestResultsResponse.class);
 
-            LOGGER.info("getResults response is : {}", response.toString());
             return response;
         }
 
