@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.dns.zonemaster.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -26,9 +27,9 @@ public class GetTestResultsResponse extends ZonemasterResponse {
                 .add("result", result);
     }
 
-    public static class Result {
 
-        // private Map params;
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Result {
         @JsonProperty("hash_id")
         private String hashId;
         @JsonProperty("creation_time")
@@ -38,29 +39,12 @@ public class GetTestResultsResponse extends ZonemasterResponse {
         @JsonProperty(value = "results")
         private List<Message> messages;
 
-//        public Map getParams() {
-//            return params;
-//        }
-
-        public String getHashId() {
-            return hashId;
-        }
-
-        public String getCreationTime() {
-            return creationTime;
-        }
-
-        public String getId() {
-            return id;
-        }
-
         public List<Message> getResults() {
             return messages;
         }
 
         public String toString() {
             return new ToStringBuilder(this)
-//                    .append("params", params)
                     .append("hashId", hashId)
                     .append("creationTime", creationTime)
                     .append("results", messages)
@@ -99,6 +83,8 @@ public class GetTestResultsResponse extends ZonemasterResponse {
                         .toString();
             }
         }
+
+
     }
 
 }
