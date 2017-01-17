@@ -38,7 +38,10 @@ public class ZonemasterDnsGateway implements DnsGateway {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDnsGateway.class);
 
-    private static String PERCENTAGE_COMPLETE = "100";
+    private static final int TEST_PROGRESS_SLEEP_SECONDS = 1;
+    private static final int TEST_PROGRESS_MAXIMUM_RETRIES = 60 * 5;
+
+    private static final String PERCENTAGE_COMPLETE = "100";
     private static final int THRESHOLD = 4;
     private static final ImmutableList<String> ERROR_LEVELS = ImmutableList.of("CRITICAL", "ERROR");
 
@@ -97,10 +100,7 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 final String id = makeRequest(dnsCheckRequest);
                 LOGGER.info("Started domain test for {} with id: {}", dnsCheckRequest.getDomain(), id);
 
-                do {
-                    // TODO: [ES] may run forever
-                    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
-                } while (!PERCENTAGE_COMPLETE.equals(testProgress(id)));
+                testProgressUntilComplete(id);
 
                 LOGGER.info("computeDirectly detected a Zonemaster result \\o/");
 
@@ -135,6 +135,16 @@ public class ZonemasterDnsGateway implements DnsGateway {
 
             LOGGER.info("makeRequest result ok : {}", response.getResult());
             return response.getResult();
+        }
+
+        private void testProgressUntilComplete(final String id) {
+            for (int retries = 0; retries < TEST_PROGRESS_MAXIMUM_RETRIES ; retries++) {
+                Uninterruptibles.sleepUninterruptibly(TEST_PROGRESS_SLEEP_SECONDS, TimeUnit.SECONDS);
+                if (PERCENTAGE_COMPLETE.equals(testProgress(id))) {
+                    return;
+                }
+            }
+            throw new IllegalStateException("Request timeout for id " + id);
         }
 
         /**
