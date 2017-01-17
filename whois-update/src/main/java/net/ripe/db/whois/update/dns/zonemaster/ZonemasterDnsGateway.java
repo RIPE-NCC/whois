@@ -165,6 +165,11 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 .sendRequest(new GetTestResultsRequest(id))
                 .readEntity(GetTestResultsResponse.class);
 
+            if (response.getError() != null) {
+                LOGGER.warn("getResults error: {}", response.getError().toString());
+                throw new IllegalArgumentException(response.getError().getMessage());
+            }
+
             return response;
         }
 
