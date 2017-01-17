@@ -17,10 +17,6 @@ public class GetTestResultsResponse extends ZonemasterResponse {
         return result;
     }
 
-    public void setResult(final Result result) {
-        this.result = result;
-    }
-
     @Override
     protected MoreObjects.ToStringHelper toStringHelper() {
         return super.toStringHelper()

@@ -14,10 +14,6 @@ public class VersionInfoResponse extends ZonemasterResponse {
         return result;
     }
 
-    public void setResult(final Map<String, String> result) {
-        this.result = result;
-    }
-
     @Override
     protected MoreObjects.ToStringHelper toStringHelper() {
         return super.toStringHelper()
