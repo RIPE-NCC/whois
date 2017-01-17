@@ -64,13 +64,12 @@ public class ZonemasterDnsGateway implements DnsGateway {
 
     private class DomainCheckAction extends RecursiveAction {
 
-        private List<DnsCheckRequest> dnsCheckRequests;
-        private Map<DnsCheckRequest, DnsCheckResponse> responseMap;
+        private final List<DnsCheckRequest> dnsCheckRequests;
+        private final Map<DnsCheckRequest, DnsCheckResponse> responseMap;
 
         public DomainCheckAction(
                 final List<DnsCheckRequest> dnsCheckRequests,
                 final Map<DnsCheckRequest, DnsCheckResponse> responseMap) {
-
             this.dnsCheckRequests = dnsCheckRequests;
             this.responseMap = responseMap;
         }
@@ -97,7 +96,8 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 final String id = makeRequest(dnsCheckRequest);
                 testProgressUntilComplete(id);
                 final GetTestResultsResponse testResults = getResults(id);
-                responseMap.put(dnsCheckRequest, new DnsCheckResponse(getErrorsFromResults(testResults)));
+                final DnsCheckResponse dnsCheckResponse = new DnsCheckResponse(getErrorsFromResults(testResults));
+                responseMap.put(dnsCheckRequest, dnsCheckResponse);
             }
         }
 
