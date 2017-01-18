@@ -347,12 +347,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Membership claim is not supported by mbrs-by-ref: attribute of the referenced set %s", asName);
     }
 
-    // TODO: [ES] reuse or remove
     public static Message dnsCheckTimeout() {
         return new Message(Type.ERROR, "Timeout performing DNS check");
     }
 
-    // TODO: [ES] reuse or remove
     public static Message dnsCheckMessageParsingError() {
         return new Message(Type.ERROR, "Error parsing response while performing DNS check");
     }
