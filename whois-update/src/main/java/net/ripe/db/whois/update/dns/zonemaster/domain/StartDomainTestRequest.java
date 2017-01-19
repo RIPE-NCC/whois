@@ -108,7 +108,7 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
             if (dsParts.size() == 4) {
                 dsInfos.add(new StartDomainTestRequest.DsInfo(dsParts.get(0), dsParts.get(1), dsParts.get(2), dsParts.get(3)));
             } else {
-                // TODO: doesn't look like good dsRdata. now what?
+                // this should not happen: ds-rdata attributes have already been validated
                 throw new IllegalArgumentException("invalid dsRdata: " + dsRdataLine);
             }
         }
@@ -124,13 +124,13 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
     @JsonRootName("params")
     public static class Params {
         @JsonProperty("client_id")
-        private String clientId = "Zonemaster Dancer Frontend";     // TODO: remove
+        private String clientId = "Whois";
         @JsonProperty
         private String domain;
         @JsonProperty
-        private String profile = "default_profile";                 // TODO: remove
+        private String profile = "default_profile";
         @JsonProperty("client_version")
-        private String clientVersion = "1.0.1";                     // TODO: remove
+        private String clientVersion = "1.0.1";
         @JsonProperty
         private String config;
         @JsonProperty
