@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
+import org.glassfish.jersey.client.ClientProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -44,6 +45,8 @@ public class ZonemasterRestClient {
         jsonProvider.locateMapper(ZonemasterRequest.class, MediaType.APPLICATION_JSON_TYPE).setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return ClientBuilder.newBuilder()
                 .register(jsonProvider)
+                .property(ClientProperties.CONNECT_TIMEOUT, 10 * 1_000)
+                .property(ClientProperties.READ_TIMEOUT,    10 * 1_000)
                 .build();
     }
 }
