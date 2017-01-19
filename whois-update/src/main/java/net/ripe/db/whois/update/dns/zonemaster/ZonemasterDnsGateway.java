@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.Messages.Type.ERROR;
 
-// TODO: [ES] DnsCheckRequest glue is never read, is it needed?
 @DeployedProfile
 @Component
 public class ZonemasterDnsGateway implements DnsGateway {
