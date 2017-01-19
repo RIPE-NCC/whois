@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -30,7 +29,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @DeployedProfile
-@Primary
 @Component
 class DnsGatewayImpl implements DnsGateway {
     private static final Logger LOGGER = LoggerFactory.getLogger(DnsGatewayImpl.class);

@@ -35,7 +35,6 @@ import static net.ripe.db.whois.common.Messages.Type.ERROR;
 // TODO: [ES] handle failure cases (e.g. server down, timeouts etc).
 // TODO: [ES] DnsCheckRequest glue is never read, is it needed?
 @DeployedProfile
-//@Primary      // TODO: [ES] DnsGatewayImpl is deployed instead
 @Component
 public class ZonemasterDnsGateway implements DnsGateway {
 
