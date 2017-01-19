@@ -5,6 +5,11 @@ import com.google.common.base.MoreObjects;
 
 import java.util.Map;
 
+/**
+ * Entity class for Zonemaster version_info API method response.
+ *
+ * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VersionInfoResponse extends ZonemasterResponse {
 

@@ -8,6 +8,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.List;
 
+/**
+ * Entity class for Zonemaster get_test_results API method response.
+ *
+ * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
+ */
 public class GetTestResultsResponse extends ZonemasterResponse {
 
     @JsonProperty(value = "result")

@@ -6,6 +6,11 @@ import com.google.common.base.MoreObjects;
 
 import javax.annotation.Nullable;
 
+/**
+ * Base entity class for Zonemaster API method responses.
+ *
+ * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class ZonemasterResponse {
 

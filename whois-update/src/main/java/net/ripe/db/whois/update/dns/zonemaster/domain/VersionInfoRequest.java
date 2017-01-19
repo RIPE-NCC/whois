@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.dns.zonemaster.domain;
 
 /**
- * Taken from Zonemaster documentation
+ * Entity class for Zonemaster version_info API method request.
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */

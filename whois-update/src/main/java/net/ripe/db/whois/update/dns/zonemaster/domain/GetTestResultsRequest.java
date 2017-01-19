@@ -5,10 +5,11 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.google.common.base.MoreObjects;
 
 /**
- * Taken from Zonemaster documentation
+ * Entity class for Zonemaster get_test_results API method request.
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */
+
 public class GetTestResultsRequest extends ZonemasterRequest {
 
     private static final String LANGUAGE = "en";

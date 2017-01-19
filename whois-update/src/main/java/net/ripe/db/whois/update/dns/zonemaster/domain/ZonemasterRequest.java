@@ -3,6 +3,11 @@ package net.ripe.db.whois.update.dns.zonemaster.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
+/**
+ * Base entity class for Zonemaster API method requests.
+ *
+ * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
+ */
 public abstract class ZonemasterRequest {
 
     @JsonProperty("jsonrpc")
