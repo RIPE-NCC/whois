@@ -14,10 +14,12 @@ import net.ripe.db.whois.update.dns.zonemaster.domain.StartDomainTestRequest;
 import net.ripe.db.whois.update.dns.zonemaster.domain.StartDomainTestResponse;
 import net.ripe.db.whois.update.dns.zonemaster.domain.TestProgressRequest;
 import net.ripe.db.whois.update.dns.zonemaster.domain.TestProgressResponse;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.ProcessingException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +29,6 @@ import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.Messages.Type.ERROR;
 
-// TODO: [ES] handle failure cases (e.g. server down, timeouts etc).
 // TODO: [ES] DnsCheckRequest glue is never read, is it needed?
 @DeployedProfile
 @Component
@@ -61,10 +62,24 @@ public class ZonemasterDnsGateway implements DnsGateway {
 
         @Override
         public DnsCheckResponse apply(final DnsCheckRequest dnsCheckRequest) {
-            final String id = makeRequest(dnsCheckRequest);
-            testProgressUntilComplete(id);
-            final GetTestResultsResponse testResults = getResults(id);
-            return new DnsCheckResponse(getErrorsFromResults(testResults));
+            try {
+                final String id = makeRequest(dnsCheckRequest);
+                testProgressUntilComplete(id);
+                final GetTestResultsResponse testResults = getResults(id);
+                return new DnsCheckResponse(getErrorsFromResults(testResults));
+            } catch (ZonemasterTimeoutException e) {
+                LOGGER.error("Timeout performing DNS check using zonemaster");
+                return new DnsCheckResponse(UpdateMessages.dnsCheckTimeout());
+            } catch (ZonemasterException e) {
+                LOGGER.error("Error from Zonemaster: {}", e.getMessage());
+                return new DnsCheckResponse(UpdateMessages.dnsCheckError(e.getMessage()));
+            } catch (ProcessingException e) {
+                LOGGER.error("Error making request to Zonemaster, due to {}: {}", e.getClass().getName(), e.getMessage());
+                return new DnsCheckResponse(UpdateMessages.dnsCheckError("server error"));
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+                return new DnsCheckResponse(UpdateMessages.dnsCheckError("client error"));
+            }
         }
 
         /**
@@ -79,8 +94,7 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 .readEntity(StartDomainTestResponse.class);
 
             if (response.getError() != null) {
-                LOGGER.warn("makeRequest error: {}", response.getError().toString());
-                throw new IllegalArgumentException(response.getError().getMessage());
+                throw new ZonemasterException(response.getError().getMessage());
             }
 
             return response.getResult();
@@ -93,7 +107,7 @@ public class ZonemasterDnsGateway implements DnsGateway {
                     return;
                 }
             }
-            throw new IllegalStateException("Request timeout for id " + id);
+            throw new ZonemasterTimeoutException("Request timeout for id " + id);
         }
 
         /**
@@ -106,8 +120,7 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 .readEntity(TestProgressResponse.class);
 
             if (response.getError() != null) {
-                LOGGER.warn("testProgress error: {}", response.getError().toString());
-                throw new IllegalArgumentException(response.getError().getMessage());
+                throw new ZonemasterException(response.getError().getMessage());
             }
 
             return response.getResult();
@@ -124,8 +137,7 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 .readEntity(GetTestResultsResponse.class);
 
             if (response.getError() != null) {
-                LOGGER.warn("getResults error: {}", response.getError().toString());
-                throw new IllegalArgumentException(response.getError().getMessage());
+                throw new ZonemasterException(response.getError().getMessage());
             }
 
             return response;
@@ -136,6 +148,18 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 .filter(m->ERROR_LEVELS.contains(m.getLevel()))
                 .map(m->new Message(ERROR, m.getMessage()))
                 .collect(Collectors.toList());
+        }
+    }
+
+    private class ZonemasterTimeoutException extends IllegalStateException {
+        public ZonemasterTimeoutException(final String s) {
+            super(s);
+        }
+    }
+
+    private class ZonemasterException extends IllegalStateException {
+        public ZonemasterException(final String s) {
+            super(s);
         }
     }
 }
