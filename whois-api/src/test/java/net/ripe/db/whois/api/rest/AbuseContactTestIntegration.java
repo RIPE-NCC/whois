@@ -155,7 +155,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    }\n" +
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
-                "    \"key\" : \"TR1-TEST\"\n" +
+                "    \"key\" : \"TR1-TEST\",\n" +
                 "    \"email\" : \"abuse@test.net\"\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
@@ -202,7 +202,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    }\n" +
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
-                "    \"key\" : \"\"\n" +
+                "    \"key\" : \"\",\n" +
                 "    \"email\" : \"\"\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
@@ -268,7 +268,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    }\n" +
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
-                "    \"key\" : \"TR1-TEST\"\n" +
+                "    \"key\" : \"TR1-TEST\",\n" +
                 "    \"email\" : \"abuse@test.net\"\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
