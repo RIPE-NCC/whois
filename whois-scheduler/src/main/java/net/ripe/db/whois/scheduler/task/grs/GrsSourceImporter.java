@@ -233,7 +233,7 @@ class GrsSourceImporter {
 
             private void deleteNotFoundInImport() {
                 if (nrCreated == 0 && nrUpdated == 0) {
-                    logger.warn("Skipping deletion since there were no other updates");
+                    logger.info("Skipping deletion since there were no other updates");
                     return;
                 }
 
