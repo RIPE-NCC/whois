@@ -52,6 +52,10 @@
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
         </dependency>
         <dependency>
@@ -66,7 +70,7 @@
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <artifactId>jackson-jaxrs-providers</artifactId>
         </dependency>
 
         <!-- AspectJ -->
