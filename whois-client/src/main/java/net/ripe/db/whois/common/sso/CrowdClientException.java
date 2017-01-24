@@ -22,7 +22,7 @@ public class CrowdClientException extends RuntimeException {
     private static String getMessage(final Exception e) {
         if (e instanceof ClientErrorException) {
             try {
-                final CrowdClient.CrowdError crowdError = ((ClientErrorException)e).getResponse().readEntity(CrowdClient.CrowdError.class);
+                final CrowdError crowdError = ((ClientErrorException)e).getResponse().readEntity(CrowdError.class);
                 LOGGER.info("{}: {} ({})", e.getClass().getName(), crowdError.getMessage(), crowdError.getReason());
                 return crowdError.getMessage();
             } catch (ProcessingException pe) {
