@@ -61,7 +61,7 @@ public class CrowdClient {
         try {
             final CrowdSession session = client.target(restUrl)
                     .path(CROWD_SESSION_PATH)
-                    .request(MediaType.APPLICATION_XML_TYPE)
+                    .request(MediaType.APPLICATION_XML)
                     .post(Entity.entity(crowdAuth, MediaType.APPLICATION_XML), CrowdSession.class);
             return session.getToken();
         } catch (WebApplicationException | ProcessingException e) {
@@ -104,7 +104,7 @@ public class CrowdClient {
             return client.target(restUrl)
                     .path(CROWD_USER_ATTRIBUTE_PATH)
                     .queryParam("username", username)
-                    .request(MediaType.APPLICATION_XML_TYPE)
+                    .request(MediaType.APPLICATION_XML)
                     .get(CrowdResponse.class)
                     .getUUID();
         } catch (NoSuchElementException e) {
@@ -122,7 +122,7 @@ public class CrowdClient {
             return client.target(restUrl)
                     .path(CROWD_UUID_SEARCH_PATH)
                     .queryParam("uuid", uuid)
-                    .request(MediaType.APPLICATION_XML_TYPE)
+                    .request(MediaType.APPLICATION_XML)
                     .get(CrowdUser.class)
                     .getName();
         } catch (NotFoundException e) {
@@ -141,7 +141,7 @@ public class CrowdClient {
                     .path(token)
                     .queryParam("validate-password", "false")
                     .queryParam("expand", "user")
-                    .request(MediaType.APPLICATION_XML_TYPE)
+                    .request(MediaType.APPLICATION_XML)
                     .post(Entity.xml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><validation-factors/>"), CrowdSession.class);
             final CrowdUser user = crowdSession.getUser();
             return new UserSession(user.getName(), user.getDisplayName(), user.getActive(), crowdSession.getExpiryDate());
