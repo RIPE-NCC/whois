@@ -1,5 +1,8 @@
 package net.ripe.db.whois.common.sso;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.glassfish.jersey.client.ClientProperties;
@@ -39,8 +42,13 @@ public class CrowdClient {
                        @Value("${crowd.rest.user}") final String crowdAuthUser,
                        @Value("${crowd.rest.password}") final String crowdAuthPassword) {
         this.restUrl = translatorUrl;
+
+        final JacksonJsonProvider jsonProvider = new JacksonJaxbJsonProvider()
+                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
+                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         client = ClientBuilder.newBuilder()
                 .register(HttpAuthenticationFeature.basic(crowdAuthUser, crowdAuthPassword))
+                .register(jsonProvider)
                 .build();
         client.property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT);
         client.property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT);
