@@ -20,8 +20,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -80,11 +83,13 @@ public class UpdateNotifierTest {
         when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
         when(updateContext.getPreparedUpdate(update)).thenReturn(preparedUpdate);
         when(updateContext.getStatus(preparedUpdate)).thenReturn(UpdateStatus.SUCCESS);
+        ResponseMessage responseMessage = new ResponseMessage("Notification of RIPE Database changes", "message");
+        when(responseFactory.createNotification(any(UpdateContext.class), any(Origin.class), any(Notification.class))).thenReturn(responseMessage);
 
         subject.sendNotifications(updateRequest, updateContext);
 
-        verify(mailGateway).sendEmail(eq("notify1@me.com"), any(ResponseMessage.class));
-        verify(mailGateway).sendEmail(eq("notify2@me.com"), any(ResponseMessage.class));
+        verify(mailGateway).sendEmail(eq("notify1@me.com"), same(responseMessage), same(Optional.empty()));
+        verify(mailGateway).sendEmail(eq("notify2@me.com"), same(responseMessage), same(Optional.empty()));
     }
 
     @Test
