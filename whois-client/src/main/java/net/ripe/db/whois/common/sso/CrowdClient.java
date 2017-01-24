@@ -5,6 +5,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,7 @@ public class CrowdClient {
                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         client = ClientBuilder.newBuilder()
                 .register(HttpAuthenticationFeature.basic(crowdAuthUser, crowdAuthPassword))
+                .register(JacksonFeature.class)         // use Jackson
                 .register(jsonProvider)
                 .build();
         client.property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT);
