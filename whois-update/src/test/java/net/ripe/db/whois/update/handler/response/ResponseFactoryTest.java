@@ -364,6 +364,8 @@ public class ResponseFactoryTest {
     public void notification_success() {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        //Provide effective credential for SSO user
+        update1.setEffectiveCredential("test@ripe.net");
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
 
         final RpslObject object2 = RpslObject.parse("mntner: DEV-ROOT2-MNT");
@@ -391,6 +393,8 @@ public class ResponseFactoryTest {
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
                 "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by SSO account: test@ripe.net\n"+
                 "\n" +
                 "---\n" +
                 "OBJECT BELOW CREATED:\n" +
@@ -513,7 +517,7 @@ public class ResponseFactoryTest {
                 "object authorisation failures.\n" +
                 "\n" +
                 "This message is auto-generated.\n" +
-                "Please DO NOT reply to this message.\n" +
+                "You can reply to this message to contact the person who made this change.\n" +
                 "\n" +
                 "If you do not understand why we sent you this message,\n" +
                 "or for assistance or clarification please contact:\n" +
