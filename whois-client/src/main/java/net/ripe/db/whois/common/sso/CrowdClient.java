@@ -1,8 +1,5 @@
 package net.ripe.db.whois.common.sso;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -42,17 +39,12 @@ public class CrowdClient {
                        @Value("${crowd.rest.user}") final String crowdAuthUser,
                        @Value("${crowd.rest.password}") final String crowdAuthPassword) {
         this.restUrl = translatorUrl;
-
-        final JacksonJsonProvider jsonProvider = new JacksonJaxbJsonProvider()
-                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
-                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        client = ClientBuilder.newBuilder()
+        this.client = ClientBuilder.newBuilder()
                 .register(HttpAuthenticationFeature.basic(crowdAuthUser, crowdAuthPassword))
-                .register(JacksonFeature.class)         // use Jackson
-                .register(jsonProvider)
+                .register(JacksonFeature.class)
+                .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
+                .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
                 .build();
-        client.property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT);
-        client.property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT);
     }
 
     public String login(final String username, final String password) throws CrowdClientException {
@@ -148,8 +140,13 @@ public class CrowdClient {
             final CrowdUser user = crowdSession.getUser();
             return new UserSession(user.getName(), user.getDisplayName(), user.getActive(), crowdSession.getExpiryDate());
         } catch (BadRequestException e) {
+            LOGGER.error(e.getMessage(), e);
             throw new CrowdClientException("Unknown RIPE NCC Access token: " + token);
         } catch (WebApplicationException | ProcessingException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new CrowdClientException(e);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             throw new CrowdClientException(e);
         }
     }
