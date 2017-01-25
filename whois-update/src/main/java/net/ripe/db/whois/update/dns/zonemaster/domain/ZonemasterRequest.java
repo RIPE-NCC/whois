@@ -17,7 +17,7 @@ public abstract class ZonemasterRequest {
     @JsonProperty
     private String method;
 
-    public void setMethod(final ZonemasterRequest.Method method) {
+    protected void setMethod(final ZonemasterRequest.Method method) {
         this.method = method.getMethod();
         this.id = method.getId();
     }
