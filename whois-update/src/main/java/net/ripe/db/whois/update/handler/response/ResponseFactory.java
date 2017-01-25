@@ -5,11 +5,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.Hosts;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.Ack;
-import net.ripe.db.whois.update.domain.Notification;
-import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.ResponseMessage;
-import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.*;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -21,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
-import java.util.Optional;
 
 @Component
 public class ResponseFactory {
@@ -90,7 +85,8 @@ public class ResponseFactory {
             subject = "Notification of RIPE Database changes";
         }
 
-        return new ResponseMessage(subject, createResponse(TEMPLATE_NOTIFICATION, updateContext, velocityContext, origin), updateContext.getUserSession().getUsername());
+        String ssoUserEmail = updateContext.getUserSession() != null ? updateContext.getUserSession().getUsername() : "";
+        return new ResponseMessage(subject, createResponse(TEMPLATE_NOTIFICATION, updateContext, velocityContext, origin), ssoUserEmail);
     }
 
     public ResponseMessage createPendingUpdateTimeout(final UpdateContext updateContext, final Origin origin, final RpslObject rpslObject, final int days) {

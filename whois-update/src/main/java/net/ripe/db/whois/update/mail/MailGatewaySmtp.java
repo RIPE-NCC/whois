@@ -97,7 +97,8 @@ public class MailGatewaySmtp implements MailGateway {
                     final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
                     message.setFrom(mailConfiguration.getFrom());
                     message.setTo(to);
-                    message.setReplyTo(replyTo);
+                    if (!replyTo.isEmpty())
+                        message.setReplyTo(replyTo);
                     message.setSubject(subject);
                     message.setText(text);
 
