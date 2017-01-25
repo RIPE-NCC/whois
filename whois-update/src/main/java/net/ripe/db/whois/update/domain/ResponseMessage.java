@@ -1,20 +1,21 @@
 package net.ripe.db.whois.update.domain;
 
-import java.util.Optional;
+import net.ripe.db.whois.common.Util;
 
 public class ResponseMessage {
+
     private final String subject;
     private final String message;
-    private final Optional<String> replyTo;
+    private final String replyTo;
 
-    public ResponseMessage(final String subject, final String message, final Optional<String> replyTo) {
+    public ResponseMessage(final String subject, final String message, final String replyTo) {
         this.subject = subject;
         this.message = message;
         this.replyTo = replyTo;
     }
 
     public ResponseMessage(final String subject, final String message) {
-        this(subject, message, Optional.empty());
+        this(subject, message, Util.EMPTY_STRING);
     }
 
     public String getSubject() {
@@ -25,7 +26,7 @@ public class ResponseMessage {
         return message;
     }
 
-    public Optional<String> getReplyTo() {
+    public String getReplyTo() {
         return replyTo;
     }
 }

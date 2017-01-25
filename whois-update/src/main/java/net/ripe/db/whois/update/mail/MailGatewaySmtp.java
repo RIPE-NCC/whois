@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.mail;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.Util;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -46,21 +47,21 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Override
     public void sendEmail(final String to, final ResponseMessage responseMessage) {
-        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), Optional.empty());
+        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), Util.EMPTY_STRING);
     }
 
     @Override
-    public void sendEmail(final String to, final ResponseMessage responseMessage, final Optional<String> replyTo) {
+    public void sendEmail(final String to, final ResponseMessage responseMessage, final String replyTo) {
         sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), replyTo);
     }
 
     @Override
     public void sendEmail(final String to, final String subject, final String text) {
-        sendEmail(to, subject, text, Optional.empty());
+        sendEmail(to, subject, text, Util.EMPTY_STRING);
     }
 
     @Override
-    public void sendEmail(final String to, final String subject, final String text, final Optional<String> replyTo) {
+    public void sendEmail(final String to, final String subject, final String text, final String replyTo) {
             if (!outgoingMailEnabled) {
                 LOGGER.debug("" +
                         "Outgoing mail disabled\n" +
@@ -71,7 +72,7 @@ public class MailGatewaySmtp implements MailGateway {
                         "\n" +
                         "{}\n" +
                         "\n" +
-                        "\n", to, replyTo.orElse(""), subject, text);
+                        "\n", to, replyTo, subject, text);
 
                 return;
             }
@@ -82,7 +83,7 @@ public class MailGatewaySmtp implements MailGateway {
                 throw new MailSendException("Refusing outgoing email: " + text);
             }
 
-            sendEmailAttempt(to, replyTo.orElse(""), subject, text);
+            sendEmailAttempt(to, replyTo, subject, text);
         } catch (MailException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to {} with subject {}", to, subject), e);
             LOGGER.error("Unable to send mail message to: {}", to, e);

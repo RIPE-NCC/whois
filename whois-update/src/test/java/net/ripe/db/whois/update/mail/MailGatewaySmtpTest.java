@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.mail;
 
+import net.ripe.db.whois.common.Util;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +15,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.mail.SendFailedException;
 import java.lang.reflect.Field;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -36,7 +36,7 @@ public class MailGatewaySmtpTest {
 
     @Test
     public void sendResponse() throws Exception {
-        subject.sendEmail("to", "subject", "test", Optional.empty());
+        subject.sendEmail("to", "subject", "test", Util.EMPTY_STRING);
 
         verify(mailSender, times(1)).send(any(MimeMessagePreparator.class));
     }
@@ -44,7 +44,7 @@ public class MailGatewaySmtpTest {
     @Test
     public void sendResponse_disabled() throws Exception {
         ReflectionTestUtils.setField(subject, "outgoingMailEnabled", false);
-        subject.sendEmail("to", "subject", "test", Optional.empty());
+        subject.sendEmail("to", "subject", "test", Util.EMPTY_STRING);
 
         verifyZeroInteractions(mailSender);
     }
@@ -56,7 +56,7 @@ public class MailGatewaySmtpTest {
         }).when(mailSender).send(any(MimeMessagePreparator.class));
 
         try {
-            subject.sendEmail("to", "subject", "test", Optional.empty());
+            subject.sendEmail("to", "subject", "test", Util.EMPTY_STRING);
             fail();
         } catch (Exception e) {
             assertThat(e, instanceOf(SendFailedException.class));
@@ -70,7 +70,7 @@ public class MailGatewaySmtpTest {
 
         setExpectReplyToField(replyToAddress);
 
-        subject.sendEmail("to", "subject", "test", Optional.of(replyToAddress));
+        subject.sendEmail("to", "subject", "test", replyToAddress);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class MailGatewaySmtpTest {
 
         setExpectReplyToField(replyToAddress);
 
-        subject.sendEmail("to", "subject", "test", Optional.empty());
+        subject.sendEmail("to", "subject", "test", Util.EMPTY_STRING);
     }
 
     private void setExpectReplyToField(final String replyToAddress) {

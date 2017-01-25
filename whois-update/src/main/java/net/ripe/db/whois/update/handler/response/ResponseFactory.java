@@ -90,7 +90,7 @@ public class ResponseFactory {
             subject = "Notification of RIPE Database changes";
         }
 
-        return new ResponseMessage(subject, createResponse(TEMPLATE_NOTIFICATION, updateContext, velocityContext, origin), Optional.of(updateContext.getUserSession().getUsername()));
+        return new ResponseMessage(subject, createResponse(TEMPLATE_NOTIFICATION, updateContext, velocityContext, origin), updateContext.getUserSession().getUsername());
     }
 
     public ResponseMessage createPendingUpdateTimeout(final UpdateContext updateContext, final Origin origin, final RpslObject rpslObject, final int days) {
