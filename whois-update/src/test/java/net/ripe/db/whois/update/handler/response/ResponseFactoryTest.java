@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Ack;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
@@ -105,6 +106,7 @@ public class ResponseFactoryTest {
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime(0, DateTimeZone.UTC));
         when(updateContext.printGlobalMessages()).thenReturn("");
+        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
         ReflectionTestUtils.setField(subject, "version", "1.2.3");
         ReflectionTestUtils.setField(subject, "source", "TEST");

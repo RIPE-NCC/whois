@@ -55,6 +55,11 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     @Override
+    public void sendEmail(final String to, final String subject, final String text) {
+        sendEmail(to, subject, text, Optional.empty());
+    }
+
+    @Override
     public void sendEmail(final String to, final String subject, final String text, final Optional<String> replyTo) {
             if (!outgoingMailEnabled) {
                 LOGGER.debug("" +
