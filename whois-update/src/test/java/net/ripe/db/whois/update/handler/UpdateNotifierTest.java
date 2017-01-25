@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.Util;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -23,7 +22,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -87,8 +85,8 @@ public class UpdateNotifierTest {
 
         subject.sendNotifications(updateRequest, updateContext);
 
-        verify(mailGateway).sendEmail(eq("notify1@me.com"), same(responseMessage), same(Util.EMPTY_STRING));
-        verify(mailGateway).sendEmail(eq("notify2@me.com"), same(responseMessage), same(Util.EMPTY_STRING));
+        verify(mailGateway).sendEmail(eq("notify1@me.com"), eq(responseMessage), eq(""));
+        verify(mailGateway).sendEmail(eq("notify2@me.com"), eq(responseMessage), eq(""));
     }
 
     @Test

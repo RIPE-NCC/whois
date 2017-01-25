@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.mail;
 
-import net.ripe.db.whois.common.Util;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +35,7 @@ public class MailGatewaySmtpTest {
 
     @Test
     public void sendResponse() throws Exception {
-        subject.sendEmail("to", "subject", "test", Util.EMPTY_STRING);
+        subject.sendEmail("to", "subject", "test", "");
 
         verify(mailSender, times(1)).send(any(MimeMessagePreparator.class));
     }
@@ -44,7 +43,7 @@ public class MailGatewaySmtpTest {
     @Test
     public void sendResponse_disabled() throws Exception {
         ReflectionTestUtils.setField(subject, "outgoingMailEnabled", false);
-        subject.sendEmail("to", "subject", "test", Util.EMPTY_STRING);
+        subject.sendEmail("to", "subject", "test", "");
 
         verifyZeroInteractions(mailSender);
     }
@@ -56,7 +55,7 @@ public class MailGatewaySmtpTest {
         }).when(mailSender).send(any(MimeMessagePreparator.class));
 
         try {
-            subject.sendEmail("to", "subject", "test", Util.EMPTY_STRING);
+            subject.sendEmail("to", "subject", "test", "");
             fail();
         } catch (Exception e) {
             assertThat(e, instanceOf(SendFailedException.class));
@@ -79,7 +78,7 @@ public class MailGatewaySmtpTest {
 
         setExpectReplyToField(replyToAddress);
 
-        subject.sendEmail("to", "subject", "test", Util.EMPTY_STRING);
+        subject.sendEmail("to", "subject", "test", "");
     }
 
     private void setExpectReplyToField(final String replyToAddress) {

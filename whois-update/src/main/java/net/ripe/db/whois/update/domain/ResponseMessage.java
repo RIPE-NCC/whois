@@ -1,7 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.Util;
-
 public class ResponseMessage {
 
     private final String subject;
@@ -15,7 +13,7 @@ public class ResponseMessage {
     }
 
     public ResponseMessage(final String subject, final String message) {
-        this(subject, message, Util.EMPTY_STRING);
+        this(subject, message, "");
     }
 
     public String getSubject() {

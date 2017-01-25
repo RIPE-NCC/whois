@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.mail;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.Util;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,7 +45,7 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Override
     public void sendEmail(final String to, final ResponseMessage responseMessage) {
-        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), Util.EMPTY_STRING);
+        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), "");
     }
 
     @Override
@@ -57,7 +55,7 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Override
     public void sendEmail(final String to, final String subject, final String text) {
-        sendEmail(to, subject, text, Util.EMPTY_STRING);
+        sendEmail(to, subject, text, "");
     }
 
     @Override
