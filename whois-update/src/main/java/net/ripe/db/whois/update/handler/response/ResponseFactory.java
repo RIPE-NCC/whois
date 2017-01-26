@@ -69,12 +69,14 @@ public class ResponseFactory {
     }
 
     public ResponseMessage createNotification(final UpdateContext updateContext, final Origin origin, final Notification notification) {
+        final String ssoUserEmail = updateContext.getUserSession() != null ? updateContext.getUserSession().getUsername() : "";
         final VelocityContext velocityContext = new VelocityContext();
 
         velocityContext.put("failedAuthentication", notification.getUpdates(Notification.Type.FAILED_AUTHENTICATION));
         velocityContext.put("success", notification.getUpdates(Notification.Type.SUCCESS));
         velocityContext.put("successReference", notification.getUpdates(Notification.Type.SUCCESS_REFERENCE));
         velocityContext.put("pendingUpdate", notification.getUpdates(Notification.Type.PENDING_UPDATE));
+        velocityContext.put("ssoUser", ssoUserEmail);
 
         final String subject;
         if (notification.has(Notification.Type.PENDING_UPDATE)) {
@@ -85,7 +87,6 @@ public class ResponseFactory {
             subject = "Notification of RIPE Database changes";
         }
 
-        String ssoUserEmail = updateContext.getUserSession() != null ? updateContext.getUserSession().getUsername() : "";
         return new ResponseMessage(subject, createResponse(TEMPLATE_NOTIFICATION, updateContext, velocityContext, origin), ssoUserEmail);
     }
 

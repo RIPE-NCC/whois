@@ -514,12 +514,13 @@ public class ResponseFactoryTest {
 
     private void assertNotification(final ResponseMessage responseMessage) {
         final String message = responseMessage.getMessage();
-        assertThat(message, containsString("" +
+        String replayOrNotMessage = (updateContext.getUserSession().getUsername() != "") ? "You can reply to this message to contact the person who made this change.\n" : "Please DO NOT reply to this message.\n";
+                assertThat(message, containsString("" +
                 "This is to notify you of changes in RIPE Database or\n" +
                 "object authorisation failures.\n" +
                 "\n" +
                 "This message is auto-generated.\n" +
-                "You can reply to this message to contact the person who made this change.\n" +
+                replayOrNotMessage +
                 "\n" +
                 "If you do not understand why we sent you this message,\n" +
                 "or for assistance or clarification please contact:\n" +
