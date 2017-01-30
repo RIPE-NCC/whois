@@ -367,7 +367,7 @@ public class ResponseFactoryTest {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
         //Provide effective credential for SSO user
-        update1.setEffectiveCredential("test@ripe.net");
+        update1.setEffectiveCredential("test@ripe.net", Update.EffectiveCredentialType.SSO);
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
 
         final RpslObject object2 = RpslObject.parse("mntner: DEV-ROOT2-MNT");

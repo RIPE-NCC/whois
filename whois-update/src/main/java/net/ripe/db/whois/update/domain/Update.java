@@ -16,6 +16,7 @@ public class Update implements UpdateContainer {
     private final List<String> deleteReasons;
     private final RpslObject submittedObject;
     private String effectiveCredential;
+    private EffectiveCredentialType effectiveCredentialType;
 
     public Update(final Paragraph paragraph, final Operation operation, @Nullable final List<String> deleteReasons, final RpslObject submittedObject) {
         Validate.notNull(paragraph, "paragraph cannot be null");
@@ -93,11 +94,20 @@ public class Update implements UpdateContainer {
         return builder.toString();
     }
 
-    public void setEffectiveCredential(final String effectiveCredential) {
+    public void setEffectiveCredential(final String effectiveCredential, EffectiveCredentialType effectiveCredentialType) {
         this.effectiveCredential = effectiveCredential;
+        this.effectiveCredentialType = effectiveCredentialType;
     }
 
     public String getEffectiveCredential() {
         return effectiveCredential;
+    }
+
+    public EffectiveCredentialType getEffectiveCredentialType() {
+        return effectiveCredentialType;
+    }
+
+    public enum EffectiveCredentialType {
+        SSO, PGP
     }
 }
