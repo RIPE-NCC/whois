@@ -200,6 +200,8 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         objectExists(ObjectType.MNTNER, "TEST1-MNT", true);
     }
 
+    // helper methods
+
     private RpslObject appendDummificationRemarks(final RpslObject rpslObject) {
         final List<RpslAttribute> attributes = Lists.newArrayList(rpslObject.getAttributes());
 
