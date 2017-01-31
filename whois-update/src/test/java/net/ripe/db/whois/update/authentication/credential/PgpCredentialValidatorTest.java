@@ -10,12 +10,10 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -32,7 +30,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -52,8 +49,6 @@ public class PgpCredentialValidatorTest {
     @Mock private DateTimeProvider dateTimeProvider;
     @Mock private LoggerContext loggerContext;
     @InjectMocks private PgpCredentialValidator subject;
-
-    private final Update update = getUpdate();
 
     private static final RpslObject KEYCERT_OBJECT = RpslObject.parse("" +
             "key-cert:       PGPKEY-5763950D\n" +
@@ -97,7 +92,6 @@ public class PgpCredentialValidatorTest {
     @Before
     public void setup() {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
-        when(preparedUpdate.getUpdate()).thenReturn(update);
     }
 
     @Test
@@ -134,6 +128,7 @@ public class PgpCredentialValidatorTest {
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
+        when(preparedUpdate.getUpdate()).thenReturn(createUpdate());
         assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
@@ -168,6 +163,7 @@ public class PgpCredentialValidatorTest {
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
+        when(preparedUpdate.getUpdate()).thenReturn(createUpdate());
         assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
@@ -205,10 +201,12 @@ public class PgpCredentialValidatorTest {
 
         final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charset.forName("ISO-8859-7"));
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
-
+        final Update update = createUpdate();
+        when(preparedUpdate.getUpdate()).thenReturn(update);
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
 
         subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+
         MatcherAssert.assertThat(update.getEffectiveCredential(), Is.is(knownCredential.getKeyId()));
         MatcherAssert.assertThat(update.getEffectiveCredentialType(), Is.is(Update.EffectiveCredentialType.PGP));
     }
@@ -265,7 +263,7 @@ public class PgpCredentialValidatorTest {
 
         final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
-
+        
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenThrow(new EmptyResultDataAccessException(1));
         assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
     }
@@ -381,7 +379,7 @@ public class PgpCredentialValidatorTest {
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
 
-    private Update getUpdate() {
+    private Update createUpdate() {
         final Paragraph paragraph = new Paragraph(" ");
         final RpslObject submittedObject = new RpslObject(Arrays.asList(new RpslAttribute(AttributeType.ORGANISATION, CIString.ciString("org-1"))));
 

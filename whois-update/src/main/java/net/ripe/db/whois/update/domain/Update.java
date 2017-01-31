@@ -95,7 +95,7 @@ public class Update implements UpdateContainer {
     }
 
 
-    public void setEffectiveCredential(final String effectiveCredential, EffectiveCredentialType effectiveCredentialType) {
+    public void setEffectiveCredential(final String effectiveCredential, final EffectiveCredentialType effectiveCredentialType) {
         this.effectiveCredential = effectiveCredential;
         this.effectiveCredentialType = effectiveCredentialType;
     }
