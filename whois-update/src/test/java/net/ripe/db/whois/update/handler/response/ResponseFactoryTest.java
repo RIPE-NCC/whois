@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Ack;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
@@ -105,6 +106,7 @@ public class ResponseFactoryTest {
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime(0, DateTimeZone.UTC));
         when(updateContext.printGlobalMessages()).thenReturn("");
+        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
         ReflectionTestUtils.setField(subject, "version", "1.2.3");
         ReflectionTestUtils.setField(subject, "source", "TEST");
@@ -364,6 +366,8 @@ public class ResponseFactoryTest {
     public void notification_success() {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        //Provide effective credential for SSO user
+        update1.setEffectiveCredential("test@ripe.net");
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
 
         final RpslObject object2 = RpslObject.parse("mntner: DEV-ROOT2-MNT");
@@ -391,6 +395,8 @@ public class ResponseFactoryTest {
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
                 "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by SSO account: test@ripe.net\n"+
                 "\n" +
                 "---\n" +
                 "OBJECT BELOW CREATED:\n" +
@@ -508,12 +514,13 @@ public class ResponseFactoryTest {
 
     private void assertNotification(final ResponseMessage responseMessage) {
         final String message = responseMessage.getMessage();
-        assertThat(message, containsString("" +
+        String replayOrNotMessage = (updateContext.getUserSession().getUsername() != "") ? "You can reply to this message to contact the person who made this change.\n" : "Please DO NOT reply to this message.\n";
+                assertThat(message, containsString("" +
                 "This is to notify you of changes in RIPE Database or\n" +
                 "object authorisation failures.\n" +
                 "\n" +
                 "This message is auto-generated.\n" +
-                "Please DO NOT reply to this message.\n" +
+                replayOrNotMessage +
                 "\n" +
                 "If you do not understand why we sent you this message,\n" +
                 "or for assistance or clarification please contact:\n" +
