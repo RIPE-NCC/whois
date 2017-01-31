@@ -93,8 +93,13 @@ $update.updatedObject
 #end
 $!update.reason
 
-#if ($update.preparedUpdate.update.effectiveCredential)
+#if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'SSO')
 Changed by SSO account: $update.preparedUpdate.update.effectiveCredential
+#end
+
+#if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'PGP')
+Changed by $update.preparedUpdate.update.effectiveCredential. You can find contact details for this key here:
+https://apps.db.ripe.net/search/lookup.html?source=ripe&key=$update.preparedUpdate.update.effectiveCredential&type=key-cert
 #end
 
 #end

@@ -366,8 +366,6 @@ public class ResponseFactoryTest {
     public void notification_success() {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
-        //Provide effective credential for SSO user
-        update1.setEffectiveCredential("test@ripe.net");
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
 
         final RpslObject object2 = RpslObject.parse("mntner: DEV-ROOT2-MNT");
@@ -396,12 +394,85 @@ public class ResponseFactoryTest {
                 "\n" +
                 "mntner:         DEV-ROOT1-MNT\n" +
                 "\n" +
-                "Changed by SSO account: test@ripe.net\n"+
-                "\n" +
                 "---\n" +
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
                 "mntner:         DEV-ROOT2-MNT\n"));
+    }
+
+    @Test
+    public void notification_success_with_user_in_the_session() {
+        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("You can reply to this message to contact the person who made this change.\n"));
+    }
+
+    @Test
+    public void notification_success_with_effective_sso_credentials() {
+
+        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("test@ripe.net", Update.EffectiveCredentialType.SSO);
+
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by SSO account: test@ripe.net\n"+
+                "\n" ));
+
+    }
+
+    @Test
+    public void notification_success_with_effective_pgp_credentials() {
+        
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("PGP-KEY-123", Update.EffectiveCredentialType.PGP);
+
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by PGP-KEY-123. You can find contact details for this key here:\n" +
+                "https://apps.db.ripe.net/search/lookup.html?source=ripe&key=PGP-KEY-123&type=key-cert\n"+
+                "\n" ));
+
     }
 
     @Test
@@ -514,7 +585,7 @@ public class ResponseFactoryTest {
 
     private void assertNotification(final ResponseMessage responseMessage) {
         final String message = responseMessage.getMessage();
-        String replayOrNotMessage = (updateContext.getUserSession().getUsername() != "") ? "You can reply to this message to contact the person who made this change.\n" : "Please DO NOT reply to this message.\n";
+        String replayOrNotMessage = (updateContext.getUserSession() != null) ? "You can reply to this message to contact the person who made this change.\n" : "Please DO NOT reply to this message.\n";
                 assertThat(message, containsString("" +
                 "This is to notify you of changes in RIPE Database or\n" +
                 "object authorisation failures.\n" +
