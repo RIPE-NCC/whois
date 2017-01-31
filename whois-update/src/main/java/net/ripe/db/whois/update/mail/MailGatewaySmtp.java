@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.regex.Matcher;
@@ -45,21 +47,11 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Override
     public void sendEmail(final String to, final ResponseMessage responseMessage) {
-        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), "");
+        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), responseMessage.getReplyTo());
     }
 
     @Override
-    public void sendEmail(final String to, final ResponseMessage responseMessage, final String replyTo) {
-        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), replyTo);
-    }
-
-    @Override
-    public void sendEmail(final String to, final String subject, final String text) {
-        sendEmail(to, subject, text, "");
-    }
-
-    @Override
-    public void sendEmail(final String to, final String subject, final String text, final String replyTo) {
+    public void sendEmail(final String to, final String subject, final String text, @Nullable final String replyTo) {
             if (!outgoingMailEnabled) {
                 LOGGER.debug("" +
                         "Outgoing mail disabled\n" +
@@ -97,7 +89,7 @@ public class MailGatewaySmtp implements MailGateway {
                     final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
                     message.setFrom(mailConfiguration.getFrom());
                     message.setTo(to);
-                    if (!replyTo.isEmpty())
+                    if (!StringUtils.isEmpty(replyTo))
                         message.setReplyTo(replyTo);
                     message.setSubject(subject);
                     message.setText(text);

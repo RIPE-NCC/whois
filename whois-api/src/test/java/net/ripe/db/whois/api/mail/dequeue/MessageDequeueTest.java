@@ -126,7 +126,7 @@ public class MessageDequeueTest {
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.LOGGED);
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.PARSED);
         verify(messageHandler, timeout(TIMEOUT)).handle(any(UpdateRequest.class), any(UpdateContext.class));
-        verify(mailGateway, timeout(TIMEOUT)).sendEmail(anyString(), anyString(), anyString());
+        verify(mailGateway, timeout(TIMEOUT)).sendEmail(anyString(), anyString(), anyString(), any());
     }
 
     @Test
