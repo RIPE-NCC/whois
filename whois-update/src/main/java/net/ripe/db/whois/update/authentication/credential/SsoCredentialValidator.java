@@ -29,6 +29,7 @@ public class SsoCredentialValidator implements CredentialValidator<SsoCredential
         for (SsoCredential offered : offeredCredentials) {
             if (offered.getOfferedUserSession().getUuid().equals(knownCredential.getKnownUuid())) {
                 log(update, String.format("Validated %s with RIPE NCC Access for user: %s.", update.getFormattedKey(), offered.getOfferedUserSession().getUsername()));
+
                 update.getUpdate().setEffectiveCredential(offered.getOfferedUserSession().getUsername(), Update.EffectiveCredentialType.SSO);
                 return true;
             }

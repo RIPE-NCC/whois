@@ -94,6 +94,7 @@ public class Update implements UpdateContainer {
         return builder.toString();
     }
 
+
     public void setEffectiveCredential(final String effectiveCredential, EffectiveCredentialType effectiveCredentialType) {
         this.effectiveCredential = effectiveCredential;
         this.effectiveCredentialType = effectiveCredentialType;
@@ -110,4 +111,5 @@ public class Update implements UpdateContainer {
     public enum EffectiveCredentialType {
         SSO, PGP
     }
+
 }

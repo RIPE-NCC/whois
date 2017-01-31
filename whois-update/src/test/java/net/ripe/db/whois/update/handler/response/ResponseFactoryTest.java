@@ -106,6 +106,7 @@ public class ResponseFactoryTest {
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime(0, DateTimeZone.UTC));
         when(updateContext.printGlobalMessages()).thenReturn("");
+        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
         ReflectionTestUtils.setField(subject, "version", "1.2.3");
         ReflectionTestUtils.setField(subject, "source", "TEST");
@@ -361,43 +362,6 @@ public class ResponseFactoryTest {
         assertVersion(response);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-
-    assertThat(responseMessage.getMessage(), containsString("" +
-                "---\n" +
-                "OBJECT BELOW CREATED:\n" +
-                "\n" +
-                "mntner:         DEV-ROOT1-MNT\n" +
-                "\n" +
-                "Changed by SSO account: test@ripe.net\n"+
-                "\n" +
-                "---\n" +
-                "OBJECT BELOW CREATED:\n" +
-                "\n" +
-                "mntner:         DEV-ROOT2-MNT\n"));
-
-
-    //Provide effective credential for SSO user
-        update1.setEffectiveCredential("test@ripe.net", Update.EffectiveCredentialType.SSO);
-
-    You can reply to this message to contact the person who made this change.
-#else
-Please DO NOT reply to this message.
-     */
     @Test
     public void notification_success() {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");

@@ -75,6 +75,7 @@ public class SsoCredentialValidatorTest {
 
         assertThat(update.getEffectiveCredential(), is("test@ripe.net" ));
         assertThat(update.getEffectiveCredentialType(), is(Update.EffectiveCredentialType.SSO));
+
     }
 
 
