@@ -4,15 +4,21 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.Is;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +29,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -35,7 +42,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PgpCredentialValidatorTest {
-    @Mock private PreparedUpdate update;
+    @Mock private PreparedUpdate preparedUpdate;
+
     @Mock private UpdateContext updateContext;
     @Mock private RpslObjectDao rpslObjectDao;
     @Mock private DateTimeProvider dateTimeProvider;
@@ -120,7 +128,8 @@ public class PgpCredentialValidatorTest {
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
-        assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
+        when(preparedUpdate.getUpdate()).thenReturn(createUpdate());
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
 
@@ -154,8 +163,52 @@ public class PgpCredentialValidatorTest {
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
-        assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
+        when(preparedUpdate.getUpdate()).thenReturn(createUpdate());
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
+    }
+
+
+    @Test
+    public void setsEffectiveCredential() {
+        final String message =
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                        "Hash: SHA1\n" +
+                        "\n" +
+                        "inetnum:        213.168.127.96 - 213.168.127.10\n" +
+                        "netname:        NETNAME\n" +
+                        "descr:          Description\n" +
+                        "country:        DE\n" +
+                        "admin-c:        TEST-RIPE\n" +
+                        "tech-c:         TEST-RIPE\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         TEST-MNT\n" +
+                        "mnt-lower:      TEST-MNT\n" +
+                        "source:         RIPE\n" +
+                        "delete:         reason\n" +
+                        "-----BEGIN PGP SIGNATURE-----\n" +
+                        "Version: GnuPG v1\n" +
+                        "Comment: GPGTools - http://gpgtools.org\n" +
+                        "\n" +
+                        "iQEcBAEBAgAGBQJWTc5TAAoJELvMuy1XY5UNorkIAJsWhjbTcPBLCtug50Hkp0ty\n" +
+                        "6hMMVWfIS92fGFzpUKkS3fTnUXkTwsaF0+KQRSHEa6pobMXsP5MCl0SPJaVY4FTz\n" +
+                        "CtlpTHQ1avld/o281Y44wGmN/JFcGml8cnpY9/wseNS2OogemJ1ZQdd9Y4zNuCNX\n" +
+                        "YS5y2jXLQyuLEzmhg423+b4IqeVZBHdWX43tituzk5phy9U2ZuVAnxLQWvNt0QZC\n" +
+                        "v6g0Rig345U3rn0aRCAAFz6C/Al1QbRt5dsH3vQ/lQfiCBoR0A1x9ttsUkB7oCdJ\n" +
+                        "P4eeAXVVIZIqCPKBmNo2fRoDJW5Ly1YEAIASp1pjh0h/kDfJwPQc+mqOQ1CRwgQ=\n" +
+                        "=KPdC\n" +
+                        "-----END PGP SIGNATURE-----";
+
+        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charset.forName("ISO-8859-7"));
+        final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
+        final Update update = createUpdate();
+        when(preparedUpdate.getUpdate()).thenReturn(update);
+        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
+
+        subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+
+        MatcherAssert.assertThat(update.getEffectiveCredential(), Is.is(knownCredential.getKeyId()));
+        MatcherAssert.assertThat(update.getEffectiveCredentialType(), Is.is(Update.EffectiveCredentialType.PGP));
     }
 
     @Test
@@ -175,7 +228,7 @@ public class PgpCredentialValidatorTest {
 
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
-        assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
     }
 
     @Test
@@ -210,9 +263,9 @@ public class PgpCredentialValidatorTest {
 
         final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
-
+        
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenThrow(new EmptyResultDataAccessException(1));
-        assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
     }
 
     @Test
@@ -250,7 +303,7 @@ public class PgpCredentialValidatorTest {
 
         final RpslObject emptyKeycertObject = new RpslObjectBuilder(KEYCERT_OBJECT).removeAttributeType(AttributeType.CERTIF).get();
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, emptyKeycertObject.getKey().toString())).thenReturn(emptyKeycertObject);
-        assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
     }
 
     @Test
@@ -322,7 +375,14 @@ public class PgpCredentialValidatorTest {
         final RpslObject keycertObject = RpslObject.parse("key-cert: PGPKEY-5763950D");
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
 
-        assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
+    }
+
+    private Update createUpdate() {
+        final Paragraph paragraph = new Paragraph(" ");
+        final RpslObject submittedObject = new RpslObject(Arrays.asList(new RpslAttribute(AttributeType.ORGANISATION, CIString.ciString("org-1"))));
+
+        return new Update(paragraph, Operation.DELETE, Arrays.asList(" "), submittedObject);
     }
 }
