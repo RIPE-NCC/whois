@@ -45,21 +45,32 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Override
     public void sendEmail(final String to, final ResponseMessage responseMessage) {
-        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage());
+        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), "");
+    }
+
+    @Override
+    public void sendEmail(final String to, final ResponseMessage responseMessage, final String replyTo) {
+        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), replyTo);
     }
 
     @Override
     public void sendEmail(final String to, final String subject, final String text) {
+        sendEmail(to, subject, text, "");
+    }
+
+    @Override
+    public void sendEmail(final String to, final String subject, final String text, final String replyTo) {
             if (!outgoingMailEnabled) {
                 LOGGER.debug("" +
                         "Outgoing mail disabled\n" +
                         "\n" +
                         "to      : {}\n" +
+                        "reply-to : {}\n" +
                         "subject : {}\n" +
                         "\n" +
                         "{}\n" +
                         "\n" +
-                        "\n", to, subject, text);
+                        "\n", to, replyTo, subject, text);
 
                 return;
             }
@@ -70,7 +81,7 @@ public class MailGatewaySmtp implements MailGateway {
                 throw new MailSendException("Refusing outgoing email: " + text);
             }
 
-            sendEmailAttempt(to, subject, text);
+            sendEmailAttempt(to, replyTo, subject, text);
         } catch (MailException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to {} with subject {}", to, subject), e);
             LOGGER.error("Unable to send mail message to: {}", to, e);
@@ -78,7 +89,7 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
-    private void sendEmailAttempt(final String to, final String subject, final String text) {
+    private void sendEmailAttempt(final String to, final String replyTo, final String subject, final String text) {
         try {
             mailSender.send(new MimeMessagePreparator() {
                 @Override
@@ -86,6 +97,8 @@ public class MailGatewaySmtp implements MailGateway {
                     final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
                     message.setFrom(mailConfiguration.getFrom());
                     message.setTo(to);
+                    if (!replyTo.isEmpty())
+                        message.setReplyTo(replyTo);
                     message.setSubject(subject);
                     message.setText(text);
 
