@@ -85,8 +85,8 @@ public class UpdateNotifierTest {
 
         subject.sendNotifications(updateRequest, updateContext);
 
-        verify(mailGateway).sendEmail(eq("notify1@me.com"), eq(responseMessage), eq(""));
-        verify(mailGateway).sendEmail(eq("notify2@me.com"), eq(responseMessage), eq(""));
+        verify(mailGateway).sendEmail(eq("notify1@me.com"), eq(responseMessage));
+        verify(mailGateway).sendEmail(eq("notify2@me.com"), eq(responseMessage));
     }
 
     @Test
