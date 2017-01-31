@@ -36,7 +36,7 @@ class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
                 final List<RpslAttribute> abuseCAttributes = new ArrayList<>(2);
                 abuseCAttributes.add(rpslObject.getTypeAttribute());
                 abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContact));
-                abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_C, abuseRole.getKey().toString()));
+                abuseCAttributes.add(new RpslAttribute(AttributeType.NIC_HDL, abuseRole.getKey().toString()));
                 return new RpslAttributes(abuseCAttributes);
             }
         }

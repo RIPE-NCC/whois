@@ -16,7 +16,7 @@ public class AbuseContactMapper {
         String abuseEmail = "";
         String abuseKey = "";
         for (final RpslAttribute attribute : attributes) {
-            if (attribute.getType() == AttributeType.ABUSE_C) {
+            if (attribute.getType() == AttributeType.NIC_HDL) {
                 abuseKey = attribute.getCleanValue().toString();
             } else if (attribute.getType() == AttributeType.ABUSE_MAILBOX) {
                 abuseEmail = attribute.getCleanValue().toString();
