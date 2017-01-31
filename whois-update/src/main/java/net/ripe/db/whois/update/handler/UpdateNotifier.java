@@ -74,7 +74,7 @@ public class UpdateNotifier {
             final ResponseMessage responseMessage = responseFactory.createNotification(updateContext, updateRequest.getOrigin(), notification);
             try {
                 new InternetAddress(notification.getEmail(), true);
-                mailGateway.sendEmail(notification.getEmail(), responseMessage, responseMessage.getReplyTo());
+                mailGateway.sendEmail(notification.getEmail(), responseMessage);
             } catch (final AddressException e) {
                 LOGGER.info("Failed to send notification to '{}' because it's an invalid email address", notification.getEmail());
             }
