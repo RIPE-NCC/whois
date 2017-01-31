@@ -355,6 +355,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Error parsing response while performing DNS check");
     }
 
+    public static Message dnsCheckError(final CharSequence s) {
+        return new Message(Type.ERROR, "Error from DNS check: %s", s);
+    }
+
     // NOTE: this errormessage is being used by webupdates.
     public static Message authorisationRequiredForEnumDomain() {
         return new Message(Type.ERROR, "Creating enum domain requires administrative authorisation");
