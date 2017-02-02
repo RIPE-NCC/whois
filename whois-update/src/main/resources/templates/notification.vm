@@ -10,8 +10,7 @@ Please DO NOT reply to this message.
 #end
 
 If you do not understand why we sent you this message,
-or for assistance or clarification please contact:
-RIPE Database Administration <ripe-dbm@ripe.net>
+or for assistance or clarification please visit https://www.ripe.net/s/notify.
 
 Change requested from:
 <<<<<
@@ -134,5 +133,11 @@ $!update.reason
 #end
 #end
 
-#parse("/templates/include/terms-and-conditions.vm")
+>>>>>
+
+The RIPE Database is subject to Terms and Conditions:
+http://www.ripe.net/db/support/db-terms-conditions.pdf
+
+For assistance or clarification please visit https://www.ripe.net/s/notify.
+<<<<<
 #parse("/templates/include/version.vm")
