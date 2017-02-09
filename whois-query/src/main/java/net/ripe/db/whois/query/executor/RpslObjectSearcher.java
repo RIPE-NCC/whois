@@ -241,7 +241,7 @@ class RpslObjectSearcher {
                 try {
                     result.add(rpslObjectDao.findByKey(type, searchValue));
                 } catch (EmptyResultDataAccessException ignored) {
-                    LOGGER.info("EmptyResultDataAccessException ", ignored.getMessage());
+                    LOGGER.debug("EmptyResultDataAccessException ", ignored.getMessage());
                 }
             } else {
                 result.addAll(filterByType(type, rpslObjectDao.findByAttribute(lookupAttribute, searchValue)));

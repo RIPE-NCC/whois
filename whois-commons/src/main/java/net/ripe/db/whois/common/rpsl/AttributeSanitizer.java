@@ -103,7 +103,7 @@ public class AttributeSanitizer {
                     cleanValue = sanitizer.sanitize(orgAttr);
                 } catch (IllegalArgumentException ignored) {
                     // no break on syntactically broken objects
-                    LOGGER.info("IllegalArgumentException ", ignored.getMessage());
+                    LOGGER.debug("IllegalArgumentException ", ignored.getMessage());
                 }
             }
 

@@ -207,7 +207,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
             try {
                 result.add(getByKey(type, searchKey));
             } catch (EmptyResultDataAccessException ignored) {
-                LOGGER.info("EmptyResultDataAccessException ", ignored.getMessage());
+                LOGGER.debug("EmptyResultDataAccessException ", ignored.getMessage());
             }
         }
 

@@ -27,7 +27,7 @@ public final class ChannelUtil {
             try {
                 return InetAddress.getByAddress(inetAddress.getAddress());
             } catch (UnknownHostException ignored) {
-                LOGGER.info("UnknownHostException ", ignored.getMessage());
+                LOGGER.debug("UnknownHostException ", ignored.getMessage());
             }
         }
 
