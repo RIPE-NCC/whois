@@ -28,6 +28,8 @@ import net.ripe.db.whois.query.dao.Inet6numDao;
 import net.ripe.db.whois.query.dao.InetnumDao;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -42,6 +44,7 @@ import java.util.Set;
 
 @Component
 class RpslObjectSearcher {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpslObjectSearcher.class);
     private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES = EnumSet.noneOf(AttributeType.class);
     private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES_OVERRIDE = EnumSet.of(AttributeType.SPONSORING_ORG);
 
@@ -238,6 +241,7 @@ class RpslObjectSearcher {
                 try {
                     result.add(rpslObjectDao.findByKey(type, searchValue));
                 } catch (EmptyResultDataAccessException ignored) {
+                    LOGGER.info("EmptyResultDataAccessException ", ignored.getMessage());
                 }
             } else {
                 result.addAll(filterByType(type, rpslObjectDao.findByAttribute(lookupAttribute, searchValue)));

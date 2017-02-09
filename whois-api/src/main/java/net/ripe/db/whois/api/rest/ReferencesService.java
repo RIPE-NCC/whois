@@ -270,16 +270,16 @@ public class ReferencesService {
             for (Update update : updates) {
                 final UpdateStatus status = updateContext.getStatus(update);
 
-                if (status == UpdateStatus.SUCCESS) {
-                    // continue
-                } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
-                    throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED, whoisResources);
-                } else if (status == UpdateStatus.EXCEPTION) {
-                    throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR, whoisResources);
-                } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
-                    throw new ReferenceUpdateFailedException(Response.Status.CONFLICT, whoisResources);
-                } else {
-                    throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
+                if (status != UpdateStatus.SUCCESS) {
+                    if (status == UpdateStatus.FAILED_AUTHENTICATION) {
+                        throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED, whoisResources);
+                    } else if (status == UpdateStatus.EXCEPTION) {
+                        throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR, whoisResources);
+                    } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
+                        throw new ReferenceUpdateFailedException(Response.Status.CONFLICT, whoisResources);
+                    } else {
+                        throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
+                    }
                 }
             }
 
@@ -598,19 +598,6 @@ public class ReferencesService {
     private Response createResponse(final HttpServletRequest request, final RpslObject primaryObject, final Response.Status status) {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setWhoisObjects(Lists.newArrayList(convertToWhoisObject(primaryObject)));
-        return createResponse(request, whoisResources, status);
-    }
-
-    private Response createResponse(final HttpServletRequest request, final Collection<RpslObject> objects, final Response.Status status) {
-        final WhoisResources whoisResources = new WhoisResources();
-
-        whoisResources.setWhoisObjects(FluentIterable.from(objects).transform(new Function<RpslObject, WhoisObject>() {
-            @Nullable
-            @Override
-            public WhoisObject apply(final RpslObject input) {
-                return convertToWhoisObject(input);
-            }
-        }).toList());
         return createResponse(request, whoisResources, status);
     }
 

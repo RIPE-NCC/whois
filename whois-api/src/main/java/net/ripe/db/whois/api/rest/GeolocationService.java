@@ -22,6 +22,8 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -39,6 +41,7 @@ import java.util.Set;
 @Path("/geolocation")
 public class GeolocationService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeolocationService.class);
     private static final String SERVICE_NAME = "geolocation-finder";
 
     // TODO: [ES] don't hard-code environment specific URL
@@ -116,7 +119,7 @@ public class GeolocationService {
                     }
                 }
             } catch (EmptyResultDataAccessException ignored) {
-                // stop looking
+                LOGGER.info("EmptyResultDataAccessException ", ignored.getMessage());
             }
         }
         catch (IllegalArgumentException e) {

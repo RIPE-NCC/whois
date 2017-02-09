@@ -103,6 +103,7 @@ public class AttributeSanitizer {
                     cleanValue = sanitizer.sanitize(orgAttr);
                 } catch (IllegalArgumentException ignored) {
                     // no break on syntactically broken objects
+                    LOGGER.info("IllegalArgumentException ", ignored.getMessage());
                 }
             }
 
@@ -139,6 +140,7 @@ public class AttributeSanitizer {
                 newValue = sanitizer.sanitize(attribute);
             } catch (IllegalArgumentException ignored) {
                 // no break on syntactically broken objects  TODO: investigate why this is
+                LOGGER.info("INVESTIGATE: IllegalArgumentException ", ignored.getMessage());
             }
 
             if (newValue == null) {

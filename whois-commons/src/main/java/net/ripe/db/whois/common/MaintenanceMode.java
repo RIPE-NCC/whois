@@ -35,7 +35,9 @@ public class MaintenanceMode {
             String[] modes = StringUtils.split(mode, ',');
             world = AccessType.valueOf(modes[0].trim());
             trusted = AccessType.valueOf(modes[1].trim());
-        } catch (RuntimeException e) {}
+        } catch (RuntimeException e) {
+            LOGGER.error("RuntimeException ", e);
+        }
 
         if (world != null && trusted != null) {
             set(world, trusted);
