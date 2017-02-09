@@ -118,8 +118,15 @@ public class ResourceDataDao {
         }
 
         @Override
-        public boolean equals(Object obj) {
-            return super.equals(obj);
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            State state = (State) o;
+
+            if (id != state.id) return false;
+            if (count != state.count) return false;
+            return source != null ? source.equals(state.source) : state.source == null;
         }
     }
 }

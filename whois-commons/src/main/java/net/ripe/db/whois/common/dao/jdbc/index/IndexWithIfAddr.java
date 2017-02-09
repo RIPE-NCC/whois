@@ -62,7 +62,7 @@ class IndexWithIfAddr extends IndexStrategyWithSingleLookupTable {
                     return result;
                 }
             } catch (IllegalArgumentException ignored) {
-                LOGGER.debug("IllegalArgumentException ", ignored.getMessage());
+                LOGGER.debug("IllegalArgumentException {} in {} class ", ignored.getMessage(), ignored.getClass().getName());
             }
         }
 

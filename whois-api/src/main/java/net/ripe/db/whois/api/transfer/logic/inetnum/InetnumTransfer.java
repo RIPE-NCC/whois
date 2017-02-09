@@ -31,8 +31,7 @@ public class InetnumTransfer extends Transfer<Ipv4Range> {
         final RpslAttribute netname = resource.findAttribute(AttributeType.NETNAME);
 
         final boolean status = (netname != null && IANA_NETNAME.equals(netname.getValue().trim()));
-        LOGGER.debug("Is inetnum {} with netname {} iana? {}", resource.getKey(), netname != null ? netname.getValue() : null, status);
-
+        LOGGER.debug("Is inetnum {} with netname {} iana? {}", resource.getKey(), status ? netname.getValue() : null, status);
         return status;
     }
 
@@ -40,8 +39,7 @@ public class InetnumTransfer extends Transfer<Ipv4Range> {
         final RpslAttribute netname = resource.findAttribute(AttributeType.NETNAME);
 
         final boolean status = (netname != null && NON_RIPE_NETNAME.equals(netname.getValue().trim()));
-        LOGGER.debug("Is inetnum {} with netname {} non-RIPE? {}", resource.getKey(), netname != null ? netname.getValue() : null, status);
-
+        LOGGER.debug("Is inetnum {} with netname {} non-RIPE? {}", resource.getKey(), status ? netname.getValue() : null, status);
         return status;
     }
 

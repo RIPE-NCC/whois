@@ -36,7 +36,7 @@ public class MaintenanceMode {
             world = AccessType.valueOf(modes[0].trim());
             trusted = AccessType.valueOf(modes[1].trim());
         } catch (RuntimeException e) {
-            LOGGER.error("RuntimeException ", e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         if (world != null && trusted != null) {
