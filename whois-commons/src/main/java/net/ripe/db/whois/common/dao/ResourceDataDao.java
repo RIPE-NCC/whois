@@ -128,5 +128,13 @@ public class ResourceDataDao {
             if (count != state.count) return false;
             return source != null ? source.equals(state.source) : state.source == null;
         }
+
+        @Override
+        public int hashCode() {
+            int result = source != null ? source.hashCode() : 0;
+            result = 31 * result + id;
+            result = 31 * result + count;
+            return result;
+        }
     }
 }

@@ -624,11 +624,14 @@ public class ReferencesService {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
 
         for (final RpslAttribute rpslAttribute : object.getAttributes()) {
-            for (final RpslObject reference : references) {
-                if (rpslAttribute.getCleanValue().equals(reference.getKey()) &&
-                        rpslAttribute.getType().getReferences().contains(ObjectType.PERSON) ||
-                        rpslAttribute.getType().getReferences().contains(ObjectType.ROLE)) {
-                    replacements.put(rpslAttribute, new RpslAttribute(rpslAttribute.getType(), dummyRole));
+            if (rpslAttribute.getType() != null) {
+
+                for (final RpslObject reference : references) {
+                    if (rpslAttribute.getCleanValue().equals(reference.getKey()) &&
+                            (rpslAttribute.getType().getReferences().contains(ObjectType.PERSON) ||
+                                    rpslAttribute.getType().getReferences().contains(ObjectType.ROLE))) {
+                        replacements.put(rpslAttribute, new RpslAttribute(rpslAttribute.getType(), dummyRole));
+                    }
                 }
             }
         }
