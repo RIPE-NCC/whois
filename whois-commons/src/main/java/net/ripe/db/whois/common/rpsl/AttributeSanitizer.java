@@ -67,7 +67,7 @@ public class AttributeSanitizer {
 
     private boolean existsInList(final List<RpslAttribute> attributes, final AttributeType attributeType) {
         for (RpslAttribute attr : attributes) {
-            if (attr.getType().equals(attributeType)) {
+            if (attributeType.equals(attr.getType())) {
                 return true;
             }
         }
@@ -82,7 +82,7 @@ public class AttributeSanitizer {
 
         for (final RpslAttribute attr : originalObject.getAttributes()) {
             if (keyAttributeTypesForObject.contains(attr.getType())) {
-                if (existsInList(keyRelatedAttributes, attr.getType()) == false) {
+                if (!existsInList(keyRelatedAttributes, attr.getType())) {
                     keyRelatedAttributes.add(attr);
                 }
             }

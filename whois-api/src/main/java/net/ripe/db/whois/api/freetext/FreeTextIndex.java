@@ -306,7 +306,7 @@ public class FreeTextIndex extends RebuildableIndex {
         final IndexWriter indexWriter;
         final TaxonomyWriter taxonomyWriter;
 
-        private DatabaseObjectProcessor(int objectId, byte[] object, IndexWriter indexWriter, TaxonomyWriter taxanomyWriter) {
+        private DatabaseObjectProcessor(final int objectId, final byte[] object, final IndexWriter indexWriter, final TaxonomyWriter taxanomyWriter) {
             this.objectId = objectId;
             this.object = object;
             this.indexWriter = indexWriter;
