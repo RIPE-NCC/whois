@@ -16,7 +16,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -80,28 +83,29 @@ public class AutocompleteService {
                 return badRequest("invalid name for field");
             }
 
-            return getAutocompleteSearchResponse(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet());
+            try {
+                return okRequest(autocompleteSearch.search(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet()));
+            } catch (IOException e) {
+                return badRequest("Query failed.");
+            } catch (IllegalArgumentException e) {
+                return badRequest(e.getMessage());
+            }
 
         } else if (!select.isEmpty() && !where.isEmpty() && !Strings.isNullOrEmpty(like)) {
 
             // query by attribute(s)
 
-            return getAutocompleteSearchResponse(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from));
+            try {
+                return okRequest(autocompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
+            } catch (IOException e) {
+                return badRequest("Query failed.");
+            } catch (IllegalArgumentException e) {
+                return badRequest(e.getMessage());
+            }
+
         } else {
             return badRequest("invalid arguments");
         }
-    }
-
-    private Response getAutocompleteSearchResponse(String query, Set<AttributeType> lookupAttributes, Set<AttributeType> attributeTypes, Set<ObjectType> objects){
-        try {
-            return okRequest(autocompleteSearch.search(query, lookupAttributes, attributeTypes, objects));
-        } catch (IOException e) {
-            LOGGER.warn(e.getMessage(), e);
-            return badRequest("Query failed.");
-        } catch (IllegalArgumentException e) {
-            LOGGER.warn(e.getMessage(), e);
-            return badRequest(e.getMessage());
-       }
     }
 
     // helper methods
