@@ -123,33 +123,34 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @PostConstruct
     public void init() {
-        if (StringUtils.isBlank(indexDir)) return;
-        super.init(new IndexWriterConfig(Version.LUCENE_4_10_4, INDEX_ANALYZER)
-                        .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
-                new IndexTemplate.WriteCallback() {
-                    @Override
-                    public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                        if (indexWriter.numDocs() == 0) {
-                            rebuild(indexWriter, taxonomyWriter);
-                        } else {
-                            final Map<String, String> commitData = indexWriter.getCommitData();
-                            final String committedSource = commitData.get("source");
-
-                            if (!source.equals(committedSource)) {
-                                LOGGER.warn("Index {} has invalid source: {}, rebuild", indexDir, committedSource);
+        if (!StringUtils.isBlank(indexDir)) {
+            super.init(new IndexWriterConfig(Version.LUCENE_4_10_4, INDEX_ANALYZER)
+                            .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
+                    new IndexTemplate.WriteCallback() {
+                        @Override
+                        public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
+                            if (indexWriter.numDocs() == 0) {
                                 rebuild(indexWriter, taxonomyWriter);
-                                return;
-                            }
+                            } else {
+                                final Map<String, String> commitData = indexWriter.getCommitData();
+                                final String committedSource = commitData.get("source");
 
-                            if (!commitData.containsKey("serial")) {
-                                LOGGER.warn("Index {} is missing serial, rebuild", indexDir);
-                                rebuild(indexWriter, taxonomyWriter);
-                                return;
+                                if (!source.equals(committedSource)) {
+                                    LOGGER.warn("Index {} has invalid source: {}, rebuild", indexDir, committedSource);
+                                    rebuild(indexWriter, taxonomyWriter);
+                                    return;
+                                }
+
+                                if (!commitData.containsKey("serial")) {
+                                    LOGGER.warn("Index {} is missing serial, rebuild", indexDir);
+                                    rebuild(indexWriter, taxonomyWriter);
+                                    return;
+                                }
                             }
                         }
                     }
-                }
-        );
+            );
+        }
     }
 
     @PreDestroy
@@ -157,65 +158,67 @@ public class FreeTextIndex extends RebuildableIndex {
         cleanup();
     }
 
+    @Override
     protected void rebuild(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-        if (StringUtils.isBlank(indexDir)) return;
+        if (!StringUtils.isBlank(indexDir)) {
 
-        indexWriter.deleteAll();
-        final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
+            indexWriter.deleteAll();
+            final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
 
-        // sadly Executors don't offer a bounded/blocking submit() implementation
-        int numThreads = Runtime.getRuntime().availableProcessors();
-        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
-        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
-                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+            // sadly Executors don't offer a bounded/blocking submit() implementation
+            int numThreads = Runtime.getRuntime().availableProcessors();
+            final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+            final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
+                    0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
-        JdbcStreamingHelper.executeStreaming(jdbcTemplate, "" +
-                        "SELECT object_id, object " +
-                        "FROM last " +
-                        "WHERE sequence_id != 0 ",
-                new ResultSetExtractor<Void>() {
-                    private static final int LOG_EVERY = 500000;
+            JdbcStreamingHelper.executeStreaming(jdbcTemplate, "" +
+                            "SELECT object_id, object " +
+                            "FROM last " +
+                            "WHERE sequence_id != 0 ",
+                    new ResultSetExtractor<Void>() {
+                        private static final int LOG_EVERY = 500000;
 
-                    @Override
-                    public Void extractData(final ResultSet rs) throws SQLException, DataAccessException {
-                        int nrIndexed = 0;
+                        @Override
+                        public Void extractData(final ResultSet rs) throws SQLException, DataAccessException {
+                            int nrIndexed = 0;
 
-                        while (rs.next()) {
-                            executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getBytes(2), indexWriter, taxonomyWriter));
+                            while (rs.next()) {
+                                executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getBytes(2), indexWriter, taxonomyWriter));
 
-                            if (++nrIndexed % LOG_EVERY == 0) {
-                                LOGGER.info("Indexed {} objects", nrIndexed);
+                                if (++nrIndexed % LOG_EVERY == 0) {
+                                    LOGGER.info("Indexed {} objects", nrIndexed);
+                                }
                             }
+
+                            LOGGER.info("Indexed {} objects", nrIndexed);
+                            return null;
                         }
-
-                        LOGGER.info("Indexed {} objects", nrIndexed);
-                        return null;
                     }
-                }
-        );
+            );
 
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(1, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            LOGGER.error("shutdown", e);
+            executorService.shutdown();
+            try {
+                executorService.awaitTermination(1, TimeUnit.DAYS);
+            } catch (InterruptedException e) {
+                LOGGER.error("shutdown", e);
+            }
+
+            updateMetadata(indexWriter, source, maxSerial);
         }
-
-        updateMetadata(indexWriter, source, maxSerial);
     }
 
     @Scheduled(fixedDelayString = "${freetext.index.update.interval.msecs:60000}" )
     public void scheduledUpdate() {
-        if (StringUtils.isBlank(indexDir)) {
-            return;
-        }
-        try {
-            update();
-        } catch (DataAccessException e) {
-            LOGGER.warn("Unable to update freetext index due to {}: {}", e.getClass(), e.getMessage());
+        if (!StringUtils.isBlank(indexDir)) {
+            try {
+                update();
+            } catch (DataAccessException e) {
+                LOGGER.warn("Unable to update freetext index due to {}: {}", e.getClass(), e.getMessage());
+            }
         }
     }
 
+    @Override
     protected void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
         final Map<String, String> metadata = indexWriter.getCommitData();
         final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
