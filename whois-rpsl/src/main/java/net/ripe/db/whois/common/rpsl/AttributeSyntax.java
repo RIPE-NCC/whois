@@ -150,7 +150,7 @@ public interface AttributeSyntax extends Documented {
             "\n" +
             "For more details, see RFC4034.\n");
 
-    AttributeSyntax EMAIL_SYNTAX = new AttributeSyntaxRegexp(80, Pattern.compile("(?i)^((([A-Z0-9~#$%&'*+=?^_`{|}~/-]+[.])*[A-Z0-9~#$%&'*+=?^_`{|}~/-]+)|([^@]+))@([A-Z0-9-]+([.A-Z0-9-]+)+)$"),
+    AttributeSyntax EMAIL_SYNTAX = new AttributeSyntaxRegexp(80, Pattern.compile("(?i)^.+@([^.]+[.])+[^.]+$"),
             "An e-mail address as defined in RFC 2822.\n");
 
     AttributeSyntax EXPORT_COMPS_SYNTAX = new ExportCompsSyntax();
