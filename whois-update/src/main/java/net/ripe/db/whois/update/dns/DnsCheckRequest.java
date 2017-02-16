@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.dns;
 import net.ripe.db.whois.update.domain.Update;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Objects;
 
 @Immutable
 public class DnsCheckRequest {
@@ -10,7 +11,7 @@ public class DnsCheckRequest {
     private final String domain;
     private final String glue;
 
-    DnsCheckRequest(final Update update, final String domain, final String glue) {
+    public DnsCheckRequest(final Update update, final String domain, final String glue) {
         this.update = update;
         this.domain = domain;
         this.glue = glue;
@@ -40,14 +41,13 @@ public class DnsCheckRequest {
 
         final DnsCheckRequest that = (DnsCheckRequest) o;
 
-        return !(!domain.equals(that.domain) || !glue.equals(that.glue));
+        return Objects.equals(this.getDomain(), that.getDomain()) &&
+            Objects.equals(this.getGlue(), that.getGlue());
     }
 
     @Override
     public int hashCode() {
-        int result = domain.hashCode();
-        result = 31 * result + glue.hashCode();
-        return result;
+        return Objects.hash(update, domain, glue);
     }
 
     @Override

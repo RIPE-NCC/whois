@@ -5,11 +5,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.Hosts;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.Ack;
-import net.ripe.db.whois.update.domain.Notification;
-import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.ResponseMessage;
-import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.*;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -73,12 +69,14 @@ public class ResponseFactory {
     }
 
     public ResponseMessage createNotification(final UpdateContext updateContext, final Origin origin, final Notification notification) {
+        final String ssoUserEmail = updateContext.getUserSession() != null ? updateContext.getUserSession().getUsername() : "";
         final VelocityContext velocityContext = new VelocityContext();
 
         velocityContext.put("failedAuthentication", notification.getUpdates(Notification.Type.FAILED_AUTHENTICATION));
         velocityContext.put("success", notification.getUpdates(Notification.Type.SUCCESS));
         velocityContext.put("successReference", notification.getUpdates(Notification.Type.SUCCESS_REFERENCE));
         velocityContext.put("pendingUpdate", notification.getUpdates(Notification.Type.PENDING_UPDATE));
+        velocityContext.put("ssoUser", ssoUserEmail);
 
         final String subject;
         if (notification.has(Notification.Type.PENDING_UPDATE)) {
@@ -89,7 +87,7 @@ public class ResponseFactory {
             subject = "Notification of RIPE Database changes";
         }
 
-        return new ResponseMessage(subject, createResponse(TEMPLATE_NOTIFICATION, updateContext, velocityContext, origin));
+        return new ResponseMessage(subject, createResponse(TEMPLATE_NOTIFICATION, updateContext, velocityContext, origin), ssoUserEmail);
     }
 
     public ResponseMessage createPendingUpdateTimeout(final UpdateContext updateContext, final Origin origin, final RpslObject rpslObject, final int days) {

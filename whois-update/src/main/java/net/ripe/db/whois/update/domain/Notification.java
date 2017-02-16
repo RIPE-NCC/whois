@@ -70,7 +70,7 @@ public final class Notification {
         private final String action;
         private final String result;
         private final String reason;
-        private final PreparedUpdate update;
+        private final PreparedUpdate preparedUpdate;
         private final int versionId;
 
         public Update(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -78,7 +78,7 @@ public final class Notification {
             this.updatedObject = filterChangedFunction.apply(filterAuthFunction.apply(update.getUpdatedObject()));
             this.action = update.getAction().name();
             this.result = RESULT_MAP.get(update.getAction());
-            this.update = update;
+            this.preparedUpdate = update;
 
             String updateReason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
             if (StringUtils.isNotEmpty(updateReason)) {
@@ -126,6 +126,10 @@ public final class Notification {
             return updatedObject.getKey().toString();
         }
 
+        public PreparedUpdate getPreparedUpdate() {
+            return preparedUpdate;
+        }
+
         public boolean isShowVersionInstruction() {
             return !(updatedObject.getType() == PERSON || updatedObject.getType() == ROLE);
         }
@@ -134,12 +138,12 @@ public final class Notification {
         public boolean equals(Object that) {
             if (this == that) return true;
             if (that == null || getClass() != that.getClass()) return false;
-            return ((Update) that).update == update;
+            return ((Update) that).preparedUpdate == preparedUpdate;
         }
 
         @Override
         public int hashCode() {
-            return update.hashCode();
+            return preparedUpdate.hashCode();
         }
     }
 }

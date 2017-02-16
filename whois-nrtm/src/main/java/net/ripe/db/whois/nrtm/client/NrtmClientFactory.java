@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.UnresolvedAddressException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,12 +85,14 @@ class NrtmClientFactory {
                         writeMirrorCommandAndReadResponse();
                         readUpdates();
                     } catch (ClosedByInterruptException e) {
-                        LOGGER.info("Interrupted, stopping.");
+                        LOGGER.error("Interrupted, cannot import from source {}, stopping.", nrtmSource.getName());
                         break;
-                    } catch (IllegalStateException e) {
-                        LOGGER.error(e.getMessage());
+                    } catch (IllegalStateException | UnresolvedAddressException e) {
+                        LOGGER.error("caught {}, cannot import from source {}, stopping.", e.getClass().getName(), nrtmSource.getName());
+                        LOGGER.error(e.getMessage(), e);
                         break;
-                    } catch (IOException ignored) {
+                    } catch (IOException e) {
+                        LOGGER.info("caught {}: {}, retrying.", e.getClass().getName(), e.getMessage());
                         // retry
                     } catch (RuntimeException e) {
                         LOGGER.info("Caught exception while connected, ignoring.", e);
@@ -102,7 +105,6 @@ class NrtmClientFactory {
             }
         }
 
-        // TODO: [ES] detect error on connect, and do not retry (e.g. %ERROR:402: not authorised to mirror the database from IP address x.y.z)
         @RetryFor(value = IOException.class, attempts = 100, intervalMs = 10 * 1000)
         private void connect() throws IOException {
             try {
@@ -119,8 +121,13 @@ class NrtmClientFactory {
             readEmptyLine();
         }
 
+        private static final String ERROR_RESPONSE = "%ERROR:";
+
         private String readLineWithExpected(final String expected) throws IOException {
             final String line = reader.readLine();
+            if (line.startsWith(ERROR_RESPONSE)) {
+                throw new IllegalStateException(line);
+            }
             if (!line.contains(expected)) {
                 throw new IllegalStateException("Expected to read: \"" + expected + "\", but actually read: \"" + line + "\"");
             }

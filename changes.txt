@@ -1,5 +1,13 @@
 # next
 
+# 1.89
+[update] Include who changed information in update responses for SSO and PGPKEY authentication
+[update] Replaced dnscheck with Zonemaster service for domain updates
+[api] Added abuse-c nic-hdl as key attribute in abuse-contact API response
+[nrtm] Fixed NRTM client bugs #279 and #294
+[grs] Fixed Lacnic GRS mirror download
+[all] Mis-match between resource mask and value no longer possible
+
 # 1.88
 [api] DBF-71 delete syntactically incorrect objects with delete referenced objects call
 [api] DBF-70 fixed substitution for multiple identical references in delete referenced objects call

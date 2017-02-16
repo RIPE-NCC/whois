@@ -12,6 +12,7 @@ import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,8 +41,10 @@ public class DnsCheckerTest {
     @Mock UpdateRequest updateRequest;
     @Mock UpdateContext updateContext;
     @Mock DnsGateway dnsGateway;
+    @Mock LoggerContext loggerContext;
 
-    @InjectMocks DnsChecker subject;
+    @InjectMocks
+    DnsChecker subject;
 
     @Before
     public void setup() {
