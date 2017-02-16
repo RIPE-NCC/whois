@@ -124,9 +124,7 @@ public class ResourceDataDao {
 
             State state = (State) o;
 
-            if (id != state.id) return false;
-            if (count != state.count) return false;
-            return source != null ? source.equals(state.source) : state.source == null;
+            return id == state.id && count == state.count && (source != null ? source.equals(state.source) : state.source == null);
         }
 
         @Override

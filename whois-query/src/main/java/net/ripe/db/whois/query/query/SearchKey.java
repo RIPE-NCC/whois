@@ -33,7 +33,7 @@ class SearchKey {
             this.value = ipKey instanceof Ipv4Resource ? ((Ipv4Resource) ipKey).toRangeString() : ipKey.toString();
             return;
         } catch (RuntimeException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
         }
 
         try {
@@ -50,7 +50,7 @@ class SearchKey {
             this.value = cleanValue;
             return;
         } catch (RuntimeException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
         }
 
         try {
@@ -58,7 +58,7 @@ class SearchKey {
             ipKeyReverse = IpInterval.parseReverseDomain(this.value);
             return;
         } catch (RuntimeException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
         }
 
         this.value = cleanValue;

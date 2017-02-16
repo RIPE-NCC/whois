@@ -117,7 +117,7 @@ public class GeolocationService {
                     }
                 }
             } catch (EmptyResultDataAccessException ignored) {
-                LOGGER.debug("EmptyResultDataAccessException {} in {} class ", ignored.getMessage(), ignored.getClass().getName());
+                // stop looking
             }
         }
         catch (IllegalArgumentException e) {

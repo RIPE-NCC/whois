@@ -579,7 +579,7 @@ public class ReferencesService {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
 
         for (final RpslAttribute rpslAttribute : object.getAttributes()) {
-            AttributeType rpsAttributeType = rpslAttribute.getType();
+            final AttributeType rpsAttributeType = rpslAttribute.getType();
             if (rpsAttributeType != null) {
 
                 for (final RpslObject reference : references) {

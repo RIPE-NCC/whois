@@ -82,12 +82,12 @@ public class AutocompleteService {
                 if (AttributeType.getByNameOrNull(field) == null) {
                     return badRequest("invalid name for field");
                 }
-                return okRequest(autocompleteSearch.search(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet()));
+                return okResponse(autocompleteSearch.search(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet()));
             } else if (!select.isEmpty() && !where.isEmpty() && !Strings.isNullOrEmpty(like)) {
 
                 // query by attribute(s)
 
-                return okRequest(autocompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
+                return okResponse(autocompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
             } else {
                 return badRequest("invalid arguments");
             }
@@ -139,7 +139,7 @@ public class AutocompleteService {
                     .entity(message).build();
     }
 
-    private Response okRequest(final Object message) {
+    private Response okResponse(final Object message) {
         return Response.ok(message).build();
     }
 }
