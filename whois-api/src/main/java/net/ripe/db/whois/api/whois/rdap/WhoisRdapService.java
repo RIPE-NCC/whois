@@ -88,7 +88,6 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 public class WhoisRdapService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRdapService.class);
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
-    private static final Set<ObjectType> ABUSE_CONTACT_TYPES = Sets.newHashSet(AUT_NUM, INETNUM, INET6NUM);
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 

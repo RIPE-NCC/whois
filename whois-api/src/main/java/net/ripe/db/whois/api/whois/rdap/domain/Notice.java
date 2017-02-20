@@ -27,7 +27,7 @@ public class Notice implements Serializable, Comparable<Notice> {
         return title;
     }
 
-    public void setTitle(String value) {
+    public void setTitle(final String value) {
         this.title = value;
     }
 
@@ -46,7 +46,7 @@ public class Notice implements Serializable, Comparable<Notice> {
     }
 
     @Override
-    public int compareTo(Notice o) {
+    public int compareTo(final Notice o) {
         if (title != null) {
             if (o.getTitle() != null) {
                 return title.compareTo(o.getTitle());
