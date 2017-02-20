@@ -1,24 +1,13 @@
 package net.ripe.db.whois.api.transfer.inetnum;
 
-import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.api.transfer.AbstractTransferTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.springframework.dao.EmptyResultDataAccessException;
-
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
-import static org.junit.Assert.fail;
 
 public abstract class AbstractInetnumTransferInternalTest extends AbstractTransferTest {
 

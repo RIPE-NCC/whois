@@ -1,8 +1,13 @@
 package net.ripe.db.whois.query.pipeline;
 
-import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.QueryMessages;
-import org.jboss.netty.channel.*;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 import org.jboss.netty.handler.timeout.TimeoutException;
 import org.junit.Before;
@@ -15,8 +20,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExceptionHandlerTest {
