@@ -73,4 +73,9 @@ For zone-c attributes in domain objects, a custom "ZONE" role is used, which is 
 
 Ref. https://wiki.tools.ietf.org/html/rfc7483 section 10.2.4.
 
+Entity Primary Key can match multiple objects
+---------------------------------------------
+If an entity primary key matches more than one object, a 500 Internal Server Error is returned.
+
+For example: https://rdap.db.ripe.net/entity/AZRT
 
