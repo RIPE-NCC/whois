@@ -28,7 +28,7 @@ public class MaintenanceMode {
         this.ipRanges = ipRanges;
     }
 
-    @Value("${maintenance:full,full}")
+    @Value("${maintenance:FULL,FULL}")
     public void set(String mode) {
         AccessType world = null, trusted = null;
         try {
