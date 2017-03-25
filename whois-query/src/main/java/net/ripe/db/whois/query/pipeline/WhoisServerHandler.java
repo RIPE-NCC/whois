@@ -2,12 +2,17 @@ package net.ripe.db.whois.query.pipeline;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
+import net.ripe.db.whois.query.planner.RpslAttributes;
 import net.ripe.db.whois.query.query.Query;
 import org.jboss.netty.channel.*;
+
+import java.util.Iterator;
 
 /**
  * The worker threads are asynchronously pushing data down the Netty pipeline.
@@ -35,6 +40,16 @@ public class WhoisServerHandler extends SimpleChannelUpstreamHandler {
             public void handle(final ResponseObject responseObject) {
                 if (closed) { // Prevent hammering a closed channel
                     throw new QueryException(QueryCompletionInfo.DISCONNECTED);
+                }
+                //test if frontend also relies on this
+                if (responseObject instanceof RpslAttributes) {
+                    Iterator<RpslAttribute> iterator = ((RpslAttributes) responseObject).getAttributes().iterator();
+                    while (iterator.hasNext()) {
+                        RpslAttribute next = iterator.next();
+                        if (next.getType().equals(AttributeType.NIC_HDL))  {
+                            iterator.remove();
+                        }
+                    }
                 }
                 channel.write(responseObject);
             }

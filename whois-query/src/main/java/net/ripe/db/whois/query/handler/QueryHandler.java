@@ -131,16 +131,7 @@ public class QueryHandler {
                             } else {
                                 notAccountedObjects++;
                             }
-                        } else if  (responseObject instanceof RpslAttributes) {
-                            Iterator<RpslAttribute> iterator = ((RpslAttributes) responseObject).getAttributes().iterator();
-                            while (iterator.hasNext()) {
-                                RpslAttribute next = iterator.next();
-                                if (next.getType().equals(AttributeType.NIC_HDL))  {
-                                    iterator.remove();
-                                }
-                            }
                         }
-
                         responseHandler.handle(responseObject);
                     }
                 });
