@@ -204,15 +204,15 @@ public class RpslResponseDecorator {
         }
 
         if (query.isBriefAbuseContact()) {
-            Iterable<ResponseObject> filter = Iterables.filter(Iterables.transform(objects, briefAbuseCFunction), Predicates.notNull());
-            return Iterables.transform(filter, (responseObject) -> {
-                Iterator<RpslAttribute> iterator = ((RpslAttributes) responseObject).getAttributes().iterator();
-                while (iterator.hasNext()) {
-                    RpslAttribute next = iterator.next();
-                    if (next.getType().equals(AttributeType.NIC_HDL)) iterator.remove();
-                }
-                return responseObject;
-            });
+            return Iterables.filter(Iterables.transform(objects, briefAbuseCFunction), Predicates.notNull());
+//            return Iterables.transform(filter, (responseObject) -> {
+//                Iterator<RpslAttribute> iterator = ((RpslAttributes) responseObject).getAttributes().iterator();
+//                while (iterator.hasNext()) {
+//                    RpslAttribute next = iterator.next();
+//                    if (next.getType().equals(AttributeType.NIC_HDL)) iterator.remove();
+//                }
+//                return responseObject;
+//            });
         }
 
         if (query.isKeysOnly()) {
