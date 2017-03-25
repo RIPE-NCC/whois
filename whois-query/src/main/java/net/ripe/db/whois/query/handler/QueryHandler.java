@@ -4,6 +4,8 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryMessages;
@@ -12,12 +14,14 @@ import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.executor.QueryExecutor;
+import net.ripe.db.whois.query.planner.RpslAttributes;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.net.InetAddress;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -126,6 +130,14 @@ public class QueryHandler {
                                 }
                             } else {
                                 notAccountedObjects++;
+                            }
+                        } else if  (responseObject instanceof RpslAttributes) {
+                            Iterator<RpslAttribute> iterator = ((RpslAttributes) responseObject).getAttributes().iterator();
+                            while (iterator.hasNext()) {
+                                RpslAttribute next = iterator.next();
+                                if (next.getType().equals(AttributeType.NIC_HDL))  {
+                                    iterator.remove();
+                                }
                             }
                         }
 
