@@ -41,16 +41,6 @@ public class WhoisServerHandler extends SimpleChannelUpstreamHandler {
                 if (closed) { // Prevent hammering a closed channel
                     throw new QueryException(QueryCompletionInfo.DISCONNECTED);
                 }
-                //test if frontend also relies on this
-                if (responseObject instanceof RpslAttributes) {
-                    Iterator<RpslAttribute> iterator = ((RpslAttributes) responseObject).getAttributes().iterator();
-                    while (iterator.hasNext()) {
-                        RpslAttribute next = iterator.next();
-                        if (next.getType().equals(AttributeType.NIC_HDL))  {
-                            iterator.remove();
-                        }
-                    }
-                }
                 channel.write(responseObject);
             }
         });

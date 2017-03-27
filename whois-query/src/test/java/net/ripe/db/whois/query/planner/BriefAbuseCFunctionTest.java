@@ -87,12 +87,11 @@ public class BriefAbuseCFunctionTest {
                 "source: RIPE\n" +
                 "abuse-c: ABUSE-KEY\n" +
                 "abuse-mailbox: abuse@ripe.net");
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn("abusec@ripe.net");
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn("abuse@ripe.net");
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
                 "inet6num:       ::0\n" +
-                "abuse-c:        ABUSE-KEY\n" +
                 "abuse-mailbox:  abuse@ripe.net\n"));
     }
 
@@ -109,7 +108,6 @@ public class BriefAbuseCFunctionTest {
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
                 "inetnum:        10.0.0.0\n" +
-                "abuse-c:        ABUSE-KEY\n" +
                 "abuse-mailbox:  abuse@ripe.net\n"));
     }
 

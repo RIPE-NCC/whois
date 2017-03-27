@@ -6,9 +6,13 @@ import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.mapper.AbuseContactMapper;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.handler.QueryHandler;
+import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.planner.RpslAttributes;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +30,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 
 @Component
@@ -35,11 +41,13 @@ public class AbuseContactService {
 
     private final QueryHandler queryHandler;
     private final AccessControlListManager accessControlListManager;
+    private final AbuseCFinder abuseCFinder;
 
     @Autowired
-    public AbuseContactService(final QueryHandler queryHandler, final AccessControlListManager accessControlListManager) {
+    public AbuseContactService(final QueryHandler queryHandler, final AccessControlListManager accessControlListManager, final AbuseCFinder abuseCFinder) {
         this.queryHandler = queryHandler;
         this.accessControlListManager = accessControlListManager;
+        this.abuseCFinder = abuseCFinder;
     }
 
     //TODO [TP]: in case abuse contact is empty we should return 404 instead of 200 + empty string!
@@ -64,6 +72,12 @@ public class AbuseContactService {
             public void handle(final ResponseObject responseObject) {
                 if (responseObject instanceof RpslAttributes) {
                     final RpslAttributes responseAttributes = (RpslAttributes)responseObject;
+
+                    ListIterator<RpslAttribute> iterator = (ListIterator<RpslAttribute>) responseAttributes.getAttributes().iterator();
+                    final RpslObject abuseRole = abuseCFinder.getAbuseContactRole((RpslObject) responseObject);
+
+                    iterator.add(new RpslAttribute(AttributeType.NIC_HDL, abuseRole.getKey().toString()));
+
                     abuseResources.add(AbuseContactMapper.mapAbuseContact(key, responseAttributes.getAttributes()));
                 }
             }
