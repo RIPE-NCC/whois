@@ -7,8 +7,6 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
@@ -30,7 +28,10 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+import java.util.Set;
 
 // TODO [AK] Wrap related response objects (messages + rpsl) in a single response object
 
@@ -205,14 +206,6 @@ public class RpslResponseDecorator {
 
         if (query.isBriefAbuseContact()) {
             return Iterables.filter(Iterables.transform(objects, briefAbuseCFunction), Predicates.notNull());
-//            return Iterables.transform(filter, (responseObject) -> {
-//                Iterator<RpslAttribute> iterator = ((RpslAttributes) responseObject).getAttributes().iterator();
-//                while (iterator.hasNext()) {
-//                    RpslAttribute next = iterator.next();
-//                    if (next.getType().equals(AttributeType.NIC_HDL)) iterator.remove();
-//                }
-//                return responseObject;
-//            });
         }
 
         if (query.isKeysOnly()) {
