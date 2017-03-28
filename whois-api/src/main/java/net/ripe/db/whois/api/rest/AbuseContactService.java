@@ -30,10 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-
 
 @Component
 @Path("/abuse-contact")
@@ -41,13 +38,11 @@ public class AbuseContactService {
 
     private final QueryHandler queryHandler;
     private final AccessControlListManager accessControlListManager;
-    private final AbuseCFinder abuseCFinder;
 
     @Autowired
-    public AbuseContactService(final QueryHandler queryHandler, final AccessControlListManager accessControlListManager, final AbuseCFinder abuseCFinder) {
+    public AbuseContactService(final QueryHandler queryHandler, final AccessControlListManager accessControlListManager) {
         this.queryHandler = queryHandler;
         this.accessControlListManager = accessControlListManager;
-        this.abuseCFinder = abuseCFinder;
     }
 
     //TODO [TP]: in case abuse contact is empty we should return 404 instead of 200 + empty string!
@@ -72,11 +67,6 @@ public class AbuseContactService {
             public void handle(final ResponseObject responseObject) {
                 if (responseObject instanceof RpslAttributes) {
                     final RpslAttributes responseAttributes = (RpslAttributes)responseObject;
-
-                    ListIterator<RpslAttribute> iterator = (ListIterator<RpslAttribute>) responseAttributes.getAttributes().iterator();
-                    final RpslObject abuseRole = abuseCFinder.getAbuseContactRole((RpslObject) responseObject);
-
-                    iterator.add(new RpslAttribute(AttributeType.NIC_HDL, abuseRole.getKey().toString()));
 
                     abuseResources.add(AbuseContactMapper.mapAbuseContact(key, responseAttributes.getAttributes()));
                 }
