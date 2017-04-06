@@ -105,54 +105,64 @@ public class FreeTextSearch {
         return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
     }
 
-    private SearchResponse search(final SearchRequest searchRequest) throws IOException, ParseException {
+    public SearchResponse search(final SearchRequest searchRequest) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         final QueryParser queryParser = new MultiFieldQueryParser(FreeTextIndex.FIELD_NAMES, FreeTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
-        final Query query = queryParser.parse(escape(searchRequest.getQuery()));
 
-        return freeTextIndex.search(new IndexTemplate.SearchCallback<SearchResponse>() {
-            @Override
-            public SearchResponse search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
+        final Query query;
+        try {
+            query = queryParser.parse(escape(searchRequest.getQuery()));
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
 
-                final int maxResults = Math.max(MAX_RESULTS, indexReader.numDocs());
-                final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, false);
-                final FacetsCollector facetsCollector = new FacetsCollector();
+        try {
+            return freeTextIndex.search(new IndexTemplate.SearchCallback<SearchResponse>() {
+                @Override
+                public SearchResponse search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 
-                indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
+                    final int maxResults = Math.max(MAX_RESULTS, indexReader.numDocs());
+                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, false);
+                    final FacetsCollector facetsCollector = new FacetsCollector();
 
-                final List<Document> documents = Lists.newArrayList();
+                    indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
 
-                final TopDocs topDocs = topFieldCollector.topDocs();
-                final int start = Math.max(0, searchRequest.getStart());
-                final int end = Math.min(start + searchRequest.getRows(), topDocs.totalHits);
-                for (int index = start; index < end; index++) {
-                    final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
-                    documents.add(indexSearcher.doc(scoreDoc.doc));
+                    final List<Document> documents = Lists.newArrayList();
+
+                    final TopDocs topDocs = topFieldCollector.topDocs();
+                    final int start = Math.max(0, searchRequest.getStart());
+                    final int end = Math.min(start + searchRequest.getRows(), topDocs.totalHits);
+                    for (int index = start; index < end; index++) {
+                        final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
+                        documents.add(indexSearcher.doc(scoreDoc.doc));
+                    }
+
+                    final List<SearchResponse.Lst> responseLstList = Lists.newArrayList();
+                    responseLstList.add(getResponseHeader(searchRequest, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
+
+                    if (searchRequest.isHighlight()) {
+                        responseLstList.add(createHighlights(searchRequest, query, documents));
+                    }
+
+                    if (searchRequest.isFacet()) {
+                        final FacetsConfig facetsConfig = new FacetsConfig();
+                        final Facets facets = new FastTaxonomyFacetCounts(taxonomyReader, facetsConfig, facetsCollector);
+
+                        responseLstList.add(getFacet(facets));
+                    }
+
+                    final SearchResponse searchResponse = new SearchResponse();
+                    searchResponse.setResult(createResult(searchRequest, documents, topDocs.totalHits));
+                    searchResponse.setLsts(responseLstList);
+
+                    return searchResponse;
                 }
-
-                final List<SearchResponse.Lst> responseLstList = Lists.newArrayList();
-                responseLstList.add(getResponseHeader(searchRequest, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
-
-                if (searchRequest.isHighlight()) {
-                    responseLstList.add(createHighlights(searchRequest, query, documents));
-                }
-
-                if (searchRequest.isFacet()) {
-                    final FacetsConfig facetsConfig = new FacetsConfig();
-                    final Facets facets = new FastTaxonomyFacetCounts(taxonomyReader, facetsConfig, facetsCollector);
-
-                    responseLstList.add(getFacet(facets));
-                }
-
-                final SearchResponse searchResponse = new SearchResponse();
-                searchResponse.setResult(createResult(searchRequest, documents, topDocs.totalHits));
-                searchResponse.setLsts(responseLstList);
-
-                return searchResponse;
-            }
-        });
+            });
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private String escape(final String value) {

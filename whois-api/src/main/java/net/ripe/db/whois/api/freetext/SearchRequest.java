@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.freetext;
 
 import org.apache.commons.lang.Validate;
 
-final class SearchRequest {
+public final class SearchRequest {
 
     private final int rows;
     private final int start;
@@ -25,8 +25,8 @@ final class SearchRequest {
         Validate.notNull(query, "No query parameter.");
         Validate.isTrue(!query.isEmpty(), "Invalid query");
         Validate.isTrue("xml".equals(format) || "json".equals(format), "invalid format " + format);
-        Validate.notNull(highlightPre);
-        Validate.notNull(highlightPost);
+        Validate.notNull(highlightPre, "no highlight.pre parameter");
+        Validate.notNull(highlightPost, "no highlight.post parameter");
         this.rows = rows;
         this.start = start;
         this.query = query;
