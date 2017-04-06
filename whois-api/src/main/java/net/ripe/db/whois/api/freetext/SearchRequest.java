@@ -1,110 +1,149 @@
 package net.ripe.db.whois.api.freetext;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import org.apache.commons.lang.Validate;
 
 final class SearchRequest {
-    private static final String PARAM_ROWS = "rows";
-    private static final String PARAM_START = "start";
-    private static final String PARAM_QUERY = "q";
-    private static final String PARAM_HIGHLIGHT = "hl";
-    private static final String PARAM_HIGHLIGHT_PRE = "hl.simple.pre";
-    private static final String PARAM_HIGHLIGHT_POST = "hl.simple.post";
-    private static final String PARAM_RESPONSE_WRITER_TYPE = "wt";
-    private static final String PARAM_FACET = "facet";
 
-    private static final Splitter PARAM_SPLITTER = Splitter.on('&');
-    private static final Splitter VALUE_SPLITTER = Splitter.on('=');
+    private final int rows;
+    private final int start;
+    private final String query;
+    private final boolean highlight;
+    private final String highlightPre;
+    private final String highlightPost;
+    private final boolean facet;
+    private final String format;
 
-    private final Map<String, String> params;
-
-    private SearchRequest(final Map<String, String> params) {
-        this.params = Collections.unmodifiableMap(params);
-    }
-
-    public static SearchRequest parse(final String query) {
-        if (StringUtils.isEmpty(query)) {
-            throw new IllegalArgumentException("No query parameter.");
-        }
-
-        final Map<String, String> params = Maps.newHashMap();
-
-        for (String param : PARAM_SPLITTER.split(query)) {
-            final Iterator<String> keyValueIterator = VALUE_SPLITTER.split(param).iterator();
-            if (keyValueIterator.hasNext()) {
-                final String key = keyValueIterator.next().trim();
-                if (keyValueIterator.hasNext()) {
-                    try {
-                        String value = URLDecoder.decode(keyValueIterator.next(), Charset.defaultCharset().name());
-                        value = value.replaceAll("[/]", "\\\\/");
-                        params.put(key, value);
-                    } catch (UnsupportedEncodingException e) {
-                        throw new IllegalArgumentException(String.format("Unsupported encoding: %s", Charset.defaultCharset().name()));
-                    }
-                }
-            }
-        }
-
-        return new SearchRequest(params);
+    private SearchRequest(
+                final int rows,
+                final int start,
+                final String query,
+                final boolean highlight,
+                final String highlightPre,
+                final String highlightPost,
+                final boolean facet,
+                final String format) {
+        Validate.notNull(query, "No query parameter.");
+        Validate.isTrue(!query.isEmpty(), "Invalid query");
+        Validate.isTrue("xml".equals(format) || "json".equals(format), "invalid format " + format);
+        Validate.notNull(highlightPre);
+        Validate.notNull(highlightPost);
+        this.rows = rows;
+        this.start = start;
+        this.query = query;
+        this.highlight = highlight;
+        this.highlightPre = highlightPre;
+        this.highlightPost = highlightPost;
+        this.facet = facet;
+        this.format = format;
     }
 
     public String getQuery() {
-        return getStringValue(PARAM_QUERY, null);
+        return this.query;
     }
 
     public boolean isHighlight() {
-        return getBooleanValue(PARAM_HIGHLIGHT, false);
+        return this.highlight;
     }
 
     public String getHighlightPre() {
-        return getStringValue(PARAM_HIGHLIGHT_PRE, "<b>");
+        return this.highlightPre;
     }
 
     public String getHighlightPost() {
-        return getStringValue(PARAM_HIGHLIGHT_POST, "</b>");
+        return this.highlightPost;
     }
 
     public boolean isFacet() {
-        return getBooleanValue(PARAM_FACET, false);
+        return this.facet;
     }
 
     public int getStart() {
-        return getIntValue(PARAM_START, 0);
+        return this.start;
     }
 
     public int getRows() {
-        return getIntValue(PARAM_ROWS, 10);
+        return this.rows;
     }
 
     public String getFormat() {
-        return getStringValue(PARAM_RESPONSE_WRITER_TYPE, "xml");
+        return this.format;
     }
 
-    public Map<String, String> getParams() {
-        return params;
-    }
+    public static class SearchRequestBuilder {
 
-    private String getStringValue(final String key, final String defaultValue) {
-        return params.containsKey(key) ? params.get(key) : defaultValue;
-    }
+        private int rows;
+        private int start;
+        private String query;
+        private boolean highlight;
+        private String highlightPre;
+        private String highlightPost;
+        private String format;
+        private boolean facet;
 
-    private boolean getBooleanValue(final String key, final boolean defaultValue) {
-        return params.containsKey(key) ? "true".equals(params.get(key)) : defaultValue;
-    }
+        public SearchRequestBuilder setRows(final String rows) {
+            this.rows = getIntValue(rows);
+            return this;
+        }
 
-    private int getIntValue(final String key, final int defaultValue) {
-        try {
-            return params.containsKey(key) ? Integer.parseInt(params.get(key)) : defaultValue;
-        } catch (NumberFormatException e) {
-            return defaultValue;
+        public SearchRequestBuilder setStart(final String start) {
+            this.start = getIntValue(start);
+            return this;
+        }
+
+        public SearchRequestBuilder setQuery(final String query) {
+            this.query = query;
+            return this;
+        }
+
+        public SearchRequestBuilder setHighlight(final String highlight) {
+            this.highlight = getBooleanValue(highlight);
+            return this;
+        }
+
+        public SearchRequestBuilder setHighlightPre(final String highlightPre) {
+            this.highlightPre = highlightPre;
+            return this;
+        }
+
+        public SearchRequestBuilder setHighlightPost(final String highlightPost) {
+            this.highlightPost = highlightPost;
+            return this;
+        }
+
+        public SearchRequestBuilder setFormat(final String format) {
+            this.format = format;
+            return this;
+        }
+
+        public SearchRequestBuilder setFacet(final String facet) {
+            this.facet = getBooleanValue(facet);
+            return this;
+        }
+
+        public SearchRequest build() {
+            return new SearchRequest(
+                            rows,
+                            start,
+                            query,
+                            highlight,
+                            highlightPre,
+                            highlightPost,
+                            facet,
+                            format);
+        }
+
+        // helper methods
+
+        private int getIntValue(final String value) {
+            try {
+                return Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException(value + " is not a number");
+            }
+        }
+
+        private boolean getBooleanValue(final String value) {
+            return "true".equals(value);
         }
     }
 }

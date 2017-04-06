@@ -31,67 +31,92 @@ import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.oxm.Marshaller;
 import org.springframework.stereotype.Component;
 
-import javax.xml.transform.stream.StreamResult;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.whois.api.freetext.FreeTextIndex.INDEX_ANALYZER;
 import static net.ripe.db.whois.api.freetext.FreeTextIndex.PRIMARY_KEY_FIELD_NAME;
 
 @Component
+@Path("/search")
 public class FreeTextSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(FreeTextSearch.class);
 
-    static final Sort SORT_BY_OBJECT_TYPE = new Sort(new SortField(FreeTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING));
+    private static final Sort SORT_BY_OBJECT_TYPE = new Sort(new SortField(FreeTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING));
+    private static final int MAX_RESULTS = 100;
 
     private final FreeTextIndex freeTextIndex;
-    private final Marshaller marshaller;
 
     @Autowired
-    public FreeTextSearch(final FreeTextIndex freeTextIndex, final Marshaller marshaller) {
+    public FreeTextSearch(final FreeTextIndex freeTextIndex) {
         this.freeTextIndex = freeTextIndex;
-        this.marshaller = marshaller;
     }
 
-    public void freeTextSearch(final String query, final Writer writer) throws IOException {
+    @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    public Response search(
+        @QueryParam("q") final String query,
+        @QueryParam("rows") @DefaultValue("10") final String rows,
+        @QueryParam("start") @DefaultValue("0") final String start,
+        @QueryParam("hl") @DefaultValue("false") final String highlight,
+        @QueryParam("hl.simple.pre") @DefaultValue("<b>") final String highlightPre,
+        @QueryParam("hl.simple.post") @DefaultValue("</b>") final String highlightPost,
+        @QueryParam("wt") @DefaultValue("xml") final String writerType,
+        @QueryParam("facet") @DefaultValue("false") final String facet) {
         try {
-            final SearchRequest searchRequest = SearchRequest.parse(query);
-            performFreeTextSearch(searchRequest, writer);
-        } catch (ParseException e) {
-            throw new IllegalArgumentException(String.format("Invalid query: %s", query), e);
+            return ok(search(
+                new SearchRequest.SearchRequestBuilder()
+                    .setRows(rows)
+                    .setStart(start)
+                    .setQuery(query)
+                    .setHighlight(highlight)
+                    .setHighlightPre(highlightPre)
+                    .setHighlightPost(highlightPost)
+                    .setFormat(writerType)
+                    .setFacet(facet)
+                    .build()));
+        } catch (IllegalArgumentException e) {
+            return badRequest(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return internalServerError("Unexpected error");
         }
     }
 
-    private void performFreeTextSearch(final SearchRequest searchRequest, final Writer writer) throws IOException, ParseException {
-        if (!"XML".equalsIgnoreCase(searchRequest.getFormat())) {
-            throw new IllegalArgumentException(String.format("Unsupported format: %s", searchRequest.getFormat()));
-        }
-
-        if (searchRequest.getQuery() == null) {
-            throw new IllegalArgumentException("Missing query parameter");
-        }
-
-        search(searchRequest, writer);
+    private Response ok(final SearchResponse searchResponse) {
+        return Response.ok(searchResponse).build();
     }
 
-    private void search(final SearchRequest searchRequest, final Writer writer) throws IOException, ParseException {
+    private Response badRequest(final String message) {
+        return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+    }
+
+    private Response internalServerError(final String message) {
+        return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
+    }
+
+    private SearchResponse search(final SearchRequest searchRequest) throws IOException, ParseException {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         final QueryParser queryParser = new MultiFieldQueryParser(FreeTextIndex.FIELD_NAMES, FreeTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
-        final Query query = queryParser.parse(searchRequest.getQuery());
+        final Query query = queryParser.parse(escape(searchRequest.getQuery()));
 
-        freeTextIndex.search(new IndexTemplate.SearchCallback<Void>() {
+        return freeTextIndex.search(new IndexTemplate.SearchCallback<SearchResponse>() {
             @Override
-            public Void search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
+            public SearchResponse search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 
-                final int maxResults = Math.max(100, indexReader.numDocs());
+                final int maxResults = Math.max(MAX_RESULTS, indexReader.numDocs());
                 final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, false);
                 final FacetsCollector facetsCollector = new FacetsCollector();
 
@@ -125,21 +150,29 @@ public class FreeTextSearch {
                 searchResponse.setResult(createResult(searchRequest, documents, topDocs.totalHits));
                 searchResponse.setLsts(responseLstList);
 
-                marshaller.marshal(searchResponse, new StreamResult(writer));
-                return null;
+                return searchResponse;
             }
         });
     }
 
-    private SearchResponse.Lst getResponseHeader(SearchRequest searchRequest, final long elapsedTime) {
+    private String escape(final String value) {
+        return value.replaceAll("[/]", "\\\\/");
+    }
+
+    private SearchResponse.Lst getResponseHeader(final SearchRequest searchRequest, final long elapsedTime) {
         SearchResponse.Lst responseHeader = new SearchResponse.Lst("responseHeader");
         final List<SearchResponse.Int> responseHeaderInts = Lists.newArrayList(new SearchResponse.Int("status", "0"), new SearchResponse.Int("QTime", Long.toString(elapsedTime)));
         responseHeader.setInts(responseHeaderInts);
 
         final List<SearchResponse.Str> paramStrs = Lists.newArrayList();
-        for (Map.Entry<String, String> param : searchRequest.getParams().entrySet()) {
-            paramStrs.add(new SearchResponse.Str(param.getKey(), param.getValue()));
-        }
+        paramStrs.add(new SearchResponse.Str("q", searchRequest.getQuery()));
+        paramStrs.add(new SearchResponse.Str("rows", Integer.toString(searchRequest.getRows())));
+        paramStrs.add(new SearchResponse.Str("start", Integer.toString(searchRequest.getStart())));
+        paramStrs.add(new SearchResponse.Str("hl", Boolean.toString(searchRequest.isHighlight())));
+        paramStrs.add(new SearchResponse.Str("hl.simple.pre", searchRequest.getHighlightPre()));
+        paramStrs.add(new SearchResponse.Str("hl.simple.post", searchRequest.getHighlightPost()));
+        paramStrs.add(new SearchResponse.Str("wt", searchRequest.getFormat()));
+        paramStrs.add(new SearchResponse.Str("facet", Boolean.toString(searchRequest.isFacet())));
 
         final SearchResponse.Lst params = new SearchResponse.Lst("params");
         params.setStrs(paramStrs);

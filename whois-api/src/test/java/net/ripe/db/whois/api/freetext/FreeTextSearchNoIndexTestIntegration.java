@@ -7,7 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 
 import static org.junit.Assert.fail;
 
@@ -24,7 +24,7 @@ public class FreeTextSearchNoIndexTestIntegration extends AbstractIntegrationTes
         try {
             query("q=test");
             fail();
-        } catch (InternalServerErrorException e) {
+        } catch (NotFoundException e) {
             // expected
         }
     }
