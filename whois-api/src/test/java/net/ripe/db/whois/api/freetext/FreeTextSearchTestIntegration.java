@@ -248,6 +248,19 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_word_match_first_subword() throws Exception {
+        databaseHelper.addObject(
+                "person: Test Person\n" +
+                 "nic-hdl: TP1-TEST");
+        freeTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=TP1");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+    @Test
     public void search_word_match_original() throws Exception {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald1\n" +

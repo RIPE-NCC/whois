@@ -237,6 +237,7 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         return freeTextSearch.search(
                 new SearchRequest.SearchRequestBuilder()
                     .setQuery(queryStr)
+                    .setRows("10")
                     .setFormat("xml")
                     .setHighlightPre("<b>")
                     .setHighlightPost("</b>")
