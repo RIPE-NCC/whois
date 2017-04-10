@@ -143,7 +143,7 @@ public final class SearchRequest {
         }
 
         private boolean getBooleanValue(final String value) {
-            return "true".equals(value);
+            return "true".equalsIgnoreCase(value);
         }
     }
 }
