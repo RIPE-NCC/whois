@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.fulltext;
+package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Stopwatch;

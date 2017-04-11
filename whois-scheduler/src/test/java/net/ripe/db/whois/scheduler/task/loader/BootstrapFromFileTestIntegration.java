@@ -1,9 +1,9 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
-import net.ripe.db.whois.api.fulltext.FullTextIndex;
-import net.ripe.db.whois.api.fulltext.FullTextSearch;
-import net.ripe.db.whois.api.fulltext.SearchRequest;
-import net.ripe.db.whois.api.fulltext.SearchResponse;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
+import net.ripe.db.whois.api.fulltextsearch.SearchRequest;
+import net.ripe.db.whois.api.fulltextsearch.SearchResponse;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;

@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.fulltext;
+package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.api.fulltext.FullTextSolrUtils.parseResponse;
+import static net.ripe.db.whois.api.fulltextsearch.FullTextSolrUtils.parseResponse;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -134,7 +134,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults().getNumFound(), is(3L));
         assertThat(getHighlightKeys(queryResponse), containsInAnyOrder("1", "2", "3"));
-        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("Some <b>remark</b>", "Second <b>remark</b>", "Other <b>remark</b>"));
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("Some <b>remark<\\/b>", "Second <b>remark<\\/b>", "Other <b>remark<\\/b>"));
     }
 
     @Test
@@ -204,7 +204,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         final Map<String, Map<String, List<String>>> highlighting = queryResponse.getHighlighting();
         assertThat(highlighting.keySet(), hasSize(1));
         assertThat(highlighting.get("2").keySet(), contains("descr"));
-        assertThat(highlighting.get("2").values(), contains(Lists.newArrayList("<b>T.E.S.T</b>. Ltd")));
+        assertThat(highlighting.get("2").values(), contains(Lists.newArrayList("<b>T.E.S.T<\\/b>. Ltd")));
     }
 
     @Test
@@ -649,17 +649,38 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(solrDocument.getFirstValue("inet6num"), is("2001:0638:0501::/48"));
     }
 
+    @Test
+    public void search_highlight_escaping() {
+        databaseHelper.addObject(
+            RpslObject.parse(
+                "mntner: DEV-MNT\n" +
+                "remarks: DEV mntner\n" +
+                "source: RIPE"));
+        fullTextIndex.update();
+
+        final QueryResponse queryResponse = query("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
+        assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(3));
+        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("<b>DEV<\\/b> mntner"));
+    }
+
     // helper methods
 
     private QueryResponse query(final String queryString) {
         return parseResponse(
-            RestTest.target(getPort(), String.format("whois/fulltextsearch?%s",queryString))
+            RestTest.target(getPort(), String.format("whois/fulltextsearch/select?%s",queryString))
                     .request()
                     .get(String.class));
     }
 
     private SearchResponse queryJson(final String queryString) {
-        return RestTest.target(getPort(), String.format("whois/fulltextsearch.json?%s", queryString))
+        return RestTest.target(getPort(), String.format("whois/fulltextsearch/select.json?%s", queryString))
                 .request()
                 .get(SearchResponse.class);
     }

@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.fulltext;
+package net.ripe.db.whois.api.fulltextsearch;
 
 import org.apache.commons.lang.Validate;
 

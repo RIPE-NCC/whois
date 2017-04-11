@@ -2,8 +2,8 @@ package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.api.fulltext.FullTextAnalyzer;
-import net.ripe.db.whois.api.fulltext.FullTextIndex;
+import net.ripe.db.whois.api.fulltextsearch.FullTextAnalyzer;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;

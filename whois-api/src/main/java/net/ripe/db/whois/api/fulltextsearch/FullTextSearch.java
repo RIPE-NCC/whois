@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.fulltext;
+package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -44,8 +44,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static net.ripe.db.whois.api.fulltext.FullTextIndex.INDEX_ANALYZER;
-import static net.ripe.db.whois.api.fulltext.FullTextIndex.PRIMARY_KEY_FIELD_NAME;
+import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.INDEX_ANALYZER;
+import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.PRIMARY_KEY_FIELD_NAME;
 
 @Component
 @Path("/fulltextsearch")
@@ -63,6 +63,7 @@ public class FullTextSearch {
     }
 
     @GET
+    @Path("/select")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response search(
         @QueryParam("q") final String query,
@@ -214,7 +215,7 @@ public class FullTextSearch {
         final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
         final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
 
-        final SimpleHTMLFormatter formatter = new SimpleHTMLFormatter(searchRequest.getHighlightPre(), searchRequest.getHighlightPost());
+        final SimpleHTMLFormatter formatter = new SimpleHTMLFormatter(escape(searchRequest.getHighlightPre()), escape(searchRequest.getHighlightPost()));
 
         final Highlighter highlighter = new Highlighter(formatter, new QueryScorer(query));
         highlighter.setTextFragmenter(new SimpleFragmenter(Integer.MAX_VALUE));
