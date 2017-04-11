@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.freetext;
+package net.ripe.db.whois.api.fulltext;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Stopwatch;
@@ -52,15 +52,15 @@ import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-public class FreeTextIndex extends RebuildableIndex {
-    private static final Logger LOGGER = getLogger(FreeTextIndex.class);
+public class FullTextIndex extends RebuildableIndex {
+    private static final Logger LOGGER = getLogger(FullTextIndex.class);
 
     public static final String OBJECT_TYPE_FIELD_NAME = "object-type";
     public static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
     public static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
 
-    public static final Analyzer QUERY_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY);
-    public static final Analyzer INDEX_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.INDEX);
+    public static final Analyzer QUERY_ANALYZER = new FullTextAnalyzer(FullTextAnalyzer.Operation.QUERY);
+    public static final Analyzer INDEX_ANALYZER = new FullTextAnalyzer(FullTextAnalyzer.Operation.INDEX);
 
     static final String[] FIELD_NAMES;
 
@@ -107,11 +107,10 @@ public class FreeTextIndex extends RebuildableIndex {
     private final String source;
     private final FacetsConfig facetsConfig;
 
-    @Autowired
-    FreeTextIndex(
+    @Autowired FullTextIndex(
             @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
             @Value("${whois.source}") final String source,
-            @Value("${dir.freetext.index:}") final String indexDir) {
+            @Value("${dir.fulltext.index:}") final String indexDir) {
         super(LOGGER, indexDir);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
@@ -206,7 +205,7 @@ public class FreeTextIndex extends RebuildableIndex {
         updateMetadata(indexWriter, source, maxSerial);
     }
 
-    @Scheduled(fixedDelayString = "${freetext.index.update.interval.msecs:60000}" )
+    @Scheduled(fixedDelayString = "${fulltext.index.update.interval.msecs:60000}" )
     public void scheduledUpdate() {
         if (!isEnabled()) {
             return;
@@ -214,7 +213,7 @@ public class FreeTextIndex extends RebuildableIndex {
         try {
             update();
         } catch (DataAccessException e) {
-            LOGGER.warn("Unable to update freetext index due to {}: {}", e.getClass(), e.getMessage());
+            LOGGER.warn("Unable to update fulltext index due to {}: {}", e.getClass(), e.getMessage());
         }
     }
 

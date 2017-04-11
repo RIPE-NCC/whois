@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
-import net.ripe.db.whois.api.freetext.FreeTextSearch;
+import net.ripe.db.whois.api.fulltext.FullTextSearch;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import net.ripe.db.whois.api.transfer.AsnTransfersRestService;
@@ -38,7 +38,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
     private final DomainObjectService domainObjectService;
-    private final FreeTextSearch freeTextSearch;
+    private final FullTextSearch fullTextSearch;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -53,7 +53,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final DefaultExceptionMapper defaultExceptionMapper,
                                 final MaintenanceModeFilter maintenanceModeFilter,
                                 final DomainObjectService domainObjectService,
-                                final FreeTextSearch freeTextSearch) {
+                                final FullTextSearch fullTextSearch) {
         this.whoisRestService = whoisRestService;
         this.syncUpdatesService = syncUpdatesService;
         this.asnTransfersRestService = asnTransfersRestService;
@@ -66,7 +66,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.defaultExceptionMapper = defaultExceptionMapper;
         this.maintenanceModeFilter = maintenanceModeFilter;
         this.domainObjectService = domainObjectService;
-        this.freeTextSearch = freeTextSearch;
+        this.fullTextSearch = fullTextSearch;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(referencesService);
         resourceConfig.register(defaultExceptionMapper);
         resourceConfig.register(domainObjectService);
-        resourceConfig.register(freeTextSearch);
+        resourceConfig.register(fullTextSearch);
         resourceConfig.register(new CacheControlFilter());
         resourceConfig.register(new CrossOriginFilter());
 

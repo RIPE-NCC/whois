@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.freetext;
+package net.ripe.db.whois.api.fulltext;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -12,11 +12,11 @@ import javax.ws.rs.NotFoundException;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class FreeTextSearchNoIndexTestIntegration extends AbstractIntegrationTest {
+public class FullTextSearchNoIndexTestIntegration extends AbstractIntegrationTest {
 
     @BeforeClass
     public static void clearProperty() {
-        System.setProperty("dir.freetext.index", "");
+        System.setProperty("dir.fulltext.index", "");
     }
 
     @Test

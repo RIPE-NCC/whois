@@ -81,7 +81,7 @@
             <artifactId>jaxb-impl</artifactId>
         </dependency>
 
-        <!-- Lucene free text search -->
+        <!-- Lucene full text search -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>

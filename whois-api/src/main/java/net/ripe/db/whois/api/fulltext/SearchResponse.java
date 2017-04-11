@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.freetext;
+package net.ripe.db.whois.api.fulltext;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;

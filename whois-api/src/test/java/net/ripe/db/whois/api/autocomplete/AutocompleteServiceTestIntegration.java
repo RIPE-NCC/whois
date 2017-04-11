@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.autocomplete;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.freetext.FreeTextIndex;
+import net.ripe.db.whois.api.fulltext.FullTextIndex;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -35,19 +35,19 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest {
-    @Autowired FreeTextIndex freeTextIndex;
+    @Autowired FullTextIndex fullTextIndex;
 
     @Autowired AutocompleteService autocompleteService;
 
     @BeforeClass
     public static void setProperty() {
-        // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.freetext.index", "var${jvmId:}/idx");
+        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
+        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
     @AfterClass
     public static void clearProperty() {
-        System.clearProperty("dir.freetext.index");
+        System.clearProperty("dir.fulltext.index");
     }
 
     @Before
@@ -695,6 +695,6 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     private void rebuildIndex() {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
     }
 }

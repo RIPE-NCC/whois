@@ -78,7 +78,7 @@
 ## 1.83
 [all] better error message for syntax error in organisation attribute
 [update] fixed bug where SyncUpdates POST without content type header results in an Internal Server Error
-[api] removed unnecessary logging during free text search indexing
+[api] removed unnecessary logging during full text search indexing
 [api] fixed bug in delete with references to return the deleted objects.
 [api] fixed bug in REST delete for unsuccessful response.
 
@@ -522,7 +522,7 @@ Objects can be created/modified when appropriate using the SSO account.
 
 ## 1.55.5
 [update] Free-text search: Also index the object-type field (required for filtering by object-type).
-[update] Removed redundant Free Text Search integration test, added tests for facet search and subwords.
+[update] Removed redundant Full Text Search integration test, added tests for facet search and subwords.
 [update] Don't return a stack trace on an invalid parameter value when calling the REST API.
 
 ## 1.55.4

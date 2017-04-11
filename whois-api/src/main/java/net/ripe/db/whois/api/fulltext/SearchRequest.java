@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.freetext;
+package net.ripe.db.whois.api.fulltext;
 
 import org.apache.commons.lang.Validate;
 

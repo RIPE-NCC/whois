@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.freetext;
+package net.ripe.db.whois.api.fulltext;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -44,22 +44,22 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static net.ripe.db.whois.api.freetext.FreeTextIndex.INDEX_ANALYZER;
-import static net.ripe.db.whois.api.freetext.FreeTextIndex.PRIMARY_KEY_FIELD_NAME;
+import static net.ripe.db.whois.api.fulltext.FullTextIndex.INDEX_ANALYZER;
+import static net.ripe.db.whois.api.fulltext.FullTextIndex.PRIMARY_KEY_FIELD_NAME;
 
 @Component
-@Path("/search")
-public class FreeTextSearch {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FreeTextSearch.class);
+@Path("/fulltextsearch")
+public class FullTextSearch {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FullTextSearch.class);
 
-    private static final Sort SORT_BY_OBJECT_TYPE = new Sort(new SortField(FreeTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING));
+    private static final Sort SORT_BY_OBJECT_TYPE = new Sort(new SortField(FullTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING));
     private static final int MAX_RESULTS = 100;
 
-    private final FreeTextIndex freeTextIndex;
+    private final FullTextIndex fullTextIndex;
 
     @Autowired
-    public FreeTextSearch(final FreeTextIndex freeTextIndex) {
-        this.freeTextIndex = freeTextIndex;
+    public FullTextSearch(final FullTextIndex fullTextIndex) {
+        this.fullTextIndex = fullTextIndex;
     }
 
     @GET
@@ -108,7 +108,7 @@ public class FreeTextSearch {
     public SearchResponse search(final SearchRequest searchRequest) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final QueryParser queryParser = new MultiFieldQueryParser(FreeTextIndex.FIELD_NAMES, FreeTextIndex.QUERY_ANALYZER);
+        final QueryParser queryParser = new MultiFieldQueryParser(FullTextIndex.FIELD_NAMES, FullTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
 
         final Query query;
@@ -119,7 +119,7 @@ public class FreeTextSearch {
         }
 
         try {
-            return freeTextIndex.search(new IndexTemplate.SearchCallback<SearchResponse>() {
+            return fullTextIndex.search(new IndexTemplate.SearchCallback<SearchResponse>() {
                 @Override
                 public SearchResponse search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 

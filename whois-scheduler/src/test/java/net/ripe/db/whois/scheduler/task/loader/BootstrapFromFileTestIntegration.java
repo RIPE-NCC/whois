@@ -1,9 +1,9 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
-import net.ripe.db.whois.api.freetext.FreeTextIndex;
-import net.ripe.db.whois.api.freetext.FreeTextSearch;
-import net.ripe.db.whois.api.freetext.SearchRequest;
-import net.ripe.db.whois.api.freetext.SearchResponse;
+import net.ripe.db.whois.api.fulltext.FullTextIndex;
+import net.ripe.db.whois.api.fulltext.FullTextSearch;
+import net.ripe.db.whois.api.fulltext.SearchRequest;
+import net.ripe.db.whois.api.fulltext.SearchResponse;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -32,23 +32,23 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     private Bootstrap bootstrap;
 
     @Autowired
-    private FreeTextSearch freeTextSearch;
+    private FullTextSearch fullTextSearch;
 
     @Autowired
-    private FreeTextIndex freeTextIndex;
+    private FullTextIndex fullTextIndex;
 
     @Autowired
     private RpslObjectUpdateDao rpslObjectUpdateDao;
 
     @BeforeClass
     public static void setProperty() {
-        // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.freetext.index", "var${jvmId:}/idx");
+        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
+        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
     @AfterClass
     public static void clearProperty() {
-        System.clearProperty("dir.freetext.index");
+        System.clearProperty("dir.fulltext.index");
     }
 
     @Test
@@ -216,15 +216,15 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     }
 
     @Test
-    public void freeText_index_is_rebuild_after_bootstrap() throws IOException {
+    public void fullText_index_is_rebuild_after_bootstrap() throws IOException {
 
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
 
         assertThat(query("TP1").getResult().getDocs(), hasSize(0));
 
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(query("TP1").getResult().getDocs(), hasSize(1));
 
@@ -234,7 +234,7 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     }
 
     private SearchResponse query(final String queryStr) {
-        return freeTextSearch.search(
+        return fullTextSearch.search(
                 new SearchRequest.SearchRequestBuilder()
                     .setQuery(queryStr)
                     .setRows("10")

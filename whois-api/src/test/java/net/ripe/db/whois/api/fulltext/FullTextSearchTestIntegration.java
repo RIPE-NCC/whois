@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.freetext;
+package net.ripe.db.whois.api.fulltext;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.api.freetext.FreeTextSolrUtils.parseResponse;
+import static net.ripe.db.whois.api.fulltext.FullTextSolrUtils.parseResponse;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -31,23 +31,23 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
-    @Autowired FreeTextIndex freeTextIndex;
+public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
+    @Autowired FullTextIndex fullTextIndex;
 
     @BeforeClass
     public static void setProperty() {
-        // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.freetext.index", "var${jvmId:}/idx");
+        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
+        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
     @AfterClass
     public static void clearProperty() {
-        System.clearProperty("dir.freetext.index");
+        System.clearProperty("dir.fulltext.index");
     }
 
     @Before
     public void setUp() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
     }
 
     @Test
@@ -75,7 +75,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV-MNT\n" +
                 "source: RIPE"));
-        freeTextIndex.update();
+        fullTextIndex.update();
 
         final QueryResponse queryResponse = query("q=DEV-MNT");
 
@@ -93,7 +93,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
     public void search_single_result_json() throws Exception {
         databaseHelper.addObject(RpslObject.parse("mntner: DEV-MNT\n" +
                 "source: RIPE"));
-        freeTextIndex.update();
+        fullTextIndex.update();
 
         final SearchResponse queryResponse = queryJson("q=DEV-MNT");
 
@@ -127,7 +127,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV4-MNT\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=remark&hl=true");
 
@@ -152,7 +152,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "nic-hdl: AA1-RIPE\n" +
                 "remarks: Other remark\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=remark&facet=true");
 
@@ -173,7 +173,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "mntner: DEV1-MNT\n" +
                 "descr: acc\u0003\u0028s 4 Mbps\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=DEV1-MNT&facet=true");
 
@@ -195,7 +195,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "notify:          bar@foo.ua\n" +
                 "source:          RIPE\n" +
                 "mnt-by:          AARD-MNT"));
-        freeTextIndex.update();
+        fullTextIndex.update();
 
         final QueryResponse queryResponse = query("q=test&hl=true");
 
@@ -212,7 +212,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV-MNT\n" +
                 "source: RIPE"));
-        freeTextIndex.update();
+        fullTextIndex.update();
 
         final QueryResponse queryResponse = query("q=10.0.0.0");
 
@@ -226,7 +226,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=donald");
 
@@ -239,7 +239,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:  MNT-TESTUA\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=TESTUA");
 
@@ -252,7 +252,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(
                 "person: Test Person\n" +
                  "nic-hdl: TP1-TEST");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=TP1");
 
@@ -266,7 +266,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "person: John McDonald1\n" +
                 "nic-hdl: AA1-RIPE\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=mcdonald1");
 
@@ -280,7 +280,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=mcdonald+AND+object-type%3Aperson");
 
@@ -294,7 +294,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=mcdonald+AND+object-type%3Ainetnum");
 
@@ -308,7 +308,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=(nic-hdl:(AA1-RIPE))+AND+(object-type:person)");
 
@@ -325,7 +325,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:  NINJA-MNT\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=NINJA-MNT");
 
@@ -341,7 +341,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:  NINJA-MNT\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=NINJA");
 
@@ -359,7 +359,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "person: Kate McDonald\n" +
                 "nic-hdl: KM1-RIPE\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=John+McDonald");
 
@@ -374,12 +374,12 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "nic-hdl: JM1-RIPE\n" +
                 "source: RIPE");
         databaseHelper.addObject(object);
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=JM1-RIPE")), is(1L));
 
         databaseHelper.deleteObject(object);
-        freeTextIndex.scheduledUpdate();
+        fullTextIndex.scheduledUpdate();
 
         assertThat(numFound(query("q=JM1-RIPE")), is(0L));
     }
@@ -391,7 +391,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "netname: RIPE-NCC\n" +
                 "descr: some description\n" +
                 "source: TEST"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=2a00%5C%3A1f78%5C%3A%5C%3Afffe%2F48")), is(1L));
         assertThat(numFound(query("q=212.166.64.0%2F19")), is(0L));
@@ -408,7 +408,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                "inetnum:        193.0.0.0 - 193.0.0.255\n" +
                "netname:        RIPE-NCC\n" +
                "source:         RIPE");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=193.0.0.0")), is(1L));
         assertThat(numFound(query("q=193.0.0.255")), is(1L));
@@ -430,7 +430,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "inetnum:        10.0.0.0/24\n" +
                 "netname:        RIPE-NCC\n" +
                 "source:         RIPE");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=10.0.0.0/24")), is(1L));
     }
@@ -445,7 +445,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "inetnum:        193.1.0.0 - 193.1.0.255\n" +
                 "netname:        RIPE-NCC\n" +
                 "source:         RIPE");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=193.0.0.0")), is(1L));
         assertThat(numFound(query("q=193.1.0.0")), is(1L));
@@ -458,7 +458,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "inet6num: 2001:0638:0501::/48\n" +
                 "netname: RIPE-NCC\n" +
                 "source: RIPE\n");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=%282001%29")), is(1L));
         assertThat(numFound(query("q=%282001%5C%3A0638%29")), is(1L));
@@ -476,7 +476,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "inet6num: 2a00:1f78::fffe/48\n" +
                 "netname: RIPE-NCC\n" +
                 "source: RIPE\n");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=2a00")), is(1L));
         assertThat(numFound(query("q=2a00%5C%3A1f78")), is(1L));       // need to escape single colon (used as separator by lucene)
@@ -493,7 +493,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "inet6num: 2a00:1f11:7777:2a98::/64\n" +
                 "netname: RIPE-NCC\n" +
                 "source: RIPE\n");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=2a00")), is(2L));
     }
@@ -513,7 +513,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "source:       RIPE\n"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=Company")), is(1L));
     }
@@ -533,7 +533,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "source:       RIPE\n"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=company,")), is(1L));
     }
@@ -553,7 +553,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "source:       RIPE\n"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=company")), is(1L));
     }
@@ -573,7 +573,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "source:       RIPE\n"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=ORG-TOS1-TEST")), is(1L));
     }
@@ -593,7 +593,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "source:       RIPE\n"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=test.com")), is(1L));
     }
@@ -613,7 +613,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "source:       RIPE\n"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         assertThat(numFound(query("q=org1@test.com")), is(1L));
     }
@@ -624,7 +624,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
                 "source: RIPE"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=john%20mcdonald");
 
@@ -635,7 +635,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_inet6num_escape_forward_slash() {
         databaseHelper.addObject(RpslObject.parse("inet6num: 2001:0638:0501::/48"));
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final QueryResponse queryResponse = query("q=%282001%5C%3A0638%5C%3A0501%5C%3A%5C%3A%2F48%29");
 
@@ -653,13 +653,13 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
 
     private QueryResponse query(final String queryString) {
         return parseResponse(
-            RestTest.target(getPort(), String.format("whois/search?%s",queryString))
+            RestTest.target(getPort(), String.format("whois/fulltextsearch?%s",queryString))
                     .request()
                     .get(String.class));
     }
 
     private SearchResponse queryJson(final String queryString) {
-        return RestTest.target(getPort(), String.format("whois/search.json?%s", queryString))
+        return RestTest.target(getPort(), String.format("whois/fulltextsearch.json?%s", queryString))
                 .request()
                 .get(SearchResponse.class);
     }
