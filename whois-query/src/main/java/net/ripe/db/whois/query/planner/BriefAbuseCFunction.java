@@ -13,7 +13,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
-    private static final EnumSet<AttributeType> BRIEF_ATTRIBUTES = EnumSet.of(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.AUT_NUM, AttributeType.ABUSE_C, AttributeType.ABUSE_MAILBOX);
+    private static final EnumSet<AttributeType> BRIEF_ATTRIBUTES = EnumSet.of(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.AUT_NUM, AttributeType.ABUSE_MAILBOX);
     private final AbuseCFinder abuseCFinder;
 
     public BriefAbuseCFunction(final AbuseCFinder abuseCFinder) {
@@ -30,13 +30,11 @@ class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
 
         // related IRT object could still be in the resultset with -b
         if (Query.ABUSE_CONTACT_OBJECT_TYPES.contains(rpslObject.getType())) {
-            final String abuseContact = abuseCFinder.getAbuseContact(rpslObject);
-            final RpslObject abuseRole = abuseCFinder.getAbuseContactRole(rpslObject);
-            if (abuseContact != null && abuseRole != null) {
+            final String abuseContact = abuseCFinder.getAbuseContact(rpslObject);       // TODO
+            if (abuseContact != null) {
                 final List<RpslAttribute> abuseCAttributes = new ArrayList<>(2);
                 abuseCAttributes.add(rpslObject.getTypeAttribute());
                 abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContact));
-                abuseCAttributes.add(new RpslAttribute(AttributeType.NIC_HDL, abuseRole.getKey().toString()));
                 return new RpslAttributes(abuseCAttributes);
             }
         }
