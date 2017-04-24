@@ -768,6 +768,45 @@ public class MessageParserTest {
         assertThat(subject.getCharset(new ContentType("text/plain;\n\tcharset=\"_iso-2022-jp$ESC\"")), is(Charsets.ISO_8859_1));
     }
 
+    @Test
+    public void parse_signed_message_missing_crc_check() throws Exception {
+        final MailMessage message = subject.parse(
+                getMessage(
+                            "To: auto-dbm@ripe.net\n" +
+                            "From: No Reply <noreply@ripe.net>\n" +
+                            "Date: Thu, 30 Mar 2017 09:00:00 +0100\n" +
+                            "MIME-Version: 1.0\n" +
+                            "Content-Type: text/plain; charset=windows-1252\n" +
+                            "Content-Transfer-Encoding: 7bit\n" +
+                            "\n" +
+                            "\n" +
+                            "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                            "Hash: SHA1\n" +
+                            "\n" +
+                            "aut-num:        AS3333\n" +
+                            "remarks:        +---------------------\n" +
+                            "----------------------+\n" +
+                            "mnt-by:         TEST-MNT\n" +
+                            "source:         TEST\n" +
+                            "\n" +
+                            "\n" +
+                            "-----BEGIN PGP SIGNATURE-----\n" +
+                            "Version: GnuPG v2\n" +
+                            " \n" +
+                            "iEYEARECAAYFAljcrkEACgkQYAnVsDBumXz9bwCfZQAm+4e7bbXztKzgwjGpjBQs\n" +
+                            "cYEAn3pN9uN9zhFrph7Co4tZ00aw/7TG\n" +
+                            "=NjUf\n" +
+                            "-----END PGP SIGNATURE-----\n" +
+                            "\n" +
+                            "\n" +
+                            "\n"),
+                updateContext);
+
+        assertThat(message.getContentWithCredentials(), hasSize(1));
+        final ContentWithCredentials contentWithCredentials = message.getContentWithCredentials().get(0);
+        assertThat(contentWithCredentials.getCredentials(), hasSize(0));
+    }
+
     private MimeMessage getMessage(final String message) throws MessagingException, IOException {
         return new MimeMessage(null, new ByteArrayInputStream(message.getBytes()));
     }
