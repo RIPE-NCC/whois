@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
@@ -157,7 +157,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
     private boolean sponsoringOrgHasChangedAtAll(final CIString referenceSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
         return action == CREATE && !CIString.isBlank(referenceSponsoringOrg)
-                || (action == MODIFY && !Objects.equal(referenceSponsoringOrg, updatedSponsoringOrg));
+                || (action == MODIFY && !Objects.equals(referenceSponsoringOrg, updatedSponsoringOrg));
     }
 
     private boolean sponsoringOrgAdded(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
@@ -172,7 +172,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
     private boolean sponsoringOrgChanged(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
         return action == MODIFY && !CIString.isBlank(referencedSponsoringOrg) && !CIString.isBlank(updatedSponsoringOrg)
-                && !Objects.equal(referencedSponsoringOrg, updatedSponsoringOrg);
+                && !Objects.equals(referencedSponsoringOrg, updatedSponsoringOrg);
     }
 
     private boolean hasEndUserMntner(final RpslObject object) {
