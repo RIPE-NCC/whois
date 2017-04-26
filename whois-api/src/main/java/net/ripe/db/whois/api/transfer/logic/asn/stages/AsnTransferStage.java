@@ -7,7 +7,6 @@ import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.api.transfer.logic.TransferStage;
 import net.ripe.db.whois.api.transfer.logic.asn.AsnTransfer;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import org.slf4j.Logger;
@@ -17,6 +16,9 @@ import java.util.List;
 
 
 public abstract class AsnTransferStage extends TransferStage<Asn> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsnTransferStage.class);
+
     protected static final String NON_RIPE_AS_BLOCK_TEMPLATE =
             "as-block:        %s\n" +
             "descr:           " + AsnTransfer.NON_RIPE_NCC_ASN_BLOCK_DESCR + "\n" +
@@ -54,7 +56,6 @@ public abstract class AsnTransferStage extends TransferStage<Asn> {
             "remarks:         These AS Numbers are assigned to network operators in the RIPE NCC service region.\n" +
             "mnt-by:          RIPE-NCC-HM-MNT\n" +
             "source:          %s";
-    private static final Logger LOGGER = LoggerFactory.getLogger(AsnTransferStage.class);
 
     public AsnTransferStage(String source) {
         super(source);
@@ -77,25 +78,8 @@ public abstract class AsnTransferStage extends TransferStage<Asn> {
         final List<ActionRequest> requests = Lists.newArrayList();
         final AsBlockRange originalAsBlockRange = AsBlockRange.parse(originalAsBlock.getKey().toString());
 
-        LOGGER.debug("Execute stage '{}' for {} with prev:{}, current: {} and next: {}",
-                getName(),
-                transfer,
-                precedingAsBlock.isPresent() ? precedingAsBlock.get().getKey() : "n/a",
-                originalAsBlock.getKey(),
-                followingAsBlock.isPresent() ? followingAsBlock.get().getKey() : "n/a");
-
         if (shouldExecute(transfer, precedingAsBlock, originalAsBlockRange, followingAsBlock)) {
-            List<ActionRequest> stageRequests = createRequests(transfer, precedingAsBlock, originalAsBlockRange, followingAsBlock);
-            for (ActionRequest ar : stageRequests) {
-                LOGGER.debug("Stage '{}' resulting action: {} on object: {} with descr: {}",
-                        getName(),
-                        ar.getAction(),
-                        ar.getRpslObject().getKey(),
-                        ar.getRpslObject().getValueOrNullForAttribute(AttributeType.DESCR));
-            }
-            requests.addAll(stageRequests);
-        } else {
-            LOGGER.debug("No work to be done for stage '{}'", getName());
+            requests.addAll(createRequests(transfer, precedingAsBlock, originalAsBlockRange, followingAsBlock));
         }
 
         return doNextTransferStep(transfer, precedingAsBlock, originalAsBlock, followingAsBlock, requests);

@@ -8,13 +8,10 @@ import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class DeleteOriginalBlockStage extends AsnTransferStage {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteOriginalBlockStage.class);
 
     public DeleteOriginalBlockStage(final String source) {
         super(source);

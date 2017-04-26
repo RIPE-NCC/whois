@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import java.util.List;
 
 public class SplitBlockStage extends AsnTransferStage {
+
     public SplitBlockStage(final String source) {
         super(source);
     }
@@ -23,11 +24,7 @@ public class SplitBlockStage extends AsnTransferStage {
 
     @Override
     protected List<ActionRequest> createRequests(final Transfer<Asn> transfer, final Optional<RpslObject> precedingAsBlock, final AsBlockRange originalAsBlockRange, final Optional<RpslObject> followingAsBlock) {
-
         final List<ActionRequest> requests = Lists.newArrayList();
-        RpslObject preceding;
-        RpslObject middle;
-        RpslObject following;
 
         final String middleBlockTemplate;
         final String edgeBlockTemplate;
@@ -40,14 +37,14 @@ public class SplitBlockStage extends AsnTransferStage {
         }
 
         final Asn precedingAsn = transfer.getResource().previous();
-        preceding = createAsBlock(originalAsBlockRange.getBegin(), precedingAsn.asBigInteger().longValue(), edgeBlockTemplate);
+        final RpslObject preceding = createAsBlock(originalAsBlockRange.getBegin(), precedingAsn.asBigInteger().longValue(), edgeBlockTemplate);
         requests.add(new ActionRequest(preceding, Action.CREATE));
 
-        middle = createAsBlock(transfer.getResource().asBigInteger().longValue(), transfer.getResource().asBigInteger().longValue(), middleBlockTemplate);
+        final RpslObject middle = createAsBlock(transfer.getResource().asBigInteger().longValue(), transfer.getResource().asBigInteger().longValue(), middleBlockTemplate);
         requests.add(new ActionRequest(middle, Action.CREATE));
 
         final Asn followingAsn = transfer.getResource().next();
-        following = createAsBlock(followingAsn.asBigInteger().longValue(), originalAsBlockRange.getEnd(), edgeBlockTemplate);
+        final RpslObject following = createAsBlock(followingAsn.asBigInteger().longValue(), originalAsBlockRange.getEnd(), edgeBlockTemplate);
         requests.add(new ActionRequest(following, Action.CREATE));
 
         return requests;

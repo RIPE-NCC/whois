@@ -27,7 +27,6 @@ public class DeleteDestinationBlockStage extends AsnTransferStage {
         final List<ActionRequest> requests = Lists.newArrayList();
 
         final Optional<RpslObject> destinationAsBlock;
-
         if (blockEndsWith(transfer.getResource(), originalAsBlockRange)) {
             destinationAsBlock = followingAsBlock;
         } else {

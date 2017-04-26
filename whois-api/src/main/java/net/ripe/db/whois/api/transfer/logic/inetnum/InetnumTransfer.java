@@ -5,15 +5,11 @@ import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class InetnumTransfer extends Transfer<Ipv4Range> {
 
     public static final String NON_RIPE_NETNAME = "NON-RIPE-NCC-MANAGED-ADDRESS-BLOCK";
     public static final String IANA_NETNAME = "IETF-RESERVED-ADDRESS-BLOCK";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(InetnumTransfer.class);
 
     private InetnumTransfer(final Ipv4Range ipv4Range, final boolean income) {
         super(ipv4Range, income);

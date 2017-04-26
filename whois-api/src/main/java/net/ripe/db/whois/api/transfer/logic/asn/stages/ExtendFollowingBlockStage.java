@@ -24,8 +24,8 @@ public class ExtendFollowingBlockStage extends AsnTransferStage {
 
     @Override
     protected List<ActionRequest> createRequests(final Transfer<Asn> transfer, final Optional<RpslObject> precedingAsBlock, final AsBlockRange originalAsBlockRange, final Optional<RpslObject> followingAsBlock) {
-
         final List<ActionRequest> requests = Lists.newArrayList();
+
         final String blockTemplate;
         if (transfer.isIncoming()) {
             blockTemplate = AsnTransferStage.RIPE_AS_BLOCK_TEMPLATE;
@@ -39,7 +39,6 @@ public class ExtendFollowingBlockStage extends AsnTransferStage {
             final long end = rightAsBlockRange.getEnd();
 
             final RpslObject extendAsBlock = createAsBlock(begin, end, blockTemplate);
-
             requests.add(new ActionRequest(extendAsBlock, Action.CREATE));
         }
 

@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import java.util.List;
 
 public class CreateNewFollowingBlockStage extends AsnTransferStage {
+
     public CreateNewFollowingBlockStage(final String source) {
         super(source);
     }
@@ -35,8 +36,8 @@ public class CreateNewFollowingBlockStage extends AsnTransferStage {
         begin = end = transfer.getResource().asBigInteger().longValue();
 
         final RpslObject newAsBlock = createAsBlock(begin, end, blockTemplate);
-        requests.add(new ActionRequest(newAsBlock, Action.CREATE));
 
+        requests.add(new ActionRequest(newAsBlock, Action.CREATE));
         return requests;
     }
 

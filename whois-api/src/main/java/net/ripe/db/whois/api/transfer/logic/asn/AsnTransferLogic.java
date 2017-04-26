@@ -42,11 +42,10 @@ public class AsnTransferLogic {
     public AsnTransferLogic(final RpslObjectDao rpslObjectDao,
                             final AuthoritativeResourceService authoritativeResourceService,
                             final @Value("${whois.source}") String source) {
-        this.rpslObjectDao = rpslObjectDao;
-        this.authoritativeResourceService = authoritativeResourceService;
-
         LOGGER.info("Using source {}", source);
 
+        this.rpslObjectDao = rpslObjectDao;
+        this.authoritativeResourceService = authoritativeResourceService;
         this.transferPipeline = new DeleteOriginalBlockStage(source)
                 .next(new ShrinkBlockStage(source))
                 .next(new SplitBlockStage(source))
@@ -59,7 +58,6 @@ public class AsnTransferLogic {
     }
 
     public List<ActionRequest> transferInSteps(final String stringAutNum) {
-
         validateAutnumInput(stringAutNum);
 
         final Transfer<Asn> transfer = AsnTransfer.buildIncoming(stringAutNum);
@@ -75,7 +73,6 @@ public class AsnTransferLogic {
     }
 
     public List<ActionRequest> getTransferOutSteps(final String stringAutNum) {
-
         validateAutnumInput(stringAutNum);
 
         final Transfer<Asn> transfer = AsnTransfer.buildOutgoing(stringAutNum);
@@ -122,8 +119,8 @@ public class AsnTransferLogic {
         Preconditions.checkArgument(originalAsBlock != null);
 
         // get neighbours or absent when to direct neighbour is found
-        Optional<RpslObject> precedingBlock = getLeftDirectNeighbour(transfer, originalAsBlock);
-        Optional<RpslObject> followingBlock = getRightDirectNeighbour(transfer, originalAsBlock);
+        final Optional<RpslObject> precedingBlock = getLeftDirectNeighbour(transfer, originalAsBlock);
+        final Optional<RpslObject> followingBlock = getRightDirectNeighbour(transfer, originalAsBlock);
 
         // Push the context through all stages of the pipeline
         final List<ActionRequest> requests = transferPipeline.doTransfer(transfer, precedingBlock, originalAsBlock, followingBlock);
@@ -158,6 +155,7 @@ public class AsnTransferLogic {
         } else {
             neighbour = findBlock(transfer.getResource().next());
         }
+
         if (neighbour.isPresent()) {
             if (neighbour.get().getKey().equals(originalAsBlock.getKey())) {
                 // not other block next door left
@@ -184,12 +182,8 @@ public class AsnTransferLogic {
     private Optional<RpslObject> findBlock(Asn asn) {
         final long begin, end;
         begin = end = asn.asBigInteger().longValue();
-        RpslObject obj = rpslObjectDao.findAsBlock(begin, end);
-        if (obj == null) {
-            return Optional.absent();
-        }
-
-        return Optional.of(obj);
+        final RpslObject asBlock = rpslObjectDao.findAsBlock(begin, end);
+        return (asBlock == null) ? Optional.absent() : Optional.of(asBlock);
     }
 
     public void updateAuthoritativeResources(final List<ActionRequest> actionRequests) {

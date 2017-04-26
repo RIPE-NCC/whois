@@ -38,10 +38,10 @@ public class ExtendPrecedingBlockStage extends AsnTransferStage {
             final long begin = precedingAsBlockRange.getBegin();
             final long end = transfer.getResource().asBigInteger().longValue();
 
-
             final RpslObject extendAsBlock = createAsBlock(begin, end, blockTemplate);
             requests.add(new ActionRequest(extendAsBlock, Action.CREATE));
         }
+
         return requests;
     }
 

@@ -3,13 +3,11 @@ package net.ripe.db.whois.api.transfer.logic;
 import com.google.common.base.Optional;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public abstract class TransferStage<T> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransferStage.class);
+
     protected final String source;
     protected TransferStage nextStep;
 

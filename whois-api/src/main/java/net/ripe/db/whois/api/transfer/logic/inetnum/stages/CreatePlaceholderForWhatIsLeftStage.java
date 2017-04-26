@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import java.util.List;
 
 public class CreatePlaceholderForWhatIsLeftStage extends InetnumTransferStage {
+
     public CreatePlaceholderForWhatIsLeftStage(String source) {
         super(source);
     }

@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 @Repository
 class JdbcTransferUpdateLockDao implements TransferUpdateLockDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcTransferUpdateLockDao.class);
+
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
