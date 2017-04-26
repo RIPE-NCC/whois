@@ -6,7 +6,6 @@ import net.ripe.commons.ip.Asn;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.transfer.logic.Transfer;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import org.slf4j.Logger;
@@ -30,29 +29,15 @@ public class DeleteOriginalBlockStage extends AsnTransferStage {
     public List<ActionRequest> doTransfer(final Transfer<Asn> transfer, final Optional<RpslObject> precedingAsBlock, final RpslObject originalAsBlock, final Optional<RpslObject> followingAsBlock) {
         final List<ActionRequest> requests = Lists.newArrayList();
 
-        LOGGER.debug("Execute stage '{}' for {} with prev: {}, current: {} and next: {}",
-                getName(),
-                transfer,
-                precedingAsBlock.isPresent() ? precedingAsBlock.get().getKey() : "n/a",
-                originalAsBlock.getKey(),
-                followingAsBlock.isPresent() ? followingAsBlock.get().getKey() : "n/a");
-
-        ActionRequest ar = new ActionRequest(originalAsBlock, Action.DELETE);
-
-        LOGGER.debug("Stage '{}' resulting action: {} on object: {} with descr: {}",
-                getName(),
-                ar.getAction(),
-                ar.getRpslObject().getKey(),
-                ar.getRpslObject().getValueOrNullForAttribute(AttributeType.DESCR));
-
-        requests.add(ar);
+        requests.add(new ActionRequest(originalAsBlock, Action.DELETE));
 
         return doNextTransferStep(transfer, precedingAsBlock, originalAsBlock, followingAsBlock, requests);
     }
 
     @Override
     protected List<ActionRequest> createRequests(final Transfer<Asn> transfer, final Optional<RpslObject> precedingAsBlock, final AsBlockRange originalAsBlockRange, final Optional<RpslObject> followingAsBlock) {
-        return Lists.newArrayList(); //I don't care. The doTransfer is doing the job.
+        // I don't care. The doTransfer is doing the job.
+        return Lists.newArrayList();
     }
 
     @Override

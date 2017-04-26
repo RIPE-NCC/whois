@@ -31,7 +31,7 @@ public class SplitBlockStage extends AsnTransferStage {
 
         final String middleBlockTemplate;
         final String edgeBlockTemplate;
-        if (transfer.isIncome()) {
+        if (transfer.isIncoming()) {
             middleBlockTemplate = RIPE_AS_BLOCK_TEMPLATE;
             edgeBlockTemplate = NON_RIPE_AS_BLOCK_TEMPLATE;
         } else {

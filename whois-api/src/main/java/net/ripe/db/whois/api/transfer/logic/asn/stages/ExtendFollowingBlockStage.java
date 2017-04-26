@@ -27,7 +27,7 @@ public class ExtendFollowingBlockStage extends AsnTransferStage {
 
         final List<ActionRequest> requests = Lists.newArrayList();
         final String blockTemplate;
-        if (transfer.isIncome()) {
+        if (transfer.isIncoming()) {
             blockTemplate = AsnTransferStage.RIPE_AS_BLOCK_TEMPLATE;
         } else {
             blockTemplate = AsnTransferStage.NON_RIPE_AS_BLOCK_TEMPLATE;

@@ -26,7 +26,7 @@ public class MergeSurroundingBlocksStage extends AsnTransferStage {
 
         final List<ActionRequest> requests = Lists.newArrayList();
         final String blockTemplate;
-        if (transfer.isIncome()) {
+        if (transfer.isIncoming()) {
             blockTemplate = RIPE_AS_BLOCK_TEMPLATE;
         } else {
             blockTemplate = NON_RIPE_AS_BLOCK_TEMPLATE;

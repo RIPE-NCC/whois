@@ -3,13 +3,19 @@ package net.ripe.db.whois.api.transfer.logic.asn;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import net.ripe.commons.ip.Asn;
-import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
-import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceService;
 import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.api.transfer.logic.TransferStage;
-import net.ripe.db.whois.api.transfer.logic.asn.stages.*;
+import net.ripe.db.whois.api.transfer.logic.asn.stages.CreateNewFollowingBlockStage;
+import net.ripe.db.whois.api.transfer.logic.asn.stages.CreateNewPrecedingBlockStage;
+import net.ripe.db.whois.api.transfer.logic.asn.stages.DeleteDestinationBlockStage;
+import net.ripe.db.whois.api.transfer.logic.asn.stages.DeleteOriginalBlockStage;
+import net.ripe.db.whois.api.transfer.logic.asn.stages.ExtendFollowingBlockStage;
+import net.ripe.db.whois.api.transfer.logic.asn.stages.ExtendPrecedingBlockStage;
+import net.ripe.db.whois.api.transfer.logic.asn.stages.MergeSurroundingBlocksStage;
+import net.ripe.db.whois.api.transfer.logic.asn.stages.ShrinkBlockStage;
+import net.ripe.db.whois.api.transfer.logic.asn.stages.SplitBlockStage;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
@@ -26,12 +32,10 @@ import java.util.List;
 @Component
 public class AsnTransferLogic {
 
-    public static final String ASN_TRANSFER_SERVICE = "asnTransferService";
     private static final Logger LOGGER = LoggerFactory.getLogger(AsnTransferLogic.class);
+
     private final RpslObjectDao rpslObjectDao;
     private final AuthoritativeResourceService authoritativeResourceService;
-    private final String source;
-
     private final TransferStage transferPipeline;
 
     @Autowired
@@ -40,9 +44,8 @@ public class AsnTransferLogic {
                             final @Value("${whois.source}") String source) {
         this.rpslObjectDao = rpslObjectDao;
         this.authoritativeResourceService = authoritativeResourceService;
-        this.source = source;
 
-        LOGGER.info("AsnTransfersHandler: Using source " + source);
+        LOGGER.info("Using source {}", source);
 
         this.transferPipeline = new DeleteOriginalBlockStage(source)
                 .next(new ShrinkBlockStage(source))
@@ -96,13 +99,10 @@ public class AsnTransferLogic {
     }
 
     private void validateTargetBlock(final Transfer<Asn> transfer, final Optional<RpslObject> originalAsBlock) {
-
         Preconditions.checkArgument(transfer != null);
         Preconditions.checkArgument(originalAsBlock != null);
 
-        LOGGER.debug("Target exists {}", originalAsBlock.isPresent());
-
-        if (originalAsBlock.isPresent() == false) {
+        if (!originalAsBlock.isPresent()) {
             throw new NotFoundException("Block not found");
         }
 
@@ -118,8 +118,6 @@ public class AsnTransferLogic {
     }
 
     private List<ActionRequest> getTransferSteps(final Transfer<Asn> transfer, final RpslObject originalAsBlock) {
-        LOGGER.debug("Start performing {}", transfer);
-
         Preconditions.checkArgument(transfer != null);
         Preconditions.checkArgument(originalAsBlock != null);
 
@@ -128,8 +126,7 @@ public class AsnTransferLogic {
         Optional<RpslObject> followingBlock = getRightDirectNeighbour(transfer, originalAsBlock);
 
         // Push the context through all stages of the pipeline
-        final List<ActionRequest> requests = transferPipeline.doTransfer(
-                transfer, precedingBlock, originalAsBlock, followingBlock);
+        final List<ActionRequest> requests = transferPipeline.doTransfer(transfer, precedingBlock, originalAsBlock, followingBlock);
 
         logSteps(requests);
 
@@ -137,9 +134,9 @@ public class AsnTransferLogic {
     }
 
     private void logSteps(final List<ActionRequest> requests) {
-        LOGGER.info("Asn-transfer-in tasks:{}", requests.size());
-        for (ActionRequest req : requests) {
-            LOGGER.info("action:{} {}", req.getAction(), req.getRpslObject().getFormattedKey());
+        LOGGER.info("{} requests", requests.size());
+        for (ActionRequest request : requests) {
+            LOGGER.info("{} {}", request.getAction(), request.getRpslObject().getFormattedKey());
         }
     }
 
@@ -169,6 +166,7 @@ public class AsnTransferLogic {
                 // ignore previous iana block
                 neighbour = Optional.absent();
             }
+
             if (AsnTransfer.belongToSameRegion(originalAsBlock, neighbour)) {
                 // This situation should not occur and requires manual fixing first
                 final String errorMsg =
@@ -181,19 +179,6 @@ public class AsnTransferLogic {
         }
 
         return neighbour;
-    }
-
-    private String parseErrors(final RestClientException e) {
-        final StringBuilder builder = new StringBuilder();
-
-        for (ErrorMessage errorMessage : e.getErrorMessages()) {
-            if ("Error".equals(errorMessage.getSeverity())) {
-                builder.append(errorMessage.toString());
-                builder.append('\n');
-            }
-        }
-
-        return builder.toString();
     }
 
     private Optional<RpslObject> findBlock(Asn asn) {
@@ -228,7 +213,7 @@ public class AsnTransferLogic {
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn("Failed to update authoritative resources due to {}", e.getMessage());
+            LOGGER.warn("Failed to update authoritative resources due to {}: {}", e.getClass().getName(), e.getMessage());
         }
     }
 }

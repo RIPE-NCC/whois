@@ -56,14 +56,13 @@ public abstract class AbstractTransferService {
                         deleteReason,
                         override));
             }
+
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
 
             for (Update update : updates) {
                 final UpdateStatus status = updateContext.getStatus(update);
 
-                if (status == UpdateStatus.SUCCESS) {
-                    // continue
-                } else {
+                if (status != UpdateStatus.SUCCESS) {
                    final String msg = String.format("Error performing %s on %s: status: %s",
                            update.getOperation(),
                            update.getSubmittedObject().getFormattedKey(),
