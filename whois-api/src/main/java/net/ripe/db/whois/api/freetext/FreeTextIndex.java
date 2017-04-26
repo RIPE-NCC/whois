@@ -51,7 +51,6 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static org.slf4j.LoggerFactory.getLogger;
 
-// TODO: instead of relying on scattered 'if (StringUtils.isBlank(indexDir) {...}', we should use profiles/...
 @Component
 public class FreeTextIndex extends RebuildableIndex {
     private static final Logger LOGGER = getLogger(FreeTextIndex.class);
@@ -113,9 +112,7 @@ public class FreeTextIndex extends RebuildableIndex {
             @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
             @Value("${whois.source}") final String source,
             @Value("${dir.freetext.index:}") final String indexDir) {
-
         super(LOGGER, indexDir);
-
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
         this.facetsConfig = new FacetsConfig();
@@ -123,34 +120,36 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @PostConstruct
     public void init() {
-        if (!StringUtils.isBlank(indexDir)) {
-            super.init(new IndexWriterConfig(Version.LUCENE_4_10_4, INDEX_ANALYZER)
-                            .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
-                    new IndexTemplate.WriteCallback() {
-                        @Override
-                        public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                            if (indexWriter.numDocs() == 0) {
+        if (!isEnabled()) {
+            return;
+        }
+
+        super.init(new IndexWriterConfig(Version.LUCENE_4_10_4, INDEX_ANALYZER)
+                        .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
+                new IndexTemplate.WriteCallback() {
+                    @Override
+                    public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
+                        if (indexWriter.numDocs() == 0) {
+                            rebuild(indexWriter, taxonomyWriter);
+                        } else {
+                            final Map<String, String> commitData = indexWriter.getCommitData();
+                            final String committedSource = commitData.get("source");
+
+                            if (!source.equals(committedSource)) {
+                                LOGGER.warn("Index {} has invalid source: {}, rebuild", indexDir, committedSource);
                                 rebuild(indexWriter, taxonomyWriter);
-                            } else {
-                                final Map<String, String> commitData = indexWriter.getCommitData();
-                                final String committedSource = commitData.get("source");
+                                return;
+                            }
 
-                                if (!source.equals(committedSource)) {
-                                    LOGGER.warn("Index {} has invalid source: {}, rebuild", indexDir, committedSource);
-                                    rebuild(indexWriter, taxonomyWriter);
-                                    return;
-                                }
-
-                                if (!commitData.containsKey("serial")) {
-                                    LOGGER.warn("Index {} is missing serial, rebuild", indexDir);
-                                    rebuild(indexWriter, taxonomyWriter);
-                                    return;
-                                }
+                            if (!commitData.containsKey("serial")) {
+                                LOGGER.warn("Index {} is missing serial, rebuild", indexDir);
+                                rebuild(indexWriter, taxonomyWriter);
+                                return;
                             }
                         }
                     }
-            );
-        }
+                }
+        );
     }
 
     @PreDestroy
@@ -160,61 +159,64 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @Override
     protected void rebuild(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-        if (!StringUtils.isBlank(indexDir)) {
-
-            indexWriter.deleteAll();
-            final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
-
-            // sadly Executors don't offer a bounded/blocking submit() implementation
-            int numThreads = Runtime.getRuntime().availableProcessors();
-            final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
-            final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
-                    0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
-
-            JdbcStreamingHelper.executeStreaming(jdbcTemplate, "" +
-                            "SELECT object_id, object " +
-                            "FROM last " +
-                            "WHERE sequence_id != 0 ",
-                    new ResultSetExtractor<Void>() {
-                        private static final int LOG_EVERY = 500000;
-
-                        @Override
-                        public Void extractData(final ResultSet rs) throws SQLException, DataAccessException {
-                            int nrIndexed = 0;
-
-                            while (rs.next()) {
-                                executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getBytes(2), indexWriter, taxonomyWriter));
-
-                                if (++nrIndexed % LOG_EVERY == 0) {
-                                    LOGGER.info("Indexed {} objects", nrIndexed);
-                                }
-                            }
-
-                            LOGGER.info("Indexed {} objects", nrIndexed);
-                            return null;
-                        }
-                    }
-            );
-
-            executorService.shutdown();
-            try {
-                executorService.awaitTermination(1, TimeUnit.DAYS);
-            } catch (InterruptedException e) {
-                LOGGER.error("shutdown", e);
-            }
-
-            updateMetadata(indexWriter, source, maxSerial);
+        if (!isEnabled()) {
+            return;
         }
+
+        indexWriter.deleteAll();
+        final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
+
+        // sadly Executors don't offer a bounded/blocking submit() implementation
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
+                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+
+        JdbcStreamingHelper.executeStreaming(jdbcTemplate, "" +
+                        "SELECT object_id, object " +
+                        "FROM last " +
+                        "WHERE sequence_id != 0 ",
+                new ResultSetExtractor<Void>() {
+                    private static final int LOG_EVERY = 500000;
+
+                    @Override
+                    public Void extractData(final ResultSet rs) throws SQLException, DataAccessException {
+                        int nrIndexed = 0;
+
+                        while (rs.next()) {
+                            executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getBytes(2), indexWriter, taxonomyWriter));
+
+                            if (++nrIndexed % LOG_EVERY == 0) {
+                                LOGGER.info("Indexed {} objects", nrIndexed);
+                            }
+                        }
+
+                        LOGGER.info("Indexed {} objects", nrIndexed);
+                        return null;
+                    }
+                }
+        );
+
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(1, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            LOGGER.error("shutdown", e);
+        }
+
+        updateMetadata(indexWriter, source, maxSerial);
     }
 
     @Scheduled(fixedDelayString = "${freetext.index.update.interval.msecs:60000}" )
     public void scheduledUpdate() {
-        if (!StringUtils.isBlank(indexDir)) {
-            try {
-                update();
-            } catch (DataAccessException e) {
-                LOGGER.warn("Unable to update freetext index due to {}: {}", e.getClass(), e.getMessage());
-            }
+        if (!isEnabled()) {
+            return;
+        }
+
+        try {
+            update();
+        } catch (DataAccessException e) {
+            LOGGER.warn("Unable to update freetext index due to {}: {}", e.getClass(), e.getMessage());
         }
     }
 
@@ -332,5 +334,9 @@ public class FreeTextIndex extends RebuildableIndex {
                 throw new IllegalStateException("Indexing", e);
             }
         }
+    }
+
+    private boolean isEnabled() {
+        return !StringUtils.isBlank(indexDir);
     }
 }
