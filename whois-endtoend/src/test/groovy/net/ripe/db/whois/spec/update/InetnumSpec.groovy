@@ -2972,6 +2972,10 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
+                ["Syntax error in routes-mnt { 192.168.2.3/16 }"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
     }
 
     def "create assignment, mnt-routes op data invalid prefix >32"() {
