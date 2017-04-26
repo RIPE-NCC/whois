@@ -33,8 +33,8 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
         if (cleanValues.size() == 1) {
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
             final CIString cleanValue = cleanValues.iterator().next();
-            final AttributeType rpsAttributeType = rpslAttribute.getType();
-            final String referencedType = (rpsAttributeType != null) ? referencedTypeResolver.getReferencedType(rpsAttributeType, cleanValue) : null;
+            final AttributeType attributeType = rpslAttribute.getType();
+            final String referencedType = (attributeType != null) ? referencedTypeResolver.getReferencedType(attributeType, cleanValue) : null;
             final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, cleanValue.toString()) : null;
             return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, referencedType, link));
         } else {

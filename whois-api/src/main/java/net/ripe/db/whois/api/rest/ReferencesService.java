@@ -621,14 +621,13 @@ public class ReferencesService {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
 
         for (final RpslAttribute rpslAttribute : object.getAttributes()) {
-            final AttributeType rpsAttributeType = rpslAttribute.getType();
-            if (rpsAttributeType != null) {
-
+            final AttributeType attributeType = rpslAttribute.getType();
+            if (attributeType != null) {
                 for (final RpslObject reference : references) {
                     if (rpslAttribute.getCleanValue().equals(reference.getKey()) &&
-                            (rpsAttributeType.getReferences().contains(ObjectType.PERSON) ||
-                                    rpsAttributeType.getReferences().contains(ObjectType.ROLE))) {
-                        replacements.put(rpslAttribute, new RpslAttribute(rpsAttributeType, dummyRole));
+                            (attributeType.getReferences().contains(ObjectType.PERSON) ||
+                                    attributeType.getReferences().contains(ObjectType.ROLE))) {
+                        replacements.put(rpslAttribute, new RpslAttribute(attributeType, dummyRole));
                     }
                 }
             }
