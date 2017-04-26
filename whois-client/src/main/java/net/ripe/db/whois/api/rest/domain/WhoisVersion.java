@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.Objects;
 
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -74,10 +75,6 @@ public class WhoisVersion {
 
     @Override
     public int hashCode() {
-        int result = deletedDate != null ? deletedDate.hashCode() : 0;
-        result = 31 * result + (revision != null ? revision.hashCode() : 0);
-        result = 31 * result + (date != null ? date.hashCode() : 0);
-        result = 31 * result + (operation != null ? operation.hashCode() : 0);
-        return result;
+        return Objects.hash(deletedDate, revision, date, operation);
     }
 }

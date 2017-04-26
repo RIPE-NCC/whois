@@ -22,6 +22,7 @@ import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -156,10 +157,7 @@ public class AuthoritativeResource {
 
     @Override
     public int hashCode() {
-        int result = (autNums == null ? 0 : autNums.hashCode());
-        result = 31 * result + (inetRanges == null ? 0 : inetRanges.hashCode());
-        result = 31 * result + (inet6Ranges == null ? 0 : inet6Ranges.hashCode());
-        return result;
+        return Objects.hash(autNums, inetRanges, inet6Ranges);
     }
 
     public List<String> getResources() {

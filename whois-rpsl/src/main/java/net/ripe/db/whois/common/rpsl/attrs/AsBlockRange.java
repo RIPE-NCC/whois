@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,9 +47,7 @@ public final class AsBlockRange {
 
     @Override
     public int hashCode() {
-        int result = (int) (begin ^ (begin >>> 32));
-        result = 31 * result + (int) (end ^ (end >>> 32));
-        return result;
+        return Objects.hash(begin, end);
     }
 
     public boolean contains(final AsBlockRange asBlockRange) {

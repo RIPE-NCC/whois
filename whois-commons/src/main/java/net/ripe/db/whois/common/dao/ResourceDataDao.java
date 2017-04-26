@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
@@ -129,10 +130,7 @@ public class ResourceDataDao {
 
         @Override
         public int hashCode() {
-            int result = source != null ? source.hashCode() : 0;
-            result = 31 * result + id;
-            result = 31 * result + count;
-            return result;
+            return Objects.hash(source, id, count);
         }
     }
 }
