@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-// TODO: [ES] migrate tests from DnsGatewayImplTest
 @Category(IntegrationTest.class)
 public class ZonemasterTestIntegration extends AbstractIntegrationTest {
 

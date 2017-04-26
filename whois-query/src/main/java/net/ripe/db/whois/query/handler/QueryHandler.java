@@ -128,7 +128,6 @@ public class QueryHandler {
                                 notAccountedObjects++;
                             }
                         }
-
                         responseHandler.handle(responseObject);
                     }
                 });

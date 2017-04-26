@@ -7,6 +7,10 @@
 [nrtm] Fixed NRTM client bugs #279 and #294
 [grs] Fixed Lacnic GRS mirror download
 [all] Mis-match between resource mask and value no longer possible
+[api] Set worst-case timeouts for Whois REST client
+
+# 1.88.1
+[update] Handle "missing crc check" in PGP signed update message. (#423)
 
 # 1.88
 [api] DBF-71 delete syntactically incorrect objects with delete referenced objects call
