@@ -140,7 +140,7 @@ public class AttributeSanitizer {
                 newValue = sanitizer.sanitize(attribute);
             } catch (IllegalArgumentException ignored) {
                 // no break on syntactically broken objects  TODO: investigate why this is
-                LOGGER.info("INVESTIGATE: IllegalArgumentException ", ignored.getMessage());
+                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             }
 
             if (newValue == null) {

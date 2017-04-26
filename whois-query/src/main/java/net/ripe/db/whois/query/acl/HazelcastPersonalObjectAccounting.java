@@ -59,7 +59,7 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
             count = counterMap.get(remoteAddress);
         } catch (OperationTimeoutException | IllegalStateException e) {
             // no answer from hazelcast, expected, don't rethrow
-            LOGGER.error("OperationTimeoutException | IllegalStateException ", e.getMessage());
+            LOGGER.debug("{}: {}", e.getClass().getName(), e.getMessage());
         }
 
         if (count == null) {
