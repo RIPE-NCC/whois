@@ -621,4 +621,8 @@ public final class UpdateMessages {
     public static Message multipleUserMntBy(final Collection<CIString> userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }
+
+    public static Message declineMaintainerChangesForLir(String mntnerName) {
+        return new Message(Type.ERROR, "You cannot change the maintainer '%s' of your LIR organisation", mntnerName);
+    }
 }
