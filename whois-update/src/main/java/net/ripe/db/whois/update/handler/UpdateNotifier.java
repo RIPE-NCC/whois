@@ -94,8 +94,9 @@ public class UpdateNotifier {
                 final RpslObjectUpdateInfo updateInfo = context.getUpdateInfo(preparedUpdate);
                 final int versionId = res.getVersionIdFor(updateInfo) - 1;   // -1 as we want the previous version
                 context.versionId(preparedUpdate, versionId);
-            } catch (VersionVanishedException e) {  // update + delete in the same update message
-                LOGGER.warn("VersionVanishedException {} in {} class", e.getMessage(), e.getClass().getName());
+            } catch (VersionVanishedException e) {
+                // update + delete in the same update message
+                LOGGER.debug("{}: {}", e.getClass().getName(), e.getMessage());
             }
         }
     }

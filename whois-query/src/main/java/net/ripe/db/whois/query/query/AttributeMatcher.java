@@ -118,7 +118,7 @@ abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated 
                     return true;
                 }
             } catch (IllegalArgumentException ignored) {
-                LOGGER.debug("IllegalArgumentException {} in {} class", ignored.getMessage(), ignored.getClass().getName());
+                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             }
         }
 

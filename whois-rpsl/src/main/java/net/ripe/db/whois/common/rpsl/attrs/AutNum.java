@@ -39,7 +39,8 @@ public class AutNum {
         try {
             numericValue = Long.parseLong(num);
         } catch (NumberFormatException ignored) {
-            LOGGER.debug("NumberFormatException {} in {} class", ignored.getMessage(), ignored.getClass().getName());// must be a number
+            // must be a number
+            LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
         }
 
         if (numericValue < 0 || numericValue > 4294967295L) {

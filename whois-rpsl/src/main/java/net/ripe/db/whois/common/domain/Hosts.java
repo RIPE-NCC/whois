@@ -17,8 +17,7 @@ public class Hosts {
             try {
                 hostName = InetAddress.getLocalHost().getHostName();
             } catch (UnknownHostException ignored) {
-                // ignored
-                LOGGER.debug("UnknownHostException {} in {} class", ignored.getMessage(), ignored.getClass().getName());
+                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             }
 
             if (StringUtils.isBlank(hostName)) {

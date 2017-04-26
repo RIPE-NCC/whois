@@ -26,7 +26,7 @@ public class StreamingHelper {
                         return new StreamingMarshalXml(outputStream, "whois-resources");
                     }
                 } catch (IllegalArgumentException ignored) {
-                    LOGGER.debug("IllegalArgumentException {} in {} class ", ignored.getMessage(), ignored.getClass().getName());
+                    LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
                 }
             }
         }

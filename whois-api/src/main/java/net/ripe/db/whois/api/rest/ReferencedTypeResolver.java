@@ -84,7 +84,7 @@ public class ReferencedTypeResolver {
                                 // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
                                 return rpslObjectDao.findByKey(objectType, value.toString()).getObjectType().getName();
                             } catch (EmptyResultDataAccessException ignored) {
-                                LOGGER.debug("{} in {} class", ignored.getMessage(), ignored.getClass().getName());
+                                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
                             }
                         }
                     }
