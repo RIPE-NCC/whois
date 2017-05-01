@@ -46,6 +46,6 @@ public class Flag {
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return Objects.hash(value);
     }
 }

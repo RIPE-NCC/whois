@@ -33,16 +33,13 @@ public final class ObjectKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        final ObjectKey that = (ObjectKey) o;
 
-        final ObjectKey objectKey = (ObjectKey) o;
-        return objectType == objectKey.objectType && pkey.equals(objectKey.pkey);
+        return Objects.equals(objectType, that.objectType) &&
+                Objects.equals(pkey, that.pkey);
     }
 
     @Override

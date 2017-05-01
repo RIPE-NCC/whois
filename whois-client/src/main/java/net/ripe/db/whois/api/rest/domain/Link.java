@@ -73,8 +73,9 @@ public class Link {
         }
 
         final Link link = (Link) o;
-        return (link.type != null ? link.type.equals(type) : type == null) &&
-                (link.href != null ? link.href.equals(href) : href == null);
+
+        return Objects.equals(link.type, type) &&
+                Objects.equals(link.href, href);
     }
 
     @Override

@@ -53,18 +53,13 @@ public class X509Credential implements Credential {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final X509Credential that = (X509Credential) o;
 
-        return (keyId != null ? keyId.equals(that.keyId) : that.keyId == null)
-               && (signedMessage != null ? signedMessage.equals(that.signedMessage) : that.signedMessage == null);
+        return Objects.equals(keyId, that.keyId) &&
+                Objects.equals(signedMessage, that.signedMessage);
     }
 
     @Override
