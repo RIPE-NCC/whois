@@ -61,10 +61,8 @@ public abstract class AbstractTransferService {
             for (Update update : updates) {
                 final UpdateStatus status = updateContext.getStatus(update);
 
-                if (status == UpdateStatus.SUCCESS) {
-                    // continue
-                } else {
-                   final String msg = String.format("Error performing %s on %s: status: %s",
+                if (status != UpdateStatus.SUCCESS) {
+                    final String msg = String.format("Error performing %s on %s: status: %s",
                            update.getOperation(),
                            update.getSubmittedObject().getFormattedKey(),
                            status);

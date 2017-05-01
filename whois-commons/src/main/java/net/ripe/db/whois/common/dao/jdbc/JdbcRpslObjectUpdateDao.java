@@ -103,13 +103,14 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
     }
 
     private Set<CIString> getInvalidReferences(final RpslObject object, final RpslAttribute attribute) {
-        if (attribute.getType().getReferences().isEmpty()) {
+        AttributeType attributeType = attribute.getType();
+        if (attributeType != null && attributeType.getReferences().isEmpty()) {
             return Collections.emptySet();
         }
 
         final Set<CIString> invalidReferences = Sets.newLinkedHashSet();
         for (final CIString value : attribute.getReferenceValues()) {
-            if (isInvalidReference(object, attribute.getType(), value)) {
+            if (isInvalidReference(object, attributeType, value)) {
                 invalidReferences.add(value);
             }
         }

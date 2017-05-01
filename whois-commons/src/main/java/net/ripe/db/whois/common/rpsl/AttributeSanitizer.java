@@ -67,7 +67,7 @@ public class AttributeSanitizer {
 
     private boolean existsInList(final List<RpslAttribute> attributes, final AttributeType attributeType) {
         for (RpslAttribute attr : attributes) {
-            if (attr.getType().equals(attributeType)) {
+            if (attributeType.equals(attr.getType())) {
                 return true;
             }
         }
@@ -82,7 +82,7 @@ public class AttributeSanitizer {
 
         for (final RpslAttribute attr : originalObject.getAttributes()) {
             if (keyAttributeTypesForObject.contains(attr.getType())) {
-                if (existsInList(keyRelatedAttributes, attr.getType()) == false) {
+                if (!existsInList(keyRelatedAttributes, attr.getType())) {
                     keyRelatedAttributes.add(attr);
                 }
             }
@@ -103,6 +103,7 @@ public class AttributeSanitizer {
                     cleanValue = sanitizer.sanitize(orgAttr);
                 } catch (IllegalArgumentException ignored) {
                     // no break on syntactically broken objects
+                    LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
                 }
             }
 
@@ -139,6 +140,7 @@ public class AttributeSanitizer {
                 newValue = sanitizer.sanitize(attribute);
             } catch (IllegalArgumentException ignored) {
                 // no break on syntactically broken objects  TODO: investigate why this is
+                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             }
 
             if (newValue == null) {

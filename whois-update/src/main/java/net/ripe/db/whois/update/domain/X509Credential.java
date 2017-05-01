@@ -5,6 +5,7 @@ import net.ripe.db.whois.update.keycert.X509SignedMessage;
 
 import javax.annotation.Nullable;
 import java.security.cert.X509Certificate;
+import java.util.Objects;
 
 public class X509Credential implements Credential {
 
@@ -68,9 +69,7 @@ public class X509Credential implements Credential {
 
     @Override
     public int hashCode() {
-        int result = signedMessage != null ? signedMessage.hashCode() : 0;
-        result = 31 * result + (keyId != null ? keyId.hashCode() : 0);
-        return result;
+        return Objects.hash(signedMessage, keyId);
     }
 
     @Override

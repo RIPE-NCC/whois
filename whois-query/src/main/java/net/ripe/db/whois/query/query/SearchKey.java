@@ -6,10 +6,13 @@ import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
 import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
 class SearchKey {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchKey.class);
     public static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
 
     private String value;
@@ -29,7 +32,9 @@ class SearchKey {
             ipKey = IpInterval.parse(cleanValue);
             this.value = ipKey instanceof Ipv4Resource ? ((Ipv4Resource) ipKey).toRangeString() : ipKey.toString();
             return;
-        } catch (RuntimeException e) {}
+        } catch (RuntimeException e) {
+            LOGGER.debug(e.getMessage(), e);
+        }
 
         try {
             // TODO: [AH] route parsing should be extracted from iptrees, same way as Ipv4/6Resource
@@ -44,13 +49,17 @@ class SearchKey {
             }
             this.value = cleanValue;
             return;
-        } catch (RuntimeException e) {}
+        } catch (RuntimeException e) {
+            LOGGER.debug(e.getMessage(), e);
+        }
 
         try {
             this.value = IpInterval.removeTrailingDot(cleanValue);
             ipKeyReverse = IpInterval.parseReverseDomain(this.value);
             return;
-        } catch (RuntimeException e) {}
+        } catch (RuntimeException e) {
+            LOGGER.debug(e.getMessage(), e);
+        }
 
         this.value = cleanValue;
     }

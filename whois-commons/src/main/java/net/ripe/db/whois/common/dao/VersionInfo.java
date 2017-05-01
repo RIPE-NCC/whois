@@ -4,6 +4,8 @@ import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 
+import java.util.Objects;
+
 public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
     private final boolean inLast;
     private final int objectId;
@@ -56,12 +58,7 @@ public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
 
     @Override
     public int hashCode() {
-        int result = (inLast ? 1 : 0);
-        result = 31 * result + objectId;
-        result = 31 * result + sequenceId;
-        result = 31 * result + timestamp.hashCode();
-        result = 31 * result + operation.hashCode();
-        return result;
+        return Objects.hash(inLast, objectId, sequenceId, timestamp, operation);
     }
 
     @Override

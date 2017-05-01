@@ -4,6 +4,8 @@ import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Objects;
+
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
@@ -64,9 +66,7 @@ public final class Source {
 
     @Override
     public int hashCode() {
-        int result = type.hashCode();
-        result = 31 * result + name.hashCode();
-        return result;
+        return Objects.hash(type, name);
     }
 
     @Override

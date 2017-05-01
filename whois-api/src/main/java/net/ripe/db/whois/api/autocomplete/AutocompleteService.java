@@ -70,41 +70,31 @@ public class AutocompleteService {
             @QueryParam("from") final Set<String> from,
             @QueryParam("where") final Set<String> where,
             @QueryParam("like") final String like) {
+        try {
+            if (!Strings.isNullOrEmpty(query) && !Strings.isNullOrEmpty(field)) {
 
-        if (!Strings.isNullOrEmpty(query) && !Strings.isNullOrEmpty(field)) {
+                // query by field name
 
-            // query by field name
+                if (query.length() < MINIMUM_PREFIX_LENGTH) {
+                    return badRequest("query parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
+                }
 
-            if (query.length() < MINIMUM_PREFIX_LENGTH) {
-                return badRequest("query parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
+                if (AttributeType.getByNameOrNull(field) == null) {
+                    return badRequest("invalid name for field");
+                }
+                return okResponse(autocompleteSearch.search(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet()));
+            } else if (!select.isEmpty() && !where.isEmpty() && !Strings.isNullOrEmpty(like)) {
+
+                // query by attribute(s)
+
+                return okResponse(autocompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
+            } else {
+                return badRequest("invalid arguments");
             }
-
-            if (AttributeType.getByNameOrNull(field) == null) {
-                return badRequest("invalid name for field");
-            }
-
-            try {
-                return ok(autocompleteSearch.search(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet()));
-            } catch (IOException e) {
-                return badRequest("Query failed.");
-            } catch (IllegalArgumentException e) {
-                return badRequest(e.getMessage());
-            }
-
-        } else if (!select.isEmpty() && !where.isEmpty() && !Strings.isNullOrEmpty(like)) {
-
-            // query by attribute(s)
-
-            try {
-                return ok(autocompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
-            } catch (IOException e) {
-                return badRequest("Query failed.");
-            } catch (IllegalArgumentException e) {
-                return badRequest(e.getMessage());
-            }
-
-        } else {
-            return badRequest("invalid arguments");
+        } catch (IOException e) {
+            return badRequest("Query failed.");
+        } catch (IllegalArgumentException e) {
+            return badRequest(e.getMessage());
         }
     }
 
@@ -132,13 +122,13 @@ public class AutocompleteService {
 
     private Set<AttributeType> getAttributeTypes(final Collection<String> attributes) {
         return attributes.stream()
-                .map(attribute -> AttributeType.getByName(attribute))
+                .map(AttributeType::getByName)
                 .collect(Collectors.toSet());
     }
 
     private Set<ObjectType> getObjectTypes(final Collection<String> types) {
         return types.stream()
-                .map(type -> ObjectType.getByName(type))
+                .map(ObjectType::getByName)
                 .collect(Collectors.toSet());
     }
 
@@ -149,7 +139,7 @@ public class AutocompleteService {
                     .entity(message).build();
     }
 
-    private Response ok(final Object message) {
+    private Response okResponse(final Object message) {
         return Response.ok(message).build();
     }
 }

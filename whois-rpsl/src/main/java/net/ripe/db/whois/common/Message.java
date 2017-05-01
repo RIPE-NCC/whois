@@ -2,6 +2,7 @@ package net.ripe.db.whois.common;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.util.Objects;
 
 @Immutable
 public class Message {
@@ -45,9 +46,7 @@ public class Message {
 
     @Override
     public int hashCode() {
-        int result = type.hashCode();
-        result = 31 * result + formattedText.hashCode();
-        return result;
+        return Objects.hash(type, formattedText);
     }
 
     @Nullable
