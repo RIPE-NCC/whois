@@ -156,6 +156,7 @@ public class FullTextIndex extends RebuildableIndex {
         cleanup();
     }
 
+    @Override
     protected void rebuild(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
         if (!isEnabled()) {
             return;
@@ -210,6 +211,7 @@ public class FullTextIndex extends RebuildableIndex {
         if (!isEnabled()) {
             return;
         }
+
         try {
             update();
         } catch (DataAccessException e) {
@@ -217,6 +219,7 @@ public class FullTextIndex extends RebuildableIndex {
         }
     }
 
+    @Override
     protected void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
         final Map<String, String> metadata = indexWriter.getCommitData();
         final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
@@ -307,7 +310,7 @@ public class FullTextIndex extends RebuildableIndex {
         final IndexWriter indexWriter;
         final TaxonomyWriter taxonomyWriter;
 
-        private DatabaseObjectProcessor(int objectId, byte[] object, IndexWriter indexWriter, TaxonomyWriter taxanomyWriter) {
+        private DatabaseObjectProcessor(final int objectId, final byte[] object, final IndexWriter indexWriter, final TaxonomyWriter taxanomyWriter) {
             this.objectId = objectId;
             this.object = object;
             this.indexWriter = indexWriter;
@@ -335,5 +338,4 @@ public class FullTextIndex extends RebuildableIndex {
     private boolean isEnabled() {
         return !StringUtils.isBlank(indexDir);
     }
-
 }

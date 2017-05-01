@@ -24,7 +24,7 @@ public class DatabaseMaintenanceJmxTest {
         when(updateDao.undeleteObject(1)).thenReturn(new RpslObjectUpdateInfo(1, 1, ObjectType.MNTNER, "DEV-MNT"));
         final String response = subject.undeleteObject(1, "comment");
         assertThat(response, is(
-                "Recovered object: RpslObjectUpdateInfo[objectId=1,objectType=MNTNER,key=DEV-MNT,sequenceId=1]\n" +
+                "Recovered object: RpslObjectUpdateInfo{objectId=1, objectType=MNTNER, key=DEV-MNT, sequenceId=1}\n" +
                 " *** Remember to update IP trees if needed"));
     }
 

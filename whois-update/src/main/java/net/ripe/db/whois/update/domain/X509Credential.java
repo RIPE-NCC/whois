@@ -5,6 +5,7 @@ import net.ripe.db.whois.update.keycert.X509SignedMessage;
 
 import javax.annotation.Nullable;
 import java.security.cert.X509Certificate;
+import java.util.Objects;
 
 public class X509Credential implements Credential {
 
@@ -52,25 +53,18 @@ public class X509Credential implements Credential {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final X509Credential that = (X509Credential) o;
 
-        return (keyId != null ? keyId.equals(that.keyId) : that.keyId == null)
-               && (signedMessage != null ? signedMessage.equals(that.signedMessage) : that.signedMessage == null);
+        return Objects.equals(keyId, that.keyId) &&
+                Objects.equals(signedMessage, that.signedMessage);
     }
 
     @Override
     public int hashCode() {
-        int result = signedMessage != null ? signedMessage.hashCode() : 0;
-        result = 31 * result + (keyId != null ? keyId.hashCode() : 0);
-        return result;
+        return Objects.hash(signedMessage, keyId);
     }
 
     @Override

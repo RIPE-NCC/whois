@@ -4,12 +4,16 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated to AttributeSyntax
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AttributeMatcher.class);
     static final AttributeMatcher ANYTHING_CONTAINING_ALPHA_MATCHER = new RegExpMatcher(".*[A-Z].*");
     static final AttributeMatcher AS_NUMBER_MATCHER = new RegExpMatcher("^AS\\d+$");
     static final AttributeMatcher AS_SET_MATCHER = new RegExpMatcher("(^|.*:)AS-[A-Z0-9_-]*(:.*|$)");
@@ -113,7 +117,9 @@ abstract class AttributeMatcher { // TODO [AK] Figure out what can be delegated 
                 if (matcher.matches(query)) {
                     return true;
                 }
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException ignored) {
+                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
+            }
         }
 
         return false;
