@@ -5,6 +5,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Objects;
+
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
@@ -45,9 +47,7 @@ public final class ObjectKey {
 
     @Override
     public int hashCode() {
-        int result = objectType.hashCode();
-        result = 31 * result + pkey.hashCode();
-        return result;
+        return Objects.hash(objectType, pkey);
     }
 
     @Override

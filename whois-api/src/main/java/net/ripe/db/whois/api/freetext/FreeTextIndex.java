@@ -51,7 +51,6 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static org.slf4j.LoggerFactory.getLogger;
 
-// TODO: instead of relying on scattered 'if (StringUtils.isBlank(indexDir) {...}', we should use profiles/...
 @Component
 public class FreeTextIndex extends RebuildableIndex {
     private static final Logger LOGGER = getLogger(FreeTextIndex.class);
@@ -113,9 +112,7 @@ public class FreeTextIndex extends RebuildableIndex {
             @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
             @Value("${whois.source}") final String source,
             @Value("${dir.freetext.index:}") final String indexDir) {
-
         super(LOGGER, indexDir);
-
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
         this.facetsConfig = new FacetsConfig();
@@ -123,7 +120,10 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @PostConstruct
     public void init() {
-        if (StringUtils.isBlank(indexDir)) return;
+        if (!isEnabled()) {
+            return;
+        }
+
         super.init(new IndexWriterConfig(Version.LUCENE_4_10_4, INDEX_ANALYZER)
                         .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
                 new IndexTemplate.WriteCallback() {
@@ -157,8 +157,11 @@ public class FreeTextIndex extends RebuildableIndex {
         cleanup();
     }
 
+    @Override
     protected void rebuild(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-        if (StringUtils.isBlank(indexDir)) return;
+        if (!isEnabled()) {
+            return;
+        }
 
         indexWriter.deleteAll();
         final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
@@ -206,9 +209,10 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @Scheduled(fixedDelayString = "${freetext.index.update.interval.msecs:60000}" )
     public void scheduledUpdate() {
-        if (StringUtils.isBlank(indexDir)) {
+        if (!isEnabled()) {
             return;
         }
+
         try {
             update();
         } catch (DataAccessException e) {
@@ -216,6 +220,7 @@ public class FreeTextIndex extends RebuildableIndex {
         }
     }
 
+    @Override
     protected void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
         final Map<String, String> metadata = indexWriter.getCommitData();
         final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
@@ -306,7 +311,7 @@ public class FreeTextIndex extends RebuildableIndex {
         final IndexWriter indexWriter;
         final TaxonomyWriter taxonomyWriter;
 
-        private DatabaseObjectProcessor(int objectId, byte[] object, IndexWriter indexWriter, TaxonomyWriter taxanomyWriter) {
+        private DatabaseObjectProcessor(final int objectId, final byte[] object, final IndexWriter indexWriter, final TaxonomyWriter taxanomyWriter) {
             this.objectId = objectId;
             this.object = object;
             this.indexWriter = indexWriter;
@@ -329,5 +334,9 @@ public class FreeTextIndex extends RebuildableIndex {
                 throw new IllegalStateException("Indexing", e);
             }
         }
+    }
+
+    private boolean isEnabled() {
+        return !StringUtils.isBlank(indexDir);
     }
 }

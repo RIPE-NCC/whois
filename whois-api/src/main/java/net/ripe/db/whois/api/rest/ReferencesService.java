@@ -1,9 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -49,7 +47,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -270,16 +267,16 @@ public class ReferencesService {
             for (Update update : updates) {
                 final UpdateStatus status = updateContext.getStatus(update);
 
-                if (status == UpdateStatus.SUCCESS) {
-                    // continue
-                } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
-                    throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED, whoisResources);
-                } else if (status == UpdateStatus.EXCEPTION) {
-                    throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR, whoisResources);
-                } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
-                    throw new ReferenceUpdateFailedException(Response.Status.CONFLICT, whoisResources);
-                } else {
-                    throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
+                if (status != UpdateStatus.SUCCESS) {
+                    if (status == UpdateStatus.FAILED_AUTHENTICATION) {
+                        throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED, whoisResources);
+                    } else if (status == UpdateStatus.EXCEPTION) {
+                        throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR, whoisResources);
+                    } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
+                        throw new ReferenceUpdateFailedException(Response.Status.CONFLICT, whoisResources);
+                    } else {
+                        throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
+                    }
                 }
             }
 
@@ -601,19 +598,6 @@ public class ReferencesService {
         return createResponse(request, whoisResources, status);
     }
 
-    private Response createResponse(final HttpServletRequest request, final Collection<RpslObject> objects, final Response.Status status) {
-        final WhoisResources whoisResources = new WhoisResources();
-
-        whoisResources.setWhoisObjects(FluentIterable.from(objects).transform(new Function<RpslObject, WhoisObject>() {
-            @Nullable
-            @Override
-            public WhoisObject apply(final RpslObject input) {
-                return convertToWhoisObject(input);
-            }
-        }).toList());
-        return createResponse(request, whoisResources, status);
-    }
-
     private Response createResponse(final HttpServletRequest request, final WhoisResources whoisResources, final Response.Status status) {
         final Response.ResponseBuilder responseBuilder = Response.status(status);
        return responseBuilder.entity(new StreamingOutput() {
@@ -637,11 +621,14 @@ public class ReferencesService {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
 
         for (final RpslAttribute rpslAttribute : object.getAttributes()) {
-            for (final RpslObject reference : references) {
-                if (rpslAttribute.getCleanValue().equals(reference.getKey()) &&
-                        rpslAttribute.getType().getReferences().contains(ObjectType.PERSON) ||
-                        rpslAttribute.getType().getReferences().contains(ObjectType.ROLE)) {
-                    replacements.put(rpslAttribute, new RpslAttribute(rpslAttribute.getType(), dummyRole));
+            final AttributeType attributeType = rpslAttribute.getType();
+            if (attributeType != null) {
+                for (final RpslObject reference : references) {
+                    if (rpslAttribute.getCleanValue().equals(reference.getKey()) &&
+                            (attributeType.getReferences().contains(ObjectType.PERSON) ||
+                                    attributeType.getReferences().contains(ObjectType.ROLE))) {
+                        replacements.put(rpslAttribute, new RpslAttribute(attributeType, dummyRole));
+                    }
                 }
             }
         }

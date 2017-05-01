@@ -50,6 +50,7 @@ public class LoggingDriver implements Driver {
                 throw new IllegalStateException("Unable to de-register logging JDBC driver", e);
             }
         } catch (SQLException expected) {
+            LOGGER.debug(expected.getMessage(), expected);
         }
 
         try {

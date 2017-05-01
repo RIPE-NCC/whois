@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class FormattedServerAttributeMapper implements AttributeMapper {
+public class FormattedServerAttributeMapper implements FormattedAttributeMapper {
 
     private static final AttributeParser.MntRoutesParser MNT_ROUTES_PARSER = new AttributeParser.MntRoutesParser();
 
@@ -35,11 +34,6 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
     }
 
     @Override
-    public Collection<RpslAttribute> map(final Attribute attribute) {
-        return Collections.singleton(new RpslAttribute(attribute.getName(), getAttributeValue(attribute)));
-    }
-
-    @Override
     public Collection<Attribute> map(final RpslAttribute rpslAttribute, final String source) {
         final List<Attribute> result = Lists.newArrayList();
         for (CIString value : rpslAttribute.getCleanValues()) {
@@ -49,19 +43,6 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
             result.add(new Attribute(rpslAttribute.getKey(), value.toString(), rpslAttribute.getCleanComment(), referencedType, link));
         }
         return result;
-    }
-
-    // TODO: duplicate method
-    private static String getAttributeValue(final Attribute attribute) {
-        if (StringUtils.isBlank(attribute.getComment())) {
-            return attribute.getValue();
-        } else {
-            if (attribute.getValue().indexOf('#') >= 0) {
-                throw new IllegalArgumentException("Value cannot have a comment in " + attribute);
-            } else {
-                return String.format("%s # %s", attribute.getValue(), attribute.getComment());
-            }
-        }
     }
 
     private static String getLinkValue(final AttributeType attributeType, final CIString value) {

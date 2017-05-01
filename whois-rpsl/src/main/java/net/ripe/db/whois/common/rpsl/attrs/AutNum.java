@@ -1,6 +1,8 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.domain.CIString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.regex.Matcher;
@@ -8,6 +10,7 @@ import java.util.regex.Pattern;
 
 @Immutable
 public class AutNum {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutNum.class);
     private static final Pattern AUTNUM_PATTERN = Pattern.compile("(?i)^AS([0-9]+)$");
 
     final private Long value;
@@ -37,6 +40,7 @@ public class AutNum {
             numericValue = Long.parseLong(num);
         } catch (NumberFormatException ignored) {
             // must be a number
+            LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
         }
 
         if (numericValue < 0 || numericValue > 4294967295L) {
