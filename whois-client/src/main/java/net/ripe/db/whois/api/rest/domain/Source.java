@@ -48,6 +48,6 @@ public class Source {
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return Objects.hash(id);
     }
 }

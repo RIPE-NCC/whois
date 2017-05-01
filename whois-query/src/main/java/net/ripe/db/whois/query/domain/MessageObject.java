@@ -53,6 +53,6 @@ public class MessageObject implements ResponseObject {
 
     @Override
     public int hashCode() {
-        return formattedText.hashCode();
+        return Objects.hash(formattedText);
     }
 }

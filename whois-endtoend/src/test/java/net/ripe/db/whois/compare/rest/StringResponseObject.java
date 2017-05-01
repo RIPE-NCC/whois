@@ -45,6 +45,6 @@ public class StringResponseObject implements ResponseObject{
 
     @Override
     public int hashCode() {
-        return string.hashCode();
+        return Objects.hash(string);
     }
 }

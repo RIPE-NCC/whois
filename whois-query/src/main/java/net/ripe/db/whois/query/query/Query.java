@@ -559,7 +559,7 @@ public class Query {
 
     @Override
     public int hashCode() {
-        return queryParser.hashCode();
+        return Objects.hash(queryParser);
     }
 
     @Override

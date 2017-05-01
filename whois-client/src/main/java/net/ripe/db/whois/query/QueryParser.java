@@ -139,7 +139,7 @@ public class QueryParser {
 
     @Override
     public int hashCode() {
-        return originalStringQuery.hashCode();
+        return Objects.hash(originalStringQuery);
     }
 
     public boolean hasOnlyQueryFlag(final QueryFlag queryFlag) {

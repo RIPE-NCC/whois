@@ -86,7 +86,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
 
     @Override
     public int hashCode() {
-        return certificate != null ? certificate.hashCode() : 0;
+        return Objects.hash(certificate);
     }
 
     public X509Certificate getCertificate() {

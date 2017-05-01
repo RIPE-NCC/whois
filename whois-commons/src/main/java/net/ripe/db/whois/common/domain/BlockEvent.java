@@ -34,7 +34,7 @@ public class BlockEvent {
 
     @Override
     public int hashCode() {
-        return time.hashCode();
+        return Objects.hash(time);
     }
 
     public LocalDateTime getTime() {

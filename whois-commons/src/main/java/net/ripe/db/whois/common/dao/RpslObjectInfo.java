@@ -50,7 +50,7 @@ public class RpslObjectInfo implements Identifiable, Comparable<RpslObjectInfo> 
 
     @Override
     public int hashCode() {
-        return objectId;
+        return Objects.hash(objectId);
     }
 
     @Override

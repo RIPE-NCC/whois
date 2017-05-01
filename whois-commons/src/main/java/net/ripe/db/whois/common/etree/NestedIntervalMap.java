@@ -136,7 +136,7 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
 
     @Override
     public int hashCode() {
-        return children.hashCode();
+        return Objects.hash(children);
     }
 
     @Override
@@ -253,7 +253,7 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
 
         @Override
         public int hashCode() {
-            return key.hashCode();
+            return Objects.hash(key);
         }
 
         @Override

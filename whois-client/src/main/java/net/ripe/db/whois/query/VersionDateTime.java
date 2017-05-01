@@ -37,7 +37,7 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
 
     @Override
     public int hashCode() {
-        return timestamp.hashCode();
+        return Objects.hash(timestamp);
     }
 
     @Override

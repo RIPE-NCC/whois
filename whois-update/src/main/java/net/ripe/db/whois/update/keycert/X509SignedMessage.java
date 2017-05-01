@@ -152,6 +152,6 @@ public class X509SignedMessage {
 
     @Override
     public int hashCode() {
-        return signature.hashCode();
+        return Objects.hash(signature);
     }
 }

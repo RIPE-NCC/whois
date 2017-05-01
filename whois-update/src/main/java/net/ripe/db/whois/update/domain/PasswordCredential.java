@@ -25,7 +25,7 @@ public class PasswordCredential implements Credential {
 
     @Override
     public int hashCode() {
-        return password.hashCode();
+        return Objects.hash(password);
     }
 
     @Override

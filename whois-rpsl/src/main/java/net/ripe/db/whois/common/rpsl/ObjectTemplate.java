@@ -751,7 +751,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     @Override
     public int hashCode() {
-        return objectType.hashCode();
+        return Objects.hash(objectType);
     }
 
     @Override

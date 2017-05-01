@@ -147,7 +147,7 @@ public final class Notification {
 
         @Override
         public int hashCode() {
-            return preparedUpdate.hashCode();
+            return Objects.hash(preparedUpdate);
         }
     }
 }
