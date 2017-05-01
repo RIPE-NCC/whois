@@ -1,11 +1,11 @@
 package net.ripe.db.whois.common.dao;
 
+import com.google.common.base.MoreObjects;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.Objects;
 
@@ -65,10 +65,10 @@ public class RpslObjectInfo implements Identifiable, Comparable<RpslObjectInfo> 
 
     @Override
     public String toString() {
-        return new ToStringBuilder(RpslObjectInfo.class)
-                .append("objectId", objectId)
-                .append("objectType", objectType)
-                .append("key", key)
+        return MoreObjects.toStringHelper(RpslObjectInfo.class)
+                .add("objectId", objectId)
+                .add("objectType", objectType)
+                .add("key", key)
                 .toString();
     }
 }
