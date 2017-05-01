@@ -59,18 +59,13 @@ public class PgpCredential implements Credential {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final PgpCredential that = (PgpCredential) o;
 
-        return (keyId != null ? keyId.equals(that.keyId) : that.keyId == null)
-               && (message != null ? message.equals(that.message) : that.message == null);
+        return Objects.equals(keyId, that.keyId) &&
+                Objects.equals(message, that.message);
     }
 
     @Override

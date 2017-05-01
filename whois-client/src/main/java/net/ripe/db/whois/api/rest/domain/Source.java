@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import java.util.Objects;
+
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -39,15 +41,13 @@ public class Source {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Source source = (Source) o;
+        final Source source = (Source) o;
 
-        if (!id.equals(source.id)) return false;
-
-        return true;
+        return Objects.equals(source.id, id);
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return Objects.hash(id);
     }
 }

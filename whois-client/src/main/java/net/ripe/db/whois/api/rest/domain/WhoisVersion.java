@@ -64,13 +64,12 @@ public class WhoisVersion {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        WhoisVersion that = (WhoisVersion) o;
+        final WhoisVersion that = (WhoisVersion) o;
 
-        if (date != null ? !date.equals(that.date) : that.date != null) return false;
-        if (deletedDate != null ? !deletedDate.equals(that.deletedDate) : that.deletedDate != null) return false;
-        if (operation != null ? !operation.equals(that.operation) : that.operation != null) return false;
-        return !(revision != null ? !revision.equals(that.revision) : that.revision != null);
-
+        return Objects.equals(that.date, date) &&
+                Objects.equals(that.deletedDate, deletedDate) &&
+                Objects.equals(that.operation, operation) &&
+                Objects.equals(that.revision, revision);
     }
 
     @Override

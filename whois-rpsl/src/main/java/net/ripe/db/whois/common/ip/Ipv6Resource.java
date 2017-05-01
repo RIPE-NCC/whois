@@ -373,16 +373,10 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Ipv6Resource other = (Ipv6Resource) obj;
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        final Ipv6Resource other = (Ipv6Resource) obj;
         return compareTo(other) == 0;
     }
 

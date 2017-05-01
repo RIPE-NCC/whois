@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -131,14 +132,14 @@ public class QueryParser {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        QueryParser that = (QueryParser) o;
+        final QueryParser that = (QueryParser) o;
 
-        return originalStringQuery.equals(that.originalStringQuery);
+        return Objects.equals(originalStringQuery, that.originalStringQuery);
     }
 
     @Override
     public int hashCode() {
-        return originalStringQuery.hashCode();
+        return Objects.hash(originalStringQuery);
     }
 
     public boolean hasOnlyQueryFlag(final QueryFlag queryFlag) {

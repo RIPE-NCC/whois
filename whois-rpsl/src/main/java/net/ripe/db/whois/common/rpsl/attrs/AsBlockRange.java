@@ -35,14 +35,13 @@ public final class AsBlockRange {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o){
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()){
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
         final AsBlockRange that = (AsBlockRange) o;
-        return begin == that.begin && end == that.end;
+
+        return Objects.equals(begin, that.begin) &&
+                Objects.equals(end, that.end);
     }
 
     @Override

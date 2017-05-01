@@ -38,16 +38,14 @@ public class Tag {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final Tag tag = (Tag) o;
-        return objectId == tag.objectId && (type != null ? type.equals(tag.getType()) : tag.getType() != null) && !(value != null ? !value.equals(tag.value) : tag.value != null);
+
+        return Objects.equals(objectId, tag.objectId) &&
+                Objects.equals(type, tag.type) &&
+                Objects.equals(value, tag.value);
     }
 
     @Override
