@@ -29,20 +29,14 @@ public class InetnumTransfer extends Transfer<Ipv4Range> {
 
     public static boolean isIanaResource(final RpslObject resource) {
         final RpslAttribute netname = resource.findAttribute(AttributeType.NETNAME);
-
-        final boolean status = (netname != null && IANA_NETNAME.equals(netname.getValue().trim()));
-        LOGGER.debug("Is inetnum {} with netname {} iana? {}", resource.getKey(), netname.getValue(), status);
-
-        return status;
+        //status
+        return (netname != null && IANA_NETNAME.equals(netname.getValue().trim()));
     }
 
     public static boolean isNonRipeResource(final RpslObject resource) {
         final RpslAttribute netname = resource.findAttribute(AttributeType.NETNAME);
-
-        final boolean status = (netname != null && NON_RIPE_NETNAME.equals(netname.getValue().trim()));
-        LOGGER.debug("Is inetnum {} with netname {} non-RIPE? {}", resource.getKey(), netname.getValue(), status);
-
-        return status;
+        //status
+        return (netname != null && NON_RIPE_NETNAME.equals(netname.getValue().trim()));
     }
 
     public String toString() {

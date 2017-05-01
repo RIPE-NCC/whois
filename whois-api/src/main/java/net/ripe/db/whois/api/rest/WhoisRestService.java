@@ -740,6 +740,7 @@ public class WhoisRestService {
                 responseHandler.flushAndGetErrors();
 
             } catch (StreamingException ignored) {
+                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             } catch (RuntimeException e) {
                 throw createWebApplicationException(e, responseHandler);
             }

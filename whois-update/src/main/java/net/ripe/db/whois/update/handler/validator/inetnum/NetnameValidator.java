@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
@@ -16,6 +15,8 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.NETNAME;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
@@ -59,7 +60,7 @@ public class NetnameValidator implements BusinessRuleValidator {
     }
 
     private boolean hasChanged(final CIString referenceNetname, final CIString updatedNetname, final Action action) {
-        return action == MODIFY && !Objects.equal(referenceNetname, updatedNetname);
+        return action == MODIFY && !Objects.equals(referenceNetname, updatedNetname);
     }
 
     @Override

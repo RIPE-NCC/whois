@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.domain;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.util.Objects;
 
 @Immutable
 public class Tag {
@@ -51,10 +52,7 @@ public class Tag {
 
     @Override
     public int hashCode() {
-        int result = type.hashCode();
-        result = 31 * result + objectId;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        return result;
+        return Objects.hash(type, objectId, value);
     }
 
     @Override

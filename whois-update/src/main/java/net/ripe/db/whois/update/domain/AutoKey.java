@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
+import java.util.Objects;
+
 public abstract class AutoKey {
     private final String space;
     private final int index;
@@ -39,9 +41,6 @@ public abstract class AutoKey {
 
     @Override
     public int hashCode() {
-        int result = space.hashCode();
-        result = 31 * result + index;
-        result = 31 * result + (suffix != null ? suffix.hashCode() : 0);
-        return result;
+        return Objects.hash(space, index, suffix);
     }
 }
