@@ -7,6 +7,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import java.util.Objects;
+
 public class RpslObjectInfo implements Identifiable, Comparable<RpslObjectInfo> {
     private final int objectId;
     private final ObjectType objectType;
@@ -38,7 +40,12 @@ public class RpslObjectInfo implements Identifiable, Comparable<RpslObjectInfo> 
 
     @Override
     public boolean equals(final Object o) {
-        return this == o || !(o == null || getClass() != o.getClass()) && objectId == ((RpslObjectInfo) o).objectId;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final RpslObjectInfo that = (RpslObjectInfo) o;
+
+        return Objects.equals(objectId, that.objectId);
     }
 
     @Override

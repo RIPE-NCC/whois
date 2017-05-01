@@ -27,16 +27,14 @@ public abstract class AutoKey {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final AutoKey other = (AutoKey) o;
-        return index == other.index && space.equals(other.space) && !(suffix != null ? !suffix.equals(other.suffix) : other.suffix != null);
+
+        return Objects.equals(index, other.index) &&
+                Objects.equals(space, other.space) &&
+                Objects.equals(suffix, other.suffix);
     }
 
     @Override

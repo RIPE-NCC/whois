@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.domain.Identifiable;
-import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
+import net.ripe.db.whois.query.VersionDateTime;
 
 import java.util.Objects;
 
@@ -47,13 +47,13 @@ public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        VersionInfo that = (VersionInfo) o;
+        final VersionInfo that = (VersionInfo) o;
 
-        return inLast == that.inLast
-                && objectId == that.objectId
-                && sequenceId == that.sequenceId
-                && operation == that.operation
-                && timestamp.equals(that.timestamp);
+        return Objects.equals(inLast, that.inLast) &&
+                Objects.equals(objectId, that.objectId) &&
+                Objects.equals(sequenceId, that.sequenceId) &&
+                Objects.equals(operation, that.operation) &&
+                Objects.equals(timestamp, that.timestamp);
     }
 
     @Override

@@ -46,7 +46,7 @@ public class WhoisTag {
     }
 
     @Override
-    public boolean equals(java.lang.Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -56,7 +56,8 @@ public class WhoisTag {
         }
 
         final WhoisTag whoisTag = (WhoisTag) o;
-        return (whoisTag.id != null ? whoisTag.id.equals(id) : id == null) &&
-                (whoisTag.data != null ? whoisTag.data.equals(data) : data == null);
+
+        return Objects.equals(whoisTag.id, id) &&
+                Objects.equals(whoisTag.data, data);
     }
 }

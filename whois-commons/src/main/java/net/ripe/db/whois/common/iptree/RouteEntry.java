@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.iptree;
 
 import net.ripe.db.whois.common.ip.Interval;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,15 +22,13 @@ public class RouteEntry<T extends Interval<T>> extends IpEntry<T> implements Com
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        final RouteEntry that = (RouteEntry) o;
 
-        return super.equals(o) && origin.equals(((RouteEntry) o).origin);
+        return super.equals(o) &&
+                Objects.equals(origin, that.origin);
     }
 
     @Override

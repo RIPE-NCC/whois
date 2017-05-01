@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Objects;
 
 public final class X509CertificateWrapper implements KeyWrapper {
     private static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
@@ -75,16 +76,12 @@ public final class X509CertificateWrapper implements KeyWrapper {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        final X509CertificateWrapper that = (X509CertificateWrapper) o;
 
-        return ((X509CertificateWrapper) o).getCertificate().equals(
-                this.getCertificate());
+        return Objects.equals(certificate, that.certificate);
     }
 
     @Override

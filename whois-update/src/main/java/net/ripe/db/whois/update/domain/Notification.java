@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.FormatHelper.prettyPrint;
@@ -135,10 +136,13 @@ public final class Notification {
         }
 
         @Override
-        public boolean equals(Object that) {
-            if (this == that) return true;
-            if (that == null || getClass() != that.getClass()) return false;
-            return ((Update) that).preparedUpdate == preparedUpdate;
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+
+            final Update that = (Update) obj;
+
+            return Objects.equals(preparedUpdate, that.preparedUpdate);
         }
 
         @Override

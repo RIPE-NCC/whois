@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 public class StringResponseObject implements ResponseObject{
 
@@ -37,8 +38,9 @@ public class StringResponseObject implements ResponseObject{
         if (this == o) return true;
         if (!(o instanceof StringResponseObject)) return false;
 
-        StringResponseObject that = (StringResponseObject) o;
-        return string.equals(that.string);
+        final StringResponseObject that = (StringResponseObject) o;
+
+        return Objects.equals(string, that.string);
     }
 
     @Override

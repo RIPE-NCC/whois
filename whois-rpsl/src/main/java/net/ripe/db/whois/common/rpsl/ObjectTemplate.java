@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Cardinality.MULTIPLE;
@@ -740,7 +741,12 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     @Override
     public boolean equals(final Object o) {
-        return this == o || !(o == null || getClass() != o.getClass()) && objectType == ((ObjectTemplate) o).objectType;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final ObjectTemplate that = (ObjectTemplate) o;
+
+        return Objects.equals(objectType, that.objectType);
     }
 
     @Override

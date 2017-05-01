@@ -150,9 +150,11 @@ public class AuthoritativeResource {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AuthoritativeResource that = (AuthoritativeResource) o;
+        final AuthoritativeResource that = (AuthoritativeResource) o;
 
-        return autNums.equals(that.autNums) && inet6Ranges.equals(that.inet6Ranges) && inetRanges.equals(that.inetRanges);
+        return Objects.equals(autNums, that.autNums) &&
+                Objects.equals(inet6Ranges, that.inet6Ranges) &&
+                Objects.equals(inetRanges, that.inetRanges);
     }
 
     @Override

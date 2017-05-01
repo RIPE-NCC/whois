@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class X509SignedMessage {
 
@@ -141,16 +142,12 @@ public class X509SignedMessage {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final X509SignedMessage that = (X509SignedMessage) o;
-        return signature.equals(that.signature);
+
+        return Objects.equals(signature, that.signature);
     }
 
     @Override
