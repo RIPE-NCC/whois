@@ -7,7 +7,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.api.freetext.FreeTextIndex;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rest.ApiResponseHandler;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.api.search.IndexTemplate;
@@ -99,7 +99,7 @@ public class WhoisRdapService {
     private final AbuseCFinder abuseCFinder;
     private final RdapObjectMapper rdapObjectMapper;
     private final DelegatedStatsService delegatedStatsService;
-    private final FreeTextIndex freeTextIndex;
+    private final FullTextIndex fullTextIndex;
     private final String source;
     private final String baseUrl;
 
@@ -109,7 +109,7 @@ public class WhoisRdapService {
                             final AbuseCFinder abuseCFinder,
                             final NoticeFactory noticeFactory,
                             final DelegatedStatsService delegatedStatsService,
-                            final FreeTextIndex freeTextIndex,
+                            final FullTextIndex fullTextIndex,
                             final SourceContext sourceContext,
                             @Value("${rdap.port43:}") final String port43,
                             @Value("${rdap.public.baseUrl:}") final String baseUrl) {
@@ -118,7 +118,7 @@ public class WhoisRdapService {
         this.abuseCFinder = abuseCFinder;
         this.rdapObjectMapper = new RdapObjectMapper(noticeFactory, port43);
         this.delegatedStatsService = delegatedStatsService;
-        this.freeTextIndex = freeTextIndex;
+        this.fullTextIndex = fullTextIndex;
         this.source = sourceContext.getCurrentSource().getName().toString();
         this.baseUrl = baseUrl;
     }
@@ -420,7 +420,7 @@ public class WhoisRdapService {
         }
 
         try {
-            final List<RpslObject> objects = freeTextIndex.search(new IndexTemplate.SearchCallback<List<RpslObject>>() {
+            final List<RpslObject> objects = fullTextIndex.search(new IndexTemplate.SearchCallback<List<RpslObject>>() {
                 @Override
                 public List<RpslObject> search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
                     final Stopwatch stopWatch = Stopwatch.createStarted();

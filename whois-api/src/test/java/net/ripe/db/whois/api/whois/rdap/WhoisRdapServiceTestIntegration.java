@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.freetext.FreeTextIndex;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.api.whois.rdap.domain.Action;
 import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
@@ -54,7 +54,7 @@ import static org.junit.Assert.fail;
 public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
-    FreeTextIndex freeTextIndex;
+    FullTextIndex fullTextIndex;
 
     @BeforeClass
     public static void rdapSetProperties() throws Exception {
@@ -62,8 +62,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
 
-        // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.freetext.index", "var${jvmId:}/idx");
+        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
+        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
     @AfterClass
@@ -71,7 +71,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.test");
         System.clearProperty("rdap.public.baseUrl");
-        System.clearProperty("dir.freetext.index");
+        System.clearProperty("dir.fulltext.index");
     }
 
     @Before
@@ -1048,7 +1048,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_domain_not_found() throws Exception {
         try {
-            freeTextIndex.rebuild();
+            fullTextIndex.rebuild();
             createResource("domains?name=ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
@@ -1060,7 +1060,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_domain_exact_match() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("domains?name=31.12.202.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1071,7 +1071,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_domain_with_wildcard() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("domains?name=*.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1085,7 +1085,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_nameservers_not_found() throws Exception {
         try {
-            freeTextIndex.rebuild();
+            fullTextIndex.rebuild();
             createResource("nameservers?name=ns1.ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
@@ -1098,7 +1098,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_nameservers_empty_name() throws Exception {
         try {
-            freeTextIndex.rebuild();
+            fullTextIndex.rebuild();
             createResource("nameservers?name=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
@@ -1133,7 +1133,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_person_by_name() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=Test%20Person")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1144,7 +1144,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_person_by_name_lowercase() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=test%20person")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1156,7 +1156,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_entity_person_umlaut() throws Exception {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=Tëst%20Person3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1168,7 +1168,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_entity_person_umlaut_latin1_encoded() throws Exception {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         try {
             createResource("entities?fn=T%EBst%20Person3")
@@ -1182,7 +1182,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_entity_person_umlaut_utf8_encoded() throws Exception {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=T%C3%ABst%20Person3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1194,7 +1194,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_entity_person_umlaut_substitution() throws Exception {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         try {
             createResource("entities?fn=Test%20Person3")
@@ -1209,7 +1209,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_entity_person_by_name_not_found() throws Exception {
         try {
-            freeTextIndex.rebuild();
+            fullTextIndex.rebuild();
             createResource("entities?fn=Santa%20Claus")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
@@ -1221,7 +1221,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_person_by_handle() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=TP2-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1233,7 +1233,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_entity_person_by_handle_not_found() throws Exception {
         try {
-            freeTextIndex.rebuild();
+            fullTextIndex.rebuild();
             createResource("entities?handle=XYZ-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
@@ -1247,7 +1247,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_role_by_name() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=FR*-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1258,7 +1258,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_role_by_handle() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=F*st%20Role")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1271,7 +1271,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_organisation_by_name() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=organisation")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1282,7 +1282,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_organisation_by_name_mixed_case() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=ORGanisAtioN")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1293,7 +1293,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_organisation_by_name_with_wildcard() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=organis*tion")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1304,7 +1304,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_organisation_by_handle() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=ORG-TEST1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1315,7 +1315,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_organisation_by_handle_with_wildcard_prefix() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=*TEST1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1326,7 +1326,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_organisation_by_handle_with_wildcard_middle() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=ORG*TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1337,7 +1337,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_organisation_by_handle_with_wildcard_suffix() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=ORG*")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1348,7 +1348,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_organisation_by_handle_with_wildcard_prefix_middle_and_suffix() throws Exception {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=*ORG*TEST*")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1407,7 +1407,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_multiple_object_response() {
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         final SearchResult result = createResource("entities?handle=*TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
