@@ -449,7 +449,7 @@ public class ResponseFactoryTest {
 
     @Test
     public void notification_success_with_effective_pgp_credentials() {
-        
+
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
@@ -594,8 +594,7 @@ public class ResponseFactoryTest {
                 replayOrNotMessage +
                 "\n" +
                 "If you do not understand why we sent you this message,\n" +
-                "or for assistance or clarification please contact:\n" +
-                "RIPE Database Administration <ripe-dbm@ripe.net>\n" +
+                "or for assistance or clarification please visit https://www.ripe.net/s/notify.\n" +
                 "\n" +
                 "Change requested from:"));
 
@@ -603,10 +602,7 @@ public class ResponseFactoryTest {
                 "The RIPE Database is subject to Terms and Conditions:\n" +
                 "http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
                 "\n" +
-                "For assistance or clarification please contact:\n" +
-                "RIPE Database Administration <ripe-dbm@ripe.net>"));
-
-        assertVersion(message);
+                "For assistance or clarification please visit https://www.ripe.net/s/notify."));
     }
 
     private void assertVersion(final String response) {
