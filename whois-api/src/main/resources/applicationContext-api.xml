@@ -15,6 +15,6 @@
     <context:component-scan base-package="net.ripe.db.whois.api"/>
 
     <oxm:jaxb2-marshaller id="marshaller">
-        <oxm:class-to-be-bound name="net.ripe.db.whois.api.freetext.SearchResponse"/>
+        <oxm:class-to-be-bound name="net.ripe.db.whois.api.fulltextsearch.SearchResponse"/>
     </oxm:jaxb2-marshaller>
 </beans>

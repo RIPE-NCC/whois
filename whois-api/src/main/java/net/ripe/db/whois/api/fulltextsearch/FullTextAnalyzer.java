@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.freetext;
+package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.collect.Lists;
 import org.apache.lucene.analysis.Analyzer;
@@ -12,7 +12,7 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import java.io.Reader;
 import java.util.List;
 
-public class FreeTextAnalyzer extends Analyzer {
+public class FullTextAnalyzer extends Analyzer {
     public enum Operation {QUERY, INDEX}
 
     private static final List<String> STOP_WORDS = Lists.newArrayList(
@@ -24,7 +24,7 @@ public class FreeTextAnalyzer extends Analyzer {
 
     private final Operation operation;
 
-    public FreeTextAnalyzer(final Operation operation) {
+    public FullTextAnalyzer(final Operation operation) {
         this.operation = operation;
     }
 
