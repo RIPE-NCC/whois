@@ -133,11 +133,5 @@ $!update.reason
 #end
 #end
 
->>>>>
-
-The RIPE Database is subject to Terms and Conditions:
-http://www.ripe.net/db/support/db-terms-conditions.pdf
-
-For assistance or clarification please visit https://www.ripe.net/s/notify.
-<<<<<
+#parse("/templates/include/notify-terms-and-conditions.vm")
 #parse("/templates/include/version.vm")
