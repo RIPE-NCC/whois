@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -220,17 +221,13 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Ipv4Resource that = (Ipv4Resource) obj;
-        return this.begin == that.begin && this.end == that.end;
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        final Ipv4Resource that = (Ipv4Resource) obj;
+
+        return Objects.equals(begin, that.begin) &&
+                Objects.equals(end, that.end);
     }
 
     /** Only if x != 0 */
@@ -307,6 +304,11 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
     @Override
     public InetAddress beginAsInetAddress() {
         return InetAddresses.fromInteger(begin);
+    }
+
+    @Override
+    public InetAddress endAsInetAddress() {
+        return InetAddresses.fromInteger(end);
     }
 
     @Override

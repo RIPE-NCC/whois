@@ -4,8 +4,8 @@ import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -27,18 +27,14 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
     }
 
     @Override
-    public Collection<RpslAttribute> map(final Attribute attribute) {
-        return Collections.singleton(new RpslAttribute(attribute.getName(), getAttributeValue(attribute)));
-    }
-
-    @Override
     public Collection<Attribute> map(final RpslAttribute rpslAttribute, final String source) {
         final Set<CIString> cleanValues = rpslAttribute.getCleanValues();
 
         if (cleanValues.size() == 1) {
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
             final CIString cleanValue = cleanValues.iterator().next();
-            final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), cleanValue) : null;
+            final AttributeType attributeType = rpslAttribute.getType();
+            final String referencedType = (attributeType != null) ? referencedTypeResolver.getReferencedType(attributeType, cleanValue) : null;
             final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, cleanValue.toString()) : null;
             return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, referencedType, link));
         } else {
@@ -46,13 +42,4 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
         }
     }
 
-
-    // TODO: duplicate method
-    private static String getAttributeValue(final Attribute attribute) {
-        if (StringUtils.isBlank(attribute.getComment())) {
-            return attribute.getValue();
-        } else {
-            return String.format("%s # %s", attribute.getValue(), attribute.getComment());
-        }
-    }
 }

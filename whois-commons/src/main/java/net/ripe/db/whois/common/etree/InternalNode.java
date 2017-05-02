@@ -3,6 +3,8 @@ package net.ripe.db.whois.common.etree;
 import net.ripe.db.whois.common.ip.Interval;
 import org.apache.commons.lang.Validate;
 
+import java.util.Objects;
+
 final class InternalNode<K extends Interval<K>, V> {
 
     private final K interval;
@@ -32,30 +34,19 @@ final class InternalNode<K extends Interval<K>, V> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj == null) {
-            return false;
-        }
-
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
 
         final InternalNode<?, ?> that = (InternalNode<?, ?>) obj;
-        return this.interval.equals(that.interval) && this.value.equals(that.value) && this.children.equals(that.children);
+
+        return Objects.equals(interval, that.interval) &&
+                Objects.equals(value, that.value) &&
+                Objects.equals(children, that.children);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + interval.hashCode();
-        result = prime * result + value.hashCode();
-        result = prime * result + children.hashCode();
-        return result;
+        return Objects.hash(interval, value, children);
     }
 
     @Override

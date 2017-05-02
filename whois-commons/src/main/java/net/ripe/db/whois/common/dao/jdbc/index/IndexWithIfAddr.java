@@ -6,6 +6,8 @@ import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Collections;
@@ -14,6 +16,7 @@ import java.util.List;
 
 class IndexWithIfAddr extends IndexStrategyWithSingleLookupTable {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndexWithIfAddr.class);
     private final Splitter SPACE_SPLITTER = Splitter.on(' ').trimResults().omitEmptyStrings();
 
     public IndexWithIfAddr(final AttributeType attributeType) {
@@ -59,6 +62,7 @@ class IndexWithIfAddr extends IndexStrategyWithSingleLookupTable {
                     return result;
                 }
             } catch (IllegalArgumentException ignored) {
+                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             }
         }
 

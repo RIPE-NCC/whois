@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.joda.time.LocalDateTime;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -15,6 +16,8 @@ import java.util.Set;
 // these should return Collection<> instead of List<> to allow for greater flexibility in implementation
 public interface RpslObjectDao extends ProxyLoader<Identifiable, RpslObject> {
     RpslObject getById(int objectId);
+
+    LocalDateTime getLastUpdated(int objectId);
 
     RpslObject getByKey(ObjectType type, CIString key);
 

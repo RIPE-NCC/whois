@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import java.util.Objects;
 
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -58,9 +59,7 @@ public class Link {
 
     @Override
     public int hashCode() {
-        int result = (type != null ? type.hashCode() : 0);
-        result = 31 * result + (href != null ? href.hashCode() : 0);
-        return result;
+        return Objects.hash(type, href);
     }
 
     @Override
@@ -74,8 +73,9 @@ public class Link {
         }
 
         final Link link = (Link) o;
-        return (link.type != null ? link.type.equals(type) : type == null) &&
-                (link.href != null ? link.href.equals(href) : href == null);
+
+        return Objects.equals(link.type, type) &&
+                Objects.equals(link.href, href);
     }
 
     @Override

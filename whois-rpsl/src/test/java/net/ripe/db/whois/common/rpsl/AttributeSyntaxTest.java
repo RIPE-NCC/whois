@@ -235,7 +235,7 @@ public class AttributeSyntaxTest {
 
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "foo@provider.com");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a.a");
-        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "'anthingcan1242go!(&)^!(&^21here\"@0.2345678901234567890123456789012345678901");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "'anthingcan1242go!@(&)^!(&@^21here\"@0.2345678901234567890123456789012345678901");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
     }
 

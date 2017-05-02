@@ -28,14 +28,16 @@ public class MaintenanceMode {
         this.ipRanges = ipRanges;
     }
 
-    @Value("${maintenance:full,full}")
+    @Value("${maintenance:FULL,FULL}")
     public void set(String mode) {
         AccessType world = null, trusted = null;
         try {
             String[] modes = StringUtils.split(mode, ',');
             world = AccessType.valueOf(modes[0].trim());
             trusted = AccessType.valueOf(modes[1].trim());
-        } catch (RuntimeException e) {}
+        } catch (RuntimeException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
 
         if (world != null && trusted != null) {
             set(world, trusted);
