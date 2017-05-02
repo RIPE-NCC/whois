@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.freetext;
+package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.collect.Lists;
 import org.apache.lucene.analysis.TokenFilter;
@@ -31,7 +31,7 @@ public class PatternFilter extends TokenFilter {
 
     private final CharTermAttribute termAttribute = addAttribute(CharTermAttribute.class);
 
-    protected final List<String> tokens = Lists.newArrayList();
+    private final List<String> tokens = Lists.newArrayList();
     private int index = 0;
 
     protected PatternFilter(TokenStream input) {
@@ -68,7 +68,7 @@ public class PatternFilter extends TokenFilter {
     }
 
     private void write(final String token) {
-        char buffer[] = termAttribute.buffer();
+        char[] buffer = termAttribute.buffer();
 
         if (token.length() > termAttribute.length()) {
             buffer = termAttribute.resizeBuffer(token.length());

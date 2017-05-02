@@ -1,15 +1,15 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
-import net.ripe.db.whois.api.freetext.FreeTextIndex;
-import net.ripe.db.whois.api.freetext.FreeTextSearch;
-import net.ripe.db.whois.api.freetext.FreeTextSolrUtils;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
+import net.ripe.db.whois.api.fulltextsearch.SearchRequest;
+import net.ripe.db.whois.api.fulltextsearch.SearchResponse;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.database.diff.Database;
 import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -17,7 +17,6 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.io.StringWriter;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
@@ -33,23 +32,23 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     private Bootstrap bootstrap;
 
     @Autowired
-    private FreeTextSearch freeTextSearch;
+    private FullTextSearch fullTextSearch;
 
     @Autowired
-    private FreeTextIndex freeTextIndex;
+    private FullTextIndex fullTextIndex;
 
     @Autowired
     private RpslObjectUpdateDao rpslObjectUpdateDao;
 
     @BeforeClass
     public static void setProperty() {
-        // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.freetext.index", "var${jvmId:}/idx");
+        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
+        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
     @AfterClass
     public static void clearProperty() {
-        System.clearProperty("dir.freetext.index");
+        System.clearProperty("dir.fulltext.index");
     }
 
     @Test
@@ -217,27 +216,31 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     }
 
     @Test
-    public void freeText_index_is_rebuild_after_bootstrap() throws IOException {
+    public void fullText_index_is_rebuild_after_bootstrap() throws IOException {
 
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
 
-        assertThat(query("TP1").getResults().getNumFound(), is(0L));
+        assertThat(query("TP1").getResult().getDocs(), hasSize(0));
 
-        freeTextIndex.rebuild();
+        fullTextIndex.rebuild();
 
-        assertThat(query("TP1").getResults().getNumFound(), is(1L));
+        assertThat(query("TP1").getResult().getDocs(), hasSize(1));
 
         bootstrapInitialObjects();
 
-        assertThat(query("TP1").getResults().getNumFound(), is(0L));
+        assertThat(query("TP1").getResult().getDocs(), hasSize(0));
     }
 
-    private QueryResponse query(final String queryStr) throws IOException {
-        final StringWriter writer = new StringWriter();
-        freeTextSearch.freeTextSearch(String.format("q=%s", queryStr), writer);
-        return FreeTextSolrUtils.parseResponse(writer.toString());
+    private SearchResponse query(final String queryStr) {
+        return fullTextSearch.search(
+                new SearchRequest.SearchRequestBuilder()
+                    .setQuery(queryStr)
+                    .setRows("10")
+                    .setFormat("xml")
+                    .setHighlightPre("<b>")
+                    .setHighlightPost("</b>")
+                    .build());
     }
-
 }
