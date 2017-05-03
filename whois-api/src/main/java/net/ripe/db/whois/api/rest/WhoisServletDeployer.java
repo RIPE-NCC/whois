@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
+import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import net.ripe.db.whois.api.transfer.AsnTransfersRestService;
@@ -37,6 +38,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
     private final DomainObjectService domainObjectService;
+    private final FullTextSearch fullTextSearch;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -50,7 +52,8 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final ReferencesService referencesService,
                                 final DefaultExceptionMapper defaultExceptionMapper,
                                 final MaintenanceModeFilter maintenanceModeFilter,
-                                final DomainObjectService domainObjectService) {
+                                final DomainObjectService domainObjectService,
+                                final FullTextSearch fullTextSearch) {
         this.whoisRestService = whoisRestService;
         this.syncUpdatesService = syncUpdatesService;
         this.asnTransfersRestService = asnTransfersRestService;
@@ -63,6 +66,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.defaultExceptionMapper = defaultExceptionMapper;
         this.maintenanceModeFilter = maintenanceModeFilter;
         this.domainObjectService = domainObjectService;
+        this.fullTextSearch = fullTextSearch;
     }
 
     @Override
@@ -84,13 +88,17 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(referencesService);
         resourceConfig.register(defaultExceptionMapper);
         resourceConfig.register(domainObjectService);
+        resourceConfig.register(fullTextSearch);
         resourceConfig.register(new CacheControlFilter());
-        resourceConfig.register(new CrossOriginFilter());
 
         final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         resourceConfig.register(jaxbJsonProvider);
+
+        // only allow cross-origin requests from ripe.net
+        final FilterHolder crossOriginFilterHolder = context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
+        crossOriginFilterHolder.setInitParameter(org.eclipse.jetty.servlets.CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "https?://*.ripe.net");
 
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }

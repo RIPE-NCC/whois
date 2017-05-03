@@ -79,12 +79,7 @@ public class Attribute {
 
     @Override
     public int hashCode() {
-        int result = (name != null ? name.hashCode() : 0);
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        result = 31 * result + (comment != null ? comment.hashCode() : 0);
-        result = 31 * result + (referencedType != null ? referencedType.hashCode() : 0);
-        result = 31 * result + (link != null ? link.hashCode() : 0);
-        return result;
+        return Objects.hash(name, value, comment, referencedType, link);
     }
 
     @Override

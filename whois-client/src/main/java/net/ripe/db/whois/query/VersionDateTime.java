@@ -4,6 +4,8 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.Objects;
+
 public class VersionDateTime implements Comparable<VersionDateTime> {
 
     private final LocalDateTime timestamp;
@@ -30,13 +32,12 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
 
         final VersionDateTime that = (VersionDateTime) o;
 
-        return timestamp.equals(that.timestamp);
-
+        return Objects.equals(timestamp, that.timestamp);
     }
 
     @Override
     public int hashCode() {
-        return timestamp.hashCode();
+        return Objects.hash(timestamp);
     }
 
     @Override

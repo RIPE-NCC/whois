@@ -28,6 +28,7 @@ import java.security.Provider;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class PgpPublicKeyWrapper implements KeyWrapper {
     private static final String PGP_HEADER = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
@@ -208,8 +209,6 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
 
     @Override
     public int hashCode() {
-        int result = masterKey.hashCode();
-        result = 31 * result + subKeys.hashCode();
-        return result;
+        return Objects.hash(masterKey, subKeys);
     }
 }

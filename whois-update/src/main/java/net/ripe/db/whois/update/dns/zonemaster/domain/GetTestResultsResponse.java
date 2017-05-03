@@ -4,7 +4,6 @@ package net.ripe.db.whois.update.dns.zonemaster.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.List;
 
@@ -45,10 +44,10 @@ public class GetTestResultsResponse extends ZonemasterResponse {
         }
 
         public String toString() {
-            return new ToStringBuilder(this)
-                    .append("hashId", hashId)
-                    .append("creationTime", creationTime)
-                    .append("results", messages)
+            return MoreObjects.toStringHelper(this)
+                    .add("hashId", hashId)
+                    .add("creationTime", creationTime)
+                    .add("results", messages)
                     .toString();
         }
 

@@ -6,6 +6,8 @@ import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.DefaultChannelFuture;
 
+import java.util.Objects;
+
 public class QueryCompletedEvent implements ChannelEvent {
     private final Channel channel;
     private final QueryCompletionInfo completionInfo;
@@ -39,23 +41,18 @@ public class QueryCompletedEvent implements ChannelEvent {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final QueryCompletedEvent that = (QueryCompletedEvent) o;
-        return channel.equals(that.channel) && completionInfo == that.completionInfo;
+
+        return Objects.equals(channel, that.channel) &&
+                Objects.equals(completionInfo, that.completionInfo);
     }
 
     @Override
     public int hashCode() {
-        int result = channel.hashCode();
-        result = 31 * result + (completionInfo != null ? completionInfo.hashCode() : 0);
-        return result;
+        return Objects.hash(channel, completionInfo);
     }
 
     @Override

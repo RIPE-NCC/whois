@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
+import java.util.Objects;
+
 public abstract class AutoKey {
     private final String space;
     private final int index;
@@ -25,23 +27,18 @@ public abstract class AutoKey {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final AutoKey other = (AutoKey) o;
-        return index == other.index && space.equals(other.space) && !(suffix != null ? !suffix.equals(other.suffix) : other.suffix != null);
+
+        return Objects.equals(index, other.index) &&
+                Objects.equals(space, other.space) &&
+                Objects.equals(suffix, other.suffix);
     }
 
     @Override
     public int hashCode() {
-        int result = space.hashCode();
-        result = 31 * result + index;
-        result = 31 * result + (suffix != null ? suffix.hashCode() : 0);
-        return result;
+        return Objects.hash(space, index, suffix);
     }
 }

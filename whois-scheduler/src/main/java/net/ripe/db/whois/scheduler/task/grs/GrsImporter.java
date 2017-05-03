@@ -95,6 +95,7 @@ public class GrsImporter implements DailyScheduledTask {
             try {
                 future.get();
             } catch (InterruptedException | ExecutionException e) {
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }

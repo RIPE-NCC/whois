@@ -126,13 +126,17 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
 
     @Override
     public boolean equals(Object obj) {
-        return this == obj || obj != null && getClass() == obj.getClass() && this.children.equals(((NestedIntervalMap<?, ?>) obj).children);
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
 
+        final NestedIntervalMap<?, ?> that = (NestedIntervalMap<?, ?>) obj;
+
+        return Objects.equals(children, that.children);
     }
 
     @Override
     public int hashCode() {
-        return children.hashCode();
+        return Objects.hash(children);
     }
 
     @Override
@@ -249,22 +253,17 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
 
         @Override
         public int hashCode() {
-            return key.hashCode();
+            return Objects.hash(key);
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            Key<?> that = (Key<?>) obj;
-            return this.key.equals(that.key);
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+
+            final Key<?> that = (Key<?>) obj;
+
+            return Objects.equals(key, that.key);
         }
 
         @Override
