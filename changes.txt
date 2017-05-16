@@ -8,6 +8,9 @@
 [grs] Fixed Lacnic GRS mirror download
 [all] Mis-match between resource mask and value no longer possible
 [api] Set worst-case timeouts for Whois REST client
+[api] Merged RDAP feature
+[api] Added JSON response to Fulltext Search
+[update] Updated notification text to https://www.ripe.net/s/notify
 
 # 1.88.1
 [update] Handle "missing crc check" in PGP signed update message. (#423)

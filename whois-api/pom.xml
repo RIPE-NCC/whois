@@ -3,7 +3,7 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.89-SNAPSHOT</version>
+        <version>1.90-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -213,7 +213,7 @@
                         <xsdOption>
                             <xsd>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xsd</xsd>
                             <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xjb</bindingFile>
-                            <packagename>net.ripe.db.whois.api.whois.rdap.domain</packagename>
+                            <packagename>net.ripe.db.whois.api.rdap.domain</packagename>
                             <extension>true</extension>
                             <extensionArgs>
                                 <arg>-Xdv</arg>
@@ -222,7 +222,7 @@
                         <xsdOption>
                             <xsd>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xsd</xsd>
                             <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xjb</bindingFile>
-                            <packagename>net.ripe.db.whois.api.whois.rdap.domain.vcard</packagename>
+                            <packagename>net.ripe.db.whois.api.rdap.domain.vcard</packagename>
                             <extension>true</extension>
                             <extensionArgs>
                                 <arg>-Xdv</arg>
