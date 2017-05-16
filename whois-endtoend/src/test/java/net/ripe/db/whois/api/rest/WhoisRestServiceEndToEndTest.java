@@ -22,6 +22,7 @@ import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.support.TestUpdateLog;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ import static org.junit.Assert.fail;
 @Category(EndToEndTest.class)
 public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
-    // accounts used for testing on serval.testlab
+    // accounts used for testing on crowd.prepdev
     public static final String USER1 = "db_e2e_1@ripe.net";
     public static final String PASSWORD1 = "pw_e2e_1";
     public static final String USER2 = "db_e2e_2@ripe.net";

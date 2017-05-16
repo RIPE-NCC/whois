@@ -14,8 +14,11 @@ public class AbuseContactMapper {
     public static AbuseResources mapAbuseContact(final String key, final Iterable<RpslAttribute> attributes) {
         String foundKey = "";
         String abuseEmail = "";
+        String abuseKey = "";
         for (final RpslAttribute attribute : attributes) {
-            if (attribute.getType() == AttributeType.ABUSE_MAILBOX) {
+            if (attribute.getType() == AttributeType.NIC_HDL) {
+                abuseKey = attribute.getCleanValue().toString();
+            } else if (attribute.getType() == AttributeType.ABUSE_MAILBOX) {
                 abuseEmail = attribute.getCleanValue().toString();
             } else {
                 foundKey = attribute.getCleanValue().toString();
@@ -26,10 +29,10 @@ public class AbuseContactMapper {
 
         return new AbuseResources(
                 "abuse-contact",
-                new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s", key)),
+                Link.create(String.format("http://rest.db.ripe.net/abuse-contact/%s", key)),
                 parameters,
-                new AbuseContact(abuseEmail),
-                new Link("locator", WhoisResources.TERMS_AND_CONDITIONS)
+                new AbuseContact(abuseKey, abuseEmail),
+                Link.create(WhoisResources.TERMS_AND_CONDITIONS)
         );
     }
 

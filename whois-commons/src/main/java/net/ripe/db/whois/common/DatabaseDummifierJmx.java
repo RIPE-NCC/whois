@@ -43,10 +43,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "Dummifier", description = "Whois data dummifier")
 /**
  * in jmxterm, run with:
- *      run dummify jdbc:mysql://<host>/<db> <user> <pass>
+ *      run dummify jdbc:mariadb://<host>/<db> <user> <pass>
  *
  * in console, run with
- *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbc-url jdbc:mysql://localhost/BLAH --user XXX --pass XXX
+ *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbc-url jdbc:mariadb://localhost/BLAH --user XXX --pass XXX
  *
  */
 public class DatabaseDummifierJmx extends JmxBase {
@@ -79,7 +79,7 @@ public class DatabaseDummifierJmx extends JmxBase {
             @Override
             public String call() {
                 validateJdbcUrl(user, pass);
-                final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
+                final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("org.mariadb.jdbc.Driver");
                 final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
                 jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -111,9 +111,13 @@ public class DatabaseDummifierJmx extends JmxBase {
     }
 
     private void validateJdbcUrl(final String user, final String password) {
-        if (!user.equals(password)) {
+        if (!user.equals(password) && !user.equals(reverse(password))) {
             throw new IllegalArgumentException("dummifier runs on non-production environments only (user==password)");
         }
+    }
+
+    private static String reverse(final String string) {
+        return new StringBuilder(string).reverse().toString();
     }
 
     private void addWork(final String table, final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {

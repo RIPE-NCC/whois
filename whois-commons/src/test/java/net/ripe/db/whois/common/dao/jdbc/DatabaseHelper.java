@@ -26,7 +26,6 @@ import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -70,7 +69,7 @@ import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.keepKeyAttributesOn
 public class DatabaseHelper implements EmbeddedValueResolverAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
-    private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
 
     private DataSource mailupdatesDataSource;
     private DataSource dnsCheckDataSource;
@@ -160,10 +159,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         ensureLocalhost(jdbcTemplate);
         cleanupOldTables(jdbcTemplate);
 
-        String uniqueForkId = System.getProperty("jvmId");
-        if (StringUtils.isBlank(uniqueForkId) || !StringUtils.isAlphanumeric(uniqueForkId)) {
-            uniqueForkId = DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
-        }
+        final String uniqueForkId = DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
+
         dbBaseName = "test_" + System.currentTimeMillis() + "_" + uniqueForkId;
 
         setupDatabase(jdbcTemplate, "acl.database", "ACL", "acl_schema.sql");
@@ -172,15 +169,15 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
 
-        final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s", dbBaseName, JDBC_DRIVER);
+        final String masterUrl = String.format("jdbc:log:mariadb://localhost/%s_WHOIS;driver=%s", dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
 
-        final String slaveUrl = String.format("jdbc:mysql://localhost/%s_WHOIS", dbBaseName);
+        final String slaveUrl = String.format("jdbc:mariadb://localhost/%s_WHOIS", dbBaseName);
         System.setProperty("whois.db.slave.url", slaveUrl);
         System.setProperty("whois.db.driver", JDBC_DRIVER);
 
-        final String grsSlaveUrl = String.format("jdbc:mysql://localhost/%s", dbBaseName);
+        final String grsSlaveUrl = String.format("jdbc:mariadb://localhost/%s", dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
         System.setProperty("whois.db.grs.master.baseurl", grsSlaveUrl);
     }
@@ -223,7 +220,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
         loadScripts(new JdbcTemplate(createDataSource(dbName)), sql);
 
-        System.setProperty(propertyBase + ".url", "jdbc:mysql://localhost/" + dbName);
+        System.setProperty(propertyBase + ".url", "jdbc:mariadb://localhost/" + dbName);
         System.setProperty(propertyBase + ".username", "dbint");
         System.setProperty(propertyBase + ".password", "");
     }
@@ -239,7 +236,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
             final SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
             dataSource.setDriverClass(driverClass);
-            dataSource.setUrl("jdbc:mysql://localhost/" + databaseName);
+            dataSource.setUrl("jdbc:mariadb://localhost/" + databaseName);
             dataSource.setUsername("dbint");
 
             return dataSource;
@@ -471,6 +468,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 prefix, "comment");
     }
 
+    public void clearAclMirrors() {
+        aclTemplate.update("DELETE FROM acl_mirror");
+    }
+
     public List<Map<String, Object>> listAclEvents() {
         return aclTemplate.queryForList(
                 "SELECT * FROM acl_event"
@@ -489,7 +490,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 user.getUsername(),
                 user.getHashedPassword(),
                 Joiner.on(',').join(user.getObjectTypes()),
-                new Date());
+                new java.sql.Date(new Date().getTime()));
     }
 
     public static void dumpSchema(final DataSource datasource) {

@@ -802,16 +802,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Modify SUCCEEDED: \[person\] TP2-TEST   Modify Person/
     }
 
-    def "date changed error should not appear on when there's only 1 date"() {
-        given:
-            def data = "person:  First Person\naddress: St James Street\nphone:   +44 282 420469\nnic-hdl: FP1-TEST\nmnt-by:  UPD-MNT\nchanged: denis@ripe.net 19010912\nsource:  TEST\npassword: update"
-            def response = syncUpdate(new SyncUpdate(data: data.stripIndent()))
-
-        expect:
-            !(response =~ /The dates in the changed attribute should be in descending order/)
-
-    }
-
     def "role with referenced abuse-c removed"() {
         given:
             def role = syncUpdate(new SyncUpdate(data: """\
@@ -836,7 +826,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             def org = syncUpdate(new SyncUpdate(data: """\
             organisation: ORG-NCC2-RIPE
             org-name:     Ripe NCC organisation
-            org-type:     OTHER
+            org-type:     LIR
             address:      Singel 258
             e-mail:        bitbucket@ripe.net
             abuse-c:      AB-TEST

@@ -50,6 +50,7 @@ public class LoggingDriver implements Driver {
                 throw new IllegalStateException("Unable to de-register logging JDBC driver", e);
             }
         } catch (SQLException expected) {
+            LOGGER.debug(expected.getMessage(), expected);
         }
 
         try {
@@ -152,7 +153,7 @@ public class LoggingDriver implements Driver {
 
     @Override
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
-        return DriverManager.getDriver(getTarget(url).getUrl()).getPropertyInfo(url, info);
+        throw new UnsupportedOperationException("not implemented in MariaDB driver");
     }
 
     @Override

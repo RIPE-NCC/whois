@@ -3,8 +3,11 @@ package net.ripe.db.whois.api.rest;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
+import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
+import net.ripe.db.whois.api.transfer.AsnTransfersRestService;
+import net.ripe.db.whois.api.transfer.InetnumTransfersRestService;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -25,6 +28,8 @@ public class WhoisServletDeployer implements ServletDeployer {
 
     private final WhoisRestService whoisRestService;
     private final SyncUpdatesService syncUpdatesService;
+    private final AsnTransfersRestService asnTransfersRestService;
+    private final InetnumTransfersRestService inetnumTransfersRestService;
     private final WhoisMetadata whoisMetadata;
     private final GeolocationService geolocationService;
     private final AbuseContactService abuseContactService;
@@ -32,19 +37,27 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final ReferencesService referencesService;
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
+    private final DomainObjectService domainObjectService;
+    private final FullTextSearch fullTextSearch;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
                                 final SyncUpdatesService syncUpdatesService,
+                                final AsnTransfersRestService asnTransfersRestService,
+                                final InetnumTransfersRestService inetnumTransfersRestService,
                                 final WhoisMetadata whoisMetadata,
                                 final GeolocationService geolocationService,
                                 final AbuseContactService abuseContactService,
                                 final AutocompleteService autocompleteService,
                                 final ReferencesService referencesService,
                                 final DefaultExceptionMapper defaultExceptionMapper,
-                                final MaintenanceModeFilter maintenanceModeFilter) {
+                                final MaintenanceModeFilter maintenanceModeFilter,
+                                final DomainObjectService domainObjectService,
+                                final FullTextSearch fullTextSearch) {
         this.whoisRestService = whoisRestService;
         this.syncUpdatesService = syncUpdatesService;
+        this.asnTransfersRestService = asnTransfersRestService;
+        this.inetnumTransfersRestService = inetnumTransfersRestService;
         this.whoisMetadata = whoisMetadata;
         this.geolocationService = geolocationService;
         this.abuseContactService = abuseContactService;
@@ -52,6 +65,8 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.referencesService = referencesService;
         this.defaultExceptionMapper = defaultExceptionMapper;
         this.maintenanceModeFilter = maintenanceModeFilter;
+        this.domainObjectService = domainObjectService;
+        this.fullTextSearch = fullTextSearch;
     }
 
     @Override
@@ -64,19 +79,26 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(MultiPartFeature.class);
         resourceConfig.register(whoisRestService);
         resourceConfig.register(syncUpdatesService);
+        resourceConfig.register(asnTransfersRestService);
+        resourceConfig.register(inetnumTransfersRestService);
         resourceConfig.register(whoisMetadata);
         resourceConfig.register(geolocationService);
         resourceConfig.register(abuseContactService);
         resourceConfig.register(autocompleteService);
         resourceConfig.register(referencesService);
         resourceConfig.register(defaultExceptionMapper);
+        resourceConfig.register(domainObjectService);
+        resourceConfig.register(fullTextSearch);
         resourceConfig.register(new CacheControlFilter());
-        resourceConfig.register(new CrossOriginFilter());
 
         final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         resourceConfig.register(jaxbJsonProvider);
+
+        // only allow cross-origin requests from ripe.net
+        final FilterHolder crossOriginFilterHolder = context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
+        crossOriginFilterHolder.setInitParameter(org.eclipse.jetty.servlets.CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "https?://*.ripe.net");
 
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }

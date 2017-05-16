@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
@@ -521,7 +522,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
-        assertThat(response, containsString("Flughafenstraße 109/a"));
+        assertThat(response, containsString("address:        Flughafenstraße 109/a"));
     }
 
     @Test
@@ -543,7 +544,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
-        assertThat(response, containsString("Flughafenstraße 109/a"));
+        assertThat(response, containsString("address:        Flughafenstraße 109/a"));
     }
 
     @Test
@@ -564,7 +565,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person again"));
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        Тверская улица,москва"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        Тверская улица,москва"));
     }
 
     @Test
@@ -588,7 +590,55 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        Тверская улица,москва"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        Тверская улица,москва"));
+    }
+
+    @Test
+    public void post_multipart_data_with_latin1_non_ascii_address() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                        "address:        ÅçÅç\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "source:         TEST\n" +
+                        "password: emptypassword")
+                .field("NEW", "yes");
+        RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        ÅçÅç"));
+    }
+
+    @Test
+    public void post_multipart_data_with_latin1_non_ascii_address_latin1_encoded() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                        "address:        ÅçÅç\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "source:         TEST\n" +
+                        "password: emptypassword")
+                .field("NEW", "yes");
+
+        RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", Charsets.ISO_8859_1.displayName())), String.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        ÅçÅç"));
     }
 
     @Test
@@ -638,6 +688,40 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString("Modify FAILED"));
         assertThat(response, containsString("End of line comments not allowed on \"source:\" attribute"));
+    }
+
+    @Test
+    public void replace_attributes_when_rpsl_has_double_generated_attributes() throws Exception {
+
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                        "address:        ÅçÅç\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "source:         TEST\n" +
+                        "created:       2016-03-31T09:10:52Z\n" +
+                        "created:       2016-03-31T09:11:52Z\n" +
+                        "last-modified: 2016-03-31T09:10:52Z\n" +
+                        "last-modified: 2016-03-31T09:11:52Z\n" +
+                        "password: emptypassword")
+                .field("NEW", "yes");
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", Charsets.ISO_8859_1.displayName())), String.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        ÅçÅç"));
+
+        assertThat(response, containsString("Create SUCCEEDED"));
+        assertThat(response, containsString("***Warning: Supplied attribute 'created' has been replaced with"));
+        assertThat(response, containsString("***Warning: Supplied attribute 'last-modified' has been replaced with"));
+
     }
 
     // helper methods

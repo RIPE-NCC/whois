@@ -46,7 +46,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
-                    auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    auth:    MD5-PW \$1\$bzCpMX7h\$wl3EmBzNXG..8oTMmGVF51 # nccend
                     source:  TEST
                 """,
                 "IRT": """\
@@ -431,7 +431,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /Error:   "assignment-size:" value cannot be changed/
     }
 
-    def "modify, status ASSIGNED ANYCAST needs endusermntner auth for changing org, and remove mnt-lower"() {
+    def "modify, status ASSIGNED ANYCAST needs endusermntner auth for adding org and mnt-lower"() {
       when:
         def update = syncUpdate(new SyncUpdate(data: """\
                                         inet6num:  2221::/64

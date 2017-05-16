@@ -1,9 +1,13 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import java.util.Objects;
 
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -26,6 +30,25 @@ public class Link {
         // required no-arg constructor
     }
 
+    // factory
+
+    public static Link create(final String baseUrl, final RpslObject rpslObject) {
+        final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
+        final String type = rpslObject.getType().getName();
+        final String key = rpslObject.getKey().toString();
+        return create(baseUrl, source, type, key);
+    }
+
+    public static Link create(final String baseUrl, final String source, final String type, final String key) {
+        return create(String.format("%s/%s/%s/%s", baseUrl, source, type, key));
+    }
+
+    public static Link create(final String href) {
+        return new Link("locator", href);
+    }
+
+    // getters
+
     public String getType() {
         return type;
     }
@@ -36,9 +59,7 @@ public class Link {
 
     @Override
     public int hashCode() {
-        int result = (type != null ? type.hashCode() : 0);
-        result = 31 * result + (href != null ? href.hashCode() : 0);
-        return result;
+        return Objects.hash(type, href);
     }
 
     @Override
@@ -52,8 +73,9 @@ public class Link {
         }
 
         final Link link = (Link) o;
-        return (link.type != null ? link.type.equals(type) : type == null) &&
-                (link.href != null ? link.href.equals(href) : href == null);
+
+        return Objects.equals(link.type, type) &&
+                Objects.equals(link.href, href);
     }
 
     @Override

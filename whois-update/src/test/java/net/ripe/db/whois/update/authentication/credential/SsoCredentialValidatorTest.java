@@ -1,9 +1,11 @@
 package net.ripe.db.whois.update.authentication.credential;
 
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.UserSession;
-import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.SsoCredential;
-import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.hamcrest.core.Is;
 import org.junit.Before;
@@ -12,23 +14,27 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SsoCredentialValidatorTest {
 
     @Mock UpdateContext updateContext;
-    @Mock PreparedUpdate update;
+    @Mock PreparedUpdate preparedUpdate;
     @Mock LoggerContext loggerContext;
 
     private SsoCredentialValidator subject;
+    private final Update update = getUpdate();
 
     @Before
     public void setup() {
         subject = new SsoCredentialValidator(loggerContext);
+        when(preparedUpdate.getUpdate()).thenReturn(update);
     }
 
     @Test
@@ -45,13 +51,33 @@ public class SsoCredentialValidatorTest {
         final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
 
         final boolean hasValidCredential = subject.hasValidCredential(
-                update,
+                preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
                 knownCredential);
 
         assertThat(hasValidCredential, is(true));
     }
+
+    @Test
+    public void setsEffectiveCredential() {
+        final UserSession offered = new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
+        offered.setUuid("testuuid");
+
+        final SsoCredential offeredCredential = (SsoCredential)SsoCredential.createOfferedCredential(offered);
+        final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
+
+        subject.hasValidCredential(
+                preparedUpdate,
+                updateContext,
+                Collections.singletonList(offeredCredential),
+                knownCredential);
+
+        assertThat(update.getEffectiveCredential(), is("test@ripe.net" ));
+        assertThat(update.getEffectiveCredentialType(), is(Update.EffectiveCredentialType.SSO));
+
+    }
+
 
     @Test
     public void hasNoOfferedCredentials() {
@@ -61,7 +87,7 @@ public class SsoCredentialValidatorTest {
         final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
 
         final boolean hasValidCredential = subject.hasValidCredential(
-                update,
+                preparedUpdate,
                 updateContext,
                 Collections.<SsoCredential>emptyList(),
                 knownCredential);
@@ -78,7 +104,7 @@ public class SsoCredentialValidatorTest {
         final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
 
         final boolean hasValidCredential = subject.hasValidCredential(
-                update,
+                preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
                 knownCredential);
@@ -95,11 +121,18 @@ public class SsoCredentialValidatorTest {
         final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
 
         final boolean hasValidCredential = subject.hasValidCredential(
-                update,
+                preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
                 knownCredential);
 
         assertThat(hasValidCredential, is(false));
+    }
+
+    private Update getUpdate() {
+        final Paragraph paragraph = new Paragraph(" ");
+        final RpslObject submittedObject = new RpslObject(Arrays.asList(new RpslAttribute(AttributeType.ORGANISATION, CIString.ciString("org-1"))));
+
+        return new Update(paragraph, Operation.DELETE, Arrays.asList(" "), submittedObject);
     }
 }

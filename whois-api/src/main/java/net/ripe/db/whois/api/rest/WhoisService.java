@@ -23,7 +23,7 @@ public class WhoisService {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setErrorMessages(createErrorMessages(errorMessages));
         // TODO: [AH] the external URL should be configurable via properties
-        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
+        whoisResources.setLink(Link.create(RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
     }

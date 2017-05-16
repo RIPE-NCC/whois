@@ -1,14 +1,17 @@
 package net.ripe.db.whois.update.dns;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +27,12 @@ public class DnsChecker {
     private static final List<AttributeType> DNSCHECKER_ATTRIBUTES = ImmutableList.of(AttributeType.DOMAIN, AttributeType.NSERVER, AttributeType.DS_RDATA);
 
     private final DnsGateway dnsGateway;
+    private final LoggerContext loggerContext;
 
     @Autowired
-    public DnsChecker(final DnsGateway dnsGateway) {
+    public DnsChecker(final DnsGateway dnsGateway, final LoggerContext loggerContext) {
         this.dnsGateway = dnsGateway;
+        this.loggerContext = loggerContext;
     }
 
     public void checkAll(final UpdateRequest updateRequest, final UpdateContext updateContext) {
@@ -43,7 +48,9 @@ public class DnsChecker {
             return;
         }
 
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         final Map<DnsCheckRequest, DnsCheckResponse> dnsCheckResponseMap = dnsGateway.performDnsChecks(dnsCheckRequestSet);
+        loggerContext.log(new Message(Messages.Type.INFO, "Called dnsGateway with %d requests and processed in %s", dnsCheckRequestSet.size(), stopwatch.stop().toString()));
 
         for (Map.Entry<DnsCheckRequest, DnsCheckResponse> entry : dnsCheckResponseMap.entrySet()) {
             final DnsCheckRequest dnsCheckRequest = entry.getKey();
@@ -74,7 +81,6 @@ public class DnsChecker {
             return false;
         }
 
-        LOGGER.debug("DNS check required for update: {}", update);
         return true;
     }
 

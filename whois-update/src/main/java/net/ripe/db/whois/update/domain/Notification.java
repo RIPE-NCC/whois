@@ -6,10 +6,12 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
+import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.FormatHelper.prettyPrint;
@@ -18,7 +20,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 
 public final class Notification {
 
-    public static enum Type {
+    public enum Type {
         SUCCESS, SUCCESS_REFERENCE, FAILED_AUTHENTICATION, PENDING_UPDATE
     }
 
@@ -55,6 +57,7 @@ public final class Notification {
     public static class Update {
         private static final Map<Action, String> RESULT_MAP = Maps.newEnumMap(Action.class);
         private static final FilterAuthFunction filterAuthFunction = new FilterAuthFunction();
+        private static final FilterChangedFunction filterChangedFunction = new FilterChangedFunction();
 
         static {
             RESULT_MAP.put(Action.CREATE, "CREATED");
@@ -68,15 +71,15 @@ public final class Notification {
         private final String action;
         private final String result;
         private final String reason;
-        private final PreparedUpdate update;
+        private final PreparedUpdate preparedUpdate;
         private final int versionId;
 
         public Update(final PreparedUpdate update, final UpdateContext updateContext) {
-            this.referenceObject = filterAuthFunction.apply(update.getReferenceObject());
-            this.updatedObject = filterAuthFunction.apply(update.getUpdatedObject());
+            this.referenceObject = filterChangedFunction.apply(filterAuthFunction.apply(update.getReferenceObject()));
+            this.updatedObject = filterChangedFunction.apply(filterAuthFunction.apply(update.getUpdatedObject()));
             this.action = update.getAction().name();
             this.result = RESULT_MAP.get(update.getAction());
-            this.update = update;
+            this.preparedUpdate = update;
 
             String updateReason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
             if (StringUtils.isNotEmpty(updateReason)) {
@@ -124,20 +127,27 @@ public final class Notification {
             return updatedObject.getKey().toString();
         }
 
+        public PreparedUpdate getPreparedUpdate() {
+            return preparedUpdate;
+        }
+
         public boolean isShowVersionInstruction() {
             return !(updatedObject.getType() == PERSON || updatedObject.getType() == ROLE);
         }
 
         @Override
-        public boolean equals(Object that) {
-            if (this == that) return true;
-            if (that == null || getClass() != that.getClass()) return false;
-            return ((Update) that).update == update;
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+
+            final Update that = (Update) obj;
+
+            return Objects.equals(preparedUpdate, that.preparedUpdate);
         }
 
         @Override
         public int hashCode() {
-            return update.hashCode();
+            return Objects.hash(preparedUpdate);
         }
     }
 }

@@ -90,6 +90,7 @@ public class InternalUpdatePerformer {
     public WhoisResources performUpdates(final UpdateContext updateContext, final Origin origin, final Collection<Update> updates, final Keyword keyword, final HttpServletRequest request) {
         loggerContext.log("msg-in.txt", new UpdateLogCallback(updates));
 
+        // todo: [TK] use response?
         updateRequestHandler.handle(new UpdateRequest(origin, keyword, updates), updateContext);
 
         return performUpdates(request, updateContext, updates);
@@ -146,12 +147,11 @@ public class InternalUpdatePerformer {
             //Be careful here, we do not want unsuccessful DELETE operations to return the mntner objects from the DB!!!
             if (preparedUpdate == null
                     || (preparedUpdate.getAction() == Action.DELETE
-                            && updateContext.getStatus(update) != UpdateStatus.SUCCESS)) {
+                    && updateContext.getStatus(update) != UpdateStatus.SUCCESS)) {
                 continue;
             }
 
-            whoisObjects.add(whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), RestServiceHelper.getServerAttributeMapper(request.getQueryString())));
-
+            whoisObjects.add(whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), RestServiceHelper.getRestResponseAttributeMapper(request.getQueryString())));
         }
 
         if (!whoisObjects.isEmpty()) {
@@ -162,7 +162,7 @@ public class InternalUpdatePerformer {
             whoisResources.setErrorMessages(errorMessages);
         }
 
-        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
+        whoisResources.setLink(Link.create(RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
     }
@@ -257,4 +257,6 @@ public class InternalUpdatePerformer {
             return whoisResources;
         }
     }
+
+
 }

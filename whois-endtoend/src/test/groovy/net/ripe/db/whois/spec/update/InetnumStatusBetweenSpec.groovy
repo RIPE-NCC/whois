@@ -687,7 +687,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status NOT-SET not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
+                ["Status NOT-SET can only be created by the database administrator"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
@@ -1168,7 +1168,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status NOT-SET not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
+                ["Status NOT-SET can only be created by the database administrator"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
@@ -1649,7 +1649,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status NOT-SET not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PI"]
+                ["Status NOT-SET can only be created by the database administrator"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }

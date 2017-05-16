@@ -43,7 +43,7 @@ public class OrganisationTypeValidatorTest {
 
     @Before
     public void setup() {
-        when(maintainers.getPowerMaintainers()).thenReturn(ciSet("POWER-MNT"));
+        when(maintainers.getAllocMaintainers()).thenReturn(ciSet("ALLOC-MNT"));
         when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
     }
 
@@ -75,7 +75,6 @@ public class OrganisationTypeValidatorTest {
     public void status_other() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: other"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
-
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
@@ -101,7 +100,7 @@ public class OrganisationTypeValidatorTest {
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: LIR"));
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
 
         subject.validate(update, updateContext);
 
@@ -115,7 +114,7 @@ public class OrganisationTypeValidatorTest {
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: LIR"));
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);
 

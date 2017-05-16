@@ -36,7 +36,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
                 "\n" +
                 "route:          [mandatory]  [single]     [primary/lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "origin:         [mandatory]  [single]     [primary/inverse key]\n" +
                 "pingable:       [optional]   [multiple]   [ ]\n" +
                 "ping-hdl:       [optional]   [multiple]   [inverse key]\n" +
@@ -53,7 +53,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -80,7 +79,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "      that originates the route into the interAS routing system.\n" +
                 "\n" +
                 "route6:         [mandatory]  [single]     [primary/lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "origin:         [mandatory]  [single]     [primary/inverse key]\n" +
                 "pingable:       [optional]   [multiple]   [ ]\n" +
                 "ping-hdl:       [optional]   [multiple]   [inverse key]\n" +
@@ -97,7 +96,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -128,7 +126,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "inetnum:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
@@ -144,7 +142,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -367,15 +364,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     with \"irt-\", and the last character of a name must be a\n" +
                 "     letter or a digit.\n" +
                 "\n" +
-                "changed\n" +
-                "\n" +
-                "   Specifies who submitted the update, and when the object was updated.\n" +
-                "   This attribute is filtered from the default whois output.\n" +
-                "   This attribute is deprecated and will be removed in a next release.\n"+
-                "\n" +
-                "     An e-mail address as defined in RFC 2822, followed by a date\n" +
-                "     in the format YYYYMMDD.\n" +
-                "\n" +
                 "created\n" +
                 "\n" +
                 "   This attributes reflects when the object was created in\n" +
@@ -415,7 +403,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "aut-num:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "as-name:        [mandatory]  [single]     [ ]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "member-of:      [optional]   [multiple]   [inverse key]\n" +
                 "import-via:     [optional]   [multiple]   [ ]\n" +
                 "import:         [optional]   [multiple]   [ ]\n" +
@@ -435,7 +423,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -720,15 +707,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     \"fltr-\" are reserved for filter set names. Names starting\n" +
                 "     with \"prng-\" are reserved for peering set names. Names\n" +
                 "     starting with \"irt-\" are reserved for irt names.\n" +
-                "\n" +
-                "changed\n" +
-                "\n" +
-                "   Specifies who submitted the update, and when the object was updated.\n" +
-                "   This attribute is filtered from the default whois output.\n" +
-                "   This attribute is deprecated and will be removed in a next release.\n" +
-                "\n" +
-                "     An e-mail address as defined in RFC 2822, followed by a date\n" +
-                "     in the format YYYYMMDD.\n" +
                 "\n" +
                 "created\n" +
                 "\n" +

@@ -22,6 +22,7 @@ import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -149,17 +150,16 @@ public class AuthoritativeResource {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AuthoritativeResource that = (AuthoritativeResource) o;
+        final AuthoritativeResource that = (AuthoritativeResource) o;
 
-        return autNums.equals(that.autNums) && inet6Ranges.equals(that.inet6Ranges) && inetRanges.equals(that.inetRanges);
+        return Objects.equals(autNums, that.autNums) &&
+                Objects.equals(inet6Ranges, that.inet6Ranges) &&
+                Objects.equals(inetRanges, that.inetRanges);
     }
 
     @Override
     public int hashCode() {
-        int result = (autNums == null ? 0 : autNums.hashCode());
-        result = 31 * result + (inetRanges == null ? 0 : inetRanges.hashCode());
-        result = 31 * result + (inet6Ranges == null ? 0 : inet6Ranges.hashCode());
-        return result;
+        return Objects.hash(autNums, inetRanges, inet6Ranges);
     }
 
     public List<String> getResources() {

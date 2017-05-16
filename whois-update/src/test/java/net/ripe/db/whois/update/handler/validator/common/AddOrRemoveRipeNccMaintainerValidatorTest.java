@@ -21,9 +21,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AddOrRemoveRipeNccMaintainerValidatorTest {
@@ -171,6 +173,36 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
 
         when(update.getDifferences(AttributeType.MNT_BY)).thenReturn(ciSet("DBM-MNT"));
         when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("HM-MNT"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
+    }
+
+    @Test
+    public void validate_no_rs_auth_rs_maintainer_added_mnt_ref() {
+        when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
+
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "mntner: DEV-MNT\n" +
+                "mnt-ref: RS-MNT\n"));
+
+        when(update.getDifferences(AttributeType.MNT_REF)).thenReturn(ciSet("RS-MNT"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
+    }
+
+    @Test
+    public void validate_no_dbm_auth_dbm_maintainer_added_mnt_ref() {
+        when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
+
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "mntner: DEV-MNT\n" +
+                "mnt-ref: RS-MNT\n"));
+
+        when(update.getDifferences(AttributeType.MNT_REF)).thenReturn(ciSet("DBM-MNT"));
 
         subject.validate(update, updateContext);
 

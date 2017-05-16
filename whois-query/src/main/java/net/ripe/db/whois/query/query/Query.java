@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 // TODO: [AH] further separate concerns of query parsing and business logic
@@ -551,14 +552,14 @@ public class Query {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Query query = (Query) o;
+        final Query that = (Query) o;
 
-        return queryParser.equals(query.queryParser);
+        return Objects.equals(queryParser, that.queryParser);
     }
 
     @Override
     public int hashCode() {
-        return queryParser.hashCode();
+        return Objects.hash(queryParser);
     }
 
     @Override
@@ -579,7 +580,7 @@ public class Query {
         return this;
     }
 
-    public static enum MatchOperation {
+    public enum MatchOperation {
         MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC(),
         MATCH_EXACT(QueryFlag.EXACT),
         MATCH_FIRST_LEVEL_LESS_SPECIFIC(QueryFlag.ONE_LESS),
@@ -589,11 +590,11 @@ public class Query {
 
         private final QueryFlag queryFlag;
 
-        private MatchOperation() {
+        MatchOperation() {
             this(null);
         }
 
-        private MatchOperation(final QueryFlag queryFlag) {
+        MatchOperation(final QueryFlag queryFlag) {
             this.queryFlag = queryFlag;
         }
 
@@ -606,11 +607,11 @@ public class Query {
         }
     }
 
-    public static enum SystemInfoOption {
+    public enum SystemInfoOption {
         VERSION, TYPES, SOURCES
     }
 
-    public static enum Origin {
+    public enum Origin {
         LEGACY, REST, INTERNAL
     }
 }

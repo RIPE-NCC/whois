@@ -73,7 +73,6 @@ public class AuthenticatorPrincipalTest {
         when(authenticationStrategy1.compareTo(authenticationStrategy2)).thenReturn(-1);
         when(authenticationStrategy2.compareTo(authenticationStrategy1)).thenReturn(1);
 
-        when(maintainers.getPowerMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT"));
         when(maintainers.getEnduserMaintainers()).thenReturn(ciSet("RIPE-NCC-END-MNT"));
         when(maintainers.getAllocMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT", "AARDVARK-MNT"));
         when(maintainers.getLegacyMaintainers()).thenReturn(ciSet("RIPE-NCC-LEGACY-MNT"));
@@ -92,7 +91,7 @@ public class AuthenticatorPrincipalTest {
     public void authenticate_powerMaintainer() {
         when(origin.getFrom()).thenReturn("127.0.0.1");
         when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
-        authenticate_maintainer(RpslObject.parse("mntner: RIPE-NCC-HM-MNT"), Principal.POWER_MAINTAINER, Principal.ALLOC_MAINTAINER);
+        authenticate_maintainer(RpslObject.parse("mntner: RIPE-NCC-HM-MNT"), Principal.ALLOC_MAINTAINER, Principal.ALLOC_MAINTAINER);
     }
 
 
@@ -100,7 +99,7 @@ public class AuthenticatorPrincipalTest {
     public void authenticate_powerMaintainer_case_mismatch() {
         when(origin.getFrom()).thenReturn("127.0.0.1");
         when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
-        authenticate_maintainer(RpslObject.parse("mntner: riPe-nCC-hm-Mnt"), Principal.POWER_MAINTAINER, Principal.ALLOC_MAINTAINER);
+        authenticate_maintainer(RpslObject.parse("mntner: riPe-nCC-hm-Mnt"), Principal.ALLOC_MAINTAINER, Principal.ALLOC_MAINTAINER);
     }
 
     @Test

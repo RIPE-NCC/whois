@@ -55,7 +55,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
-                    auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    auth:    MD5-PW \$1\$bzCpMX7h\$wl3EmBzNXG..8oTMmGVF51 # nccend
                     source:  TEST
                 """,
                 "ORG1": """\
@@ -356,13 +356,71 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         n.s.0.0.0.e164.arpa 10.0.0.0
                 mnt-by:          TEST-MNT
                 source:          TEST
+                override:        denis,override1
+                """.stripIndent())
+
+      then:
+        insertResponse.contains("Create SUCCEEDED: [domain] 0.0.0.e164.arpa")
+        !dnsCheckedFor("0.0.0.e164.arpa")
+    }
+
+    def "update enum domain with nserver and glue"() {
+      given:
+        databaseHelper.addObject("domain: 0.0.0.e164.arpa");
+      when:
+        def insertResponse = syncUpdate new SyncUpdate(data: """\
+                domain:          0.0.0.e164.arpa
+                descr:           Test domain
+                admin-c:         TEST-PN
+                tech-c:          TEST-PN
+                zone-c:          TEST-PN
+                nserver:         n.s.0.0.0.e164.arpa 10.0.0.0
+                mnt-by:          TEST-MNT
+                source:          TEST
                 password:        update
                 """.stripIndent())
 
       then:
-        insertResponse.contains("***Error:   Enum domain has invalid glue 10.0.0.0/32")
+        insertResponse.contains("Modify SUCCEEDED: [domain] 0.0.0.e164.arpa")
+        dnsCheckedFor("0.0.0.e164.arpa")
+    }
 
-        dnsCheckedFor "0.0.0.e164.arpa"
+    def "create enum domain with nserver missing glue"() {
+      when:
+        def insertResponse = syncUpdate new SyncUpdate(data: """\
+                domain:          0.0.0.e164.arpa
+                descr:           Test domain
+                admin-c:         TEST-PN
+                tech-c:          TEST-PN
+                zone-c:          TEST-PN
+                nserver:         n.s.0.0.0.e164.arpa
+                mnt-by:          TEST-MNT
+                source:          TEST
+                override:        denis,override1
+                """.stripIndent())
+
+      then:
+        insertResponse.contains("***Error:   Glue record is mandatory if hostname ends with 0.0.0.e164.arpa")
+        !dnsCheckedFor("0.0.0.e164.arpa")
+    }
+
+    def "create enum domain with nserver invalid glue"() {
+      when:
+        def insertResponse = syncUpdate new SyncUpdate(data: """\
+                domain:          0.0.0.e164.arpa
+                descr:           Test domain
+                admin-c:         TEST-PN
+                tech-c:          TEST-PN
+                zone-c:          TEST-PN
+                nserver:         ns.example.net 10.0.0.0
+                mnt-by:          TEST-MNT
+                source:          TEST
+                override:        denis,override1
+                """.stripIndent())
+
+      then:
+        insertResponse.contains("***Error:   Enum domain has invalid glue 10.0.0.0/32")
+        !dnsCheckedFor("0.0.0.e164.arpa")
     }
 
     def "modify ipv4 domain success"() {

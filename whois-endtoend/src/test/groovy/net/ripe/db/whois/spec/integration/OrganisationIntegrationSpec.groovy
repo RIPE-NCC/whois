@@ -326,21 +326,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             """.stripIndent()
     }
 
-    def "changed before 1984"() {
-      given:
-        def data = fixtures["ORG1"].stripIndent() + "password:update"
-        data = (data =~ /source:\s+TEST/).replaceFirst("changed:      dbtest@ripe.net 19830505\nsource:       TEST")
-
-        def org = new SyncUpdate(data: data)
-
-      when:
-        def response = syncUpdate org
-
-      then:
-        response =~ /FAIL/
-        response =~ "Error:   Date is older than the database itself in changed: attribute\n            \"19830505\""
-    }
-
     def "create selfreferencing organisation"() {
       given:
         def data = new SyncUpdate(data: """\
@@ -771,15 +756,17 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Modify SUCCEEDED: \[aut-num\] AS123/
     }
 
-
-
     def "org-name changed organisation not ref"() {
       given:
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: TST-MNT\n" +
-                "source: TEST")
+                "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
       when:
         def response = syncUpdate new SyncUpdate(data: """\
                 organisation: ORG-TO1-TEST
@@ -801,13 +788,17 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
       given:
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: TST-MNT\n" +
-                "source: TEST")
+                "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
 
         databaseHelper.addObject("" +
                 "mntner: REF-MNT\n" +
-                "org: ORG-TO1-TEST\n" +
+                "org:    ORG-TO1-TEST\n" +
                 "mnt-by: REF-MNT\n" +
                 "source: TEST")
 
@@ -832,15 +823,19 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
       given:
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: TST-MNT\n" +
-                "source: TEST")
+                "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
 
         databaseHelper.addObject("" +
                 "aut-num: AS1234\n" +
-                "org: ORG-TO1-TEST\n" +
-                "mnt-by: TST-MNT\n" +
-                "source: TEST")
+                "org:     ORG-TO1-TEST\n" +
+                "mnt-by:  TST-MNT\n" +
+                "source:  TEST")
 
       when:
         def response = syncUpdate new SyncUpdate(data: """\
@@ -848,7 +843,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-name:     Updated Org
                 org-type:     OTHER
                 address:      Singel 258
-                e-mail:        bitbucket@ripe.net
+                e-mail:       bitbucket@ripe.net
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -869,9 +864,13 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: RIPE-NCC-END-MNT\n" +
-                "source: TEST")
+                "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       RIPE-NCC-END-MNT\n" +
+                "mnt-ref:      RIPE-NCC-END-MNT\n" +
+                "source:       TEST")
 
         databaseHelper.addObject("" +
                 "aut-num: AS1234\n" +
@@ -885,11 +884,11 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-name:     Updated Org
                 org-type:     OTHER
                 address:      Singel 258
-                e-mail:        bitbucket@ripe.net
+                e-mail:       bitbucket@ripe.net
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
-                password: end
+                password:     end
                 """.stripIndent())
 
       then:
@@ -899,9 +898,13 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
     def "org-name changed organisation ref by resource with RSmntner auth by override"() {
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: RIPE-NCC-HM-MNT\n" +
-                "source: TEST")
+                "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                "mnt-ref:      RIPE-NCC-HM-MNT\n" +
+                "source:       TEST")
 
         databaseHelper.addObject("" +
                 "aut-num: AS1234\n" +
@@ -915,7 +918,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-name:     Updated Org
                 org-type:     OTHER
                 address:      Singel 258
-                e-mail:        bitbucket@ripe.net
+                e-mail:       bitbucket@ripe.net
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -923,6 +926,183 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
       then:
+        response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
+    }
+
+    def "lir org-name and address changed organisation not ref"() {
+        given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name:     Test Org\n" +
+                "org-type:     LIR\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     LIR
+                address:      Stationsplein 11
+                e-mail:        bitbucket@ripe.net
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password: update
+                """.stripIndent())
+
+        then:
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+    }
+
+    def "lir org-name and address changed organisation ref by mntner"() {
+        given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name:     Test Org\n" +
+                "org-type:     LIR\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+
+        databaseHelper.addObject("" +
+                "mntner: REF-MNT\n" +
+                "org:    ORG-TO1-TEST\n" +
+                "mnt-by: REF-MNT\n" +
+                "source: TEST")
+
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     LIR
+                address:      Stationsplein 11
+                e-mail:        bitbucket@ripe.net
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password: update
+                """.stripIndent())
+
+        then:
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+    }
+
+    def "lir org-name and address changed organisation ref by resource without RSmntner not auth by RS mntner"() {
+        given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name:     Test Org\n" +
+                "org-type:     LIR\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+
+        databaseHelper.addObject("" +
+                "aut-num: AS1234\n" +
+                "org:     ORG-TO1-TEST\n" +
+                "mnt-by:  TST-MNT\n" +
+                "source:  TEST")
+
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     LIR
+                address:      Stationsplein 11
+                e-mail:       bitbucket@ripe.net
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password: update
+                """.stripIndent())
+
+        then:
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+    }
+
+    def "lir org-name and address changed organisation ref by resource with RSmntner auth by RS mntner"() {
+        given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$lg/7YFfk\$X6ScFx7wATYpuuh/VNU631 #end\n" +
+                "source: TEST");
+
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name:     Test Org\n" +
+                "org-type:     LIR\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       RIPE-NCC-END-MNT\n" +
+                "mnt-ref:      RIPE-NCC-END-MNT\n" +
+                "source:       TEST")
+
+        databaseHelper.addObject("" +
+                "aut-num: AS1234\n" +
+                "org: ORG-TO1-TEST\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "source: TEST")
+
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     LIR
+                address:      Stationsplein 11
+                e-mail:       bitbucket@ripe.net
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password:     end
+                """.stripIndent())
+
+        then:
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+    }
+
+    def "lir org-name and address changed organisation ref by resource with RSmntner auth by override"() {
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name:     Test Org\n" +
+                "org-type:     LIR\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                "mnt-ref:      RIPE-NCC-HM-MNT\n" +
+                "source:       TEST")
+
+        databaseHelper.addObject("" +
+                "aut-num: AS1234\n" +
+                "org: ORG-TO1-TEST\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "source: TEST")
+
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     Updated Org
+                org-type:     LIR
+                address:      Stationsplein 11
+                e-mail:       bitbucket@ripe.net
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                override:   denis,override1
+                """.stripIndent())
+
+        then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
     }
 }

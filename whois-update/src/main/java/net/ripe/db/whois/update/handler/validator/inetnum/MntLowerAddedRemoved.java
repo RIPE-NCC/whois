@@ -1,10 +1,11 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -22,15 +23,12 @@ import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelpe
 
 @Component
 public class MntLowerAddedRemoved implements BusinessRuleValidator {
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.MODIFY);
-    }
 
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.INETNUM, ObjectType.INET6NUM);
-    }
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);
+
+    private static final List<InetnumStatus> VALIDATED_INETNUM_STATUSES = ImmutableList.of(InetnumStatus.ASSIGNED_ANYCAST);
+    private static final List<Inet6numStatus> VALIDATED_INET6NUM_STATUSES = ImmutableList.of(Inet6numStatus.ASSIGNED_PI, Inet6numStatus.ASSIGNED_ANYCAST);
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -40,11 +38,11 @@ public class MntLowerAddedRemoved implements BusinessRuleValidator {
             return;
         }
 
-        if (ObjectType.INETNUM.equals(update.getType()) && !InetnumStatus.ASSIGNED_ANYCAST.equals(getStatus(update))) {
+        if (ObjectType.INETNUM.equals(update.getType()) && !VALIDATED_INETNUM_STATUSES.contains(getStatus(update))) {
             return;
         }
 
-        if (ObjectType.INET6NUM.equals(update.getType()) && !getStatus(update).requiresRsMaintainer()) {
+        if (ObjectType.INET6NUM.equals(update.getType()) && !VALIDATED_INET6NUM_STATUSES.contains(getStatus(update))) {
             return;
         }
 
@@ -52,5 +50,15 @@ public class MntLowerAddedRemoved implements BusinessRuleValidator {
         if (!differences.isEmpty() && !subject.hasPrincipal(Principal.RS_MAINTAINER)) {
             updateContext.addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
         }
+    }
+
+    @Override
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 }

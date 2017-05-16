@@ -29,6 +29,7 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     @Autowired protected List<Stub> stubs;
 
     protected JdbcTemplate whoisTemplate;
+    protected JdbcTemplate internalsTemplate;
     protected DatabaseHelper databaseHelper;
 
     private static byte[] propertyStore = null;
@@ -49,6 +50,9 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("grs.sources.dummify", "TEST-GRS");
         System.setProperty("api.rest.baseurl", "http://rest-test.db.ripe.net");
+
+        // allow setting Origin header
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
     }
 
     @AfterClass
@@ -75,5 +79,6 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     public void setDatabaseHelper(final DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
         this.whoisTemplate = databaseHelper.getWhoisTemplate();
+        this.internalsTemplate = databaseHelper.getInternalsTemplate();
     }
 }

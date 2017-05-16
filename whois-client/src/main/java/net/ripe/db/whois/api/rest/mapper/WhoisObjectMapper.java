@@ -2,7 +2,11 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
-import net.ripe.db.whois.api.rest.domain.*;
+import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.Link;
+import net.ripe.db.whois.api.rest.domain.Source;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -11,7 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class WhoisObjectMapper {
@@ -82,7 +89,7 @@ public class WhoisObjectMapper {
         final String type = rpslObject.getType().getName();
         final AttributeMapper attributeMapper = objectMapperFunctions.get(mapFunction);
 
-        final List<Attribute> primaryKeyAttributes = new ArrayList<>();
+        final List<Attribute> primaryKeyAttributes = Lists.newArrayList();
         for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplate.getTemplate(rpslObject.getType()).getKeyAttributes())) {
             primaryKeyAttributes.addAll(primaryKeyAttributeMapper.map(keyAttribute, source));
         }
@@ -92,33 +99,11 @@ public class WhoisObjectMapper {
             attributes.addAll(attributeMapper.map(rpslAttribute, source));
         }
 
-        return createWhoisObject(
+        return WhoisObject.create(
                 new Source(source),
                 type,
                 attributes,
                 primaryKeyAttributes,
-                createLink(rpslObject));
-    }
-
-    protected Link createLink(final RpslObject rpslObject) {
-        final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
-        final String type = rpslObject.getType().getName();
-        final String key = rpslObject.getKey().toString();
-        return createLink(source, type, key);
-    }
-
-    // TODO: duplicate method
-    protected Link createLink(final String source, final String type, final String key) {
-        return new Link("locator", String.format("%s/%s/%s/%s", baseUrl, source, type, key));
-    }
-
-    protected WhoisObject createWhoisObject(final Source source, final String type, final List<Attribute> attributes, final List<Attribute> primaryKey, final Link link) {
-        final WhoisObject whoisObject = new WhoisObject();
-        whoisObject.setSource(source);
-        whoisObject.setType(type);
-        whoisObject.setLink(link);
-        whoisObject.setAttributes(attributes);
-        whoisObject.setPrimaryKey(primaryKey);
-        return whoisObject;
+                Link.create(baseUrl, rpslObject));
     }
 }

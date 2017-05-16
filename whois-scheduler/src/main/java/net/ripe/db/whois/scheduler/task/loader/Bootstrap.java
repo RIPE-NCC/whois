@@ -1,6 +1,7 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -21,14 +22,18 @@ public class Bootstrap implements DailyScheduledTask {
     private final LoaderSafe loaderSafe;
     private final SourceContext sourceContext;
 
+    private final FullTextIndex fullTextIndex;
+
     @Value("${bootstrap.dumpfile:}")
     private String[] dumpFileLocation;
 
     @Autowired
-    public Bootstrap(final LoaderRisky loaderRisky, final LoaderSafe loaderSafe, final SourceContext sourceContext) {
+    public Bootstrap(final LoaderRisky loaderRisky, final LoaderSafe loaderSafe,
+                     final SourceContext sourceContext, final FullTextIndex fullTextIndex) {
         this.loaderRisky = loaderRisky;
         this.loaderSafe = loaderSafe;
         this.sourceContext = sourceContext;
+        this.fullTextIndex = fullTextIndex;
     }
 
     public void setDumpFileLocation(final String... testDumpFileLocation) {
@@ -47,7 +52,11 @@ public class Bootstrap implements DailyScheduledTask {
             // treeupdaters not recognising rebuild is needed
             Uninterruptibles.sleepUninterruptibly(IpTreeUpdater.TREE_UPDATE_IN_SECONDS, TimeUnit.SECONDS);
 
-            return loaderRisky.loadSplitFiles(dumpFileLocation);
+            final String result = loaderRisky.loadSplitFiles(dumpFileLocation);
+
+            fullTextIndex.rebuild();
+
+            return result;
         } finally {
             sourceContext.removeCurrentSource();
         }

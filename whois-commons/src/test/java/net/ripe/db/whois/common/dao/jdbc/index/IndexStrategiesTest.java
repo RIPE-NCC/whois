@@ -14,6 +14,7 @@ import static org.junit.Assert.assertThat;
 public class IndexStrategiesTest {
     @Test
     public void check_index_strategied_for_lookup_attributes() {
+
         final Set<AttributeType> attibutesWithrequiredIndex = Sets.newHashSet();
         for (final ObjectType objectType : ObjectType.values()) {
             final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);

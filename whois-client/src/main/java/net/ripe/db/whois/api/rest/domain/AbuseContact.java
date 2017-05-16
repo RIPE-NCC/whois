@@ -10,15 +10,24 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "abuse-contact")
 public class AbuseContact {
+
+    @XmlAttribute(name = "key")
+    private String key;
+
     @XmlAttribute(name = "email")
     private String email;
 
-    public AbuseContact(final String email) {
+    public AbuseContact(final String key, final String email) {
+        this.key = key;
         this.email = email;
     }
 
     public AbuseContact() {
         // required no-arg constructor
+    }
+
+    public String getKey() {
+        return key;
     }
 
     public String getEmail() {

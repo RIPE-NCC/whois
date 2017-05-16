@@ -13,8 +13,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
-import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
@@ -22,13 +20,21 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,8 +45,10 @@ import java.util.Set;
 @Path("/geolocation")
 public class GeolocationService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeolocationService.class);
     private static final String SERVICE_NAME = "geolocation-finder";
 
+    // TODO: [ES] don't hard-code environment specific URL
     private static final String LOOKUP_URL = "http://rest.db.ripe.net/lookup";
 
     private static final Set<InetnumStatus> STOP_AT_STATUS_IPV4 = Sets.immutableEnumSet(
@@ -135,7 +143,7 @@ public class GeolocationService {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setService(new Service(SERVICE_NAME));
         whoisResources.setGeolocationAttributes(new GeolocationAttributes(location, languages));
-        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
+        whoisResources.setLink(Link.create(RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
     }
@@ -169,7 +177,7 @@ public class GeolocationService {
             return null;
         }
         final String value = rpslObject.getValueForAttribute(AttributeType.GEOLOC).toString();
-        final Link link = getLink(rpslObject);
+        final Link link = Link.create(LOOKUP_URL, rpslObject);
         return new Location(value, link);
     }
 
@@ -179,20 +187,12 @@ public class GeolocationService {
             return null;
         }
         final List<Language> languages = Lists.newArrayList();
-        final Link link = getLink(rpslObject);
+        final Link link = Link.create(LOOKUP_URL, rpslObject);
         for (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.LANGUAGE)) {
             final String value = rpslAttribute.getCleanValue().toString();
             languages.add(new Language(value, link));
         }
         return languages;
-    }
-
-    private Link getLink(final RpslObject rpslObject) {
-        final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
-        final String type = rpslObject.getType().getName();
-        final String key = rpslObject.getKey().toString();
-        final String href = String.format("%s/%s/%s/%s", LOOKUP_URL, source, type, key);
-        return new Link("locator", href);
     }
 
     private boolean isStopStatus(final RpslObject rpslObject) {

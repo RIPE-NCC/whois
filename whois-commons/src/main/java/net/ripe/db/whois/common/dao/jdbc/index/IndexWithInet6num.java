@@ -8,16 +8,18 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
 class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
+
     public IndexWithInet6num(final AttributeType attributeType) {
         super(attributeType, "inet6num");
     }
 
-    // MySQL 5.1 bug workaround: if 64-bit integer has its msb bit set, the comparison fails
-    // (proved to be working in mysql 5.5; we can drop the Long.toString() then
+    // MariaDB bug workaround: if 64-bit integer has its msb bit set, the comparison fails
+    // Always use Long.toString() instead of passing long for VARCHAR column
     @Override
     public int addToIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo, final RpslObject object, final String value) {
         final Ipv6Resource resource = Ipv6Resource.parse(objectInfo.getKey());
@@ -42,8 +44,8 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
             return Collections.emptyList();
         }
 
-        // MySQL 5.1 bug workaround: if 64-bit integer has its msb bit set, the comparison fails
-        // (proved to be working in mysql 5.5; we can drop the Long.toString() then
+        // MariaDB bug workaround: if 64-bit integer has its msb bit set, the comparison fails
+        // Always use Long.toString() instead of passing long for VARCHAR column
         return jdbcTemplate.query(" " +
                 "SELECT l.object_id, l.object_type, l.pkey " +
                 "  FROM inet6num " +
@@ -56,6 +58,7 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
                 resource.getPrefixLength());
     }
 
+    @Nullable
     private Ipv6Resource parseIpv6Resource(final String s) {
         try {
             return Ipv6Resource.parse(s);

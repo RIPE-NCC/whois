@@ -99,6 +99,7 @@ public class UpdatesParser {
                     }
                 } catch (IllegalArgumentException e) {
                     addPlainTextContent(baseCredentials, paragraphs, signedContent, 0, signedContent.length());
+                    break;
                 }
             } else {
                 addParagraphs(paragraphs, signedContent, credentials);

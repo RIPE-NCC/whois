@@ -104,11 +104,7 @@ public class ErrorMessage implements Comparable<ErrorMessage> {
 
     @Override
     public int hashCode() {
-        int result = (severity != null ? severity.hashCode() : 0);
-        result = 31 * result + (attribute != null ? attribute.hashCode() : 0);
-        result = 31 * result + (text != null ? text.hashCode() : 0);
-        result = 31 * result + (args != null ? args.hashCode() : 0);
-        return result;
+        return Objects.hash(severity, attribute, text, args);
     }
 
     @Override

@@ -62,7 +62,6 @@ public class KeycertAttributeGeneratorTest {
                 "certif:       w0L5DyjKGe0dbjMKtaDdgQhxj8aBHNnQVbS9Oqhvmc65XgNi\n" +
                 "certif:       -----END CERTIFICATE-----\n" +
                 "mnt-by:       UPD-MNT\n" +
-                "changed:      noreply@ripe.net 20040927\n" +
                 "source:       TEST\n");
 
         when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(X509CertificateWrapper.parse(keycert));
@@ -111,7 +110,6 @@ public class KeycertAttributeGeneratorTest {
                 "certif:       -----END PGP PUBLIC KEY BLOCK-----" +
                 "mnt-by:       UPD-MNT\n" +
                 "notify:       noreply@ripe.net\n" +
-                "changed:      noreply@ripe.net 20120213\n" +
                 "source:       TEST\n");
 
         when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(keycert));
@@ -128,41 +126,40 @@ public class KeycertAttributeGeneratorTest {
     public void correct_owner_attribute() {
         RpslObject keycert = RpslObject.parse(
                 "key-cert:     PGPKEY-5763950D\n" +
-                        "owner:        noreply@ripe.net <noreply@ripe.net>\n" +
-                        "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
-                        "certif:       Version: GnuPG v1.4.12 (Darwin)\n" +
-                        "certif:       \n" +
-                        "certif:       mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+\n" +
-                        "certif:       yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH\n" +
-                        "certif:       2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN\n" +
-                        "certif:       E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L\n" +
-                        "certif:       A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd\n" +
-                        "certif:       YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u\n" +
-                        "certif:       ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV\n" +
-                        "certif:       CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF\n" +
-                        "certif:       Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB\n" +
-                        "certif:       0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe\n" +
-                        "certif:       xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt\n" +
-                        "certif:       0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z\n" +
-                        "certif:       xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA\n" +
-                        "certif:       uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv\n" +
-                        "certif:       eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12\n" +
-                        "certif:       pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck\n" +
-                        "certif:       xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec\n" +
-                        "certif:       YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4\n" +
-                        "certif:       dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC\n" +
-                        "certif:       GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4\n" +
-                        "certif:       HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3\n" +
-                        "certif:       eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y\n" +
-                        "certif:       6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC\n" +
-                        "certif:       RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip\n" +
-                        "certif:       a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ==\n" +
-                        "certif:       =HQmg\n" +
-                        "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
-                        "mnt-by:       UPD-MNT\n" +
-                        "notify:       noreply@ripe.net\n" +
-                        "changed:      noreply@ripe.net 20120213\n" +
-                        "source:       TEST\n");
+                "owner:        noreply@ripe.net <noreply@ripe.net>\n" +
+                "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                "certif:       Version: GnuPG v1.4.12 (Darwin)\n" +
+                "certif:       \n" +
+                "certif:       mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+\n" +
+                "certif:       yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH\n" +
+                "certif:       2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN\n" +
+                "certif:       E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L\n" +
+                "certif:       A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd\n" +
+                "certif:       YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u\n" +
+                "certif:       ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV\n" +
+                "certif:       CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF\n" +
+                "certif:       Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB\n" +
+                "certif:       0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe\n" +
+                "certif:       xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt\n" +
+                "certif:       0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z\n" +
+                "certif:       xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA\n" +
+                "certif:       uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv\n" +
+                "certif:       eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12\n" +
+                "certif:       pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck\n" +
+                "certif:       xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec\n" +
+                "certif:       YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4\n" +
+                "certif:       dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC\n" +
+                "certif:       GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4\n" +
+                "certif:       HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3\n" +
+                "certif:       eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y\n" +
+                "certif:       6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC\n" +
+                "certif:       RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip\n" +
+                "certif:       a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ==\n" +
+                "certif:       =HQmg\n" +
+                "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
+                "mnt-by:       UPD-MNT\n" +
+                "notify:       noreply@ripe.net\n" +
+                "source:       TEST\n");
         when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(keycert));
 
         final RpslObject updatedObject = subject.generateAttributes(keycert, update, updateContext);
@@ -176,42 +173,41 @@ public class KeycertAttributeGeneratorTest {
     public void invalid_owner_attribute() {
         RpslObject keycert = RpslObject.parse(
                 "key-cert:     PGPKEY-5763950D\n" +
-                        "owner:        noreply@ripe.net <noreply@ripe.net>\n" +
-                        "owner:        invalid\n" +
-                        "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
-                        "certif:       Version: GnuPG v1.4.12 (Darwin)\n" +
-                        "certif:       \n" +
-                        "certif:       mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+\n" +
-                        "certif:       yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH\n" +
-                        "certif:       2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN\n" +
-                        "certif:       E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L\n" +
-                        "certif:       A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd\n" +
-                        "certif:       YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u\n" +
-                        "certif:       ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV\n" +
-                        "certif:       CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF\n" +
-                        "certif:       Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB\n" +
-                        "certif:       0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe\n" +
-                        "certif:       xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt\n" +
-                        "certif:       0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z\n" +
-                        "certif:       xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA\n" +
-                        "certif:       uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv\n" +
-                        "certif:       eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12\n" +
-                        "certif:       pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck\n" +
-                        "certif:       xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec\n" +
-                        "certif:       YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4\n" +
-                        "certif:       dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC\n" +
-                        "certif:       GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4\n" +
-                        "certif:       HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3\n" +
-                        "certif:       eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y\n" +
-                        "certif:       6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC\n" +
-                        "certif:       RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip\n" +
-                        "certif:       a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ==\n" +
-                        "certif:       =HQmg\n" +
-                        "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
-                        "mnt-by:       UPD-MNT\n" +
-                        "notify:       noreply@ripe.net\n" +
-                        "changed:      noreply@ripe.net 20120213\n" +
-                        "source:       TEST\n");
+                "owner:        noreply@ripe.net <noreply@ripe.net>\n" +
+                "owner:        invalid\n" +
+                "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                "certif:       Version: GnuPG v1.4.12 (Darwin)\n" +
+                "certif:       \n" +
+                "certif:       mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+\n" +
+                "certif:       yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH\n" +
+                "certif:       2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN\n" +
+                "certif:       E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L\n" +
+                "certif:       A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd\n" +
+                "certif:       YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u\n" +
+                "certif:       ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV\n" +
+                "certif:       CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF\n" +
+                "certif:       Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB\n" +
+                "certif:       0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe\n" +
+                "certif:       xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt\n" +
+                "certif:       0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z\n" +
+                "certif:       xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA\n" +
+                "certif:       uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv\n" +
+                "certif:       eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12\n" +
+                "certif:       pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck\n" +
+                "certif:       xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec\n" +
+                "certif:       YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4\n" +
+                "certif:       dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC\n" +
+                "certif:       GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4\n" +
+                "certif:       HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3\n" +
+                "certif:       eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y\n" +
+                "certif:       6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC\n" +
+                "certif:       RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip\n" +
+                "certif:       a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ==\n" +
+                "certif:       =HQmg\n" +
+                "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
+                "mnt-by:       UPD-MNT\n" +
+                "notify:       noreply@ripe.net\n" +
+                "source:       TEST\n");
         when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(keycert));
 
         final RpslObject updatedObject = subject.generateAttributes(keycert, update, updateContext);
@@ -259,7 +255,6 @@ public class KeycertAttributeGeneratorTest {
                 "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
                 "mnt-by:       UPD-MNT\n" +
                 "notify:       noreply@ripe.net\n" +
-                "changed:      noreply@ripe.net 20120213\n" +
                 "source:       TEST\n");
         when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(keycert));
 
@@ -308,7 +303,6 @@ public class KeycertAttributeGeneratorTest {
                 "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
                 "mnt-by:       UPD-MNT\n" +
                 "notify:       noreply@ripe.net\n" +
-                "changed:      noreply@ripe.net 20120213\n" +
                 "source:       TEST\n");
         when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(keycert));
 
@@ -358,7 +352,6 @@ public class KeycertAttributeGeneratorTest {
                 "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
                 "mnt-by:       UPD-MNT\n" +
                 "notify:       noreply@ripe.net\n" +
-                "changed:      noreply@ripe.net 20120213\n" +
                 "source:       TEST\n");
         when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(keycert));
 
@@ -373,42 +366,41 @@ public class KeycertAttributeGeneratorTest {
     public void invalid_method_attribute() {
         RpslObject keycert = RpslObject.parse(
                 "key-cert:     PGPKEY-5763950D\n" +
-                        "owner:        noreply@ripe.net <noreply@ripe.net>\n" +
-                        "method:        invalid method\n" +
-                        "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
-                        "certif:       Version: GnuPG v1.4.12 (Darwin)\n" +
-                        "certif:       \n" +
-                        "certif:       mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+\n" +
-                        "certif:       yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH\n" +
-                        "certif:       2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN\n" +
-                        "certif:       E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L\n" +
-                        "certif:       A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd\n" +
-                        "certif:       YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u\n" +
-                        "certif:       ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV\n" +
-                        "certif:       CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF\n" +
-                        "certif:       Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB\n" +
-                        "certif:       0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe\n" +
-                        "certif:       xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt\n" +
-                        "certif:       0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z\n" +
-                        "certif:       xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA\n" +
-                        "certif:       uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv\n" +
-                        "certif:       eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12\n" +
-                        "certif:       pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck\n" +
-                        "certif:       xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec\n" +
-                        "certif:       YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4\n" +
-                        "certif:       dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC\n" +
-                        "certif:       GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4\n" +
-                        "certif:       HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3\n" +
-                        "certif:       eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y\n" +
-                        "certif:       6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC\n" +
-                        "certif:       RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip\n" +
-                        "certif:       a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ==\n" +
-                        "certif:       =HQmg\n" +
-                        "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
-                        "mnt-by:       UPD-MNT\n" +
-                        "notify:       noreply@ripe.net\n" +
-                        "changed:      noreply@ripe.net 20120213\n" +
-                        "source:       TEST\n");
+                "owner:        noreply@ripe.net <noreply@ripe.net>\n" +
+                "method:        invalid method\n" +
+                "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                "certif:       Version: GnuPG v1.4.12 (Darwin)\n" +
+                "certif:       \n" +
+                "certif:       mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+\n" +
+                "certif:       yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH\n" +
+                "certif:       2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN\n" +
+                "certif:       E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L\n" +
+                "certif:       A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd\n" +
+                "certif:       YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u\n" +
+                "certif:       ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV\n" +
+                "certif:       CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF\n" +
+                "certif:       Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB\n" +
+                "certif:       0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe\n" +
+                "certif:       xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt\n" +
+                "certif:       0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z\n" +
+                "certif:       xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA\n" +
+                "certif:       uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv\n" +
+                "certif:       eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12\n" +
+                "certif:       pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck\n" +
+                "certif:       xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec\n" +
+                "certif:       YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4\n" +
+                "certif:       dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC\n" +
+                "certif:       GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4\n" +
+                "certif:       HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3\n" +
+                "certif:       eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y\n" +
+                "certif:       6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC\n" +
+                "certif:       RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip\n" +
+                "certif:       a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ==\n" +
+                "certif:       =HQmg\n" +
+                "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
+                "mnt-by:       UPD-MNT\n" +
+                "notify:       noreply@ripe.net\n" +
+                "source:       TEST\n");
         when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(keycert));
 
         final RpslObject updatedObject = subject.generateAttributes(keycert, update, updateContext);
@@ -456,7 +448,6 @@ public class KeycertAttributeGeneratorTest {
                 "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
                 "mnt-by:       UPD-MNT\n" +
                 "notify:       noreply@ripe.net\n" +
-                "changed:      noreply@ripe.net 20120213\n" +
                 "source:       TEST\n");
         when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(keycert));
 
@@ -500,7 +491,6 @@ public class KeycertAttributeGeneratorTest {
                 "certif:     -----END PGP PUBLIC KEY BLOCK-----        \n" +
                 "mnt-by:       UPD-MNT\n" +
                 "notify:       noreply@ripe.net\n" +
-                "changed:      noreply@ripe.net 20120213\n" +
                 "source:       TEST\n");
 
         when(keyWrapperFactory.createKeyWrapper(keycert, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(keycert));

@@ -9,9 +9,8 @@ import net.ripe.db.whois.common.io.ByteArrayInput;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.ByteArrayContains;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.domain.MessageObject;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
@@ -31,12 +30,10 @@ public class QueryExecutor {
     private static final Set<String> ERRORS_TO_IGNORE = Sets.newHashSet("ERROR:101:", "ERROR:106:");
 
     private final QueryExecutorConfiguration configuration;
-    private final AccessControlListManager accessControlListManager;
     private final Logger logger;
 
-    public QueryExecutor(final QueryExecutorConfiguration configuration, final AccessControlListManager accessControlListManager, final Logger logger) throws UnknownHostException {
+    public QueryExecutor(final QueryExecutorConfiguration configuration, final Logger logger) throws UnknownHostException {
         this.configuration = configuration;
-        this.accessControlListManager = accessControlListManager;
         this.logger = logger;
     }
 

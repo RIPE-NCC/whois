@@ -22,6 +22,8 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -37,11 +39,12 @@ public class AbuseCFinderTest {
 
     @Before
     public void setup() {
-        when(maintainers.getRsMaintainers()).thenReturn(ciSet("RS1-MNT", "RS2-MNT"));
+        when(maintainers.isRsMaintainer(ciSet())).thenReturn(false);
+        when(maintainers.isRsMaintainer(ciSet("RS2-MNT"))).thenReturn(true);
     }
 
     @Test
-    public void getAbuseContacts_oneOrgReferenceNoAbuseC() {
+    public void inetnum_with_org_reference_without_abusec() {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1");
         final RpslObject parent = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\nmnt-by: RS2-MNT");
 
@@ -52,10 +55,13 @@ public class AbuseCFinderTest {
         final String abuseContact = subject.getAbuseContact(inetnum);
 
         assertThat(abuseContact, is(nullValue()));
+
+        verify(maintainers).isRsMaintainer(ciSet());
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
-    public void getAbuseContacts_oneOrgReferenceOneAbuseC() {
+    public void inetnum_with_org_reference_with_abusec() {
         final RpslObject root = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\norg: ORG-TEST1\nmnt-by:RS1-MNT");
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1");
 
@@ -66,11 +72,20 @@ public class AbuseCFinderTest {
 
         assertThat(subject.getAbuseContact(inetnum), is("abuse@ripe.net"));
 
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
-    public void getAbuseContacts_inetnum() {
+    public void inetnum_without_org_reference() {
+        final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0");
+
+        assertThat(subject.getAbuseContact(inetnum), is(nullValue()));
+    }
+
+    @Test
+    public void inetnum_root_parent_with_abusec() {
         final RpslObject object = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG1-TEST");
+
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST"));
         when(objectDao.getByKey(ObjectType.ROLE, ciString("AB-TEST"))).thenReturn(RpslObject.parse("role: A Role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: AB-TEST"));
 
@@ -79,10 +94,12 @@ public class AbuseCFinderTest {
         when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
 
         assertThat(subject.getAbuseContact(object), is("abuse@ripe.net"));
+
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
-    public void getAbuseContacts_inetnum_parent() {
+    public void inetnum_identical_parent_with_abusec() {
         final RpslObject child = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255");
         final RpslObject parent = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG1-TEST");
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(parent.getKey());
@@ -94,10 +111,13 @@ public class AbuseCFinderTest {
         when(objectDao.getById(1)).thenReturn(parent);
 
         assertThat(subject.getAbuseContact(child), is("abuse@ripe.net"));
+
+        verify(maintainers).isRsMaintainer(ciSet());
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
-    public void getAbuseContacts_rsMaintained() {
+    public void inetnum_rs_maintained() {
         final RpslObject object = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\nmnt-lower: RS2-MNT");
 
         final RpslObject root = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\norg: ORG-TEST1\nmnt-by:RS1-MNT");
@@ -107,10 +127,13 @@ public class AbuseCFinderTest {
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG-TEST1"))).thenReturn(RpslObject.parse("organisation: ORG-TEST1"));
 
         assertThat(subject.getAbuseContact(object), is(nullValue()));
+
+        verify(maintainers).isRsMaintainer(ciSet("RS2-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
-    public void getAbuseContacs_autnum_with_abuseccontacts() {
+    public void autnum_with_abusec() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS8462\norg: ORG1-TEST");
 
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST"));
@@ -119,15 +142,19 @@ public class AbuseCFinderTest {
         assertThat(subject.getAbuseContact(autnum), is("abuse@ripe.net"));
         verifyZeroInteractions(ipv4Tree);
         verifyZeroInteractions(ipv6Tree);
+
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
-    public void getAbuseContacts_autnum_without_abusecontacts() {
+    public void autnum_without_abusec() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS8462\norg: ORG1-TEST");
 
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST"));
 
         assertThat(subject.getAbuseContact(autnum), is(nullValue()));
+
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -135,5 +162,8 @@ public class AbuseCFinderTest {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0");
 
         assertThat(subject.getAbuseContact(inetnum), is(nullValue()));
+
+        verifyZeroInteractions(maintainers);
+
     }
 }

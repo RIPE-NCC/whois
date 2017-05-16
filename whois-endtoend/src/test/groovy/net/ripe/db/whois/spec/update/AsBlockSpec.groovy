@@ -199,7 +199,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") == [
                 "Authorisation for [as-block] AS222 - AS333 failed using \"mnt-by:\" not authenticated by: RIPE-DBM-MNT",
                 "As-block object are maintained by RIPE NCC",
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                "You cannot add or remove a RIPE NCC maintainer"
         ]
         queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
@@ -356,7 +356,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
             ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") == [
                     "As-block object are maintained by RIPE NCC",
-                    "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                    "You cannot add or remove a RIPE NCC maintainer"
             ]
             queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
     }

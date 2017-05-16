@@ -23,6 +23,7 @@ import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.Validate;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,7 +124,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                 loadedObjects.put(objectId, (RpslObject) identifiable);
             } else {
                 if (queryBuilder.length() > 0) {
-                    // In MySQL, UNION ALL is much faster than IN
+                    // UNION ALL is much faster than IN
                     queryBuilder.append(" UNION ALL ");
                 }
 
@@ -171,6 +172,13 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     @Override
     public RpslObject getById(final int objectId) {
         return JdbcRpslObjectOperations.getObjectById(jdbcTemplate, objectId);
+    }
+
+    @Override
+    public LocalDateTime getLastUpdated(int objectId) {
+        return new LocalDateTime(
+            jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", new Object[]{objectId}, Long.class)
+                * 1000L);
     }
 
     @Override

@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.joda.time.LocalDateTime;
+import org.joda.time.LocalDate;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -13,14 +13,14 @@ import java.util.Set;
 public class PendingUpdate {
     private final Set<String> passedAuthentications;
     private final RpslObject object;
-    private final LocalDateTime storedDate;
+    private final LocalDate storedDate;
     private final Integer id;
 
-    public PendingUpdate(final Set<String> passedAuthentications, final RpslObject object, final LocalDateTime storedDate) {
+    public PendingUpdate(final Set<String> passedAuthentications, final RpslObject object, final LocalDate storedDate) {
         this(null, passedAuthentications, object, storedDate);
     }
 
-    public PendingUpdate(@Nullable final Integer id, final Set<String> passedAuthentications, final RpslObject object, final LocalDateTime storedDate) {
+    public PendingUpdate(@Nullable final Integer id, final Set<String> passedAuthentications, final RpslObject object, final LocalDate storedDate) {
         this.passedAuthentications = passedAuthentications;
         this.object = object;
         this.storedDate = storedDate;
@@ -46,7 +46,7 @@ public class PendingUpdate {
         return object;
     }
 
-    public LocalDateTime getStoredDate() {
+    public LocalDate getStoredDate() {
         return storedDate;
     }
 }

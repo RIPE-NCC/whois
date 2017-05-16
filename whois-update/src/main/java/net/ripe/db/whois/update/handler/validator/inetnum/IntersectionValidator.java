@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -21,6 +21,10 @@ import java.util.List;
 
 @Component
 public class IntersectionValidator implements BusinessRuleValidator {
+
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);
+
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
 
@@ -28,16 +32,6 @@ public class IntersectionValidator implements BusinessRuleValidator {
     public IntersectionValidator(final Ipv4Tree ipv4Tree, final Ipv6Tree ipv6Tree) {
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.CREATE);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.INETNUM, ObjectType.INET6NUM);
     }
 
     @Override
@@ -73,5 +67,15 @@ public class IntersectionValidator implements BusinessRuleValidator {
         if (firstIntersecting != null) {
             updateContext.addMessage(update, UpdateMessages.intersectingRange(firstIntersecting));
         }
+    }
+
+    @Override
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 }

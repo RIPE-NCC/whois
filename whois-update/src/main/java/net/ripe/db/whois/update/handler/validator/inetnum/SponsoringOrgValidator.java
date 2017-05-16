@@ -1,9 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
@@ -26,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
@@ -47,13 +45,14 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE, MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(INETNUM, INET6NUM, AUT_NUM);
+
     private static final Set<? extends InetStatus> ALLOWED_STATUSES =
-        ImmutableSet.of(
-            InetnumStatus.ASSIGNED_PI,
-            InetnumStatus.ASSIGNED_ANYCAST,
-            InetnumStatus.LEGACY,
-            Inet6numStatus.ASSIGNED_PI,
-            Inet6numStatus.ASSIGNED_ANYCAST);
+            ImmutableSet.of(
+                    InetnumStatus.ASSIGNED_PI,
+                    InetnumStatus.ASSIGNED_ANYCAST,
+                    InetnumStatus.LEGACY,
+                    Inet6numStatus.ASSIGNED_PI,
+                    Inet6numStatus.ASSIGNED_ANYCAST);
 
     private final RpslObjectDao objectDao;
     private final Maintainers maintainers;
@@ -62,16 +61,6 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     public SponsoringOrgValidator(final RpslObjectDao objectDao, final Maintainers maintainers) {
         this.objectDao = objectDao;
         this.maintainers = maintainers;
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return ACTIONS;
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return TYPES;
     }
 
     @Override
@@ -94,7 +83,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
             return;
         }
 
-        if(updatedObject.findAttributes(AttributeType.SPONSORING_ORG).size() > 1) {
+        if (updatedObject.findAttributes(AttributeType.SPONSORING_ORG).size() > 1) {
             updateContext.addMessage(update, ValidationMessages.tooManyAttributesOfType(AttributeType.SPONSORING_ORG));
             return;
         }
@@ -168,7 +157,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
     private boolean sponsoringOrgHasChangedAtAll(final CIString referenceSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
         return action == CREATE && !CIString.isBlank(referenceSponsoringOrg)
-                || (action == MODIFY && !Objects.equal(referenceSponsoringOrg, updatedSponsoringOrg));
+                || (action == MODIFY && !Objects.equals(referenceSponsoringOrg, updatedSponsoringOrg));
     }
 
     private boolean sponsoringOrgAdded(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
@@ -183,11 +172,21 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
     private boolean sponsoringOrgChanged(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
         return action == MODIFY && !CIString.isBlank(referencedSponsoringOrg) && !CIString.isBlank(updatedSponsoringOrg)
-                && !Objects.equal(referencedSponsoringOrg, updatedSponsoringOrg);
+                && !Objects.equals(referencedSponsoringOrg, updatedSponsoringOrg);
     }
 
     private boolean hasEndUserMntner(final RpslObject object) {
         final Set<CIString> mntBy = object.getValuesForAttribute(AttributeType.MNT_BY);
-        return !Sets.intersection(maintainers.getEnduserMaintainers(), mntBy).isEmpty();
+        return maintainers.isEnduserMaintainer(mntBy);
+    }
+
+    @Override
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 }

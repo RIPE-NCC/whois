@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.planner;
 
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.Maintainers;
@@ -43,7 +42,7 @@ public class AbuseCFinder {
 
     @CheckForNull
     @Nullable
-    public String getAbuseContact(final RpslObject object){
+    public String getAbuseContact(final RpslObject object) {
         final RpslObject role = getAbuseContactRole(object);
         return (role != null) ? role.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString() : null;
     }
@@ -74,6 +73,7 @@ public class AbuseCFinder {
         }
     }
 
+    @CheckForNull
     @Nullable
     private RpslObject getAbuseContactRoleInternal(final RpslObject object) {
         try {
@@ -93,7 +93,7 @@ public class AbuseCFinder {
     }
 
     private boolean isMaintainedByRs(final RpslObject inetObject) {
-        return !Sets.intersection(this.maintainers.getRsMaintainers(), inetObject.getValuesForAttribute(AttributeType.MNT_BY, AttributeType.MNT_LOWER)).isEmpty();
+        return maintainers.isRsMaintainer(inetObject.getValuesForAttribute(AttributeType.MNT_BY, AttributeType.MNT_LOWER));
     }
 
     @Nullable

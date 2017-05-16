@@ -2,8 +2,8 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -23,13 +23,15 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.collect.CollectionHelper.uniqueResult;
 
 @Component
 public class AbuseValidator implements BusinessRuleValidator {
+
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
     private final RpslObjectDao objectDao;
     private final RpslObjectUpdateDao updateDao;
@@ -40,16 +42,6 @@ public class AbuseValidator implements BusinessRuleValidator {
         this.objectDao = objectDao;
         this.maintainers = maintainers;
         this.updateDao = updateDao;
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.CREATE, Action.MODIFY);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.ORGANISATION);
     }
 
     @Override
@@ -98,7 +90,7 @@ public class AbuseValidator implements BusinessRuleValidator {
                 for (RpslObjectInfo rpslObjectInfo : rpslObjectInfos) {
                     final RpslObject referencingObject = objectDao.getById(rpslObjectInfo.getObjectId());
                     final Set<CIString> objectMaintainers = referencingObject.getValuesForAttribute(AttributeType.MNT_BY);
-                    if (!Sets.intersection(maintainers.getRsMaintainers(), objectMaintainers).isEmpty()
+                    if (maintainers.isRsMaintainer(objectMaintainers)
                             && updatedObject.getKey().equals(referencingObject.getValueForAttribute(AttributeType.ORG))) {
                         isAllowedToUpdate = false;
                         break;
@@ -119,5 +111,15 @@ public class AbuseValidator implements BusinessRuleValidator {
         final boolean originalHasAbuseC = null != referenceObject && referenceObject.containsAttribute(AttributeType.ABUSE_C);
 
         return update.getAction() == Action.MODIFY && !hasAbuseC && originalHasAbuseC;
+    }
+
+    @Override
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 }

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.84-SNAPSHOT</version>
+    <version>1.90-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -23,19 +23,76 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!-- [ES] recommended Spring 4 w/Java 8 -->
-        <spring.version>4.2.1.RELEASE</spring.version>
-        <aspectj.version>1.8.6</aspectj.version>
+
+        <!-- JAVA version -->
         <java.version>1.8</java.version>
+
+        <!-- dependencies -->
+
+        <aspectj.version>1.8.8</aspectj.version>
+        <awaitility.version>1.3.5</awaitility.version>
+
+        <bouncycastle.version>1.55</bouncycastle.version>
+
+        <c3po.version>0.9.5.1</c3po.version>
+        <commons-compress.version>1.10</commons-compress.version>
+        <commons-net.version>3.4</commons-net.version>
+        <commons-io.version>2.4</commons-io.version>
+        <commons-codec.version>1.10</commons-codec.version>
+        <commons-collections.version>3.2.1</commons-collections.version>
+        <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
+        <commons-lang.version>2.6</commons-lang.version>
+        <commons-validator.version>1.5.1</commons-validator.version>
+        <commons-ip-math.version>1.23</commons-ip-math.version>
+
+        <diffutils.version>1.3.0</diffutils.version>
+
+        <ezvcard.version>0.8.2</ezvcard.version>
+
+        <findbugs.version>1.3.9</findbugs.version>
+
+        <guava.version>19.0</guava.version>
+
+        <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
+        <hazelcast.version>2.6.10</hazelcast.version>
+        <hamcrest.version>1.3</hamcrest.version>
+        <httpclient.version>4.5.2</httpclient.version>
+
+        <jaxb.version>2.2.11</jaxb.version>
+        <jflex.version>1.6.1</jflex.version>
+        <jodatime.version>2.9.2</jodatime.version>
+        <jopt-simple.version>4.8</jopt-simple.version>
+        <jsoup.version>1.8.3</jsoup.version>
+        <junit.version>4.12</junit.version>
+        <jetty.version>9.3.12.v20160915</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.11</jersey.version>
+        <jackson.version>2.7.2</jackson.version>
+
+        <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
+        <log4j.version>1.2.17</log4j.version>
         <lucene.version>4.10.4</lucene.version>
-        <jetty.version>8.1.17.v20150415</jetty.version>
+
+        <!-- TODO: [ES] javax.mail-api 1.5.2 causes gmaven plugin to fail -->
+        <mail.version>1.4.5</mail.version>
+        <mariadb-java-client.version>1.2.0</mariadb-java-client.version>
+        <mockito.version>1.9.5</mockito.version>
+
+        <!-- TODO: [ES] netty 3.10.0 creates excessive threads during integration tests -->
+        <netty.version>3.4.6.Final</netty.version>
+
+        <persistence.version>1.0.2</persistence.version>
+
+        <slf4j.version>1.7.18</slf4j.version>
+        <spring.version>4.3.2.RELEASE</spring.version>
+        <springockito.version>1.0.5</springockito.version>
+        <solrj.version>1.4.1</solrj.version>
+        <stax-utils.version>20070216</stax-utils.version>
+        <spock.version>0.7-groovy-1.8</spock.version>
+
+        <velocity.version>1.7</velocity.version>
+
         <whois.main>OVERRIDE</whois.main>
-        <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
-        <sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
-        <sonar.jdbc.username>dbint</sonar.jdbc.username>
-        <sonar.jdbc.password />
     </properties>
 
     <scm>
@@ -54,6 +111,7 @@
     </distributionManagement>
 
     <modules>
+        <module>whois-rpsl</module>
         <module>whois-client</module>
         <module>whois-commons</module>
         <module>whois-query</module>
@@ -68,6 +126,18 @@
     <dependencyManagement>
         <dependencies>
             <!-- whois modules' artifacts -->
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-rpsl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-rpsl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>net.ripe.db</groupId>
                 <artifactId>whois-client</artifactId>
@@ -167,12 +237,12 @@
             <dependency>
                 <groupId>net.ripe.commons</groupId>
                 <artifactId>commons-ip-math</artifactId>
-                <version>1.20</version>
+                <version>${commons-ip-math.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.jflex</groupId>
                 <artifactId>jflex</artifactId>
-                <version>1.6.0</version>
+                <version>${jflex.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
@@ -212,151 +282,144 @@
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
-                <artifactId>aspectjrt</artifactId>
-                <version>${aspectj.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
                 <version>${aspectj.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.jopt-simple</groupId>
                 <artifactId>jopt-simple</artifactId>
-                <version>4.8</version>
+                <version>${jopt-simple.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.7</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.7.7</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>1.7.7</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>1.2.17</version>
+                <version>${log4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>apache-log4j-extras</artifactId>
-                <version>1.2.17</version>
+                <version>${log4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>18.0</version>
+                <version>${guava.version}</version>
             </dependency>
-            <!-- TODO: [ES] update MySQL connector to latest -->
-            <!-- TODO: [ES] 5.1.34 may be causing "lock wait timeout exceeded" -->
             <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.21</version>
+                <groupId>org.mariadb.jdbc</groupId>
+                <artifactId>mariadb-java-client</artifactId>
+                <version>${mariadb-java-client.version}</version>
             </dependency>
-            <!-- TODO: [ES] update c3p0 to latest -->
-            <!-- TODO: [ES] 0.9.5 may be causing "lock wait timeout exceeded" -->
             <dependency>
-                <groupId>c3p0</groupId>
+                <groupId>com.mchange</groupId>
                 <artifactId>c3p0</artifactId>
-                <version>0.9.1.2</version>
+                <version>${c3po.version}</version>
             </dependency>
-            <!-- TODO: [ES] netty 3.10.0 creates excessive threads during integration tests -->
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty</artifactId>
-                <version>3.4.6.Final</version>
+                <version>${netty.version}</version>
             </dependency>
-            <!-- TODO: [ES] javax.mail-api 1.5.2 causes gmaven plugin to fail -->
             <dependency>
                 <groupId>javax.mail</groupId>
                 <artifactId>mail</artifactId>
-                <version>1.4.5</version>
+                <version>${mail.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
-                <version>2.6.9</version>
+                <version>${hazelcast.version}</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.7</version>
+                <version>${jodatime.version}</version>
             </dependency>
 
             <!-- bouncy castle -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpg-jdk15on</artifactId>
-                <version>1.52</version>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcmail-jdk15on</artifactId>
-                <version>1.52</version>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.52</version>
+                <version>${bouncycastle.version}</version>
             </dependency>
 
             <!-- apache commons -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.4</version>
+                <version>${commons-io.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.10</version>
+                <version>${commons-codec.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.9</version>
+                <version>${commons-compress.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>3.3</version>
+                <version>${commons-net.version}</version>
             </dependency>
-            <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
-                <version>2.6</version>
+                <version>${commons-lang.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
-                <version>1.4.1</version>
+                <version>${commons-validator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
-                <version>1.7</version>
+                <version>${velocity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.4</version>
+                <version>${httpclient.version}</version>
             </dependency>
 
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.8.1</version>
+                <version>${jsoup.version}</version>
             </dependency>
 
             <!-- Jetty as an embedded server -->
@@ -370,6 +433,11 @@
                 <artifactId>jetty-jmx</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlets</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
 
             <!-- Jersey JAX-RS 2.0 implementation -->
             <dependency>
@@ -381,6 +449,13 @@
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
                 <version>${jersey.version}</version>
+                <exclusions>
+                    <!-- aopalliance included by spring-aop dependency -->
+                    <exclusion>
+                        <groupId>org.glassfish.hk2.external</groupId>
+                        <artifactId>aopalliance-repackaged</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
@@ -392,19 +467,19 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-base</artifactId>
-                <version>2.4.4</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>2.4.4</version>
+                <version>${jackson.version}</version>
             </dependency>
 
             <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
                 <groupId>net.java.dev.stax-utils</groupId>
                 <artifactId>stax-utils</artifactId>
-                <version>20070216</version>
+                <version>${stax-utils.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.bea.xml</groupId>
@@ -416,12 +491,12 @@
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb.version}</version>
             </dependency>
 
             <!-- lucene for fulltext search -->
@@ -455,36 +530,25 @@
                 <artifactId>lucene-facet</artifactId>
                 <version>${lucene.version}</version>
             </dependency>
-
-            <!-- contract annotations, see http://blog.jetbrains.com/idea/2013/10/better-control-flow-analysis-with-contract-annotations-and-intellij-idea-13/ -->
-            <dependency>
-                <groupId>org.jetbrains</groupId>
-                <artifactId>annotations</artifactId>
-                <version>13.0</version>
-                <scope>compile</scope>
-            </dependency>
-
             <!-- diffutils -->
             <dependency>
                 <groupId>com.googlecode.java-diff-utils</groupId>
                 <artifactId>diffutils</artifactId>
-                <version>1.2.1</version>
+                <version>${diffutils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.googlecode.ez-vcard</groupId>
+                <artifactId>ez-vcard</artifactId>
+                <version>${ezvcard.version}</version>
             </dependency>
 
             <!-- Solr -->
-            <!-- TODO: [ES] update solr-solrj -->
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
-                <version>1.4.1</version>
+                <version>${solrj.version}</version>
                 <scope>test</scope>
-            </dependency>
-
-            <!-- TODO: [ES] update gson -->
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>2.2.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -499,27 +563,26 @@
         <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>persistence-api</artifactId>
-            <version>1.0.2</version>
+            <version>${persistence.version}</version>
             <scope>compile</scope>
         </dependency>
         <!-- common test dependencies -->
-        <!-- TODO: [ES] update jsr305 -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
-            <version>1.3.9</version>
+            <version>${findbugs.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-core</artifactId>
-            <version>0.7-groovy-1.8</version>
+            <version>${spock.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -531,27 +594,25 @@
         <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-spring</artifactId>
-            <version>0.7-groovy-1.8</version>
+            <version>${spock.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- TODO: [ES] update mockito-core -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
-            <version>1.3</version>
+            <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- TODO: [ES] update springockito-annotations -->
         <dependency>
             <groupId>org.kubek2k</groupId>
             <artifactId>springockito-annotations</artifactId>
-            <version>1.0.5</version>
+            <version>${springockito.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -560,11 +621,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- TODO: [ES] update awaitility -->
         <dependency>
             <groupId>com.jayway.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>1.3.5</version>
+            <version>${awaitility.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -701,6 +761,7 @@
                     </includes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
+                    <reuseForks>true</reuseForks>
                     <excludedGroups>
                         net.ripe.db.whois.common.IntegrationTest,
                         net.ripe.db.whois.common.EndToEndTest,
@@ -737,10 +798,44 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.7</version>
+                <version>1.8</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <!-- [TP] This is a bit ugly part.
+                        aspectjweaver, spring-context, spring-tx libs were removed from whois-rpsl/pom.xml, because they
+                        pull many deps, and no aspects are/should be present in this module. By removing the libs, a lot of
+                        warnings are thrown so it is good to exlude this module from weaver's visibility. However the
+                        aspectj maven plugin, cannot exclude a whole module, and also it expects one source at least
+                        to be found in main and in test in each module, otherwise it fails the compilation with "No sources found".
+                        That is why almost all packages/classes from whois-rpsl are excluded except one in main and one
+                        in test (the commented out ones). There mignt be a better way to do this, but I could not find one.
+                        Ideally whois-rpsl module, should have its unique package name, and not packages shared with other modules.
+                    -->
+                    <excludes>
+                        <exclude>**/generated/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/rpsl/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/domain/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/ip/**</exclude>
+
+                        <exclude>**/net/ripe/db/whois/common/io/ByteArrayInput.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/io/ByteArrayOutput.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/io/RpslObjectFileReader.java</exclude>
+
+                        <!--<exclude>**/net/ripe/db/whois/common/CharacterSetConversion.java</exclude>-->
+
+                        <exclude>**/net/ripe/db/whois/common/io/ByteArrayInputTest.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/io/ByteArrayOutputTest.java</exclude>
+
+                        <exclude>**/net/ripe/db/whois/common/IllegalArgumentExceptionMessage.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
+                        <!--<exclude>**/net/ripe/db/whois/common/CharacterSetConversionTest.java</exclude>-->
+                        <exclude>**/net/ripe/db/whois/common/EndToEndTest.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/IntegrationTest.java</exclude>
+                        <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>
+                    </excludes>
+
                     <complianceLevel>${java.version}</complianceLevel>
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>
@@ -766,7 +861,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.aspectj</groupId>
-                        <artifactId>aspectjrt</artifactId>
+                        <artifactId>aspectjweaver</artifactId>
                         <version>${aspectj.version}</version>
                     </dependency>
                     <dependency>
@@ -788,7 +883,7 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>None</test.groups>
-                <test.forkCount.integration>1</test.forkCount.integration>
+                <test.forkCount.integration>3</test.forkCount.integration>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>None</test.files.integration>
             </properties>

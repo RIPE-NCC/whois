@@ -5,6 +5,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Objects;
+
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
@@ -31,23 +33,18 @@ public final class ObjectKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        final ObjectKey that = (ObjectKey) o;
 
-        final ObjectKey objectKey = (ObjectKey) o;
-        return objectType == objectKey.objectType && pkey.equals(objectKey.pkey);
+        return Objects.equals(objectType, that.objectType) &&
+                Objects.equals(pkey, that.pkey);
     }
 
     @Override
     public int hashCode() {
-        int result = objectType.hashCode();
-        result = 31 * result + pkey.hashCode();
-        return result;
+        return Objects.hash(objectType, pkey);
     }
 
     @Override

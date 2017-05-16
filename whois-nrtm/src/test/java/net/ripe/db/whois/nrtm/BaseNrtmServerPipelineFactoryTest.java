@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
@@ -61,7 +62,7 @@ public class BaseNrtmServerPipelineFactoryTest extends AbstractNrtmIntegrationBa
                         } else {
                             /* non-shared handlers can still be executed in parallel. this is a primitive (and definitely not full) check
                              * for thread safety. It is meant as a basic safety net only. */
-                            if (!Modifier.isVolatile(modifiers) && !Modifier.isFinal(modifiers)) {
+                            if (!Modifier.isVolatile(modifiers) && !Modifier.isFinal(modifiers) && (field.getType() != Annotation.class)) {
                                 fail("Field '" + fieldName + "' in channel handler " + className + " must be volatile or final");
                             }
                         }

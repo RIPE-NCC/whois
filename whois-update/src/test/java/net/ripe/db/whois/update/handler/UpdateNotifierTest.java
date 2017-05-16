@@ -62,7 +62,7 @@ public class UpdateNotifierTest {
     @Test
     public void sendNotifications_single_no_notifications() {
         final Update update = mock(Update.class);
-        final RpslObject rpslObject = RpslObject.parse("" +
+        final RpslObject rpslObject = RpslObject.parse(
                 "mntner: UPD-MNT\n" +
                 "descr: description\n" +
                 "admin-c: TEST-RIPE\n" +
@@ -73,7 +73,6 @@ public class UpdateNotifierTest {
                 "notify: notify2@me.com\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source: TEST\n");
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, rpslObject, Action.CREATE);
@@ -81,17 +80,19 @@ public class UpdateNotifierTest {
         when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
         when(updateContext.getPreparedUpdate(update)).thenReturn(preparedUpdate);
         when(updateContext.getStatus(preparedUpdate)).thenReturn(UpdateStatus.SUCCESS);
+        ResponseMessage responseMessage = new ResponseMessage("Notification of RIPE Database changes", "message");
+        when(responseFactory.createNotification(any(UpdateContext.class), any(Origin.class), any(Notification.class))).thenReturn(responseMessage);
 
         subject.sendNotifications(updateRequest, updateContext);
 
-        verify(mailGateway).sendEmail(eq("notify1@me.com"), any(ResponseMessage.class));
-        verify(mailGateway).sendEmail(eq("notify2@me.com"), any(ResponseMessage.class));
+        verify(mailGateway).sendEmail(eq("notify1@me.com"), eq(responseMessage));
+        verify(mailGateway).sendEmail(eq("notify2@me.com"), eq(responseMessage));
     }
 
     @Test
     public void sendNotifications_sanitized_email() {
         final Update update = mock(Update.class);
-        final RpslObject rpslObject = RpslObject.parse("" +
+        final RpslObject rpslObject = RpslObject.parse(
                 "mntner: UPD-MNT\n" +
                 "descr: description\n" +
                 "admin-c: TEST-RIPE\n" +
@@ -101,7 +102,6 @@ public class UpdateNotifierTest {
                 "notify: notifies us <mailto:notify@me.com>\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source: TEST\n");
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, rpslObject, Action.CREATE);

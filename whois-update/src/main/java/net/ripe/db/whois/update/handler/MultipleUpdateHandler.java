@@ -43,7 +43,7 @@ public class MultipleUpdateHandler {
         this.updateLog = updateLog;
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void handle(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         for (final Update update : updateRequest.getUpdates()) {
             final Stopwatch stopwatch = Stopwatch.createStarted();

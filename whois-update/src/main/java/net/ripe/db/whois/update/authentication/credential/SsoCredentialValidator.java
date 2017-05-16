@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.authentication.credential;
 
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ public class SsoCredentialValidator implements CredentialValidator<SsoCredential
         for (SsoCredential offered : offeredCredentials) {
             if (offered.getOfferedUserSession().getUuid().equals(knownCredential.getKnownUuid())) {
                 log(update, String.format("Validated %s with RIPE NCC Access for user: %s.", update.getFormattedKey(), offered.getOfferedUserSession().getUsername()));
+
+                update.getUpdate().setEffectiveCredential(offered.getOfferedUserSession().getUsername(), Update.EffectiveCredentialType.SSO);
                 return true;
             }
         }

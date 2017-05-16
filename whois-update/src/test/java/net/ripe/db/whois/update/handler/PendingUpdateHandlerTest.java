@@ -21,8 +21,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PendingUpdateHandlerTest {
@@ -46,7 +49,7 @@ public class PendingUpdateHandlerTest {
     public void found_completing_pendingUpdate() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         RpslObject objectBase = RpslObject.parse("route: 193.0/16\norigin: AS12345");
-        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), objectBase, dateTimeProvider.getCurrentDateTime());
+        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), objectBase, dateTimeProvider.getCurrentDate());
 
         when(updateContext.getPendingUpdate(preparedUpdate)).thenReturn(pendingUpdate);
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
@@ -62,7 +65,7 @@ public class PendingUpdateHandlerTest {
     public void found_pendingUpdate_with_same_authenticator() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         RpslObject objectBase = RpslObject.parse("route: 193.0/16\norigin: AS12345");
-        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), objectBase, dateTimeProvider.getCurrentDateTime());
+        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), objectBase, dateTimeProvider.getCurrentDate());
 
         when(updateContext.getPendingUpdate(preparedUpdate)).thenReturn(pendingUpdate);
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);

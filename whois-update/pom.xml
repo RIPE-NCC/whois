@@ -3,13 +3,11 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.84-SNAPSHOT</version>
+        <version>1.90-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>net.ripe.db</groupId>
     <artifactId>whois-update</artifactId>
-    <version>1.84-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -50,11 +48,11 @@
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>c3p0</groupId>
+            <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
         </dependency>
 
@@ -86,7 +84,7 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
-            <artifactId>whois-client</artifactId>
+            <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
     </dependencies>

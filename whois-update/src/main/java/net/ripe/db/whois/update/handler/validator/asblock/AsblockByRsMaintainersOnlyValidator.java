@@ -10,20 +10,11 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class AsblockByRsMaintainersOnlyValidator implements BusinessRuleValidator {
 
-    @Override
-    public List<Action> getActions() {
-        return ImmutableList.of(Action.CREATE, Action.MODIFY);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return ImmutableList.of(ObjectType.AS_BLOCK);
-    }
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.AS_BLOCK);
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -32,5 +23,15 @@ public class AsblockByRsMaintainersOnlyValidator implements BusinessRuleValidato
         if (!(authenticatedByOverride || authenticatedByDbmMaintainer)) {
             updateContext.addMessage(update, UpdateMessages.asblockIsMaintainedByRipe());
         }
+    }
+
+    @Override
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 }

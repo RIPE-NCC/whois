@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
+import java.util.Objects;
+
 public class PasswordCredential implements Credential {
     private final String password;
 
@@ -13,21 +15,17 @@ public class PasswordCredential implements Credential {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        final PasswordCredential that = (PasswordCredential) o;
 
-        PasswordCredential that = (PasswordCredential) o;
-        return password.equals(that.password);
+        return Objects.equals(password, that.password);
     }
 
     @Override
     public int hashCode() {
-        return password.hashCode();
+        return Objects.hash(password);
     }
 
     @Override

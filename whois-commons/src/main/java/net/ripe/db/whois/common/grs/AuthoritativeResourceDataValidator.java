@@ -1,13 +1,7 @@
 package net.ripe.db.whois.common.grs;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.etree.IntervalMap;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,8 +10,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 

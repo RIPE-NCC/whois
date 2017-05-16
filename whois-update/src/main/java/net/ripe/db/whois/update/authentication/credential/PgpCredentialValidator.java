@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
@@ -44,6 +45,7 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential> {
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<PgpCredential> offeredCredentials, final PgpCredential knownCredential) {
         for (final PgpCredential offeredCredential : offeredCredentials) {
             if (verifySignedMessage(update, updateContext, offeredCredential, knownCredential)) {
+                update.getUpdate().setEffectiveCredential(knownCredential.getKeyId(), Update.EffectiveCredentialType.PGP);
                 return true;
             }
         }
@@ -72,7 +74,12 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential> {
             return true;
         }
 
-        log(update, String.format("Failed to validate %s with keyId %s", update.getFormattedKey(), offeredCredential.getKeyId()));
+        try {
+            log(update, String.format("Failed to validate %s with keyId %s", update.getFormattedKey(), offeredCredential.getKeyId()));
+        } catch (IllegalArgumentException e) {
+            log(update, String.format("Failed to validate %s due to exception: %s", update.getFormattedKey(), e.getMessage()));
+        }
+
         return false;
     }
 

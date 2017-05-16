@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common;
 
-import net.ripe.db.whois.common.dao.DatabaseMaintenanceJmx;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.apache.commons.lang.StringUtils;

@@ -7,6 +7,7 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 
 import javax.annotation.Nullable;
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 public class PgpCredential implements Credential {
 
@@ -58,25 +59,18 @@ public class PgpCredential implements Credential {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final PgpCredential that = (PgpCredential) o;
 
-        return (keyId != null ? keyId.equals(that.keyId) : that.keyId == null)
-               && (message != null ? message.equals(that.message) : that.message == null);
+        return Objects.equals(keyId, that.keyId) &&
+                Objects.equals(message, that.message);
     }
 
     @Override
     public int hashCode() {
-        int result = message != null ? message.hashCode() : 0;
-        result = 31 * result + (keyId != null ? keyId.hashCode() : 0);
-        return result;
+        return Objects.hash(message, keyId);
     }
 
     @Override
