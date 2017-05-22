@@ -11,6 +11,8 @@ import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.AbuseContactMapper;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.rpsl.AttributeSyntax;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -59,7 +61,8 @@ public class AbuseContactService {
 
         final QueryBuilder queryBuilder = new QueryBuilder()
                 .addFlag(QueryFlag.NO_GROUPING)
-                .addFlag(QueryFlag.NO_REFERENCED);
+                .addFlag(QueryFlag.NO_REFERENCED)
+                .addCommaList(QueryFlag.SELECT_TYPES, getObjectType(key).getName());
 
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
@@ -112,5 +115,25 @@ public class AbuseContactService {
 
     private boolean isTrusted(final HttpServletRequest request) {
         return accessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
+    }
+
+    private ObjectType getObjectType(final String key) {
+        if (AttributeSyntax.AS_NUMBER_SYNTAX.matches(ObjectType.AUT_NUM, key)) {
+            return ObjectType.AUT_NUM;
+        }
+        else {
+            if (AttributeSyntax.IPV4_SYNTAX.matches(ObjectType.INETNUM, key)) {
+                return ObjectType.INETNUM;
+            }
+            else {
+                if (AttributeSyntax.IPV6_SYNTAX.matches(ObjectType.INET6NUM, key)) {
+                    return ObjectType.INET6NUM;
+                } else {
+                    throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                            .entity(AbuseContactMapper.mapAbuseContactError("Invalid argument: " + key))
+                            .build());
+                }
+            }
+        }
     }
 }
