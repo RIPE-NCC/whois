@@ -1,5 +1,8 @@
 # next
 
+# 1.89.1
+[api] Fix Abuse Contact lookup with matching as-block (filter by object type using key argument).
+
 # 1.89
 [update] Include who changed information in update responses for SSO and PGPKEY authentication
 [update] Replaced dnscheck with Zonemaster service for domain updates
