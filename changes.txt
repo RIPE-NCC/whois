@@ -1,5 +1,8 @@
 # next
 
+# 1.89.2
+[update] Fix Zonemaster configuration
+
 # 1.89.1
 [api] Fix Abuse Contact lookup with matching as-block (filter by object type using key argument).
 
