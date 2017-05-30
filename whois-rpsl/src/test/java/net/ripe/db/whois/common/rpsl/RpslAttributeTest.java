@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class RpslAttributeTest {
     private RpslAttribute subject;
@@ -537,4 +538,45 @@ public class RpslAttributeTest {
         assertThat(subject.getFormattedValue(), is(""));
         assertThat(subject.toString(), is("remarks:\n"));
     }
+
+    @Test
+    public void null_string_key() {
+        try {
+            new RpslAttribute((String)null, "value");
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(), is("Attribute has no key"));
+        }
+    }
+
+    @Test
+    public void null_string_value() {
+        try {
+            new RpslAttribute("remarks", (String)null);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(), is("Attribute remarks has no value"));
+        }
+    }
+
+    @Test
+    public void null_type_key() {
+        try {
+            new RpslAttribute((AttributeType) null, "value");
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(), is("Attribute has no type"));
+        }
+    }
+
+    @Test
+    public void null_type_value() {
+        try {
+            new RpslAttribute(AttributeType.REMARKS, (String) null);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(), is("Attribute remarks has no value"));
+        }
+    }
+
 }
