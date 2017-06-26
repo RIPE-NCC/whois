@@ -18,6 +18,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +57,11 @@ public class OrgNameNotChangedValidatorTest {
     public static final RpslObject UPDATED_ORG_SAME_NAME = RpslObject.parse(20, "" +
             "organisation: ORG-TEST1\n" +
             "org-name: Test Organisation\n" +
+            "org-type: OTHER\n" +
+            "mnt-by: TEST-MNT");
+    public static final RpslObject UPDATED_ORG_CASE_CHANGE = RpslObject.parse(20, "" +
+            "organisation: ORG-TEST1\n" +
+            "org-name: TEST Organisation\n" +
             "org-type: OTHER\n" +
             "mnt-by: TEST-MNT");
     public static final RpslObject UPDATED_ORG_NEW_NAME = RpslObject.parse(30, "" +
@@ -97,6 +103,12 @@ public class OrgNameNotChangedValidatorTest {
         when(maintainers.isRsMaintainer(ciSet("TEST-MNT"))).thenReturn(false);
     }
 
+    @After
+    public void reset() {
+        when(subjectObject.hasPrincipal(Matchers.eq(Principal.RS_MAINTAINER))).thenReturn(false);
+        when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+    }
+
     @Test
     public void getActions() {
         assertThat(subject.getActions(), contains(Action.MODIFY));
@@ -122,9 +134,7 @@ public class OrgNameNotChangedValidatorTest {
     @Test
     public void orgname_changed_not_referenced_at_all() {
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
-
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-
         when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(Collections.EMPTY_SET);
 
         subject.validate(update, updateContext);
@@ -138,10 +148,8 @@ public class OrgNameNotChangedValidatorTest {
     public void orgname_changed_for_lir() {
         // See: LirRipeMaintainedAttributesValidator
         presetOverrideAuthentication();
-
         when(update.getReferenceObject()).thenReturn(ORIGINAL_LIR);
         when(update.getUpdatedObject()).thenReturn(UPDATED_LIR);
-
         presetReferrers(REFERRER_MNT_BY_RS, REFERRER_MNT_BY_LEGACY);
 
         subject.validate(update, updateContext);
@@ -155,7 +163,6 @@ public class OrgNameNotChangedValidatorTest {
     public void orgname_changed_not_referenced_by_resource() {
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-
         when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.PERSON, "TEST-NIC")));
 
         subject.validate(update, updateContext);
@@ -169,7 +176,6 @@ public class OrgNameNotChangedValidatorTest {
     public void orgname_changed_referenced_by_resource_without_RSmntner__no_RSmntner_auth() {
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-
         presetReferrers(REFERRER_MNT_BY_USER);
 
         subject.validate(update, updateContext);
@@ -185,7 +191,6 @@ public class OrgNameNotChangedValidatorTest {
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT")))).thenReturn(true);
-
         presetReferrers(REFERRER_MNT_BY_RS);
 
         subject.validate(update, updateContext);
@@ -201,7 +206,6 @@ public class OrgNameNotChangedValidatorTest {
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("RIPE-NCC-LEGACY-MNT")))).thenReturn(true);
-
         presetReferrers(REFERRER_MNT_BY_LEGACY);
 
         subject.validate(update, updateContext);
@@ -215,10 +219,8 @@ public class OrgNameNotChangedValidatorTest {
     @Test
     public void orgname_changed_referenced_by_resource_with_RS_and_LEGACY_mntner__no_LEGACY_mntner_auth() {
         presetOverrideAuthentication();
-
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-
         presetReferrers(REFERRER_MNT_BY_RS, REFERRER_MNT_BY_LEGACY);
 
         subject.validate(update, updateContext);
@@ -234,10 +236,8 @@ public class OrgNameNotChangedValidatorTest {
     @Test
     public void orgname_changed_referenced_by_resource_with_RSmntner__RSmaintainer_auth() {
         presetOverrideAuthentication();
-
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-
         presetReferrers(REFERRER_MNT_BY_RS);
 
         subject.validate(update, updateContext);
@@ -250,10 +250,8 @@ public class OrgNameNotChangedValidatorTest {
     @Test
     public void orgname_changed_referenced_by_resource_with_LEGACY_mntner__LEGACY_maintainer_auth() {
         presetRsAuthentication();
-
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-
         presetReferrers(REFERRER_MNT_BY_LEGACY);
 
         subject.validate(update, updateContext);
@@ -266,10 +264,8 @@ public class OrgNameNotChangedValidatorTest {
     @Test
     public void orgname_changed_referenced_by_resource_with_RSmntner__auth_by_override() {
         presetOverrideAuthentication();
-
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-
         presetReferrers(REFERRER_MNT_BY_RS);
 
         subject.validate(update, updateContext);
@@ -282,10 +278,8 @@ public class OrgNameNotChangedValidatorTest {
     @Test
     public void orgname_changed_referenced_by_resource_with_LEGACY_mntner__auth_by_override() {
         presetOverrideAuthentication();
-
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-
         presetReferrers(REFERRER_MNT_BY_LEGACY);
 
         subject.validate(update, updateContext);
@@ -298,10 +292,8 @@ public class OrgNameNotChangedValidatorTest {
     @Test
     public void orgname_changed_referenced_by_resource_with_RS_and_LEGACY_mntner__auth_by_override() {
         presetOverrideAuthentication();
-
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-
         presetReferrers(REFERRER_MNT_BY_RS, REFERRER_MNT_BY_LEGACY);
 
         subject.validate(update, updateContext);
@@ -310,6 +302,23 @@ public class OrgNameNotChangedValidatorTest {
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
         verifyZeroInteractions(maintainers);
     }
+
+    @Test
+    public void orgname_changed_referenced_by_resource_with_RSmntner_change_is_case_sensitive() {
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_CASE_CHANGE);
+        when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT")))).thenReturn(true);
+        presetReferrers(REFERRER_MNT_BY_RS);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext).addMessage(update, ORIGINAL_ORG.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
+        verifyNoMoreInteractions(maintainers);
+    }
+
+    // helper methods
 
     private void presetRsAuthentication() {
         when(subjectObject.hasPrincipal(Matchers.eq(Principal.RS_MAINTAINER))).thenReturn(true);
