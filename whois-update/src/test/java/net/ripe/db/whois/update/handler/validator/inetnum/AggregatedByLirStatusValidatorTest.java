@@ -363,18 +363,6 @@ public class AggregatedByLirStatusValidatorTest {
     }
 
     @Test
-    public void modify_permissive_status() {
-        when(update.getAction()).thenReturn(Action.MODIFY);
-
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("inet6num: ffee::/48\nstatus:ALLOCATED-BY-LIR"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffee::/48\nassignment-size: 48\nstatus:ALLOCATED-BY-LIR"));
-
-        subject.validate(update, updateContext);
-
-        verifyZeroInteractions(updateContext);
-    }
-
-    @Test
     public void create_has_assSize_when_it_should_not() {
         when(update.getAction()).thenReturn(Action.CREATE);
         final RpslObject rpslObject = RpslObject.parse("inet6num: ffee::/48\nassignment-size: 48\nstatus:ALLOCATED-BY-LIR");
