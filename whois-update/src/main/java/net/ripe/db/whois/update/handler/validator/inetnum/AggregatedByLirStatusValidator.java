@@ -142,12 +142,12 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
         final RpslAttribute updatedStatus = update.getUpdatedObject().findAttribute(AttributeType.STATUS);
 
         final Inet6numStatus inet6numStatus = Inet6numStatus.getStatusFor(updatedStatus.getCleanValue());
-        if (inet6numStatus.equals(Inet6numStatus.AGGREGATED_BY_LIR) && assignmentSizeHasChanged(update)) {
-            updateContext.addMessage(update, UpdateMessages.cantChangeAssignmentSize());
-        }
-
-        if(!inet6numStatus.equals(Inet6numStatus.AGGREGATED_BY_LIR) && assignmentSizeHasChanged(update))  {
-            addMessagesForAttributeAssignmentSizeNotAllowed(update.getUpdatedObject(), update, updateContext);
+        if (assignmentSizeHasChanged(update)) {
+            if(inet6numStatus.equals(Inet6numStatus.AGGREGATED_BY_LIR)) {
+                updateContext.addMessage(update, UpdateMessages.cantChangeAssignmentSize());
+            } else {
+                addMessagesForAttributeAssignmentSizeNotAllowed(update.getUpdatedObject(), update, updateContext);
+            }
         }
     }
 
