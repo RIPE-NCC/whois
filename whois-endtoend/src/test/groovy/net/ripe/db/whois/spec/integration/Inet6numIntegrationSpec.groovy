@@ -449,7 +449,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         password: emptypassword
                                     """.stripIndent()))
 
-        def update = syncUpdate(new SyncUpdate(data: """\
+        def child = syncUpdate(new SyncUpdate(data: """\
                                         inet6num: 2001::/64
                                         netname: RIPE-NCC
                                         descr: some descr
@@ -464,10 +464,10 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                     """.stripIndent()))
         expect:
         parent =~ /SUCCESS/
-        update =~ /SUCCESS/
+        child =~ /SUCCESS/
 
         when:
-        def updateWithAssignmentSize = syncUpdate(new SyncUpdate(data: """\
+        def update = syncUpdate(new SyncUpdate(data: """\
                                         inet6num: 2001::/64
                                         netname: RIPE-NCC
                                         descr: some descr
@@ -483,7 +483,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                     """.stripIndent()))
 
         then:
-        updateWithAssignmentSize.contains("" +
+        update.contains("" +
                 "assignment-size: 32\n" +
                 "***Error:   \"assignment-size:\" attribute only allowed with status\n" +
                 "            AGGREGATED-BY-LIR")
