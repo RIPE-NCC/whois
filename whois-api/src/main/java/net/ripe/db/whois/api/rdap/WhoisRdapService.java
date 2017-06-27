@@ -67,7 +67,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.Collection;
@@ -492,8 +491,8 @@ public class WhoisRdapService {
 
     private class RdapAnalyzer extends Analyzer {
         @Override
-        protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-            final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(reader);
+        protected TokenStreamComponents createComponents(final String fieldName) {
+            final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer();
             TokenStream tok = new WordDelimiterFilter(
                     tokenizer,
                     WordDelimiterFilter.PRESERVE_ORIGINAL,

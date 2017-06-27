@@ -20,10 +20,10 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.facet.FacetField;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -83,21 +83,21 @@ public class FullTextIndex extends RebuildableIndex {
 
         // field can be used for searching (including partial matches) but NOT sorting
         INDEXED_AND_TOKENIZED = new FieldType();
-        INDEXED_AND_TOKENIZED.setIndexed(true);
+        INDEXED_AND_TOKENIZED.setIndexOptions(IndexOptions.NONE);
         INDEXED_AND_TOKENIZED.setStored(true);
         INDEXED_AND_TOKENIZED.setTokenized(true);
         INDEXED_AND_TOKENIZED.freeze();
 
         // field can be used for sorting, and searching (but no partial matches)
         INDEXED_NOT_TOKENIZED = new FieldType();
-        INDEXED_NOT_TOKENIZED.setIndexed(true);
+        INDEXED_NOT_TOKENIZED.setIndexOptions(IndexOptions.DOCS);       // TODO: [ES] check value
         INDEXED_NOT_TOKENIZED.setStored(true);
         INDEXED_NOT_TOKENIZED.setTokenized(false);
         INDEXED_NOT_TOKENIZED.freeze();
 
         // field can be used for sorting, but not for searching
         NOT_INDEXED_NOT_TOKENIZED = new FieldType();
-        NOT_INDEXED_NOT_TOKENIZED.setIndexed(false);
+        NOT_INDEXED_NOT_TOKENIZED.setIndexOptions(IndexOptions.DOCS);
         NOT_INDEXED_NOT_TOKENIZED.setStored(true);
         NOT_INDEXED_NOT_TOKENIZED.setTokenized(false);
         NOT_INDEXED_NOT_TOKENIZED.freeze();
@@ -123,7 +123,7 @@ public class FullTextIndex extends RebuildableIndex {
             return;
         }
 
-        super.init(new IndexWriterConfig(Version.LUCENE_4_10_4, INDEX_ANALYZER)
+        super.init(new IndexWriterConfig(INDEX_ANALYZER)
                         .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
                 new IndexTemplate.WriteCallback() {
                     @Override

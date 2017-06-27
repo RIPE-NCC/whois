@@ -9,7 +9,6 @@ import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
 import org.apache.lucene.analysis.util.CharArraySet;
 
-import java.io.Reader;
 import java.util.List;
 
 public class FullTextAnalyzer extends Analyzer {
@@ -29,8 +28,8 @@ public class FullTextAnalyzer extends Analyzer {
     }
 
     @Override
-    protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-        final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(reader);
+    protected TokenStreamComponents createComponents(final String fieldName) {
+        final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer();
 
         final CharArraySet stopSet = new CharArraySet(STOP_WORDS.size(), true);
         stopSet.addAll(STOP_WORDS);
