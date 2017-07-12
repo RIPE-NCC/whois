@@ -165,15 +165,15 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
 
     public static class DsInfo {
         @JsonProperty("keytag")
-        private String keyTag;
+        private int keyTag;
         @JsonProperty
-        private String algorithm;
+        private int algorithm;
         @JsonProperty("digtype")
-        private String digestType;
+        private int digestType;
         @JsonProperty
         private String digest;
 
-        public DsInfo(final String keyTag, final String algorithm, final String digestType, final String digest) {
+        public DsInfo(final int keyTag, final int algorithm, final int digestType, final String digest) {
             this.keyTag = keyTag;
             this.algorithm = algorithm;
             this.digestType = digestType;
