@@ -49,9 +49,11 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
             params.setDsInfos(parseDsRdata(rpslObject.getValuesForAttribute(AttributeType.DS_RDATA)));
         }
 
+
         this.params = params;
     }
 
+    // TODO: [ES] replace STRING_SPLITTER with NServer.parse()
     private List<StartDomainTestRequest.Nameserver> parseNameservers(final Set<CIString> nserverValues) {
         final List<StartDomainTestRequest.Nameserver> nameservers = Lists.newArrayList();
         for (CIString nserverValue : nserverValues) {
@@ -61,15 +63,15 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         return nameservers;
     }
 
-    private List<StartDomainTestRequest.DsInfo> parseDsRdata(final Set<CIString> values) {
+    private List<StartDomainTestRequest.DsInfo> parseDsRdata(final Set<CIString> dsRdataValues) {
         final List<StartDomainTestRequest.DsInfo> dsInfos = Lists.newArrayList();
-        for (CIString value : values) {
+        for (CIString dsRdataValue : dsRdataValues) {
             try {
-                final DsRdata dsRdata = DsRdata.parse(value);
+                final DsRdata dsRdata = DsRdata.parse(dsRdataValue);
                 dsInfos.add(new StartDomainTestRequest.DsInfo(dsRdata.getKeytag(), dsRdata.getAlgorithm(), dsRdata.getDigestType(), dsRdata.getDigestHexString()));
             } catch (AttributeParseException e) {
                 // this should not happen: ds-rdata attributes have already been validated
-                throw new IllegalArgumentException("invalid dsRdata " + value + ": " + e.getMessage());
+                throw new IllegalArgumentException("invalid dsRdata " + dsRdataValue + ": " + e.getMessage());
             }
         }
         return dsInfos;
