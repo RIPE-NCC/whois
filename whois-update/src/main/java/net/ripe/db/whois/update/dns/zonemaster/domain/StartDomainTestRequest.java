@@ -8,6 +8,8 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
+import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 
 import java.util.Collections;
@@ -59,15 +61,15 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         return nameservers;
     }
 
-    private List<StartDomainTestRequest.DsInfo> parseDsRdata(final Set<CIString> dsRdata) {
+    private List<StartDomainTestRequest.DsInfo> parseDsRdata(final Set<CIString> values) {
         final List<StartDomainTestRequest.DsInfo> dsInfos = Lists.newArrayList();
-        for (CIString dsRdataLine : dsRdata) {
-            final List<String> dsParts = SPACE_SPLITTER.splitToList(dsRdataLine.toString().trim());
-            if (dsParts.size() == 4) {
-                dsInfos.add(new StartDomainTestRequest.DsInfo(dsParts.get(0), dsParts.get(1), dsParts.get(2), dsParts.get(3)));
-            } else {
+        for (CIString value : values) {
+            try {
+                final DsRdata dsRdata = DsRdata.parse(value);
+                dsInfos.add(new StartDomainTestRequest.DsInfo(dsRdata.getKeytag(), dsRdata.getAlgorithm(), dsRdata.getDigestType(), dsRdata.getDigestHexString()));
+            } catch (AttributeParseException e) {
                 // this should not happen: ds-rdata attributes have already been validated
-                throw new IllegalArgumentException("invalid dsRdata: " + dsRdataLine);
+                throw new IllegalArgumentException("invalid dsRdata " + value + ": " + e.getMessage());
             }
         }
         return dsInfos;
