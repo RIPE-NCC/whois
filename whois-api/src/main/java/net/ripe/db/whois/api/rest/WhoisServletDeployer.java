@@ -27,6 +27,7 @@ import java.util.EnumSet;
 public class WhoisServletDeployer implements ServletDeployer {
 
     private final WhoisRestService whoisRestService;
+    private final WhoisSearchService whoisSearchService;
     private final SyncUpdatesService syncUpdatesService;
     private final AsnTransfersRestService asnTransfersRestService;
     private final InetnumTransfersRestService inetnumTransfersRestService;
@@ -42,6 +43,7 @@ public class WhoisServletDeployer implements ServletDeployer {
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
+                                final WhoisSearchService whoisSearchService,
                                 final SyncUpdatesService syncUpdatesService,
                                 final AsnTransfersRestService asnTransfersRestService,
                                 final InetnumTransfersRestService inetnumTransfersRestService,
@@ -55,6 +57,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final DomainObjectService domainObjectService,
                                 final FullTextSearch fullTextSearch) {
         this.whoisRestService = whoisRestService;
+        this.whoisSearchService = whoisSearchService;
         this.syncUpdatesService = syncUpdatesService;
         this.asnTransfersRestService = asnTransfersRestService;
         this.inetnumTransfersRestService = inetnumTransfersRestService;
@@ -78,6 +81,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         EncodingFilter.enableFor(resourceConfig, DeflateEncoder.class);
         resourceConfig.register(MultiPartFeature.class);
         resourceConfig.register(whoisRestService);
+        resourceConfig.register(whoisSearchService);
         resourceConfig.register(syncUpdatesService);
         resourceConfig.register(asnTransfersRestService);
         resourceConfig.register(inetnumTransfersRestService);
