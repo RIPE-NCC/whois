@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -127,7 +126,7 @@ public class RestServiceHelper {
     }
 
     public static WebApplicationException createWebApplicationException(final RuntimeException exception, final HttpServletRequest request) {
-        return createWebApplicationException(exception, request, Collections.emptyList());
+        return createWebApplicationException(exception, request, Lists.newArrayList());
     }
 
     public static WebApplicationException createWebApplicationException(final RuntimeException exception, final HttpServletRequest request, final List<Message> messages) {
