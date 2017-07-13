@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest.search;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
@@ -11,7 +12,6 @@ import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,20 +23,20 @@ import java.util.List;
 @Component
 public class ResourceHolderSearch {
 
-    private static final CIString RIPE_NCC_HOSTMASTER_MNTNER = CIString.ciString("RIPE-NCC-HM-MNT");
-    private static final CIString RIPE_NCC_LEGACY_MNTNER = CIString.ciString("RIPE-NCC-LEGACY-MNT");
-
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
+    private final Maintainers maintainers;
     private final RpslObjectDao rpslObjectDao;
 
     @Autowired
     public ResourceHolderSearch(
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
+            final Maintainers maintainers,
             final RpslObjectDao rpslObjectDao) {
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
+        this.maintainers = maintainers;
         this.rpslObjectDao = rpslObjectDao;
     }
 
@@ -73,13 +73,10 @@ public class ResourceHolderSearch {
 
         for (IpEntry ipEntry : Lists.reverse(findParentsInTree(interval))) {
             final RpslObject parent = lookup(ipEntry);
-            if (parent != null) {
-                // TODO: [ES] logic may not handle user default maintainer properly
-                if (hasUserMntBy(parent) || hasUserMntLower(parent)) {
-                    final RpslObject org = lookupOrganisation(parent.getValueOrNullForAttribute(AttributeType.ORG));
-                    if (org != null) {
-                        return new ResourceHolder(org.getKey(), org.getValueOrNullForAttribute(AttributeType.ORG_NAME));
-                    }
+            if ((parent != null) && !isMaintainedByRs(parent)) {
+                final RpslObject org = lookupOrganisation(parent.getValueOrNullForAttribute(AttributeType.ORG));
+                if (org != null) {
+                    return new ResourceHolder(org.getKey(), org.getValueOrNullForAttribute(AttributeType.ORG_NAME));
                 }
             }
         }
@@ -87,22 +84,8 @@ public class ResourceHolderSearch {
         return null;
     }
 
-    private boolean hasUserMntBy(final RpslObject rpslObject) {
-        for (RpslAttribute mntBy : rpslObject.findAttributes(AttributeType.MNT_BY)) {
-            if (!RIPE_NCC_HOSTMASTER_MNTNER.equals(mntBy.getValue()) && !RIPE_NCC_LEGACY_MNTNER.equals(mntBy.getValue())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasUserMntLower(final RpslObject rpslObject) {
-        for (RpslAttribute mntLower : rpslObject.findAttributes(AttributeType.MNT_LOWER)) {
-            if (!RIPE_NCC_HOSTMASTER_MNTNER.equals(mntLower.getValue())) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isMaintainedByRs(final RpslObject inetObject) {
+        return maintainers.isRsMaintainer(inetObject.getValuesForAttribute(AttributeType.MNT_BY, AttributeType.MNT_LOWER));
     }
 
     @Nullable
