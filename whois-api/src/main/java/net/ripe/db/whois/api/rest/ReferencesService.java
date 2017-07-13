@@ -734,7 +734,7 @@ public class ReferencesService {
 
     private void throwBadRequest(final HttpServletRequest request, final Message message) {
         throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                .entity(WhoisServiceUtils.createErrorEntity(request, message))
+                .entity(RestServiceHelper.createErrorEntity(request, message))
                 .build());
     }
 
