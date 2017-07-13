@@ -159,7 +159,6 @@ public class WhoisRestService {
     private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
-    private final WhoisService whoisService;
     private final LoggerContext loggerContext;
 
     @Autowired
@@ -171,7 +170,6 @@ public class WhoisRestService {
                             final WhoisObjectServerMapper whoisObjectServerMapper,
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
-                            final WhoisService whoisService,
                             final LoggerContext loggerContext) {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
@@ -181,7 +179,6 @@ public class WhoisRestService {
         this.whoisObjectServerMapper = whoisObjectServerMapper;
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
-        this.whoisService = whoisService;
         this.loggerContext = loggerContext;
     }
 
@@ -345,7 +342,7 @@ public class WhoisRestService {
 
         if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source)))
+                    .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.invalidSource(source)))
                     .build());
         }
 
@@ -395,7 +392,7 @@ public class WhoisRestService {
 
         if (versions.isEmpty() && deleted.isEmpty()) {
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                    .entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors()))
+                    .entity(WhoisServiceUtils.createErrorEntity(request, versionsResponseHandler.getErrors()))
                     .build());
         }
 
@@ -404,7 +401,7 @@ public class WhoisRestService {
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setVersions(whoisVersions);
-        whoisResources.setErrorMessages(whoisService.createErrorMessages(versionsResponseHandler.getErrors()));
+        whoisResources.setErrorMessages(WhoisServiceUtils.createErrorMessages(versionsResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
         return Response.ok(whoisResources).build();
@@ -436,7 +433,7 @@ public class WhoisRestService {
 
         if (versionWithRpslResponseObject == null) {
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                    .entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors()))
+                    .entity(WhoisServiceUtils.createErrorEntity(request, versionsResponseHandler.getErrors()))
                     .build());
         }
 
@@ -445,7 +442,7 @@ public class WhoisRestService {
         final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject(), FormattedServerAttributeMapper.class);
         whoisObject.setVersion(versionWithRpslResponseObject.getVersion());
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        whoisResources.setErrorMessages(whoisService.createErrorMessages(versionsResponseHandler.getErrors()));
+        whoisResources.setErrorMessages(WhoisServiceUtils.createErrorMessages(versionsResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
         return Response.ok(whoisResources).build();
@@ -509,19 +506,19 @@ public class WhoisRestService {
     private void validateSearchKey(final HttpServletRequest request, final String searchKey) {
         if (StringUtils.isBlank(searchKey)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.queryStringEmpty()))
+                    .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.queryStringEmpty()))
                     .build());
         }
 
         try {
             if (QueryParser.hasFlags(searchKey)) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                        .entity(whoisService.createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString()))
+                        .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString()))
                         .build());
             }
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString()))
+                    .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString()))
                     .build());
         }
     }
@@ -530,7 +527,7 @@ public class WhoisRestService {
         for (final String source : sources) {
             if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                        .entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source)))
+                        .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.invalidSource(source)))
                         .build());
             }
         }
@@ -555,7 +552,7 @@ public class WhoisRestService {
                         separateFlags.add(forShortFlag);
                     } else {
                         throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                                .entity(whoisService.createErrorEntity(request, RestMessages.invalidSearchFlag(flagParameter, flagString)))
+                                .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.invalidSearchFlag(flagParameter, flagString)))
                                 .build());
                     }
                 }
@@ -568,7 +565,7 @@ public class WhoisRestService {
         for (final QueryFlag flag : flags) {
             if (NOT_ALLOWED_SEARCH_QUERY_FLAGS.contains(flag)) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                        .entity(whoisService.createErrorEntity(request, RestMessages.disallowedSearchFlag(flag)))
+                        .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.disallowedSearchFlag(flag)))
                         .build());
             }
         }
@@ -578,7 +575,7 @@ public class WhoisRestService {
         final int size = (whoisResources == null || CollectionUtils.isEmpty(whoisResources.getWhoisObjects())) ? 0 : whoisResources.getWhoisObjects().size();
         if (size != 1) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.singleObjectExpected(size)))
+                    .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.singleObjectExpected(size)))
                     .build());
         }
 
@@ -588,13 +585,13 @@ public class WhoisRestService {
     private void validateSubmittedUpdateObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
         if (!object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType, key)))
+                    .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.uriMismatch(objectType, key)))
                     .build());
         }
 
         if (!object.getKey().equals(key)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.pkeyMismatch(key)))
+                    .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.pkeyMismatch(key)))
                     .build());
         }
     }
@@ -602,7 +599,7 @@ public class WhoisRestService {
     private void validateSubmittedCreateObject(final HttpServletRequest request, final RpslObject object, final String objectType) {
         if (!object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType)))
+                    .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.uriMismatch(objectType)))
                     .build());
         }
     }
@@ -680,7 +677,7 @@ public class WhoisRestService {
         }
 
         if (!messages.isEmpty()) {
-            responseBuilder.entity(whoisService.createErrorEntity(request, messages));
+            responseBuilder.entity(WhoisServiceUtils.createErrorEntity(request, messages));
         }
         return new WebApplicationException(responseBuilder.build());
     }
@@ -688,7 +685,7 @@ public class WhoisRestService {
     private void checkForMainSource(final HttpServletRequest request, final String source) {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source)))
+                    .entity(WhoisServiceUtils.createErrorEntity(request, RestMessages.invalidSource(source)))
                     .build());
         }
     }
@@ -734,7 +731,7 @@ public class WhoisRestService {
 
                 if (!responseHandler.rpslObjectFound()) {
                     throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                            .entity(whoisService.createErrorEntity(request, responseHandler.flushAndGetErrors()))
+                            .entity(WhoisServiceUtils.createErrorEntity(request, responseHandler.flushAndGetErrors()))
                             .build());
                 }
                 responseHandler.flushAndGetErrors();
@@ -827,7 +824,7 @@ public class WhoisRestService {
 
                 streamingMarshal.end("objects");
                 if (errors.size() > 0) {
-                    streamingMarshal.write("errormessages", whoisService.createErrorMessages(errors));
+                    streamingMarshal.write("errormessages", WhoisServiceUtils.createErrorMessages(errors));
                     errors.clear();
                 }
 

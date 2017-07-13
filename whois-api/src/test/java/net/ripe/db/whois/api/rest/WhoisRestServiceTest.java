@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -32,7 +31,6 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,7 +44,6 @@ public class WhoisRestServiceTest {
     @Mock RpslObjectDao rpslObjectDao;
     @Mock QueryHandler queryHandler;
     @Mock HttpServletRequest request;
-    @Mock WhoisService whoisService;
     @Mock WhoisResources whoisResources;
     @Mock UpdateContext updateContext;
 
@@ -60,7 +57,6 @@ public class WhoisRestServiceTest {
         source = Source.slave("TEST");
         when(sourceContext.getCurrentSource()).thenReturn(source);
         when(sourceContext.getAllSourceNames()).thenReturn(CIString.ciSet("TEST", "TEST-GRS"));
-        when(whoisService.createErrorEntity(eq(request), Matchers.<Message[]>anyVararg())).thenReturn(whoisResources);
         when(whoisResources.getErrorMessages()).thenReturn(Lists.newArrayList(new ErrorMessage(new Message(Messages.Type.ERROR, "Disallowed search flag '%s'"))));
         when(request.getRequestURL()).thenReturn(new StringBuffer());
     }

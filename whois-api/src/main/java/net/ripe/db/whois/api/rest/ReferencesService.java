@@ -94,7 +94,6 @@ public class ReferencesService {
     private final SourceContext sourceContext;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
-    private final WhoisService whoisService;
     private final LoggerContext loggerContext;
     private final WhoisObjectMapper whoisObjectMapper;
     private final Map dummyMap;
@@ -107,7 +106,6 @@ public class ReferencesService {
             final SourceContext sourceContext,
             final InternalUpdatePerformer updatePerformer,
             final SsoTranslator ssoTranslator,
-            final WhoisService whoisService,
             final LoggerContext loggerContext,
             final WhoisObjectMapper whoisObjectMapper,
             final @Value("#{${whois.dummy}}") Map<String, String> dummyMap) {
@@ -117,7 +115,6 @@ public class ReferencesService {
         this.sourceContext = sourceContext;
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
-        this.whoisService = whoisService;
         this.loggerContext = loggerContext;
         this.whoisObjectMapper = whoisObjectMapper;
         this.dummyMap = dummyMap;
@@ -725,8 +722,6 @@ public class ReferencesService {
         return references;
     }
 
-    // helper methods
-
     private void auditlogRequest(final HttpServletRequest request) {
         loggerContext.log(new HttpRequestMessage(request));
     }
@@ -739,20 +734,12 @@ public class ReferencesService {
 
     private void throwBadRequest(final HttpServletRequest request, final Message message) {
         throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                .entity(whoisService.createErrorEntity(request, message))
+                .entity(WhoisServiceUtils.createErrorEntity(request, message))
                 .build());
     }
 
     private Response badRequest(final String message) {
         return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
-    }
-
-    private Response internalServerError(final String message) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
-    }
-
-    private Response ok(final Object message) {
-        return Response.ok(message).build();
     }
 
     // model classes
