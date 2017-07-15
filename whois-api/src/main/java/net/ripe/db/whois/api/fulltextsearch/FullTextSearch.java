@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.search.IndexTemplate;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
