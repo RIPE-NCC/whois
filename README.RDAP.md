@@ -51,10 +51,6 @@ Reserved AS numbers
 
 For example: curl -v https://rdap.db.ripe.net/autnum/65535
 
-"parentHandle" on resources
----------------------------
-The parentHandle element is not set on inetnum or inet6num resources.
-
 The jCard adr (address) property value is set to "null"
 -------------------------------------------------------
 The jCard adr (address) property value is incorrectly set to "null", and the address is set in the "label" element instead.
