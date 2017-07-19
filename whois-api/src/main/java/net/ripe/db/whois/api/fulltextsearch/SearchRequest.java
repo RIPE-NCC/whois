@@ -1,7 +1,11 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
+import com.google.common.base.MoreObjects;
 import org.apache.commons.lang.Validate;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public final class SearchRequest {
 
     private final int rows;
@@ -67,6 +71,20 @@ public final class SearchRequest {
 
     public String getFormat() {
         return this.format;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(SearchRequest.class)
+                .add("rows", rows)
+                .add("start", start)
+                .add("query", query)
+                .add("highlight", highlight)
+                .add("highlightPre", highlightPre)
+                .add("highlightPost", highlightPost)
+                .add("facet", facet)
+                .add("format", format)
+                .toString();
     }
 
     public static class SearchRequestBuilder {

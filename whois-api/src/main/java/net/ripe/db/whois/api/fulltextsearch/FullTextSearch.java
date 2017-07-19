@@ -108,6 +108,8 @@ public class FullTextSearch {
     public SearchResponse search(final SearchRequest searchRequest) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
+        LOGGER.info("search {}", searchRequest.toString());
+
         final QueryParser queryParser = new MultiFieldQueryParser(FullTextIndex.FIELD_NAMES, FullTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
 
