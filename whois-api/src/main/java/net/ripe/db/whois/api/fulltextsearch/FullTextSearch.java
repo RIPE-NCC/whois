@@ -115,7 +115,7 @@ public class FullTextSearch {
 
         final Query query;
         try {
-            query = queryParser.parse(escape(searchRequest.getQuery()));
+            query = queryParser.parse(escapeQuery(searchRequest.getQuery()));
         } catch (ParseException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -167,7 +167,7 @@ public class FullTextSearch {
         }
     }
 
-    private String escape(final String value) {
+    private String escapeQuery(final String value) {
         return value.replaceAll("[/]", "\\\\/");
     }
 
@@ -216,7 +216,7 @@ public class FullTextSearch {
         final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
         final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
 
-        final SimpleHTMLFormatter formatter = new SimpleHTMLFormatter(escape(searchRequest.getHighlightPre()), escape(searchRequest.getHighlightPost()));
+        final SimpleHTMLFormatter formatter = new SimpleHTMLFormatter(searchRequest.getHighlightPre(), searchRequest.getHighlightPost());
 
         final Highlighter highlighter = new Highlighter(formatter, new QueryScorer(query));
         highlighter.setTextFragmenter(new SimpleFragmenter(Integer.MAX_VALUE));
