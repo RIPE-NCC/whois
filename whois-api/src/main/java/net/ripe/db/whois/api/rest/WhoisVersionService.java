@@ -47,15 +47,13 @@ public class WhoisVersionService {
     private final WhoisObjectMapper whoisObjectMapper;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
 
-
     @Autowired
     public WhoisVersionService(
             final AccessControlListManager accessControlListManager,
             final QueryHandler queryHandler,
             final SourceContext sourceContext,
             final WhoisObjectMapper whoisObjectMapper,
-            final WhoisObjectServerMapper whoisObjectServerMapper
-    ) {
+            final WhoisObjectServerMapper whoisObjectServerMapper) {
         this.accessControlListManager = accessControlListManager;
         this.queryHandler = queryHandler;
         this.sourceContext = sourceContext;

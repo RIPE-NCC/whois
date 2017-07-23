@@ -126,7 +126,12 @@ public class WhoisSearchService {
             @QueryParam("exclude-tag") final Set<String> excludeTags,
             @QueryParam("type-filter") final Set<String> types,
             @QueryParam("flags") final Set<String> flags,
-            @QueryParam("unformatted") final String unformatted) {
+            @QueryParam("unformatted") final String unformatted,
+            @QueryParam("managed-attributes") final Boolean managedAttributes,          // TODO: annotate RIPE NCC managed attributes
+            @QueryParam("resource-holder") final Boolean resourceHolder,                // TODO: annotate resource holder (org id and name)
+            @QueryParam("abuse-contact") final Boolean abuseContact,                    // TODO: annotate abuse contact email and nic-hdl
+            @QueryParam("limit") final Integer limit,                                   // TODO: objects to return
+            @QueryParam("offset") final Integer offset) {                               // TODO: offset starting position
 
         validateSources(request, sources);
         validateSearchKey(request, searchKey);
@@ -148,13 +153,18 @@ public class WhoisSearchService {
 
         final Query query = Query.parse(queryBuilder.build(searchKey), Query.Origin.REST, isTrusted(request));
 
-        final Parameters parameters = new Parameters(
-                new InverseAttributes(inverseAttributes),
-                new TypeFilters(types),
-                new Flags(separateFlags),
-                new QueryStrings(new QueryString(searchKey)),
-                new Sources(sources),
-                null);
+        final Parameters parameters = new Parameters.Builder()
+                .inverseAttributes(new InverseAttributes(inverseAttributes))
+                .typeFilters(new TypeFilters(types))
+                .flags(new Flags(separateFlags))
+                .queryStrings(new QueryStrings(new QueryString(searchKey)))
+                .sources(new Sources(sources))
+                .managedAttributes(managedAttributes)
+                .resourceHolder(resourceHolder)
+                .abuseContact(abuseContact)
+                .limit(limit)
+                .offset(offset)
+                .build();
 
         return rpslObjectStreamer.handleQueryAndStreamResponse(
                 query,
@@ -208,14 +218,14 @@ public class WhoisSearchService {
     private Set<QueryFlag> splitInputFlags(final HttpServletRequest request, final Set<String> inputFlags) {
         final Set<QueryFlag> separateFlags = Sets.newLinkedHashSet();  // reporting errors should happen in the same order
         for (final String flagParameter : inputFlags) {
-            QueryFlag forLongFlag = QueryFlag.getForLongFlag(flagParameter);
+            final QueryFlag forLongFlag = QueryFlag.getForLongFlag(flagParameter);
             if (forLongFlag != null) {
                 separateFlags.add(forLongFlag);
             } else {
                 final CharacterIterator charIterator = new StringCharacterIterator(flagParameter);
                 for (char flag = charIterator.first(); flag != CharacterIterator.DONE; flag = charIterator.next()) {
                     final String flagString = String.valueOf(flag);
-                    QueryFlag forShortFlag = QueryFlag.getForShortFlag(flagString);
+                    final QueryFlag forShortFlag = QueryFlag.getForShortFlag(flagString);
                     if (forShortFlag != null) {
                         separateFlags.add(forShortFlag);
                     } else {

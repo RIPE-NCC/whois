@@ -56,6 +56,11 @@ public class WhoisSearchServiceTest {
                         Collections.EMPTY_SET,
                         Collections.EMPTY_SET,
                         Sets.newHashSet(disallowedFlag),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
                         null);
                 fail("Disallowed option " + disallowedFlag + " did not throw error");
             } catch (WebApplicationException e) {
