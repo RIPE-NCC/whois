@@ -55,10 +55,9 @@ public class RpslObjectStreamer {
     public Response handleQueryAndStreamResponse(final Query query,
                                                   final HttpServletRequest request,
                                                   final InetAddress remoteAddress,
-                                                  @Nullable final Parameters parameters,
-                                                  @Nullable final Service service,
-                                                  final boolean unformatted) {
-        return Response.ok(new Streamer(request, query, remoteAddress, parameters, service, unformatted)).build();
+                                                  final Parameters parameters,
+                                                  @Nullable final Service service) {
+        return Response.ok(new Streamer(request, query, remoteAddress, parameters, service)).build();
     }
 
     private class Streamer implements StreamingOutput {
@@ -76,14 +75,13 @@ public class RpslObjectStreamer {
                 final Query query,
                 final InetAddress remoteAddress,
                 final Parameters parameters,
-                final Service service,
-                final boolean unformatted) {
+                final Service service) {
             this.request = request;
             this.query = query;
             this.remoteAddress = remoteAddress;
             this.parameters = parameters;
             this.service = service;
-            this.attributeMapper = getServerAttributeMapper(unformatted);
+            this.attributeMapper = getServerAttributeMapper(Boolean.TRUE == parameters.getUnformatted());
         }
 
         @Override
@@ -154,9 +152,8 @@ public class RpslObjectStreamer {
 
                 if (service != null) {
                     streamingMarshal.write("service", service);
-                }
 
-                if (parameters != null) {
+                    // only return parameters for search service
                     streamingMarshal.write("parameters", parameters);
                 }
 

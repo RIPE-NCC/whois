@@ -96,6 +96,8 @@ public class WhoisSearchService {
             SHOW_VERSION
     );
 
+    private static final Service SEARCH_SERVICE = new Service("search");
+
     private final AccessControlListManager accessControlListManager;
     private final RpslObjectStreamer rpslObjectStreamer;
     private final SourceContext sourceContext;
@@ -164,6 +166,7 @@ public class WhoisSearchService {
                 .abuseContact(abuseContact)
                 .limit(limit)
                 .offset(offset)
+                .unformatted(isQueryParamSet(unformatted))
                 .build();
 
         return rpslObjectStreamer.handleQueryAndStreamResponse(
@@ -171,8 +174,7 @@ public class WhoisSearchService {
                 request,
                 InetAddresses.forString(request.getRemoteAddr()),
                 parameters,
-                new Service("search"),
-                isQueryParamSet(unformatted));
+                SEARCH_SERVICE);
     }
 
     private void validateSearchKey(final HttpServletRequest request, final String searchKey) {

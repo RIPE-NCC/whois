@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
+import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -254,7 +255,10 @@ public class WhoisRestService {
 
         try {
             final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request)).setMatchPrimaryKeyOnly(true);
-            return rpslObjectStreamer.handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null, isQueryParamSet(unformatted));
+            final Parameters parameters = new Parameters.Builder()
+                                    .unformatted(isQueryParamSet(unformatted))
+                                    .build();
+            return rpslObjectStreamer.handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, null);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }

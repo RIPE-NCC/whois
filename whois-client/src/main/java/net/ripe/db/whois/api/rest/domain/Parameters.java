@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -55,6 +56,8 @@ public class Parameters {
     private Integer limit;
     @XmlElement
     private Integer offset;
+    @XmlTransient   // [ES] ignore for now
+    private Boolean unformatted;
 
     public Parameters(
             final InverseAttributes inverseAttributes,
@@ -67,7 +70,8 @@ public class Parameters {
             final Boolean resourceHolder,
             final Boolean abuseContact,
             final Integer limit,
-            final Integer offset) {
+            final Integer offset,
+            final Boolean unformatted) {
         this.inverseAttributes = inverseAttributes;
         this.typeFilters = typeFilters;
         this.flags = flags;
@@ -79,6 +83,7 @@ public class Parameters {
         this.abuseContact = abuseContact;
         this.limit = limit;
         this.offset = offset;
+        this.unformatted = unformatted;
     }
 
     public Parameters() {
@@ -129,6 +134,10 @@ public class Parameters {
         return offset;
     }
 
+    public Boolean getUnformatted() {
+        return unformatted;
+    }
+
     public static class Builder {
 
         private InverseAttributes inverseAttributes;
@@ -142,59 +151,65 @@ public class Parameters {
         private Boolean abuseContact;
         private Integer limit;
         private Integer offset;
+        private Boolean unformatted;
 
-        public Builder inverseAttributes(InverseAttributes inverseAttributes) {
+        public Builder inverseAttributes(final InverseAttributes inverseAttributes) {
             this.inverseAttributes = inverseAttributes;
             return this;
         }
 
-        public Builder typeFilters(TypeFilters typeFilters) {
+        public Builder typeFilters(final TypeFilters typeFilters) {
             this.typeFilters = typeFilters;
             return this;
         }
 
-        public Builder flags(Flags flags) {
+        public Builder flags(final Flags flags) {
             this.flags = flags;
             return this;
         }
 
-        public Builder queryStrings(QueryStrings queryStrings) {
+        public Builder queryStrings(final QueryStrings queryStrings) {
             this.queryStrings = queryStrings;
             return this;
         }
 
-        public Builder sources(Sources sources) {
+        public Builder sources(final Sources sources) {
             this.sources = sources;
             return this;
         }
 
-        public Builder primaryKey(AbusePKey primaryKey) {
+        public Builder primaryKey(final AbusePKey primaryKey) {
             this.primaryKey = primaryKey;
             return this;
         }
 
-        public Builder managedAttributes(Boolean managedAttributes) {
+        public Builder managedAttributes(final Boolean managedAttributes) {
             this.managedAttributes = managedAttributes;
             return this;
         }
 
-        public Builder resourceHolder(Boolean resourceHolder) {
+        public Builder resourceHolder(final Boolean resourceHolder) {
             this.resourceHolder = resourceHolder;
             return this;
         }
 
-        public Builder abuseContact(Boolean abuseContact) {
+        public Builder abuseContact(final Boolean abuseContact) {
             this.abuseContact = abuseContact;
             return this;
         }
 
-        public Builder limit(Integer limit) {
+        public Builder limit(final Integer limit) {
             this.limit = limit;
             return this;
         }
 
-        public Builder offset(Integer offset) {
+        public Builder offset(final Integer offset) {
             this.offset = offset;
+            return this;
+        }
+
+        public Builder unformatted(final Boolean unformatted) {
+            this.unformatted = unformatted;
             return this;
         }
 
@@ -210,7 +225,8 @@ public class Parameters {
                     resourceHolder,
                     abuseContact,
                     limit,
-                    offset);
+                    offset,
+                    unformatted);
         }
     }
 }
