@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest.search;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.domain.ResourceHolder;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;

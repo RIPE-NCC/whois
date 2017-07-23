@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest.search;
+package net.ripe.db.whois.api.rest.domain;
 
 import jdk.nashorn.internal.ir.annotations.Immutable;
 import net.ripe.db.whois.common.domain.CIString;
