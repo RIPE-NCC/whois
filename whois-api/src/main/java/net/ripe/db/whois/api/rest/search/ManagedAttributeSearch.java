@@ -25,9 +25,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component
-public class ManagedAttributes {
+public class ManagedAttributeSearch {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManagedAttributes.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagedAttributeSearch.class);
 
     private static final ImmutableSet<AttributeType> ALLOCATION_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.ORG, AttributeType.STATUS, AttributeType.NETNAME, AttributeType.SOURCE);
     private static final ImmutableSet<AttributeType> ASSIGNMENT_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
@@ -48,7 +48,7 @@ public class ManagedAttributes {
     private final RpslObjectDao rpslObjectDao;
 
     @Autowired
-    public ManagedAttributes(
+    public ManagedAttributeSearch(
             final Maintainers maintainers,
             final RpslObjectUpdateDao rpslObjectUpdateDao,
             final RpslObjectDao rpslObjectDao) {
@@ -260,7 +260,9 @@ public class ManagedAttributes {
 
     private Stream<RpslObject> findReferences(final RpslObject rpslObject) {
         try {
-            return rpslObjectUpdateDao.getReferences(rpslObject).stream().map(rpslObjectInfo -> rpslObjectDao.getById(rpslObjectInfo.getObjectId()));
+            return rpslObjectUpdateDao.getReferences(rpslObject)
+                        .stream()
+                        .map(rpslObjectInfo -> rpslObjectDao.getById(rpslObjectInfo.getObjectId()));
         } catch (DataAccessException e) {
             return Stream.empty();
         }

@@ -21,7 +21,9 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
     "source",
     "primaryKey",
     "attributes",
-    "tags"
+    "tags",
+    "resourceHolder",
+    "abuseContact"
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "object")
@@ -39,8 +41,14 @@ public class WhoisObject {
     @XmlElement(name = "attributes", required = true)
     private Attributes attributes;
 
-    @XmlElement(name = "tags")
+    @XmlElement
     private WhoisTags tags;
+
+    @XmlElement(name = "resource-holder")
+    private ResourceHolder resourceHolder;
+
+    @XmlElement(name = "abuse-contact")
+    private AbuseContact abuseContact;
 
     @XmlAttribute(required = true)
     private String type;
@@ -48,7 +56,7 @@ public class WhoisObject {
     @XmlAttribute
     private Action action;
 
-    @XmlAttribute(name = "version")
+    @XmlAttribute
     private Integer version;
 
     public WhoisObject() {
@@ -63,7 +71,9 @@ public class WhoisObject {
             final WhoisTags tags,
             final String type,
             final Action action,
-            final Integer version) {
+            final Integer version,
+            final ResourceHolder resourceHolder,
+            final AbuseContact abuseContact) {
         this.link = link;
         this.source = source;
         this.primaryKey = primaryKey;
@@ -72,6 +82,8 @@ public class WhoisObject {
         this.type = type;
         this.action = action;
         this.version = version;
+        this.resourceHolder = resourceHolder;
+        this.abuseContact = abuseContact;
     }
 
     // builder
@@ -85,6 +97,8 @@ public class WhoisObject {
         private String type;
         private Action action;
         private Integer version;
+        private ResourceHolder resourceHolder;
+        private AbuseContact abuseContact;
 
         public Builder link(final Link link) {
             this.link = link;
@@ -136,6 +150,16 @@ public class WhoisObject {
             return this;
         }
 
+        public Builder resourceHolder(final ResourceHolder resourceHolder) {
+            this.resourceHolder = resourceHolder;
+            return this;
+        }
+
+        public Builder abuseContact(final AbuseContact abuseContact) {
+            this.abuseContact = abuseContact;
+            return this;
+        }
+
         public WhoisObject build() {
             return new WhoisObject(
                 link,
@@ -145,7 +169,9 @@ public class WhoisObject {
                 tags,
                 type,
                 action,
-                version);
+                version,
+                resourceHolder,
+                abuseContact);
         }
     }
 
@@ -213,6 +239,14 @@ public class WhoisObject {
 
     public void setTags(final List<WhoisTag> tags) {
         this.tags = new WhoisTags(tags);
+    }
+
+    public void setResourceHolder(final ResourceHolder resourceHolder) {
+        this.resourceHolder = resourceHolder;
+    }
+
+    public void setAbuseContact(final AbuseContact abuseContact) {
+        this.abuseContact = abuseContact;
     }
 
     public String toString() {

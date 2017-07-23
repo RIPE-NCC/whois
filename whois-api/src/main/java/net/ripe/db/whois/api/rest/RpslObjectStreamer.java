@@ -7,7 +7,6 @@ import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.Service;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -33,8 +32,6 @@ import java.net.InetAddress;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
-
-import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
 
 @Component
 public class RpslObjectStreamer {
@@ -68,7 +65,6 @@ public class RpslObjectStreamer {
         private final Parameters parameters;
         private final Service service;
         private StreamingMarshal streamingMarshal;
-        private Class<? extends AttributeMapper> attributeMapper;
 
         public Streamer(
                 final HttpServletRequest request,
@@ -81,7 +77,6 @@ public class RpslObjectStreamer {
             this.remoteAddress = remoteAddress;
             this.parameters = parameters;
             this.service = service;
-            this.attributeMapper = getServerAttributeMapper(Boolean.TRUE == parameters.getUnformatted());
         }
 
         @Override
@@ -166,7 +161,11 @@ public class RpslObjectStreamer {
                     return;
                 }
 
-                final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, tagResponseObject, attributeMapper);
+                final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, parameters);
+                whoisObjectServerMapper.mapTags(whoisObject, tagResponseObject);
+                whoisObjectServerMapper.mapAbuseContact(whoisObject, parameters, rpslObject);
+                whoisObjectServerMapper.mapManagedAttributes(whoisObject, parameters, rpslObject);
+                whoisObjectServerMapper.mapResourceHolder(whoisObject, parameters, rpslObject);
 
                 streamingMarshal.writeArray(whoisObject);
                 tagResponseObject = null;
@@ -198,5 +197,6 @@ public class RpslObjectStreamer {
         }
 
     }
+
 
 }
