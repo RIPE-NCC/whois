@@ -1,4 +1,13 @@
 # next
+[update] Make org-name validation case-sensitive
+[update] only allow assignment-size attribute on inet6num objects with AGGREGATED-BY-LIR status
+[api] Improved REST API response if an attribute value is omitted
+
+# 1.89.2
+[update] Fix Zonemaster configuration
+
+# 1.89.1
+[api] Fix Abuse Contact lookup with matching as-block (filter by object type using key argument).
 
 # 1.89
 [update] Include who changed information in update responses for SSO and PGPKEY authentication

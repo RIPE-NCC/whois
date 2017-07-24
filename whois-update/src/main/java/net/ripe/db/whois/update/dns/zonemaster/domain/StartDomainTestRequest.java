@@ -23,7 +23,7 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
 
     private static Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
 
-    private static String PREDELEGATION_CONFIG = "predelegation_config";        // Special flag for ns.ripe.net
+    private static String RIPEDB_CONFIG = "ripedb_config";        // Special flag for ns.ripe.net
 
     @JsonProperty
     private Params params;
@@ -35,7 +35,7 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         params.setDsInfos(Collections.emptyList());
         params.setNameservers(Collections.emptyList());
         params.setDomain(dnsCheckRequest.getDomain());
-        params.setConfig(PREDELEGATION_CONFIG);
+        params.setConfig(RIPEDB_CONFIG);
 
         final RpslObject rpslObject = dnsCheckRequest.getUpdate().getSubmittedObject();
 

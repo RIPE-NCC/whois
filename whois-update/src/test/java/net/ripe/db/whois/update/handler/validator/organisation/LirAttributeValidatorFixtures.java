@@ -142,6 +142,17 @@ public class LirAttributeValidatorFixtures {
             "fax-no:       +31 000 0000001\n" +
             "e-mail:       org1@test.com\n");
 
+    protected static final RpslObject LIR_ORG_ORG_NAME_CASE_SENSITIVE = RpslObject.parse("" +
+            "organisation: LIR-ORG-TST\n" +
+            "org-name:     TEST ORGANISATION LTD\n" +
+            "org-type:     LIR\n" +
+            "address:      street and number\n" +
+            "address:      city \n" +
+            "address:      country\n" +
+            "phone:        +31 000 0000000\n" +
+            "fax-no:       +31 000 0000001\n" +
+            "e-mail:       org1@test.com\n");
+
     protected static final RpslObject LIR_ORG_MNT_BY = RpslObject.parse("" +
             "organisation: LIR-ORG-TST\n" +
             "org-name:     Test Organisation Ltd\n" +

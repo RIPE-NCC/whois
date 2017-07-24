@@ -3013,6 +3013,40 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void update_missing_attribute_value() {
+        try {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request(MediaType.APPLICATION_JSON)
+                .put(Entity.entity(
+                    "{\n" +
+                            "  \"objects\": {\n" +
+                            "    \"object\": [\n" +
+                            "      {\n" +
+                            "        \"attributes\": {\n" +
+                            "          \"attribute\": [\n" +
+                            "            {\n" +
+                            "              \"name\": \"person\",\n" +
+                            "              \"value\": \"Pauleth Palthen\"\n" +
+                            "            },\n" +
+                            "            {\n" +
+                            "              \"name\": \"source\"\n" +
+                            "            }\n" +
+                            "          ]\n" +
+                            "        }\n" +
+                            "      }\n" +
+                            "    ]\n" +
+                            "  }\n" +
+                            "}",
+                    MediaType.APPLICATION_JSON), String.class);
+            fail();
+        } catch (BadRequestException expected) {
+            final WhoisResources whoisResources = expected.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Attribute source has no value");
+        }
+    }
+
+    @Test
     public void update_noop() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
