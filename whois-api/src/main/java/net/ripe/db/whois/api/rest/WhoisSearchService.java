@@ -129,9 +129,9 @@ public class WhoisSearchService {
             @QueryParam("type-filter") final Set<String> types,
             @QueryParam("flags") final Set<String> flags,
             @QueryParam("unformatted") final String unformatted,
-            @QueryParam("managed-attributes") final Boolean managedAttributes,          // TODO: annotate RIPE NCC managed attributes
-            @QueryParam("resource-holder") final Boolean resourceHolder,                // TODO: annotate resource holder (org id and name)
-            @QueryParam("abuse-contact") final Boolean abuseContact,                    // TODO: annotate abuse contact email and nic-hdl
+            @QueryParam("managed-attributes") final String managedAttributes,
+            @QueryParam("resource-holder") final String resourceHolder,
+            @QueryParam("abuse-contact") final String abuseContact,
             @QueryParam("limit") final Integer limit,                                   // TODO: objects to return
             @QueryParam("offset") final Integer offset) {                               // TODO: offset starting position
 
@@ -161,9 +161,9 @@ public class WhoisSearchService {
                 .flags(new Flags(separateFlags))
                 .queryStrings(new QueryStrings(new QueryString(searchKey)))
                 .sources(new Sources(sources))
-                .managedAttributes(managedAttributes)
-                .resourceHolder(resourceHolder)
-                .abuseContact(abuseContact)
+                .managedAttributes(isQueryParamSet(managedAttributes))
+                .resourceHolder(isQueryParamSet(resourceHolder))
+                .abuseContact(isQueryParamSet(abuseContact))
                 .limit(limit)
                 .offset(offset)
                 .unformatted(isQueryParamSet(unformatted))
