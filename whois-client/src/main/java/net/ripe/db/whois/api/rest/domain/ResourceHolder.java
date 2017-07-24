@@ -3,13 +3,16 @@ package net.ripe.db.whois.api.rest.domain;
 import jdk.nashorn.internal.ir.annotations.Immutable;
 import net.ripe.db.whois.common.domain.CIString;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Immutable
 @XmlRootElement
 public class ResourceHolder {
 
+    @XmlAttribute(name = "key")
     private String orgKey;
+    @XmlAttribute(name = "name")
     private String orgName;
 
     private ResourceHolder() {
