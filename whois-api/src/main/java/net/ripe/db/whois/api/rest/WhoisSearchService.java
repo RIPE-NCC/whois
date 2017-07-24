@@ -122,7 +122,7 @@ public class WhoisSearchService {
     public Response search(
             @Context final HttpServletRequest request,
             @QueryParam("source") final Set<String> sources,
-            @QueryParam("query-string") final String searchKey,   // ouch, but it's too costly to change the API just for this
+            @QueryParam("query-string") final String searchKey,
             @QueryParam("inverse-attribute") final Set<String> inverseAttributes,
             @QueryParam("include-tag") final Set<String> includeTags,
             @QueryParam("exclude-tag") final Set<String> excludeTags,
@@ -132,8 +132,7 @@ public class WhoisSearchService {
             @QueryParam("managed-attributes") final String managedAttributes,
             @QueryParam("resource-holder") final String resourceHolder,
             @QueryParam("abuse-contact") final String abuseContact,
-            @QueryParam("limit") final Integer limit,                                   // TODO: objects to return
-            @QueryParam("offset") final Integer offset) {                               // TODO: offset starting position
+            @QueryParam("limit") final Integer limit) {
 
         validateSources(request, sources);
         validateSearchKey(request, searchKey);
@@ -165,7 +164,6 @@ public class WhoisSearchService {
                 .resourceHolder(isQueryParamSet(resourceHolder))
                 .abuseContact(isQueryParamSet(abuseContact))
                 .limit(limit)
-                .offset(offset)
                 .unformatted(isQueryParamSet(unformatted))
                 .build();
 

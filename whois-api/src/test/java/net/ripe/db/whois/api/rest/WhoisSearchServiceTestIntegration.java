@@ -1487,4 +1487,30 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getWhoisObjects().get(0).getAbuseContact().getEmail(), is("abuse@test.net"));
     }
 
+    @Test
+    public void search_limit_lir_inetnum() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        databaseHelper.addObject(
+            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                "org:       ORG-TO2-TEST\n" +
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ALLOCATED PA\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&limit=1")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+    }
+
 }

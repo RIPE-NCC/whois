@@ -13,6 +13,8 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.MessageObject;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
+import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
@@ -97,6 +99,8 @@ public class RpslObjectStreamer {
 
             } catch (StreamingException ignored) {
                 LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
+            } catch (QueryException queryException) {
+                responseHandler.flushAndGetErrors();
             } catch (RuntimeException e) {
                 throw createWebApplicationException(e, responseHandler);
             }
@@ -117,6 +121,7 @@ public class RpslObjectStreamer {
             private final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
             private TagResponseObject tagResponseObject = null;
             private final List<Message> errors = Lists.newArrayList();
+            private int count = 0;
 
             // TODO: [AH] replace this 'if instanceof' mess with an OO approach
             @Override
@@ -159,6 +164,11 @@ public class RpslObjectStreamer {
             private void streamObject(@Nullable final RpslObject rpslObject) {
                 if (rpslObject == null) {
                     return;
+                }
+
+                if (parameters.getLimit() != null && count++ >= parameters.getLimit()) {
+                    // stop returning objects once limit is reached
+                    throw new QueryException(QueryCompletionInfo.DISCONNECTED);
                 }
 
                 final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, parameters);
