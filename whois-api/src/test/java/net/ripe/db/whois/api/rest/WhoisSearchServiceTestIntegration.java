@@ -48,6 +48,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -62,6 +63,16 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
+            "source:      TEST");
+
+    private static final RpslObject RIPE_NCC_HM_MNT = RpslObject.parse("" +
+            "mntner:      RIPE-NCC-HM-MNT\n" +
+            "descr:       Hostmaster\n" +
+            "admin-c:     TP1-TEST\n" +
+            "upd-to:      noreply@ripe.net\n" +
+            "auth:        MD5-PW $1$tnG/zrDw$nps8tg76q4jgg5zg5o6os. # hm\n" +
+            "auth:        SSO person@net.net\n" +
+            "mnt-by:      RIPE-NCC-HM-MNT\n" +
             "source:      TEST");
 
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
@@ -82,6 +93,20 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "mnt-by:    OWNER-MNT\n" +
             "source:    TEST\n");
 
+    private static final RpslObject TEST_OTHER_ORGANISATION = RpslObject.parse("" +
+                "organisation:   ORG-TO1-TEST\n" +
+                "org-name:       Test Organisation\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+    private static final RpslObject TEST_LIR_ORGANISATION = RpslObject.parse("" +
+            "organisation:   ORG-TO2-TEST\n" +
+            "org-name:       Test Organisation\n" +
+            "abuse-c:        TR1-TEST\n" +
+            "status:         LIR\n" +
+            "mnt-by:         OWNER-MNT\n" +
+            "source:         TEST\n");
 
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
@@ -1245,7 +1270,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_multiple_params_and_spaces() throws Exception {
-        databaseHelper.addObject("inetnum:   10.0.0.0 - 10.255.255.255\n" +
+        databaseHelper.addObject(
+              "inetnum:   10.0.0.0 - 10.255.255.255\n" +
                 "netname:   TEST-NET\n" +
                 "descr:     description\n" +
                 "country:   NL\n" +
@@ -1318,6 +1344,147 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML_TYPE).get(String.class);
         assertThat(whoisResources, not(containsString("xsi:type")));
         assertThat(whoisResources, not(containsString("xmlns:xsi")));
+    }
+
+    @Test
+    public void search_resource_holder_autnum_xml() {
+        databaseHelper.addObject(TEST_OTHER_ORGANISATION);
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "org:            ORG-TO1-TEST\n" +
+                "status:         ASSIGNED\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search.xml?query-string=AS102&resource-holder")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(3));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("AS102"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgKey(), is("ORG-TO1-TEST"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgName(), is("Test Organisation"));
+    }
+
+    @Test
+    public void search_resource_holder_autnum_json() {
+        databaseHelper.addObject(TEST_OTHER_ORGANISATION);
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "org:            ORG-TO1-TEST\n" +
+                "status:         ASSIGNED\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search.json?query-string=AS102&resource-holder")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(3));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("AS102"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgKey(), is("ORG-TO1-TEST"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgName(), is("Test Organisation"));
+    }
+
+    @Test
+    public void search_resource_holder_lir_inetnum() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(
+              "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                "org:       ORG-TO2-TEST\n" +
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ALLOCATED PA\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&resource-holder")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(3));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgKey(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgName(), is("Test Organisation"));
+    }
+
+    @Test
+    public void search_managed_attributes_lir_inetnum() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        databaseHelper.addObject(
+             "inetnum:   10.0.0.0 - 10.0.0.255\n" +          // managed
+                "org:       ORG-TO2-TEST\n" +                   // managed
+                "netname:   TEST-NET\n" +                       // managed
+                "descr:     description\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ALLOCATED PA\n" +                   // managed
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +                // managed
+                "source:    TEST\n");                           // managed
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&managed-attributes")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(3));
+        assertThat(response.getWhoisObjects().get(0).getAttributes(), hasSize(11));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getName(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(true));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(1).getName(), is("org"));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(1).getManaged(), is(true));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(2).getName(), is("netname"));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(true));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(3).getName(), is("descr"));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(nullValue()));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(7).getName(), is("status"));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(7).getManaged(), is(true));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(9).getName(), is("mnt-by"));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(9).getManaged(), is(true));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(10).getName(), is("source"));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(10).getManaged(), is(true));
+    }
+
+    @Test
+    public void search_abuse_contact_lir_inetnum() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        databaseHelper.addObject(
+            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                "org:       ORG-TO2-TEST\n" +
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ALLOCATED PA\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&abuse-contact")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(3));
+        assertThat(response.getWhoisObjects().get(0).getAbuseContact().getKey(), is("TR1-TEST"));
+        assertThat(response.getWhoisObjects().get(0).getAbuseContact().getEmail(), is("abuse@test.net"));
     }
 
 }

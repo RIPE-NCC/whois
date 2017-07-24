@@ -95,7 +95,7 @@ public class ManagedAttributeSearch {
      */
     public boolean isRipeNccMaintained(final RpslObject rpslObject, final RpslAttribute rpslAttribute) {
         if (AttributeType.MNT_BY == rpslAttribute.getType()) {
-            return isRipeNccMntner(rpslAttribute.getValue());
+            return isRipeNccMntner(rpslAttribute.getCleanValue());
         }
 
         switch (rpslObject.getType()) {
@@ -272,7 +272,7 @@ public class ManagedAttributeSearch {
         return maintainers.isRsMaintainer(rpslObject.getValuesForAttribute(AttributeType.MNT_BY));
     }
 
-    private boolean isRipeNccMntner(final String mntner) {
-        return maintainers.isRsMaintainer(CIString.ciString(mntner));
+    private boolean isRipeNccMntner(final CIString mntner) {
+        return maintainers.isRsMaintainer(mntner);
     }
 }

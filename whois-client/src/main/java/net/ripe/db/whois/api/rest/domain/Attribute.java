@@ -84,6 +84,10 @@ public class Attribute {
         return comment;
     }
 
+    public Boolean getManaged() {
+        return managed;
+    }
+
     public void setManaged(final Boolean managed) {
         this.managed = managed;
     }

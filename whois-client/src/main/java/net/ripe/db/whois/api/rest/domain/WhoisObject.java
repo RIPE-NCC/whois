@@ -241,8 +241,16 @@ public class WhoisObject {
         this.tags = new WhoisTags(tags);
     }
 
+    public ResourceHolder getResourceHolder() {
+        return resourceHolder;
+    }
+
     public void setResourceHolder(final ResourceHolder resourceHolder) {
         this.resourceHolder = resourceHolder;
+    }
+
+    public AbuseContact getAbuseContact() {
+        return abuseContact;
     }
 
     public void setAbuseContact(final AbuseContact abuseContact) {
