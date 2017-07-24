@@ -134,7 +134,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults().getNumFound(), is(3L));
         assertThat(getHighlightKeys(queryResponse), containsInAnyOrder("1", "2", "3"));
-        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("Some <b>remark</b>", "Second <b>remark</b>", "Other <b>remark</b>"));
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("Some <b>remark<\\/b>", "Second <b>remark<\\/b>", "Other <b>remark<\\/b>"));
     }
 
     @Test
@@ -204,7 +204,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         final Map<String, Map<String, List<String>>> highlighting = queryResponse.getHighlighting();
         assertThat(highlighting.keySet(), hasSize(1));
         assertThat(highlighting.get("2").keySet(), contains("descr"));
-        assertThat(highlighting.get("2").values(), contains(Lists.newArrayList("<b>T.E.S.T</b>. Ltd")));
+        assertThat(highlighting.get("2").values(), contains(Lists.newArrayList("<b>T.E.S.T<\\/b>. Ltd")));
     }
 
     @Test
@@ -665,9 +665,9 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getResults(), hasSize(1));
         assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
         assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(3));
-        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV</b>-MNT"));
-        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV</b>-MNT"));
-        assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("<b>DEV</b> mntner"));
+        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("<b>DEV<\\/b> mntner"));
     }
 
     @Test
@@ -679,7 +679,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
                 "source: RIPE"));
         fullTextIndex.update();
 
-        final SearchResponse searchResponse = queryJson("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E");
+        final SearchResponse searchResponse = queryJson("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E&wt=json");
 
         // document
         assertThat(searchResponse.getResult().getDocs(), hasSize(1));
@@ -722,9 +722,9 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getResults(), hasSize(1));
         assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
         assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(3));
-        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV</b>-MNT"));
-        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV</b>-MNT"));
-        assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("\"<b>DEV</b> mntner\""));
+        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("\"<b>DEV<\\/b> mntner\""));
     }
 
     @Test
@@ -736,7 +736,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
                 "source: RIPE"));
         fullTextIndex.update();
 
-        final SearchResponse searchResponse = queryJson("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E");
+        final SearchResponse searchResponse = queryJson("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E&wt=json");
 
         // document
         assertThat(searchResponse.getResult().getDocs(), hasSize(1));

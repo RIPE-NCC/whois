@@ -108,14 +108,12 @@ public class FullTextSearch {
     public SearchResponse search(final SearchRequest searchRequest) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        LOGGER.info("search {}", searchRequest.toString());
-
         final QueryParser queryParser = new MultiFieldQueryParser(FullTextIndex.FIELD_NAMES, FullTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
 
         final Query query;
         try {
-            query = queryParser.parse(escapeQuery(searchRequest.getQuery()));
+            query = queryParser.parse(escape(searchRequest.getQuery()));
         } catch (ParseException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -167,7 +165,7 @@ public class FullTextSearch {
         }
     }
 
-    private String escapeQuery(final String value) {
+    private String escape(final String value) {
         return value.replaceAll("[/]", "\\\\/");
     }
 
@@ -216,7 +214,13 @@ public class FullTextSearch {
         final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
         final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
 
-        final SimpleHTMLFormatter formatter = new SimpleHTMLFormatter(searchRequest.getHighlightPre(), searchRequest.getHighlightPost());
+        final SimpleHTMLFormatter formatter;
+        if (SearchRequest.XML_FORMAT.equals(searchRequest.getFormat())) {
+            formatter = new SimpleHTMLFormatter(escape(searchRequest.getHighlightPre()), escape(searchRequest.getHighlightPost()));
+        } else {
+            // don't escape highlighting in JSON responses
+            formatter = new SimpleHTMLFormatter(searchRequest.getHighlightPre(), searchRequest.getHighlightPost());
+        }
 
         final Highlighter highlighter = new Highlighter(formatter, new QueryScorer(query));
         highlighter.setTextFragmenter(new SimpleFragmenter(Integer.MAX_VALUE));

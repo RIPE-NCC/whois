@@ -8,6 +8,9 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class SearchRequest {
 
+    protected static final String XML_FORMAT = "xml";
+    protected static final String JSON_FORMAT = "json";
+
     private final int rows;
     private final int start;
     private final String query;
@@ -28,7 +31,7 @@ public final class SearchRequest {
                 final String format) {
         Validate.notNull(query, "No query parameter.");
         Validate.isTrue(!query.isEmpty(), "Invalid query");
-        Validate.isTrue("xml".equals(format) || "json".equals(format), "invalid format " + format);
+        Validate.isTrue(XML_FORMAT.equals(format) || JSON_FORMAT.equals(format), "invalid format " + format);
         Validate.notNull(highlightPre, "no highlight.pre parameter");
         Validate.notNull(highlightPost, "no highlight.post parameter");
         this.rows = rows;
