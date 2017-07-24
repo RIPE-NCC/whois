@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -19,16 +18,10 @@ import javax.xml.bind.annotation.XmlType;
         "flags",
         "queryStrings",
         "primaryKey",
-        "sources",
-        "managedAttributes",
-        "resourceHolder",
-        "abuseContact",
-        "limit",
-        "offset"
+        "sources"
     }
 )
 @XmlRootElement(name = "parameters")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Parameters {
     @XmlElement(name = "inverse-lookup")
     @JsonProperty(value = "inverse-lookup")
@@ -46,17 +39,17 @@ public class Parameters {
     @XmlElement(name = "primary-key")
     @JsonProperty(value = "primary-key")
     private AbusePKey primaryKey;
-    @XmlElement(name="managed-attributes")
-    private Boolean managedAttributes;
-    @XmlElement(name="resource-holder")
-    private Boolean resourceHolder;
-    @XmlElement(name="abuse-contact")
+    @XmlTransient
+    private Boolean managedAttributes = false;
+    @XmlTransient
+    private Boolean resourceHolder = false;
+    @XmlTransient
     private Boolean abuseContact;
-    @XmlElement
+    @XmlTransient
     private Integer limit;
-    @XmlElement
+    @XmlTransient
     private Integer offset;
-    @XmlTransient   // [ES] ignore for now
+    @XmlTransient
     private Boolean unformatted;
 
     public Parameters(
