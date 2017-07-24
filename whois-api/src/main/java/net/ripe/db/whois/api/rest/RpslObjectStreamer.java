@@ -100,7 +100,13 @@ public class RpslObjectStreamer {
             } catch (StreamingException ignored) {
                 LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             } catch (QueryException queryException) {
-                responseHandler.flushAndGetErrors();
+                switch (queryException.getCompletionInfo()) {
+                    case DISCONNECTED:
+                        responseHandler.flushAndGetErrors();
+                        break;
+                    default:
+                        throw createWebApplicationException(queryException, responseHandler);
+                }
             } catch (RuntimeException e) {
                 throw createWebApplicationException(e, responseHandler);
             }
