@@ -68,7 +68,7 @@ public class ResourceHolderSearch {
      */
     @Nullable
     private ResourceHolder findInParents(final RpslObject rpslObject) {
-        if ((ObjectType.INETNUM != rpslObject.getType()) && (ObjectType.INET6NUM != rpslObject.getType())) {
+        if (! RESOURCE_TREE_TYPES.contains(rpslObject.getType())) {
             return null;
         }
 
@@ -81,7 +81,7 @@ public class ResourceHolderSearch {
 
         for (IpEntry ipEntry : Lists.reverse(findParentsInTree(interval))) {
             final RpslObject parent = lookup(ipEntry);
-            if ((parent != null) && !isMaintainedByRs(parent)) {
+            if ((parent != null) && (hasUserMntner(parent) || hasUserMntLower(parent))) {
                 final RpslObject org = lookupOrganisation(parent.getValueOrNullForAttribute(AttributeType.ORG));
                 if (org != null) {
                     return new ResourceHolder(org.getKey(), org.getValueOrNullForAttribute(AttributeType.ORG_NAME));
@@ -92,8 +92,16 @@ public class ResourceHolderSearch {
         return null;
     }
 
-    private boolean isMaintainedByRs(final RpslObject inetObject) {
-        return maintainers.isRsMaintainer(inetObject.getValuesForAttribute(AttributeType.MNT_BY, AttributeType.MNT_LOWER));
+    private boolean hasUserMntner(final RpslObject rpslObject) {
+        return rpslObject.getValuesForAttribute(AttributeType.MNT_BY)
+                .stream()
+                .anyMatch(mntner -> !maintainers.isRsMaintainer(mntner));
+    }
+
+    private boolean hasUserMntLower(final RpslObject rpslObject) {
+        return rpslObject.getValuesForAttribute(AttributeType.MNT_LOWER)
+                .stream()
+                .anyMatch(mntner -> !maintainers.isRsMaintainer(mntner));
     }
 
     @Nullable

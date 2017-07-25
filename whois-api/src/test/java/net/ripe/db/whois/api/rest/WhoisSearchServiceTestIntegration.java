@@ -1421,6 +1421,40 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_resource_holder_lir_parent_inetnum() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(
+              "inetnum:   10.0.0.0 - 10.255.255.255\n" +
+                "org:       ORG-TO2-TEST\n" +
+                "netname:   PARENT-NET\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ALLOCATED PA\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+        databaseHelper.addObject(
+              "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                "netname:   CHILD-NET\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ASSIGNED PA\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&resource-holder")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(2));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgKey(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgName(), is("Test Organisation"));
+    }
+
+    @Test
     public void search_managed_attributes_lir_inetnum() {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
