@@ -1488,7 +1488,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_limit_lir_inetnum() {
+    public void search_inetnum_single_limit() {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
         databaseHelper.addObject(
@@ -1511,6 +1511,136 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getWhoisObjects(), hasSize(1));
         assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+    }
+
+    @Test
+    public void search_inetnum_single_limit_no_referenced() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        databaseHelper.addObject(
+            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                "org:       ORG-TO2-TEST\n" +
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ALLOCATED PA\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&limit=1&flags=rB")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+    }
+
+    @Test
+    public void search_inetnum_single_limit_no_referenced_offset_by_one() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        databaseHelper.addObject(
+            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                "org:       ORG-TO2-TEST\n" +
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ALLOCATED PA\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&limit=1&flags=rB&offset=1")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(0));
+    }
+
+    @Test
+    public void search_inetnum_single_limit_offset_by_one() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        databaseHelper.addObject(
+            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                "org:       ORG-TO2-TEST\n" +
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ALLOCATED PA\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&limit=1&offset=1")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+    }
+
+    @Test
+    public void search_inetnum_offset_by_one() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        databaseHelper.addObject(
+            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                "org:       ORG-TO2-TEST\n" +
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ALLOCATED PA\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&offset=1")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(2));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(1).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+    }
+
+    @Test
+    public void search_inetnum_single_limit_offset_by_two() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        databaseHelper.addObject(
+            "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                "org:       ORG-TO2-TEST\n" +
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ALLOCATED PA\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&limit=1&offset=2")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
 }

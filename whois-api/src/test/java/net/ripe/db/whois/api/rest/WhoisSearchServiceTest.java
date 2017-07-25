@@ -60,6 +60,7 @@ public class WhoisSearchServiceTest {
                         null,
                         null,
                         null,
+                        null,
                         null);
                 fail("Disallowed option " + disallowedFlag + " did not throw error");
             } catch (WebApplicationException e) {

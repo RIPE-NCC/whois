@@ -48,6 +48,8 @@ public class Parameters {
     @XmlTransient
     private Integer limit;
     @XmlTransient
+    private Integer offset;
+    @XmlTransient
     private Boolean unformatted;
 
     public Parameters(
@@ -61,6 +63,7 @@ public class Parameters {
             final Boolean resourceHolder,
             final Boolean abuseContact,
             final Integer limit,
+            final Integer offset,
             final Boolean unformatted) {
         this.inverseAttributes = inverseAttributes;
         this.typeFilters = typeFilters;
@@ -72,6 +75,7 @@ public class Parameters {
         this.resourceHolder = resourceHolder;
         this.abuseContact = abuseContact;
         this.limit = limit;
+        this.offset = offset;
         this.unformatted = unformatted;
     }
 
@@ -117,6 +121,10 @@ public class Parameters {
 
     public Integer getLimit() {
         return limit;
+    }
+
+    public Integer getOffset() {
+        return offset;
     }
 
     public Boolean getUnformatted() {
@@ -188,6 +196,11 @@ public class Parameters {
             return this;
         }
 
+        public Builder offset(final Integer offset) {
+            this.offset = offset;
+            return this;
+        }
+
         public Builder unformatted(final Boolean unformatted) {
             this.unformatted = unformatted;
             return this;
@@ -205,6 +218,7 @@ public class Parameters {
                     resourceHolder,
                     abuseContact,
                     limit,
+                    offset,
                     unformatted);
         }
     }

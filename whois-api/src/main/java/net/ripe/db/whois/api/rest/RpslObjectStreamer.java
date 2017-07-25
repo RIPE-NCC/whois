@@ -127,6 +127,8 @@ public class RpslObjectStreamer {
             private final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
             private TagResponseObject tagResponseObject = null;
             private final List<Message> errors = Lists.newArrayList();
+            private final int offset = parameters.getOffset() != null ? parameters.getOffset() : 0;
+            private final int limit = parameters.getLimit() != null ? parameters.getLimit() : Integer.MAX_VALUE;
             private int count = 0;
 
             // TODO: [AH] replace this 'if instanceof' mess with an OO approach
@@ -172,7 +174,11 @@ public class RpslObjectStreamer {
                     return;
                 }
 
-                if (parameters.getLimit() != null && count++ >= parameters.getLimit()) {
+                if (!withinOffset(count++, offset)) {
+                    return;
+                }
+
+                if (!withinLimit(count, limit, offset)) {
                     // stop returning objects once limit is reached
                     throw new QueryException(QueryCompletionInfo.DISCONNECTED);
                 }
@@ -185,6 +191,14 @@ public class RpslObjectStreamer {
 
                 streamingMarshal.writeArray(whoisObject);
                 tagResponseObject = null;
+            }
+
+            private boolean withinOffset(final int count, final int offset) {
+                return count >= offset;
+            }
+
+            private boolean withinLimit(final int count, final int limit, final int offset) {
+                return limit == Integer.MAX_VALUE || count <= (limit + offset);
             }
 
             public boolean rpslObjectFound() {

@@ -115,6 +115,21 @@ public class WhoisSearchService {
     /**
      * The search interface resembles a standard Whois client query with the extra features of multi-registry client,
      * multiple response styles that can be selected via content negotiation and with an extensible URL parameters schema.
+     *
+     * @param sources source(s) to search, defaults to RIPE
+     * @param searchKey (Mandatory) query search key
+     * @param inverseAttributes perform an inverse query using the specified attribute(s)
+     * @param includeTags return only objects with the specified tag(s)
+     * @param excludeTags do not return objects with the specified tag(s)
+     * @param types Filter results by object type(s)
+     * @param flags Whois Query search flags
+     * @param unformatted return attribute values without formatting
+     * @param managedAttributes annotate attributes which are managed by the RIPE NCC
+     * @param resourceHolder annotate resource object(s) with the associated responsible organisation (if any)
+     * @param abuseContact annotate resource and organisation object(s) with associated abuse contact (if any)
+     * @param limit maximum number of objects to return
+     * @param offset starting offset in results to return objects from
+     *
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -132,7 +147,8 @@ public class WhoisSearchService {
             @QueryParam("managed-attributes") final String managedAttributes,
             @QueryParam("resource-holder") final String resourceHolder,
             @QueryParam("abuse-contact") final String abuseContact,
-            @QueryParam("limit") final Integer limit) {
+            @QueryParam("limit") final Integer limit,
+            @QueryParam("offset") final Integer offset) {
 
         validateSources(request, sources);
         validateSearchKey(request, searchKey);
@@ -164,6 +180,7 @@ public class WhoisSearchService {
                 .resourceHolder(isQueryParamSet(resourceHolder))
                 .abuseContact(isQueryParamSet(abuseContact))
                 .limit(limit)
+                .offset(offset)
                 .unformatted(isQueryParamSet(unformatted))
                 .build();
 
