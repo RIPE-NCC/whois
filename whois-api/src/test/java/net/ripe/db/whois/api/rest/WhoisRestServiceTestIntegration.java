@@ -1472,6 +1472,41 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("&lt;script&gt;alert('hello');&lt;/script&gt;"));
     }
 
+    @Test
+    public void lookup_inetnum_managed_attributes_resource_holder_abuse_contact() {
+        databaseHelper.addObject(
+                "mntner:       RIPE-NCC-HM-MNT\n" +
+                "source:   TEST");
+        databaseHelper.addObject(
+                "organisation: ORG-TO1-TEST\n" +
+                 "org-name:     Test Organisation\n" +
+                 "abuse-c:      TR1-TEST\n" +
+                 "source:       TEST");
+        databaseHelper.addObject(
+                "inetnum:       10.0.0.0 - 10.0.0.255\n" +
+                 "status:   ALLOCATED PA\n" +
+                 "org:      ORG-TO1-TEST\n" +
+                 "mnt-by:   OWNER-MNT\n" +
+                 "mnt-by:   RIPE-NCC-HM-MNT\n" +
+                 "source:   TEST");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0%20-%2010.0.0.255?managed-attributes&resource-holder&abuse-contact")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgName(), is("Test Organisation"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgKey(), is("ORG-TO1-TEST"));
+        assertThat(response.getWhoisObjects().get(0).getAbuseContact().getEmail(), is("abuse@test.net"));
+        assertThat(response.getWhoisObjects().get(0).getAbuseContact().getKey(), is("TR1-TEST"));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(true));    // inetnum
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(1).getManaged(), is(true));    // status
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(true));    // org
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(nullValue()));   // mnt-by
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(4).getManaged(), is(true));    // mnt-by
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(5).getManaged(), is(true));    // source
+    }
 
     // create
 

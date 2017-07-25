@@ -116,7 +116,7 @@ public class WhoisSearchService {
      * The search interface resembles a standard Whois client query with the extra features of multi-registry client,
      * multiple response styles that can be selected via content negotiation and with an extensible URL parameters schema.
      *
-     * @param sources source(s) to search, defaults to RIPE
+     * @param sources source database(s) to search, defaults to RIPE
      * @param searchKey (Mandatory) query search key
      * @param inverseAttributes perform an inverse query using the specified attribute(s)
      * @param includeTags return only objects with the specified tag(s)

@@ -222,6 +222,22 @@ public class WhoisRestService {
         }
     }
 
+    /**
+     * (Read) Lookup a single Whois RPSL object
+     *
+     * @param request request context
+     * @param source (Mandatory) source database to search
+     * @param objectType (Mandatory) object type
+     * @param key (Mandatory) object primary key
+     * @param passwords password(s) for authentication
+     * @param crowdTokenKey crowd token for authentication
+     * @param unformatted return attribute values without formatting
+     * @param unfiltered do not filter the object
+     * @param managedAttributes annotate attributes which are managed by the RIPE NCC
+     * @param resourceHolder annotate resource object(s) with the associated responsible organisation (if any)
+     * @param abuseContact annotate resource and organisation object(s) with associated abuse contact (if any)
+     * @return
+     */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
@@ -233,7 +249,10 @@ public class WhoisRestService {
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("unformatted") final String unformatted,
-            @QueryParam("unfiltered") final String unfiltered) {
+            @QueryParam("unfiltered") final String unfiltered,
+            @QueryParam("managed-attributes") final String managedAttributes,
+            @QueryParam("resource-holder") final String resourceHolder,
+            @QueryParam("abuse-contact") final String abuseContact) {
 
         if (!isValidSource(source)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
@@ -257,6 +276,9 @@ public class WhoisRestService {
             final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request)).setMatchPrimaryKeyOnly(true);
             final Parameters parameters = new Parameters.Builder()
                                     .unformatted(isQueryParamSet(unformatted))
+                                    .managedAttributes(isQueryParamSet(managedAttributes))
+                                    .resourceHolder(isQueryParamSet(resourceHolder))
+                                    .abuseContact(isQueryParamSet(abuseContact))
                                     .build();
             return rpslObjectStreamer.handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, null);
         } catch (QueryException e) {
