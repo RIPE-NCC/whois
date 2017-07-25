@@ -24,6 +24,9 @@ import java.util.List;
 @Component
 public class ResourceHolderSearch {
 
+    private static final List<ObjectType> RESOURCE_TYPES = Lists.newArrayList(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
+    private static final List<ObjectType> RESOURCE_TREE_TYPES = Lists.newArrayList(ObjectType.INETNUM, ObjectType.INET6NUM);
+
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final Maintainers maintainers;
@@ -46,6 +49,10 @@ public class ResourceHolderSearch {
      */
     @Nullable
     public ResourceHolder findResourceHolder(final RpslObject rpslObject) {
+        if (!RESOURCE_TYPES.contains(rpslObject.getType())) {
+            return null;
+        }
+
         final RpslObject org = lookupOrganisation(rpslObject.getValueOrNullForAttribute(AttributeType.ORG));
         if (org != null) {
             return new ResourceHolder(org.getKey(), org.findAttribute(AttributeType.ORG_NAME).getCleanValue());
