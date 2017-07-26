@@ -85,7 +85,9 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
         final CIString originalOrgName = originalObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
         final CIString updatedOrgName = updatedObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
 
-        return Objects.equals(originalOrgName, updatedOrgName);
+        return (originalOrgName != null) &&
+                (updatedOrgName != null) &&
+                (Objects.equals(originalOrgName.toString(), updatedOrgName.toString()));
     }
 
     private boolean alreadyHasAllPossibleAuthorisations(final Subject subject) {
@@ -94,7 +96,7 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
 
     private boolean isMaintainedByRs(final RpslObject rpslObject) {
         final Set<CIString> objectMaintainers = rpslObject.getValuesForAttribute(AttributeType.MNT_BY);
-        return !Sets.intersection(this.maintainers.getRsMaintainers(), objectMaintainers).isEmpty();
+        return maintainers.isRsMaintainer(objectMaintainers);
     }
 
     @Override

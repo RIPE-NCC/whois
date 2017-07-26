@@ -204,7 +204,7 @@ public class ValueWithinPrefixValidatorTest {
 
     @Test
     public void route_too_large() {
-        final RpslObject route = RpslObject.parse("route:93.191.209.0/7\norigin:AS43746");
+        final RpslObject route = RpslObject.parse("route:92.0.0.0/7\norigin:AS43746");
         when(update.getUpdatedObject()).thenReturn(route);
 
         subject.validate(update, updateContext);
@@ -214,7 +214,7 @@ public class ValueWithinPrefixValidatorTest {
 
     @Test
     public void route_not_too_large() {
-        final RpslObject route = RpslObject.parse("route:93.191.209.0/8\norigin:AS43746");
+        final RpslObject route = RpslObject.parse("route:92.0.0.0/8\norigin:AS43746");
         when(update.getUpdatedObject()).thenReturn(route);
 
         subject.validate(update, updateContext);

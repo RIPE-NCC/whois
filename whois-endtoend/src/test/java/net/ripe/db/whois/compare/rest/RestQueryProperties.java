@@ -28,6 +28,8 @@ class RestQueryProperties {
             this.source = Source.TEST;
         } else if (lcQuery.startsWith("whois/ripe/") || lcQuery.contains("source=ripe")) {
             this.source = Source.RIPE;
+        } else if (lcQuery.startsWith("whois/metadata")) {
+            this.source = Source.RIPE;
         } else {
             throw new IllegalArgumentException("Cannot determine Source from query");
         }

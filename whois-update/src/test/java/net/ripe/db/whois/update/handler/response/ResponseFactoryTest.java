@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Ack;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
@@ -105,6 +106,7 @@ public class ResponseFactoryTest {
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime(0, DateTimeZone.UTC));
         when(updateContext.printGlobalMessages()).thenReturn("");
+        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
         ReflectionTestUtils.setField(subject, "version", "1.2.3");
         ReflectionTestUtils.setField(subject, "source", "TEST");
@@ -399,6 +401,81 @@ public class ResponseFactoryTest {
     }
 
     @Test
+    public void notification_success_with_user_in_the_session() {
+        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("You can reply to this message to contact the person who made this change.\n"));
+    }
+
+    @Test
+    public void notification_success_with_effective_sso_credentials() {
+
+        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("test@ripe.net", Update.EffectiveCredentialType.SSO);
+
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by SSO account: test@ripe.net\n"+
+                "\n" ));
+
+    }
+
+    @Test
+    public void notification_success_with_effective_pgp_credentials() {
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("PGP-KEY-123", Update.EffectiveCredentialType.PGP);
+
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by PGP-KEY-123. You can find contact details for this key here:\n" +
+                "https://apps.db.ripe.net/search/lookup.html?source=ripe&key=PGP-KEY-123&type=key-cert\n"+
+                "\n" ));
+
+    }
+
+    @Test
     public void notification_success_filter_auth() {
         final RpslObject object = RpslObject.parse("" +
                 "mntner: DEV-MNT\n" +
@@ -508,16 +585,16 @@ public class ResponseFactoryTest {
 
     private void assertNotification(final ResponseMessage responseMessage) {
         final String message = responseMessage.getMessage();
-        assertThat(message, containsString("" +
+        String replayOrNotMessage = (updateContext.getUserSession() != null) ? "You can reply to this message to contact the person who made this change.\n" : "Please DO NOT reply to this message.\n";
+                assertThat(message, containsString("" +
                 "This is to notify you of changes in RIPE Database or\n" +
                 "object authorisation failures.\n" +
                 "\n" +
                 "This message is auto-generated.\n" +
-                "Please DO NOT reply to this message.\n" +
+                replayOrNotMessage +
                 "\n" +
                 "If you do not understand why we sent you this message,\n" +
-                "or for assistance or clarification please contact:\n" +
-                "RIPE Database Administration <ripe-dbm@ripe.net>\n" +
+                "or for assistance or clarification please visit https://www.ripe.net/s/notify.\n" +
                 "\n" +
                 "Change requested from:"));
 
@@ -525,10 +602,7 @@ public class ResponseFactoryTest {
                 "The RIPE Database is subject to Terms and Conditions:\n" +
                 "http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
                 "\n" +
-                "For assistance or clarification please contact:\n" +
-                "RIPE Database Administration <ripe-dbm@ripe.net>"));
-
-        assertVersion(message);
+                "For assistance or clarification please visit https://www.ripe.net/s/notify."));
     }
 
     private void assertVersion(final String response) {

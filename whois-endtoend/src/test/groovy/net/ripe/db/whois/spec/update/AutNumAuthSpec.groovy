@@ -1485,7 +1485,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1529,7 +1528,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1578,7 +1576,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1623,7 +1620,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1668,7 +1664,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1784,7 +1779,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS200" }
         ack.errorMessagesFor("Modify", "[aut-num] AS200") ==
-                ["Adding or removing a RIPE NCC maintainer requires administrative authorisation"]
+                ["You cannot add or remove a RIPE NCC maintainer"]
 
         query_object_matches("-rGBT aut-num AS200", "aut-num", "AS200", "RIPE-NCC-END-MNT")
     }
@@ -1829,7 +1824,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS17777777234:As-otherset)
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS777.234:As-otherset)
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS077234:As-otherset)
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -2643,7 +2637,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
-            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, no status, RS pw, not on legacy list"() {
@@ -2730,7 +2723,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                     ["Supplied attribute 'status' has been replaced with a generated value"]
 
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
-            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
 
@@ -2859,7 +2851,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS12666" }
 
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
-        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
 
@@ -2901,7 +2892,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS12666" }
 
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
-        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
 

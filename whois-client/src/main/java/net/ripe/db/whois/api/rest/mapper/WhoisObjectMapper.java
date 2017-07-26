@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -90,7 +89,7 @@ public class WhoisObjectMapper {
         final String type = rpslObject.getType().getName();
         final AttributeMapper attributeMapper = objectMapperFunctions.get(mapFunction);
 
-        final List<Attribute> primaryKeyAttributes = new ArrayList<>();
+        final List<Attribute> primaryKeyAttributes = Lists.newArrayList();
         for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplate.getTemplate(rpslObject.getType()).getKeyAttributes())) {
             primaryKeyAttributes.addAll(primaryKeyAttributeMapper.map(keyAttribute, source));
         }

@@ -82,7 +82,7 @@ public class JdbcRpslObjectOperations {
         final Set<CIString> uniqueValues = Sets.newHashSet();
         final List<RpslAttribute> attributes = rpslObject.findAttributes(attributeType);
         for (final RpslAttribute attribute : attributes) {
-            for (final CIString value : attribute.getCleanValues()) {
+            for (final CIString value : attribute.getReferenceValues()) {
                 if (uniqueValues.add(value)) {
                     try {
                         final int rows = indexStrategy.addToIndex(jdbcTemplate, rpslObjectInfo, rpslObject, value.toString());
@@ -365,8 +365,8 @@ public class JdbcRpslObjectOperations {
             }
 
             if (jdbcTemplate.queryForList("SHOW TABLES", String.class).contains("serials")) {
-                if (jdbcTemplate.queryForObject("SELECT count(*) FROM serials", Integer.class) > 20000000) {
-                    throw new IllegalStateException(String.format("%s has more than 20M serials, exiting", dbName));
+                if (jdbcTemplate.queryForObject("SELECT count(*) FROM serials", Integer.class) > 30_000_000) {
+                    throw new IllegalStateException(String.format("%s has more than 30M serials, exiting", dbName));
                 }
             }
         } catch (DataAccessException e) {

@@ -80,11 +80,13 @@ public class UpdateNotifierTest {
         when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
         when(updateContext.getPreparedUpdate(update)).thenReturn(preparedUpdate);
         when(updateContext.getStatus(preparedUpdate)).thenReturn(UpdateStatus.SUCCESS);
+        ResponseMessage responseMessage = new ResponseMessage("Notification of RIPE Database changes", "message");
+        when(responseFactory.createNotification(any(UpdateContext.class), any(Origin.class), any(Notification.class))).thenReturn(responseMessage);
 
         subject.sendNotifications(updateRequest, updateContext);
 
-        verify(mailGateway).sendEmail(eq("notify1@me.com"), any(ResponseMessage.class));
-        verify(mailGateway).sendEmail(eq("notify2@me.com"), any(ResponseMessage.class));
+        verify(mailGateway).sendEmail(eq("notify1@me.com"), eq(responseMessage));
+        verify(mailGateway).sendEmail(eq("notify2@me.com"), eq(responseMessage));
     }
 
     @Test

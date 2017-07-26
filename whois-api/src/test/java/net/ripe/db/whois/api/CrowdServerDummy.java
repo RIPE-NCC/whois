@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.UserSession;
+import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -134,7 +135,7 @@ public class CrowdServerDummy implements Stub {
             throw new RuntimeException(e);
         }
 
-        this.port = server.getConnectors()[0].getLocalPort();
+        this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
 
         final String restUrl = String.format("http://localhost:%s/crowd", getPort());
         LOGGER.info("Crowd dummy server restUrl: {}", restUrl);

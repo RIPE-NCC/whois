@@ -59,6 +59,7 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
             count = counterMap.get(remoteAddress);
         } catch (OperationTimeoutException | IllegalStateException e) {
             // no answer from hazelcast, expected, don't rethrow
+            LOGGER.debug("{}: {}", e.getClass().getName(), e.getMessage());
         }
 
         if (count == null) {
@@ -82,7 +83,7 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
             counterMap.putAndUnlock(remoteAddress, count);
             return count;
         } catch (TimeoutException | IllegalStateException e) {
-            LOGGER.info("Unable to account personal object, allowed by default");
+            LOGGER.info("Unable to account personal object, allowed by default. Threw " + e.getClass().getName() + ": " + e.getMessage());
         }
 
         return 0;

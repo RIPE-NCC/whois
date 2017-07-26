@@ -1,8 +1,7 @@
 package net.ripe.db.whois.common.dao;
 
+import com.google.common.base.MoreObjects;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 public class RpslObjectUpdateInfo extends RpslObjectInfo {
     final int sequenceId;
@@ -18,11 +17,11 @@ public class RpslObjectUpdateInfo extends RpslObjectInfo {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("objectId", getObjectId())
-                .append("objectType", getObjectType())
-                .append("key", getKey())
-                .append("sequenceId", sequenceId)
+        return MoreObjects.toStringHelper(this)
+                .add("objectId", getObjectId())
+                .add("objectType", getObjectType())
+                .add("key", getKey())
+                .add("sequenceId", sequenceId)
                 .toString();
     }
 }

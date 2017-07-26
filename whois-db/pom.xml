@@ -3,7 +3,7 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.88-SNAPSHOT</version>
+        <version>1.90-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
-            <artifactId>whois-client</artifactId>
+            <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>

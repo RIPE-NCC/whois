@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "tag")
@@ -41,13 +42,11 @@ public class WhoisTag {
 
     @Override
     public int hashCode() {
-        int result = (id != null ? id.hashCode() : 0);
-        result = 31 * result + (data != null ? data.hashCode() : 0);
-        return result;
+        return Objects.hash(id, data);
     }
 
     @Override
-    public boolean equals(java.lang.Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -57,7 +56,8 @@ public class WhoisTag {
         }
 
         final WhoisTag whoisTag = (WhoisTag) o;
-        return (whoisTag.id != null ? whoisTag.id.equals(id) : id == null) &&
-                (whoisTag.data != null ? whoisTag.data.equals(data) : data == null);
+
+        return Objects.equals(whoisTag.id, id) &&
+                Objects.equals(whoisTag.data, data);
     }
 }

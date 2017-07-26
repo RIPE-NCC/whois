@@ -1,4 +1,50 @@
-## next
+# next
+[update] Make org-name validation case-sensitive
+[update] only allow assignment-size attribute on inet6num objects with AGGREGATED-BY-LIR status
+[api] Improved REST API response if an attribute value is omitted
+
+# 1.89.2
+[update] Fix Zonemaster configuration
+
+# 1.89.1
+[api] Fix Abuse Contact lookup with matching as-block (filter by object type using key argument).
+
+# 1.89
+[update] Include who changed information in update responses for SSO and PGPKEY authentication
+[update] Replaced dnscheck with Zonemaster service for domain updates
+[api] Added abuse-c nic-hdl as key attribute in abuse-contact API response
+[nrtm] Fixed NRTM client bugs #279 and #294
+[grs] Fixed Lacnic GRS mirror download
+[all] Mis-match between resource mask and value no longer possible
+[api] Set worst-case timeouts for Whois REST client
+[api] Merged RDAP feature
+[api] Added JSON response to Fulltext Search
+[update] Updated notification text to https://www.ripe.net/s/notify
+
+# 1.88.1
+[update] Handle "missing crc check" in PGP signed update message. (#423)
+
+# 1.88
+[api] DBF-71 delete syntactically incorrect objects with delete referenced objects call
+[api] DBF-70 fixed substitution for multiple identical references in delete referenced objects call
+
+# 1.87.6
+[all] increased ARIN mirror sanity check to 30M objects
+[all] removed legacy Unreferenced Cleanup job
+[api] added reason to delete referenced objects call
+[all] Bouncycastle 1.55
+
+# 1.87.5
+[all] separate the RPSL parsing in a separate module.
+[update] apply an transform pipepline to unify RPSL object processing before the actual update
+[all] add 'default_maintainer_history' table
+[all] delete power mntners and use alloc mntners instead
+[update] allow NOT-SET status to be changed or deleted
+[update] catch database errors when calling dnscheck
+[api] support override in delete referenced objects call
+[all] fixed mntner reference in mnt-routes attribute
+[all] Jetty 9.3.10
+[all] Spring Framework 4.3.2
 
 # 1.87.4
 [update] bugfix allow adding mnt-lower attribute for inet(6)nums
@@ -48,7 +94,7 @@
 ## 1.83
 [all] better error message for syntax error in organisation attribute
 [update] fixed bug where SyncUpdates POST without content type header results in an Internal Server Error
-[api] removed unnecessary logging during free text search indexing
+[api] removed unnecessary logging during full text search indexing
 [api] fixed bug in delete with references to return the deleted objects.
 [api] fixed bug in REST delete for unsuccessful response.
 
@@ -203,7 +249,6 @@ Objects can be created/modified when appropriate using the SSO account.
 [web] #138 syntax error in link to aut-num in route object in web query
 [web] #132 selecting Types on web query returns wrong types
 [web] #131 inverse web query does not find aut-num objects
-
 
 ## 1.71
 [all] byacc, flex and generator files are not part of deployable whois.jar
@@ -492,7 +537,7 @@ Objects can be created/modified when appropriate using the SSO account.
 
 ## 1.55.5
 [update] Free-text search: Also index the object-type field (required for filtering by object-type).
-[update] Removed redundant Free Text Search integration test, added tests for facet search and subwords.
+[update] Removed redundant Full Text Search integration test, added tests for facet search and subwords.
 [update] Don't return a stack trace on an invalid parameter value when calling the REST API.
 
 ## 1.55.4

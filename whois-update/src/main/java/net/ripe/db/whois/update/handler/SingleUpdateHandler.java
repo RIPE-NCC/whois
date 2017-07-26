@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler;
 
-import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -16,7 +15,6 @@ import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import net.ripe.db.whois.update.authentication.Authenticator;
-import net.ripe.db.whois.update.autokey.AutoKeyResolver;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Operation;
@@ -28,6 +26,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.generator.AttributeGenerator;
+import net.ripe.db.whois.update.handler.transformpipeline.TransformPipeline;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +44,6 @@ import javax.annotation.Nullable;
 
 @Component
 public class SingleUpdateHandler {
-    private final AutoKeyResolver autoKeyResolver;
     private final AttributeSanitizer attributeSanitizer;
     private final AttributeGenerator[] attributeGenerators;
     private final RpslObjectDao rpslObjectDao;
@@ -56,13 +54,13 @@ public class SingleUpdateHandler {
     private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
     private final ChangedAttrFeatureToggle changedAttrFeatureToggle;
+    private final TransformPipeline transformerPipeline;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
 
     @Autowired
-    public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,
-                               final AttributeGenerator[] attributeGenerators,
+    public SingleUpdateHandler(final AttributeGenerator[] attributeGenerators,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final Authenticator authenticator,
@@ -71,8 +69,8 @@ public class SingleUpdateHandler {
                                final IpTreeUpdater ipTreeUpdater,
                                final PendingUpdateHandler pendingUpdateHandler,
                                final SsoTranslator ssoTranslator,
-                               final ChangedAttrFeatureToggle changedAttrFeatureToggle) {
-        this.autoKeyResolver = autoKeyResolver;
+                               final ChangedAttrFeatureToggle changedAttrFeatureToggle,
+                               final TransformPipeline transformerPipeline) {
         this.attributeGenerators = attributeGenerators;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
@@ -82,6 +80,7 @@ public class SingleUpdateHandler {
         this.ipTreeUpdater = ipTreeUpdater;
         this.pendingUpdateHandler = pendingUpdateHandler;
         this.ssoTranslator = ssoTranslator;
+        this.transformerPipeline = transformerPipeline;
         this.changedAttrFeatureToggle = changedAttrFeatureToggle;
     }
 
@@ -117,8 +116,8 @@ public class SingleUpdateHandler {
             throw new UpdateFailedException();
         }
 
-        // resolve AUTO- keys
-        RpslObject updatedObjectWithAutoKeys = autoKeyResolver.resolveAutoKeys(updatedObject, update, updateContext, action);
+        // apply object transformation
+        RpslObject updatedObjectWithAutoKeys = transformerPipeline.transform(updatedObject, update, updateContext, action);
         preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // add authentication to context
@@ -138,10 +137,6 @@ public class SingleUpdateHandler {
 
         // re-generate preparedUpdate
         preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
-
-        // Currently the database uses the latin-1 characterset. Non convertable characters are stored as ?.
-        // We warn about information loss.
-        warnForNotLatinAttributeValues(update, updateContext);
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
@@ -171,15 +166,6 @@ public class SingleUpdateHandler {
         return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
                 Action.CREATE == preparedUpdate.getAction() &&
                 UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
-    }
-
-    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext) {
-        final RpslObject submittedObject = update.getSubmittedObject();
-        for (RpslAttribute attribute: submittedObject.getAttributes()) {
-            if (!CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue())) {
-                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()));
-            }
-        }
     }
 
     @CheckForNull

@@ -312,7 +312,27 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /\*\*\*Info:    Value 192.0.0.0\/24 converted to 192.0.0.0 - 192.0.0.255/
   }
 
-  def "modify status ALLOCATED PI has reference to RIR organisation"() {
+    def "handle failure of out-of-range CIDR notation"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.1/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PI
+                    mnt-by: RIPE-NCC-HM-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                    password: hm
+                    """.stripIndent()))
+        then:
+        response =~ /Create FAILED: \[inetnum\] 192.0.0.1\/24/
+    }
+
+    def "modify status ALLOCATED PI has reference to RIR organisation"() {
     given:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
                             inetnum: 192.0.0.0 - 192.0.0.255
@@ -892,7 +912,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     then:
       insertResponse =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      insertResponse =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+      insertResponse =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
   }
 
   def "create status LEGACY, parent not legacy or allocated unspecified, RS"() {
@@ -1441,7 +1461,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+      response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
   }
 
  def "modify LEGACY status, legacy maintainer mnt-lower reference cannot be added by enduser maintainer"() {
@@ -1487,7 +1507,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+      response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
   }
 
   def "modify LEGACY status, legacy maintainer mnt-by reference cannot be removed by enduser maintainer"() {
@@ -1532,7 +1552,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     then:
       response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+      response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
   }
 
   def "modify LEGACY status, add legacy maintainer mnt-by reference with override"() {

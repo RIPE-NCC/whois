@@ -14,6 +14,9 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Component
 // Validates that RIPE NCC maintained attributes are not changed for an LIR
 // Possible ways to change it are by override or power mntner.
@@ -37,7 +40,7 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
             return;
         }
 
@@ -55,8 +58,25 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     }
 
     private boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType) {
+        if (AttributeType.ORG_NAME == attributeType) {
+            return haveAttributesChanged(originalObject, updatedObject, attributeType, true);
+        }
+
+        return haveAttributesChanged(originalObject, updatedObject, attributeType, false);
+    }
+
+    private boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType, final boolean caseSensitive) {
+        if (caseSensitive) {
+            return !mapToStrings(originalObject.getValuesForAttribute(attributeType))
+                        .equals(mapToStrings(updatedObject.getValuesForAttribute(attributeType)));
+        }
+
         return !originalObject.getValuesForAttribute(attributeType)
                     .equals(updatedObject.getValuesForAttribute(attributeType));
+    }
+
+    final Set<String> mapToStrings(final Set<CIString> values) {
+        return values.stream().map(ciString -> ciString.toString()).collect(Collectors.toSet());
     }
 
     @Override

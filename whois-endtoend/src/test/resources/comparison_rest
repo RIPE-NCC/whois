@@ -20,7 +20,6 @@ whois/ripe/mntner/RIPE-DBM-STARTUP-MNT
 whois/ripe/peering-set/AS702:PRNG-NL
 whois/ripe/person/dw-ripe
 whois/ripe/role/NA568-RIPE
-whois/ripe/route6
 whois/ripe/route6/2001:f40::/32AS9930
 whois/ripe/route/72.27.10.0/24AS10292
 whois/ripe/route-set/RS-KROOT-LOCAL
@@ -44,7 +43,6 @@ whois/ripe/mntner/RIPE-DBM-STARTUP-MNT.json
 whois/ripe/peering-set/AS702:PRNG-NL.json
 whois/ripe/person/dw-ripe.json
 whois/ripe/role/NA568-RIPE.json
-whois/ripe/route6.json
 whois/ripe/route6/2001:f40::/32AS9930.json
 whois/ripe/route/72.27.10.0/24AS10292.json
 whois/ripe/route-set/RS-KROOT-LOCAL.json
@@ -98,8 +96,8 @@ whois/ripe/aut-num/AS/versions/3.json
 
 # metadata
 
-whois/ripe/metadata/sources.json
-whois/ripe/metadata/sources.xml
+whois/metadata/sources.json
+whois/metadata/sources.xml
 
-whois/ripe/metadata/templates/route.xml
-whois/ripe/metadata/templates/route6.json
+whois/metadata/templates/route.xml
+whois/metadata/templates/route6.json

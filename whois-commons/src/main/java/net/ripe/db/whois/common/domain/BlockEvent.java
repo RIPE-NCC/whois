@@ -2,6 +2,8 @@ package net.ripe.db.whois.common.domain;
 
 import org.joda.time.LocalDateTime;
 
+import java.util.Objects;
+
 public class BlockEvent {
     public enum Type {
         BLOCK_TEMPORARY,
@@ -21,21 +23,18 @@ public class BlockEvent {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final BlockEvent that = (BlockEvent) o;
-        return time.equals(that.time) && type.equals(that.type);
+
+        return Objects.equals(time, that.time) &&
+                Objects.equals(type, that.type);
     }
 
     @Override
     public int hashCode() {
-        return time.hashCode();
+        return Objects.hash(time);
     }
 
     public LocalDateTime getTime() {

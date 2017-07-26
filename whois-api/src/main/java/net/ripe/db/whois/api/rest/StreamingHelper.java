@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Splitter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
@@ -8,6 +10,8 @@ import javax.ws.rs.core.MediaType;
 import java.io.OutputStream;
 
 public class StreamingHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamingHelper.class);
 
     public static StreamingMarshal getStreamingMarshal(final HttpServletRequest request, final OutputStream outputStream) {
         final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
@@ -22,6 +26,7 @@ public class StreamingHelper {
                         return new StreamingMarshalXml(outputStream, "whois-resources");
                     }
                 } catch (IllegalArgumentException ignored) {
+                    LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
                 }
             }
         }

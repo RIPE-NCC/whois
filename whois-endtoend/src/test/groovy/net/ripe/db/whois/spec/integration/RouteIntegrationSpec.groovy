@@ -1035,7 +1035,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     def "create route prefix not allowed"() {
       given:
         def insertRoute = syncUpdate(new SyncUpdate(data: """\
-                            route: 195.0/7
+                            route: 194.0/7
                             descr: Test route
                             origin: AS12726
                             mnt-by: TEST-MNT

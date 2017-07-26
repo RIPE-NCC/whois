@@ -153,7 +153,7 @@ public class JdbcIndexDao implements IndexDao {
         for (final RpslAttribute attribute : rpslObject.findAttributes(attributeType)) {
             for (final CIString value : attribute.getReferenceValues()) {
                 if (uniqueValues.add(value)) {
-                    if (!attribute.getType().isValidValue(rpslObject.getType(), value)) {
+                    if (attribute.getType() != null && !attribute.getType().isValidValue(rpslObject.getType(), value)) {
                         LOGGER.info("Invalid value {} type {} (object id {})", value, rpslObject.getType(), rpslObject.getObjectId());
                         continue;
                     }

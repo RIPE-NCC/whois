@@ -50,8 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
-
 @Component
 public class InternalUpdatePerformer {
 
@@ -92,6 +90,7 @@ public class InternalUpdatePerformer {
     public WhoisResources performUpdates(final UpdateContext updateContext, final Origin origin, final Collection<Update> updates, final Keyword keyword, final HttpServletRequest request) {
         loggerContext.log("msg-in.txt", new UpdateLogCallback(updates));
 
+        // todo: [TK] use response?
         updateRequestHandler.handle(new UpdateRequest(origin, keyword, updates), updateContext);
 
         return performUpdates(request, updateContext, updates);

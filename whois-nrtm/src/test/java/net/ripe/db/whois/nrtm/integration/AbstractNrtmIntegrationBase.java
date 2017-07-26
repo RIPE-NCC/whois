@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static org.hamcrest.Matchers.is;
@@ -46,4 +47,16 @@ public abstract class AbstractNrtmIntegrationBase extends AbstractDatabaseHelper
             }
         }, is(exists));
     }
+
+    protected long countThreads(final String prefix) {
+        return getAllThreads()
+                .stream()
+                .filter(thread -> thread.getName().startsWith(prefix))
+                .count();
+    }
+
+    private Set<Thread> getAllThreads() {
+        return Thread.getAllStackTraces().keySet();
+    }
+
 }

@@ -20,9 +20,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeleteRsMaintainedObjectValidatorTest {
@@ -35,7 +39,8 @@ public class DeleteRsMaintainedObjectValidatorTest {
 
     @Before
     public void setUp() throws Exception {
-        when(maintainers.getRsMaintainers()).thenReturn(ciSet("RS-MNT"));
+        when(maintainers.isRsMaintainer(ciSet("DEV-MNT"))).thenReturn(false);
+        when(maintainers.isRsMaintainer(ciSet("RS-MNT", "DEV-MNT"))).thenReturn(true);
         when(updateContext.getSubject(update)).thenReturn(authSubject);
     }
 
@@ -60,6 +65,8 @@ public class DeleteRsMaintainedObjectValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verify(maintainers).isRsMaintainer(ciSet("DEV-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -74,6 +81,8 @@ public class DeleteRsMaintainedObjectValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForDeleteRsMaintainedObject());
+        verify(maintainers).isRsMaintainer(ciSet("DEV-MNT", "RS-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -89,6 +98,7 @@ public class DeleteRsMaintainedObjectValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -103,5 +113,6 @@ public class DeleteRsMaintainedObjectValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verifyZeroInteractions(maintainers);
     }
 }
