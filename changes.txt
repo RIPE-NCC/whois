@@ -2,6 +2,7 @@
 [update] Make org-name validation case-sensitive
 [update] only allow assignment-size attribute on inet6num objects with AGGREGATED-BY-LIR status
 [api] Improved REST API response if an attribute value is omitted
+[all] Remove generated autnum remarks regarding legacy status
 
 # 1.89.2
 [update] Fix Zonemaster configuration

@@ -657,6 +657,11 @@ public class ReferencesService {
             final AttributeType attributeType = attribute.getType();
 
             if (attributeType != null) {
+                if (!attributeCount.containsKey(attributeType)) {
+                    LOGGER.warn("Ignoring {} attribute not in {} object template for {}", attributeType.getName(), objectTemplate.getObjectType().getName(), rpslObject.getKey());
+                    continue;
+                }
+
                 attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
             }
         }

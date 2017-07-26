@@ -788,6 +788,36 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void delete_pair_mntner_contains_changed_attribute_not_in_template() {
+        databaseHelper.addObject(
+                "mntner:   CHANGED-MNT\n" +
+                 "source: TEST");
+        databaseHelper.addObject(
+                "person:         Random Person\n" +
+                "address:        Amsterdam\n" +
+                "phone:          +31 22 10\n" +
+                "nic-hdl:        RP1-TEST\n" +
+                "mnt-by:         CHANGED-MNT\n" +
+                "source:         TEST");
+        databaseHelper.updateObject(
+                "mntner:         CHANGED-MNT\n" +
+                "upd-to:         user@host.org\n" +
+                "admin-c:        RP1-TEST\n" +
+                "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:         CHANGED-MNT\n" +
+                "changed:        user@host.org 20150102\n" +      // attribute no longer in object template
+                "source:         TEST");
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/CHANGED-MNT")
+                .queryParam("override", "personadmin,secret,reason")
+                .request()
+                .delete(WhoisResources.class);
+
+        assertThat(objectExists(ObjectType.MNTNER, "CHANGED-MNT"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "RP1-TEST"), is(false));
+    }
+
+    @Test
     public void delete_mntner_person_pair_multiple_references() {
         databaseHelper.addObject(
                 "person:        Another Person\n" +
