@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -20,7 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -54,7 +52,7 @@ public class AutnumAttributeGeneratorTest {
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
         assertThat(result.getValueForAttribute(AttributeType.STATUS), is(CIString.ciString("ASSIGNED")));
-        assertThat(result.getAttributes().get(2).getType(), is(AttributeType.STATUS));
+        assertThat(result.getAttributes().get(1).getType(), is(AttributeType.STATUS));
     }
 
     @Test
@@ -76,102 +74,6 @@ public class AutnumAttributeGeneratorTest {
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
         assertThat(result.getValueForAttribute(AttributeType.STATUS), is(CIString.ciString("OTHER")));
-    }
-
-    @Test
-    public void generate_moves_remarks_before_status() {
-        final RpslObject autnum = RpslObject.parse("" +
-                        "aut-num: AS3333\n" +
-                        "mnt-by: TEST-MNT\n" +
-                        "source: RIPE\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n"
-        );
-
-        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
-        final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
-
-        assertThat(result.getAttributes(), hasSize(5));
-        assertThat(result.getAttributes().get(1), is(AutnumAttributeGenerator.STATUS_REMARK));
-        assertThat(result.getAttributes().get(2), is(new RpslAttribute(AttributeType.STATUS, "OTHER")));
-    }
-
-    @Test
-    public void generate_leaves_other_remarks_lines_alone() {
-        final RpslObject autnum = RpslObject.parse("" +
-                        "aut-num: AS3333\n" +
-                        "descr: ninj-AS\n" +
-                        "remarks:\n" +
-                        "mnt-by: TEST-MNT\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
-                        "source: RIPE\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n"
-        );
-
-        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
-        final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
-
-        assertThat(result, is(RpslObject.parse("" +
-                        "aut-num: AS3333\n" +
-                        "descr: ninj-AS\n" +
-                        "remarks:\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
-                        "status: OTHER\n" +
-                        "mnt-by: TEST-MNT\n" +
-                        "source: RIPE\n"
-        )));
-    }
-
-    @Test
-    public void status_remarks_not_readded_on_change() {
-        final RpslObject autnum = RpslObject.parse("" +
-                        "aut-num: AS3333\n" +
-                        "descr: ninj-AS\n" +
-                        "remarks:\n" +
-                        "status: OTHER\n" +
-                        "mnt-by: TEST-MNT\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
-                        "source: RIPE\n"
-        );
-
-        when(updateContext.getAction(update)).thenReturn(Action.MODIFY);
-
-        final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
-
-        assertThat(result, is(RpslObject.parse("" +
-                        "aut-num: AS3333\n" +
-                        "descr: ninj-AS\n" +
-                        "remarks:\n" +
-                        "status: OTHER\n" +
-                        "mnt-by: TEST-MNT\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
-                        "source: RIPE\n"
-        )));
-    }
-
-    @Test
-    public void appended_remarks_is_not_readded() {
-        final RpslObject autnum = RpslObject.parse("" +
-                        "aut-num: AS3333\n" +
-                        "descr: ninj-AS\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + " <-- line added by real ninjas, not me\n" +
-                        "status: OTHER\n" +
-                        "mnt-by: TEST-MNT\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
-                        "source: RIPE\n"
-        );
-
-        when(updateContext.getAction(update)).thenReturn(Action.MODIFY);
-        final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
-
-        assertThat(result, is(RpslObject.parse("" +
-                        "aut-num: AS3333\n" +
-                        "descr: ninj-AS\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + " <-- line added by real ninjas, not me\n" +
-                        "status: OTHER\n" +
-                        "mnt-by: TEST-MNT\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
-                        "source: RIPE\n"
-        )));
     }
 
     @Test
