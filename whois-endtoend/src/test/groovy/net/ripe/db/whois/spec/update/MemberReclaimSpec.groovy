@@ -1560,7 +1560,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
 
                 aut-num:     AS20000
                 as-name:     TEST-AS
-                remarks:     For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:      OTHER
                 descr:       Testing Authorisation code
                 admin-c:     TP1-TEST
