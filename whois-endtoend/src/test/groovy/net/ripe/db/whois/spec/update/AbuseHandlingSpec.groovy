@@ -719,18 +719,15 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 2
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.summary.assertSuccess(2, 1, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
+        ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
                 "Authorisation override used"]
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
-                ["\"abuse-c\" is not valid for this object type"]
 
-        query_object_not_matches("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127", "abuse-c")
+        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127", "abuse-c")
     }
 
     def "create ROLE, with abuse-mailbox, self ref"() {
