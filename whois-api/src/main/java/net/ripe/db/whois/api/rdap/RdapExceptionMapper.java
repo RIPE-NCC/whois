@@ -8,7 +8,6 @@ import net.ripe.db.whois.query.domain.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -28,11 +27,9 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
 
     @Autowired
     public RdapExceptionMapper(
-            final NoticeFactory noticeFactory,
-            @Value("${rdap.port43:}") final String port43) {
-        this.rdapObjectMapper = new RdapObjectMapper(noticeFactory, port43);
+            final RdapObjectMapper rdapObjectMapper) {
+        this.rdapObjectMapper = rdapObjectMapper;
     }
-
 
     @Override
     public Response toResponse(final Exception exception) {
