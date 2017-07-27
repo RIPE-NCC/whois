@@ -195,6 +195,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(CREATED, GENERATED, SINGLE),
                         new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
+                        new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.DOMAIN, 30,
@@ -271,6 +272,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MNT_IRT, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(CREATED, GENERATED, SINGLE),
                         new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
+                        new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.INETNUM, 5,
@@ -294,6 +296,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MNT_IRT, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(CREATED, GENERATED, SINGLE),
                         new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
+                        new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.IRT, 41,

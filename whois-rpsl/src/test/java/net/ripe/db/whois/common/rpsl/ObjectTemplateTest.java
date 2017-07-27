@@ -149,6 +149,7 @@ public class ObjectTemplateTest {
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
+                "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "source:         [mandatory]  [single]     [ ]\n"));
     }
 
@@ -181,6 +182,7 @@ public class ObjectTemplateTest {
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
+                "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
                 "\n" +
                 "The content of the attributes of the inetnum class are defined below:\n" +
