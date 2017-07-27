@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.transfer.logic.asn.stages;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import net.ripe.commons.ip.Asn;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
@@ -9,6 +8,7 @@ import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 
+import java.util.Collections;
 import java.util.List;
 
 public class CreateNewPrecedingBlockStage extends AsnTransferStage {
@@ -24,8 +24,6 @@ public class CreateNewPrecedingBlockStage extends AsnTransferStage {
 
     @Override
     protected List<ActionRequest> createRequests(final Transfer<Asn> transfer, final Optional<RpslObject> precedingAsBlock, final AsBlockRange originalAsBlockRange, final Optional<RpslObject> followingAsBlock) {
-        final List<ActionRequest> requests = Lists.newArrayList();
-
         final String blockTemplate;
         if (transfer.isIncoming()) {
             blockTemplate = RIPE_AS_BLOCK_TEMPLATE;
@@ -33,13 +31,10 @@ public class CreateNewPrecedingBlockStage extends AsnTransferStage {
             blockTemplate = NON_RIPE_AS_BLOCK_TEMPLATE;
         }
 
-        final long begin, end;
-        begin = end = transfer.getResource().asBigInteger().longValue();
+        final long asn = transfer.getResource().asBigInteger().longValue();
+        final RpslObject newAsBlock = createAsBlock(asn, asn, blockTemplate);
 
-        final RpslObject newAsBlock = createAsBlock(begin, end, blockTemplate);
-
-        requests.add(new ActionRequest(newAsBlock, Action.CREATE));
-        return requests;
+        return Collections.singletonList(new ActionRequest(newAsBlock, Action.CREATE));
     }
 
     @Override

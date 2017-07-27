@@ -9,6 +9,7 @@ import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 
+import java.util.Collections;
 import java.util.List;
 
 public class DeleteOriginalBlockStage extends AsnTransferStage {
@@ -34,7 +35,7 @@ public class DeleteOriginalBlockStage extends AsnTransferStage {
     @Override
     protected List<ActionRequest> createRequests(final Transfer<Asn> transfer, final Optional<RpslObject> precedingAsBlock, final AsBlockRange originalAsBlockRange, final Optional<RpslObject> followingAsBlock) {
         // I don't care. The doTransfer is doing the job.
-        return Lists.newArrayList();
+        return Collections.emptyList();
     }
 
     @Override

@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.transfer.logic.asn.stages;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import net.ripe.commons.ip.Asn;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
@@ -9,6 +8,7 @@ import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 
+import java.util.Collections;
 import java.util.List;
 
 public class DeleteDestinationBlockStage extends AsnTransferStage {
@@ -24,8 +24,6 @@ public class DeleteDestinationBlockStage extends AsnTransferStage {
 
     @Override
     protected List<ActionRequest> createRequests(final Transfer<Asn> transfer, final Optional<RpslObject> precedingAsBlock, final AsBlockRange originalAsBlockRange, final Optional<RpslObject> followingAsBlock) {
-        final List<ActionRequest> requests = Lists.newArrayList();
-
         final Optional<RpslObject> destinationAsBlock;
         if (blockEndsWith(transfer.getResource(), originalAsBlockRange)) {
             destinationAsBlock = followingAsBlock;
@@ -38,11 +36,11 @@ public class DeleteDestinationBlockStage extends AsnTransferStage {
 
             final Asn resource = transfer.getResource();
             if (blockStartsWith(resource.next(), asBlockRange) || blockEndsWith(resource.previous(), asBlockRange)) {
-                requests.add(new ActionRequest(destinationAsBlock.get(), Action.DELETE));
+                return Collections.singletonList(new ActionRequest(destinationAsBlock.get(), Action.DELETE));
             }
         }
 
-        return requests;
+        return Collections.emptyList();
     }
 
     @Override
