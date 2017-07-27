@@ -57,7 +57,7 @@ public abstract class AsnTransferStage extends TransferStage<Asn> {
             "mnt-by:          RIPE-NCC-HM-MNT\n" +
             "source:          %s";
 
-    public AsnTransferStage(String source) {
+    public AsnTransferStage(final String source) {
         super(source);
     }
 

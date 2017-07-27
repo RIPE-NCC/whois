@@ -13,7 +13,7 @@ import java.util.List;
 
 public class CreateNewPrecedingBlockStage extends AsnTransferStage {
 
-    public CreateNewPrecedingBlockStage(String source) {
+    public CreateNewPrecedingBlockStage(final String source) {
         super(source);
     }
 

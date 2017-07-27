@@ -13,7 +13,7 @@ import java.util.List;
 
 public class MergeSurroundingBlocksStage extends AsnTransferStage {
 
-    public MergeSurroundingBlocksStage(String source) {
+    public MergeSurroundingBlocksStage(final String source) {
         super(source);
     }
 
