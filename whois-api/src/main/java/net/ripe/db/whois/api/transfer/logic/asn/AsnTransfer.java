@@ -14,8 +14,8 @@ public class AsnTransfer extends Transfer<Asn> {
     public static final String RIPE_NCC_ASN_BLOCK_DESCR = "RIPE NCC ASN block";
     public static final String IANA_ASN_BLOCK_DESCR = "IANA reserved ASN block";
 
-    private AsnTransfer(final Asn asn, final boolean income) {
-        super(asn, income);
+    private AsnTransfer(final Asn asn, final boolean incoming) {
+        super(asn, incoming);
     }
 
     public static Transfer buildOutgoing(final String autNum) {

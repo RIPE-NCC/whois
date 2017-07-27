@@ -11,8 +11,8 @@ public class InetnumTransfer extends Transfer<Ipv4Range> {
     public static final String NON_RIPE_NETNAME = "NON-RIPE-NCC-MANAGED-ADDRESS-BLOCK";
     public static final String IANA_NETNAME = "IETF-RESERVED-ADDRESS-BLOCK";
 
-    private InetnumTransfer(final Ipv4Range ipv4Range, final boolean income) {
-        super(ipv4Range, income);
+    private InetnumTransfer(final Ipv4Range ipv4Range, final boolean incoming) {
+        super(ipv4Range, incoming);
     }
 
     public static Transfer buildOutgoing(final String inetnum) {
