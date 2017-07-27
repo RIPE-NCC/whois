@@ -139,6 +139,7 @@ public class ObjectTemplateTest {
                 "sponsoring-org: [optional]   [single]     [ ]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
+                "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
@@ -149,7 +150,6 @@ public class ObjectTemplateTest {
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
-                "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "source:         [mandatory]  [single]     [ ]\n"));
     }
 
@@ -172,6 +172,7 @@ public class ObjectTemplateTest {
                 "sponsoring-org: [optional]   [single]     [ ]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
+                "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
@@ -182,7 +183,6 @@ public class ObjectTemplateTest {
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
-                "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
                 "\n" +
                 "The content of the attributes of the inetnum class are defined below:\n" +
