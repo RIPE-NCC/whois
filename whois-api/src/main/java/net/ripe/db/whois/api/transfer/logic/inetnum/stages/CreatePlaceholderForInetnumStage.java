@@ -78,7 +78,7 @@ public class CreatePlaceholderForInetnumStage extends InetnumTransferStage {
         return doNextTransferStep(transfer, precedingObject, originalObject, followingObject, requests);
     }
 
-    private ActionRequest createObject(Transfer<Ipv4Range> transfer) {
+    private ActionRequest createObject(final Transfer<Ipv4Range> transfer) {
         Preconditions.checkArgument(transfer != null);
         final RpslObject inetnum = RpslObject.parse(String.format(TEMPLATE, transfer.getResource().toStringInRangeNotation(), source));
         return new ActionRequest(inetnum, Action.CREATE);
@@ -121,7 +121,7 @@ public class CreatePlaceholderForInetnumStage extends InetnumTransferStage {
         return requests;
     }
 
-    private List<ActionRequest> merge(RpslObject leftOrRightNeighbour, Ipv4Range resource) {
+    private List<ActionRequest> merge(final RpslObject leftOrRightNeighbour, final Ipv4Range resource) {
         final List<ActionRequest> requests = Lists.newArrayList();
 
         Preconditions.checkArgument(leftOrRightNeighbour != null);

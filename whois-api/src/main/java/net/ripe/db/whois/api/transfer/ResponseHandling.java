@@ -20,7 +20,7 @@ public class ResponseHandling {
         final javax.ws.rs.core.Response.ResponseBuilder responseBuilder = javax.ws.rs.core.Response.status(status);
         return responseBuilder.entity(new StreamingOutput() {
             @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
+            public void write(final OutputStream output) throws IOException, WebApplicationException {
                 StreamingHelper.getStreamingMarshal(request, output).singleton(whoisResources);
             }
         }).build();
@@ -36,7 +36,7 @@ public class ResponseHandling {
         final javax.ws.rs.core.Response.ResponseBuilder responseBuilder = javax.ws.rs.core.Response.status(status);
         return responseBuilder.entity(new StreamingOutput() {
             @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
+            public void write(final OutputStream output) throws IOException, WebApplicationException {
                 StreamingHelper.getStreamingMarshal(request, output).singleton(whoisResources);
             }
         }).build();

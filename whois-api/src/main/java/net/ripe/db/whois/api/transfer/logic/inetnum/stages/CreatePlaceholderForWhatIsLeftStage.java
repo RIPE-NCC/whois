@@ -15,7 +15,7 @@ import java.util.List;
 
 public class CreatePlaceholderForWhatIsLeftStage extends InetnumTransferStage {
 
-    public CreatePlaceholderForWhatIsLeftStage(String source) {
+    public CreatePlaceholderForWhatIsLeftStage(final String source) {
         super(source);
     }
 

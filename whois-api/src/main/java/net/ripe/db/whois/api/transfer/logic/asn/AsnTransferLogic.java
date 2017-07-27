@@ -179,7 +179,7 @@ public class AsnTransferLogic {
         return neighbour;
     }
 
-    private Optional<RpslObject> findBlock(Asn asn) {
+    private Optional<RpslObject> findBlock(final Asn asn) {
         final long begin, end;
         begin = end = asn.asBigInteger().longValue();
         final RpslObject asBlock = rpslObjectDao.findAsBlock(begin, end);
