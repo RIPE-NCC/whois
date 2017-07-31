@@ -4227,10 +4227,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                abuse-c:        AH1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 source:         TEST
-                abuse-c:        AH1-TEST
 
                 password:   nccend
                 password:   hm

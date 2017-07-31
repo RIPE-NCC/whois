@@ -2272,11 +2272,11 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 source:       TEST
-                abuse-c:      AH1-TEST
 
                 password: hm
                 password: owner3

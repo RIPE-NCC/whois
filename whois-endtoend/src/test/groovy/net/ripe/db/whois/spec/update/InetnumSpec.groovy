@@ -5638,10 +5638,10 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         country:    DK
                         admin-c:    TP1-TEST
                         tech-c:     TP1-TEST
+                        abuse-c:    AH1-TEST
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                        abuse-c:    AH1-TEST
                     """.stripIndent()))
         then:
         created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
@@ -5671,9 +5671,9 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         admin-c:    TP1-TEST
                         tech-c:     TP1-TEST
                         mnt-by:     LIR-MNT
+                        abuse-c:    AH1-TEST
                         source:     TEST
                         password:   lir
-                        abuse-c:    AH1-TEST
                     """.stripIndent()))
         then:
         created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
