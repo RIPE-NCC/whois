@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.transfer;
 
 import net.ripe.db.whois.api.rest.InternalUpdatePerformer;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.transfer.lock.TransferUpdateLockDao;
 import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceService;
 import net.ripe.db.whois.api.transfer.logic.inetnum.InetnumTransfersLogic;
@@ -29,6 +28,7 @@ import java.util.List;
 @Component
 public class InetnumTransfersService extends AbstractTransferService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InetnumTransfersService.class);
+
     private final IpTreeUpdater ipTreeUpdater;
     private final InetnumTransfersLogic inetnumTransfersLogic;
     private final AuthoritativeResourceService authoritativeResourceService;
@@ -65,12 +65,12 @@ public class InetnumTransfersService extends AbstractTransferService {
 
             // collect the individual steps that make a transfer
             final List<ActionRequest> requests = inetnumTransfersLogic.getTransferOutActions(inetnum);
-            if (requests.size() == 0) {
+            if (requests.isEmpty()) {
                 return String.format("Inetnum %s is already non-RIPE.", inetnum);
             }
 
             // perform the actual batch update
-            final WhoisResources whoisResources = performUpdates(request, requests, override);
+            performUpdates(request, requests, override);
 
             authoritativeResourceService.transferOutIpv4Block(inetnum);
 
@@ -99,12 +99,12 @@ public class InetnumTransfersService extends AbstractTransferService {
 
             // collect the individual steps that make a transfer
             final List<ActionRequest> requests = inetnumTransfersLogic.getTransferInActions(inetnum);
-            if (requests.size() == 0) {
+            if (requests.isEmpty()) {
                 return String.format( "Inetnum %s is already RIPE.", inetnum);
             }
 
             // perform the actual batch update
-            final WhoisResources whoisResources = performUpdates(request, requests, override);
+            performUpdates(request, requests, override);
 
             authoritativeResourceService.transferInIpv4Block(inetnum);
 
@@ -116,9 +116,10 @@ public class InetnumTransfersService extends AbstractTransferService {
     }
 
     private void validateInput(final String inetnum) {
-        final RpslAttribute attr = new RpslAttribute(AttributeType.INETNUM, inetnum);
         final ObjectMessages msgs = new ObjectMessages();
-        attr.validateSyntax(ObjectType.INETNUM, msgs);
+
+        (new RpslAttribute(AttributeType.INETNUM, inetnum)).validateSyntax(ObjectType.INETNUM, msgs);
+
         if (msgs.hasErrors()) {
             LOGGER.info("Inetnum {} has invalid syntax: {}", inetnum, msgs.toString());
             throw new BadRequestException("Inetnum " + inetnum + " has invalid syntax.");
