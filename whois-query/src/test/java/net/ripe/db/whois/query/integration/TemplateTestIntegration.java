@@ -134,6 +134,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "sponsoring-org: [optional]   [single]     [ ]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
+                "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
@@ -222,6 +223,18 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "tech-c\n" +
                 "\n" +
                 "   References a technical contact.\n" +
+                "\n" +
+                "     From 2 to 4 characters optionally followed by up to 6 digits\n" +
+                "     optionally followed by a source specification.  The first digit\n" +
+                "     must not be \"0\".  Source specification starts with \"-\" followed\n" +
+                "     by source name up to 9-character length.\n" +
+                "\n" +
+                "abuse-c\n" +
+                "\n" +
+                "   References an abuse contact. This can only be a ROLE object containing\n" +
+                "   an \"abuse-mailbox:\" attribute. Making this reference will remove any\n" +
+                "   query limits for the ROLE object. These ROLE objects are considered to\n" +
+                "   include only commercial data.\n" +
                 "\n" +
                 "     From 2 to 4 characters optionally followed by up to 6 digits\n" +
                 "     optionally followed by a source specification.  The first digit\n" +
@@ -418,6 +431,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "sponsoring-org: [optional]   [single]     [ ]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
+                "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [generated]  [single]     [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
@@ -619,6 +633,18 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "tech-c\n" +
                 "\n" +
                 "   References a technical contact.\n" +
+                "\n" +
+                "     From 2 to 4 characters optionally followed by up to 6 digits\n" +
+                "     optionally followed by a source specification.  The first digit\n" +
+                "     must not be \"0\".  Source specification starts with \"-\" followed\n" +
+                "     by source name up to 9-character length.\n" +
+                "\n" +
+                "abuse-c\n" +
+                "\n" +
+                "   References an abuse contact. This can only be a ROLE object containing\n" +
+                "   an \"abuse-mailbox:\" attribute. Making this reference will remove any\n" +
+                "   query limits for the ROLE object. These ROLE objects are considered to\n" +
+                "   include only commercial data.\n" +
                 "\n" +
                 "     From 2 to 4 characters optionally followed by up to 6 digits\n" +
                 "     optionally followed by a source specification.  The first digit\n" +

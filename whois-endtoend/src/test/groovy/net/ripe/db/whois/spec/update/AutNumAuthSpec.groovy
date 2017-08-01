@@ -4206,4 +4206,46 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12668", "aut-num", "AS12668", "status:\\s*LEGACY")
     }
 
+    def "create aut-num with abuse-c"() {
+        given:
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          description
+                sponsoring-org: ORG-LIRA-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                abuse-c:        AH1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
+
+        queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
+    }
+
 }

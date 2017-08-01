@@ -719,18 +719,15 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 2
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.summary.assertSuccess(2, 1, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
+        ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
                 "Authorisation override used"]
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
-                ["\"abuse-c\" is not valid for this object type"]
 
-        query_object_not_matches("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127", "abuse-c")
+        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127", "abuse-c")
     }
 
     def "create ROLE, with abuse-mailbox, self ref"() {
@@ -2437,6 +2434,42 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 ["\"abuse-c:\" references a PERSON object This must reference a ROLE object with an \"abuse-mailbox:\""]
 
         query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "abuse-c")
+    }
+
+    def "create ROUTE with abuse-c, verify it has not been created"() {
+        given:
+
+        expect:
+        query_object_matches("-r -T role AH1-TEST", "role", "Abuse Handler", "abuse-mailbox:")
+
+        when:
+        def message = syncUpdate("""\
+                route:          99.13.0.0/16
+                descr:          Route
+                origin:         AS2000
+                mnt-by:         LIR-MNT
+                abuse-c:        AH1-TEST
+                ping-hdl:       TP1-test
+                source:         TEST
+                override:   denis,override1
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS2000" }
+        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16") == [
+                "\"abuse-c\" is not valid for this object type"]
+
+        query_object_not_matches("-r -T route 99.13.0.0/16", "route", "99.13.0.0/16", "TP1-test")
     }
 
 }

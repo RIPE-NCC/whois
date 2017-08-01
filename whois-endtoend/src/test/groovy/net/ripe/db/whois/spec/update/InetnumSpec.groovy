@@ -5615,4 +5615,83 @@ class InetnumSpec extends BaseQueryUpdateSpec {
           modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
 
+    def "create with abuse-c"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PI
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent())
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    DK
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        abuse-c:    AH1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent()))
+        then:
+        created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
+    }
+
+    def "create and modify, with abuse-c"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PI
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent())
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    DK
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        abuse-c:    AH1-TEST
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent()))
+        then:
+        created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
+        when:
+        def modified = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    DK
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent()))
+        then:
+        modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
+    }
+
 }
