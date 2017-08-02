@@ -1335,11 +1335,11 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 admin-c:TP2-TEST
                 geoloc:      10.568 158.552
                 tech-c: TP2-TEST
+                abuse-c: AH1-TEST
                 phone:
                 ++44282411141 ext. 0
                 e-mail:          dbtest@ripe.net
                 notify:          nfy-dbtest@ripe.net
-                abuse-mailbox:   abuse-dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 phone:+44282411141
                 fax-no:                                     +44282411141
@@ -1351,7 +1351,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         ref-nfy2-dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 notify:          nfy-dbtest@ripe.net
-                abuse-mailbox:   abuse2-dbtest@ripe.net
 
                 password: owner2
                 password: owner3

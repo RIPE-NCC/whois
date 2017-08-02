@@ -535,7 +535,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 mnt-nfy: mntnfy_cre@ripe.net
                 admin-c: TP1-TEST
                 mnt-by: CRE-MNT, owner-mnt
-                abuse-mailbox: nfy_cre@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 upd-to: updto_cre@ripe.net
