@@ -1111,7 +1111,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 nic-hdl: FOP1-TEST
                 remarks: test person
                 notify:  dbtest-nfy@ripe.net
-                abuse-c: AH1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
 
@@ -1166,7 +1165,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 remarks: test person
                 notify:  dbtest-nfy@ripe.net
                 notify:  dbtest-nfy@ripe.net
-                abuse-c: AH1-TEST
                 mnt-by:  OWNER-MNT
                 mnt-by:  OWNER3-MNT, OWNER2-MNT
                 mnt-by:  OWNER-MNT, OWNER-MNT
