@@ -42,7 +42,7 @@ public class AbuseMailboxValidator implements BusinessRuleValidator {
 
         if (abuseMailbox &&
                 (update.getAction() == CREATE || !update.getReferenceObject().containsAttribute(AttributeType.ABUSE_MAILBOX))) {
-            updateContext.addMessage(update, UpdateMessages.abuseMailboxCantBeAdded(updatedObject.getType()));
+            updateContext.addMessage(update, UpdateMessages.abuseMailboxCantBeAdded());
         }
     }
 }
