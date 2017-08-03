@@ -309,15 +309,15 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "modify maintainer abuse-mailbox"() {
         given:
-        databaseHelper.addObject("            mntner: DEV-MNT\n" +
-                "            descr: description\n" +
-                "            admin-c: TEST-RIPE\n" +
-                "            abuse-mailbox: abuse@ripe.net\n" +
-                "            mnt-by: UPD-MNT\n" +
-                "            upd-to: dbtest@ripe.net\n" +
-                "            auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "            source: TEST\n" +
-                "            password: update")
+        databaseHelper.addObject("mntner: DEV-MNT\n" +
+                "descr: description\n" +
+                "admin-c: TEST-RIPE\n" +
+                "abuse-mailbox: abuse@ripe.net\n" +
+                "mnt-by: UPD-MNT\n" +
+                "upd-to: dbtest@ripe.net\n" +
+                "auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+                "source: TEST\n" +
+                "password: update")
 
         def update = new SyncUpdate(data: """\
             mntner: DEV-MNT
@@ -335,7 +335,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate update
 
         then:
-        response =~ /abuse-mailbox can't be added to mntner/
+        response =~ /Modify SUCCEEDED: \[mntner] DEV-MNT/
     }
 
 }
