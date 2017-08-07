@@ -3,24 +3,22 @@ package net.ripe.db.whois.api.transfer.logic;
 public abstract class Transfer<T> {
 
     private final T resource;
-    private final boolean income;
+    private final boolean incoming;
 
-    protected Transfer(final T resource, final boolean income) {
+    protected Transfer(final T resource, final boolean incoming) {
         this.resource = resource;
-        this.income = income;
+        this.incoming = incoming;
     }
 
     public T getResource() {
         return resource;
     }
 
-    public boolean isIncome() {
-        return income;
+    public boolean isIncoming() {
+        return incoming;
     }
 
     public boolean isOutgoing() {
-        return !isIncome();
+        return !isIncoming();
     }
-
-
 }

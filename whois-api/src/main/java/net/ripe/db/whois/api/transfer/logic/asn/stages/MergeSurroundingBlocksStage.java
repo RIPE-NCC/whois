@@ -12,7 +12,8 @@ import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import java.util.List;
 
 public class MergeSurroundingBlocksStage extends AsnTransferStage {
-    public MergeSurroundingBlocksStage(String source) {
+
+    public MergeSurroundingBlocksStage(final String source) {
         super(source);
     }
 
@@ -23,10 +24,10 @@ public class MergeSurroundingBlocksStage extends AsnTransferStage {
 
     @Override
     protected List<ActionRequest> createRequests(final Transfer<Asn> transfer, final Optional<RpslObject> precedingAsBlock, final AsBlockRange originalAsBlockRange, final Optional<RpslObject> followingAsBlock) {
-
         final List<ActionRequest> requests = Lists.newArrayList();
+
         final String blockTemplate;
-        if (transfer.isIncome()) {
+        if (transfer.isIncoming()) {
             blockTemplate = RIPE_AS_BLOCK_TEMPLATE;
         } else {
             blockTemplate = NON_RIPE_AS_BLOCK_TEMPLATE;

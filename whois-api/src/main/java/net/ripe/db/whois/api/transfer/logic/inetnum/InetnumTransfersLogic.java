@@ -37,17 +37,17 @@ import java.util.List;
 @Service
 public class InetnumTransfersLogic {
     private static final Logger LOGGER = LoggerFactory.getLogger(InetnumTransfersLogic.class);
+
     private final String source;
     private final SearchQueryExecutor searchQueryExecutor;
     private final TransferStage transferInPipeline;
     private final TransferStage transferOutPipeline;
 
     @Autowired
-    public InetnumTransfersLogic( final @Value("${whois.source}") String source,
-                                 final SearchQueryExecutor searchQueryExecutor ) {
+    public InetnumTransfersLogic(final @Value("${whois.source}") String source,
+                                 final SearchQueryExecutor searchQueryExecutor) {
         this.source = source;
         this.searchQueryExecutor = searchQueryExecutor;
-
         this.transferInPipeline = new DeleteOriginalInetnumStage(this.source)
                 .next(new CreatePlaceholderForWhatIsLeftStage(this.source));
         this.transferOutPipeline = new CreatePlaceholderForInetnumStage(this.source);
@@ -58,22 +58,18 @@ public class InetnumTransfersLogic {
     }
 
     private List<ActionRequest> planOutgoingTransfer(final String inetnum) {
-
         final List<ActionRequest> requests = Lists.newArrayList();
 
         final Collection<RpslObject> searchResults = searchInetnumObject(inetnum, QueryFlag.ALL_LESS);
-
         validateSearchResults(inetnum, searchResults);
-
         final RpslObject matchingObject = Iterables.getLast(searchResults);
 
         if (InetnumTransfer.isNonRipeResource(matchingObject)) {
-            LOGGER.warn("Inetnum {} is already non-RIPE", inetnum);
             // no transfer tasks to be performed
+            LOGGER.warn("Inetnum {} is already non-RIPE", inetnum);
         } else {
-
             final Ipv4Range range = Ipv4Range.parse(inetnum);
-            if (isExactMatch(range, matchingObject) == true) {
+            if (isExactMatch(range, matchingObject)) {
                 throw new BadRequestException(inetnum + " is an exact match and cannot be transferred out");
             }
 
@@ -90,55 +86,40 @@ public class InetnumTransfersLogic {
     }
 
     private boolean isExactMatch(final Ipv4Range inetnumRange, final RpslObject matchingObject) {
-        boolean status = false;
-
-        final Ipv4Range matchingRange = Ipv4Range.parse(matchingObject.getKey().toString());
-        if (matchingRange.isSameRange(inetnumRange)) {
-            LOGGER.info("{} is an exact match", inetnumRange);
-            status = true;
-        }
-
-        return status;
+        return Ipv4Range.parse(matchingObject.getKey().toString()).isSameRange(inetnumRange);
     }
 
-    private Optional<RpslObject> getPrecedingRpslObject(Ipv4Range range) {
-        final Optional<RpslObject> preceding;
-        if (range.start().hasPrevious()) {
-            final Ipv4 previous = range.start().previous();
-            final Collection<RpslObject> parents = searchInetnumObject(previous.toString(), QueryFlag.ONE_LESS);
-            preceding = getNeighbour(parents);
-        } else {
-            preceding = Optional.absent();
+    private Optional<RpslObject> getPrecedingRpslObject(final Ipv4Range range) {
+        if (!range.start().hasPrevious()) {
+            return Optional.absent();
         }
-        return preceding;
+
+        final Ipv4 previous = range.start().previous();
+        final Collection<RpslObject> parents = searchInetnumObject(previous.toString(), QueryFlag.ONE_LESS);
+        return getNeighbour(parents);
     }
 
-    private Optional<RpslObject> getFollowingRpslObject(Ipv4Range range) {
-        final Optional<RpslObject> following;
-        if (range.end().hasNext()) {
-            final Ipv4 next = range.end().next();
-            final Collection<RpslObject> parents = searchInetnumObject(next.toString(), QueryFlag.ONE_LESS);
-            following = getNeighbour(parents);
-        } else {
-            following = Optional.absent();
+    private Optional<RpslObject> getFollowingRpslObject(final Ipv4Range range) {
+        if (!range.end().hasNext()) {
+            return Optional.absent();
         }
 
-        return following;
+        final Ipv4 next = range.end().next();
+        final Collection<RpslObject> parents = searchInetnumObject(next.toString(), QueryFlag.ONE_LESS);
+        return getNeighbour(parents);
     }
 
     private Optional<RpslObject> getNeighbour(final Collection<RpslObject> parents) {
-        Optional<RpslObject> result;
         if (parents.isEmpty()) {
-            result = Optional.absent();
-        } else {
-            final RpslObject reference = Iterables.getLast(parents);
-            if (InetnumTransfer.isNonRipeResource(reference)) {
-                result = Optional.of(reference);
-            } else {
-                result = Optional.absent();
-            }
+            return Optional.absent();
         }
-        return result;
+
+        final RpslObject reference = Iterables.getLast(parents);
+        if (InetnumTransfer.isNonRipeResource(reference)) {
+            return Optional.of(reference);
+        } else {
+            return Optional.absent();
+        }
     }
 
     public List<ActionRequest> getTransferInActions(final String inetnum) {
@@ -166,15 +147,14 @@ public class InetnumTransfersLogic {
     }
 
     private void logSteps(final List<ActionRequest> requests) {
-        LOGGER.info("Asn-transfer-in tasks:{}", requests.size());
+        LOGGER.info("{} requests", requests.size());
         for (ActionRequest req : requests) {
-            LOGGER.info("action:{} {}", req.getAction(), req.getRpslObject().getFormattedKey());
+            LOGGER.info("{} {}", req.getAction(), req.getRpslObject().getFormattedKey());
         }
     }
 
     private Collection<RpslObject> searchInetnumObject(final String inetnum, final QueryFlag level) {
-
-        String queryString = new QueryBuilder()
+        final String queryString = new QueryBuilder()
                 .addCommaList(QueryFlag.SOURCES, source)
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.INETNUM.getName())
                 .addFlag(level)
@@ -184,7 +164,7 @@ public class InetnumTransfersLogic {
                 .addFlag(QueryFlag.NO_REFERENCED).build(inetnum);
 
         final Query query = Query.parse(queryString, Query.Origin.REST, true);
-        LOGGER.debug("Query: {}" + query);
+
         final List<RpslObject> inetnums = Lists.newArrayList();
         searchQueryExecutor.execute(query, new ResponseHandler() {
             @Override
@@ -195,9 +175,7 @@ public class InetnumTransfersLogic {
             @Override
             public void handle(final ResponseObject responseObject) {
                 if( responseObject instanceof RpslObject ) {
-                    final RpslObject obj = (RpslObject)responseObject;
-                    LOGGER.debug("Found: " + obj.getKey() + " with netname " + obj.getValueForAttribute(AttributeType.NETNAME));
-                    inetnums.add( obj );
+                    inetnums.add((RpslObject) responseObject);
                 }
             }
         });
@@ -206,9 +184,9 @@ public class InetnumTransfersLogic {
     }
 
     private void validateSearchResults(final String inetnum, final Collection<RpslObject> searchResults) {
-        // only /0 is returned: so requested object does not exist
         if (searchResults.isEmpty() || searchResults.size() == 1) {
-            LOGGER.info("Inetnum to transfer {} not found", inetnum);
+            // only /0 is returned: so requested object does not exist
+            LOGGER.info("{} not found", inetnum);
             throw new NotFoundException("Inetnum " + inetnum + " not found.");
         }
 
@@ -216,9 +194,8 @@ public class InetnumTransfersLogic {
         final RpslObject matchingObject = Iterables.getLast(searchResults);
         logObject("matchingObject", matchingObject);
 
-        // detect iana resource
         if (InetnumTransfer.isIanaResource(matchingObject)) {
-            LOGGER.info("Inetnum to transfer {} is owned by IANA", inetnum);
+            LOGGER.info("{} is owned by IANA", inetnum);
             throw new BadRequestException("Inetnum " + inetnum + " is owned by IANA.");
         }
     }
