@@ -506,6 +506,11 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "There is an organisation referencing role %s's abuse-mailbox", role);
     }
 
+    public static Message abuseMailboxCantBeAdded() {
+        return new Message(Type.ERROR, "\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
+                "referenced through the \"abuse-c:\" attribute in ORGANISATION, INET(6)NUM and AUT-NUM objects.");
+    }
+
     public static Message keyNotFound(final String keyId) {
         return new Message(Type.WARNING, "The key-cert object %s does not exist", keyId);
     }
