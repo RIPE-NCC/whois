@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.search;
+package net.ripe.db.whois.api.fulltextsearch;
 
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.commons.lang.StringUtils;

@@ -10,7 +10,7 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rest.ApiResponseHandler;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
-import net.ripe.db.whois.api.search.IndexTemplate;
+import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;

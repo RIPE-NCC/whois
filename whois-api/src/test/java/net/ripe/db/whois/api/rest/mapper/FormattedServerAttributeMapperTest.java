@@ -77,9 +77,9 @@ public class FormattedServerAttributeMapperTest {
         final Collection<Attribute> attributes = subject.map(new RpslAttribute(AttributeType.MEMBERS, "AS1, AS2,AS3"), "TEST");
 
         assertThat(attributes, contains(
-            new Attribute("members", "AS1", null, "aut-num", new Link("locator", "http://localhost/lookup/TEST/aut-num/AS1")),
-            new Attribute("members", "AS2", null, "aut-num", new Link("locator", "http://localhost/lookup/TEST/aut-num/AS2")),
-            new Attribute("members", "AS3", null, "aut-num", new Link("locator", "http://localhost/lookup/TEST/aut-num/AS3"))
+            new Attribute("members", "AS1", null, "aut-num", new Link("locator", "http://localhost/lookup/TEST/aut-num/AS1"), null),
+            new Attribute("members", "AS2", null, "aut-num", new Link("locator", "http://localhost/lookup/TEST/aut-num/AS2"), null),
+            new Attribute("members", "AS3", null, "aut-num", new Link("locator", "http://localhost/lookup/TEST/aut-num/AS3"), null)
         ));
     }
 
@@ -90,6 +90,6 @@ public class FormattedServerAttributeMapperTest {
         final Collection<Attribute> attributes = subject.map(new RpslAttribute(AttributeType.MNT_ROUTES, "OWNER-MNT {10.0.0.0/8}"), "TEST");
 
         assertThat(attributes, contains(
-            new Attribute("mnt-routes", "OWNER-MNT {10.0.0.0/8}", null, "mntner", new Link("locator", "http://localhost/lookup/TEST/mntner/OWNER-MNT"))));
+            new Attribute("mnt-routes", "OWNER-MNT {10.0.0.0/8}", null, "mntner", new Link("locator", "http://localhost/lookup/TEST/mntner/OWNER-MNT"), null)));
     }
 }

@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -40,7 +39,7 @@ public class FormattedServerAttributeMapper implements FormattedAttributeMapper 
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
             final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), value) : null;
             final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, getLinkValue(rpslAttribute.getType(), value)) : null;
-            result.add(new Attribute(rpslAttribute.getKey(), value.toString(), rpslAttribute.getCleanComment(), referencedType, link));
+            result.add(new Attribute(rpslAttribute.getKey(), value.toString(), rpslAttribute.getCleanComment(), referencedType, link, null));
         }
         return result;
     }

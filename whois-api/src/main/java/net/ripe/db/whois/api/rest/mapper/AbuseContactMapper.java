@@ -25,7 +25,9 @@ public class AbuseContactMapper {
             }
         }
 
-        final Parameters parameters = new Parameters(null, null, null, null, null, new AbusePKey(foundKey));
+        final Parameters parameters = new Parameters.Builder()
+                                        .primaryKey(new AbusePKey(foundKey))
+                                        .build();
 
         return new AbuseResources(
                 "abuse-contact",
