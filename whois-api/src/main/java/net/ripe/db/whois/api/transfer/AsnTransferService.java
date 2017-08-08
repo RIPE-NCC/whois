@@ -20,6 +20,7 @@ import java.util.List;
 @Component
 public class AsnTransferService extends AbstractTransferService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsnTransfersRestService.class);
+
     private AsnTransferLogic asnTransfersHandler;
 
     @Autowired
@@ -36,9 +37,7 @@ public class AsnTransferService extends AbstractTransferService {
     public String transferIn(final HttpServletRequest request,
                              final String stringAutNum,
                              final String override) {
-
         try {
-
             // use master database for search
             sourceContext.setCurrentSourceToWhoisMaster();
 
@@ -48,8 +47,8 @@ public class AsnTransferService extends AbstractTransferService {
             transferUpdateLockDao.acquireUpdateLock();
 
             // Determine all individual steps needed to perform transfer
-            List<ActionRequest> requests = this.asnTransfersHandler.transferInSteps(stringAutNum);
-            if (requests.size() == 0) {
+            final List<ActionRequest> requests = this.asnTransfersHandler.transferInSteps(stringAutNum);
+            if (requests.isEmpty()) {
                 return String.format("Resource %s is already RIPE", stringAutNum);
             }
 
@@ -79,8 +78,8 @@ public class AsnTransferService extends AbstractTransferService {
             transferUpdateLockDao.acquireUpdateLock();
 
             // Determine all individual steps needed to perform transfer
-            List<ActionRequest> requests = this.asnTransfersHandler.getTransferOutSteps(stringAutNum);
-            if (requests.size() == 0) {
+            final List<ActionRequest> requests = this.asnTransfersHandler.getTransferOutSteps(stringAutNum);
+            if (requests.isEmpty()) {
                 return String.format("Resource %s is already non-RIPE", stringAutNum);
             }
 

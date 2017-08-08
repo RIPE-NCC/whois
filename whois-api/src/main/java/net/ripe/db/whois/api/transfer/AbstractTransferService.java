@@ -56,6 +56,7 @@ public abstract class AbstractTransferService {
                         deleteReason,
                         override));
             }
+
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
 
             for (Update update : updates) {

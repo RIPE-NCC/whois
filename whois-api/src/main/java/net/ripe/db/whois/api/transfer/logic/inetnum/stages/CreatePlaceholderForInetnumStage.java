@@ -78,30 +78,32 @@ public class CreatePlaceholderForInetnumStage extends InetnumTransferStage {
         return doNextTransferStep(transfer, precedingObject, originalObject, followingObject, requests);
     }
 
-    private ActionRequest createObject(Transfer<Ipv4Range> transfer) {
+    private ActionRequest createObject(final Transfer<Ipv4Range> transfer) {
         Preconditions.checkArgument(transfer != null);
-        final RpslObject rpslObject = RpslObject.parse(String.format(TEMPLATE, transfer.getResource().toStringInRangeNotation(), source));
-        return new ActionRequest(rpslObject, Action.CREATE);
+
+        final RpslObject inetnum = RpslObject.parse(String.format(TEMPLATE, transfer.getResource().toStringInRangeNotation(), source));
+        return new ActionRequest(inetnum, Action.CREATE);
     }
 
-    private boolean shouldMergeWithObject(Optional<RpslObject> rpslObject, Ipv4Range resource) {
-
-        if (rpslObject.isPresent()) {
-            final Ipv4Range rangeObject = Ipv4Range.parse(rpslObject.get().getKey().toString());
-            if (rangeObject.isConsecutive(resource)) {
-                final Ipv4Range mergedRange = resource.merge(rangeObject);
-
-                final Ipv4 startLowerBoundForPrefix = mergedRange.start().lowerBoundForPrefix(8);
-                final Ipv4 endLowerBoundForPrefix = mergedRange.end().lowerBoundForPrefix(8);
-
-                return startLowerBoundForPrefix.equals(endLowerBoundForPrefix);
-            }
+    private boolean shouldMergeWithObject(final Optional<RpslObject> rpslObject, final Ipv4Range resource) {
+        if (!rpslObject.isPresent()) {
+            return false;
         }
 
-        return false;
+        final Ipv4Range rangeObject = Ipv4Range.parse(rpslObject.get().getKey().toString());
+        if (!rangeObject.isConsecutive(resource)) {
+            return false;
+        }
+
+        final Ipv4Range mergedRange = resource.merge(rangeObject);
+
+        final Ipv4 startLowerBoundForPrefix = mergedRange.start().lowerBoundForPrefix(8);
+        final Ipv4 endLowerBoundForPrefix = mergedRange.end().lowerBoundForPrefix(8);
+
+        return startLowerBoundForPrefix.equals(endLowerBoundForPrefix);
     }
 
-    private List<ActionRequest> merge(RpslObject precedingObject, RpslObject followingObject, Ipv4Range resource) {
+    private List<ActionRequest> merge(final RpslObject precedingObject, final RpslObject followingObject, final Ipv4Range resource) {
         final List<ActionRequest> requests = Lists.newArrayList();
 
         Preconditions.checkArgument(precedingObject != null);
@@ -113,29 +115,27 @@ public class CreatePlaceholderForInetnumStage extends InetnumTransferStage {
 
         final Ipv4Range mergedRange = precedingRange.merge(resource).merge(followingRange);
 
-        final RpslObject rpslObject = RpslObject.parse(String.format(TEMPLATE, mergedRange.toStringInRangeNotation(), source));
+        final RpslObject inetnum = RpslObject.parse(String.format(TEMPLATE, mergedRange.toStringInRangeNotation(), source));
 
         requests.add(new ActionRequest(precedingObject, Action.DELETE));
         requests.add(new ActionRequest(followingObject, Action.DELETE));
-        requests.add(new ActionRequest(rpslObject, Action.CREATE));
+        requests.add(new ActionRequest(inetnum, Action.CREATE));
 
         return requests;
     }
 
-    private List<ActionRequest> merge(RpslObject leftOrRightNeighbour, Ipv4Range resource) {
+    private List<ActionRequest> merge(final RpslObject leftOrRightNeighbour, final Ipv4Range resource) {
         final List<ActionRequest> requests = Lists.newArrayList();
 
         Preconditions.checkArgument(leftOrRightNeighbour != null);
         Preconditions.checkArgument(resource != null);
 
-        final RpslObject neighbour = leftOrRightNeighbour;
-
-        final Ipv4Range originalRange = Ipv4Range.parse(neighbour.getKey().toString());
+        final Ipv4Range originalRange = Ipv4Range.parse(leftOrRightNeighbour.getKey().toString());
         final Ipv4Range mergedRange = originalRange.merge(resource);
 
-        final RpslObject rpslObject = RpslObject.parse(String.format(TEMPLATE, mergedRange.toStringInRangeNotation(), source));
-        requests.add(new ActionRequest(neighbour, Action.DELETE));
-        requests.add(new ActionRequest(rpslObject, Action.CREATE));
+        final RpslObject inetnum = RpslObject.parse(String.format(TEMPLATE, mergedRange.toStringInRangeNotation(), source));
+        requests.add(new ActionRequest(leftOrRightNeighbour, Action.DELETE));
+        requests.add(new ActionRequest(inetnum, Action.CREATE));
 
         return requests;
     }

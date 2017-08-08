@@ -17,6 +17,7 @@ import static net.ripe.db.whois.api.transfer.ResponseHandling.createResponse;
 @Path("/transfer/aut-num/{autNum}")
 public class AsnTransfersRestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsnTransfersRestService.class);
+
     private AsnTransferService asnTransferService;
 
     @Autowired
@@ -42,7 +43,7 @@ public class AsnTransfersRestService {
             LOGGER.info("TransferFailedException:{}", exc.getMessage());
             return createResponse(request, exc.getMessage(), exc.getStatus());
         } catch (Exception exc) {
-            LOGGER.info("Exception:{}", exc.getMessage());
+            LOGGER.warn("{}:{}", exc.getClass().getName(), exc.getMessage());
             return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -65,7 +66,7 @@ public class AsnTransfersRestService {
             LOGGER.info("TransferFailedException {}", exc.getMessage());
             return createResponse(request, exc.getMessage(), exc.getStatus());
         } catch (Exception exc) {
-            LOGGER.info("Exception: {}", exc.getMessage());
+            LOGGER.warn("{}:{}", exc.getClass().getName(), exc.getMessage());
             return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
         }
     }

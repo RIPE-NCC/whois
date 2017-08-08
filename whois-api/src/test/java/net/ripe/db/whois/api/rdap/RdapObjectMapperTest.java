@@ -10,13 +10,20 @@ import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.iptree.Ipv4Entry;
+import net.ripe.db.whois.common.iptree.Ipv4Tree;
+import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.joda.time.LocalDateTime;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
@@ -26,6 +33,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RdapObjectMapperTest {
@@ -34,7 +43,22 @@ public class RdapObjectMapperTest {
 
     @Mock
     private NoticeFactory noticeFactory;
+    @Mock
+    private RpslObjectDao rpslObjectDao;
+    @Mock
+    private Ipv4Tree ipv4Tree;
+    @Mock
+    private Ipv6Tree ipv6Tree;
 
+    private RdapObjectMapper mapper;
+
+    @Before
+    public void setup() {
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Collections.singletonList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
+        when(rpslObjectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\nnetname: ROOT-NET\nsource: TEST"));
+
+        this.mapper = new RdapObjectMapper(noticeFactory, rpslObjectDao, ipv4Tree, ipv6Tree, "whois.ripe.net");
+    }
 
     @Test
     public void ip() {
@@ -75,7 +99,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getType(), is("OTHER"));
         assertThat(result.getCountry(), is("NL"));
         assertThat(result.getLang(), is("EN"));
-        assertThat(result.getParentHandle(), is(nullValue()));
+        assertThat(result.getParentHandle(), is("ROOT-NET"));
         assertThat(result.getPort43(), is("whois.ripe.net"));
 
         final List<Entity> entities = result.getEntitySearchResults();
@@ -382,7 +406,6 @@ public class RdapObjectMapperTest {
         assertThat(result.getLang(), is("DK"));
     }
 
-
     @Test
     public void mapSearch_twoObjects() {
         final List<RpslObject> objects = Lists.newArrayList(
@@ -409,15 +432,17 @@ public class RdapObjectMapperTest {
         assertThat(last.getRemarks().get(0).getDescription().get(0), is("comment 2"));
     }
 
+    // helper methods
+
     private Object map(final RpslObject rpslObject) {
         return map(rpslObject, null);
     }
 
     private Object map(final RpslObject rpslObject, final RpslObject abuseContact) {
-        return new RdapObjectMapper(noticeFactory, "whois.ripe.net").map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContact);
+        return mapper.map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
-        return new RdapObjectMapper(noticeFactory, "whois.ripe.net").mapSearch("http://localhost", objects, lastUpdateds);
+        return mapper.mapSearch("http://localhost", objects, lastUpdateds);
     }
 }
