@@ -36,9 +36,9 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
             final AttributeType attributeType = rpslAttribute.getType();
             final String referencedType = (attributeType != null) ? referencedTypeResolver.getReferencedType(attributeType, cleanValue) : null;
             final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, cleanValue.toString()) : null;
-            return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, referencedType, link));
+            return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, referencedType, link, null));
         } else {
-            return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, null, null));
+            return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, null, null, null));
         }
     }
 

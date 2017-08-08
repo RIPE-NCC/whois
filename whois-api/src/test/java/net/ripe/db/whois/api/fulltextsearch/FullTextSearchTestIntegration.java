@@ -95,18 +95,18 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
                 "source: RIPE"));
         fullTextIndex.update();
 
-        final SearchResponse queryResponse = queryJson("q=DEV-MNT");
+        final SearchResponse searchResponse = queryJson("q=DEV-MNT");
 
-        assertThat(queryResponse.getResult().getDocs(), hasSize(1));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs(), hasSize(4));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(0).getName(), is("primary-key"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(0).getValue(), is("1"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(1).getName(), is("object-type"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(1).getValue(), is("mntner"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(2).getName(), is("lookup-key"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(2).getValue(), is("DEV-MNT"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(3).getName(), is("mntner"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(3).getValue(), is("DEV-MNT"));
+        assertThat(searchResponse.getResult().getDocs(), hasSize(1));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(4));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getName(), is("primary-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getValue(), is("1"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getName(), is("object-type"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getValue(), is("mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getName(), is("lookup-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getValue(), is("DEV-MNT"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getName(), is("mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getValue(), is("DEV-MNT"));
     }
 
 
@@ -650,7 +650,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_highlight_escaping() {
+    public void search_highlight_escaping_xml() {
         databaseHelper.addObject(
             RpslObject.parse(
                 "mntner: DEV-MNT\n" +
@@ -668,6 +668,91 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV<\\/b>-MNT"));
         assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
         assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("<b>DEV<\\/b> mntner"));
+    }
+
+    @Test
+    public void search_highlight_escaping_json() {
+        databaseHelper.addObject(
+            RpslObject.parse(
+                "mntner: DEV-MNT\n" +
+                "remarks: DEV mntner\n" +
+                "source: RIPE"));
+        fullTextIndex.update();
+
+        final SearchResponse searchResponse = queryJson("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E&wt=json");
+
+        // document
+        assertThat(searchResponse.getResult().getDocs(), hasSize(1));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(5));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getName(), is("primary-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getValue(), is("1"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getName(), is("object-type"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getValue(), is("mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getName(), is("lookup-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getValue(), is("DEV-MNT"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getName(), is("mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getValue(), is("DEV-MNT"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getName(), is("remarks"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getValue(), is("DEV mntner"));
+
+        // highlighting
+        assertThat(searchResponse.getLsts(), hasSize(2));
+        assertThat(searchResponse.getLsts().get(0).getName(), is("responseHeader"));
+        assertThat(searchResponse.getLsts().get(1).getName(), is("highlighting"));
+        assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getName(), is("1"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("lookup-key"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV</b>-MNT"));
+    }
+
+    @Test
+    public void search_quote_escaping_xml() {
+        databaseHelper.addObject(
+            RpslObject.parse(
+                "mntner: DEV-MNT\n" +
+                "remarks: \"DEV mntner\"\n" +
+                "source: RIPE"));
+        fullTextIndex.update();
+
+        final QueryResponse queryResponse = query("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
+        assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(3));
+        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("\"<b>DEV<\\/b> mntner\""));
+    }
+
+    @Test
+    public void search_quote_escaping_json() {
+        databaseHelper.addObject(
+            RpslObject.parse(
+                "mntner: DEV-MNT\n" +
+                "remarks: \"DEV mntner\"\n" +
+                "source: RIPE"));
+        fullTextIndex.update();
+
+        final SearchResponse searchResponse = queryJson("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E&wt=json");
+
+        // document
+        assertThat(searchResponse.getResult().getDocs(), hasSize(1));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(5));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getName(), is("remarks"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getValue(), is("\"DEV mntner\""));
+
+        // highlighting
+        assertThat(searchResponse.getLsts(), hasSize(2));
+        assertThat(searchResponse.getLsts().get(0).getName(), is("responseHeader"));
+        assertThat(searchResponse.getLsts().get(1).getName(), is("highlighting"));
+        assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getName(), is("1"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getName(), is("remarks"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getStr().getValue(), is("\"<b>DEV</b> mntner\""));
     }
 
     // helper methods

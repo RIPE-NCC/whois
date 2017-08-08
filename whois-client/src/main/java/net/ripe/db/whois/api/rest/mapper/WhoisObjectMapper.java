@@ -99,11 +99,12 @@ public class WhoisObjectMapper {
             attributes.addAll(attributeMapper.map(rpslAttribute, source));
         }
 
-        return WhoisObject.create(
-                new Source(source),
-                type,
-                attributes,
-                primaryKeyAttributes,
-                Link.create(baseUrl, rpslObject));
+        return new WhoisObject.Builder()
+            .source(new Source(source))
+            .type(type)
+            .attributes(attributes)
+            .primaryKey(primaryKeyAttributes)
+            .link(Link.create(baseUrl, rpslObject))
+            .build();
     }
 }
