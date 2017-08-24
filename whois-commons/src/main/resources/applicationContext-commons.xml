@@ -37,12 +37,6 @@
         <property name="password" value="${acl.database.password}"/>
     </bean>
 
-    <bean id="dnscheckDataSource" parent="abstractDataSource">
-        <property name="jdbcUrl" value="${dnscheck.database.url}"/>
-        <property name="user" value="${dnscheck.database.username}"/>
-        <property name="password" value="${dnscheck.database.password}"/>
-    </bean>
-
     <bean id="mailupdatesDataSource" parent="abstractDataSource">
         <property name="jdbcUrl" value="${mailupdates.database.url}"/>
         <property name="user" value="${mailupdates.database.username}"/>
