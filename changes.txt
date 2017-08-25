@@ -6,6 +6,10 @@
 [api] Check if attribute not in object template, when deleting an object with references.
 [rdap] Set "parentHandle" field on RDAP ip responses, using the parent netname. (#440)
 [update] Allow whitespace in dsrdata digest (#439)
+[api] Refactored transfer code (#426)
+[api] Improved Search API (#441)
+[update] Removed dnscheck data source
+[grs] Set connect and read timeouts when downloading GRS mirror dumps
 
 # 1.89.2
 [update] Fix Zonemaster configuration
