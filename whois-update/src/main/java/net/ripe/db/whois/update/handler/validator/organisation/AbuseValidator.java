@@ -87,7 +87,7 @@ public class AbuseValidator implements BusinessRuleValidator {
     private void validateAbuseCRemoved(final RpslObject updatedObject, final PreparedUpdate update, final UpdateContext updateContext) {
         if (isAbuseCRemoved(updatedObject, update) &&
             (isLir(update.getReferenceObject()) ||
-                    isOrgReferencedByRsMaintainedResources(updatedObject, update))) {
+                    isOrgReferencedByRsMaintainedResources(updatedObject))) {
             updateContext.addMessage(update, UpdateMessages.abuseContactNotRemovable());
         }
     }
@@ -99,8 +99,8 @@ public class AbuseValidator implements BusinessRuleValidator {
                 (update.getReferenceObject().containsAttribute(AttributeType.ABUSE_C)));
     }
 
-    private boolean isOrgReferencedByRsMaintainedResources(final RpslObject updatedObject, final PreparedUpdate update) {
-        return updateDao.getReferences(update.getReferenceObject())
+    private boolean isOrgReferencedByRsMaintainedResources(final RpslObject updatedObject) {
+        return updateDao.getReferences(updatedObject)
             .stream()
             .filter(Objects::nonNull)
             .filter(rpslObjectInfo -> ObjectType.RESOURCE_TYPES.contains(rpslObjectInfo.getObjectType()))
