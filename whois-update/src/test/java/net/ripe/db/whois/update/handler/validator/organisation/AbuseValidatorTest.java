@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collections;
 
@@ -68,7 +69,7 @@ public class AbuseValidatorTest {
         when(update.getUpdatedObject()).thenReturn(organisation);
 
         final RpslObject role = RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC");
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(role));
+        when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenReturn(role);
 
         subject.validate(update, updateContext);
 
@@ -79,7 +80,7 @@ public class AbuseValidatorTest {
     @Test
     public void referencesRoleWithAbuseMailbox() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
+        when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenReturn(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net"));
 
         subject.validate(update, updateContext);
 
@@ -90,8 +91,8 @@ public class AbuseValidatorTest {
     @Test
     public void referencesPersonInsteadOfRole() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Collections.EMPTY_LIST);
-        when(objectDao.getByKeys(eq(ObjectType.PERSON), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("person: Some Person\nnic-hdl: AB-NIC")));
+        when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenThrow(new EmptyResultDataAccessException(1));
+        when(objectDao.getByKey(eq(ObjectType.PERSON), eq(CIString.ciString("AB-NIC")))).thenReturn(RpslObject.parse("person: Some Person\nnic-hdl: AB-NIC"));
 
         subject.validate(update, updateContext);
 
@@ -103,8 +104,8 @@ public class AbuseValidatorTest {
     @Test
     public void referenceNotFound() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Collections.EMPTY_LIST);
-        when(objectDao.getByKeys(eq(ObjectType.PERSON), anyCollection())).thenReturn(Collections.EMPTY_LIST);
+        when(objectDao.getByKey(eq(ObjectType.ROLE), eq(CIString.ciString("AB-NIC")))).thenThrow(new EmptyResultDataAccessException(1));
+        when(objectDao.getByKey(eq(ObjectType.PERSON), eq(CIString.ciString("AB-NIC")))).thenThrow(new EmptyResultDataAccessException(1));
 
         subject.validate(update, updateContext);
 
