@@ -35,7 +35,6 @@ public class ZonemasterDnsGateway implements DnsGateway {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDnsGateway.class);
 
-    // TODO: [ES] implement polling with backoff, to poll frequently at the start, and then less often as time goes by
     private static final int TEST_PROGRESS_SLEEP_SECONDS = 5;
     private static final int TEST_PROGRESS_MAXIMUM_RETRIES = ((60 * 5) / TEST_PROGRESS_SLEEP_SECONDS);
 

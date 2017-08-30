@@ -1,6 +1,7 @@
-package net.ripe.db.whois.api.search;
+package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
+import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
 import org.apache.lucene.index.IndexWriter;

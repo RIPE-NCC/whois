@@ -4,9 +4,13 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
+import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
+import net.ripe.db.whois.api.rest.search.AbuseContactSearch;
+import net.ripe.db.whois.api.rest.search.ManagedAttributeSearch;
+import net.ripe.db.whois.api.rest.search.ResourceHolderSearch;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
@@ -44,6 +48,14 @@ public class WhoisObjectServerMapperTest {
 
     @Mock
     private ReferencedTypeResolver referencedTypeResolver;
+    @Mock
+    private ResourceHolderSearch resourceHolderSearch;
+    @Mock
+    private AbuseContactSearch abuseContactSearch;
+    @Mock
+    private ManagedAttributeSearch managedAttributeSearch;
+    @Mock
+    private Parameters parameters;
 
     private WhoisObjectServerMapper whoisObjectServerMapper;
     private WhoisObjectMapper whoisObjectMapper;
@@ -54,7 +66,8 @@ public class WhoisObjectServerMapperTest {
                 new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL),
                 new FormattedClientAttributeMapper()
         });
-        whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper);
+        whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper, resourceHolderSearch, abuseContactSearch, managedAttributeSearch);
+        when(parameters.getUnformatted()).thenReturn(Boolean.FALSE);
     }
 
     @Test
@@ -84,14 +97,14 @@ public class WhoisObjectServerMapperTest {
         assertThat(primaryKeyAttribute.getName(), is("mntner"));
         assertThat(primaryKeyAttribute.getValue(), is("TST-MNT"));
         assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("mntner", "TST-MNT", null, null, null),
-                new Attribute("descr", "MNTNER for test", null, null, null),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TP1-TEST")),
-                new Attribute("upd-to", "dbtest@ripe.net", null, null, null),
-                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
-                new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", Link.create("http://localhost/lookup/test/key-cert/PGPKEY-28F6CD6C")),
-                new Attribute("mnt-by", "TST-MNT", null, "mntner", Link.create("http://localhost/lookup/test/mntner/TST-MNT")),
-                new Attribute("source", "TEST", null, null, null)
+                new Attribute("mntner", "TST-MNT", null, null, null, null),
+                new Attribute("descr", "MNTNER for test", null, null, null, null),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "dbtest@ripe.net", null, null, null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", Link.create("http://localhost/lookup/test/key-cert/PGPKEY-28F6CD6C"), null),
+                new Attribute("mnt-by", "TST-MNT", null, "mntner", Link.create("http://localhost/lookup/test/mntner/TST-MNT"), null),
+                new Attribute("source", "TEST", null, null, null, null)
         ));
     }
 
@@ -123,15 +136,15 @@ public class WhoisObjectServerMapperTest {
         assertThat(primaryKeyAttribute.getName(), is("as-set"));
         assertThat(primaryKeyAttribute.getValue(), is("AS-set-attendees"));
         assertThat(whoisObject.getAttributes(), containsInAnyOrder(
-                new Attribute("as-set", "AS-set-attendees", null, null, null),
-                new Attribute("descr", "AS-set containing all attendees' ASNs.", null, null, null),
-                new Attribute("tech-c", "TS1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TS1-TEST")),
-                new Attribute("admin-c", "TS1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TS1-TEST")),
-                new Attribute("members", "as1", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as1")),
-                new Attribute("members", "as2", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as2")),
-                new Attribute("members", "as3", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as3")),
-                new Attribute("mnt-by", "TS1-MNT", null, "mntner", Link.create("http://localhost/lookup/test/mntner/TS1-MNT")),
-                new Attribute("source", "TEST", null, null, null)
+                new Attribute("as-set", "AS-set-attendees", null, null, null, null),
+                new Attribute("descr", "AS-set containing all attendees' ASNs.", null, null, null, null),
+                new Attribute("tech-c", "TS1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TS1-TEST"), null),
+                new Attribute("admin-c", "TS1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TS1-TEST"), null),
+                new Attribute("members", "as1", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as1"), null),
+                new Attribute("members", "as2", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as2"), null),
+                new Attribute("members", "as3", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as3"), null),
+                new Attribute("mnt-by", "TS1-MNT", null, "mntner", Link.create("http://localhost/lookup/test/mntner/TS1-MNT"), null),
+                new Attribute("source", "TEST", null, null, null, null)
         ));
     }
 
@@ -164,15 +177,19 @@ public class WhoisObjectServerMapperTest {
 
     @Test
     public void map_tags() {
-        final List<WhoisTag> tags = whoisObjectServerMapper.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"),
+        final TagResponseObject tagResponseObject =
                 new TagResponseObject(ciString("TEST-DBM"),
                         Lists.newArrayList(
                                 new Tag(ciString("foo"), "foo data"),
                                 new Tag(ciString("bar"), "bar data"),
                                 new Tag(ciString("barf"), "barf data")
-                        )),
-                        FormattedServerAttributeMapper.class
-        ).getTags();
+                        ));
+
+
+        final WhoisObject whoisObject = whoisObjectServerMapper.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"), parameters);
+        whoisObjectServerMapper.mapTags(whoisObject, tagResponseObject);
+
+        final List<WhoisTag> tags = whoisObject.getTags();
 
         assertThat(tags, hasSize(3));
         final WhoisTag tag1 = tags.get(0);
