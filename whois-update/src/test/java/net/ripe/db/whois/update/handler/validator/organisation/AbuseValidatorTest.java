@@ -77,7 +77,7 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxRequired("AB-NIC"));
+        verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxRequired("AB-NIC", update.getUpdatedObject().getType()));
         verifyZeroInteractions(maintainers);
     }
 
@@ -101,7 +101,7 @@ public class AbuseValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseCPersonReference());
-        verify(updateContext, never()).addMessage(update, UpdateMessages.abuseMailboxRequired("nic-hdl: AB-NIC"));
+        verify(updateContext, never()).addMessage(update, UpdateMessages.abuseMailboxRequired("nic-hdl: AB-NIC", update.getUpdatedObject().getType()));
         verifyZeroInteractions(maintainers);
     }
 
