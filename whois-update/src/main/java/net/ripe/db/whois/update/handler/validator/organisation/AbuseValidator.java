@@ -90,7 +90,8 @@ public class AbuseValidator implements BusinessRuleValidator {
     }
 
     private void validateAbuseCRemoved(final RpslObject updatedObject, final PreparedUpdate update, final UpdateContext updateContext) {
-        if (isAbuseCRemoved(updatedObject, update) &&
+        if (updatedObject.getType() == ORGANISATION &&
+            isAbuseCRemoved(updatedObject, update) &&
             (isLir(update.getReferenceObject()) ||
                     isOrgReferencedByRsMaintainedResources(updatedObject))) {
             updateContext.addMessage(update, UpdateMessages.abuseContactNotRemovable());
