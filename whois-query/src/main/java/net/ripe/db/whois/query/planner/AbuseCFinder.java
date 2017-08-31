@@ -76,18 +76,32 @@ public class AbuseCFinder {
     @CheckForNull
     @Nullable
     private RpslObject getAbuseContactRoleInternal(final RpslObject object) {
+        RpslObject abuseContact;
+
         try {
-            if (object.containsAttribute(AttributeType.ORG)) {
-                final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, object.getValueForAttribute(AttributeType.ORG));
-                if (organisation.containsAttribute(AttributeType.ABUSE_C)) {
-                    final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, organisation.getValueForAttribute(AttributeType.ABUSE_C));
-                    if (abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
-                        return abuseCRole;
-                    }
+            abuseContact = getAbuseC(object);
+            if (abuseContact == null) {
+                if (object.containsAttribute(AttributeType.ORG)) {
+                    final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, object.getValueForAttribute(AttributeType.ORG));
+                    abuseContact = getAbuseC(organisation);
                 }
             }
         } catch (EmptyResultDataAccessException ignored) {
             LOGGER.debug("Ignored invalid reference (object {})", object.getKey());
+            abuseContact = null;
+        }
+
+        return abuseContact;
+    }
+
+    @CheckForNull
+    @Nullable
+    private RpslObject getAbuseC(final RpslObject rpslObject) {
+        if (rpslObject.containsAttribute(AttributeType.ABUSE_C)) {
+            final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, rpslObject.getValueForAttribute(AttributeType.ABUSE_C));
+            if (abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
+                return abuseCRole;
+            }
         }
         return null;
     }
