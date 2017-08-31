@@ -76,22 +76,30 @@ public class AbuseCFinder {
     @CheckForNull
     @Nullable
     private RpslObject getAbuseContactRoleInternal(final RpslObject object) {
-        RpslObject abuseContact;
-
         try {
-            abuseContact = getAbuseC(object);
-            if (abuseContact == null) {
-                if (object.containsAttribute(AttributeType.ORG)) {
-                    final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, object.getValueForAttribute(AttributeType.ORG));
-                    abuseContact = getAbuseC(organisation);
-                }
+            // use the abuse-c from the object if it exists:
+            RpslObject abuseContact = getAbuseC(object);
+            if (abuseContact != null) {
+                return abuseContact;
             }
+
+            // otherwise see if it can be obtained via an org attribute:
+            return getOrgAbuseC(object);
         } catch (EmptyResultDataAccessException ignored) {
             LOGGER.debug("Ignored invalid reference (object {})", object.getKey());
-            abuseContact = null;
         }
 
-        return abuseContact;
+        return null;
+    }
+
+    @CheckForNull
+    @Nullable
+    private RpslObject getOrgAbuseC(final RpslObject object) {
+        if (object.containsAttribute(AttributeType.ORG)) {
+            final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, object.getValueForAttribute(AttributeType.ORG));
+            return getAbuseC(organisation);
+        }
+        return null;
     }
 
     @CheckForNull
