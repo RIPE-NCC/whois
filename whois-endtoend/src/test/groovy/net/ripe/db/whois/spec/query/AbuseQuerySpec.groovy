@@ -879,4 +879,32 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
             queryObject("--abuse-contact AS200", "aut-num", "AS200")
             queryObjectNotFound("--abuse-contact AS200", "abuse-mailbox", "abuse@test.net")
     }
+
+    def "query -b aut-num with abuse-c on resource"() {
+        given:
+        databaseHelper.addObject("" +
+                "role:           Another Abuse Contact\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST")
+        databaseHelper.addObject("" +
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST")
+
+        expect:
+        queryObject("--abuse-contact AS200", "aut-num", "AS200")
+        queryObject("--abuse-contact AS200", "abuse-mailbox", "more_abuse@test.net")
+    }
+
 }
