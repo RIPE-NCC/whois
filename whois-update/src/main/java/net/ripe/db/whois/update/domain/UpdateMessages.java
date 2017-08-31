@@ -490,10 +490,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "The DIFF keyword is not supported.");
     }
 
-    public static Message abuseMailboxRequired(final CharSequence key) {
+    public static Message abuseMailboxRequired(final CharSequence key, final ObjectType objectType) {
         return new Message(Type.ERROR,
                 "The \"abuse-c\" ROLE object '%s' has no \"abuse-mailbox:\"\n"
-                        + "Add \"abuse-mailbox:\" to the ROLE object, then update the ORGANISATION object", key);
+                        + "Add \"abuse-mailbox:\" to the ROLE object, then update the %s object", key, objectType.getName().toUpperCase());
     }
 
     public static Message abuseCPersonReference() {

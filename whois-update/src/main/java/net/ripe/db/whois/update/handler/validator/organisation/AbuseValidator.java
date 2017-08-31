@@ -22,13 +22,18 @@ import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
+import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
+
 @Component
 public class AbuseValidator implements BusinessRuleValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbuseValidator.class);
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
-    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ORGANISATION, INETNUM, INET6NUM, AUT_NUM);
 
     private final RpslObjectDao objectDao;
     private final RpslObjectUpdateDao updateDao;
@@ -71,7 +76,7 @@ public class AbuseValidator implements BusinessRuleValidator {
         try {
             final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, abuseC);
             if (!abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
-                updateContext.addMessage(update, UpdateMessages.abuseMailboxRequired(abuseC));
+                updateContext.addMessage(update, UpdateMessages.abuseMailboxRequired(abuseC, updatedObject.getType()));
             }
         } catch (EmptyResultDataAccessException e) {
             try {
