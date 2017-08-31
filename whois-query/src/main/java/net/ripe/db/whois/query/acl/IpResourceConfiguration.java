@@ -84,7 +84,6 @@ public class IpResourceConfiguration {
             unlimitedConnections = refreshEntries(loader.loadUnlimitedConnections());
         } catch (RuntimeException e) {
             LOGGER.warn("Refresh failed due to {}: {}", e.getClass().getName(), e.getMessage());
-            throw e;
         }
     }
 
