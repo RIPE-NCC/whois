@@ -2,14 +2,12 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeParser.MntRoutesParser;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
-import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import javax.sql.DataSource;
 import java.util.Set;
 
 @Component
@@ -30,8 +27,8 @@ public class ReferencedTypeResolver {
     private final RpslObjectDao rpslObjectDao;
 
     @Autowired
-    public ReferencedTypeResolver(@Qualifier("whoisSlaveDataSource") final DataSource dataSource, final SourceContext sourceContext) {
-        this.rpslObjectDao = new JdbcRpslObjectDao(dataSource, sourceContext);
+    public ReferencedTypeResolver(@Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao) {
+        this.rpslObjectDao = rpslObjectDao;
     }
 
     @Nullable
