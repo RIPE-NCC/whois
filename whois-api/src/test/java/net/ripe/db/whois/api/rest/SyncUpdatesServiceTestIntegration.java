@@ -359,6 +359,31 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("Create SUCCEEDED: [mntner] TESTING-MNT"));
     }
 
+    @Ignore("TODO: [ES] FIXME don't allow SSO UUIDs as input")
+    @Test
+    public void create_selfreferencing_maintainer_with_sso_uuid() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String mntner =
+                "mntner:        TESTING-MNT\n" +
+                "descr:         description\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
+                "auth:          SSO person@net.net\n" +
+                "auth:          SSO 906635c2-0405-429a-800b-0602bd716124\n" +       // should not be allowed
+                "mnt-by:        TESTING-MNT\n" +
+                "source:        TEST";
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(mntner + "\npassword: pass %95{word}?\n"))
+                .request()
+                .get(String.class);
+
+        assertThat(response, not(containsString("Create SUCCEEDED: [mntner] TESTING-MNT")));
+    }
+
     @Test
     public void create_selfreferencing_maintainer_post_url_encoded_data() {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
