@@ -16,6 +16,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -47,6 +48,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -160,62 +162,58 @@ public class ReferencesService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}")
     public Response create(
-                final WhoisResources resource,
+                final WhoisResources whoisResources,
                 @PathParam("source") final String sourceParam,
                 @Context final HttpServletRequest request,
                 @QueryParam("password") final List<String> passwords,
                 @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
-        if (resource == null) {
-            return badRequest("WhoisResources is mandatory");
-        }
-
-        checkForMainSource(request, sourceParam);
+        validateWhoisResources(whoisResources);
+        validateSource(sourceParam);
 
         try {
             final List<ActionRequest> actionRequests = Lists.newArrayList();
 
-            final RpslObject mntner = createMntnerWithDummyAdminC(resource);
+            final RpslObject mntner = createMntnerWithDummyAdminC(whoisResources);
             actionRequests.add(new ActionRequest(mntner, Action.CREATE));
 
-            final RpslObject person = createPerson(resource);
+            final RpslObject person = createPerson(whoisResources);
             actionRequests.add(new ActionRequest(person, Action.CREATE));
 
             final RpslObject updatedMntner = replaceAdminC(mntner, "AUTO-1");
             actionRequests.add(new ActionRequest(updatedMntner, Action.MODIFY));
 
-            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.ACCOUNT, null);
-            return createResponse(request, filterWhoisObjects(whoisResources), Response.Status.OK);
+            validateObjectNotFound(whoisResources, mntner);
+
+            final WhoisResources updatedResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.ACCOUNT, null);
+            return createResponse(request, filterWhoisObjects(updatedResources), Response.Status.OK);
 
         } catch (WebApplicationException e) {
             final Response response = e.getResponse();
-
             switch (response.getStatus()) {
                 case HttpStatus.UNAUTHORIZED_401:
-                    throw new NotAuthorizedException(createResponse(request, resource, Response.Status.UNAUTHORIZED));
+                    throw new NotAuthorizedException(createResponse(request, whoisResources, Response.Status.UNAUTHORIZED));
 
                 case HttpStatus.INTERNAL_SERVER_ERROR_500:
-                    throw new InternalServerErrorException(createResponse(request, resource, Response.Status.INTERNAL_SERVER_ERROR));
+                    throw new InternalServerErrorException(createResponse(request, whoisResources, Response.Status.INTERNAL_SERVER_ERROR));
 
                 default:
-                    throw new BadRequestException(createResponse(request, resource, Response.Status.BAD_REQUEST));
+                    throw new BadRequestException(createResponse(request, whoisResources, Response.Status.BAD_REQUEST));
             }
-
         } catch (ReferenceUpdateFailedException e) {
             return createResponse(request, e.whoisResources, e.status);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Unexpected", e);
-            return createResponse(request, resource, Response.Status.INTERNAL_SERVER_ERROR);
+            return createResponse(request, whoisResources, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private RpslObject createPerson(final WhoisResources resource) {
-        return convertToRpslObject(resource, ObjectType.PERSON);
+    private RpslObject createPerson(final WhoisResources whoisResources) {
+        return convertToRpslObject(whoisResources, ObjectType.PERSON);
     }
 
-    private RpslObject createMntnerWithDummyAdminC(final WhoisResources resource) {
-        final RpslObject mntnerObject = convertToRpslObject(resource, ObjectType.MNTNER);
+    private RpslObject createMntnerWithDummyAdminC(final WhoisResources whoisResources) {
+        final RpslObject mntnerObject = convertToRpslObject(whoisResources, ObjectType.MNTNER);
         return replaceAdminC(mntnerObject, dummyRole);
     }
 
@@ -250,7 +248,7 @@ public class ReferencesService {
                 final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? (reason != null ? reason : "--") : null;
 
                 final RpslObject rpslObject;
-                if (ssoAuthForm == SsoAuthForm.UUID){
+                if (ssoAuthForm == SsoAuthForm.UUID) {
                     ssoTranslator.populateCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
                     rpslObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
                 } else {
@@ -294,13 +292,14 @@ public class ReferencesService {
     }
 
     private RpslObject convertToRpslObject(final WhoisResources whoisResources, final ObjectType objectType) {
-        for(WhoisObject whoisObject: whoisResources.getWhoisObjects()) {
+        for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
             if (objectType == ObjectType.getByName(whoisObject.getType())) {
                 return whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
             }
         }
 
-        throw new IllegalArgumentException("Unable to find " + objectType + " in WhoisResources");
+        setErrorMessage(whoisResources, "Unable to find " + objectType + " in WhoisResources");
+        throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
     }
 
     private List<ActionRequest> convertToActionRequests(final WhoisResources whoisResources) {
@@ -340,23 +339,17 @@ public class ReferencesService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}")
     public Response update(
-            final WhoisResources resource,
+            final WhoisResources whoisResources,
             @PathParam("source") final String sourceParam,
             @Context final HttpServletRequest request,
             @QueryParam("override") final String override) {
 
-        if (resource == null) {
-            return badRequest("WhoisResources is mandatory");
-        }
-
-        if (Strings.isNullOrEmpty(override)) {
-            return badRequest("override is mandatory");
-        }
-
-        checkForMainSource(request, sourceParam);
+        validateWhoisResources(whoisResources);
+        validateOverride(override);
+        validateSource(sourceParam);
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), Collections.<String>emptyList(), "", override, SsoAuthForm.ACCOUNT, null);
+            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(whoisResources), Collections.emptyList(), "", override, SsoAuthForm.ACCOUNT, null);
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -364,13 +357,13 @@ public class ReferencesService {
 
             switch (response.getStatus()) {
                 case HttpStatus.UNAUTHORIZED_401:
-                    throw new NotAuthorizedException(createResponse(request, resource, Response.Status.UNAUTHORIZED));
+                    throw new NotAuthorizedException(createResponse(request, whoisResources, Response.Status.UNAUTHORIZED));
 
                 case HttpStatus.INTERNAL_SERVER_ERROR_500:
-                    throw new InternalServerErrorException(createResponse(request, resource, Response.Status.INTERNAL_SERVER_ERROR));
+                    throw new InternalServerErrorException(createResponse(request, whoisResources, Response.Status.INTERNAL_SERVER_ERROR));
 
                 default:
-                    throw new BadRequestException(createResponse(request, resource, Response.Status.BAD_REQUEST));
+                    throw new BadRequestException(createResponse(request, whoisResources, Response.Status.BAD_REQUEST));
             }
 
         } catch (ReferenceUpdateFailedException e) {
@@ -378,7 +371,7 @@ public class ReferencesService {
         }
         catch (Exception e) {
             LOGGER.error("Unexpected", e);
-            return createResponse(request, resource, Response.Status.INTERNAL_SERVER_ERROR);
+            return createResponse(request, whoisResources, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -404,7 +397,7 @@ public class ReferencesService {
             @QueryParam("override") final String override,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
-        checkForMainSource(request, sourceParam);
+        validateSource(sourceParam);
 
         final RpslObject primaryObject = lookupObjectByKey(keyParam, objectTypeParam);
         final Map<RpslObjectInfo, RpslObject> references = findReferences(primaryObject);
@@ -451,23 +444,27 @@ public class ReferencesService {
             return createResponse(request, whoisResources, Response.Status.OK);
 
         } catch (ReferenceUpdateFailedException e) {
-            return createResponse(request, removeWhoisObjects(e.whoisResources), e.status);
+            removeWhoisObjects(e.whoisResources);
+            return createResponse(request, e.whoisResources, e.status);
         } catch (Exception e) {
             LOGGER.error("Unexpected", e);
             throw e;
         }
     }
 
-    private WhoisResources removeWhoisObjects(final WhoisResources whoisResources){
+    private void removeWhoisObjects(final WhoisResources whoisResources) {
         whoisResources.setWhoisObjects(null);
-        return whoisResources;
+    }
+
+    private void setErrorMessage(final WhoisResources whoisResources, final String errorMessage) {
+        whoisResources.setErrorMessages(Lists.newArrayList(new ErrorMessage(new Message(Messages.Type.ERROR, errorMessage))));
     }
 
     private void removeDuplicatesAndRestoreReplacedReferences(final WhoisResources whoisResources, final RpslObjectWithReplacements tmpMntnerWithReplacements) {
         final Map<List<Attribute>, WhoisObject> result = Maps.newHashMap();
 
         for (final WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
-            if (whoisObject.getType().equalsIgnoreCase(AttributeType.MNTNER.getName())){
+            if (whoisObject.getType().equalsIgnoreCase(AttributeType.MNTNER.getName())) {
                 final RpslObject mntnerWithDummyRole = whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
 
                 final RpslObjectBuilder builder = new RpslObjectBuilder(mntnerWithDummyRole);
@@ -589,6 +586,16 @@ public class ReferencesService {
         }
     }
 
+    private void validateObjectNotFound(final WhoisResources whoisResources, final RpslObject rpslObject) {
+        try {
+            lookupObjectByKey(rpslObject.getKey().toString(), rpslObject.getType());
+            setErrorMessage(whoisResources, rpslObject.getType().getName() + " " + rpslObject.getKey() + " already exists");
+            throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
+        } catch (EmptyResultDataAccessException e) {
+            // object not found (expected)
+        }
+    }
+
     private Response createResponse(final HttpServletRequest request, final RpslObject primaryObject, final Response.Status status) {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setWhoisObjects(Lists.newArrayList(convertToWhoisObject(primaryObject)));
@@ -679,10 +686,10 @@ public class ReferencesService {
         return rpslObject;
     }
 
-    public RpslObject addDummyAttribute(RpslObject rpslObject, final AttributeType attributeType) {
+    public RpslObject addDummyAttribute(final RpslObject rpslObject, final AttributeType attributeType) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
         final Object dummyValue = dummyMap.get(attributeType.toString());
-        if(dummyValue != null)
+        if (dummyValue != null)
         {
             final RpslAttribute attr = new RpslAttribute(attributeType, dummyValue.toString());
             return builder.addAttributeSorted(attr).get();
@@ -700,8 +707,12 @@ public class ReferencesService {
     // DAO calls
 
     private RpslObject lookupObjectByKey(final String primaryKey, final String objectType) {
+        return lookupObjectByKey(primaryKey, ObjectType.getByName(objectType));
+    }
+
+    private RpslObject lookupObjectByKey(final String primaryKey, final ObjectType objectType) {
         try {
-            return rpslObjectDao.getByKey(ObjectType.getByName(objectType), primaryKey);
+            return rpslObjectDao.getByKey(objectType, primaryKey);
         } catch (EmptyResultDataAccessException e) {
             throw e;
         } catch (DataAccessException e) {
@@ -731,20 +742,22 @@ public class ReferencesService {
         loggerContext.log(new HttpRequestMessage(request));
     }
 
-    private void checkForMainSource(final HttpServletRequest request, final String source) {
+    private void validateSource(final String source) {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
-            throwBadRequest(request, RestMessages.invalidSource(source));
+            throw new IllegalArgumentException("Invalid source '" + source + "'");
         }
     }
 
-    private void throwBadRequest(final HttpServletRequest request, final Message message) {
-        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                .entity(RestServiceHelper.createErrorEntity(request, message))
-                .build());
+    private void validateWhoisResources(@Nullable final WhoisResources whoisResources) {
+        if (whoisResources == null) {
+            throw new IllegalArgumentException("WhoisResources is mandatory");
+        }
     }
 
-    private Response badRequest(final String message) {
-        return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+    private void validateOverride(@Nullable final String override) {
+        if (Strings.isNullOrEmpty(override)) {
+            throw new IllegalArgumentException("override is mandatory");
+        }
     }
 
     // model classes
@@ -810,7 +823,7 @@ public class ReferencesService {
         private final WhoisResources whoisResources;
         private final Response.Status status;
 
-        public ReferenceUpdateFailedException(Response.Status status, WhoisResources whoisResources) {
+        public ReferenceUpdateFailedException(final Response.Status status, final WhoisResources whoisResources) {
             this.status = status;
             this.whoisResources = whoisResources;
         }

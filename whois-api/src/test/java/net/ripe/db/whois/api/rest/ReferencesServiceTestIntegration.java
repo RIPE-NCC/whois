@@ -25,14 +25,12 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.mail.MessagingException;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
@@ -146,6 +144,22 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_missing_whois_resources_body() {
+        try {
+            RestTest.target(getPort(), "whois/references/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(null, WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+
+            RestTest.assertErrorCount(response, 1);
+            RestTest.assertErrorMessage(response, 0, "Error", "WhoisResources is mandatory");
+        }
+    }
+
+    @Test
     public void create_person_mntner_pair_auth_fail() {
         final WhoisResources whoisResources =
             mapRpslObjects(
@@ -215,7 +229,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("TODO: do not modify existing mntner")
     @Test
     public void create_person_mntner_pair_mntner_exists() {
         final RpslObject anotherMntner = RpslObject.parse(
@@ -252,8 +265,10 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
-        } catch (ClientErrorException e) {
-            // TODO: make sure that existing mntner is not modified (create should fail).
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(response.getErrorMessages(), hasSize(1));
+            assertThat(response.getErrorMessages().get(0).toString(), is("mntner ANOTHER-MNT already exists"));
         }
     }
 
@@ -389,6 +404,21 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(true));
         assertThat(objectExists(ObjectType.PERSON, "TP3-TEST"), is(true));
         assertThat(objectExists(ObjectType.PERSON, "TP4-TEST"), is(true));
+    }
+
+    @Test
+    public void update_missing_override_is_mandatory() {
+        try {
+            RestTest.target(getPort(), "whois/references/test")
+                .request()
+                .put(Entity.entity(mapRpslObjects(RpslObject.parse("person: Test Person\nnic-hdl: AUTO-1\nsource: TEST")), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+
+            RestTest.assertErrorCount(response, 1);
+            RestTest.assertErrorMessage(response, 0, "Error", "override is mandatory");
+        }
     }
 
     @Test
