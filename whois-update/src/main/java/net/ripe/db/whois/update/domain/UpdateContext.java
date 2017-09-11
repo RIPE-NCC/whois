@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.SsoTranslation;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
@@ -32,8 +33,8 @@ public class UpdateContext {
     private final Map<Update, CIString> placeHolderForUpdate = Maps.newHashMap();
     private final Map<CIString, GeneratedKey> generatedKeys = Maps.newHashMap();
     private final Map<Update, Context> contexts = Maps.newLinkedHashMap();
+    private final SsoTranslation ssoTranslation = new SsoTranslation();
     private final Map<DnsCheckRequest, DnsCheckResponse> dnsCheckResponses = Maps.newHashMap();
-    private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
 
     private int nrSinceRestart;
@@ -73,27 +74,6 @@ public class UpdateContext {
         if (previous != null) {
             throw new IllegalStateException("Existing response for request: " + request);
         }
-    }
-
-    public void addSsoTranslationResult(final String username, final String uuid) {
-        final String duplicateUuid = ssoTranslation.put(username, uuid);
-        if (duplicateUuid != null) {
-            throw new IllegalStateException("Duplicate UUID '" + duplicateUuid + "' in SSO translation! (" + username + "=" + uuid + ")");
-        }
-
-        final String duplicateUsername = ssoTranslation.put(uuid, username);
-        if (duplicateUsername != null) {
-            throw new IllegalStateException("Duplicate username '" + duplicateUsername + "' in SSO translation! (" + username + "=" + uuid + ")");
-        }
-    }
-
-    public boolean hasSsoTranslationResult(String usernameOrUuid) {
-        return ssoTranslation.containsKey(usernameOrUuid);
-    }
-
-    @CheckForNull
-    public String getSsoTranslationResult(final String usernameOrUuid) {
-        return ssoTranslation.get(usernameOrUuid);
     }
 
     public void addPendingUpdate(final UpdateContainer updateContainer, final PendingUpdate pendingUpdate) {
@@ -319,6 +299,10 @@ public class UpdateContext {
 
     public UserSession getUserSession() {
         return userSession;
+    }
+
+    public SsoTranslation getSsoTranslation() {
+        return ssoTranslation;
     }
 
     private static class Context {
