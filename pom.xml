@@ -871,15 +871,15 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <!-- dependency check is off by default. Run mvn dependency-check:check to run standalone -->
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
                 <version>2.1.1</version>
                 <executions>
                     <execution>
-                        <goals>
-                            <goal>aggregate</goal>
-                        </goals>
+                        <id>not-by-default</id>
+                        <phase>not-by-default</phase>
                     </execution>
                 </executions>
             </plugin>
