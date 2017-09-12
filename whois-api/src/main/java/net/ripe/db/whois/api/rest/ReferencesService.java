@@ -140,7 +140,7 @@ public class ReferencesService {
         final Reference result = new Reference(keyParam, objectTypeParam);
         populateIncomingReferences(result);
 
-        for (Reference reference : result.getIncoming()) {
+        for (final Reference reference : result.getIncoming()) {
             populateIncomingReferences(reference);
         }
 
@@ -150,7 +150,7 @@ public class ReferencesService {
     private void populateIncomingReferences(final Reference reference) {
         final RpslObject primaryObject = lookupObjectByKey(reference.getPrimaryKey(), reference.getObjectType());
 
-        for (Map.Entry<RpslObjectInfo, RpslObject> entry : findReferences(primaryObject).entrySet()) {
+        for (final Map.Entry<RpslObjectInfo, RpslObject> entry : findReferences(primaryObject).entrySet()) {
             final RpslObject referenceObject = entry.getValue();
             final Reference referenceToReference = new Reference(referenceObject.getKey().toString(), referenceObject.getType().getName());
             reference.getIncoming().add(referenceToReference);
@@ -244,7 +244,7 @@ public class ReferencesService {
             auditlogRequest(request);
 
             final List<Update> updates = Lists.newArrayList();
-            for (ActionRequest actionRequest : actionRequests) {
+            for (final ActionRequest actionRequest : actionRequests) {
                 final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? (reason != null ? reason : "--") : null;
 
                 final RpslObject rpslObject;
@@ -259,7 +259,7 @@ public class ReferencesService {
 
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
 
-            for (Update update : updates) {
+            for (final Update update : updates) {
                 final UpdateStatus status = updateContext.getStatus(update);
 
                 if (status != UpdateStatus.SUCCESS) {
@@ -292,7 +292,7 @@ public class ReferencesService {
     }
 
     private RpslObject convertToRpslObject(final WhoisResources whoisResources, final ObjectType objectType) {
-        for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
+        for (final WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
             if (objectType == ObjectType.getByName(whoisObject.getType())) {
                 return whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
             }
@@ -305,7 +305,7 @@ public class ReferencesService {
     private List<ActionRequest> convertToActionRequests(final WhoisResources whoisResources) {
         final List<ActionRequest> actionRequests = Lists.newArrayList();
 
-        for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
+        for (final WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
             final RpslObject rpslObject = whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
             final Action action = whoisObject.getAction() != null ? whoisObject.getAction() : Action.MODIFY;
             actionRequests.add(new ActionRequest(rpslObject, action));
@@ -318,7 +318,7 @@ public class ReferencesService {
     private WhoisResources filterWhoisObjects(final WhoisResources whoisResources) {
         final Map<List<Attribute>, WhoisObject> result = Maps.newHashMap();
 
-        for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
+        for (final WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
             result.put(whoisObject.getPrimaryKey(), whoisObject);
         }
 
@@ -518,8 +518,8 @@ public class ReferencesService {
                 // TODO: add error message "error updating/deleting <specific object>"
 
                 final WhoisResources whoisResources = ((InternalUpdatePerformer.StreamingResponse) response.getEntity()).getWhoisResources();
-                for (ErrorMessage errorMessage : whoisResources.getErrorMessages()) {
-                    LOGGER.warn("Error Message: {}", errorMessage.toString());
+                for (final ErrorMessage errorMessage : whoisResources.getErrorMessages()) {
+                    LOGGER.warn("Error Message: {}", errorMessage);
                 }
 
                 throw new WebApplicationException(response);
@@ -544,7 +544,7 @@ public class ReferencesService {
 
             // references must be of person / role only
 
-            for (Map.Entry<RpslObjectInfo, RpslObject> entry : references.entrySet()) {
+            for (final Map.Entry<RpslObjectInfo, RpslObject> entry : references.entrySet()) {
                 final RpslObjectInfo reference = entry.getKey();
 
                 if (!reference.getObjectType().equals(ObjectType.PERSON) && !reference.getObjectType().equals(ObjectType.ROLE)) {
@@ -555,13 +555,10 @@ public class ReferencesService {
         } else {
 
             if (primaryObject.getType().equals(ObjectType.PERSON) || primaryObject.getType().equals(ObjectType.ROLE)) {
-
-                // references must be of mntner only
-
-                for (Map.Entry<RpslObjectInfo, RpslObject> entry : references.entrySet()) {
+                for (final Map.Entry<RpslObjectInfo, RpslObject> entry : references.entrySet()) {
                     final RpslObjectInfo reference = entry.getKey();
-
                     if (!reference.getObjectType().equals(ObjectType.MNTNER)) {
+                        // references must be of mntner only
                         throw new IllegalArgumentException("Referencing object " + entry.getKey().getKey() + " type " + entry.getKey().getObjectType() + " is not supported.");
                     }
                 }
@@ -572,14 +569,10 @@ public class ReferencesService {
 
         // validate references - ensure a closed group
 
-        for (Map.Entry<RpslObjectInfo, RpslObject> entry : references.entrySet()) {
-
+        for (final Map.Entry<RpslObjectInfo, RpslObject> entry : references.entrySet()) {
             final RpslObject reference = entry.getValue();
-
-            for (RpslObjectInfo referenceToReference : rpslObjectUpdateDao.getReferences(reference)) {
-
+            for (final RpslObjectInfo referenceToReference : rpslObjectUpdateDao.getReferences(reference)) {
                 if (!referenceMatches(referenceToReference, primaryObject) && !references.keySet().contains(referenceToReference)) {
-
                     throw new IllegalArgumentException("Referencing object " + reference.getKey()  + " itself is referenced by " + referenceToReference.getKey());
                 }
             }
@@ -723,9 +716,8 @@ public class ReferencesService {
 
     private Map<RpslObjectInfo, RpslObject> findReferences(final RpslObject rpslObject) {
         final Map<RpslObjectInfo, RpslObject> references = Maps.newHashMap();
-
         try {
-            for (RpslObjectInfo rpslObjectInfo : rpslObjectUpdateDao.getReferences(rpslObject)) {
+            for (final RpslObjectInfo rpslObjectInfo : rpslObjectUpdateDao.getReferences(rpslObject)) {
                 references.put(rpslObjectInfo, rpslObjectDao.getById(rpslObjectInfo.getObjectId()));
             }
         } catch (EmptyResultDataAccessException e) {
