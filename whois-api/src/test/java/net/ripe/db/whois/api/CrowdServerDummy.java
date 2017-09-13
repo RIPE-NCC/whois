@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.SsoTranslation;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
@@ -43,18 +44,14 @@ public class CrowdServerDummy implements Stub {
     }
 
     private class CrowdTestHandler extends AbstractHandler {
-        final Map<String, String> usermap;
-        {
-            usermap = Maps.newHashMap();
-            usermap.put("db-test@ripe.net", "ed7cd420-6402-11e3-949a-0800200c9a66");
-            usermap.put("random@ripe.net", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503");
-            usermap.put("test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5");
-            usermap.put("person@net.net", "906635c2-0405-429a-800b-0602bd716124");
 
-            usermap.put("ed7cd420-6402-11e3-949a-0800200c9a66", "db-test@ripe.net");
-            usermap.put("017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", "random@ripe.net");
-            usermap.put("8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "test@ripe.net");
-            usermap.put("906635c2-0405-429a-800b-0602bd716124", "person@net.net");
+
+        final SsoTranslation ssoMap = new SsoTranslation();
+        {
+            ssoMap.put("db-test@ripe.net", "ed7cd420-6402-11e3-949a-0800200c9a66");
+            ssoMap.put("random@ripe.net", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503");
+            ssoMap.put("test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5");
+            ssoMap.put("person@net.net", "906635c2-0405-429a-800b-0602bd716124");
         }
 
         final Map<String, UserSession> crowdSessionMap;
@@ -72,7 +69,7 @@ public class CrowdServerDummy implements Stub {
             final Map<String, String[]> parameterMap = request.getParameterMap();
 
             if (parameterMap.get("username") != null) {
-                final String uuid = usermap.get(parameterMap.get("username")[0]);
+                final String uuid = ssoMap.getUuid(parameterMap.get("username")[0]);
                 if (uuid == null) {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 } else {
@@ -81,7 +78,7 @@ public class CrowdServerDummy implements Stub {
                 }
             }
             else if (parameterMap.get("uuid") != null) {
-                final String username = usermap.get(parameterMap.get("uuid")[0]);
+                final String username = ssoMap.getUsername(parameterMap.get("uuid")[0]);
                 if (username == null) {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 } else {
