@@ -29,10 +29,10 @@ public class SsoTranslator {
             @CheckForNull
             public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
-                    if (!updateContext.hasSsoTranslationResult(authToken)) {
+                    if (!updateContext.getSsoTranslation().containsUuid(authToken)) {
                         try {
                             final String username = crowdClient.getUsername(authToken);
-                            updateContext.addSsoTranslationResult(authToken, username);
+                            updateContext.getSsoTranslation().put(username, authToken);
                         } catch (CrowdClientException e) {
                             if (!updateContext.getGlobalMessages().getErrors().contains(UpdateMessages.ripeAccessServerUnavailable())) {
                                 updateContext.addGlobalMessage(UpdateMessages.ripeAccessServerUnavailable());
@@ -52,10 +52,10 @@ public class SsoTranslator {
             @CheckForNull
             public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
-                    if (!updateContext.hasSsoTranslationResult(authToken)) {
+                    if (!updateContext.getSsoTranslation().containsUsername(authToken)) {
                         try {
                             final String uuid = crowdClient.getUuid(authToken);
-                            updateContext.addSsoTranslationResult(authToken, uuid);
+                            updateContext.getSsoTranslation().put(authToken, uuid);
                         } catch (CrowdClientException e) {
                             updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
                         }
@@ -67,23 +67,30 @@ public class SsoTranslator {
     }
 
     public RpslObject translateFromCacheAuthToUuid(final UpdateContext updateContext, final RpslObject rpslObject) {
-        return translateAuthFromCache(updateContext, rpslObject);
-    }
-
-    public RpslObject translateFromCacheAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
-        return translateAuthFromCache(updateContext, rpslObject);
-    }
-
-    private RpslObject translateAuthFromCache(final UpdateContext updateContext, final RpslObject rpslObject) {
         return SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
             @Override
             @CheckForNull
             public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
-                    final String translatedValue = updateContext.getSsoTranslationResult(authToken);
-                    if (translatedValue != null) {
-                        String authValue = String.format("SSO %s", translatedValue);
-                        return new RpslAttribute(originalAttribute.getKey(), authValue);
+                    final String uuid = updateContext.getSsoTranslation().getUuid(authToken);
+                    if (uuid != null) {
+                        return new RpslAttribute(originalAttribute.getKey(), String.format("SSO %s", uuid));
+                    }
+                }
+                return null;
+            }
+        });
+    }
+
+    public RpslObject translateFromCacheAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
+        return SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
+            @Override
+            @CheckForNull
+            public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
+                if (authType.equals("SSO")) {
+                    final String username = updateContext.getSsoTranslation().getUsername(authToken);
+                    if (username != null) {
+                        return new RpslAttribute(originalAttribute.getKey(), String.format("SSO %s", username));
                     }
                 }
                 return null;

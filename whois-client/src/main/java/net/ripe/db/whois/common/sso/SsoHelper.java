@@ -14,7 +14,7 @@ public class SsoHelper {
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
 
     public static RpslObject translateAuth(final RpslObject rpslObject, final AuthTranslator authTranslator) {
-        if (!rpslObject.containsAttribute(AttributeType.AUTH)) {    // IRT also has auth:
+        if (!rpslObject.containsAttribute(AttributeType.AUTH)) {
             return rpslObject;
         }
 
