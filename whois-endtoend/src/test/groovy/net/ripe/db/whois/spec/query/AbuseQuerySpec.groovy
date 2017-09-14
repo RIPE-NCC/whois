@@ -1,4 +1,5 @@
 package net.ripe.db.whois.spec.query
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
@@ -193,7 +194,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 """,
-                "ROLE":"""\
+                "ABUSE-ROLE":"""\
                 role:    Abuse Me
                 address: St James Street
                 address: Burnley
@@ -205,6 +206,24 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 abuse-mailbox: abuse@test.net
                 mnt-by:  TST-MNT2
                 source:  TEST
+                """,
+                "ANOTHER-ABUSE-ROLE": """\
+                role:           Another Abuse Contact
+                address:        Amsterdam
+                e-mail:         dbtest@ripe.net
+                nic-hdl:        AAC1-TEST
+                abuse-mailbox:  more_abuse@test.net
+                mnt-by:         TST-MNT2
+                source:         TEST
+                """,
+                "YET-ANOTHER-ABUSE-ROLE": """\
+                role:           Yet Another Abuse Contact
+                address:        Amsterdam
+                e-mail:         dbtest@ripe.net
+                nic-hdl:        YAHC1-TEST
+                abuse-mailbox:  yet_more_abuse@test.net
+                mnt-by:         TST-MNT2
+                source:         TEST
                 """,
                 "ORG-W-ABUSE_C": """\
                 organisation:    ORG-FO1-TEST
@@ -850,7 +869,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
     def "query -b aut-num with abuse-c"() {
         given:
-            databaseHelper.addObject(getTransient("ROLE"))
+            databaseHelper.addObject(getTransient("ABUSE-ROLE"))
             databaseHelper.addObject(getTransient("ORG-W-ABUSE_C"))
             databaseHelper.addObject(getTransient("AUTNUM"))
 
@@ -905,6 +924,46 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         expect:
         queryObject("--abuse-contact AS200", "aut-num", "AS200")
         queryObject("--abuse-contact AS200", "abuse-mailbox", "more_abuse@test.net")
+    }
+
+    def "assignments with different abuse-c overrides org reference"() {
+      given:
+            databaseHelper.addObject(getTransient("ANOTHER-ABUSE-ROLE"))
+            databaseHelper.addObject(getTransient("YET-ANOTHER-ABUSE-ROLE"))
+            databaseHelper.addObject(getTransient("ALLOC-PA-A"))
+            databaseHelper.addObject("" +
+                "inetnum:      192.168.100.0 - 192.168.100.255\n" +
+                "netname:      RIPE-NET1\n" +
+                "descr:        /24 assigned\n" +
+                "country:      NL\n" +
+                "org:          ORG-LIRA-TEST\n" +
+                "abuse-c:      AAC1-TEST\n" +
+                "admin-c:      TP1-TEST\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ASSIGNED PA\n" +
+                "mnt-by:       LIR2-MNT\n" +
+                "source:       TEST\n")
+            databaseHelper.addObject("" +
+                "inetnum:      192.168.200.0 - 192.168.200.255\n" +
+                "netname:      RIPE-NET2\n" +
+                "descr:        /24 assigned\n" +
+                "country:      NL\n" +
+                "org:          ORG-LIRA-TEST\n" +
+                "abuse-c:      YAHC1-TEST\n" +
+                "admin-c:      TP1-TEST\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ASSIGNED PA\n" +
+                "mnt-by:       LIR2-MNT\n" +
+                "source:       TEST\n")
+      expect:
+        // Allocation
+        queryLineMatches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
+        // All more specific - Allocation
+        queryLineMatches("-r -M -T inetnum 192.168.0.0 - 192.171.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
+        // All more specific - First Assignment
+        queryLineMatches("-r -M -T inetnum 192.168.0.0 - 192.171.255.255", "% Abuse contact for '192.168.100.0 - 192.168.100.255' is 'more_abuse@test.net'")
+        // All more specific - Second Assignment
+        queryLineMatches("-r -M -T inetnum 192.168.0.0 - 192.171.255.255", "% Abuse contact for '192.168.200.0 - 192.168.200.255' is 'yet_more_abuse@test.net'")
     }
 
 }
