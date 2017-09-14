@@ -45,9 +45,9 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
             "mnt-by:        TEST-MNT\n" +
             "source:        TEST",
 
-            "person:        AbuseC Person\n" +
+            "role:          AbuseC Person\n" +
             "address:       VENUSNIC, see http://www.venusnic.net\n" +
-            "nic-hdl:       ABUSEC-PERSON-TEST\n" +
+            "nic-hdl:       ABUSEC-ROLE-TEST\n" +
             "abuse-mailbox: abuseperson@ripe.net\n" +
             "mnt-by:        TEST-MNT\n" +
             "source:        TEST",
@@ -56,8 +56,8 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
             "abuse-c:       ABU-TEST\n" +
             "source:        TEST",
 
-            "organisation:  ORG-TEST-ABUSEC-PERSON\n" +
-            "abuse-c:       ABUSEC-PERSON-TEST\n" +
+            "organisation:  ORG-TEST-ABUSEC-ROLE\n" +
+            "abuse-c:       ABUSEC-ROLE-TEST\n" +
             "source:        TEST",
 
             "inetnum:       173.0.0.0 - 173.255.255.255\n" +
@@ -230,8 +230,8 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void query_inverse_person() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-i pn ABUSEC-PERSON-TEST");
-        assertThat(response, containsString("ORG-TEST-ABUSEC-PERSON"));
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-i pn ABUSEC-ROLE-TEST");
+        assertThat(response, containsString("ORG-TEST-ABUSEC-ROLE"));
     }
 
     @Test
