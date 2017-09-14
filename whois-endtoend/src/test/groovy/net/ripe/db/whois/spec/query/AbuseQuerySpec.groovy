@@ -952,16 +952,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryObject("-i pn AH2-TEST", "aut-num", "AS200")
     }
 
-    def "query for abuse-c organisation"() {
-        given:
-        databaseHelper.addObject(getTransient("ROLE"))
-        databaseHelper.addObject(getTransient("ORG-W-ABUSE_C"))
-        databaseHelper.addObject(getTransient("AUTNUM"))
-        expect:
-        queryObject("-rBG -T organisation ORG-FO1-TEST", "abuse-c", "AB-TEST")
-        queryObject("--abuse-contact AS200", "abuse-mailbox", "abuse@test.net")
-    }
-
     def "assignments with different abuse-c overrides org reference"() {
       given:
             databaseHelper.addObject(getTransient("ANOTHER-ABUSE-ROLE"))
