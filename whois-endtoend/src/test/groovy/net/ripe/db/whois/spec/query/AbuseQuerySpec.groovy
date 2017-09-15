@@ -926,6 +926,15 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryObject("--abuse-contact AS200", "abuse-mailbox", "more_abuse@test.net")
     }
 
+    def "inverse query for organisation using person"() {
+        given:
+        databaseHelper.addObject(getTransient("ABUSE-ROLE"))
+        databaseHelper.addObject(getTransient("ORG-W-ABUSE_C"))
+
+        expect:
+        queryObject("-i pn AB-TEST", "organisation", "ORG-FO1-TEST")
+    }
+
     def "inverse query for aut-num using person"() {
         given:
         databaseHelper.addObject("" +
