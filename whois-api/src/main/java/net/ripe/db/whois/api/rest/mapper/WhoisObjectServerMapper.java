@@ -92,7 +92,7 @@ public class WhoisObjectServerMapper {
         if (Boolean.TRUE == parameters.getManagedAttributes()) {
             whoisObject.setComaintained(managedAttributeSearch.isCoMaintained(rpslObject));
         }
-        if (whoisObject.isComaintained()) {
+        if (whoisObject.isComaintained() == Boolean.TRUE) {
             final Iterator<Attribute> attributeIterator = whoisObject.getAttributes().iterator();
             final Iterator<RpslAttribute> rpslAttributeIterator = rpslObject.getAttributes().iterator();
             while (attributeIterator.hasNext() && rpslAttributeIterator.hasNext()) {
