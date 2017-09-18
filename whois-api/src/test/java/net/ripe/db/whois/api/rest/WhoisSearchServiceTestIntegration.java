@@ -1472,6 +1472,16 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:    TEST\n");                           // managed
         ipTreeUpdater.rebuild();
 
+        final WhoisResources response0 = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+        // Ensure passing no flags means that the comaintained flag is null (nulls are stripped from JSON response)
+        assertThat(response0.getWhoisObjects(), hasSize(3));
+        assertThat(response0.getWhoisObjects().get(0).isComaintained(), is(nullValue()));
+        assertThat(response0.getWhoisObjects().get(1).isComaintained(), is(nullValue()));
+        assertThat(response0.getWhoisObjects().get(2).isComaintained(), is(nullValue()));
+        assertThat(response0.getWhoisObjects().get(0).getAttributes(), hasSize(11));
+
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&managed-attributes")
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .get(WhoisResources.class);
