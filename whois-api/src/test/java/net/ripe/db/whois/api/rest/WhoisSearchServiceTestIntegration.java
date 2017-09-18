@@ -1477,6 +1477,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(3));
+        assertThat(response.getWhoisObjects().get(0).isComaintained(), is(true));
         assertThat(response.getWhoisObjects().get(0).getAttributes(), hasSize(11));
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getName(), is("inetnum"));
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(true));
