@@ -266,16 +266,16 @@ public class WhoisObject {
         return abuseContact;
     }
 
+    public void setAbuseContact(final AbuseContact abuseContact) {
+        this.abuseContact = abuseContact;
+    }
+
     public Boolean isComaintained() {
         return comaintained;
     }
 
     public void setComaintained(Boolean comaintained) {
         this.comaintained = comaintained;
-    }
-
-    public void setAbuseContact(final AbuseContact abuseContact) {
-        this.abuseContact = abuseContact;
     }
 
     public String toString() {
