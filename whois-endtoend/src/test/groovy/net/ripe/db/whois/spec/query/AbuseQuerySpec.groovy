@@ -926,6 +926,41 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryObject("--abuse-contact AS200", "abuse-mailbox", "more_abuse@test.net")
     }
 
+    def "inverse query for organisation using person"() {
+        given:
+        databaseHelper.addObject(getTransient("ABUSE-ROLE"))
+        databaseHelper.addObject(getTransient("ORG-W-ABUSE_C"))
+
+        expect:
+        queryObject("-i pn AB-TEST", "organisation", "ORG-FO1-TEST")
+    }
+
+    def "inverse query for aut-num using person"() {
+        given:
+        databaseHelper.addObject("" +
+                "role:           Another Abuse Contact\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST")
+        databaseHelper.addObject("" +
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST")
+
+        expect:
+        queryObject("-i pn AH2-TEST", "aut-num", "AS200")
+    }
+
     def "assignments with different abuse-c overrides org reference"() {
       given:
             databaseHelper.addObject(getTransient("ANOTHER-ABUSE-ROLE"))
