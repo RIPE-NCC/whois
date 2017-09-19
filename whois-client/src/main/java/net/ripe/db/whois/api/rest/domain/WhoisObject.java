@@ -194,7 +194,7 @@ public class WhoisObject {
         return link;
     }
 
-    public void setLink(Link value) {
+    public void setLink(final Link value) {
         this.link = value;
     }
 
@@ -202,7 +202,7 @@ public class WhoisObject {
         return source;
     }
 
-    public void setSource(Source value) {
+    public void setSource(final Source value) {
         this.source = value;
     }
 
@@ -226,7 +226,7 @@ public class WhoisObject {
         return type;
     }
 
-    public void setType(String value) {
+    public void setType(final String value) {
         this.type = value;
     }
 
@@ -234,7 +234,7 @@ public class WhoisObject {
         return action;
     }
 
-    public void setAction(Action action) {
+    public void setAction(final Action action) {
         this.action = action;
     }
 
@@ -274,7 +274,7 @@ public class WhoisObject {
         return comaintained;
     }
 
-    public void setComaintained(Boolean comaintained) {
+    public void setComaintained(final Boolean comaintained) {
         this.comaintained = comaintained;
     }
 
