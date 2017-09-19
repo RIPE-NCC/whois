@@ -490,10 +490,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "The DIFF keyword is not supported.");
     }
 
-    public static Message abuseMailboxRequired(final CharSequence key) {
+    public static Message abuseMailboxRequired(final CharSequence key, final ObjectType objectType) {
         return new Message(Type.ERROR,
                 "The \"abuse-c\" ROLE object '%s' has no \"abuse-mailbox:\"\n"
-                        + "Add \"abuse-mailbox:\" to the ROLE object, then update the ORGANISATION object", key);
+                        + "Add \"abuse-mailbox:\" to the ROLE object, then update the %s object", key, objectType.getName().toUpperCase());
     }
 
     public static Message abuseCPersonReference() {
@@ -504,6 +504,11 @@ public final class UpdateMessages {
 
     public static Message abuseMailboxReferenced(final CharSequence role) {
         return new Message(Type.ERROR, "There is an organisation referencing role %s's abuse-mailbox", role);
+    }
+
+    public static Message abuseMailboxCantBeAdded() {
+        return new Message(Type.ERROR, "\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
+                "referenced through the \"abuse-c:\" attribute in ORGANISATION, INET(6)NUM and AUT-NUM objects.");
     }
 
     public static Message keyNotFound(final String keyId) {
