@@ -1501,12 +1501,36 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgKey(), is("ORG-TO1-TEST"));
         assertThat(response.getWhoisObjects().get(0).getAbuseContact().getEmail(), is("abuse@test.net"));
         assertThat(response.getWhoisObjects().get(0).getAbuseContact().getKey(), is("TR1-TEST"));
+        assertThat(response.getWhoisObjects().get(0).isComaintained(), is(true));
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(true));    // inetnum
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(1).getManaged(), is(true));    // status
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(true));    // org
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(nullValue()));   // mnt-by
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(4).getManaged(), is(true));    // mnt-by
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(5).getManaged(), is(true));    // source
+    }
+
+    @Test
+    public void lookup_inetnum_non_managed_attributes_resource_holder_abuse_contact() {
+        databaseHelper.addObject(
+                "mntner:       RIPE-NCC-HM-MNT\n" +
+                "source:   TEST");
+        databaseHelper.addObject(
+                "inetnum:       11.0.0.0 - 11.0.0.255\n" +
+                 "status:   ASSIGNED PI\n" +
+                 "mnt-by:   OWNER-MNT\n" +
+                 "source:   TEST");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/inetnum/11.0.0.0%20-%2011.0.0.255?managed-attributes&resource-holder&abuse-contact")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("11.0.0.0 - 11.0.0.255"));
+        assertThat(response.getWhoisObjects().get(0).getResourceHolder(), is(nullValue()));
+        assertThat(response.getWhoisObjects().get(0).getAbuseContact(), is(nullValue()));
+        assertThat(response.getWhoisObjects().get(0).isComaintained(), is(false));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(nullValue()));    // inetnum
     }
 
     // create

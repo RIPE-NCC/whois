@@ -16,14 +16,15 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {
-    "type",
-    "link",
-    "source",
-    "primaryKey",
-    "attributes",
-    "tags",
-    "resourceHolder",
-    "abuseContact"
+        "type",
+        "link",
+        "source",
+        "primaryKey",
+        "attributes",
+        "tags",
+        "resourceHolder",
+        "abuseContact",
+        "comaintained",
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "object")
@@ -50,6 +51,9 @@ public class WhoisObject {
     @XmlElement(name = "abuse-contact")
     private AbuseContact abuseContact;
 
+    @XmlElement(name = "comaintained")
+    private Boolean comaintained;
+
     @XmlAttribute(required = true)
     private String type;
 
@@ -73,7 +77,8 @@ public class WhoisObject {
             final Action action,
             final Integer version,
             final ResourceHolder resourceHolder,
-            final AbuseContact abuseContact) {
+            final AbuseContact abuseContact,
+            final Boolean comaintained) {
         this.link = link;
         this.source = source;
         this.primaryKey = primaryKey;
@@ -84,6 +89,7 @@ public class WhoisObject {
         this.version = version;
         this.resourceHolder = resourceHolder;
         this.abuseContact = abuseContact;
+        this.comaintained = comaintained;
     }
 
     // builder
@@ -99,6 +105,7 @@ public class WhoisObject {
         private Integer version;
         private ResourceHolder resourceHolder;
         private AbuseContact abuseContact;
+        private Boolean comaintained;
 
         public Builder link(final Link link) {
             this.link = link;
@@ -160,18 +167,24 @@ public class WhoisObject {
             return this;
         }
 
+        public Builder comaintained(final Boolean comaintained) {
+            this.comaintained = comaintained;
+            return this;
+        }
+
         public WhoisObject build() {
             return new WhoisObject(
-                link,
-                source,
-                primaryKey,
-                attributes,
-                tags,
-                type,
-                action,
-                version,
-                resourceHolder,
-                abuseContact);
+                    link,
+                    source,
+                    primaryKey,
+                    attributes,
+                    tags,
+                    type,
+                    action,
+                    version,
+                    resourceHolder,
+                    abuseContact,
+                    comaintained);
         }
     }
 
@@ -181,7 +194,7 @@ public class WhoisObject {
         return link;
     }
 
-    public void setLink(Link value) {
+    public void setLink(final Link value) {
         this.link = value;
     }
 
@@ -189,7 +202,7 @@ public class WhoisObject {
         return source;
     }
 
-    public void setSource(Source value) {
+    public void setSource(final Source value) {
         this.source = value;
     }
 
@@ -213,7 +226,7 @@ public class WhoisObject {
         return type;
     }
 
-    public void setType(String value) {
+    public void setType(final String value) {
         this.type = value;
     }
 
@@ -221,7 +234,7 @@ public class WhoisObject {
         return action;
     }
 
-    public void setAction(Action action) {
+    public void setAction(final Action action) {
         this.action = action;
     }
 
@@ -255,6 +268,14 @@ public class WhoisObject {
 
     public void setAbuseContact(final AbuseContact abuseContact) {
         this.abuseContact = abuseContact;
+    }
+
+    public Boolean isComaintained() {
+        return comaintained;
+    }
+
+    public void setComaintained(final Boolean comaintained) {
+        this.comaintained = comaintained;
     }
 
     public String toString() {
