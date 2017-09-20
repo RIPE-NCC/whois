@@ -38,10 +38,11 @@ public class AbuseMailboxValidator implements BusinessRuleValidator {
     @Override
     public void validate(PreparedUpdate update, UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
-        boolean abuseMailbox = updatedObject.containsAttribute(AttributeType.ABUSE_MAILBOX);
 
-        if (abuseMailbox &&
-                (update.getAction() == CREATE || !update.getReferenceObject().containsAttribute(AttributeType.ABUSE_MAILBOX))) {
+        int newNumberOfAbuseMailboxes = updatedObject.findAttributes(AttributeType.ABUSE_MAILBOX).size();
+        int oldNumberOfAbuseMailboxes = update.getReferenceObject().findAttributes(AttributeType.ABUSE_MAILBOX).size();
+
+        if ((newNumberOfAbuseMailboxes > 0 && update.getAction() == CREATE) || (newNumberOfAbuseMailboxes > oldNumberOfAbuseMailboxes)) {
             updateContext.addMessage(update, UpdateMessages.abuseMailboxCantBeAdded());
         }
     }
