@@ -1529,9 +1529,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
 
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[person] FP1-TEST") ==
-                [ "\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
-                          "referenced through the \"abuse-c:\" attribute in ORGANISATION, " +
-                          "INET(6)NUM and AUT-NUM objects."]
+                [ "\"abuse-mailbox\" is not valid for this object type"]
     }
 
     def "modify person with abuse-mailbox"() {
@@ -1572,10 +1570,12 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[person] FP1-TEST") ==
+                [ "\"abuse-mailbox\" is not valid for this object type"]
     }
 
     def "modify person, add abuse-mailbox"() {
@@ -1620,9 +1620,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
 
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Modify", "[person] FP1-TEST") ==
-                [ "\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
-                          "referenced through the \"abuse-c:\" attribute in ORGANISATION, " +
-                          "INET(6)NUM and AUT-NUM objects."]
+                [ "\"abuse-mailbox\" is not valid for this object type"]
     }
 
     def "modify person, remove abuse-mailbox"() {

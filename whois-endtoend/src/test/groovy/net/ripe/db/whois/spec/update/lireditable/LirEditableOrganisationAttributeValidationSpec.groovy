@@ -721,7 +721,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
-                "Attribute \"abuse-mailbox:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
+                "\"abuse-mailbox\" is not valid for this object type"
         ]
     }
 
@@ -819,12 +819,15 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         )
 
         then:
-        ack.success
+        ack.errors
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
+                "\"abuse-mailbox\" is not valid for this object type"
+        ]
     }
 
 }

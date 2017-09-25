@@ -459,9 +459,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[irt] irt-test" }
         ack.errorMessagesFor("Create", "[irt] irt-test") ==
-                ["\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
-                 "referenced through the \"abuse-c:\" attribute in ORGANISATION, " +
-                 "INET(6)NUM and AUT-NUM objects."]
+                ["\"abuse-mailbox\" is not valid for this object type"]
 
         queryObjectNotFound("-r -T irt irt-tesT", "irt", "irt-test")
     }
@@ -518,9 +516,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[irt] irt-test" }
         ack.errorMessagesFor("Modify", "[irt] irt-test") ==
-                ["\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
-                         "referenced through the \"abuse-c:\" attribute in ORGANISATION, " +
-                         "INET(6)NUM and AUT-NUM objects."]
+                ["\"abuse-mailbox\" is not valid for this object type"]
 
         ! queryMatches("-r -T irt irt-tesT", "abuse2@ripe.net")
     }
@@ -572,13 +568,13 @@ class IrtSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", response)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[irt] irt-test" }
-
-        queryMatches("-r -T irt irt-tesT", "abuse2@ripe.net")
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[irt] irt-test" }
+        ack.errorMessagesFor("Modify", "[irt] irt-test") ==
+                ["\"abuse-mailbox\" is not valid for this object type"]
     }
 
     def "modify IRT, remove abuse-mailbox"() {

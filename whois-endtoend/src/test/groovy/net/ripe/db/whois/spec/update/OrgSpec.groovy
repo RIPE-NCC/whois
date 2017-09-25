@@ -2877,9 +2877,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-1" }
         ack.errorMessagesFor("Create", "[organisation] auto-1") ==
-                [ "\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
-                "referenced through the \"abuse-c:\" attribute in ORGANISATION, " +
-                "INET(6)NUM and AUT-NUM objects."]
+                [ "\"abuse-mailbox\" is not valid for this object type"]
     }
 
     def "update organisation with abuse-mailbox"() {
@@ -2927,11 +2925,13 @@ class OrgSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
+                [ "\"abuse-mailbox\" is not valid for this object type"]
     }
 
     def "update organisation, add abuse-mailbox"() {
@@ -2984,9 +2984,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
-                [ "\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
-                          "referenced through the \"abuse-c:\" attribute in ORGANISATION, " +
-                          "INET(6)NUM and AUT-NUM objects."]
+                [ "\"abuse-mailbox\" is not valid for this object type"]
     }
 
     def "update organisation, remove abuse-mailbox"() {
@@ -3090,12 +3088,11 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
-                [ "\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
-                          "referenced through the \"abuse-c:\" attribute in ORGANISATION, " +
-                          "INET(6)NUM and AUT-NUM objects."]
+                [ "\"abuse-mailbox\" is not valid for this object type",
+                  "\"abuse-mailbox\" is not valid for this object type"]
     }
 
 }
