@@ -364,7 +364,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "irt:       irt-IRT1\n" +
                 "address:   Street 1\n" +
                 "e-mail:    irt@ripe.net\n" +
-                "abuse-mailbox: abuse@ripe.net\n" +
                 "org:       ORG-TOL2-TEST\n" +
                 "admin-c:   TEST-RIPE\n" +
                 "tech-c:    TEST-RIPE\n" +
@@ -407,7 +406,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-i mnt-irt irt-IRT1", "inetnum", "193.0.0.0 - 193.0.0.255")
 
         queryObject("-rBG irt@ripe.net", "irt", "irt-IRT1")
-        queryObject("-i abuse-mailbox abuse@ripe.net", "irt", "irt-IRT1")
         queryObject("-i admin-c TEST-RIPE", "irt", "irt-IRT1")
         queryObject("-i tech-c TEST-RIPE", "irt", "irt-IRT1")
         queryObject("-i irt-nfy irtnfy@test.net", "irt", "irt-IRT1")
@@ -421,7 +419,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "irt:       irt-IRT1\n" +
                 "address:   Street 1\n" +
                 "e-mail:    irt@ripe.net\n" +
-                "abuse-mailbox: abuse@ripe.net\n" +
                 "org:       ORG-TOL2-TEST\n" +
                 "admin-c:   TEST-RIPE\n" +
                 "tech-c:    TEST-RIPE\n" +
@@ -533,7 +530,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-nfy:   nfy@test.net\n" +
                 "mnt-by:    TST-MNT\n" +
                 "notify:    notify@ripe.net\n" +
-                "abuse-mailbox: abuse@ripe.net\n" +
                 "upd-to:    dbtest@ripe.net\n" +
                 "auth:      MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "source:    TEST")
@@ -549,7 +545,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-i upd-to upd@test.net", "mntner", "MNT-MNT")
         queryObject("-i mnt-nfy nfy@test.net", "mntner", "MNT-MNT")
         queryObject("-i notify notify@ripe.net", "mntner", "MNT-MNT")
-        queryObject("-i abuse-mailbox abuse@ripe.net", "mntner", "MNT-MNT")
     }
 
     def "rebuild with peering-set"() {
@@ -602,7 +597,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-i tech-c TEST-RIPE", "person", "Admin Person")
         queryObject("-i mnt-by TST-MNT", "person", "Admin Person")
         queryObject("-i notify notify@test.net", "person", "Admin Person")
-        queryObject("-i abuse-mailbox abuse@test.net", "person", "Admin Person")
     }
 
     def "rebuild with organisation"() {
@@ -617,7 +611,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:       TEST-RIPE\n" +
                 "tech-c:        TEST-RIPE\n" +
                 "abuse-c:       AB-NIC\n" +
-                "abuse-mailbox: abuse@test.net\n" +
                 "ref-nfy:       rebuild@test.net\n" +
                 "notify:        rebuild@test.net\n" +
                 "mnt-ref:       TST-MNT\n" +
@@ -634,7 +627,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-i org ORG-TOL2-TEST", "organisation", "ORG-TOL3-TEST")
         queryObject("-i ref-nfy rebuild@test.net", "organisation", "ORG-TOL3-TEST")
         queryObject("-i abuse-c AB-NIC", "organisation", "ORG-TOL3-TEST")
-        queryObject("-i abuse-mailbox abuse@test.net", "organisation", "ORG-TOL3-TEST")
         queryObject("-i notify rebuild@test.net", "organisation", "ORG-TOL3-TEST")
         queryObject("-i tech-c TEST-RIPE", "organisation", "ORG-TOL3-TEST")
         queryObject("-i admin-c TEST-RIPE", "organisation", "ORG-TOL3-TEST")
@@ -713,7 +705,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:      TEST-RIPE\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mnt-lower:    TST-MNT\n" +
-                "abuse-mailbox: abuse@test.net\n" +
                 "notify:       notify@test.net\n" +
                 "source:       TEST"))
       when:
