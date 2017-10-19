@@ -194,7 +194,7 @@ public class ManagedAttributeSearch {
             try {
                 return AutnumStatus.valueOf(statusValue.toUpperCase());
             } catch (IllegalArgumentException e) {
-                LOGGER.warn("Invalid status {}", statusValue);
+                LOGGER.debug("Invalid status {}", statusValue);
             }
         }
 
@@ -212,7 +212,7 @@ public class ManagedAttributeSearch {
             try {
                 return Inet6numStatus.getStatusFor(statusValue);
             } catch (IllegalArgumentException e) {
-                LOGGER.warn("Invalid status {}", statusValue);
+                LOGGER.debug("Invalid status {}", statusValue);
             }
         }
 
@@ -230,7 +230,7 @@ public class ManagedAttributeSearch {
             try {
                 return InetnumStatus.getStatusFor(statusValue);
             } catch (IllegalArgumentException e) {
-                LOGGER.warn("Invalid status {}", statusValue);
+                LOGGER.debug("Invalid status {}", statusValue);
             }
         }
 
