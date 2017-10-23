@@ -24,7 +24,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "tags",
         "resourceHolder",
         "abuseContact",
-        "comaintained",
+        "managed",
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "object")
@@ -51,8 +51,8 @@ public class WhoisObject {
     @XmlElement(name = "abuse-contact")
     private AbuseContact abuseContact;
 
-    @XmlElement(name = "comaintained")
-    private Boolean comaintained;
+    @XmlElement(name = "managed")
+    private Boolean managed;
 
     @XmlAttribute(required = true)
     private String type;
@@ -78,7 +78,7 @@ public class WhoisObject {
             final Integer version,
             final ResourceHolder resourceHolder,
             final AbuseContact abuseContact,
-            final Boolean comaintained) {
+            final Boolean managed) {
         this.link = link;
         this.source = source;
         this.primaryKey = primaryKey;
@@ -89,7 +89,7 @@ public class WhoisObject {
         this.version = version;
         this.resourceHolder = resourceHolder;
         this.abuseContact = abuseContact;
-        this.comaintained = comaintained;
+        this.managed = managed;
     }
 
     // builder
@@ -105,7 +105,7 @@ public class WhoisObject {
         private Integer version;
         private ResourceHolder resourceHolder;
         private AbuseContact abuseContact;
-        private Boolean comaintained;
+        private Boolean managed;
 
         public Builder link(final Link link) {
             this.link = link;
@@ -167,8 +167,8 @@ public class WhoisObject {
             return this;
         }
 
-        public Builder comaintained(final Boolean comaintained) {
-            this.comaintained = comaintained;
+        public Builder managed(final Boolean managed) {
+            this.managed = managed;
             return this;
         }
 
@@ -184,7 +184,7 @@ public class WhoisObject {
                     version,
                     resourceHolder,
                     abuseContact,
-                    comaintained);
+                    managed);
         }
     }
 
@@ -270,12 +270,12 @@ public class WhoisObject {
         this.abuseContact = abuseContact;
     }
 
-    public Boolean isComaintained() {
-        return comaintained;
+    public Boolean isManaged() {
+        return managed;
     }
 
-    public void setComaintained(final Boolean comaintained) {
-        this.comaintained = comaintained;
+    public void setManaged(final Boolean managed) {
+        this.managed = managed;
     }
 
     public String toString() {
