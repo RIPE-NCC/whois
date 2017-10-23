@@ -92,8 +92,11 @@ public class WhoisObjectServerMapper {
                 final Iterator<Attribute> attributeIterator = whoisObject.getAttributes().iterator();
                 final Iterator<RpslAttribute> rpslAttributeIterator = rpslObject.getAttributes().iterator();
                 while (attributeIterator.hasNext() && rpslAttributeIterator.hasNext()) {
-                    attributeIterator.next().setManaged(
-                        managedAttributeSearch.isRipeNccMaintained(rpslObject, rpslAttributeIterator.next()));
+                    final Attribute attribute = attributeIterator.next();
+                    final RpslAttribute rpslAttribute = rpslAttributeIterator.next();
+                    if (managedAttributeSearch.isRipeNccMaintained(rpslObject, rpslAttribute)) {
+                        attribute.setManaged(Boolean.TRUE);
+                    }
                 }
             }
         }
