@@ -1501,7 +1501,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getWhoisObjects().get(0).getResourceHolder().getOrgKey(), is("ORG-TO1-TEST"));
         assertThat(response.getWhoisObjects().get(0).getAbuseContact().getEmail(), is("abuse@test.net"));
         assertThat(response.getWhoisObjects().get(0).getAbuseContact().getKey(), is("TR1-TEST"));
-        assertThat(response.getWhoisObjects().get(0).isComaintained(), is(true));
+        assertThat(response.getWhoisObjects().get(0).isManaged(), is(true));
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(true));    // inetnum
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(1).getManaged(), is(true));    // status
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(true));    // org
@@ -1529,8 +1529,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("11.0.0.0 - 11.0.0.255"));
         assertThat(response.getWhoisObjects().get(0).getResourceHolder(), is(nullValue()));
         assertThat(response.getWhoisObjects().get(0).getAbuseContact(), is(nullValue()));
-        assertThat(response.getWhoisObjects().get(0).isComaintained(), is(false));
-        assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(nullValue()));    // inetnum
+        assertThat(response.getWhoisObjects().get(0).isManaged(), is(false));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(nullValue()));     // inetnum attribute
     }
 
     // create

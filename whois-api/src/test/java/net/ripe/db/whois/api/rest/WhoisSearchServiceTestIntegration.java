@@ -1477,9 +1477,9 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
         // Ensure passing no flags means that the comaintained flag is null (nulls are stripped from JSON response)
         assertThat(response0.getWhoisObjects(), hasSize(3));
-        assertThat(response0.getWhoisObjects().get(0).isComaintained(), is(nullValue()));
-        assertThat(response0.getWhoisObjects().get(1).isComaintained(), is(nullValue()));
-        assertThat(response0.getWhoisObjects().get(2).isComaintained(), is(nullValue()));
+        assertThat(response0.getWhoisObjects().get(0).isManaged(), is(nullValue()));
+        assertThat(response0.getWhoisObjects().get(1).isManaged(), is(nullValue()));
+        assertThat(response0.getWhoisObjects().get(2).isManaged(), is(nullValue()));
         assertThat(response0.getWhoisObjects().get(0).getAttributes(), hasSize(11));
 
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255&managed-attributes")
@@ -1487,9 +1487,9 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(3));
-        assertThat(response.getWhoisObjects().get(0).isComaintained(), is(true));
-        assertThat(response.getWhoisObjects().get(1).isComaintained(), is(false));
-        assertThat(response.getWhoisObjects().get(2).isComaintained(), is(false));
+        assertThat(response.getWhoisObjects().get(0).isManaged(), is(true));
+        assertThat(response.getWhoisObjects().get(1).isManaged(), is(false));
+        assertThat(response.getWhoisObjects().get(2).isManaged(), is(false));
         assertThat(response.getWhoisObjects().get(0).getAttributes(), hasSize(11));
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getName(), is("inetnum"));
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(true));
