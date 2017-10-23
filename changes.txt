@@ -12,6 +12,9 @@
 [api] Improved Search API (#441)
 [update] Removed dnscheck data source
 [grs] Set connect and read timeouts when downloading GRS mirror dumps
+[update] Allow adding an "abuse-c:" attribute to INET(6)NUM and AUT-NUM objects
+[update] Disallow adding "abuse-c:" to object types other than ORGANISATION, INET(6)NUM and AUT-NUM
+[update] Disallow adding "abuse-mailbox:" to any object type other than ROLE
 
 # 1.89.2
 [update] Fix Zonemaster configuration
