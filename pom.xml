@@ -69,8 +69,8 @@
         <netty.version>3.4.6.Final</netty.version>
         <persistence.version>1.0.2</persistence.version>
         <slf4j.version>1.7.18</slf4j.version>
-        <spring.version>4.3.5.RELEASE</spring.version>
-        <springockito.version>1.0.5</springockito.version>
+        <spring.version>5.0.1.RELEASE</spring.version>
+        <springockito.version>1.0.9</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>0.7-groovy-1.8</spock.version>
