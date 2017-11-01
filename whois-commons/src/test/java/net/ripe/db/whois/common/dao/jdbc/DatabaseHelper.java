@@ -72,7 +72,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
 
     private DataSource mailupdatesDataSource;
-    private DataSource dnsCheckDataSource;
 
     private JdbcTemplate aclTemplate;
     private JdbcTemplate mailupdatesTemplate;
@@ -103,12 +102,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public void setMailupdatesDataSource(DataSource mailupdatesDataSource) {
         this.mailupdatesDataSource = mailupdatesDataSource;
         mailupdatesTemplate = new JdbcTemplate(mailupdatesDataSource);
-    }
-
-    @Autowired(required = false)
-    @Qualifier("dnscheckDataSource")
-    public void setDnsCheckDataSource(DataSource dnsCheckDataSource) {
-        this.dnsCheckDataSource = dnsCheckDataSource;
     }
 
     @Autowired(required = false)
@@ -164,7 +157,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         dbBaseName = "test_" + System.currentTimeMillis() + "_" + uniqueForkId;
 
         setupDatabase(jdbcTemplate, "acl.database", "ACL", "acl_schema.sql");
-        setupDatabase(jdbcTemplate, "dnscheck.database", "DNSCHECK", "dnscheck_schema.sql");
         setupDatabase(jdbcTemplate, "mailupdates.database", "MAILUPDATES", "mailupdates_schema.sql");
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
@@ -304,10 +296,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public JdbcTemplate getMailupdatesTemplate() {
         return mailupdatesTemplate;
-    }
-
-    public DataSource getDnsCheckDataSource() {
-        return dnsCheckDataSource;
     }
 
     public JdbcTemplate getInternalsTemplate() {
@@ -466,6 +454,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         aclTemplate.update(
                 "INSERT INTO acl_mirror (prefix, comment) VALUES (?, ?)",
                 prefix, "comment");
+    }
+
+    public void clearAclMirrors() {
+        aclTemplate.update("DELETE FROM acl_mirror");
     }
 
     public List<Map<String, Object>> listAclEvents() {

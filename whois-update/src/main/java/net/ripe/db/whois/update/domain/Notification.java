@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.FormatHelper.prettyPrint;
@@ -70,7 +71,7 @@ public final class Notification {
         private final String action;
         private final String result;
         private final String reason;
-        private final PreparedUpdate update;
+        private final PreparedUpdate preparedUpdate;
         private final int versionId;
 
         public Update(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -78,7 +79,7 @@ public final class Notification {
             this.updatedObject = filterChangedFunction.apply(filterAuthFunction.apply(update.getUpdatedObject()));
             this.action = update.getAction().name();
             this.result = RESULT_MAP.get(update.getAction());
-            this.update = update;
+            this.preparedUpdate = update;
 
             String updateReason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
             if (StringUtils.isNotEmpty(updateReason)) {
@@ -126,20 +127,27 @@ public final class Notification {
             return updatedObject.getKey().toString();
         }
 
+        public PreparedUpdate getPreparedUpdate() {
+            return preparedUpdate;
+        }
+
         public boolean isShowVersionInstruction() {
             return !(updatedObject.getType() == PERSON || updatedObject.getType() == ROLE);
         }
 
         @Override
-        public boolean equals(Object that) {
-            if (this == that) return true;
-            if (that == null || getClass() != that.getClass()) return false;
-            return ((Update) that).update == update;
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+
+            final Update that = (Update) obj;
+
+            return Objects.equals(preparedUpdate, that.preparedUpdate);
         }
 
         @Override
         public int hashCode() {
-            return update.hashCode();
+            return Objects.hash(preparedUpdate);
         }
     }
 }

@@ -3,7 +3,7 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.89-SNAPSHOT</version>
+        <version>1.91-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -32,6 +32,10 @@
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -40,6 +44,10 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-jmx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
         </dependency>
 
         <!-- Jersey JAX-RS 2.0 implementation -->
@@ -85,7 +93,7 @@
             <artifactId>jaxb-impl</artifactId>
         </dependency>
 
-        <!-- Lucene free text search -->
+        <!-- Lucene full text search -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
@@ -109,6 +117,10 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-facet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.ez-vcard</groupId>
+            <artifactId>ez-vcard</artifactId>
         </dependency>
 
         <!-- Solr -->
@@ -139,6 +151,28 @@
             <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
+
+        <!-- JSON testing -->
+
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.co.datumedge</groupId>
+            <artifactId>hamcrest-json</artifactId>
+            <version>0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ostermiller</groupId>
+            <artifactId>utils</artifactId>
+            <version>1.07.00</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -163,6 +197,65 @@
                             <artifactId>whois-commons</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-xjc-plugin</artifactId>
+                <version>2.6.1</version>
+                <executions>
+                    <execution>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <extensions>
+                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.6.1</extension>
+                    </extensions>
+                    <sourceRoot>${project.build.sourceDirectory}</sourceRoot>
+                    <xsdOptions>
+                        <xsdOption>
+                            <xsd>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xsd</xsd>
+                            <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xjb</bindingFile>
+                            <packagename>net.ripe.db.whois.api.rdap.domain</packagename>
+                            <extension>true</extension>
+                            <extensionArgs>
+                                <arg>-Xdv</arg>
+                            </extensionArgs>
+                        </xsdOption>
+                        <xsdOption>
+                            <xsd>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xsd</xsd>
+                            <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xjb</bindingFile>
+                            <packagename>net.ripe.db.whois.api.rdap.domain.vcard</packagename>
+                            <extension>true</extension>
+                            <extensionArgs>
+                                <arg>-Xdv</arg>
+                            </extensionArgs>
+                        </xsdOption>
+                    </xsdOptions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>maven-replacer-plugin</artifactId>
+                <version>1.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <basedir>${project.build.sourceDirectory}/net/ripe/db/whois/api/whois/rdap/domain</basedir>
+                    <filesToInclude>**/*.java</filesToInclude>
+                    <regex>true</regex>
+                    <token>^// Generated on: 20.*$</token>
+                    <value>// Generated on: stripped</value>
+                    <regexFlags>
+                        <regexFlag>MULTILINE</regexFlag>
+                    </regexFlags>
                 </configuration>
             </plugin>
         </plugins>

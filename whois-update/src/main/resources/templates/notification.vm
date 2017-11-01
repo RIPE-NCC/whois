@@ -3,11 +3,14 @@ This is to notify you of changes in RIPE Database or
 object authorisation failures.
 
 This message is auto-generated.
+#if ($ssoUser != "")
+You can reply to this message to contact the person who made this change.
+#else
 Please DO NOT reply to this message.
+#end
 
 If you do not understand why we sent you this message,
-or for assistance or clarification please contact:
-RIPE Database Administration <ripe-dbm@ripe.net>
+or for assistance or clarification please visit https://www.ripe.net/s/notify.
 
 Change requested from:
 <<<<<
@@ -88,6 +91,16 @@ The old object can be seen in the history using the query options --list-version
 $update.updatedObject
 #end
 $!update.reason
+
+#if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'SSO')
+Changed by SSO account: $update.preparedUpdate.update.effectiveCredential
+#end
+
+#if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'PGP')
+Changed by $update.preparedUpdate.update.effectiveCredential. You can find contact details for this key here:
+https://apps.db.ripe.net/search/lookup.html?source=ripe&key=$update.preparedUpdate.update.effectiveCredential&type=key-cert
+#end
+
 #end
 #end
 
@@ -120,5 +133,5 @@ $!update.reason
 #end
 #end
 
-#parse("/templates/include/terms-and-conditions.vm")
+#parse("/templates/include/notify-terms-and-conditions.vm")
 #parse("/templates/include/version.vm")

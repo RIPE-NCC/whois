@@ -43,4 +43,9 @@ public class Flag {
 
         return Objects.equals(value, ((Flag)o).getValue());
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
 }

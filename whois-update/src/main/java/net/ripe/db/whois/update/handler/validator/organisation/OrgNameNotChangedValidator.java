@@ -85,7 +85,9 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
         final CIString originalOrgName = originalObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
         final CIString updatedOrgName = updatedObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
 
-        return Objects.equals(originalOrgName, updatedOrgName);
+        return (originalOrgName != null) &&
+                (updatedOrgName != null) &&
+                (Objects.equals(originalOrgName.toString(), updatedOrgName.toString()));
     }
 
     private boolean alreadyHasAllPossibleAuthorisations(final Subject subject) {

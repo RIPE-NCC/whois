@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 // TODO: [AH] further separate concerns of query parsing and business logic
@@ -519,7 +520,7 @@ public class Query {
             try {
                 final AttributeType type = AttributeType.getByName(attributeType);
                 if (AttributeType.PERSON.equals(type)) {
-                    ret.addAll(Arrays.asList(AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
+                    ret.addAll(Arrays.asList(AttributeType.ABUSE_C, AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
                 } else {
                     ret.add(type);
                 }
@@ -551,14 +552,14 @@ public class Query {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Query query = (Query) o;
+        final Query that = (Query) o;
 
-        return queryParser.equals(query.queryParser);
+        return Objects.equals(queryParser, that.queryParser);
     }
 
     @Override
     public int hashCode() {
-        return queryParser.hashCode();
+        return Objects.hash(queryParser);
     }
 
     @Override

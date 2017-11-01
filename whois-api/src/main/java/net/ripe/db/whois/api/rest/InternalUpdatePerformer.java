@@ -30,7 +30,6 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
-import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LogCallback;
@@ -50,8 +49,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 
 @Component
 public class InternalUpdatePerformer {

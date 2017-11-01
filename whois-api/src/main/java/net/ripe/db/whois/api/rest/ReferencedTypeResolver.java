@@ -8,7 +8,10 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -17,13 +20,14 @@ import java.util.Set;
 
 @Component
 public class ReferencedTypeResolver {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferencedTypeResolver.class);
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
     private static final MntRoutesParser MNT_ROUTES_PARSER = new MntRoutesParser();
 
     private final RpslObjectDao rpslObjectDao;
 
     @Autowired
-    public ReferencedTypeResolver(final RpslObjectDao rpslObjectDao) {
+    public ReferencedTypeResolver(@Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao) {
         this.rpslObjectDao = rpslObjectDao;
     }
 
@@ -81,6 +85,7 @@ public class ReferencedTypeResolver {
                                 // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
                                 return rpslObjectDao.findByKey(objectType, value.toString()).getObjectType().getName();
                             } catch (EmptyResultDataAccessException ignored) {
+                                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
                             }
                         }
                     }

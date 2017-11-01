@@ -7,11 +7,20 @@ import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
-import net.ripe.db.whois.query.pipeline.*;
+import net.ripe.db.whois.query.pipeline.ConnectionStateHandler;
+import net.ripe.db.whois.query.pipeline.ExceptionHandler;
+import net.ripe.db.whois.query.pipeline.QueryChannelsRegistry;
+import net.ripe.db.whois.query.pipeline.QueryDecoder;
+import net.ripe.db.whois.query.pipeline.WhoisEncoder;
+import net.ripe.db.whois.query.pipeline.WhoisServerPipelineFactory;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 import org.jboss.netty.handler.codec.string.StringDecoder;
@@ -37,8 +46,11 @@ import java.nio.channels.ClosedChannelException;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)

@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 public class MessageObject implements ResponseObject {
     private final String formattedText;
@@ -42,20 +43,16 @@ public class MessageObject implements ResponseObject {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        final MessageObject that = (MessageObject) o;
 
-        MessageObject that = (MessageObject) o;
-        return formattedText.equals(that.formattedText);
+        return Objects.equals(formattedText, that.formattedText);
     }
 
     @Override
     public int hashCode() {
-        return formattedText.hashCode();
+        return Objects.hash(formattedText);
     }
 }

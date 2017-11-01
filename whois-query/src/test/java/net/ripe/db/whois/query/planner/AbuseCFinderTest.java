@@ -44,7 +44,7 @@ public class AbuseCFinderTest {
     }
 
     @Test
-    public void getAbuseContacts_oneOrgReferenceNoAbuseC() {
+    public void inetnum_with_org_reference_without_abusec() {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1");
         final RpslObject parent = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\nmnt-by: RS2-MNT");
 
@@ -61,7 +61,7 @@ public class AbuseCFinderTest {
     }
 
     @Test
-    public void getAbuseContacts_oneOrgReferenceOneAbuseC() {
+    public void inetnum_with_org_reference_with_abusec() {
         final RpslObject root = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\norg: ORG-TEST1\nmnt-by:RS1-MNT");
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1");
 
@@ -76,8 +76,32 @@ public class AbuseCFinderTest {
     }
 
     @Test
-    public void getAbuseContacts_inetnum() {
+    public void inetnum_with_abusec_and_org_reference_with_abusec() {
+        final RpslObject root = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\norg: ORG-TEST1\nmnt-by:RS1-MNT");
+        final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1\nabuse-c: AH1-TEST\n");
+
+        final Ipv4Resource ipv4Resource = Ipv4Resource.parse(inetnum.getKey());
+        when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
+        when(objectDao.getByKey(ObjectType.ROLE, ciString("AH1-TEST"))).thenReturn(
+                RpslObject.parse("role: another abuse role\nabuse-mailbox: more_abuse@ripe.net\nnic-hdl: ABU-TEST")
+        );
+
+        assertThat(subject.getAbuseContact(inetnum), is("more_abuse@ripe.net"));
+
+        verifyZeroInteractions(maintainers);
+    }
+
+    @Test
+    public void inetnum_without_org_reference() {
+        final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0");
+
+        assertThat(subject.getAbuseContact(inetnum), is(nullValue()));
+    }
+
+    @Test
+    public void inetnum_root_parent_with_abusec() {
         final RpslObject object = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG1-TEST");
+
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST"));
         when(objectDao.getByKey(ObjectType.ROLE, ciString("AB-TEST"))).thenReturn(RpslObject.parse("role: A Role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: AB-TEST"));
 
@@ -91,7 +115,7 @@ public class AbuseCFinderTest {
     }
 
     @Test
-    public void getAbuseContacts_inetnum_parent() {
+    public void inetnum_identical_parent_with_abusec() {
         final RpslObject child = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255");
         final RpslObject parent = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG1-TEST");
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(parent.getKey());
@@ -109,7 +133,7 @@ public class AbuseCFinderTest {
     }
 
     @Test
-    public void getAbuseContacts_rsMaintained() {
+    public void inetnum_rs_maintained() {
         final RpslObject object = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\nmnt-lower: RS2-MNT");
 
         final RpslObject root = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\norg: ORG-TEST1\nmnt-by:RS1-MNT");
@@ -125,7 +149,7 @@ public class AbuseCFinderTest {
     }
 
     @Test
-    public void getAbuseContacs_autnum_with_abuseccontacts() {
+    public void autnum_with_abusec() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS8462\norg: ORG1-TEST");
 
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST"));
@@ -139,7 +163,7 @@ public class AbuseCFinderTest {
     }
 
     @Test
-    public void getAbuseContacts_autnum_without_abusecontacts() {
+    public void autnum_without_abusec() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS8462\norg: ORG1-TEST");
 
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST"));

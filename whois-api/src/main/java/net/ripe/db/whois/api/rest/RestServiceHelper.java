@@ -1,29 +1,56 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.api.rest.mapper.*;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.Link;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.DirtyServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.DirtySuppressChangedAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.RegularSuppressChangedAttributeMapper;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
+import net.ripe.db.whois.query.domain.QueryException;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class RestServiceHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestServiceHelper.class);
+
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings();
     private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
+    private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
     private RestServiceHelper() {
         // do not instantiate
     }
 
     public static String getRequestURL(final HttpServletRequest request) {
-        final String queryString = request.getQueryString();
-        final StringBuffer requestURL = request.getRequestURL();
+            return request.getRequestURL().toString() + filter(request.getQueryString());
+    }
 
-        if (StringUtils.isBlank(queryString)) {
-            return requestURL.toString();
+    public static String getRequestURI(final HttpServletRequest request) {
+            return request.getRequestURI() + filter(request.getQueryString());
+    }
+
+    private static String filter(final String queryString) {
+        if (StringUtils.isEmpty(queryString)) {
+            return "";
         }
 
-        final StringBuilder builder = new StringBuilder(requestURL);
+        final StringBuilder builder = new StringBuilder();
         char separator = '?';
 
         for (String next : AMPERSAND_SPLITTER.split(queryString)) {
@@ -73,5 +100,58 @@ public class RestServiceHelper {
     public static Class<? extends AttributeMapper> getRestResponseAttributeMapper(String queryString){
         return isQueryParamSet(queryString, "unformatted") ?
                 DirtySuppressChangedAttributeMapper.class : RegularSuppressChangedAttributeMapper.class;
+    }
+
+    public static WhoisResources createErrorEntity(final HttpServletRequest request, final Message... errorMessage) {
+        return createErrorEntity(request, Arrays.asList(errorMessage));
+    }
+
+    public static WhoisResources createErrorEntity(final HttpServletRequest request, final List<Message> errorMessages) {
+        final WhoisResources whoisResources = new WhoisResources();
+        whoisResources.setErrorMessages(createErrorMessages(errorMessages));
+        // TODO: [AH] the external URL should be configurable via properties
+        whoisResources.setLink(Link.create(getRequestURL(request).replaceFirst("/whois", "")));
+        whoisResources.includeTermsAndConditions();
+        return whoisResources;
+    }
+
+    public static List<ErrorMessage> createErrorMessages(final List<Message> messages) {
+        final List<ErrorMessage> errorMessages = Lists.newArrayList();
+
+        for (Message message : messages) {
+            errorMessages.add(new ErrorMessage(message));
+        }
+
+        return errorMessages;
+    }
+
+    public static WebApplicationException createWebApplicationException(final RuntimeException exception, final HttpServletRequest request) {
+        return createWebApplicationException(exception, request, Lists.newArrayList());
+    }
+
+    public static WebApplicationException createWebApplicationException(final RuntimeException exception, final HttpServletRequest request, final List<Message> messages) {
+        final Response.ResponseBuilder responseBuilder;
+
+        if (exception instanceof QueryException) {
+            final QueryException queryException = (QueryException) exception;
+            if (queryException.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+                responseBuilder = Response.status(STATUS_TOO_MANY_REQUESTS);
+            } else {
+                responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+            }
+            messages.addAll(queryException.getMessages());
+
+        } else {
+            LOGGER.error(exception.getMessage(), exception);
+            responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+
+            messages.add(QueryMessages.internalErroroccurred());
+        }
+
+        if (! messages.isEmpty()) {
+            responseBuilder.entity(createErrorEntity(request, messages));
+        }
+
+        return new WebApplicationException(responseBuilder.build());
     }
 }

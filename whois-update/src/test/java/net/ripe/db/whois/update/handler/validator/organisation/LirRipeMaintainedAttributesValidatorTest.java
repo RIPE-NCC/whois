@@ -171,6 +171,22 @@ public class LirRipeMaintainedAttributesValidatorTest {
     }
 
     @Test
+    public void update_of_org_name_case_sensitive() {
+        when(update.getReferenceObject()).thenReturn(LIR_ORG);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
+        when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG_NAME_CASE_SENSITIVE);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).getSubject(update);
+        verify(update).getReferenceObject();
+        verify(update).getUpdatedObject();
+        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
+        verifyNoMoreInteractions(updateContext);
+    }
+
+    @Test
     public void update_of_org() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
@@ -199,22 +215,6 @@ public class LirRipeMaintainedAttributesValidatorTest {
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE));
-        verifyNoMoreInteractions(updateContext);
-    }
-
-    @Test
-    public void update_of_abuse_mailbox() {
-        when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
-        when(update.getUpdatedObject()).thenReturn(LIR_ORG_ABUSE_MAILBOX);
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext).getSubject(update);
-        verify(update).getReferenceObject();
-        verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ABUSE_MAILBOX));
         verifyNoMoreInteractions(updateContext);
     }
 
