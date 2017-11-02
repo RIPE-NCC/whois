@@ -104,16 +104,13 @@ public class JettyBootstrap implements ApplicationService {
 
     @Override
     public void stop(final boolean force) {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    server.stop();
-                } catch (Exception e) {
-                    LOGGER.error("Stopping server", e);
-                }
+        new Thread(() -> {
+            try {
+                server.stop();
+            } catch (Exception e) {
+                LOGGER.error("Stopping server", e);
             }
-        }.start();
+        }).start();
 
         try {
             server.join();

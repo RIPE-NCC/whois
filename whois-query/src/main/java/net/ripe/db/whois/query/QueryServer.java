@@ -34,6 +34,7 @@ public final class QueryServer implements ApplicationService {
     private final WhoisServerPipelineFactory whoisServerPipelineFactory;
     private final QueryChannelsRegistry queryChannelsRegistry;
     private final MaintenanceMode maintenanceMode;
+    private final ChannelFactory channelFactory;
 
     @Autowired
     public QueryServer(final WhoisServerPipelineFactory whoisServerPipelineFactory,
@@ -42,17 +43,15 @@ public final class QueryServer implements ApplicationService {
         this.whoisServerPipelineFactory = whoisServerPipelineFactory;
         this.queryChannelsRegistry = queryChannelsRegistry;
         this.maintenanceMode = maintenanceMode;
+        this.channelFactory = new NioServerSocketChannelFactory();
     }
 
     @Override
     public void start() {
-        final ChannelFactory channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
-
         bootstrap.setPipelineFactory(whoisServerPipelineFactory);
         bootstrap.setOption("backlog", 200);
         bootstrap.setOption("child.keepAlive", true);
-
         serverChannel = bootstrap.bind(new InetSocketAddress(queryPort));
         port = ((InetSocketAddress)serverChannel.getLocalAddress()).getPort();
         LOGGER.info("Query server listening on {}", port);

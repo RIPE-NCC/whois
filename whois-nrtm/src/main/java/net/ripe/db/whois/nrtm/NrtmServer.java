@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 // TODO: [ES] refactor use of two variables (one static) for port number
@@ -31,6 +32,7 @@ public class NrtmServer implements ApplicationService {
     private final NrtmServerPipelineFactory nrtmServerPipelineFactory;
     private final MaintenanceMode maintenanceMode;
     private Channel serverChannel;
+    private final ChannelFactory channelFactory;
 
     private static int port;
 
@@ -43,6 +45,7 @@ public class NrtmServer implements ApplicationService {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.nrtmServerPipelineFactory = nrtmServerPipelineFactory;
         this.maintenanceMode = maintenanceMode;
+        this.channelFactory = new NioServerSocketChannelFactory();
     }
 
     @Override
@@ -60,9 +63,7 @@ public class NrtmServer implements ApplicationService {
     }
 
     private Channel bootstrapChannel(final ChannelPipelineFactory serverPipelineFactory, final int port, final String instanceName) {
-        final ChannelFactory channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
-
         bootstrap.setPipelineFactory(serverPipelineFactory);
         bootstrap.setOption("backlog", 200);
         bootstrap.setOption("child.keepAlive", true);
