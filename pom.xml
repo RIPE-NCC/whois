@@ -36,7 +36,6 @@
         <commons-net.version>3.4</commons-net.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.10</commons-codec.version>
-        <commons-collections.version>3.2.1</commons-collections.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
         <commons-validator.version>1.5.1</commons-validator.version>
@@ -63,7 +62,7 @@
         <lucene.version>4.10.4</lucene.version>
         <!-- TODO: [ES] javax.mail-api 1.5.2 causes gmaven plugin to fail -->
         <mail.version>1.4.5</mail.version>
-        <mariadb-java-client.version>1.5.7</mariadb-java-client.version>
+        <mariadb-java-client.version>2.1.2</mariadb-java-client.version>
         <mockito.version>1.9.5</mockito.version>
         <!-- TODO: [ES] netty 3.10.0 creates excessive threads during integration tests -->
         <netty.version>3.4.6.Final</netty.version>
@@ -382,11 +381,6 @@
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
                 <version>${commons-validator.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>${commons-collections.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
