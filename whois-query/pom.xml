@@ -33,8 +33,13 @@
             <artifactId>c3p0</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>javax.mail-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>

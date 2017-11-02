@@ -317,9 +317,15 @@
                 <version>${netty.version}</version>
             </dependency>
             <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>javax.mail-api</artifactId>
+                <version>${mail.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.sun.mail</groupId>
                 <artifactId>javax.mail</artifactId>
                 <version>${mail.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
