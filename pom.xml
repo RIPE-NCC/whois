@@ -52,7 +52,7 @@
         <jflex.version>1.6.1</jflex.version>
         <jodatime.version>2.9.2</jodatime.version>
         <jopt-simple.version>4.8</jopt-simple.version>
-        <jsoup.version>1.8.3</jsoup.version>
+        <jsoup.version>1.10.3</jsoup.version>
         <junit.version>4.12</junit.version>
         <jetty.version>9.3.15.v20161220</jetty.version>
         <jersey.version>2.25.1</jersey.version>
@@ -60,8 +60,7 @@
         <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
         <log4j.version>1.2.17</log4j.version>
         <lucene.version>4.10.4</lucene.version>
-        <!-- TODO: [ES] javax.mail-api 1.5.2 causes gmaven plugin to fail -->
-        <mail.version>1.4.5</mail.version>
+        <mail.version>1.6.0</mail.version>
         <mariadb-java-client.version>2.1.2</mariadb-java-client.version>
         <mockito.version>1.9.5</mockito.version>
         <!-- TODO: [ES] netty 3.10.0 creates excessive threads during integration tests -->
@@ -74,7 +73,6 @@
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>0.7-groovy-1.8</spock.version>
         <velocity.version>1.7</velocity.version>
-
         <whois.main>OVERRIDE</whois.main>
     </properties>
 
@@ -319,8 +317,8 @@
                 <version>${netty.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.mail</groupId>
-                <artifactId>mail</artifactId>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
                 <version>${mail.version}</version>
             </dependency>
             <dependency>
@@ -715,11 +713,10 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.6</version>
             </plugin>
-            <!-- TODO: [ES] update gmaven plugin to 1.5 -->
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
-                <version>1.4</version>
+                <version>1.5</version>
                 <configuration>
                     <source />
                     <providerSelection>1.8</providerSelection>
