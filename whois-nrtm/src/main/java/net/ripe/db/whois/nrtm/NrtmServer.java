@@ -32,7 +32,7 @@ public class NrtmServer implements ApplicationService {
     private final NrtmServerPipelineFactory nrtmServerPipelineFactory;
     private final MaintenanceMode maintenanceMode;
     private Channel serverChannel;
-    private final ChannelFactory channelFactory;
+    private ChannelFactory channelFactory;
 
     private static int port;
 
@@ -45,7 +45,6 @@ public class NrtmServer implements ApplicationService {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.nrtmServerPipelineFactory = nrtmServerPipelineFactory;
         this.maintenanceMode = maintenanceMode;
-        this.channelFactory = new NioServerSocketChannelFactory();
     }
 
     @Override
@@ -56,13 +55,11 @@ public class NrtmServer implements ApplicationService {
         }
 
         serverChannel = bootstrapChannel(nrtmServerPipelineFactory, nrtmPort, "NRTM DUMMIFIER");
-
-
         port = ((InetSocketAddress) serverChannel.getLocalAddress()).getPort();
-
     }
 
     private Channel bootstrapChannel(final ChannelPipelineFactory serverPipelineFactory, final int port, final String instanceName) {
+        channelFactory = new NioServerSocketChannelFactory();
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
         bootstrap.setPipelineFactory(serverPipelineFactory);
         bootstrap.setOption("backlog", 200);
@@ -79,7 +76,9 @@ public class NrtmServer implements ApplicationService {
         if (nrtmEnabled) {
             if (force) {
                 LOGGER.info("Shutting down");
-
+                if (channelFactory != null) {
+                    channelFactory.shutdown();
+                }
                 if (serverChannel != null) {
                     serverChannel.close();
                     serverChannel = null;

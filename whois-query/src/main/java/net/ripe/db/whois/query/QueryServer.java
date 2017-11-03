@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -34,7 +33,7 @@ public final class QueryServer implements ApplicationService {
     private final WhoisServerPipelineFactory whoisServerPipelineFactory;
     private final QueryChannelsRegistry queryChannelsRegistry;
     private final MaintenanceMode maintenanceMode;
-    private final ChannelFactory channelFactory;
+    private ChannelFactory channelFactory;
 
     @Autowired
     public QueryServer(final WhoisServerPipelineFactory whoisServerPipelineFactory,
@@ -43,11 +42,11 @@ public final class QueryServer implements ApplicationService {
         this.whoisServerPipelineFactory = whoisServerPipelineFactory;
         this.queryChannelsRegistry = queryChannelsRegistry;
         this.maintenanceMode = maintenanceMode;
-        this.channelFactory = new NioServerSocketChannelFactory();
     }
 
     @Override
     public void start() {
+        channelFactory = new NioServerSocketChannelFactory();
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
         bootstrap.setPipelineFactory(whoisServerPipelineFactory);
         bootstrap.setOption("backlog", 200);
@@ -59,12 +58,14 @@ public final class QueryServer implements ApplicationService {
 
     @Override
     public void stop(final boolean force) {
+        if (channelFactory != null){
+            channelFactory.shutdown();
+        }
         if (serverChannel != null) {
             if (force) {
                 Uninterruptibles.sleepUninterruptibly(markNodeFailedTimeout - maintenanceMode.shutdownInitiated(), TimeUnit.MILLISECONDS);
                 serverChannel.close();
                 serverChannel = null;
-
                 queryChannelsRegistry.closeChannels();
             } else {
                 maintenanceMode.setShutdown();
