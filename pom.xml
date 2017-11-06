@@ -48,9 +48,9 @@
         <hazelcast.version>2.6.10</hazelcast.version>
         <hamcrest.version>1.3</hamcrest.version>
         <httpclient.version>4.5.3</httpclient.version>
-        <jaxb.version>2.2.11</jaxb.version>
+        <jaxb.version>2.3.0</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
-        <jodatime.version>2.9.2</jodatime.version>
+        <jodatime.version>2.9.9</jodatime.version>
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.10.3</jsoup.version>
         <junit.version>4.12</junit.version>
