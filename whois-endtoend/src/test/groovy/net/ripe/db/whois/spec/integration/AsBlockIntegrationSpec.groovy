@@ -60,7 +60,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-nfy:        john.smith@example.com
                 auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN6.
                 notify:         john.smith@example.com
-                abuse-mailbox:  abuse@example.com
                 mnt-by:         RIPE-DBM-MNT
                 source:         TEST # Filtered
                 """,
@@ -78,7 +77,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 remarks:        This object is only an example!
                 remarks:        *******************************
                 mnt-by:         EXAMPLE-MNT
-                abuse-mailbox:  abuse@example.com
                 source:         TEST
         """
         ]

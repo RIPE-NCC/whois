@@ -304,38 +304,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate update
 
         then:
-        response =~ /"abuse-mailbox:" can only be added to ROLE objects/
-    }
-
-    def "modify maintainer abuse-mailbox"() {
-        given:
-        databaseHelper.addObject("mntner: DEV-MNT\n" +
-                "descr: description\n" +
-                "admin-c: TEST-RIPE\n" +
-                "abuse-mailbox: abuse@ripe.net\n" +
-                "mnt-by: UPD-MNT\n" +
-                "upd-to: dbtest@ripe.net\n" +
-                "auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "source: TEST\n" +
-                "password: update")
-
-        def update = new SyncUpdate(data: """\
-            mntner: DEV-MNT
-            descr: description
-            admin-c: TEST-RIPE
-            abuse-mailbox: abuse2@ripe.net
-            mnt-by: UPD-MNT
-            upd-to: dbtest@ripe.net
-            auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            source: TEST
-            password: update
-            """.stripIndent())
-
-        when:
-        def response = syncUpdate update
-
-        then:
-        response =~ /Modify SUCCEEDED: \[mntner] DEV-MNT/
+        response =~ /"abuse-mailbox" is not valid for this object type/
     }
 
     def "modify maintainer, add abuse-mailbox"() {
@@ -365,7 +334,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate update
 
         then:
-        response =~ /"abuse-mailbox:" can only be added to ROLE objects/
+        response =~ /"abuse-mailbox" is not valid for this object type/
     }
 
     def "modify maintainer, remove abuse-mailbox"() {
