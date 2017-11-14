@@ -721,59 +721,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
-                "Attribute \"abuse-mailbox:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
-        ]
-    }
-
-    def "removing abuse-mailbox on lir org which is ripe maintained should not be allowed"() {
-        given:
-        dbfixture(
-                "organisation:   ORG-RIEN1-TEST\n" +
-                        "org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)\n" +
-                        "org-type:       LIR\n" +
-                        "org:            ORG-OTO1-TEST\n" +
-                        "address:        P.O. Box 10096\n" +
-                        "phone:          +31205354444\n" +
-                        "fax-no:         +31205354445\n" +
-                        "e-mail:         ncc@ripe.net\n" +
-                        "abuse-mailbox:  abuse@ripe.net\n" +
-                        "mnt-ref:        LIR-MNT\n" +
-                        "mnt-by:         RIPE-NCC-HM-MNT\n" +
-                        "mnt-by:         LIR-MNT\n" +
-                        "source:         TEST\n"
-
-        )
-
-        expect:
-        queryObject("-GBr -T organisation ORG-RIEN1-TEST", "organisation", "ORG-RIEN1-TEST")
-
-        when:
-        def ack = syncUpdateWithResponse("""
-                organisation:   ORG-RIEN1-TEST
-                org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)
-                org-type:       LIR
-                org:            ORG-OTO1-TEST
-                address:        P.O. Box 10096
-                phone:          +31205354444
-                fax-no:         +31205354445
-                e-mail:         ncc@ripe.net
-                mnt-ref:        LIR-MNT
-                mnt-by:         RIPE-NCC-HM-MNT
-                mnt-by:         LIR-MNT
-                source:         TEST
-                password:       lir
-        """.stripIndent()
-        )
-
-        then:
-        ack.errors
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
-                "Attribute \"abuse-mailbox:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
+                "\"abuse-mailbox\" is not valid for this object type"
         ]
     }
 
@@ -819,12 +767,15 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         )
 
         then:
-        ack.success
+        ack.errors
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
+                "\"abuse-mailbox\" is not valid for this object type"
+        ]
     }
 
 }
