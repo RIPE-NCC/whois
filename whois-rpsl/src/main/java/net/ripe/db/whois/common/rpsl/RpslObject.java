@@ -25,6 +25,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Immutable
 public class RpslObject implements Identifiable, ResponseObject {
@@ -106,6 +107,11 @@ public class RpslObject implements Identifiable, ResponseObject {
 
     public List<RpslAttribute> getAttributes() {
         return attributes;
+    }
+
+    public void removeAttribute(AttributeType type) {
+        attributes = attributes.stream().filter(attr -> !type.equals(attr.getType())).collect(Collectors.toList());
+        typeCache.remove(type);
     }
 
     public int size() {

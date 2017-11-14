@@ -240,6 +240,7 @@ public class SingleUpdateHandler {
 
         if (changedAttrFeatureToggle.isChangedAttrAvailable()) {
             objectMessages.addMessage(ValidationMessages.changedAttributeRemoved());
+            updatedObject.removeAttribute(AttributeType.CHANGED);
         } else {
             for (RpslAttribute changed : updatedObject.findAttributes(AttributeType.CHANGED)) {
                 objectMessages.addMessage(changed, ValidationMessages.unknownAttribute(changed.getKey()));
