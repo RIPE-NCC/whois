@@ -6,8 +6,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @ThreadSafe
@@ -20,7 +20,7 @@ public class FilterEmailFunction implements FilterFunction {
             AttributeType.UPD_TO,
             AttributeType.E_MAIL);
 
-    @Override @NotNull
+    @Override @Nonnull
     public RpslObject apply(RpslObject rpslObject) {
         RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject).removeAttributeTypes(filterAttributes);
         return rpslObject.size() == builder.size() ? rpslObject : RpslObjectFilter.setFiltered(builder).get();
