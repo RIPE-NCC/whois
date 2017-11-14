@@ -85,21 +85,18 @@ public class WhoisObjectServerMapper {
         }
     }
 
-    public void mapManagedAttributes(final WhoisObject whoisObject,
-                                     final Parameters parameters,
-                                     final RpslObject rpslObject) {
-
-        if (Boolean.TRUE == parameters.getManagedAttributes()) {
-            whoisObject.setComaintained(managedAttributeSearch.isCoMaintained(rpslObject));
-        }
-        if (whoisObject.isComaintained() == Boolean.TRUE) {
-            final Iterator<Attribute> attributeIterator = whoisObject.getAttributes().iterator();
-            final Iterator<RpslAttribute> rpslAttributeIterator = rpslObject.getAttributes().iterator();
-            while (attributeIterator.hasNext() && rpslAttributeIterator.hasNext()) {
-                final Attribute attribute = attributeIterator.next();
-                final RpslAttribute rpslAttribute = rpslAttributeIterator.next();
-                if (managedAttributeSearch.isRipeNccMaintained(rpslObject, rpslAttribute)) {
-                    attribute.setManaged(Boolean.TRUE);
+    public void mapManagedAttributes(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject) {
+        if (parameters.getManagedAttributes() == Boolean.TRUE) {
+            whoisObject.setManaged(managedAttributeSearch.isCoMaintained(rpslObject));
+            if (whoisObject.isManaged() == Boolean.TRUE) {
+                final Iterator<Attribute> attributeIterator = whoisObject.getAttributes().iterator();
+                final Iterator<RpslAttribute> rpslAttributeIterator = rpslObject.getAttributes().iterator();
+                while (attributeIterator.hasNext() && rpslAttributeIterator.hasNext()) {
+                    final Attribute attribute = attributeIterator.next();
+                    final RpslAttribute rpslAttribute = rpslAttributeIterator.next();
+                    if (managedAttributeSearch.isRipeNccMaintained(rpslObject, rpslAttribute)) {
+                        attribute.setManaged(Boolean.TRUE);
+                    }
                 }
             }
         }
