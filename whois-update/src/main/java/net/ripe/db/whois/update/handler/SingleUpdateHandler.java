@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
@@ -233,14 +234,14 @@ public class SingleUpdateHandler {
         return updatedObject;
     }
 
-    private void validateChanged(final RpslObject updatedObject, final ObjectMessages objectMessages) {
+    private void validateChanged(RpslObject updatedObject, final ObjectMessages objectMessages) {
         if (!updatedObject.containsAttribute(AttributeType.CHANGED)) {
             return;
         }
 
         if (changedAttrFeatureToggle.isChangedAttrAvailable()) {
             objectMessages.addMessage(ValidationMessages.changedAttributeRemoved());
-            updatedObject.removeAttribute(AttributeType.CHANGED);
+            updatedObject = new RpslObjectBuilder(updatedObject).removeAttributeType(AttributeType.CHANGED).get();
         } else {
             for (RpslAttribute changed : updatedObject.findAttributes(AttributeType.CHANGED)) {
                 objectMessages.addMessage(changed, ValidationMessages.unknownAttribute(changed.getKey()));
