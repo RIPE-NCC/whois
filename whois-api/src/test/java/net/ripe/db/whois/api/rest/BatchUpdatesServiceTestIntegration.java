@@ -44,7 +44,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "upd-to:      updto_owner@ripe.net\n" +
             "mnt-nfy:     mntnfy_owner@ripe.net\n" +
             "notify:      notify_owner@ripe.net\n" +
-            "auth:        MD5-PW \\$1\\$fyALLXZB\\$V5Cht4.DAIM3vi64EpC0w/  #owner\n" +
+            "auth:        MD5-PW $1$fyALLXZB$V5Cht4.DAIM3vi64EpC0w/  #owner\n" +
             "mnt-by:      OWNER-MNT\n" +
             "source:      TEST");
 
@@ -65,7 +65,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "upd-to:      updto_owner2@ripe.net\n" +
             "mnt-nfy:     mntnfy_owner2@ripe.net\n" +
             "notify:      notify_owner2@ripe.net\n" +
-            "auth:        MD5-PW \\$1\\$9vNwegLB\\$SrX4itajapDaACGZaLOIY1  #owner2\n" +
+            "auth:        MD5-PW $1$9vNwegLB$SrX4itajapDaACGZaLOIY1  #owner2\n" +
             "mnt-by:      OWNER2-MNT\n" +
             "source:      TEST");
 
@@ -76,7 +76,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "upd-to:      updto_owner3@ripe.net\n" +
             "upd-to:      updto2_owner3@ripe.net\n" +
             "notify:      notify_owner3@ripe.net\n" +
-            "auth:        MD5-PW \\$1\\$u/Ttxt8r\\$zeII/ZqRwC2PuRyGyv0U51  #owner3\n" +
+            "auth:        MD5-PW $1$u/Ttxt8r$zeII/ZqRwC2PuRyGyv0U51  #owner3\n" +
             "mnt-by:      OWNER3-MNT\n" +
             "source:      TEST");
 
@@ -98,7 +98,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "upd-to:      updto_hm@ripe.net\n" +
             "mnt-nfy:     mntnfy_hm@ripe.net\n" +
             "notify:      notify_hm@ripe.net\n" +
-            "auth:        MD5-PW \\$1\\$mV2gSZtj\\$1oVwjZr0ecFZQHsNbw2Ss.  #hm\n" +
+            "auth:        MD5-PW $1$mV2gSZtj$1oVwjZr0ecFZQHsNbw2Ss.  #hm\n" +
             "mnt-by:      RIPE-NCC-HM-MNT\n" +
             "source:      TEST");
 
@@ -109,7 +109,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "upd-to:      updto_lir@ripe.net\n" +
             "mnt-nfy:     mntnfy_lir@ripe.net\n" +
             "notify:      notify_lir@ripe.net\n" +
-            "auth:        MD5-PW \\$1\\$epUPWc4g\\$/6BKqK4lKR/lNqLa7K5qT0  #lir\n" +
+            "auth:        MD5-PW $1$epUPWc4g$/6BKqK4lKR/lNqLa7K5qT0  #lir\n" +
             "mnt-by:      LIR-MNT\n" +
             "source:      TEST");
 
@@ -132,17 +132,17 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
         final WhoisResources whoisResources =
                 mapRpslObjects(
                     RpslObject.parse(
-                            "inetnum:      192.0.0.0 - 192.255.255.255\n" +
-                                    "netname:      TEST-NET-NAME\n" +
-                                    "descr:        TEST network\n" +
-                                    "country:      BE\n" +
-                                    "org:          ORG-LIR1-TEST\n" +
-                                    "admin-c:      TP1-TEST\n" +
-                                    "tech-c:       TP1-TEST\n" +
-                                    "status:       ALLOCATED UNSPECIFIED\n" +
-                                    "mnt-by:       RIPE-NCC-HM-MNT\n" +
-                                    "mnt-lower:    LIR-mnt\n" +
-                                    "source:       TEST")
+                        "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                        "netname:      TEST-NET-NAME\n" +
+                        "descr:        TEST network\n" +
+                        "country:      BE\n" +
+                        "org:          ORG-LIR1-TEST\n" +
+                        "admin-c:      TP1-TEST\n" +
+                        "tech-c:       TP1-TEST\n" +
+                        "status:       ALLOCATED UNSPECIFIED\n" +
+                        "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                        "mnt-lower:    LIR-mnt\n" +
+                        "source:       TEST")
                 );
 
         final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
@@ -162,31 +162,31 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
     public void batch_update_two_objects_failure() {
         final WhoisResources whoisResources =
                 mapRpslObjects(
-                        RpslObject.parse(
-                                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
-                                        "netname:      TEST-NET-NAME\n" +
-                                        "descr:        TEST network\n" +
-                                        "country:      BE\n" +
-                                        "org:          ORG-LIR1-TEST\n" +
-                                        "admin-c:      TP1-TEST\n" +
-                                        "tech-c:       TP1-TEST\n" +
-                                        "status:       ALLOCATED UNSPECIFIED\n" +
-                                        "mnt-by:       RIPE-NCC-HM-MNT\n" +
-                                        "mnt-lower:    LIR-mnt\n" +
-                                        "source:       TEST"),
-                        RpslObject.parse(
-                                "person:  Test Person\n" +
-                                        "address: St James Street\n" +
-                                        "address: Burnley\n" +
-                                        "address: UK\n" +
-                                        "phone:   +44 282 420469\n" +
-                                        "nic-hdl: NX-TEST\n" +
-                                        "mnt-by:  NON-EXISTING-MNT\n" +
-                                        "source:  TEST")
+                    RpslObject.parse(
+                        "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                        "netname:      TEST-NET-NAME\n" +
+                        "descr:        TEST network\n" +
+                        "country:      BE\n" +
+                        "org:          ORG-LIR1-TEST\n" +
+                        "admin-c:      TP1-TEST\n" +
+                        "tech-c:       TP1-TEST\n" +
+                        "status:       ALLOCATED UNSPECIFIED\n" +
+                        "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                        "mnt-lower:    LIR-mnt\n" +
+                        "source:       TEST"),
+                    RpslObject.parse(
+                        "person:  Test Person\n" +
+                        "address: St James Street\n" +
+                        "address: Burnley\n" +
+                        "address: UK\n" +
+                        "phone:   +44 282 420469\n" +
+                        "nic-hdl: NX-TEST\n" +
+                        "mnt-by:  NON-EXISTING-MNT\n" +
+                        "source:  TEST")
                 );
 
         try {
-            final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
+            RestTest.target(getPort(), "whois/batch/TEST")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
                     .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
@@ -207,6 +207,48 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                 // it should not find this object
             }
         }
+    }
+
+    @Test
+    public void batch_update_two_objects_success() {
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                    RpslObject.parse(
+                        "mntner:      OWNER2-MNT\n" +
+                        "descr:       used to maintain other MNTNERs\n" +
+                        "admin-c:     TP1-TEST\n" +
+                        "upd-to:      different_email@ripe.net\n" +
+                        "mnt-nfy:     mntnfy_owner2@ripe.net\n" +
+                        "notify:      notify_owner2@ripe.net\n" +
+                        "auth:        MD5-PW $1$9vNwegLB$SrX4itajapDaACGZaLOIY1  #owner2\n" +
+                        "mnt-by:      OWNER2-MNT\n" +
+                        "source:      TEST"),
+                    RpslObject.parse(
+                        "mntner:      OWNER3-MNT\n" +
+                        "descr:       used for lots of things\n" +
+                        "admin-c:     TP1-TEST\n" +
+                        "upd-to:      updto_owner3@ripe.net\n" +
+                        "upd-to:      updto2_owner3@ripe.net\n" +
+                        "notify:      notify_owner3@ripe.net\n" +
+                        "auth:        MD5-PW $1$u/Ttxt8r$zeII/ZqRwC2PuRyGyv0U51  #owner3\n" +
+                        "mnt-by:      OWNER3-MNT\n" +
+                        "source:      TEST")
+                );
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(2));
+
+        RpslObject owner2mnt = databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER2-MNT");
+        assertNotNull(owner2mnt);
+        assertEquals(ciString("different_email@ripe.net"), owner2mnt.getValueForAttribute(AttributeType.UPD_TO));
+
+        RpslObject owner3mnt = databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER3-MNT");
+        assertNotNull(owner3mnt);
+        assertEquals(ciString("used for lots of things"), owner3mnt.getValueForAttribute(AttributeType.DESCR));
     }
 
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
