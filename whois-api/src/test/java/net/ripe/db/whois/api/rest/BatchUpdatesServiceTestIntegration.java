@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -112,6 +113,22 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "auth:        MD5-PW $1$epUPWc4g$/6BKqK4lKR/lNqLa7K5qT0  #lir\n" +
             "mnt-by:      LIR-MNT\n" +
             "source:      TEST");
+
+        databaseHelper.addObject(
+        "inetnum:      0.0.0.0 - 255.255.255.255\n" +
+            "netname:      IANA-BLK\n" +
+            "descr:        The whole IPv4 address space\n" +
+            "country:      NL\n" +
+            "admin-c:      TP1-TEST\n" +
+            "tech-c:       TP1-TEST\n" +
+            "status:       ALLOCATED UNSPECIFIED\n" +
+            "remarks:      The country is really worldwide.\n" +
+            "remarks:      This address space is assigned at various other places in\n" +
+            "remarks:      the world and might therefore not be in the RIPE database.\n" +
+            "mnt-by:       RIPE-NCC-HM-MNT\n" +
+            "mnt-lower:    RIPE-NCC-HM-MNT\n" +
+            "mnt-routes:   RIPE-NCC-HM-MNT\n" +
+            "source:       TEST");
 
         databaseHelper.addObject(
         "inetnum:      192.0.0.0 - 192.255.255.255\n" +
@@ -249,6 +266,50 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
         RpslObject owner3mnt = databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER3-MNT");
         assertNotNull(owner3mnt);
         assertEquals(ciString("used for lots of things"), owner3mnt.getValueForAttribute(AttributeType.DESCR));
+    }
+
+    @Test
+    public void batch_update_delete_create_inetnum_success() {
+        final WhoisResources whoisResources =
+            mapRpslObjects(
+                RpslObject.parse(
+                        "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                                "netname:      TEST-NET-NAME\n" +
+                                "descr:        TEST network\n" +
+                                "country:      NL\n" +
+                                "org:          ORG-LIR1-TEST\n" +
+                                "admin-c:      TP1-TEST\n" +
+                                "tech-c:       TP1-TEST\n" +
+                                "status:       ALLOCATED UNSPECIFIED\n" +
+                                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                                "mnt-lower:    LIR-mnt\n" +
+                                "source:       TEST"),
+                RpslObject.parse(
+                        "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                                "netname:      TEST-NET-NAME\n" +
+                                "descr:        TEST network\n" +
+                                "country:      BE\n" +
+                                "org:          ORG-LIR1-TEST\n" +
+                                "admin-c:      TP1-TEST\n" +
+                                "tech-c:       TP1-TEST\n" +
+                                "status:       ALLOCATED UNSPECIFIED\n" +
+                                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                                "mnt-lower:    LIR-mnt\n" +
+                                "source:       TEST")
+        );
+        whoisResources.getWhoisObjects().get(0).setAction(Action.DELETE);
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(2));
+        assertThat(response.getErrorMessages(), hasSize(2));
+
+        RpslObject inetnum = databaseHelper.lookupObject(ObjectType.INETNUM, "192.0.0.0 - 192.255.255.255");
+        assertNotNull(inetnum);
+        assertEquals(ciString("BE"), inetnum.getValueForAttribute(AttributeType.COUNTRY));
     }
 
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
