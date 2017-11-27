@@ -163,6 +163,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                 );
 
         final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
+                .queryParam("override", "personadmin,secret")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
@@ -204,6 +205,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
 
         try {
             RestTest.target(getPort(), "whois/batch/TEST")
+                    .queryParam("override", "personadmin,secret")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
                     .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
@@ -253,6 +255,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                 );
 
         final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
+                .queryParam("override", "personadmin,secret")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
@@ -300,6 +303,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
         whoisResources.getWhoisObjects().get(0).setAction(Action.DELETE);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
+                .queryParam("override", "personadmin,secret")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);

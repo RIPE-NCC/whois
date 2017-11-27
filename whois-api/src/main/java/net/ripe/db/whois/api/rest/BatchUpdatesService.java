@@ -23,6 +23,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -60,6 +61,7 @@ public class BatchUpdatesService {
     public Response update(final WhoisResources whoisResources,
                        @Context final HttpServletRequest request,
                        @PathParam("source") final String sourceParam,
+                       @QueryParam("override") final String override,
                        @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
         try {
@@ -76,8 +78,7 @@ public class BatchUpdatesService {
 
                 ssoTranslator.populateCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
                 final RpslObject rpslObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
-                // TODO should probably use override user?
-                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, EMPTY_LIST /* passwords */, deleteReason, "personadmin,secret" /* override */));
+                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, EMPTY_LIST /* passwords */, deleteReason, override));
             }
 
             final WhoisResources updatedWhoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
