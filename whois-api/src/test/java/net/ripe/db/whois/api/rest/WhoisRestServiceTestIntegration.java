@@ -1585,6 +1585,64 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+
+    @Ignore("TODO:[ES] bug in REST API streaming response")
+    @Test
+    public void content_length_doesnt_match_response_body_when_response_contains_non_ascii_characters() {
+        try {
+             RestTest.target(getPort(), "whois/test/role/TR1-TEST?password=invalid")
+                .request()
+                .header("Accept", "application/json")
+                .put(Entity.entity(
+                    "{\n" +
+                            "  \"objects\": {\n" +
+                            "    \"object\": [\n" +
+                            "      {\n" +
+                            "        \"attributes\": {\n" +
+                            "          \"attribute\": [\n" +
+                            "            {\n" +
+                            "              \"name\": \"role\",\n" +
+                            "              \"value\": \"Test Role\"\n" +
+                            "            },\n" +
+                            "            {\n" +
+                            "              \"name\": \"address\",\n" +
+                            "              \"value\": \"r\u00f8\u00e5" + "\"\n" +
+                            "            },\n" +
+                            "            {\n" +
+                            "              \"name\": \"e-mail\",\n" +
+                            "              \"value\": \"isvonja@ripe.net\"\n" +
+                            "            },\n" +
+                            "            {\n" +
+                            "              \"name\": \"nic-hdl\",\n" +
+                            "              \"value\": \"TR1-TEST\"\n" +
+                            "            },\n" +
+                            "            {\n" +
+                            "              \"name\": \"mnt-by\",\n" +
+                            "              \"value\": \"OWNER-MNT\"\n" +
+                            "            },\n" +
+                            "            {\n" +
+                            "              \"name\": \"created\",\n" +
+                            "              \"value\": \"2017-11-27T15:08:21Z\"\n" +
+                            "            },\n" +
+                            "            {\n" +
+                            "              \"name\": \"source\",\n" +
+                            "              \"value\": \"TEST\"\n" +
+                            "            }\n" +
+                            "          ]\n" +
+                            "        }\n" +
+                            "      }\n" +
+                            "    ]\n" +
+                            "  }\n" +
+                            "}", MediaType.APPLICATION_JSON_TYPE), String.class);
+            fail();
+        } catch (NotAuthorizedException | BadRequestException e) {
+            // TODO: [ES] response body is 1896 bytes long, but content-length is 1898
+            final String responseBody = e.getResponse().readEntity(String.class);
+            final String contentLength = e.getResponse().getHeaderString("Content-Length");
+            assertThat(contentLength, is(Integer.valueOf(responseBody.length()).toString()));
+        }
+    }
+
     @Test
     public void create_xml_internal_entity_expansion_limit() {
         final String whoisResources =
