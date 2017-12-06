@@ -136,7 +136,8 @@ public class CrowdClient {
                     .queryParam("validate-password", "false")
                     .queryParam("expand", "user")
                     .request(MediaType.APPLICATION_XML)
-                    .post(Entity.xml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><validation-factors/>"), CrowdSession.class);
+                    .post(Entity.entity("<?xml version=\"1.0\" encoding=\"UTF-8\"?><validation-factors/>", MediaType.APPLICATION_XML), CrowdSession.class);
+
             final CrowdUser user = crowdSession.getUser();
             return new UserSession(user.getName(), user.getDisplayName(), user.getActive(), crowdSession.getExpiryDate());
         } catch (BadRequestException e) {
