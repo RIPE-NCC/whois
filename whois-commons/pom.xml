@@ -98,9 +98,8 @@
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-moxy</artifactId>
+            <artifactId>jersey-media-jaxb</artifactId>
         </dependency>
-
         <!-- test -->
         <dependency>
             <groupId>net.ripe.db</groupId>
