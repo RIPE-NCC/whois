@@ -171,11 +171,12 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             }
         }
 
-        writeMessage(channel, "%END " + source);
+        writeMessage(channel, String.format("%%END %s", source));
     }
 
     private int writeSerials(final int begin, final int end, final int version, final Channel channel) {
         int serial = begin;
+        boolean written = false;
 
         while (serial <= end) {
 
@@ -198,10 +199,15 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
                     writeMessage(channel, message);
                     writeMessage(channel, dummifier.dummify(version, serialEntry.getRpslObject()).toString().trim());
+                    written = true;
                 }
             }
 
             serial++;
+        }
+
+        if (written) {
+            writeMessage(channel, String.format("%%END %d - %d", begin, end));
         }
 
         return serial;
