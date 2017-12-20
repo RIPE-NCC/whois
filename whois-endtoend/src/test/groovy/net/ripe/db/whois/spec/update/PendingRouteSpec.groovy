@@ -175,7 +175,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 """.stripIndent(), redirect: false))
 
         expect:
-        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+        noPendingUpdates()
 
         when:
         // route create attempt by AS holder (pending)
@@ -190,10 +190,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 """.stripIndent(), redirect: false))
         then:
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
-
-        // TODO: [ES] move to an integration test
-        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 1
-
+        countPendingUpdates() == 1
 
         when:
         clearAllMails()
@@ -240,7 +237,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 """.stripIndent(), redirect: false))
 
         expect:
-        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+        noPendingUpdates()
 
         when:
         // route create attempt by AS holder (pending)
@@ -277,9 +274,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         then:
         noMoreMessages()
-        // TODO: [ES] move to an integration test
-        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
-
+        noPendingUpdates()
     }
 
     def "Create route, with 3 involved maintainers"() {
@@ -379,8 +374,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT route 37.221.216.0/21", "route", "37.221.216.0/21")
         queryObject("-rGBT inetnum 37.221.220.0 - 37.221.221.255", "inetnum", "37.221.220.0 - 37.221.221.255")
         queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
-        // TODO: [ES] move to an integration test
-        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+        noPendingUpdates()
 
         when:
         def message = send new Message(
@@ -416,8 +410,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         then:
         noMoreMessages()
-        // TODO: [ES] move to an integration test
-        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+        noPendingUpdates()
     }
 
     def "create route, pending request is removed on creation, second party could do it all"() {
@@ -449,9 +442,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 override: denis,override1
                 """.stripIndent(), redirect: false))
         expect:
-        // TODO: [ES] move to an integration test
-        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
-
+        noPendingUpdates()
 
         when:
         // route create attempt by AS holder (pending)
@@ -488,8 +479,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         then:
         noMoreMessages()
-        // TODO: [ES] move to an integration test
-        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+        noPendingUpdates()
     }
 
     def "create route, no hierarchical pw supplied"() {
