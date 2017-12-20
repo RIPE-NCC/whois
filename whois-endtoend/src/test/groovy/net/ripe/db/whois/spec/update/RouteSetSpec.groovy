@@ -128,28 +128,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         queryObject("-rBT route-set RS-CUSTOMERS", "route-set", "RS-CUSTOMERS")
     }
 
-    // Create top level route-set object with ASNs & as-sets in members & mp-members
-    /**
-     * TODO [as]
-     * I think this test-case is wrong - according to rfc4012 mp-members within route-sets allows for
-     *  * ipv4-address-prefix-range
-     *  * ipv6-address-prefix-range
-     *  * route-set-name
-     *  * route-set-name<range-operator>
-     *
-     * but below there's an as-set value. I propose the following testcase instead:
-     *                 route-set:    RS-CUSTOMERS
-     *                 descr:        test route-set
-     *                 members:      128.9.0.0/16, Rs-TEST:rs-PUG,
-     *                               rs-352
-     *                 mp-members:   2001:1578::/32, RS-352
-     *                 mp-members:   AS101:RS-CH
-     *                 tech-c:       TP1-TEST
-     *                 admin-c:      TP1-TEST
-     *                 mnt-by:       LIR-MNT
-     *                 mnt-lower:    LIR-MNT
-     *                 source:  TEST
-     */
     def "create top level route-set object with ASNs & as-sets in members & mp-members"() {
       expect:
         queryObjectNotFound("-r -T route-set RS-CUSTOMERS", "route-set", "RS-CUSTOMERS")
