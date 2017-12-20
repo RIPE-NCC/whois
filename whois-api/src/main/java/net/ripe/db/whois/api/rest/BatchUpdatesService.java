@@ -28,20 +28,19 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.util.Collections;
 import java.util.List;
-
-import static java.util.Collections.EMPTY_LIST;
 
 @Component
 @Path("/batch")
 public class BatchUpdatesService {
 
-    private final static String DELETE_REASON = "Resource transfer";
+    private final static String DELETE_REASON = "Batch Delete";
 
     private final LoggerContext loggerContext;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
-    final WhoisObjectMapper whoisObjectMapper;
+    private final WhoisObjectMapper whoisObjectMapper;
 
     @Autowired
     public BatchUpdatesService(final InternalUpdatePerformer updatePerformer,
@@ -78,7 +77,7 @@ public class BatchUpdatesService {
 
                 ssoTranslator.populateCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
                 final RpslObject rpslObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
-                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, EMPTY_LIST /* passwords */, deleteReason, override));
+                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, Collections.emptyList() /* passwords */, deleteReason, override));
             }
 
             final WhoisResources updatedWhoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
@@ -100,9 +99,9 @@ public class BatchUpdatesService {
             }
         }
 
-        return Response.status(responseStatus).
-            entity((StreamingOutput) outputStream -> StreamingHelper.getStreamingMarshal(request, outputStream).singleton(updatedWhoisResources)).
-            build();
+        return Response.status(responseStatus)
+            .entity((StreamingOutput) outputStream -> StreamingHelper.getStreamingMarshal(request, outputStream).singleton(updatedWhoisResources))
+            .build();
     }
 
     private List<ActionRequest> createActionRequests(WhoisResources whoisResources) {
