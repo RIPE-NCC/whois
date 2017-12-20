@@ -296,6 +296,13 @@ ${response}
         whoisFixture.getMailSender().reset()
     }
 
+    def noPendingUpdates() {
+        countPendingUpdates() == 0
+    }
+
+    def countPendingUpdates() {
+        whoisFixture.getDatabaseHelper().getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class)
+    }
 
     def object(String string) {
         return RpslObject.parse(string.stripIndent()).toString()
