@@ -75,3 +75,8 @@ If an entity primary key matches more than one object, a 500 Internal Server Err
 
 For example: https://rdap.db.ripe.net/entity/AZRT
 
+Mntner entity not supported
+---------------------------
+Lookup organisation,person and role entities are supported, but mntner objects are not. 
+
+
