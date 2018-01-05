@@ -79,4 +79,10 @@ Mntner entity not supported
 ---------------------------
 Lookup organisation,person and role entities are supported, but mntner objects are not. 
 
+Organisation entity is not returned in ip or autnum query responses
+-------------------------------------------------------------------
+An org: reference from an inetnum,inet6num,autnum resource is not included in the query response.
+
+By contrast, ARIN returns the org reference as a "registrant" entity.
+
 
