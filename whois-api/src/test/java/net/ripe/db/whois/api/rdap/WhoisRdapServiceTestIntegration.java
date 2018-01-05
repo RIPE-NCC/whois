@@ -5,7 +5,6 @@ import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
-import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -18,12 +17,14 @@ import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
+import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.hamcrest.Matchers;
 import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -968,6 +969,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException e) {
             assertErrorTitle(e, "Invalid syntax.");
         }
+    }
+
+    @Ignore("[ES] Lookup mntner entity not supported")
+    @Test
+    public void lookup_mntner_entity() {
+        final Entity entity = createResource("entity/OWNER-MNT")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getHandle(), equalTo("OWNER-MNT"));
     }
 
     @Test
