@@ -167,6 +167,31 @@ public class RestClientTarget {
         }
     }
 
+    public List<RpslObject> batchUpdate(final ActionRequest... actionRequests) {
+        try {
+            WebTarget webTarget = client.target(baseUrl)
+                    .path("batch")
+                    .path(source);
+            webTarget = setParams(webTarget);
+
+            final Invocation.Builder request = webTarget.request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            final WhoisResources entity = mapper.mapRpslObjects(attributeMapper, actionRequests);
+            final WhoisResources whoisResources = request.post(Entity.entity(entity, MediaType.APPLICATION_XML), WhoisResources.class);
+
+            if (notifierCallback != null) {
+                notifierCallback.notify(whoisResources.getErrorMessages());
+            }
+
+            return mapper.mapWhoisObjects(whoisResources.getWhoisObjects(), attributeMapper);
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
+    }
+
     public List<RpslObject> update(final ActionRequest ... requests) {
         try {
             WebTarget webTarget = client.target(baseUrl)
