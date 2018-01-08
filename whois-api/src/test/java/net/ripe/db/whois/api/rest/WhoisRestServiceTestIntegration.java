@@ -1560,7 +1560,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
-    @Ignore("[ES] TODO remove changed attribute")
     @Test
     public void create_contains_changed_attribute() {
         final RpslObject paulethPalthenWithChanged = RpslObject.parse("" +

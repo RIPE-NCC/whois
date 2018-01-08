@@ -359,7 +359,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("Create SUCCEEDED: [mntner] TESTING-MNT"));
     }
 
-    @Ignore("[ES] TODO remove changed attribute")
     @Test
     public void create_person_with_changed_attribute() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
