@@ -384,6 +384,33 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_person_with_changed_attributes() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                                "person:        Test Person\n" +
+                                "address:       Amsterdam\n" +
+                                "phone:         +31\n" +
+                                "nic-hdl:       TP2-RIPE\n" +
+                                "mnt-by:        mntner\n" +
+                                "changed:       user@host.org 20171025\n" +
+                                "changed:       user1@host.org 20171026\n" +
+                                "changed:       user2@host.org 20171027\n" +
+                                "changed:       user3@host.org 20171028\n" +
+                                "source:        TEST\n" +
+                                "password: emptypassword\n"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-RIPE   Test Person"));
+        assertThat(response, containsString("***Warning: Deprecated attribute \"changed\". This attribute has been removed."));
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-RIPE").containsAttribute(AttributeType.CHANGED), is(false));
+    }
+
+    @Test
     public void create_selfreferencing_maintainer_post_url_encoded_data() {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
