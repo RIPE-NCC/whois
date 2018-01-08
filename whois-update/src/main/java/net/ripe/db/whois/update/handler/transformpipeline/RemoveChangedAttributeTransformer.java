@@ -40,7 +40,8 @@ public class RemoveChangedAttributeTransformer implements Transformer {
                     updateContext.addMessage(update, ValidationMessages.unknownAttribute(changed.getKey()));
                 }
             }
+            return updatedRpslObject.get();
         }
-        return updatedRpslObject.get();
+        return rpslObject;
     }
 }
