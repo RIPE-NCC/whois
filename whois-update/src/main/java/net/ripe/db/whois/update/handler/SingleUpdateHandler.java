@@ -23,7 +23,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.generator.AttributeGenerator;
-import net.ripe.db.whois.update.handler.transformpipeline.TransformPipeline;
+import net.ripe.db.whois.update.handler.transform.Transformer;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +43,7 @@ import javax.annotation.Nullable;
 public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
     private final AttributeGenerator[] attributeGenerators;
+    private final Transformer[] transformers;
     private final RpslObjectDao rpslObjectDao;
     private final UpdateLockDao updateLockDao;
     private final Authenticator authenticator;
@@ -50,13 +51,13 @@ public class SingleUpdateHandler {
     private final IpTreeUpdater ipTreeUpdater;
     private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
-    private final TransformPipeline transformerPipeline;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
 
     @Autowired
     public SingleUpdateHandler(final AttributeGenerator[] attributeGenerators,
+                               final Transformer[] transformers,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final Authenticator authenticator,
@@ -64,9 +65,9 @@ public class SingleUpdateHandler {
                                final RpslObjectDao rpslObjectDao,
                                final IpTreeUpdater ipTreeUpdater,
                                final PendingUpdateHandler pendingUpdateHandler,
-                               final SsoTranslator ssoTranslator,
-                               final TransformPipeline transformerPipeline) {
+                               final SsoTranslator ssoTranslator) {
         this.attributeGenerators = attributeGenerators;
+        this.transformers = transformers;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
         this.updateLockDao = updateLockDao;
@@ -75,7 +76,6 @@ public class SingleUpdateHandler {
         this.ipTreeUpdater = ipTreeUpdater;
         this.pendingUpdateHandler = pendingUpdateHandler;
         this.ssoTranslator = ssoTranslator;
-        this.transformerPipeline = transformerPipeline;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
@@ -111,7 +111,11 @@ public class SingleUpdateHandler {
         }
 
         // apply object transformation
-        RpslObject updatedObjectWithAutoKeys = transformerPipeline.transform(updatedObject, update, updateContext, action);
+        RpslObject updatedObjectWithAutoKeys = updatedObject;
+        for (Transformer transformer : transformers) {
+            updatedObjectWithAutoKeys = transformer.transform(updatedObjectWithAutoKeys, update, updateContext, action);
+        }
+
         preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // add authentication to context
