@@ -34,6 +34,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
+import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -231,7 +232,7 @@ public class MessageDequeueTest {
             @Override
             public MailMessage answer(InvocationOnMock invocation) throws Throwable {
                 final Object[] arguments = invocation.getArguments();
-                return new MessageParser(loggerContext).parse(((MimeMessage) arguments[0]), ((UpdateContext) arguments[1]));
+                return new MessageParser(loggerContext, Collections.emptyList()).parse(((MimeMessage) arguments[0]), ((UpdateContext) arguments[1]));
             }
         });
 

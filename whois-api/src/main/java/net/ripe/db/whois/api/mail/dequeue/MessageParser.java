@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
+import net.ripe.db.whois.api.mail.EmailSanitizer;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -54,10 +55,12 @@ public class MessageParser {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss z yyyy");
 
     private final LoggerContext loggerContext;
+    private final List<EmailSanitizer> emailSanitizers;
 
     @Autowired
-    public MessageParser(final LoggerContext loggerContext) {
+    public MessageParser(final LoggerContext loggerContext, List<EmailSanitizer> emailSanitizers) {
         this.loggerContext = loggerContext;
+        this.emailSanitizers = emailSanitizers;
     }
 
     public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException, IOException {
@@ -148,7 +151,13 @@ public class MessageParser {
 
             final Charset charset = getCharset(new ContentType(message.getContentType()));
 
-            messageBuilder.addContentWithCredentials(new ContentWithCredentials(messagePart.text, credentials, charset));
+            String contentSanitized = messagePart.text;
+            for (EmailSanitizer emailSanitizer : emailSanitizers) {
+                if (emailSanitizer.isApplicable(charset)) {
+                    contentSanitized = emailSanitizer.sanitize(contentSanitized);
+                }
+            }
+            messageBuilder.addContentWithCredentials(new ContentWithCredentials(contentSanitized, credentials, charset));
         }
     }
 
