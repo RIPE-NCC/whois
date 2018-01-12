@@ -28,18 +28,23 @@ public class ChangedAttributeTransformer implements Transformer {
                                 final UpdateContext updateContext,
                                 final Action action) {
 
-        if (rpslObject.containsAttribute(AttributeType.CHANGED)) {
-            if (changedAttrFeatureToggle.isChangedAttrAvailable()) {
-                updateContext.addMessage(update, UpdateMessages.changedAttributeRemoved());
-                return new RpslObjectBuilder(rpslObject).removeAttributeType(AttributeType.CHANGED).get();
-            } else {
-                if (!(Action.DELETE == action)) {
-                    for (RpslAttribute changed : rpslObject.findAttributes(AttributeType.CHANGED)) {
-                        updateContext.addMessage(update, ValidationMessages.unknownAttribute(changed.getKey()));
-                    }
-                }
-            }
+        if (!rpslObject.containsAttribute(AttributeType.CHANGED)) {
+            return rpslObject;
         }
-        return rpslObject;
+
+        if (Action.DELETE == action) {
+            // ignore changed attribute on delete
+            return rpslObject;
+        }
+
+        if (changedAttrFeatureToggle.isChangedAttrAvailable()) {
+            updateContext.addMessage(update, UpdateMessages.changedAttributeRemoved());
+            return new RpslObjectBuilder(rpslObject).removeAttributeType(AttributeType.CHANGED).get();
+         } else {
+            for (RpslAttribute changed : rpslObject.findAttributes(AttributeType.CHANGED)) {
+                updateContext.addMessage(update, ValidationMessages.unknownAttribute(changed.getKey()));
+            }
+            return rpslObject;
+        }
     }
 }
