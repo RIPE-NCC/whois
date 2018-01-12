@@ -28,12 +28,12 @@ public class ChangedAttributeTransformer implements Transformer {
                                 final UpdateContext updateContext,
                                 final Action action) {
 
-        if (!rpslObject.containsAttribute(AttributeType.CHANGED)) {
+        if (Action.DELETE == action) {
+            // ignore changed attribute on delete
             return rpslObject;
         }
 
-        if (Action.DELETE == action) {
-            // ignore changed attribute on delete
+        if (!rpslObject.containsAttribute(AttributeType.CHANGED)) {
             return rpslObject;
         }
 
@@ -47,4 +47,5 @@ public class ChangedAttributeTransformer implements Transformer {
             return rpslObject;
         }
     }
+
 }
