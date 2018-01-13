@@ -14,12 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RemoveChangedAttributeTransformer implements Transformer {
+public class ChangedAttributeTransformer implements Transformer {
 
     private final ChangedAttrFeatureToggle changedAttrFeatureToggle;
 
     @Autowired
-    public RemoveChangedAttributeTransformer(final ChangedAttrFeatureToggle changedAttrFeatureToggle) {
+    public ChangedAttributeTransformer(final ChangedAttrFeatureToggle changedAttrFeatureToggle) {
         this.changedAttrFeatureToggle = changedAttrFeatureToggle;
     }
 
@@ -28,16 +28,24 @@ public class RemoveChangedAttributeTransformer implements Transformer {
                                 final UpdateContext updateContext,
                                 final Action action) {
 
-        if (rpslObject.containsAttribute(AttributeType.CHANGED)) {
-            if (changedAttrFeatureToggle.isChangedAttrAvailable()) {
-                updateContext.addMessage(update, UpdateMessages.changedAttributeRemoved());
-                return new RpslObjectBuilder(rpslObject).removeAttributeType(AttributeType.CHANGED).get();
-            } else {
-                for (RpslAttribute changed : rpslObject.findAttributes(AttributeType.CHANGED)) {
-                    updateContext.addMessage(update, ValidationMessages.unknownAttribute(changed.getKey()));
-                }
-            }
+        if (Action.DELETE == action) {
+            // ignore changed attribute on delete
+            return rpslObject;
         }
-        return rpslObject;
+
+        if (!rpslObject.containsAttribute(AttributeType.CHANGED)) {
+            return rpslObject;
+        }
+
+        if (changedAttrFeatureToggle.isChangedAttrAvailable()) {
+            updateContext.addMessage(update, UpdateMessages.changedAttributeRemoved());
+            return new RpslObjectBuilder(rpslObject).removeAttributeType(AttributeType.CHANGED).get();
+         } else {
+            for (RpslAttribute changed : rpslObject.findAttributes(AttributeType.CHANGED)) {
+                updateContext.addMessage(update, ValidationMessages.unknownAttribute(changed.getKey()));
+            }
+            return rpslObject;
+        }
     }
+
 }
