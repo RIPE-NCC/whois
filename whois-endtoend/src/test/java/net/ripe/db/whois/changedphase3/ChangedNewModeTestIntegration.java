@@ -3,7 +3,6 @@ package net.ripe.db.whois.changedphase3;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -30,7 +29,6 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Req.WITH_CHANGED;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.FAILURE;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
 
-@Ignore // TODO
 @Category(IntegrationTest.class)
 public class ChangedNewModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 

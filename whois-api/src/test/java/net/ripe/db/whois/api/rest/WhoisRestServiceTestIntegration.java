@@ -2346,7 +2346,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     // TODO: [ES] no warning on conversion of \u03A3 to ? in latin-1 charset
-    @Ignore
     @Test
     public void create_utf8_character_encoding() {
         final RpslObject person = RpslObject.parse("" +
