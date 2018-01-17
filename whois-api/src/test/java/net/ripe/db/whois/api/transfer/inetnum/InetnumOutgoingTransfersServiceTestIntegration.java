@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 
 
 @Category(IntegrationTest.class)
-public class InetnumOutgoingTransfersServiceIntegrationTest extends AbstractInetnumTransferInternalTest {
+public class InetnumOutgoingTransfersServiceTestIntegration extends AbstractInetnumTransferInternalTest {
 
     private static final String INETNUM_RIPE_191_8 = "" +
             "inetnum:         191.0.0.0 - 191.255.255.255\n" +
