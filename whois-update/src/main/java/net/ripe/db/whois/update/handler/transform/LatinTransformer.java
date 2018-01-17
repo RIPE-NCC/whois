@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.handler.transformpipeline;
+package net.ripe.db.whois.update.handler.transform;
 
 import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;

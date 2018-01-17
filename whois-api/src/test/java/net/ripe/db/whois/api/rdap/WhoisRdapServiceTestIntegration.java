@@ -90,7 +90,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "referral-by:   OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST");
         databaseHelper.updateObject("" +
                 "person:        Test Person\n" +
@@ -98,7 +97,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "person:        Test Person2\n" +
@@ -107,7 +105,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "nic-hdl:       TP2-TEST\n" +
-                "changed:       noreply@ripe.net 20120101\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "person:        Pauleth Palthen\n" +
@@ -116,9 +113,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "nic-hdl:       PP1-TEST\n" +
-                "changed:       noreply@ripe.net 20120101\n" +
-                "changed:       noreply@ripe.net 20120102\n" +
-                "changed:       noreply@ripe.net 20120103\n" +
                 "remarks:       remark\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
@@ -129,7 +123,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "tech-c:        PP1-TEST\n" +
                 "nic-hdl:       FR1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20121016\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "domain:        31.12.202.in-addr.arpa\n" +
@@ -143,8 +136,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "ds-rdata:      52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
                 "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
                 "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
-                "changed:       test@test.net.au 20010816\n" +
-                "changed:       test@test.net.au 20121121\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
@@ -153,7 +144,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "descr:         A single ASN\n" +
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
-                "changed:       test@test.net.au 20010816\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
@@ -168,14 +158,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       PP1-TEST\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       test@test.net.au 20121121\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "as-block:       AS100 - AS200\n" +
                 "descr:          ARIN ASN block\n" +
                 "org:            ORG-TEST1-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
-                "changed:        dbtest@ripe.net   20121214\n" +
                 "source:         TEST");
         databaseHelper.addObject("" +
                 "inetnum:        0.0.0.0 - 255.255.255.255\n" +
@@ -186,7 +174,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "admin-c:        TP1-TEST\n" +
                 "status:         OTHER\n" +
                 "mnt-by:         OWNER-MNT\n" +
-                "changed:        dbtest@ripe.net 20020101\n" +
                 "source:         TEST");
         databaseHelper.addObject("" +
                 "inet6num:       ::/0\n" +
@@ -197,7 +184,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "admin-c:        TP1-TEST\n" +
                 "status:         OTHER\n" +
                 "mnt-by:         OWNER-MNT\n" +
-                "changed:        dbtest@ripe.net 20020101\n" +
                 "source:         TEST");
         ipTreeUpdater.rebuild();
     }
@@ -216,7 +202,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
@@ -285,7 +270,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
@@ -326,7 +310,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
@@ -788,7 +771,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "nic-hdl:       AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "organisation:  ORG-TO2-TEST\n" +
@@ -802,7 +784,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "fax-no:        +01-000-000-000\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       test@test.net.au 20121121\n" +
                 "source:        TEST");
         databaseHelper.updateObject("" +
                 "aut-num:       AS102\n" +
@@ -811,7 +792,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "org:           ORG-TO2-TEST\n" +
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
-                "changed:       test@test.net.au 20010816\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
 
@@ -856,7 +836,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                         "descr:     Modified ASN\n" +
                         "admin-c:   TP1-TEST\n" +
                         "tech-c:    TP1-TEST\n" +
-                        "changed:   test@test.net.au 20010816\n" +
                         "mnt-by:    OWNER-MNT\n" +
                         "source:    TEST\n" +
                         "password: test");
@@ -881,7 +860,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "nic-hdl:       AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "organisation:  ORG-TO2-TEST\n" +
@@ -895,7 +873,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "fax-no:        +01-000-000-000\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       test@test.net.au 20121121\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "inetnum:      192.0.0.0 - 192.255.255.255\n" +
@@ -906,7 +883,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:       TEST");
         databaseHelper.addObject("" +
                 "inetnum:      192.0.0.0 - 192.0.0.255\n" +
@@ -916,7 +892,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
@@ -996,7 +971,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "tech-c:        TP2-TEST\n" +
                 "mnt-ref:       OWNER-MNT\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       test@test.net.au 20000228\n" +
                 "source:        TEST");
 
         final Entity entity = createResource("entity/ORG-ONE-TEST")

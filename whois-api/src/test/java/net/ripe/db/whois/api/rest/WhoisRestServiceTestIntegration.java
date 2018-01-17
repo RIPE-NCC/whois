@@ -1560,6 +1560,47 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
+    @Test
+    public void create_contains_changed_attribute() {
+        final RpslObject paulethPalthenWithChanged = RpslObject.parse("" +
+            "person:    Pauleth Palthen\n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   PP1-TEST\n" +
+            "remarks:   remark\n" +
+            "changed:   user@host.org 20171025\n" +
+            "source:    TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(paulethPalthenWithChanged), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST").containsAttribute(AttributeType.CHANGED), is(false));
+    }
+
+    @Test
+    public void create_contains_changed_attributes() {
+        final RpslObject paulethPalthenWithChanged = RpslObject.parse("" +
+            "person:    Pauleth Palthen\n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   PP1-TEST\n" +
+            "remarks:   remark\n" +
+            "changed:   user@host.org 20171025\n" +
+            "changed:   user1@host.org 20171026\n" +
+            "changed:   user2@host.org 20171027\n" +
+            "source:    TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(paulethPalthenWithChanged), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST").containsAttribute(AttributeType.CHANGED), is(false));
+    }
 
     @Ignore("TODO: [ES] #320 confusing error response")
     @Test
