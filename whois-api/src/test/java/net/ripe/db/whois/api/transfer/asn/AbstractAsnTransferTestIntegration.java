@@ -1,13 +1,13 @@
 package net.ripe.db.whois.api.transfer.asn;
 
-import net.ripe.db.whois.api.transfer.AbstractTransferTest;
+import net.ripe.db.whois.api.transfer.AbstractTransferTestIntegration;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.api.transfer.logic.asn.AsnTransfer;
 
 
-public abstract class AbstractAsnTransferInternalTest extends AbstractTransferTest {
+public abstract class AbstractAsnTransferTestIntegration extends AbstractTransferTestIntegration {
 
     protected boolean isRipeAsBlock(final String primaryKey) {
         return isRipeAsBlock(lookup(ObjectType.AS_BLOCK, primaryKey));
