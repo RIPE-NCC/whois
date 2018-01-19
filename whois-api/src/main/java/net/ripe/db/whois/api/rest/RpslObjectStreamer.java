@@ -35,10 +35,14 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 
+import static java.lang.Math.min;
+
 @Component
 public class RpslObjectStreamer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpslObjectStreamer.class);
+
+    private static final int LIMIT = 10_000;
 
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
@@ -128,7 +132,7 @@ public class RpslObjectStreamer {
             private TagResponseObject tagResponseObject = null;
             private final List<Message> errors = Lists.newArrayList();
             private final int offset = parameters.getOffset() != null ? parameters.getOffset() : 0;
-            private final int limit = parameters.getLimit() != null ? parameters.getLimit() : Integer.MAX_VALUE;
+            private final int limit = parameters.getLimit() != null ? min(parameters.getLimit(), LIMIT) : LIMIT;
             private int count = 0;
 
             // TODO: [AH] replace this 'if instanceof' mess with an OO approach
@@ -198,7 +202,7 @@ public class RpslObjectStreamer {
             }
 
             private boolean withinLimit(final int count, final int limit, final int offset) {
-                return limit == Integer.MAX_VALUE || count <= (limit + offset);
+                return count <= (limit + offset);
             }
 
             public boolean rpslObjectFound() {
@@ -214,7 +218,8 @@ public class RpslObjectStreamer {
                 streamingMarshal.endArray();
 
                 streamingMarshal.end("objects");
-                if (errors.size() > 0) {
+
+                if (!errors.isEmpty()) {
                     streamingMarshal.write("errormessages", RestServiceHelper.createErrorMessages(errors));
                     errors.clear();
                 }
