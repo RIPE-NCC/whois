@@ -6,7 +6,7 @@ public class PasswordCredential implements Credential {
     private final String password;
 
     public PasswordCredential(final String password) {
-        this.password = format(password);
+        this.password = password;
     }
 
     public String getPassword() {
@@ -31,15 +31,6 @@ public class PasswordCredential implements Credential {
     @Override
     public String toString() {
         return "PasswordCredential";
-    }
-
-    private String format(final String value) {
-        return replaceNonBreakSpaces(value)
-            .trim();
-    }
-
-    private String replaceNonBreakSpaces(final String value) {
-        return value.replace('\u00a0', '\u0020');
     }
 
 }

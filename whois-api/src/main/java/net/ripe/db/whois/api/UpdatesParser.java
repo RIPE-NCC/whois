@@ -114,7 +114,7 @@ public class UpdatesParser {
 
         final Matcher matcher = PASSWORD_PATTERN.matcher(content);
         while (matcher.find()) {
-            result.add(new PasswordCredential(matcher.group(1)));
+            result.add(new PasswordCredential(matcher.group(1).trim()));
         }
 
         return result;
