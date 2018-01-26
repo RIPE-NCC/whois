@@ -599,7 +599,7 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", attributeName);
     }
 
-    public static Message nonBreakSpacesReplaced() {
+    public static Message replacedNonBreakSpaces() {
         return new Message(Type.WARNING, "Non-break spaces were replaced with regular spaces");
     }
 

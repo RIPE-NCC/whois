@@ -115,8 +115,6 @@ public class SingleUpdateHandler {
             updatedObjectWithAutoKeys = transformer.transform(updatedObjectWithAutoKeys, update, updateContext, action);
         }
 
-        validateObject(update, updateContext, updatedObjectWithAutoKeys);
-
         preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // add authentication to context
@@ -224,23 +222,12 @@ public class SingleUpdateHandler {
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
-        }
-
-        return updatedObject;
-    }
-
-    private void validateObject(final Update update, final UpdateContext updateContext, final RpslObject updatedObject) {
-        if (Operation.DELETE.equals(update.getOperation())) {
-            return;
-        }
-
-        final ObjectMessages messages = updateContext.getMessages(update);
-
         ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
         ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
     }
 
-
+        return updatedObject;
+    }
 
     private Action getAction(@Nullable final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final Keyword keyword) {
         if (Operation.DELETE.equals(update.getOperation())) {
