@@ -91,7 +91,6 @@ public class SingleUpdateHandler {
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
         RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
 
-
         Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
