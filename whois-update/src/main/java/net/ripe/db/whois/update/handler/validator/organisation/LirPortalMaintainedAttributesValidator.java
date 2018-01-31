@@ -19,18 +19,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-// Validates that RIPE NCC maintained attributes are not changed for an LIR
-// Possible ways to change it are by override or power mntner.
-public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidator {
+public class LirPortalMaintainedAttributesValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
     private static final CIString LIR = CIString.ciString("LIR");
-    private static final List<AttributeType> RIPE_NCC_MANAGED_ATTRIBUTES = ImmutableList.of(
-            AttributeType.MNT_BY,
-            AttributeType.ORG,
-            AttributeType.ORG_TYPE);
+    private static final List<AttributeType> USER_MANAGED_IN_PORTAL_ATTRIBUTES = ImmutableList.of(
+            AttributeType.ADDRESS,
+            AttributeType.PHONE,
+            AttributeType.FAX_NO,
+            AttributeType.E_MAIL,
+            AttributeType.ORG_NAME);
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -45,9 +45,9 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
-        RIPE_NCC_MANAGED_ATTRIBUTES.forEach(attributeType -> {
+        USER_MANAGED_IN_PORTAL_ATTRIBUTES.forEach(attributeType -> {
             if (haveAttributesChanged(originalObject, updatedObject, attributeType)) {
-                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(attributeType));
+                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(attributeType));
             }
         });
     }
