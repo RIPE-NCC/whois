@@ -256,8 +256,8 @@ public final class UpdateMessages {
     public static Message canOnlyBeChangedinLirPortal(final AttributeType attributeType) {
         return new Message(Type.ERROR,
             "Attribute \"%s:\" can only be changed via the LIR portal.\n" +
-            "Please login here <https://lirportal.ripe.net> and select \"LIR Account Details\"" +
-            "under \"My LIR\" to change it.", attributeType.getName());
+            "Please login to https://lirportal.ripe.net and select\n" +
+            "\"LIR Account Details\" under \"My LIR\" to change it.", attributeType.getName());
     }
 
     public static Message orgAttributeMissing() {
