@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 // TODO: [ES] refactor use of two variables (one static) for port number
@@ -31,6 +32,7 @@ public class NrtmServer implements ApplicationService {
     private final NrtmServerPipelineFactory nrtmServerPipelineFactory;
     private final MaintenanceMode maintenanceMode;
     private Channel serverChannel;
+    private ChannelFactory channelFactory;
 
     private static int port;
 
@@ -53,16 +55,12 @@ public class NrtmServer implements ApplicationService {
         }
 
         serverChannel = bootstrapChannel(nrtmServerPipelineFactory, nrtmPort, "NRTM DUMMIFIER");
-
-
         port = ((InetSocketAddress) serverChannel.getLocalAddress()).getPort();
-
     }
 
     private Channel bootstrapChannel(final ChannelPipelineFactory serverPipelineFactory, final int port, final String instanceName) {
-        final ChannelFactory channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
+        channelFactory = new NioServerSocketChannelFactory();
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
-
         bootstrap.setPipelineFactory(serverPipelineFactory);
         bootstrap.setOption("backlog", 200);
         bootstrap.setOption("child.keepAlive", true);
@@ -78,7 +76,9 @@ public class NrtmServer implements ApplicationService {
         if (nrtmEnabled) {
             if (force) {
                 LOGGER.info("Shutting down");
-
+                if (channelFactory != null) {
+                    channelFactory.shutdown();
+                }
                 if (serverChannel != null) {
                     serverChannel.close();
                     serverChannel = null;
