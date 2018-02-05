@@ -1,5 +1,10 @@
 # next
 
+# 1.90.2
+[query] Fixed inconsistent newlines in --list-versions response
+[update] Remove the "changed:" attribute from the database on update
+[all] Updated dependencies
+
 # 1.90.1
 [api] Renamed Whois Search comaintained to managed.
 [update] Added Batch API
