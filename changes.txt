@@ -1,5 +1,9 @@
 # next
 
+# 1.90.1
+[api] Renamed Whois Search comaintained to managed.
+[update] Added Batch API
+
 # 1.90
 [update] Make org-name validation case-sensitive
 [update] only allow assignment-size attribute on inet6num objects with AGGREGATED-BY-LIR status
