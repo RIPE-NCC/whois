@@ -630,4 +630,8 @@ public final class UpdateMessages {
     public static Message changedAttributeRemoved() {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
     }
+
+    public static Message emailAddressCannotBeUsed(final CIString value) {
+        return new Message(Type.ERROR, "The email address \"%s\" cannot be used.", value);
+    }
 }
