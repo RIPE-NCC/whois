@@ -61,6 +61,15 @@ public class ExcludedEmailValidatorTest {
     }
 
     @Test
+    public void validate_excluded_address_is_case_insensitive() {
+        when(preparedUpdate.getUpdatedObject()).thenReturn(RpslObject.parse("mntner:    OWNER-MNT\nupd-to:  RIPE-DbM@ripe.net\nsource:    TEST"));
+
+        excludedEmailValidator.validate(preparedUpdate, updateContext);
+
+        verify(updateContext).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+    }
+
+    @Test
     public void validate_excluded_name_and_address() {
         when(preparedUpdate.getUpdatedObject()).thenReturn(RpslObject.parse("mntner:    OWNER-MNT\nupd-to:  RIPE DBM <ripe-dbm@ripe.net>\nsource:    TEST"));
 
