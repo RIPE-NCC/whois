@@ -28,7 +28,8 @@ public class OrgNameFormatValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
-    private static final Pattern INCONSISTENT_FORMATTING = Pattern.compile("(?m)\\s{2,}|\t|\n");
+    private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)[#].*");
+    private static final Pattern INCONSISTENT_FORMATTING_PATTERN = Pattern.compile("(?m)\\s{2,}|\t|\n");
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -42,27 +43,26 @@ public class OrgNameFormatValidator implements BusinessRuleValidator {
             return;
         }
 
-        if (containsInconsistentFormatting(orgNameAttribute) || isMultiline(orgNameAttribute)) {
+        final String orgNameValue = stripComments(orgNameAttribute.getValue()).trim();
+
+        if (isMultiline(orgNameValue) || containsInconsistentFormatting(orgNameValue)) {
             updateContext.addMessage(update, orgNameAttribute, UpdateMessages.inconsistentOrgNameFormatting());
         }
     }
 
     // does the attribute value run over multiple lines
-    private boolean isMultiline(final RpslAttribute rpslAttribute) {
-        return rpslAttribute.getValue().contains("\n");
+    private boolean isMultiline(final String value) {
+        return value.contains("\n");
+    }
+
+    // strip comment(s) from value
+    private String stripComments(final String value) {
+        return COMMENT_PATTERN.matcher(value).replaceAll("");
     }
 
     // does the attribute value contain inconsistent formatting, ignoring comments and leading or trailing spaces.
-    private boolean containsInconsistentFormatting(final RpslAttribute rpslAttribute) {
-        final String cleanValue;
-        try {
-            cleanValue = rpslAttribute.getCleanValue().toString();
-        } catch (IllegalStateException e) {
-            // ignore error reading value(s)
-            return false;
-        }
-
-         return INCONSISTENT_FORMATTING.matcher(cleanValue).find();
+    private boolean containsInconsistentFormatting(final String value) {
+         return INCONSISTENT_FORMATTING_PATTERN.matcher(value).find();
     }
 
     @Override

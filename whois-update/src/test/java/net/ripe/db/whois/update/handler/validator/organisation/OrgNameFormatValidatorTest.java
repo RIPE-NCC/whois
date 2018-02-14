@@ -70,6 +70,8 @@ public class OrgNameFormatValidatorTest {
         ok("a      # comment");
         ok("a b    # comment");
         ok("a b\t# comment");
+        ok("\ta b\t# comment");
+        ok("   a b   # comment");
         error("a b    # comment\n c");
         error("a b    # comment\n+c");
         error("a b    # comment\n\tc");
