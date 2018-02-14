@@ -634,4 +634,8 @@ public final class UpdateMessages {
     public static Message changedAttributeRemoved() {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
     }
+
+    public static Message inconsistentOrgNameFormatting() {
+        return new Message(Type.ERROR, "Tab characters, multiple lines, or multiple whitespaces are not allowed in the \"org-name:\" value.");
+    }
 }
