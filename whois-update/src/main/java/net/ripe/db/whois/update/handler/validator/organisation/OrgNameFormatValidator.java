@@ -42,16 +42,27 @@ public class OrgNameFormatValidator implements BusinessRuleValidator {
             return;
         }
 
-        // read complete attribute value, including multi-line if present, but ignore leading and trailing space(s)
-        final String value = orgNameAttribute.getValue().trim();
-
-        if (containsInconsistentFormatting(value)) {
+        if (containsInconsistentFormatting(orgNameAttribute) || isMultiline(orgNameAttribute)) {
             updateContext.addMessage(update, orgNameAttribute, UpdateMessages.inconsistentOrgNameFormatting());
         }
     }
 
-    private boolean containsInconsistentFormatting(final String value) {
-         return INCONSISTENT_FORMATTING.matcher(value).find();
+    // does the attribute value run over multiple lines
+    private boolean isMultiline(final RpslAttribute rpslAttribute) {
+        return rpslAttribute.getValue().contains("\n");
+    }
+
+    // does the attribute value contain inconsistent formatting, ignoring comments and leading or trailing spaces.
+    private boolean containsInconsistentFormatting(final RpslAttribute rpslAttribute) {
+        final String cleanValue;
+        try {
+            cleanValue = rpslAttribute.getCleanValue().toString();
+        } catch (IllegalStateException e) {
+            // ignore error reading value(s)
+            return false;
+        }
+
+         return INCONSISTENT_FORMATTING.matcher(cleanValue).find();
     }
 
     @Override

@@ -65,6 +65,16 @@ public class OrgNameFormatValidatorTest {
         error("a\n b\n c");
     }
 
+    @Test
+    public void comments() {
+        ok("a      # comment");
+        ok("a b    # comment");
+        ok("a b\t# comment");
+        error("a b    # comment\n c");
+        error("a b    # comment\n+c");
+        error("a b    # comment\n\tc");
+    }
+
 
     // helper methods
 
