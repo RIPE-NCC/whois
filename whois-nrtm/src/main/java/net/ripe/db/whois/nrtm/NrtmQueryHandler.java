@@ -43,6 +43,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private final String applicationVersion;
     private final String source;
     private final long updateInterval;
+    private final boolean keepaliveEndOfStream;
 
     private volatile ScheduledFuture<?> scheduledFuture;
 
@@ -57,7 +58,8 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             final NrtmLog nrtmLog,
             final String applicationVersion,
             final String source,
-            final long updateInterval) {
+            final long updateInterval,
+            final boolean keepaliveEndOfStream) {
         this.serialDao = serialDao;
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;
@@ -65,6 +67,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         this.applicationVersion = applicationVersion;
         this.source = source;
         this.updateInterval = updateInterval;
+        this.keepaliveEndOfStream = keepaliveEndOfStream;
     }
 
     @Override
@@ -213,7 +216,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             serial++;
         }
 
-        if (written) {
+        if (written && keepaliveEndOfStream) {
             writeMessage(channel, String.format("%%END %d - %d", begin, end));
         }
 

@@ -55,6 +55,7 @@ public class NrtmQueryHandlerTest {
     @Mock private NrtmLog nrtmLogMock;
 
     private static final long UPDATE_INTERVAL = 1;
+    private static final boolean KEEPALIVE_END_OF_STREAM = false;
     private static final String SOURCE = "RIPE";
     private static final String VERSION = "1.0-SNAPSHOT";
 
@@ -85,7 +86,7 @@ public class NrtmQueryHandlerTest {
             }
         });
 
-        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, UPDATE_INTERVAL);
+        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, UPDATE_INTERVAL, KEEPALIVE_END_OF_STREAM);
         NrtmQueryHandler.PendingWrites.add(channelMock);
     }
 
@@ -152,6 +153,20 @@ public class NrtmQueryHandlerTest {
         verify(mySchedulerMock, times(1)).scheduleAtFixedRate(any(Runnable.class), anyLong());
         verify(channelMock, times(1)).write("ADD 1\n\n");
         verify(channelMock, times(1)).write(inetnum.toString() + "\n");
+
+    @Test
+    public void keepaliveEndOfStreamIndicator() {
+        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, UPDATE_INTERVAL, true);
+
+        when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-LAST -k");
+
+        subject.messageReceived(contextMock, messageEventMock);
+
+        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
+        verify(channelMock).write("ADD 1\n\n");
+        verify(channelMock).write(inetnum.toString() + "\n");
+        verify(channelMock).write("%END 1 - 2\n\n");
     }
 
     @Test

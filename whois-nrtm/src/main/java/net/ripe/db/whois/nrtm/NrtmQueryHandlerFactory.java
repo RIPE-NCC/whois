@@ -18,6 +18,7 @@ public class NrtmQueryHandlerFactory {
     private final String version;
     private final String source;
     private final long updateInterval;
+    private final boolean keepaliveEndOfStream;
 
     @Autowired
     public NrtmQueryHandlerFactory(
@@ -27,7 +28,8 @@ public class NrtmQueryHandlerFactory {
             @Qualifier("clientSynchronisationScheduler") final TaskScheduler clientSynchronisationScheduler,
             @Value("${application.version}") final String version,
             @Value("${whois.source}") final String source,
-            @Value("${nrtm.update.interval:60}") final long updateInterval) {
+            @Value("${nrtm.update.interval:60}") final long updateInterval,
+            @Value("${nrtm.end.of.stream:false}") final boolean keepaliveEndOfStream) {
         this.serialDao = serialDao;
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;
@@ -35,6 +37,7 @@ public class NrtmQueryHandlerFactory {
         this.version = version;
         this.source = source;
         this.updateInterval = updateInterval;
+        this.keepaliveEndOfStream = keepaliveEndOfStream;
     }
 
     public NrtmQueryHandler getInstance() {
@@ -45,7 +48,8 @@ public class NrtmQueryHandlerFactory {
             nrtmLog,
             version,
             source,
-            updateInterval);
+            updateInterval,
+            keepaliveEndOfStream);
     }
 
 
