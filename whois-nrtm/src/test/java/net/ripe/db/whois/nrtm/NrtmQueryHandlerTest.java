@@ -36,6 +36,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -117,7 +118,7 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("% nrtm-server-" + VERSION + "\n\n");
+        verify(channelMock).write("% nrtm-server-" + VERSION + "\n\n");
     }
 
     @Test
@@ -126,7 +127,7 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write(SOURCE + ":3:X:1-2\n\n");
+        verify(channelMock).write(SOURCE + ":3:X:1-2\n\n");
     }
 
     @Test
@@ -135,24 +136,25 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("%START Version: 3 RIPE 1-2\n\n");
-        verify(channelMock, times(1)).write("ADD 1\n\n");
-        verify(channelMock, times(1)).write(inetnum.toString() + "\n");
-        verify(channelMock, times(0)).write("ADD 2\n\n");
-        verify(channelMock, times(0)).write(person.toString() + "\n");
-        verify(channelMock, times(1)).write("%END RIPE\n\n");
+        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(channelMock).write("ADD 1\n\n");
+        verify(channelMock).write(inetnum.toString() + "\n");
+        verify(channelMock, never()).write("ADD 2\n\n");
+        verify(channelMock, never()).write(person.toString() + "\n");
+        verify(channelMock).write("%END RIPE\n\n");
     }
 
     @Test
-    public void keepalive() throws Exception {
+    public void keepalive() {
         when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-LAST -k");
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("%START Version: 3 RIPE 1-2\n\n");
-        verify(mySchedulerMock, times(1)).scheduleAtFixedRate(any(Runnable.class), anyLong());
-        verify(channelMock, times(1)).write("ADD 1\n\n");
-        verify(channelMock, times(1)).write(inetnum.toString() + "\n");
+        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
+        verify(channelMock).write("ADD 1\n\n");
+        verify(channelMock).write(inetnum.toString() + "\n");
+    }
 
     @Test
     public void keepaliveEndOfStreamIndicator() {
@@ -175,8 +177,8 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("ADD 1\n\n");
-        verify(channelMock, times(1)).write(inetnum.toString() + "\n");
+        verify(channelMock).write("ADD 1\n\n");
+        verify(channelMock).write(inetnum.toString() + "\n");
     }
 
     @Test
@@ -225,14 +227,14 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
+        verify(channelMock).write("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
     }
 
     @Test
     public void channelConnected() throws Exception {
         subject.channelConnected(contextMock, channelStateEventMock);
 
-        verify(channelMock, times(1)).write(NrtmQueryHandler.TERMS_AND_CONDITIONS + "\n\n");
+        verify(channelMock).write(NrtmQueryHandler.TERMS_AND_CONDITIONS + "\n\n");
     }
 
     @Test
@@ -243,9 +245,9 @@ public class NrtmQueryHandlerTest {
         messageReceived();
         unsetPending(channelMock);
 
-        verify(channelMock, times(1)).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
         verify(channelMock, atMost(1)).write(any(String.class));
-        verify(mySchedulerMock, times(1)).scheduleAtFixedRate(any(Runnable.class), anyLong());
+        verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
     }
 
     @Test
