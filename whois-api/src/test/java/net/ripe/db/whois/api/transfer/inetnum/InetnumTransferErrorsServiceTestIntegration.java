@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
 
 
 @Category(IntegrationTest.class)
-public class InetnumTransferErrorsServiceIntegrationTest extends AbstractInetnumTransferInternalTest {
+public class InetnumTransferErrorsServiceTestIntegration extends AbstractInetnumTransferInternalTest {
 
     private static final String NON_RIPE_INETNUM_TEMPLATE = "" +
             "inetnum:        %s\n" +

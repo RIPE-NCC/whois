@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.handler.transformpipeline;
+package net.ripe.db.whois.update.handler.transform;
 
 import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -11,7 +11,7 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LatinTransformer implements Transformer {
+public class Latin1Transformer implements Transformer {
 
     public RpslObject transform(final RpslObject rpslObject,
                                 final Update update,

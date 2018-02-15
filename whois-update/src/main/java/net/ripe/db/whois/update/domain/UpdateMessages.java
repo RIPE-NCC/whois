@@ -599,6 +599,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", attributeName);
     }
 
+    public static Message replacedNonBreakSpaces() {
+        return new Message(Type.WARNING, "Non-break spaces were replaced with regular spaces");
+    }
+
     public static Message oldPasswordsRemoved() {
         return new Message(Type.WARNING, "MD5 passwords older than November 2011 were removed for one or more maintainers of this object, see: https://www.ripe.net/removed2011pw");
     }
@@ -625,5 +629,9 @@ public final class UpdateMessages {
 
     public static Message multipleUserMntBy(final Collection<CIString> userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
+    }
+
+    public static Message changedAttributeRemoved() {
+        return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
     }
 }

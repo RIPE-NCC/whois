@@ -9,11 +9,8 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.common.rpsl.ValidationMessages;
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -26,7 +23,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.generator.AttributeGenerator;
-import net.ripe.db.whois.update.handler.transformpipeline.TransformPipeline;
+import net.ripe.db.whois.update.handler.transform.Transformer;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +43,7 @@ import javax.annotation.Nullable;
 public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
     private final AttributeGenerator[] attributeGenerators;
+    private final Transformer[] transformers;
     private final RpslObjectDao rpslObjectDao;
     private final UpdateLockDao updateLockDao;
     private final Authenticator authenticator;
@@ -53,14 +51,13 @@ public class SingleUpdateHandler {
     private final IpTreeUpdater ipTreeUpdater;
     private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
-    private final ChangedAttrFeatureToggle changedAttrFeatureToggle;
-    private final TransformPipeline transformerPipeline;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
 
     @Autowired
     public SingleUpdateHandler(final AttributeGenerator[] attributeGenerators,
+                               final Transformer[] transformers,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final Authenticator authenticator,
@@ -68,10 +65,9 @@ public class SingleUpdateHandler {
                                final RpslObjectDao rpslObjectDao,
                                final IpTreeUpdater ipTreeUpdater,
                                final PendingUpdateHandler pendingUpdateHandler,
-                               final SsoTranslator ssoTranslator,
-                               final ChangedAttrFeatureToggle changedAttrFeatureToggle,
-                               final TransformPipeline transformerPipeline) {
+                               final SsoTranslator ssoTranslator) {
         this.attributeGenerators = attributeGenerators;
+        this.transformers = transformers;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
         this.updateLockDao = updateLockDao;
@@ -80,8 +76,6 @@ public class SingleUpdateHandler {
         this.ipTreeUpdater = ipTreeUpdater;
         this.pendingUpdateHandler = pendingUpdateHandler;
         this.ssoTranslator = ssoTranslator;
-        this.transformerPipeline = transformerPipeline;
-        this.changedAttrFeatureToggle = changedAttrFeatureToggle;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
@@ -96,7 +90,6 @@ public class SingleUpdateHandler {
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
         RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
-
 
         Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
@@ -117,7 +110,11 @@ public class SingleUpdateHandler {
         }
 
         // apply object transformation
-        RpslObject updatedObjectWithAutoKeys = transformerPipeline.transform(updatedObject, update, updateContext, action);
+        RpslObject updatedObjectWithAutoKeys = updatedObject;
+        for (Transformer transformer : transformers) {
+            updatedObjectWithAutoKeys = transformer.transform(updatedObjectWithAutoKeys, update, updateContext, action);
+        }
+
         preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // add authentication to context
@@ -225,28 +222,12 @@ public class SingleUpdateHandler {
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
-            ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
-            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
-            validateChanged(updatedObject, messages);
-        }
+        ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
+        ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
+    }
 
         return updatedObject;
     }
-
-    private void validateChanged(final RpslObject updatedObject, final ObjectMessages objectMessages) {
-        if (!updatedObject.containsAttribute(AttributeType.CHANGED)) {
-            return;
-        }
-
-        if (changedAttrFeatureToggle.isChangedAttrAvailable()) {
-            objectMessages.addMessage(ValidationMessages.changedAttributeRemoved());
-        } else {
-            for (RpslAttribute changed : updatedObject.findAttributes(AttributeType.CHANGED)) {
-                objectMessages.addMessage(changed, ValidationMessages.unknownAttribute(changed.getKey()));
-            }
-        }
-    }
-
 
     private Action getAction(@Nullable final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final Keyword keyword) {
         if (Operation.DELETE.equals(update.getOperation())) {
