@@ -16,6 +16,7 @@ import org.jboss.netty.channel.MessageEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -28,11 +29,13 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static net.ripe.db.whois.nrtm.NrtmQueryHandlerTest.StringMatcher.instanceofString;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.inOrder;
@@ -104,12 +107,14 @@ public class NrtmQueryHandlerTest {
 
         InOrder orderedChannelMock = inOrder(channelMock);
 
+        verify(channelMock, times(7)).write(argThat(instanceofString()));
         orderedChannelMock.verify(channelMock).write("%START Version: 2 RIPE 1-2\n\n");
         orderedChannelMock.verify(channelMock).write("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
         orderedChannelMock.verify(channelMock).write("ADD\n\n");
         orderedChannelMock.verify(channelMock).write(inetnum + "\n");
         orderedChannelMock.verify(channelMock).write("ADD\n\n");
         orderedChannelMock.verify(channelMock).write(DummifierNrtm.getPlaceholderPersonObject() + "\n");
+        orderedChannelMock.verify(channelMock).write("%END RIPE\n\n");
     }
 
     @Test
@@ -118,6 +123,7 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
+        verify(channelMock).write(argThat(instanceofString()));
         verify(channelMock).write("% nrtm-server-" + VERSION + "\n\n");
     }
 
@@ -127,6 +133,7 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
+        verify(channelMock).write(argThat(instanceofString()));
         verify(channelMock).write(SOURCE + ":3:X:1-2\n\n");
     }
 
@@ -136,6 +143,7 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
+        verify(channelMock, times(4)).write(argThat(instanceofString()));
         verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
         verify(channelMock).write("ADD 1\n\n");
         verify(channelMock).write(inetnum.toString() + "\n");
@@ -150,6 +158,7 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
+        verify(channelMock, times(3)).write(argThat(instanceofString()));
         verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
         verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
         verify(channelMock).write("ADD 1\n\n");
@@ -164,6 +173,7 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
+        verify(channelMock, times(4)).write(argThat(instanceofString()));
         verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
         verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
         verify(channelMock).write("ADD 1\n\n");
@@ -177,8 +187,11 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
+        verify(channelMock, times(4)).write(argThat(instanceofString()));
+        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
         verify(channelMock).write("ADD 1\n\n");
         verify(channelMock).write(inetnum.toString() + "\n");
+        verify(channelMock).write("%END RIPE\n\n");
     }
 
     @Test
@@ -227,7 +240,10 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
+        verify(channelMock, times(3)).write(argThat(instanceofString()));
+        verify(channelMock).write("%START Version: 2 RIPE 1-1\n\n");
         verify(channelMock).write("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
+        verify(channelMock).write("%END RIPE\n\n");
     }
 
     @Test
@@ -284,4 +300,21 @@ public class NrtmQueryHandlerTest {
         }).start();
     }
 
+    /**
+     * Check that an argument is an instanceof String.
+     * any(String.class) is also matched by Object.class, if the method accepts Object.
+     */
+    static class StringMatcher extends ArgumentMatcher<Object> {
+
+        static final StringMatcher instance = new StringMatcher();
+
+        @Override
+        public boolean matches(final Object argument) {
+            return (argument instanceof String);
+        }
+
+        static StringMatcher instanceofString() {
+            return instance;
+        }
+    }
 }
