@@ -101,13 +101,13 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
+                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"org-type:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
                 "Attribute \"address:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"phone:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"fax-no:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"e-mail:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"org-name:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
-                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
-                "Attribute \"org-type:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
         ]
     }
 
@@ -324,14 +324,14 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
+                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"org:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"org-type:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
                 "Attribute \"address:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"phone:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"fax-no:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"e-mail:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"org-name:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
-                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
-                "Attribute \"org:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
-                "Attribute \"org-type:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
         ]
     }
 
@@ -380,12 +380,12 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
                 "Multiple user-'mnt-by:' are not allowed, found are: 'LIR-MNT, LIR2-MNT'",
+                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"org:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
                 "Attribute \"address:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"phone:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"fax-no:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"e-mail:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
-                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
-                "Attribute \"org:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
         ]
     }
 
@@ -428,9 +428,9 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
+                "Attribute \"org:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
                 "Attribute \"phone:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
                 "Attribute \"fax-no:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",
-                "Attribute \"org:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
         ]
     }
 
