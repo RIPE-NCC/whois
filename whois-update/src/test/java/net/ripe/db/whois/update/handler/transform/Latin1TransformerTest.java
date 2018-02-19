@@ -20,20 +20,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class LatinTransformerTest {
+public class Latin1TransformerTest {
 
     @Mock
     private Update update;
     @Mock
     private UpdateContext updateContext;
 
-    private LatinTransformer subject;
+    private Latin1Transformer subject;
 
     @Before
     public void setUp() throws Exception {
         this.update = mock(Update.class);
         this.updateContext = mock(UpdateContext.class);
-        this.subject = new LatinTransformer();
+        this.subject = new Latin1Transformer();
     }
 
     @Test
@@ -54,7 +54,6 @@ public class LatinTransformerTest {
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
     }
-
 
     @Test
     public void should_convert_into_latin() {

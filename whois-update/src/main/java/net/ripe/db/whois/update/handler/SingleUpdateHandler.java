@@ -91,7 +91,6 @@ public class SingleUpdateHandler {
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
         RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
 
-
         Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
@@ -223,9 +222,9 @@ public class SingleUpdateHandler {
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
-            ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
-            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
-        }
+        ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
+        ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
+    }
 
         return updatedObject;
     }
