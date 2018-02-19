@@ -36,15 +36,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LirPortalMaintainedAttributesValidatorTest {
+public class LirUserMaintainedAttributesValidatorTest {
 
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock Subject authenticationSubject;
     @Mock Maintainers maintainers;
 
-    @InjectMocks
-    LirPortalMaintainedAttributesValidator subject;
+    @InjectMocks LirUserMaintainedAttributesValidator subject;
 
     @Before
     public void setup() {
