@@ -635,6 +635,10 @@ public final class UpdateMessages {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
     }
 
+    public static Message emailAddressCannotBeUsed(final CIString value) {
+        return new Message(Type.ERROR, "The email address \"%s\" cannot be used.", value);
+    }
+
     public static Message inconsistentOrgNameFormatting() {
         return new Message(Type.ERROR, "Tab characters, multiple lines, or multiple whitespaces are not allowed in the \"org-name:\" value.");
     }
