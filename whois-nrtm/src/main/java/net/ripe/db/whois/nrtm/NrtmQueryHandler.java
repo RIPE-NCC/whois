@@ -43,6 +43,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private final String applicationVersion;
     private final String source;
     private final long updateInterval;
+    private final boolean keepaliveEndOfStream;
 
     private volatile ScheduledFuture<?> scheduledFuture;
 
@@ -50,7 +51,15 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             "% The RIPE Database is subject to Terms and Conditions.\n" +
             "% See http://www.ripe.net/db/support/db-terms-conditions.pdf";
 
-    public NrtmQueryHandler(final SerialDao serialDao, final Dummifier dummifier, final TaskScheduler clientSynchronisationScheduler, final NrtmLog nrtmLog, final String applicationVersion, final String source, final long updateInterval) {
+    public NrtmQueryHandler(
+            final SerialDao serialDao,
+            final Dummifier dummifier,
+            final TaskScheduler clientSynchronisationScheduler,
+            final NrtmLog nrtmLog,
+            final String applicationVersion,
+            final String source,
+            final long updateInterval,
+            final boolean keepaliveEndOfStream) {
         this.serialDao = serialDao;
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;
@@ -58,6 +67,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         this.applicationVersion = applicationVersion;
         this.source = source;
         this.updateInterval = updateInterval;
+        this.keepaliveEndOfStream = keepaliveEndOfStream;
     }
 
     @Override
@@ -171,11 +181,12 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             }
         }
 
-        writeMessage(channel, "%END " + source);
+        writeMessage(channel, String.format("%%END %s", source));
     }
 
     private int writeSerials(final int begin, final int end, final int version, final Channel channel) {
         int serial = begin;
+        boolean written = false;
 
         while (serial <= end) {
 
@@ -198,10 +209,15 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
                     writeMessage(channel, message);
                     writeMessage(channel, dummifier.dummify(version, serialEntry.getRpslObject()).toString().trim());
+                    written = true;
                 }
             }
 
             serial++;
+        }
+
+        if (written && keepaliveEndOfStream) {
+            writeMessage(channel, String.format("%%END %d - %d", begin, end));
         }
 
         return serial;
