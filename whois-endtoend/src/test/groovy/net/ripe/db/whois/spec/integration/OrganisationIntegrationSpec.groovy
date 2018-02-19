@@ -954,8 +954,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
     }
 
     def "lir org-name changed case sensitive organisation not ref"() {
@@ -983,7 +983,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent())
         then:
-        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
     }
 
     def "other org-name changed case sensitive organisation not ref"() {
@@ -1046,8 +1046,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
     }
 
     def "lir org-name changed case sensitive organisation ref by mntner"() {
@@ -1083,7 +1083,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
     }
 
     def "lir org-name and address changed organisation ref by resource without RSmntner not auth by RS mntner"() {
@@ -1118,8 +1118,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
     }
 
     def "lir org-name and address changed organisation ref by resource with RSmntner auth by RS mntner"() {
@@ -1160,8 +1160,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
     }
 
     def "other org-name changed organisation ref by resource with RSmntner auth by RS mntner"() {
