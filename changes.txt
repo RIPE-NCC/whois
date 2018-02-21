@@ -1,5 +1,13 @@
 # next
 
+# 1.91
+
+[update] Added clearer message for which LIR organisation attributes the user can update in the LIR portal
+[update] Don't allow multiple spaces, any tabs, or multiple lines, in the organisation org-name attribute.
+[update] Exclude certain email addresses in abuse-mailbox,e-mail,irt-nfy,mnt-nfy,notify,ref-nfy,upd-to attributes
+[update] Convert non-break spaces in mailupdates to regular spaces
+[nrtm] Added "end of stream" comment to NRTM responses in keepalive mode
+
 # 1.90.2
 [query] Fixed inconsistent newlines in --list-versions response
 [update] Remove the "changed:" attribute from the database on update
