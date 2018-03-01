@@ -2247,6 +2247,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "        <attribute name=\"e-mail\" value=\"noreply@ripe.net\"/>\n" +
                 "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
                 "        <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
+                "        <attribute name=\"remarks\" value=\"remark\"/>\n" +
                 "        <attribute name=\"source\" value=\"TEST\"/>\n" +
                 "      </attributes>\n" +
                 "    </object>\n" +
@@ -2309,9 +2310,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    }, {\n" +
                 "      \"name\" : \"e-mail\",\n" +
                 "      \"value\" : \"noreply@ripe.net\"\n" +
-                "    }, {\n" +
-                "      \"name\" : \"nic-hdl\",\n" +
-                "      \"value\" : \"PP1-TEST\"\n" +
                 "    }, {\n" +
                 "      \"name\" : \"mnt-by\",\n" +
                 "      \"value\" : \"OWNER-MNT\"\n" +
