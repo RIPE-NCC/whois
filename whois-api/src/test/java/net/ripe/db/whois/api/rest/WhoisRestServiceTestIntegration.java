@@ -2235,9 +2235,27 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_person_xml_text() {
+        final String request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
+                "<whois-resources>\n" +
+                "  <objects>\n" +
+                "    <object type=\"person\">\n" +
+                "      <source id=\"test\"/>\n" +
+                "      <attributes>\n" +
+                "        <attribute name=\"person\" value=\"Pauleth Palthen\"/>\n" +
+                "        <attribute name=\"address\" value=\"Singel 258\"/>\n" +
+                "        <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "        <attribute name=\"e-mail\" value=\"noreply@ripe.net\"/>\n" +
+                "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "        <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
+                "        <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "      </attributes>\n" +
+                "    </object>\n" +
+                "  </objects>\n" +
+                "</whois-resources>\n";
+
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_XML_TYPE)
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
+                .post(Entity.entity(request, MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, is(String.format(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -2272,9 +2290,49 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_person_json_text() {
+        final String request = "{\"objects\":{\n" +
+                "  \"object\":[ {\n" +
+                "  \"type\" : \"person\",\n" +
+                "  \"source\" : {\n" +
+                "    \"id\" : \"test\"\n" +
+                "  },\n" +
+                "  \"attributes\" : {\n" +
+                "    \"attribute\" : [ {\n" +
+                "      \"name\" : \"person\",\n" +
+                "      \"value\" : \"Pauleth Palthen\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"address\",\n" +
+                "      \"value\" : \"Singel 258\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"phone\",\n" +
+                "      \"value\" : \"+31-1234567890\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"e-mail\",\n" +
+                "      \"value\" : \"noreply@ripe.net\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"nic-hdl\",\n" +
+                "      \"value\" : \"PP1-TEST\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"mnt-by\",\n" +
+                "      \"value\" : \"OWNER-MNT\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"nic-hdl\",\n" +
+                "      \"value\" : \"PP1-TEST\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"remarks\",\n" +
+                "      \"value\" : \"remark\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"source\",\n" +
+                "      \"value\" : \"TEST\"\n" +
+                "    } ]\n" +
+                "  }\n" +
+                "} ]\n" +
+                "}\n" +
+                "}";
+
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
+                .post(Entity.entity(request, MediaType.APPLICATION_JSON), String.class);
 
         assertThat(response, is(String.format("" +
                 "{\n" +
