@@ -506,56 +506,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
         queryObject("-rGBT person Fp11-RIpe", "person", "First Person")
     }
-
-    def "modify 2 person with dry-run"() {
-        given:
-        dbfixture(getTransient("FIRST"))
-
-        expect:
-        queryObject("-rGBT person TP1-TEST", "person", "Test Person")
-        queryObject("-rGBT person Fp11-RIpe", "person", "First Person")
-
-        when:
-        def message = syncUpdate(new SyncUpdate(data: """\
-                person:  Test Person
-                address: St James Street
-                address: Burnley
-                address: UK
-                phone:   +44 282 420469
-                remarks: just added
-                nic-hdl: TP1-TEST
-                mnt-by:  OWNER-MNT
-                source:  TEST
-
-                person:  First Person
-                address: St James Street
-                address: Burnley
-                address: UK
-                phone:   +44 282 420469
-                nic-hdl: Fp11-RIpe
-                mnt-by:  owner-mnt
-                source:  TEST
-
-                dry-run:
-                password:   owner
-                """.stripIndent(), redirect: false)
-        )
-
-        then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 2
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(2, 0, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.contents =~ /(?s)Dry-run is only supported when a single update is specified.*?Dry-run is only supported when a single update is specified/
-        ! (ack.contents =~ /\@\@/)
-
-        noMoreMessages()
-
-        query_object_not_matches("-rGBT person TP1-TEST", "person", "Test Person", "just added")
-    }
-
+    
     def "create reverse domain, with dry run"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
