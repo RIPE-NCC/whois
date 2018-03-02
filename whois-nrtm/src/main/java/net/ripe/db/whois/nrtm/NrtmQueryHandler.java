@@ -146,8 +146,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     void handleMirrorQueryWithKeepalive(final Query query, final Channel channel) {
-        final int version = query.getVersion();
-
         final Runnable instance = new Runnable() {
             private int serial = query.getSerialBegin();
 
@@ -155,7 +153,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             public void run() {
                 try {
                     final SerialRange range = serialDao.getSerials();
-                    serial = writeSerials(serial, range.getEnd(), version, channel);
+                    serial = writeSerials(serial, range.getEnd(), query, channel);
                 } catch (ChannelException e) {
                     LOGGER.debug("writeSerials: closed channel");
                 } catch (Exception e) {
@@ -175,7 +173,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
     private void handleMirrorQuery(final Query query, final Channel channel) {
         for (int serial = query.getSerialBegin(); serial <= query.getSerialEnd(); ) {
-            serial = writeSerials(serial, query.getSerialEnd(), query.getVersion(), channel);
+            serial = writeSerials(serial, query.getSerialEnd(), query, channel);
             if (serial <= query.getSerialEnd()) {
                 Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
             }
@@ -184,7 +182,8 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         writeMessage(channel, String.format("%%END %s", source));
     }
 
-    private int writeSerials(final int begin, final int end, final int version, final Channel channel) {
+    private int writeSerials(final int begin, final int end, final Query query, final Channel channel) {
+        final int version = query.getVersion();
         int serial = begin;
         boolean written = false;
 
@@ -216,7 +215,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             serial++;
         }
 
-        if (written && keepaliveEndOfStream) {
+        if (written && query.isKeepalive() && keepaliveEndOfStream) {
             writeMessage(channel, String.format("%%END %d - %d", begin, end));
         }
 
