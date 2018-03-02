@@ -29,7 +29,7 @@ public class NrtmQueryHandlerFactory {
             @Value("${application.version}") final String version,
             @Value("${whois.source}") final String source,
             @Value("${nrtm.update.interval:60}") final long updateInterval,
-            @Value("${nrtm.end.of.stream:false}") final boolean keepaliveEndOfStream) {
+            @Value("${nrtm.keepalive.end.of.stream:false}") final boolean keepaliveEndOfStream) {
         this.serialDao = serialDao;
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;
