@@ -26,7 +26,7 @@ import java.util.NoSuchElementException;
 public class CrowdClient {
     private static final String CROWD_SESSION_PATH = "rest/usermanagement/1/session";
     private static final String CROWD_USER_ATTRIBUTE_PATH = "rest/usermanagement/1/user/attribute";
-    private static final String CROWD_UUID_SEARCH_PATH = "rest/sso/1/uuid-search";
+    private static final String CROWD_UUID_SEARCH_PATH = "rest/sso/uuid-search";
 
     private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
     private static final int CLIENT_READ_TIMEOUT = 10_000;
