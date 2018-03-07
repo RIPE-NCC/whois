@@ -21,6 +21,16 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                    mnt-by:  owner-mnt
                    source:  TEST
                 """,
+                "SECOND": """\
+                   person:  Second Person
+                   address: St James Street
+                   address: Burnley
+                   address: UK
+                   phone:   +44 282 420469
+                   nic-hdl: Sp11-TEst
+                   mnt-by:  owner-mnt
+                   source:  TEST
+                """,
                 "ALLOC-PA-LOW-DOM-R": """\
                 inetnum:      193.0.0.0 - 193.255.255.255
                 netname:      TEST-NET-NAME
@@ -75,6 +85,57 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         noMoreMessages()
 
         queryObjectNotFound("-rGBT person Fp11-TEst", "person", "First Person")
+    }
+
+    def "create multiple persons with dry-run"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-rGBT person Fp11-TEst", "person", "First Person")
+        queryObjectNotFound("-rGBT person Sp11-TEst", "person", "Second Person")
+
+        when:
+        def message = syncUpdate(new SyncUpdate(data: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: Fp11-TEst
+                mnt-by:  owner-mnt
+                source:  TEST
+
+                person:  Second Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: Sp11-TEst
+                mnt-by:  owner-mnt
+                source:  TEST
+
+                dry-run:
+                password:   owner
+                """.stripIndent(), redirect: false)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 2
+        ack.summary.assertSuccess(2, 2, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 2)
+        ack.successes.any { it.operation == "Create" && it.key == "[person] Fp11-TEst   First Person" }
+        ack.successes.any { it.operation == "Create" && it.key == "[person] Sp11-TEst   Second Person" }
+        ack.infoSuccessMessagesFor("Create", "[person] Fp11-TEst") == [
+                "Dry-run performed, no changes to the database have been made"]
+        ack.infoSuccessMessagesFor("Create", "[person] Sp11-TEst") == [
+                "Dry-run performed, no changes to the database have been made"]
+        noMoreMessages()
+
+        queryObjectNotFound("-rGBT person Fp11-TEst", "person", "First Person")
+        queryObjectNotFound("-rGBT person Sp11-TEst", "person", "Second Person")
     }
 
     def "create person with dry-run before object"() {
@@ -506,7 +567,112 @@ class DryRunSpec extends BaseQueryUpdateSpec {
 
         queryObject("-rGBT person Fp11-TEst", "person", "First Person")
     }
-    
+
+    def "delete multiple persons with dry-run"() {
+        given:
+        dbfixture(getTransient("FIRST"))
+        dbfixture(getTransient("SECOND"))
+
+        expect:
+        queryObject("-rGBT person Fp11-TEst", "person", "First Person")
+        queryObject("-rGBT person Sp11-TEst", "person", "Second Person")
+
+        when:
+        def message = syncUpdate(new SyncUpdate(data: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: Fp11-TEst
+                mnt-by:  owner-mnt
+                source:  TEST
+                delete:  dry-run, should not delete
+
+                person:  Second Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: Sp11-TEst
+                mnt-by:  owner-mnt
+                source:  TEST
+                delete:  dry-run, should not delete
+
+                dry-run:
+                password:   owner
+                """.stripIndent(), redirect: false)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 2
+        ack.summary.assertSuccess(2, 0, 0, 2, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 2)
+        ack.successes.any { it.operation == "Delete" && it.key == "[person] Fp11-TEst   First Person" }
+        ack.successes.any { it.operation == "Delete" && it.key == "[person] Sp11-TEst   Second Person" }
+        ack.infoSuccessMessagesFor("Delete", "[person] Fp11-TEst") == [
+                "Dry-run performed, no changes to the database have been made"]
+        ack.infoSuccessMessagesFor("Delete", "[person] Sp11-TEst") == [
+                "Dry-run performed, no changes to the database have been made"]
+
+        noMoreMessages()
+
+        queryObject("-rGBT person Fp11-TEst", "person", "First Person")
+        queryObject("-rGBT person Sp11-TEst", "person", "Second Person")
+    }
+
+    def "modify multiple persons with dry-run"() {
+        given:
+        dbfixture(getTransient("FIRST"))
+
+        expect:
+        queryObject("-rGBT person TP1-TEST", "person", "Test Person")
+        queryObject("-rGBT person Fp11-TEst", "person", "First Person")
+
+        when:
+        def message = syncUpdate(new SyncUpdate(data: """\
+                person:  Test Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                remarks: just added
+                nic-hdl: TP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                remarks: just added
+                nic-hdl: Fp11-TEst
+                mnt-by:  owner-mnt
+                source:  TEST
+
+                dry-run:
+                password:   owner
+                """.stripIndent(), redirect: false)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 2
+        ack.summary.assertSuccess(2, 0, 2, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 2)
+
+        noMoreMessages()
+
+        query_object_not_matches("-rGBT person TP1-TEST", "person", "Test Person", "just added")
+        query_object_not_matches("-rGBT person Fp11-TEST", "person", "First Person", "just added")
+    }
+
     def "create reverse domain, with dry run"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
