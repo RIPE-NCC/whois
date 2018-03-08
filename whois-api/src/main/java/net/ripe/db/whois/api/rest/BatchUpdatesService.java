@@ -31,6 +31,8 @@ import javax.ws.rs.core.StreamingOutput;
 import java.util.Collections;
 import java.util.List;
 
+import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
+
 @Component
 @Path("/batch")
 public class BatchUpdatesService {
@@ -61,12 +63,18 @@ public class BatchUpdatesService {
                        @Context final HttpServletRequest request,
                        @PathParam("source") final String sourceParam,
                        @QueryParam("override") final String override,
+                       @QueryParam("dry-run") final String dryRun,
                        @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
             updateContext.setBatchUpdate();
+
+            if(isQueryParamSet(dryRun)) {
+                updateContext.dryRun();
+            }
+
             auditlogRequest(request);
 
             final List<ActionRequest> actionRequests = createActionRequests(whoisResources);
