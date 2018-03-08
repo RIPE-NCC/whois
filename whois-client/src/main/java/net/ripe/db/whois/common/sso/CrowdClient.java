@@ -26,7 +26,7 @@ import java.util.NoSuchElementException;
 public class CrowdClient {
     private static final String CROWD_SESSION_PATH = "rest/usermanagement/1/session";
     private static final String CROWD_USER_ATTRIBUTE_PATH = "rest/usermanagement/1/user/attribute";
-    private static final String CROWD_UUID_SEARCH_PATH = "rest/sso/1/uuid-search";
+    private static final String CROWD_UUID_SEARCH_PATH = "rest/usermanagement/latest/search";
 
     private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
     private static final int CLIENT_READ_TIMEOUT = 10_000;
@@ -103,12 +103,17 @@ public class CrowdClient {
 
     public String getUsername(final String uuid) throws CrowdClientException {
         try {
-            return client.target(restUrl)
+            final List<CrowdUser> users = client.target(restUrl)
                     .path(CROWD_UUID_SEARCH_PATH)
-                    .queryParam("uuid", uuid)
+                    .queryParam("restriction", "uuid=" + uuid)
+                    .queryParam("entity-type", "user")
+                    .queryParam("expand", "user")
                     .request()
-                    .get(CrowdUser.class)
-                    .getName();
+                    .get(CrowdUsers.class).getUsers();
+            if(users == null || users.isEmpty()) {
+                throw new CrowdClientException("Unknown RIPE NCC Access uuid: " + uuid);
+            }
+            return users.get(0).getName();
         } catch (NotFoundException e) {
             throw new CrowdClientException("Unknown RIPE NCC Access uuid: " + uuid);
         } catch (WebApplicationException | ProcessingException e) {
@@ -208,7 +213,24 @@ public class CrowdClient {
         }
     }
 
-    @XmlRootElement(name = "user")
+    @XmlRootElement(name = "users")
+    static class CrowdUsers {
+        @XmlElement(name = "user")
+        private List<CrowdUser> users;
+
+        public CrowdUsers() {
+            // required no-arg constructor
+        }
+        public CrowdUsers(List<CrowdUser> users) {
+            this.users = users;
+        }
+
+        public List<CrowdUser> getUsers() {
+            return users;
+        }
+    }
+
+    @XmlRootElement
     static class CrowdUser {
         @XmlAttribute(name = "name")
         private String name;
