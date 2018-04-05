@@ -1,5 +1,8 @@
 # next
 
+# 1.91.2
+[all] Jackson 2.9.5
+
 # 1.91.1
 [nrtm] Only write NRTM end of stream comment in keepalive mode
 [update] Add dry-run for batch updates
