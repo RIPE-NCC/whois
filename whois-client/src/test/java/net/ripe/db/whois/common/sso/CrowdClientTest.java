@@ -19,6 +19,9 @@ import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
+import static net.ripe.db.whois.common.sso.CrowdClient.CrowdResponse;
+import static net.ripe.db.whois.common.sso.CrowdClient.CrowdSession;
+import static net.ripe.db.whois.common.sso.CrowdClient.CrowdUser;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -67,7 +70,7 @@ public class CrowdClientTest {
             invocation -> {
                 when(response.getStatus()).thenReturn(401);
                 when(response.getStatusInfo()).thenReturn(Response.Status.UNAUTHORIZED);
-                when(response.readEntity(CrowdError.class)).thenReturn(new CrowdError("reason", "message"));
+                when(response.readEntity(CrowdClient.CrowdError.class)).thenReturn(new CrowdClient.CrowdError("reason", "message"));
                 throw new NotAuthorizedException(response);
             });
 
@@ -131,8 +134,8 @@ public class CrowdClientTest {
     public void get_uuid_success() {
         when(builder.get(CrowdResponse.class)).then(invocation ->
                 new CrowdResponse(Lists.newArrayList(
-                        new CrowdAttribute(Lists.newArrayList(
-                                new CrowdValue("1-2-3-4")), "uuid"))));
+                        new CrowdClient.CrowdAttribute(Lists.newArrayList(
+                                new CrowdClient.CrowdValue("1-2-3-4")), "uuid"))));
 
         assertThat(subject.getUuid("test@ripe.net"), is("1-2-3-4"));
     }
