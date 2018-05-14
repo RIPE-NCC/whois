@@ -91,7 +91,6 @@ public class SingleUpdateHandler {
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
         RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
 
-
         Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
@@ -148,7 +147,7 @@ public class SingleUpdateHandler {
         // FIXME: [AH] per-attribute error messages generated up to this point will not get reported in ACK if they have been changed (by attributeGenerator or AUTO-key generator), as the report goes for the pre-auto-key-generated version of the object, in which the newly generated attributes are not present
         updateContext.setPreparedUpdate(preparedUpdate);
 
-        if (updateContext.isDryRun()) {
+        if (updateContext.isDryRun() && !updateContext.isBatchUpdate()) {
             throw new UpdateAbortedException();
         } else if (pendingAuthentication) {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
@@ -223,9 +222,9 @@ public class SingleUpdateHandler {
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
-            ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
-            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
-        }
+        ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
+        ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
+    }
 
         return updatedObject;
     }

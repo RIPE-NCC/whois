@@ -253,6 +253,13 @@ public final class UpdateMessages {
                 "Please contact \"ncc@ripe.net\" to change it.", attributeType.getName());
     }
 
+    public static Message canOnlyBeChangedinLirPortal(final AttributeType attributeType) {
+        return new Message(Type.ERROR,
+            "Attribute \"%s:\" can only be changed via the LIR portal.\n" +
+            "Please login to https://lirportal.ripe.net and select\n" +
+            "\"LIR Account Details\" under \"My LIR\" to change it.", attributeType.getName());
+    }
+
     public static Message orgAttributeMissing() {
         return new Message(Type.ERROR, "Missing required \"org:\" attribute");
     }
@@ -551,10 +558,6 @@ public final class UpdateMessages {
         return new Message(Type.INFO, "This update concludes a pending update on %s %s", rpslObject.getType().getName(), rpslObject.getKey());
     }
 
-    public static Message dryRunOnlySupportedOnSingleUpdate() {
-        return new Message(Type.ERROR, "Dry-run is only supported when a single update is specified");
-    }
-
     public static Message dryRunNotice() {
         return new Message(Type.INFO, "Dry-run performed, no changes to the database have been made");
     }
@@ -599,6 +602,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", attributeName);
     }
 
+    public static Message replacedNonBreakSpaces() {
+        return new Message(Type.WARNING, "Non-break spaces were replaced with regular spaces");
+    }
+
     public static Message oldPasswordsRemoved() {
         return new Message(Type.WARNING, "MD5 passwords older than November 2011 were removed for one or more maintainers of this object, see: https://www.ripe.net/removed2011pw");
     }
@@ -611,23 +618,19 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "The \"netname\" attribute can only be changed by the RIPE NCC");
     }
 
-    public static Message descrCannotBeAdded() {
-        return new Message(Type.ERROR, "The first \"descr\" attribute can only be added by the RIPE NCC");
-    }
-
-    public static Message descrCannotBeChanged() {
-        return new Message(Type.ERROR, "The first \"descr\" attribute can only be changed by the RIPE NCC");
-    }
-
-    public static Message descrCannotBeRemoved() {
-        return new Message(Type.ERROR, "The first \"descr\" attribute can only be removed by the RIPE NCC");
-    }
-
     public static Message multipleUserMntBy(final Collection<CIString> userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }
 
     public static Message changedAttributeRemoved() {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
+    }
+
+    public static Message emailAddressCannotBeUsed(final CIString value) {
+        return new Message(Type.ERROR, "The email address \"%s\" cannot be used.", value);
+    }
+
+    public static Message inconsistentOrgNameFormatting() {
+        return new Message(Type.ERROR, "Tab characters, multiple lines, or multiple whitespaces are not allowed in the \"org-name:\" value.");
     }
 }

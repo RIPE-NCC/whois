@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.91-SNAPSHOT</version>
+    <version>1.92-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -57,7 +57,7 @@
         <jetty.version>9.4.8.v20171121</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.12</jersey.version>
-        <jackson.version>2.9.4</jackson.version>
+        <jackson.version>2.9.5</jackson.version>
         <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
         <log4j.version>1.2.17</log4j.version>
         <lucene.version>4.10.4</lucene.version>

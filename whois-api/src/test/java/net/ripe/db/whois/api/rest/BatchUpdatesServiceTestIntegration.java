@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -269,6 +270,53 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
         RpslObject owner3mnt = databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER3-MNT");
         assertNotNull(owner3mnt);
         assertEquals(ciString("used for lots of things"), owner3mnt.getValueForAttribute(AttributeType.DESCR));
+    }
+
+    @Test
+    public void batch_update_two_objects_with_dry_run() {
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                        RpslObject.parse(
+                                "mntner:      OWNER2-MNT\n" +
+                                "descr:       used to maintain other MNTNERs\n" +
+                                "admin-c:     TP1-TEST\n" +
+                                "upd-to:      different_email@ripe.net\n" +
+                                "mnt-nfy:     mntnfy_owner2@ripe.net\n" +
+                                "notify:      notify_owner2@ripe.net\n" +
+                                "auth:        MD5-PW $1$9vNwegLB$SrX4itajapDaACGZaLOIY1  #owner2\n" +
+                                "mnt-by:      OWNER2-MNT\n" +
+                                "source:      TEST"),
+                        RpslObject.parse(
+                                "mntner:      OWNER3-MNT\n" +
+                                "descr:       used for lots of things\n" +
+                                "admin-c:     TP1-TEST\n" +
+                                "upd-to:      updto_owner3@ripe.net\n" +
+                                "upd-to:      updto2_owner3@ripe.net\n" +
+                                "notify:      notify_owner3@ripe.net\n" +
+                                "auth:        MD5-PW $1$u/Ttxt8r$zeII/ZqRwC2PuRyGyv0U51  #owner3\n" +
+                                "mnt-by:      OWNER3-MNT\n" +
+                                "source:      TEST")
+                );
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
+                .queryParam("override", "personadmin,secret")
+                .queryParam("dry-run", "true")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(2));
+        assertThat(response.getErrorMessages().get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
+        assertThat(response.getErrorMessages().get(2).getText(), is("Dry-run performed, no changes to the database have been made"));
+
+        RpslObject owner2mnt = databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER2-MNT");
+        assertNotNull(owner2mnt);
+        assertEquals(ciString("updto_owner2@ripe.net"), owner2mnt.getValueForAttribute(AttributeType.UPD_TO));
+
+        RpslObject owner3mnt = databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER3-MNT");
+        assertNotNull(owner3mnt);
+        assertEquals(ciString("used to maintain other MNTNERs"), owner3mnt.getValueForAttribute(AttributeType.DESCR));
+
     }
 
     @Test

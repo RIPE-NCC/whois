@@ -43,6 +43,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private final String applicationVersion;
     private final String source;
     private final long updateInterval;
+    private final boolean keepaliveEndOfStream;
 
     private volatile ScheduledFuture<?> scheduledFuture;
 
@@ -50,7 +51,15 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             "% The RIPE Database is subject to Terms and Conditions.\n" +
             "% See http://www.ripe.net/db/support/db-terms-conditions.pdf";
 
-    public NrtmQueryHandler(final SerialDao serialDao, final Dummifier dummifier, final TaskScheduler clientSynchronisationScheduler, final NrtmLog nrtmLog, final String applicationVersion, final String source, final long updateInterval) {
+    public NrtmQueryHandler(
+            final SerialDao serialDao,
+            final Dummifier dummifier,
+            final TaskScheduler clientSynchronisationScheduler,
+            final NrtmLog nrtmLog,
+            final String applicationVersion,
+            final String source,
+            final long updateInterval,
+            final boolean keepaliveEndOfStream) {
         this.serialDao = serialDao;
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;
@@ -58,6 +67,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         this.applicationVersion = applicationVersion;
         this.source = source;
         this.updateInterval = updateInterval;
+        this.keepaliveEndOfStream = keepaliveEndOfStream;
     }
 
     @Override
@@ -136,8 +146,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     void handleMirrorQueryWithKeepalive(final Query query, final Channel channel) {
-        final int version = query.getVersion();
-
         final Runnable instance = new Runnable() {
             private int serial = query.getSerialBegin();
 
@@ -145,7 +153,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             public void run() {
                 try {
                     final SerialRange range = serialDao.getSerials();
-                    serial = writeSerials(serial, range.getEnd(), version, channel);
+                    serial = writeSerials(serial, range.getEnd(), query, channel);
                 } catch (ChannelException e) {
                     LOGGER.debug("writeSerials: closed channel");
                 } catch (Exception e) {
@@ -165,17 +173,19 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
     private void handleMirrorQuery(final Query query, final Channel channel) {
         for (int serial = query.getSerialBegin(); serial <= query.getSerialEnd(); ) {
-            serial = writeSerials(serial, query.getSerialEnd(), query.getVersion(), channel);
+            serial = writeSerials(serial, query.getSerialEnd(), query, channel);
             if (serial <= query.getSerialEnd()) {
                 Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
             }
         }
 
-        writeMessage(channel, "%END " + source);
+        writeMessage(channel, String.format("%%END %s", source));
     }
 
-    private int writeSerials(final int begin, final int end, final int version, final Channel channel) {
+    private int writeSerials(final int begin, final int end, final Query query, final Channel channel) {
+        final int version = query.getVersion();
         int serial = begin;
+        boolean written = false;
 
         while (serial <= end) {
 
@@ -198,10 +208,15 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
                     writeMessage(channel, message);
                     writeMessage(channel, dummifier.dummify(version, serialEntry.getRpslObject()).toString().trim());
+                    written = true;
                 }
             }
 
             serial++;
+        }
+
+        if (written && query.isKeepalive() && keepaliveEndOfStream) {
+            writeMessage(channel, String.format("%%END %d - %d", begin, end));
         }
 
         return serial;

@@ -213,7 +213,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_object_mntby_rpsl_test() throws Exception {
+    public void create_object_mntby_rpsl_test() {
         databaseHelper.addObject(RPSL_MNT);
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
@@ -230,7 +230,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test // check to see if we can change an attributed on an object that has RIPE-NCC-RPSL-MNT as mnt-by. should fail and tell them to fix
-    public void existing_mntby_ncc_rpsl_test() throws Exception {
+    public void existing_mntby_ncc_rpsl_test() {
         databaseHelper.addObject(RPSL_MNT);
         databaseHelper.addObject(RPSL_MNT_PERSON);
 
@@ -251,7 +251,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void modify_mntby_ncc_rpsl_test() throws Exception {
+    public void modify_mntby_ncc_rpsl_test() {
         databaseHelper.addObject(PAULETH_PALTHEN);
         databaseHelper.addObject(RPSL_MNT);
 
@@ -284,7 +284,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_without_accepts_header() throws Exception {
+    public void lookup_without_accepts_header() {
         final String query = TelnetWhoisClient.queryLocalhost(getPort(), "GET /whois/test/mntner/owner-mnt HTTP/1.1\nHost: localhost\nConnection: close\n");
 
         assertThat(query, containsString("HTTP/1.1 200 OK"));
@@ -292,7 +292,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_with_empty_accepts_header() throws Exception {
+    public void lookup_with_empty_accepts_header() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/owner-mnt")
                 .request()
                 .get(WhoisResources.class);
@@ -479,7 +479,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_inet6num() throws Exception {
+    public void lookup_inet6num() {
         final RpslObject inet6num = RpslObject.parse("" +
                 "inet6num: 2001::/48\n" +
                 "netname: RIPE-NCC\n" +
@@ -513,7 +513,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_route() throws Exception {
+    public void lookup_route() {
         databaseHelper.addObject(
                 "route:           193.254.30.0/24\n" +
                 "descr:           Test route\n" +
@@ -547,7 +547,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_route6() throws Exception {
+    public void lookup_route6() {
         databaseHelper.addObject(
                 "route6:          2001::/32\n" +
                 "descr:           Test route\n" +
@@ -578,7 +578,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_as_set() throws Exception {
+    public void lookup_as_set() {
         databaseHelper.addObject(
                 "as-set:         AS-Test\n" +
                 "members:        AS1,AS2,AS3\n" +
@@ -611,7 +611,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_person_json() throws Exception {
+    public void lookup_person_json() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
@@ -632,7 +632,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_person_head() throws Exception {
+    public void lookup_person_head() {
         final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .head();
@@ -642,7 +642,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_person_head_not_found() throws Exception {
+    public void lookup_person_head_not_found() {
         final Response response = RestTest.target(getPort(), "whois/test/person/NONEXISTANT")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .head();
@@ -725,7 +725,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_does_not_have_referenced_type_in_sso() throws Exception {
+    public void lookup_mntner_does_not_have_referenced_type_in_sso() {
         databaseHelper.addObject("" +
                 "mntner:         MNT-TEST" + "\n" +
                 "descr:          test\n" +
@@ -824,7 +824,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_unfiltered_param() throws Exception {
+    public void lookup_unfiltered_param() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
         final String unfiltered = RestTest.target(getPort(), "whois/test/person/PP1-TEST?unfiltered").request().get(String.class);
@@ -997,7 +997,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_maintainer_invalid_crowd_uuid() throws Exception {
+    public void lookup_maintainer_invalid_crowd_uuid() {
         databaseHelper.addObject(
                 "mntner:         MNT-TEST\n" +
                 "descr:          Test maintainer\n" +
@@ -1083,7 +1083,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_xml_text() throws Exception {
+    public void lookup_mntner_xml_text() {
         databaseHelper.addObject(RpslObjectFilter.buildGenericObject(OWNER_MNT, "mntner: TRICKY-MNT", "remarks: ", "remarks: remark with # comment"));
 
         final String response = RestTest.target(getPort(), "whois/test/mntner/TRICKY-MNT")
@@ -1122,7 +1122,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_mntner_json_text() throws Exception {
+    public void lookup_mntner_json_text() {
         databaseHelper.addObject(RpslObjectFilter.buildGenericObject(OWNER_MNT, "mntner: TRICKY-MNT", "remarks: ", "remarks: remark with # comment"));
 
         final String response = RestTest.target(getPort(), "whois/test/mntner/TRICKY-MNT")
@@ -1414,7 +1414,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_successful_error_message_not_included() throws Exception {
+    public void lookup_successful_error_message_not_included() {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
@@ -1536,7 +1536,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     // create
 
     @Test
-    public void create_succeeds() throws Exception {
+    public void create_succeeds() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
@@ -1573,7 +1573,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "changed:   user@host.org 20171025\n" +
             "source:    TEST\n");
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+        RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(map(paulethPalthenWithChanged), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -1595,7 +1595,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "changed:   user2@host.org 20171027\n" +
             "source:    TEST\n");
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+        RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(map(paulethPalthenWithChanged), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -1746,7 +1746,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_succeeds_non_latin1_chars_substituted_in_response() throws Exception {
+    public void create_succeeds_non_latin1_chars_substituted_in_response() {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
             .post(Entity.entity(
@@ -1842,7 +1842,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void create_password_attribute_in_body() throws Exception {
+    public void create_password_attribute_in_body() {
         try {
             RestTest.target(getPort(), "whois/test/person")
                     .request()
@@ -2235,9 +2235,28 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_person_xml_text() {
+        final String request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
+                "<whois-resources>\n" +
+                "  <objects>\n" +
+                "    <object type=\"person\">\n" +
+                "      <source id=\"test\"/>\n" +
+                "      <attributes>\n" +
+                "        <attribute name=\"person\" value=\"Pauleth Palthen\"/>\n" +
+                "        <attribute name=\"address\" value=\"Singel 258\"/>\n" +
+                "        <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "        <attribute name=\"e-mail\" value=\"noreply@ripe.net\"/>\n" +
+                "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "        <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
+                "        <attribute name=\"remarks\" value=\"remark\"/>\n" +
+                "        <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "      </attributes>\n" +
+                "    </object>\n" +
+                "  </objects>\n" +
+                "</whois-resources>\n";
+
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_XML_TYPE)
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
+                .post(Entity.entity(request, MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, is(String.format(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -2272,9 +2291,46 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_person_json_text() {
+        final String request = "{\"objects\":{\n" +
+                "  \"object\":[ {\n" +
+                "  \"type\" : \"person\",\n" +
+                "  \"source\" : {\n" +
+                "    \"id\" : \"test\"\n" +
+                "  },\n" +
+                "  \"attributes\" : {\n" +
+                "    \"attribute\" : [ {\n" +
+                "      \"name\" : \"person\",\n" +
+                "      \"value\" : \"Pauleth Palthen\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"address\",\n" +
+                "      \"value\" : \"Singel 258\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"phone\",\n" +
+                "      \"value\" : \"+31-1234567890\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"e-mail\",\n" +
+                "      \"value\" : \"noreply@ripe.net\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"mnt-by\",\n" +
+                "      \"value\" : \"OWNER-MNT\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"nic-hdl\",\n" +
+                "      \"value\" : \"PP1-TEST\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"remarks\",\n" +
+                "      \"value\" : \"remark\"\n" +
+                "    }, {\n" +
+                "      \"name\" : \"source\",\n" +
+                "      \"value\" : \"TEST\"\n" +
+                "    } ]\n" +
+                "  }\n" +
+                "} ]\n" +
+                "}\n" +
+                "}";
+
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
+                .post(Entity.entity(request, MediaType.APPLICATION_JSON), String.class);
 
         assertThat(response, is(String.format("" +
                 "{\n" +
@@ -2397,7 +2453,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_self_referencing_maintainer_sso_auth_only_invalid_username() throws Exception {
+    public void create_self_referencing_maintainer_sso_auth_only_invalid_username() {
         try {
             final RpslObject updatedObject = buildGenericObject(SSO_ONLY_MNT, "auth: SSO in@valid.net");
 
@@ -2559,7 +2615,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_person_with_non_latin_chars() throws Exception {
+    public void update_person_with_non_latin_chars() {
         {
             final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
                     .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
@@ -2588,7 +2644,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_gzip_compressed_request_and_response() throws Exception {
+    public void create_gzip_compressed_request_and_response() {
         final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .property(ClientProperties.USE_ENCODING, "gzip")
                 .register(EncodingFilter.class)
@@ -2804,7 +2860,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_multiple_objects_fails() throws Exception {
+    public void create_multiple_objects_fails() {
         final RpslObject personObject = RpslObject.parse("" +
             "person:    Some Person\n" +
             "address:   Singel 258\n" +
@@ -2886,7 +2942,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_self_referencing_maintainer_with_sso_auth_attribute_authenticated_with_crowd_token_succeeds() throws Exception {
+    public void delete_self_referencing_maintainer_with_sso_auth_attribute_authenticated_with_crowd_token_succeeds() {
         databaseHelper.addObject(SSO_ONLY_MNT);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-ONLY-MNT")
@@ -2907,7 +2963,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_self_referencing_maintainer_with_sso_auth_attribute_authenticated_with_password_succeeds() throws Exception {
+    public void delete_self_referencing_maintainer_with_sso_auth_attribute_authenticated_with_password_succeeds() {
         databaseHelper.addObject(SSO_AND_PASSWORD_MNT);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT")
@@ -2928,7 +2984,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_self_referencing_maintainer_with_sso_auth_attribute_invalid_token_authenticated_with_password_succeeds() throws Exception {
+    public void delete_self_referencing_maintainer_with_sso_auth_attribute_invalid_token_authenticated_with_password_succeeds() {
         databaseHelper.addObject(SSO_AND_PASSWORD_MNT);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT")
@@ -3431,7 +3487,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_path_vs_object_mismatch_objecttype() throws Exception {
+    public void update_path_vs_object_mismatch_objecttype() {
         try {
             databaseHelper.addObject(PAULETH_PALTHEN);
             RestTest.target(getPort(), "whois/test/mntner/PP1-TEST?password=test")
@@ -3444,7 +3500,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_path_vs_object_mismatch_key() throws Exception {
+    public void update_path_vs_object_mismatch_key() {
         try {
             RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
                     .request(MediaType.APPLICATION_XML)
@@ -3715,7 +3771,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_person_fails_when_pkey_changes() throws Exception {
+    public void update_person_fails_when_pkey_changes() {
 
         final RpslObject person = RpslObject.parse(
                 "person:        Pauleth Palthen\n" +
@@ -3739,7 +3795,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_person_fails_no_notification_on_syntax_error() throws Exception {
+    public void update_person_fails_no_notification_on_syntax_error() {
         final RpslObject mntner = RpslObject.parse(
                 "mntner:        TEST-MNT\n" +
                 "descr:         Test maintainer\n" +
@@ -4005,7 +4061,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_json_extension() throws Exception {
+    public void lookup_json_extension() {
         final String response = RestTest.target(getPort(), "whois/test/person/TP1-TEST.json")
                 .request()
                 .get(String.class);
@@ -4016,7 +4072,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_unfiltered_queryparameter() throws Exception {
+    public void lookup_unfiltered_queryparameter() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
         final String response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?unfiltered=").request().get(String.class);
@@ -4066,7 +4122,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void primary_key_comment() throws Exception {
+    public void primary_key_comment() {
         final RpslObject createPerson = RpslObject.parse("" +
                 "person:    Pauleth Palthen\n" +
                 "address:   Singel 258\n" +
@@ -4110,7 +4166,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     // Cross-origin requests
 
     @Test
-    public void cross_origin_preflight_request_from_apps_db_ripe_net_is_allowed() throws Exception {
+    public void cross_origin_preflight_request_from_apps_db_ripe_net_is_allowed() {
         final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
@@ -4122,7 +4178,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_preflight_request_from_outside_ripe_net_is_not_allowed() throws Exception {
+    public void cross_origin_preflight_request_from_outside_ripe_net_is_not_allowed() {
         final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "http://www.foo.net")
@@ -4134,7 +4190,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_preflight_post_request_from_apps_db_ripe_net_is_allowed() throws Exception {
+    public void cross_origin_preflight_post_request_from_apps_db_ripe_net_is_allowed() {
         final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
@@ -4147,7 +4203,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_not_allowed() throws Exception {
+    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_not_allowed() {
         final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "http://www.foo.net")
@@ -4160,7 +4216,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_get_request_from_apps_db_ripe_net_is_allowed() throws Exception {
+    public void cross_origin_get_request_from_apps_db_ripe_net_is_allowed() {
         final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
@@ -4173,7 +4229,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_get_request_from_outside_ripe_net_is_not_allowed() throws Exception {
+    public void cross_origin_get_request_from_outside_ripe_net_is_not_allowed() {
         final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://www.foo.net")
@@ -4188,7 +4244,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_post_request_from_apps_db_ripe_net_is_allowed() throws Exception {
+    public void cross_origin_post_request_from_apps_db_ripe_net_is_allowed() {
         final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
@@ -4201,7 +4257,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_post_request_from_outside_ripe_net_is_not_allowed() throws Exception {
+    public void cross_origin_post_request_from_outside_ripe_net_is_not_allowed() {
         final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://www.foo.net")
@@ -4216,7 +4272,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_preflight_request_malformed_origin() throws Exception {
+    public void cross_origin_preflight_request_malformed_origin() {
         final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "?invalid?")
@@ -4227,7 +4283,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_get_request_malformed_origin_not_allowed() throws Exception {
+    public void cross_origin_get_request_malformed_origin_not_allowed() {
         final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "?invalid?")
@@ -4239,7 +4295,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_get_request_host_and_port_not_allowed() throws Exception {
+    public void cross_origin_get_request_host_and_port_not_allowed() {
         final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request()
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://www.ripe.net:8443")

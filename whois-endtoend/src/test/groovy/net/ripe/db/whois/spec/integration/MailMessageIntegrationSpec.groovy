@@ -258,8 +258,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.contents.contains("***Error:   No valid update found")
     }
 
-    @Ignore
-    def "non-break spaces are not handled properly"() {
+    def "non-break spaces are handled properly"() {
       when:
         def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
                 "From: noreply@ripe.net\n" +
@@ -271,18 +270,19 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "Content-Transfer-Encoding: UTF-8\n" +
                 "\n" +
                 "person:  First\u00a0Person\n" +
-                "address: St James Street\n" +
+                "address: \u00a0St James Street\n" +
                 "address: Burnley\n" +
                 "address: UK\n" +
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
-                "password: owner\n"
+                "password: \u00a0owner\n"
       then:
         def ack = ackFor message
 
         ack.success
+        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
     }
 
     def "unknown-8bit charset is handled"() {
