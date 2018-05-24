@@ -81,6 +81,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, not(containsString("$")));
     }
 
+    @Ignore("TODO: [ES] bug")
+    @Test
+    public void insufficient_content_written_when_accept_compression() {
+        RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
+                .request()
+                .header("Accept-Encoding","gzip, deflate")
+                .get(String.class);
+    }
+
     @Ignore("TODO: [ES] post without content type returns internal server error")
     @Test
     public void post_without_content_type() throws Exception {
