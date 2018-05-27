@@ -21,7 +21,9 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -29,6 +31,7 @@ import java.net.URL;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -70,24 +73,32 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void get_help_parameter_only() throws Exception {
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
+    public void get_help_parameter_only() {
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
                 .request()
-                .get(String.class);
+                .get(Response.class);
 
-        assertThat(response, containsString("You have requested Help information from the RIPE NCC Database"));
-        assertThat(response, containsString("From-Host: 127.0.0.1"));
-        assertThat(response, containsString("Date/Time: "));
-        assertThat(response, not(containsString("$")));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_ENCODING), is(nullValue()));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_LENGTH), is("810"));
+
+        final String responseBody = response.readEntity(String.class);
+        assertThat(responseBody, containsString("You have requested Help information from the RIPE NCC Database"));
+        assertThat(responseBody, containsString("From-Host: 127.0.0.1"));
+        assertThat(responseBody, containsString("Date/Time: "));
+        assertThat(responseBody, not(containsString("$")));
     }
 
-    @Ignore("TODO: [ES] bug")
     @Test
-    public void insufficient_content_written_when_accept_compression() {
-        RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
+    public void get_help_parameter_only_compressed() {
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
                 .request()
                 .header("Accept-Encoding","gzip, deflate")
-                .get(String.class);
+                .get(Response.class);
+
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_ENCODING), is("gzip"));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_LENGTH), is("454"));
     }
 
     @Ignore("TODO: [ES] post without content type returns internal server error")
