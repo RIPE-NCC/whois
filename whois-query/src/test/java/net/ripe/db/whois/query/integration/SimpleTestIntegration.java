@@ -531,7 +531,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "descr:       MNTNER for test\n" +
                 "descr:       object not identical to one above\n" +
                 "admin-c:     ADM-TEST\n" +
-                "upd-to:      dbtest_at_ripe.net\n" +
+                "upd-to:      dbtest@@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
                 "mnt-by:      DEL-MNT\n" +
                 "source:      TEST");
@@ -580,7 +580,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "descr:       MNTNER for test\n" +
                 "descr:       object not identical to one above\n" +
                 "admin-c:     ADM-TEST\n" +
-                "upd-to:      dbtest_at_ripe.net\n" +
+                "upd-to:      dbtest@@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
                 "mnt-by:      DEL-MNT\n" +
                 "source:      TEST");
