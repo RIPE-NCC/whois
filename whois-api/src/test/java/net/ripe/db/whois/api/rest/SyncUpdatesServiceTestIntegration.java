@@ -80,7 +80,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_ENCODING), is(nullValue()));
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
-        assertThat(response.getHeaderString(HttpHeaders.CONTENT_LENGTH), is("810"));
 
         final String responseBody = response.readEntity(String.class);
         assertThat(responseBody, containsString("You have requested Help information from the RIPE NCC Database"));
@@ -98,7 +97,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_ENCODING), is("gzip"));
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
-        assertThat(response.getHeaderString(HttpHeaders.CONTENT_LENGTH), is("454"));
     }
 
     @Ignore("TODO: [ES] post without content type returns internal server error")
