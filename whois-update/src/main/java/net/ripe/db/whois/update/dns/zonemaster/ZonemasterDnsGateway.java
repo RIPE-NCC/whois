@@ -71,13 +71,13 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 return new DnsCheckResponse(UpdateMessages.dnsCheckTimeout());
             } catch (ZonemasterException e) {
                 LOGGER.error("Error from Zonemaster: {}", e.getMessage());
-                return new DnsCheckResponse(UpdateMessages.dnsCheckError(e.getMessage()));
+                return new DnsCheckResponse(UpdateMessages.dnsCheckError());
             } catch (ProcessingException e) {
                 LOGGER.error("Error making request to Zonemaster, due to {}: {}", e.getClass().getName(), e.getMessage());
-                return new DnsCheckResponse(UpdateMessages.dnsCheckError("server error"));
+                return new DnsCheckResponse(UpdateMessages.dnsCheckError());
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
-                return new DnsCheckResponse(UpdateMessages.dnsCheckError("client error"));
+                return new DnsCheckResponse(UpdateMessages.dnsCheckError());
             }
         }
 
