@@ -362,8 +362,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Error parsing response while performing DNS check");
     }
 
-    public static Message dnsCheckError(final CharSequence s) {
-        return new Message(Type.ERROR, "Error from DNS check: %s", s);
+    public static Message dnsCheckError() {
+        return new Message(Type.ERROR, "Error from DNS check");
     }
 
     // NOTE: this errormessage is being used by webupdates.
