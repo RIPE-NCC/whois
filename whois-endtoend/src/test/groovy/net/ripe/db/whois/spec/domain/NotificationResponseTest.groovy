@@ -13,9 +13,7 @@ been added, deleted or changed.
 This message is auto-generated.
 Please DO NOT reply to this message.
 
-If you do not understand why we sent you this message,
-or for assistance or clarification please contact:
-RIPE Database Administration <ripe-dbm@ripe.net>
+If you do not understand why we sent you this message, or for assistance or clarification please visit https://www.ripe.net/s/notify.
 
 The update causing these changes had the following address:
 
@@ -31,8 +29,7 @@ mntner: DEV-ROOT-MNT
 The RIPE Database is subject to Terms and Conditions:
 http://www.ripe.net/db/support/db-terms-conditions.pdf
 
-For assistance or clarification please contact:
-RIPE Database Administration <ripe-dbm@ripe.net>""")
+For assistance or clarification please visit https://www.ripe.net/s/notify.""")
 
     NotificationResponse updateSuccess = new NotificationResponse("", """
 Dear Colleague,
@@ -44,9 +41,7 @@ been added, deleted or changed.
 This message is auto-generated.
 Please DO NOT reply to this message.
 
-If you do not understand why we sent you this message,
-or for assistance or clarification please contact:
-RIPE Database Administration <ripe-dbm@ripe.net>
+If you do not understand why we sent you this message, or for assistance or clarification please visit https://www.ripe.net/s/notify.
 
 The update causing these changes had the following address:
 
@@ -67,8 +62,7 @@ remarks: changed
 The RIPE Database is subject to Terms and Conditions:
 http://www.ripe.net/db/support/db-terms-conditions.pdf
 
-For assistance or clarification please contact:
-RIPE Database Administration <ripe-dbm@ripe.net>""")
+For assistance or clarification please visit https://www.ripe.net/s/notify.""")
 
     NotificationResponse authFailed = new NotificationResponse("", """
     Dear Maintainer,
@@ -82,9 +76,7 @@ to be made to the following objects.
 This message is auto-generated.
 Please DO NOT reply to this message.
 
-If you do not understand why we sent you this message,
-or for assistance or clarification please contact:
-RIPE Database Administration <ripe-dbm@ripe.net>
+If you do not understand why we sent you this message, or for assistance or clarification please visit https://www.ripe.net/s/notify.
 
 The update causing these changes had the following address:
 
@@ -100,8 +92,7 @@ mtner: DEV-ROOT-MNT
 The RIPE Database is subject to Terms and Conditions:
 http://www.ripe.net/db/support/db-terms-conditions.pdf
 
-For assistance or clarification please contact:
-RIPE Database Administration <ripe-dbm@ripe.net>""")
+For assistance or clarification please visit https://www.ripe.net/s/notify.""")
 
     def "notification delete success"() {
       when:

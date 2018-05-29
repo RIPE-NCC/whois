@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.regex.Matcher;
@@ -45,21 +47,22 @@ public class MailGatewaySmtp implements MailGateway {
 
     @Override
     public void sendEmail(final String to, final ResponseMessage responseMessage) {
-        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage());
+        sendEmail(to, responseMessage.getSubject(), responseMessage.getMessage(), responseMessage.getReplyTo());
     }
 
     @Override
-    public void sendEmail(final String to, final String subject, final String text) {
+    public void sendEmail(final String to, final String subject, final String text, @Nullable final String replyTo) {
             if (!outgoingMailEnabled) {
                 LOGGER.debug("" +
                         "Outgoing mail disabled\n" +
                         "\n" +
                         "to      : {}\n" +
+                        "reply-to : {}\n" +
                         "subject : {}\n" +
                         "\n" +
                         "{}\n" +
                         "\n" +
-                        "\n", to, subject, text);
+                        "\n", to, replyTo, subject, text);
 
                 return;
             }
@@ -70,7 +73,7 @@ public class MailGatewaySmtp implements MailGateway {
                 throw new MailSendException("Refusing outgoing email: " + text);
             }
 
-            sendEmailAttempt(to, subject, text);
+            sendEmailAttempt(to, replyTo, subject, text);
         } catch (MailException e) {
             loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to {} with subject {}", to, subject), e);
             LOGGER.error("Unable to send mail message to: {}", to, e);
@@ -78,7 +81,7 @@ public class MailGatewaySmtp implements MailGateway {
     }
 
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
-    private void sendEmailAttempt(final String to, final String subject, final String text) {
+    private void sendEmailAttempt(final String to, final String replyTo, final String subject, final String text) {
         try {
             mailSender.send(new MimeMessagePreparator() {
                 @Override
@@ -86,6 +89,8 @@ public class MailGatewaySmtp implements MailGateway {
                     final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
                     message.setFrom(mailConfiguration.getFrom());
                     message.setTo(to);
+                    if (!StringUtils.isEmpty(replyTo))
+                        message.setReplyTo(replyTo);
                     message.setSubject(subject);
                     message.setText(text);
 

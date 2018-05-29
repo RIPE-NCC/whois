@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
@@ -115,6 +116,23 @@ public class ResourceDataDao {
                     return 0;
                 }
             }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            final State state = (State) o;
+
+            return Objects.equals(id, state.id) &&
+                    Objects.equals(count, state.count) &&
+                    Objects.equals(source, state.source);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(source, id, count);
         }
     }
 }

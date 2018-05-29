@@ -14,6 +14,10 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Component
 // Validates that RIPE NCC maintained attributes are not changed for an LIR
 // Possible ways to change it are by override or power mntner.
@@ -23,16 +27,10 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
     private static final CIString LIR = CIString.ciString("LIR");
-    private static final ImmutableList<AttributeType> ATTRIBUTES = ImmutableList.of(
-            AttributeType.ADDRESS,
-            AttributeType.PHONE,
-            AttributeType.FAX_NO,
-            AttributeType.E_MAIL,
+    private static final List<AttributeType> RIPE_NCC_MANAGED_ATTRIBUTES = ImmutableList.of(
             AttributeType.MNT_BY,
-            AttributeType.ORG_NAME,
             AttributeType.ORG,
-            AttributeType.ORG_TYPE,
-            AttributeType.ABUSE_MAILBOX);
+            AttributeType.ORG_TYPE);
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -47,7 +45,7 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
-        ATTRIBUTES.forEach(attributeType -> {
+        RIPE_NCC_MANAGED_ATTRIBUTES.forEach(attributeType -> {
             if (haveAttributesChanged(originalObject, updatedObject, attributeType)) {
                 updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(attributeType));
             }
@@ -55,8 +53,25 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     }
 
     private boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType) {
+        if (AttributeType.ORG_NAME == attributeType) {
+            return haveAttributesChanged(originalObject, updatedObject, attributeType, true);
+        }
+
+        return haveAttributesChanged(originalObject, updatedObject, attributeType, false);
+    }
+
+    private boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType, final boolean caseSensitive) {
+        if (caseSensitive) {
+            return !mapToStrings(originalObject.getValuesForAttribute(attributeType))
+                        .equals(mapToStrings(updatedObject.getValuesForAttribute(attributeType)));
+        }
+
         return !originalObject.getValuesForAttribute(attributeType)
                     .equals(updatedObject.getValuesForAttribute(attributeType));
+    }
+
+    final Set<String> mapToStrings(final Set<CIString> values) {
+        return values.stream().map(ciString -> ciString.toString()).collect(Collectors.toSet());
     }
 
     @Override

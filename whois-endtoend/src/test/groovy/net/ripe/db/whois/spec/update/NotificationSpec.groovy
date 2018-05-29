@@ -1419,7 +1419,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                          "OBJECT BELOW CREATED:\n\n" +
                          "inetnum:\\s*192.168.200.0 - 192.168.200.255" +
                          ".+?The RIPE Database is subject to Terms and Conditions:" +
-                         ".+?For assistance or clarification please contact:"
+                         ".+?For assistance or clarification please visit https://www.ripe.net/s/notify"
             notif.contents =~ regExp
 
             queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1479,7 +1479,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 ".+?The old object can be seen in the history using the query options " +
                 "--list-versions and --show-version 1 192.168.200.0 - 192.168.200.255" +
                 ".+?The RIPE Database is subject to Terms and Conditions:" +
-                ".+?For assistance or clarification please contact:"
+                ".+?For assistance or clarification please visit https://www.ripe.net/s/notify"
         notif.contents =~ regExp
 
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
@@ -1533,7 +1533,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                          "OBJECT BELOW DELETED:\n\n" +
                          "inetnum:\\s*192.168.200.0 - 192.168.200.255" +
                          ".+?The RIPE Database is subject to Terms and Conditions:" +
-                         ".+?For assistance or clarification please contact:"
+                         ".+?For assistance or clarification please visit https://www.ripe.net/s/notify"
             notif.contents =~ regExp
 
             queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1594,7 +1594,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 "MODIFY REQUESTED FOR:\n\n" +
                 "inetnum:\\s*192.168.200.0 - 192.168.200.255" +
                 ".+?The RIPE Database is subject to Terms and Conditions:" +
-                ".+?For assistance or clarification please contact:"
+                ".+?For assistance or clarification please visit https://www.ripe.net/s/notify"
         notif.contents =~ regExp
         !(notif.contents =~ /(?ms)OBJECT BELOW MODIFIED:/)
         (notif.contents =~ /(?ms)@@.+@@/)

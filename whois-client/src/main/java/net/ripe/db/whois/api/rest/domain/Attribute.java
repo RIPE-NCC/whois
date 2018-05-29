@@ -5,7 +5,6 @@ import net.ripe.db.whois.api.rest.mapper.ValidXmlAdapter;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -17,7 +16,6 @@ import java.util.Objects;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-@Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "link",
@@ -40,17 +38,26 @@ public class Attribute {
     private String name;
     @XmlAttribute(name = "comment")
     private String comment;
+    @XmlAttribute
+    private Boolean managed;
 
-    public Attribute(final String name, final String value, @Nullable final String comment, @Nullable final String referencedType, @Nullable final Link link) {
+    public Attribute(
+            final String name,
+            final String value,
+            @Nullable final String comment,
+            @Nullable final String referencedType,
+            @Nullable final Link link,
+            @Nullable final Boolean managed) {
         this.name = name;
         this.value = value;
         this.comment = comment;
         this.referencedType = referencedType;
         this.link = link;
+        this.managed = managed;
     }
 
     public Attribute(final String name, final String value) {
-        this(name, value, null, null, null);
+        this(name, value, null, null, null, null);
     }
 
     public Attribute() {
@@ -77,18 +84,21 @@ public class Attribute {
         return comment;
     }
 
-    @Override
-    public int hashCode() {
-        int result = (name != null ? name.hashCode() : 0);
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        result = 31 * result + (comment != null ? comment.hashCode() : 0);
-        result = 31 * result + (referencedType != null ? referencedType.hashCode() : 0);
-        result = 31 * result + (link != null ? link.hashCode() : 0);
-        return result;
+    public Boolean getManaged() {
+        return managed;
+    }
+
+    public void setManaged(final Boolean managed) {
+        this.managed = managed;
     }
 
     @Override
-    public boolean equals(java.lang.Object o) {
+    public int hashCode() {
+        return Objects.hash(name, value, comment, referencedType, link, managed);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -103,7 +113,8 @@ public class Attribute {
                 Objects.equals(attribute.value, value) &&
                 Objects.equals(attribute.comment, comment) &&
                 Objects.equals(attribute.referencedType, referencedType) &&
-                Objects.equals(attribute.link, link);
+                Objects.equals(attribute.link, link) &&
+                Objects.equals(attribute.managed, managed);
     }
 
     /** does not properly handle multiline attributes; first line will have an extra space before the value */

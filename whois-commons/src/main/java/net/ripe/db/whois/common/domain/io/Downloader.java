@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -25,6 +26,9 @@ import java.util.regex.Pattern;
 @Component
 public class Downloader {
     private static final Pattern MD5_CAPTURE_PATTERN = Pattern.compile("([a-fA-F0-9]{32})");
+
+    private static final int CONNECT_TIMEOUT = 60_000;
+    private static final int READ_TIMEOUT = 60_000;
 
     void checkMD5(final InputStream resourceDataStream, final InputStream md5Stream) throws IOException {
         final String md5Line = FileCopyUtils.copyToString(new InputStreamReader(md5Stream, Charsets.UTF_8)).trim();
@@ -56,7 +60,11 @@ public class Downloader {
     public void downloadTo(final Logger logger, final URL url, final Path path) throws IOException {
         logger.debug("Downloading {} from {}", path, url);
 
-        try (InputStream is = url.openStream()) {
+        final URLConnection uc = url.openConnection();
+        uc.setConnectTimeout(CONNECT_TIMEOUT);
+        uc.setReadTimeout(READ_TIMEOUT);
+
+        try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
         }
     }

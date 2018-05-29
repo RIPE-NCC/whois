@@ -49,8 +49,8 @@ CREATE TABLE `email_links` (
   `email` varchar(256) NOT NULL,
   `creation_date` int(10) unsigned NOT NULL DEFAULT '0',
   `expiry_date` int(10) unsigned NOT NULL DEFAULT '0',
-  `created_by` varchar(256),
-  `expired_by` varchar(256),
+  `created_by` varchar(256) DEFAULT NULL,
+  `expired_by` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -61,10 +61,10 @@ CREATE TABLE `forgot_password_audit_log` (
   `timestamp` int(10) UNSIGNED NOT NULL DEFAULT '0',
   `entry` varchar(256) NOT NULL,
   `address` varchar(256) NOT NULL,
-  `mntner` varchar(256),
-  `email` varchar(256),
-  `hash`  varchar(256),
-  `user_sso_email`  varchar(256),
+  `mntner` varchar(256) DEFAULT NULL,
+  `email` varchar(256) DEFAULT NULL,
+  `hash`  varchar(256) DEFAULT NULL,
+  `user_sso_email`  varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT FOREIGN KEY (`hash`) REFERENCES `email_links` (`hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -74,8 +74,9 @@ CREATE TABLE `default_maintainer_history` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `org` varchar(256) NOT NULL,
   `mntner` varchar(256) NOT NULL,
-  `timestamp` timestamp NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `uuid` varchar(256) NOT NULL,
   `email` varchar(256),
+  `in_progress` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

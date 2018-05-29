@@ -1485,7 +1485,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1529,7 +1528,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1578,7 +1576,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1623,7 +1620,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1668,7 +1664,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1829,7 +1824,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS17777777234:As-otherset)
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS777.234:As-otherset)
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS077234:As-otherset)
-                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -2643,7 +2637,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
-            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, no status, RS pw, not on legacy list"() {
@@ -2730,7 +2723,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                     ["Supplied attribute 'status' has been replaced with a generated value"]
 
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
-            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
 
@@ -2859,7 +2851,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS12666" }
 
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
-        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
 
@@ -2901,7 +2892,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS12666" }
 
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
-        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
 
@@ -4214,6 +4204,122 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12668" }
 
         query_object_matches("-rBG -T aut-num AS12668", "aut-num", "AS12668", "status:\\s*LEGACY")
+    }
+
+    def "create aut-num with abuse-c"() {
+        given:
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          description
+                sponsoring-org: ORG-LIRA-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                abuse-c:        AH1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
+
+        queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
+    }
+
+    def "not update autnum with abuse-c that references role without abuse-mailbox"() {
+        given:
+        dbfixture(  """\
+                role:         Abuse Handler2
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                nic-hdl:      AH2-TEST
+                mnt-by:       LIR-MNT
+                source:       TEST
+            """.stripIndent()
+        )
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
+        syncUpdate("                aut-num:        AS250\n" +
+                "                as-name:        End-User-1\n" +
+                "                descr:          description\n" +
+                "                sponsoring-org: ORG-LIRA-TEST\n" +
+                "                import:         from AS1 accept ANY\n" +
+                "                export:         to AS1 announce AS2\n" +
+                "                mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "                mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "                org:            ORG-OTO1-TEST\n" +
+                "                admin-c:        TP1-TEST\n" +
+                "                tech-c:         TP1-TEST\n" +
+                "                mnt-by:         RIPE-NCC-END-MNT\n" +
+                "                mnt-by:         LIR-MNT\n" +
+                "                source:         TEST\n" +
+                "\n" +
+                "                password:   nccend\n" +
+                "                password:   hm\n" +
+                "                password:   owner3")
+
+        expect:
+        queryObject("-r -T role AH2-TEST", "role", "Abuse Handler2")
+        queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          description
+                sponsoring-org: ORG-LIRA-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                abuse-c:        AH2-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
+        ack.errorMessagesFor("Modify", "[aut-num] AS250") ==
+                ["The \"abuse-c\" ROLE object 'AH2-TEST' has no \"abuse-mailbox:\" Add \"abuse-mailbox:\" to the ROLE object, then update the AUT-NUM object"]
     }
 
 }

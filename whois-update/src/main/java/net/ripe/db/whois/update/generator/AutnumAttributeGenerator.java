@@ -4,13 +4,11 @@ import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.LegacyAutnum;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
@@ -19,13 +17,8 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class AutnumAttributeGenerator extends AttributeGenerator {
-
-    static final String REMARKS_TEXT = "For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources";
-    static final RpslAttribute STATUS_REMARK = new RpslAttribute(AttributeType.REMARKS, REMARKS_TEXT);
 
     private final AuthoritativeResourceData authoritativeResourceData;
     private final SourceContext sourceContext;
@@ -81,35 +74,7 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
     private RpslObject setAutnumStatus(final RpslObject object, final AutnumStatus autnumStatus, final Update update, final UpdateContext updateContext) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(object);
         cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, autnumStatus.toString());
-
-        // when creating, add the remark, if not the user can do what he wants
-        if (updateContext.getAction(update) == Action.CREATE) {
-            enforceRemarksRightBeforeStatus(builder);
-        }
         return builder.get();
     }
 
-    private void enforceRemarksRightBeforeStatus(final RpslObjectBuilder builder) {
-        boolean found = false;
-        final List<RpslAttribute> attributes = builder.getAttributes();
-
-        for (int i = 0; i < attributes.size(); i++) {
-            if (attributes.get(i).equals(STATUS_REMARK)) {
-                if (i + 1 < attributes.size() && attributes.get(i + 1).getType() != null && attributes.get(i + 1).getType().equals(AttributeType.STATUS)) {
-                    found = true;
-                } else {
-                    attributes.remove(i--);
-                }
-            }
-        }
-
-        if (found) return;
-
-        for (int i = 0; i < attributes.size(); i++) {
-            if (attributes.get(i).getType() == AttributeType.STATUS) {
-                builder.addAttribute(i, STATUS_REMARK);
-                break;
-            }
-        }
-    }
 }

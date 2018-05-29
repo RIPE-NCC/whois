@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Action;
@@ -21,10 +22,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.List;
+
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AggregatedByLirStatusValidatorTest {
@@ -80,6 +86,30 @@ public class AggregatedByLirStatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, object.findAttribute(AttributeType.ASSIGNMENT_SIZE), UpdateMessages.attributeAssignmentSizeNotAllowed());
+    }
+
+    @Test
+    public void validate_no_aggregated_by_lir_update_with_assignment_size() {
+        final RpslObject referenceObject = RpslObject.parse("" +
+                "inet6num:        2001:0658:021A::/48\n" +
+                "status:          ASSIGNED");
+
+        final RpslObject updatedObject = RpslObject.parse("" +
+                "inet6num:        2001:0658:021A::/48\n" +
+                "status:          ASSIGNED\n" +
+                "assignment-size: 64\n"+
+                "assignment-size: 32");
+
+        when(update.getAction()).thenReturn(Action.MODIFY);
+
+        when(update.getReferenceObject()).thenReturn(referenceObject);
+        when(update.getUpdatedObject()).thenReturn(updatedObject);
+
+        subject.validate(update, updateContext);
+
+        final List<RpslAttribute> assignmentSizeAttributes = updatedObject.findAttributes(AttributeType.ASSIGNMENT_SIZE);
+        verify(updateContext).addMessage(update, assignmentSizeAttributes.get(0), UpdateMessages.attributeAssignmentSizeNotAllowed());
+        verify(updateContext).addMessage(update, assignmentSizeAttributes.get(1), UpdateMessages.attributeAssignmentSizeNotAllowed());
     }
 
     @Test
@@ -330,18 +360,6 @@ public class AggregatedByLirStatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.cantChangeAssignmentSize());
-    }
-
-    @Test
-    public void modify_permissive_status() {
-        when(update.getAction()).thenReturn(Action.MODIFY);
-
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("inet6num: ffee::/48\nstatus:ALLOCATED-BY-LIR"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffee::/48\nassignment-size: 48\nstatus:ALLOCATED-BY-LIR"));
-
-        subject.validate(update, updateContext);
-
-        verifyZeroInteractions(updateContext);
     }
 
     @Test

@@ -27,18 +27,17 @@ public class ShrinkBlockStage extends AsnTransferStage {
         final List<ActionRequest> requests = Lists.newArrayList();
 
         final String blockTemplate;
-        if (transfer.isIncome()) {
+        if (transfer.isIncoming()) {
             blockTemplate = NON_RIPE_AS_BLOCK_TEMPLATE;
         } else {
             blockTemplate = RIPE_AS_BLOCK_TEMPLATE;
         }
 
-        RpslObject shrunkBlock;
         if (blockEndsWith(transfer.getResource(), originalAsBlockRange)) {
             final long begin = originalAsBlockRange.getBegin();
             final long end = transfer.getResource().previous().asBigInteger().longValue();
 
-            shrunkBlock = createAsBlock(begin, end, blockTemplate);
+            final RpslObject shrunkBlock = createAsBlock(begin, end, blockTemplate);
             requests.add(new ActionRequest(shrunkBlock, Action.CREATE));
         }
 
@@ -46,7 +45,7 @@ public class ShrinkBlockStage extends AsnTransferStage {
             final long begin = transfer.getResource().next().asBigInteger().longValue();
             final long end = originalAsBlockRange.getEnd();
 
-            shrunkBlock = createAsBlock(begin, end, blockTemplate);
+            final RpslObject shrunkBlock = createAsBlock(begin, end, blockTemplate);
             requests.add(new ActionRequest(shrunkBlock, Action.CREATE));
         }
 

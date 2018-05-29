@@ -156,7 +156,7 @@ public class VersionQueryExecutor implements QueryExecutor {
         final List<VersionInfo> versionInfos = res.getMostRecentlyCreatedVersions();
         int versionPadding = getPadding(versionInfos);
 
-        messages.add(new MessageObject(String.format("\n%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER)));
+        messages.add(new MessageObject(String.format("%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER)));
 
         for (int i = 0; i < versionInfos.size(); i++) {
             final VersionInfo versionInfo = versionInfos.get(i);

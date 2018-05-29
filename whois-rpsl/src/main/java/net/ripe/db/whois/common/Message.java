@@ -2,6 +2,7 @@ package net.ripe.db.whois.common;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.util.Objects;
 
 @Immutable
 public class Message {
@@ -31,23 +32,18 @@ public class Message {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         final Message message = (Message) o;
-        return type == message.type && formattedText.equals(message.formattedText);
+
+        return Objects.equals(type, message.type) &&
+                Objects.equals(formattedText, message.formattedText);
     }
 
     @Override
     public int hashCode() {
-        int result = type.hashCode();
-        result = 31 * result + formattedText.hashCode();
-        return result;
+        return Objects.hash(type, formattedText);
     }
 
     @Nullable

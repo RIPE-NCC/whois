@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.89-SNAPSHOT</version>
+    <version>1.92-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -32,13 +32,14 @@
         <aspectj.version>1.8.8</aspectj.version>
         <awaitility.version>1.3.5</awaitility.version>
 
-        <bouncycastle.version>1.55</bouncycastle.version>
+        <bouncycastle.version>1.59</bouncycastle.version>
 
         <c3po.version>0.9.5.1</c3po.version>
         <commons-compress.version>1.10</commons-compress.version>
         <commons-net.version>3.4</commons-net.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.10</commons-codec.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
         <commons-validator.version>1.5.1</commons-validator.version>
@@ -46,10 +47,11 @@
 
         <diffutils.version>1.3.0</diffutils.version>
 
+        <ezvcard.version>0.8.2</ezvcard.version>
+
         <findbugs.version>1.3.9</findbugs.version>
 
         <guava.version>19.0</guava.version>
-        <gson.version>2.6.2</gson.version>
 
         <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
         <hazelcast.version>2.6.10</hazelcast.version>
@@ -60,12 +62,12 @@
         <jflex.version>1.6.1</jflex.version>
         <jodatime.version>2.9.2</jodatime.version>
         <jopt-simple.version>4.8</jopt-simple.version>
-        <jsoup.version>1.8.3</jsoup.version>
+        <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.12</junit.version>
-        <jetty.version>9.3.12.v20160915</jetty.version>
+        <jetty.version>9.4.8.v20171121</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
-        <jersey.version>2.11</jersey.version>
-        <jackson.version>2.7.2</jackson.version>
+        <jersey.version>2.12</jersey.version>
+        <jackson.version>2.9.5</jackson.version>
 
         <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
         <log4j.version>1.2.17</log4j.version>
@@ -76,13 +78,12 @@
         <mariadb-java-client.version>1.2.0</mariadb-java-client.version>
         <mockito.version>1.9.5</mockito.version>
 
-        <!-- TODO: [ES] netty 3.10.0 creates excessive threads during integration tests -->
-        <netty.version>3.4.6.Final</netty.version>
+        <netty.version>3.10.6.Final</netty.version>
 
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.18</slf4j.version>
-        <spring.version>4.3.2.RELEASE</spring.version>
+        <spring.version>4.3.14.RELEASE</spring.version>
         <springockito.version>1.0.5</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
@@ -398,6 +399,11 @@
                 <version>${commons-validator.version}</version>
             </dependency>
             <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
                 <version>${velocity.version}</version>
@@ -426,6 +432,11 @@
                 <artifactId>jetty-jmx</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlets</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
 
             <!-- Jersey JAX-RS 2.0 implementation -->
             <dependency>
@@ -449,6 +460,12 @@
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-multipart</artifactId>
                 <version>${jersey.version}</version>
+            </dependency>
+            <dependency> <!-- don't use these in our code, use the static code checks instead -->
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>1.1.0.Final</version>
+                <scope>runtime</scope> <!-- so we can't use them but Jersey can at runtime -->
             </dependency>
 
             <!-- Jackson -->
@@ -525,18 +542,18 @@
                 <version>${diffutils.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.googlecode.ez-vcard</groupId>
+                <artifactId>ez-vcard</artifactId>
+                <version>${ezvcard.version}</version>
+            </dependency>
+
             <!-- Solr -->
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
                 <version>${solrj.version}</version>
                 <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>${gson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -858,6 +875,18 @@
                         <version>${aspectj.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <!-- dependency check is off by default. Run mvn dependency-check:check to run standalone -->
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <id>not-by-default</id>
+                        <phase>not-by-default</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

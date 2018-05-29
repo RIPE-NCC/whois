@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 
 @Immutable
@@ -79,7 +80,7 @@ public final class CIString implements Comparable<CIString>, CharSequence {
 
     @Override
     public int hashCode() {
-        return lcValue.hashCode();
+        return Objects.hash(lcValue);
     }
 
     @Override

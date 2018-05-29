@@ -32,7 +32,7 @@ public class JdbcRpslObjectOperationsTest {
     @Test
     public void testSanityCheckLettingThrough() {
         when(whoisTemplate.queryForObject(startsWith("SELECT count(*) FROM "), eq(Integer.class))).thenReturn(10);
-        for (String dbName : ImmutableList.of("WHOIS_TEST_TEST", "test_1356291725259_DNSCHECK", "GRSteST", "WHOIS_MIRROR_APNIC_GRS")) {
+        for (String dbName : ImmutableList.of("WHOIS_TEST_TEST", "GRSteST", "WHOIS_MIRROR_APNIC_GRS")) {
             when(whoisTemplate.queryForObject(eq("SELECT database()"), eq(String.class))).thenReturn(dbName);
             JdbcRpslObjectOperations.sanityCheck(whoisTemplate);
         }

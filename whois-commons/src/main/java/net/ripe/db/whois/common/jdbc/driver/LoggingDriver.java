@@ -39,6 +39,7 @@ public class LoggingDriver implements Driver {
     }
 
     @PostConstruct
+    @SuppressWarnings("EmptyCatchBlock")
     public synchronized void init() {
         // there should be only one LoggingDriver initialized per JVM (or we won't know which applicationContext's loggerContext to log to)
         try {
@@ -50,6 +51,7 @@ public class LoggingDriver implements Driver {
                 throw new IllegalStateException("Unable to de-register logging JDBC driver", e);
             }
         } catch (SQLException expected) {
+            // ignore
         }
 
         try {

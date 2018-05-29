@@ -35,8 +35,8 @@ public final class RpslAttribute {
     }
 
     public RpslAttribute(final AttributeType attributeType, final String value) {
-        Validate.notNull(attributeType);
-        Validate.notNull(value);
+        Validate.notNull(attributeType, "Attribute has no type");
+        Validate.notNull(value, "Attribute " + attributeType.getName() + " has no value");
         this.key = attributeType.getName();
         this.value = value;
         this.type = attributeType;
@@ -47,8 +47,8 @@ public final class RpslAttribute {
     }
 
     public RpslAttribute(final String key, final String value) {
-        Validate.notNull(key);
-        Validate.notNull(value);
+        Validate.notNull(key, "Attribute has no key");
+        Validate.notNull(value, "Attribute " + key + " has no value");
         this.key = key.toLowerCase();
         this.value = value;
         this.type = AttributeType.getByNameOrNull(this.key);
