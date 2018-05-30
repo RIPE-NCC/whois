@@ -192,7 +192,6 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(STATUS, GENERATED, SINGLE),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(MNT_ROUTES, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(CREATED, GENERATED, SINGLE),
                         new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
