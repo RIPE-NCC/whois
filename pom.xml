@@ -89,7 +89,7 @@
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>0.7-groovy-1.8</spock.version>
 
-        <velocity.version>1.7</velocity.version>
+        <velocity.version>2.0</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
     </properties>
@@ -405,7 +405,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
-                <artifactId>velocity</artifactId>
+                <artifactId>velocity-engine-core</artifactId>
                 <version>${velocity.version}</version>
             </dependency>
             <dependency>
