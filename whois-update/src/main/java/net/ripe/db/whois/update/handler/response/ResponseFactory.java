@@ -41,7 +41,6 @@ public class ResponseFactory {
         this.dateTimeProvider = dateTimeProvider;
 
         velocityEngine = new VelocityEngine();
-        // velocityEngine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, new NullLogChute());
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
         velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
         velocityEngine.init();
