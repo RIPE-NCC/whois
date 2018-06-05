@@ -1,5 +1,10 @@
 # next
 
+# 1.91.3
+[update] Don't return internal Zonemaster errors.
+[update] Fixed Syncupdates compressed response.
+[all] Updated Apache Velocity from 1.7 to 2.0.
+
 # 1.91.2
 [all] Jackson 2.9.5
 
