@@ -32,7 +32,7 @@ abstract class RouteAuthentication extends AuthenticationStrategyBase {
 
     @Override
     public Set<ObjectType> getTypesWithPendingAuthenticationSupport() {
-        return Sets.newHashSet(ObjectType.ROUTE, ObjectType.ROUTE6);
+        return Sets.newHashSet();
     }
 
     List<RpslObject> getCandidatesForMntRoutesAuthentication(final RpslObject authenticationObject, final PreparedUpdate update) {
