@@ -190,7 +190,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 """.stripIndent(), redirect: false))
         then:
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
-        countPendingUpdates() == 1
+        countPendingUpdates() == 0
 
         when:
         clearAllMails()
@@ -198,14 +198,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
         then:
-        def notifOwner = notificationFor "updto_owner@ripe.net"
-        notifOwner.subject =~ "Notification of RIPE Database pending update timeout on"
-
-        def notifAs = notificationFor "updto_as@ripe.net"
-        notifAs.subject =~ "Notification of RIPE Database pending update timeout on"
-
         noMoreMessages()
-
     }
 
     def "Create route, pending request is removed on creation: both parties required"() {
@@ -396,10 +389,9 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route] 37.221.220.0/24AS100" }
         ack.errorMessagesFor("Create", "[route] 37.221.220.0/24AS100") == [
-                "Authorisation for [aut-num] AS100 failed using \"mnt-routes:\" not authenticated by: AS100-MNT",
                 "Authorisation for [route] 37.221.216.0/21AS200 failed using \"mnt-by:\" not authenticated by: AS200-MNT"
         ]
 
@@ -630,11 +622,10 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
         ack.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") == [
-                "Authorisation for [route] 192.168.0.0/16AS100 failed using \"mnt-by:\" not authenticated by: OWNER-MNT",
-                "Authorisation for [aut-num] AS100 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT, AS-MNT"
+                "Authorisation for [route] 192.168.0.0/16AS100 failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
         ]
 
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
@@ -669,23 +660,19 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
-        ack.warningPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
-                ["Authorisation for [aut-num] AS100 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT, AS-MNT",
-                        "The route object 192.168.0.0/16AS100 will be saved for one week pending the second authorisation"]
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.pendingUpdates.any { it.operation == "Create SUCC" && it.key == "[route] 192.168.0.0/16AS100" }
+        ack.warningPendingMessagesFor("Create SUCC", "[route] 192.168.0.0/16AS100") == []
+        ack.infoPendingMessagesFor("Create SUCC", "[route] 192.168.0.0/16AS100") == []
 
-        def notif2 = notificationFor "updto_as@ripe.net"
-        notif2.subject =~ "RIPE Database updates, auth request notification"
-        notif2.pendingAuth("CREATE", "route", "192.168.0.0/16")
+        def notif2 = notificationFor "mntnfy_owner@ripe.net"
+        notif2.subject =~ "Notification of RIPE Database changes"
 
         noMoreMessages()
 
-        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+        queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
 
     def "create route, mnt-by & ASN pw supplied"() {
@@ -717,19 +704,16 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
-        ack.warningPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
-                ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
-                        "The route object 192.168.0.0/16AS100 will be saved for one week pending the second authorisation"]
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.pendingUpdates == []
+        ack.errorMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
+                ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT"]
 
-        def notif = notificationFor "updto_pinet@ripe.net"
-        notif.subject =~ "RIPE Database updates, auth request notification"
-        notif.pendingAuth("CREATE", "route", "192.168.0.0/16")
+        def notif = notificationFor "updto_owner@ripe.net"
+        notif.subject =~ "RIPE Database updates, auth error notification"
+        notif.authFailed("CREATE", "route", "192.168.0.0/16")
 
         noMoreMessages()
 
@@ -817,85 +801,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
 
-    def "create route, mnt-by & ASN pw supplied, then same ASN pw supplied"() {
-        given:
-        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
-        syncUpdate(getTransient("AS100") + "override: denis,override1")
-
-        expect:
-        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
-        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          192.168.0.0/16
-                descr:          Route
-                origin:         AS100
-                mnt-by:         OWNER-MNT
-                source:         TEST
-
-                password:   owner
-                password:   as
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 192.168.0.0/16AS100" }
-        ack.warningPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
-                ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 192.168.0.0/16AS100") ==
-                ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: P-INET-MNT",
-                        "The route object 192.168.0.0/16AS100 will be saved for one week pending the second authorisation"]
-
-        def notif = notificationFor "updto_pinet@ripe.net"
-        notif.subject =~ "RIPE Database updates, auth request notification"
-        notif.pendingAuth("CREATE", "route", "192.168.0.0/16")
-
-        noMoreMessages()
-
-        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
-
-
-        when:
-        def message2 = send new Message(
-                subject: "",
-                body: """\
-                route:          192.168.0.0/16
-                descr:          Route
-                origin:         AS100
-                mnt-by:         OWNER-MNT
-                source:         TEST
-
-                password:   owner
-                password:   as
-                """.stripIndent()
-        )
-
-        then:
-        def ack2 = ackFor message2
-
-        ack2.summary.nrFound == 1
-        ack2.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack2.summary.assertErrors(0, 0, 0, 0)
-        ack2.countErrorWarnInfo(0, 0, 1)
-
-        def notif2 = notificationFor "updto_pinet@ripe.net"
-        notif2.subject =~ "RIPE Database updates, auth request notification"
-
-        noMoreMessages()
-
-        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
-    }
-
     def "second noop pending update is deleted after route is successfully created"() {
       given:
         syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
@@ -944,66 +849,10 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 """.stripIndent()))
       then:
         response =~ /SUCCESS/
-        response =~ /\*\*\*Info:    This update concludes a pending update on route 192.168.0.0\/16AS100/
 
       then:
         ((PendingUpdateDao)applicationContext.getBean("pendingUpdateDao")).findByTypeAndKey(ObjectType.ROUTE, "192.168.0.0/16AS100").isEmpty()
     }
-
-    def "same pkey different objects pending update is deleted after route is successfully created"() {
-        given:
-        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
-        syncUpdate(getTransient("AS100") + "override: denis,override1")
-
-        expect:
-        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
-        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
-
-        when:
-        syncUpdate(new SyncUpdate(data: """\
-                route:          192.168.0.0/16
-                descr:          Route
-                origin:         AS100
-                mnt-by:         OWNER-MNT
-                source:         TEST
-
-                password:   owner
-                password:   as
-                """.stripIndent()))
-        then:
-        syncUpdate(new SyncUpdate(data: """\
-                route:          192.168.0.0/16
-                descr:          Route 2
-                origin:         AS100
-                mnt-by:         OWNER-MNT
-                source:         TEST
-
-                password:   owner
-                password:   as
-                """.stripIndent()))
-        then:
-            ((PendingUpdateDao)applicationContext.getBean("pendingUpdateDao")).findByTypeAndKey(ObjectType.ROUTE, "192.168.0.0/16AS100").size() == 2
-
-        then:
-        def response = syncUpdate(new SyncUpdate(data: """
-                route:          192.168.0.0/16
-                descr:          Route
-                origin:         AS100
-                mnt-by:         OWNER-MNT
-                source:         TEST
-
-                password:   owner
-                password:   hm
-                password:   pinet
-                """.stripIndent()))
-        then:
-        response =~ /SUCCESS/
-
-        then:
-        ((PendingUpdateDao)applicationContext.getBean("pendingUpdateDao")).findByTypeAndKey(ObjectType.ROUTE, "192.168.0.0/16AS100").isEmpty()
-    }
-
 
     def "create route, mnt-by & ASN pw supplied, then same ASN pw supplied, then inet pw supplied"() {
         given:
