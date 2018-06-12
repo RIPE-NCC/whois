@@ -5746,4 +5746,260 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
 
+    def "not create inetnum status ALLOCATED PI as lir"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PI
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password:     lir
+                password:     owner2
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") ==
+                ["Authorisation for parent [inetnum] 0.0.0.0 - 255.255.255.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT"]
+
+        queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+    }
+
+    def "create inetnum status ALLOCATED PI as rs maintainer"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PI
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password:     lir
+                password:     owner2
+                password:     owner3
+                password:     hm
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+    }
+
+    def "not create LIR-PARTITIONED PI inetnum as lir"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PI
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password:     lir
+                password:     owner2
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") ==
+                ["Authorisation for parent [inetnum] 0.0.0.0 - 255.255.255.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT"]
+
+        queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+    }
+
+    def "create LIR-PARTITIONED PI inetnum as rs maintainer"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PI
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password:     lir
+                password:     owner2
+                password:     owner3
+                password:     hm
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+    }
+
+    def "not create EARLY-REGISTRATION inetnum as lir"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       EARLY-REGISTRATION
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password:     lir
+                password:     owner2
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
+                "Authorisation for parent [inetnum] 0.0.0.0 - 255.255.255.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
+                "Status EARLY-REGISTRATION can only be created by the database administrator"
+        ]
+
+        queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+    }
+
+    def "not create EARLY-REGISTRATION inetnum as rs maintainer"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       EARLY-REGISTRATION
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password:     lir
+                password:     owner2
+                password:     owner3
+                password:     hm
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
+                "Status EARLY-REGISTRATION can only be created by the database administrator"
+        ]
+
+        queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+    }
+
+    def "not create NOT-SET inetnum as lir"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       NOT-SET
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password:     lir
+                password:     owner2
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
+                "Authorisation for parent [inetnum] 0.0.0.0 - 255.255.255.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
+                "Status NOT-SET can only be created by the database administrator"
+        ]
+
+        queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+    }
+
+    def "not create NOT-SET inetnum as rs maintainer"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       NOT-SET
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password:     lir
+                password:     owner2
+                password:     owner3
+                password:     hm
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
+                "Status NOT-SET can only be created by the database administrator"
+        ]
+
+        queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+    }
+
 }
