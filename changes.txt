@@ -1,5 +1,8 @@
 # next
 
+# 1.91.5
+[all] Specify database latin1 character set and collation for testing.
+
 # 1.91.4
 [update] Non-break spaces not handled properly by REST API and Syncupdates.
 [rdap] RDAP related contact information is filtered.
