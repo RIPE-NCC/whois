@@ -24,21 +24,18 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
 @Component
 public class OutOfRegionObjectValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(AUT_NUM, ROUTE, ROUTE6);
 
     private final AuthoritativeResourceData authoritativeResourceData;
 
     private final CIString source;
-    private final CIString nonAuthSource;
 
     @Autowired
     public OutOfRegionObjectValidator(final AuthoritativeResourceData authoritativeResourceData,
-                                      @Value("${whois.source}") final String source,
-                                      @Value("${whois.nonauth.source}") final String nonAuthSource) {
+                                      @Value("${whois.source}") final String source) {
         this.authoritativeResourceData = authoritativeResourceData;
         this.source = ciString(source);
-        this.nonAuthSource = ciString(nonAuthSource);
     }
 
     @Override

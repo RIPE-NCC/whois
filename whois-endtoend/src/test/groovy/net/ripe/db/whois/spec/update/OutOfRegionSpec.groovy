@@ -58,6 +58,53 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 source:         TEST-NONAUTH
                 """,
+                "COMAINTAINED-OUT-OF-REGION-AUTNUM": """\
+                aut-num:        AS252
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST-NONAUTH
+                """,
+                "IN-REGION-AUTNUM": """\
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                source:         TEST
+                """,
+                "COMAINTAINED-IN-REGION-AUTNUM": """\
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST
+                """,
         ]
     }
 
@@ -98,6 +145,349 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
               ["Supplied attribute 'source' has been replaced with a generated value"]
 
       queryObjectNotFound("-rBG -T aut-num AS252", "aut-num", "AS252")
+    }
+
+    def "modify out of region aut-num"() {
+        given:
+        dbfixture(getTransient("OUT-OF-REGION-AUTNUM"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS252
+                as-name:        End-User-1
+                descr:          description2
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+
+                password:   lir
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        queryObject("-rBG -T aut-num AS252", "aut-num", "AS252")
+    }
+
+    def "modify out of region aut-num, wrong source"() {
+        given:
+        dbfixture(getTransient("OUT-OF-REGION-AUTNUM"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS252
+                as-name:        End-User-1
+                descr:          description2
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                source:         TEST
+
+                password:   lir
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS252") ==
+                ["Supplied attribute 'source' has been replaced with a generated value"]
+
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS252", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST-NONAUTH", null);
+    }
+
+    def "modify out of region aut-num, rs maintainer"() {
+        given:
+        dbfixture(getTransient("COMAINTAINED-OUT-OF-REGION-AUTNUM"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS252
+                as-name:        End-User-1
+                descr:          description2
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST-NONAUTH
+
+                password:   hm
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        queryObject("-rBG -T aut-num AS252", "aut-num", "AS252")
+    }
+
+    def "modify out of region aut-num, wrong source, rs maintainer"() {
+        given:
+        dbfixture(getTransient("COMAINTAINED-OUT-OF-REGION-AUTNUM"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS252
+                as-name:        End-User-1
+                descr:          description2
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST
+
+                password:   hm
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS252") ==
+                ["Object has wrong source, should be TEST-NONAUTH"]
+
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS252", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST", null);
+    }
+
+    def "modify out of region aut-num, wrong source, using override"() {
+        given:
+        dbfixture(getTransient("OUT-OF-REGION-AUTNUM"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS252
+                as-name:        End-User-1
+                descr:          description2
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                source:         TEST
+                override:       denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS252") ==
+                ["Object has wrong source, should be TEST-NONAUTH"]
+
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS252", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST", null);
+    }
+
+    def "modify in region aut-num, nonauth source, rs maintainer"() {
+        given:
+        dbfixture(getTransient("COMAINTAINED-IN-REGION-AUTNUM"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description2
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST-NONAUTH
+
+                password:   hm
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 2, 0)
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                 "Object has wrong source, should be TEST"]
+
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS251", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST-NONAUTH", null);
+    }
+
+    def "modify in region aut-num, nonauth source, using override"() {
+        given:
+        dbfixture(getTransient("IN-REGION-AUTNUM"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                override:       denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 2, 1)
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                 "Object has wrong source, should be TEST"]
+
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS251", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST-NONAUTH", null);
+    }
+
+    def "modify out of region aut-num, using override"() {
+        given:
+        dbfixture(getTransient("OUT-OF-REGION-AUTNUM"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS252
+                as-name:        End-User-1
+                descr:          description2
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                override:       denis,override1
+
+                password:   lir
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        queryObject("-rBG -T aut-num AS252", "aut-num", "AS252")
+    }
+
+    def "modify in region aut-num with nonauth source"() {
+        given:
+        dbfixture(getTransient("IN-REGION-AUTNUM"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+
+                password:   lir
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                 "Supplied attribute 'source' has been replaced with a generated value"]
+
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS251", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST", null);
     }
 
     def "create in region aut-num with nonauth source"() {
