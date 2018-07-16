@@ -481,6 +481,18 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Public key in keycert %s has expired", name);
     }
 
+    public static Message cannotCreateOutOfRegionObject() {
+        return new Message(Type.ERROR, "Cannot create out of region objects");
+    }
+
+    public static Message sourceNotAllowed(final ObjectType objectType, final CharSequence source) {
+        return new Message(Type.ERROR, "Source %s is not allowed for %s objects", source, objectType.getName());
+    }
+
+    public static Message wrongOutOfRegionSource() {
+        return new Message(Type.WARNING, "Out of region object has wrong source");
+    }
+
     public static Message messageSignedMoreThanOneWeekAgo() {
         return new Message(Type.WARNING, "Message was signed more than one week ago");
     }

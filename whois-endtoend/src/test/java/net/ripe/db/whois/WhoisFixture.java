@@ -69,6 +69,7 @@ public class WhoisFixture {
     protected MailGateway mailGateway;
     protected MessageDequeue messageDequeue;
     protected DataSource whoisDataSource;
+    protected DataSource internalsDataSource;
     protected DnsGatewayStub dnsGatewayStub;
 
     protected IpRanges ipRanges;
@@ -120,6 +121,7 @@ public class WhoisFixture {
         pendingUpdateDao = applicationContext.getBean(PendingUpdateDao.class);
         mailGateway = applicationContext.getBean(MailGateway.class);
         whoisDataSource = applicationContext.getBean(SourceAwareDataSource.class);
+        internalsDataSource = applicationContext.getBean("internalsDataSource", DataSource.class);
         sourceContext = applicationContext.getBean(SourceContext.class);
         indexDao = applicationContext.getBean(IndexDao.class);
         restClient = applicationContext.getBean(RestClient.class);
@@ -155,6 +157,10 @@ public class WhoisFixture {
 
     public void dumpSchema() throws Exception {
         DatabaseHelper.dumpSchema(whoisDataSource);
+    }
+
+    public void dumpInternalsSchema() throws Exception {
+        DatabaseHelper.dumpSchema(internalsDataSource);
     }
 
     public String send(final String content) {

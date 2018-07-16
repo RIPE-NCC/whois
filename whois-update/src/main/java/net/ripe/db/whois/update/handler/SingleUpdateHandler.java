@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -54,6 +53,9 @@ public class SingleUpdateHandler {
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
+
+    @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.nonauth.source}')}")
+    private CIString nonAuthSource;
 
     @Autowired
     public SingleUpdateHandler(final AttributeGenerator[] attributeGenerators,
@@ -204,11 +206,6 @@ public class SingleUpdateHandler {
 
         if (RpslObjectFilter.isFiltered(updatedObject)) {
             updateContext.addMessage(update, UpdateMessages.filteredNotAllowed());
-        }
-
-        final CIString objectSource = updatedObject.getValueOrNullForAttribute(AttributeType.SOURCE);
-        if (objectSource != null && !source.equals(objectSource)) {
-            updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource.toUpperCase()));
         }
 
         if (Operation.DELETE.equals(update.getOperation())) {
