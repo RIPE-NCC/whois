@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -55,14 +56,21 @@ public class SourceValidator implements BusinessRuleValidator {
             updateContext.addMessage(update, UpdateMessages.unrecognizedSource(source.toUpperCase()));
         }
 
-        if (!NON_AUTH_OBJECT_TYPES.contains(updatedObject.getType()) && source.equals(this.nonAuthSource)) {
-            updateContext.addMessage(update, UpdateMessages.sourceNotAllowed(updatedObject.getType(), source));
-        }
+        if (!NON_AUTH_OBJECT_TYPES.contains(updatedObject.getType())) {
+            if (source.equals(this.nonAuthSource)) {
+                updateContext.addMessage(update, UpdateMessages.sourceNotAllowed(updatedObject.getType(), source));
+            }
+        } else {
+            boolean outOfRegion = !authoritativeResourceData.getAuthoritativeResource(this.source).isMaintainedInRirSpace(updatedObject);
+            boolean rsOrOverride = updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER) || updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
 
-        if (NON_AUTH_OBJECT_TYPES.contains(update.getUpdatedObject().getType()) &&
-            !authoritativeResourceData.getAuthoritativeResource(this.source).isMaintainedInRirSpace(updatedObject) &&
-            !source.equals(this.nonAuthSource)) {
-            updateContext.addMessage(update, UpdateMessages.wrongOutOfRegionSource());
+            if (outOfRegion && rsOrOverride && this.source.equals(source)) {
+                updateContext.addMessage(update, UpdateMessages.wrongOutOfRegionSource(this.nonAuthSource));
+            }
+
+            if (!outOfRegion && rsOrOverride && this.nonAuthSource.equals(source)) {
+                updateContext.addMessage(update, UpdateMessages.wrongOutOfRegionSource(this.source));
+            }
         }
     }
 

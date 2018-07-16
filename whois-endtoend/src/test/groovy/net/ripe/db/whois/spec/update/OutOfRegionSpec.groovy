@@ -1,6 +1,7 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
@@ -22,8 +23,8 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 "AS222 - AS333": """\
                 as-block:       AS222 - AS333
                 descr:          RIPE NCC ASN block
-                mnt-by:         RIPE-DBM-MNT
-                mnt-lower:      RIPE-NCC-HM-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                mnt-lower:      LIR-MNT
                 source:         TEST
                 """,
         ]
@@ -42,19 +43,21 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 //                mnt-by:  OWNER-MNT
 //                source:  TEST
 //                """,
-//                "ALLOC-PA": """\
-//                inetnum:      192.168.0.0 - 192.169.255.255
-//                netname:      TEST-NET-NAME
-//                descr:        TEST network
-//                country:      NL
-//                org:          ORG-LIR1-TEST
-//                admin-c:      TP1-TEST
-//                tech-c:       TP1-TEST
-//                status:       ALLOCATED PA
-//                mnt-by:       RIPE-NCC-HM-MNT
-//                mnt-lower:    LIR-MNT
-//                source:       TEST
-//                """,
+                "OUT-OF-REGION-AUTNUM": """\
+                aut-num:        AS252
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                """,
         ]
     }
 
@@ -85,17 +88,56 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
       ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
       ack.errorMessagesFor("Create", "[aut-num] AS252") == [
-              "Authorisation for [as-block] AS222 - AS333 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
               "Cannot create out of region objects"
       ]
       ack.warningMessagesFor("Create", "[aut-num] AS252") ==
-              ["Out of region object has wrong source"]
+              ["Supplied attribute 'source' has been replaced with a generated value"]
 
       queryObjectNotFound("-rBG -T aut-num AS252", "aut-num", "AS252")
+    }
+
+    def "create in region aut-num with nonauth source"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+
+                password:   lir
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS251") ==
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                 "Supplied attribute 'source' has been replaced with a generated value"]
+
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS251", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST", null);
     }
 
     def "not create out of region aut-num, nonauth source"() {
@@ -125,11 +167,10 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
         ack.errorMessagesFor("Create", "[aut-num] AS252") == [
-                "Authorisation for [as-block] AS222 - AS333 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
                 "Cannot create out of region objects"
         ]
 
@@ -169,9 +210,13 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS252") ==
-                ["Out of region object has wrong source"]
+                ["Object has wrong source, should be TEST-NONAUTH"]
 
-        queryObject("-rGBT aut-num AS252", "aut-num", "AS252")
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS252", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST", null);
     }
 
     def "create out of region aut-num, rs-maintainer"() {
@@ -188,7 +233,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 org:            ORG-LIR1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST
 
                 password:   hm
@@ -207,9 +252,93 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS252") ==
-                ["Out of region object has wrong source"]
+                ["Object has wrong source, should be TEST-NONAUTH"]
 
-        queryObject("-rGBT aut-num AS252", "aut-num", "AS252")
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS252", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST", null);
+    }
+
+    def "create out of region aut-num with nonauth source, rs-maintainer"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS252
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST-NONAUTH
+
+                password:   hm
+                password:   lir
+                password:   owner3
+                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
+
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS252", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST-NONAUTH", null);
+    }
+
+    def "create out of region aut-num with nonauth source, with override"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS252
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                override:       denis,override1
+
+                password:   lir
+                password:   owner3
+                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
+
+        when:
+        def autnum = restLookup(ObjectType.AUT_NUM, "AS252", "update");
+
+        then:
+        hasAttribute(autnum, "source", "TEST-NONAUTH", null);
     }
 
     def "not create inetnum with nonauth source"() {
