@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ROUTE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ROUTE6;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 
@@ -29,9 +31,9 @@ public class OutOfRegionUtil {
         final AuthoritativeResource authoritativeResource = authoritativeResourceData.getAuthoritativeResource(this.source);
         switch (rpslObject.getType()) {
             case ROUTE:
-                return authoritativeResource.isMaintainedInRirSpace(INETNUM, rpslObject.getKey());
+                return authoritativeResource.isMaintainedInRirSpace(INETNUM, rpslObject.getValueForAttribute(ROUTE));
             case ROUTE6:
-                return authoritativeResource.isMaintainedInRirSpace(INET6NUM, rpslObject.getKey());
+                return authoritativeResource.isMaintainedInRirSpace(INET6NUM, rpslObject.getValueForAttribute(ROUTE6));
             default:
                 return authoritativeResource.isMaintainedInRirSpace(rpslObject);
         }

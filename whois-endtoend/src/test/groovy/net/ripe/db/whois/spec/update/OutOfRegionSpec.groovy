@@ -853,4 +853,30 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
     }
 
+    def "create in region route, wrong source"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          10.1.0.0/16
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                
+                password: lir                
+                password: owner3                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Create", "[route] 10.1.0.0/16AS252") ==
+                ["Supplied attribute 'source' has been replaced with a generated value"]
+
+        queryObject("-rGBT route 10.1.0.0/16", "route", "10.1.0.0/16")
+    }
+
 }
