@@ -27,6 +27,18 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-lower:      LIR-MNT
                 source:         TEST
                 """,
+                "OUT-OF-REGION-INETNUM": """\
+                inetnum:         213.152.64.0 - 213.152.95.255
+                netname:         NON-RIPE-NCC-MANAGED-ADDRESS-BLOCK
+                admin-c:         TP1-TEST
+                tech-c:          TP1-TEST
+                status:          ALLOCATED UNSPECIFIED
+                mnt-by:          RIPE-NCC-HM-MNT
+                mnt-lower:       RIPE-NCC-HM-MNT
+                created:         2014-11-07T14:15:06Z
+                last-modified:   2015-10-29T15:18:51Z
+                source:          TEST
+                """,
         ]
     }
 
@@ -732,7 +744,6 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
     }
 
     def "not create inetnum with nonauth source"() {
-        whoisFixture.dumpSchema();
         when:
         def ack = syncUpdateWithResponse("""
                 inetnum:     10.1.0.0 - 10.1.255.255
@@ -763,6 +774,83 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ]
 
         queryObjectNotFound("-r -T inetnum 10.1.0.0 - 10.1.255.255", "inetnum", "10.1.0.0 - 10.1.255.255")
+    }
+
+    def "not create out of region route"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                created:        2002-05-21T15:33:55Z
+                last-modified:  2009-10-15T09:32:17Z
+                source:         TEST-NONAUTH
+                
+                password: lir                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(2, 0, 0)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[route] 213.152.64.0/24AS252" }
+        ack.errorMessagesFor("Create", "[route] 213.152.64.0/24AS252") == [
+                "Authorisation for [inetnum] 213.152.64.0 - 213.152.95.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
+                "Cannot create out of region objects"
+        ]
+
+        queryObjectNotFound("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
+    }
+
+    def "create out of region route, rs maintainer"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST-NONAUTH
+                
+                password: hm                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
+    }
+
+    def "create out of region route, using override"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                override:       denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
     }
 
 }
