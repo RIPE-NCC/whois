@@ -68,6 +68,10 @@ public class ReservedWordValidator implements BusinessRuleValidator {
         RESERVED_PREFIXES.put(CIString.ciString("rtrs-"), ObjectType.RTR_SET);
         RESERVED_PREFIXES.put(CIString.ciString("fltr-"), ObjectType.FILTER_SET);
         RESERVED_PREFIXES.put(CIString.ciString("prng-"), ObjectType.PEERING_SET);
+        RESERVED_PREFIXES.put(CIString.ciString("org-"), ObjectType.ORGANISATION);
+        RESERVED_PREFIXES.put(CIString.ciString("irt-"), ObjectType.IRT);
+        RESERVED_PREFIXES.put(CIString.ciString("pgpkey-"), ObjectType.KEY_CERT);
+        RESERVED_PREFIXES.put(CIString.ciString("x509-"), ObjectType.KEY_CERT);
     }
 
     @Override

@@ -60,6 +60,15 @@ public class ReservedWordValidatorTest {
     }
 
     @Test
+    public void reserved_prefix_org_not_ok() {
+        mockUpdate("mntner: ORG-TEST\nsource: TEST");
+
+        subject.validate(update, updateContext);
+
+        verifyReservedPrefixUsed("org-", ObjectType.ORGANISATION);
+    }
+
+    @Test
     public void reserved_prefix_as_ok() {
         mockUpdate("as-set: AS-TEST\nsource: TEST");
 
