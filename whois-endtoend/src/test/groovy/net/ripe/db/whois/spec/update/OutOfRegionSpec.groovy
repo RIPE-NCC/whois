@@ -117,6 +117,58 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST
                 """,
+                "COMAINTAINED-IN-REGION-INETNUM": """\
+                inetnum:     10.2.0.0 - 10.2.255.255
+                netname:     ReallyAmazingNetname
+                country:     NL
+                admin-c:     TP1-TEST
+                tech-c:      TP1-TEST
+                org:         ORG-LIR1-TEST
+                status:      ALLOCATED PA
+                mnt-by:      OWNER-MNT
+                mnt-lower:   OWNER2-MNT
+                mnt-routes:  OWNER3-MNT
+                mnt-routes:  RIPE-NCC-HM-MNT
+                source:      TEST
+                """,
+                "OUT-OF-REGION-ROUTE": """\
+                route:          213.152.64.0/24
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                created:        2002-05-21T15:33:55Z
+                last-modified:  2009-10-15T09:32:17Z
+                source:         TEST-NONAUTH
+                """,
+                "COMAINTAINED-OUT-OF-REGION-ROUTE": """\
+                route:          213.152.64.0/24
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                created:        2002-05-21T15:33:55Z
+                last-modified:  2009-10-15T09:32:17Z
+                source:         TEST-NONAUTH
+                """,
+                "IN-REGION-ROUTE": """\
+                route:          10.1.0.0/16
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                created:        2002-05-21T15:33:55Z
+                last-modified:  2009-10-15T09:32:17Z
+                source:         TEST
+                """,
+                "COMAINTAINED-IN-REGION-ROUTE": """\
+                route:          10.1.0.0/16
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                created:        2002-05-21T15:33:55Z
+                last-modified:  2009-10-15T09:32:17Z
+                source:         TEST
+                """,
         ]
     }
 
@@ -877,6 +929,387 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rGBT route 10.1.0.0/16", "route", "10.1.0.0/16")
+    }
+
+    def "create in region route, wrong source, rs maintainer"() {
+        given:
+        dbfixture(getTransient("COMAINTAINED-IN-REGION-INETNUM"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          10.2.0.0/16
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST-NONAUTH
+                
+                password: hm                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Create", "[route] 10.2.0.0/16AS252") ==
+                ["Object has wrong source, should be TEST"]
+
+        queryObject("-rGBT route 10.2.0.0/16", "route", "10.2.0.0/16")
+    }
+
+    def "create in region route, wrong source, using override"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          10.1.0.0/16
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                override:       denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.warningSuccessMessagesFor("Create", "[route] 10.1.0.0/16AS252") ==
+                ["Object has wrong source, should be TEST"]
+
+        queryObject("-rGBT route 10.1.0.0/16", "route", "10.1.0.0/16")
+    }
+
+    def "not create out of region route, wrong source"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                created:        2002-05-21T15:33:55Z
+                last-modified:  2009-10-15T09:32:17Z
+                source:         TEST
+                
+                password: lir                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(2, 1, 0)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[route] 213.152.64.0/24AS252" }
+        ack.errorMessagesFor("Create", "[route] 213.152.64.0/24AS252") == [
+                "Authorisation for [inetnum] 213.152.64.0 - 213.152.95.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
+                "Cannot create out of region objects"
+        ]
+        ack.warningMessagesFor("Create", "[route] 213.152.64.0/24AS252") ==
+                ["Supplied attribute 'source' has been replaced with a generated value"]
+
+        queryObjectNotFound("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
+    }
+
+    def "create out of region route, rs maintainer, wrong source"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST
+                
+                password: hm                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Create", "[route] 213.152.64.0/24AS252") ==
+                ["Object has wrong source, should be TEST-NONAUTH"]
+
+        queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
+    }
+
+    def "create out of region route, using override, with wrong source"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                source:         TEST
+                override:       denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.warningSuccessMessagesFor("Create", "[route] 213.152.64.0/24AS252") ==
+                ["Object has wrong source, should be TEST-NONAUTH"]
+
+        queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
+    }
+
+    def "modify out of region route"() {
+        given:
+        dbfixture(getTransient("OUT-OF-REGION-ROUTE"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                descr:          and another descr
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                
+                password: lir                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
+    }
+
+    def "modify out of region route, rs maintainer"() {
+        given:
+        dbfixture(getTransient("COMAINTAINED-OUT-OF-REGION-ROUTE"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                descr:          and another descr
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST-NONAUTH
+                
+                password: hm                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
+    }
+
+    def "modify out of region route, with override"() {
+        given:
+        dbfixture(getTransient("OUT-OF-REGION-ROUTE"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                descr:          and another descr
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                override:       denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
+    }
+
+    def "modify in region route, wrong source"() {
+        given:
+        dbfixture(getTransient("IN-REGION-ROUTE"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          10.1.0.0/16
+                descr:          A route
+                descr:          and another descr
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                
+                password: lir                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Modify", "[route] 10.1.0.0/16AS252") ==
+                ["Supplied attribute 'source' has been replaced with a generated value"]
+
+        queryObject("-rGBT route 10.1.0.0/16", "route", "10.1.0.0/16")
+    }
+
+    def "modify in region route, rs maintainer, with wrong source"() {
+        given:
+        dbfixture(getTransient("COMAINTAINED-IN-REGION-ROUTE"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          10.1.0.0/16
+                descr:          A route
+                descr:          and another descr
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST-NONAUTH
+                
+                password: hm                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Modify", "[route] 10.1.0.0/16AS252") ==
+                ["Object has wrong source, should be TEST"]
+
+        queryObject("-rGBT route 10.1.0.0/16", "route", "10.1.0.0/16")
+    }
+
+    def "modify in region route, wrong source, using override"() {
+        given:
+        dbfixture(getTransient("IN-REGION-ROUTE"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          10.1.0.0/16
+                descr:          A route
+                descr:          and another descr
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                source:         TEST-NONAUTH
+                override:       denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.warningSuccessMessagesFor("Modify", "[route] 10.1.0.0/16AS252") ==
+                ["Object has wrong source, should be TEST"]
+
+        queryObject("-rGBT route 10.1.0.0/16", "route", "10.1.0.0/16")
+    }
+
+    def "modify out of region route, wrong source"() {
+        given:
+        dbfixture(getTransient("OUT-OF-REGION-ROUTE"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                descr:          and another descr
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                source:         TEST
+                
+                password: lir                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Modify", "[route] 213.152.64.0/24AS252") ==
+                ["Supplied attribute 'source' has been replaced with a generated value"]
+
+        queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
+    }
+
+    def "modify out of region route, rs maintainer, wrong source"() {
+        given:
+        dbfixture(getTransient("COMAINTAINED-OUT-OF-REGION-ROUTE"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                descr:          and another descr
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
+                source:         TEST
+                
+                password: hm                
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Modify", "[route] 213.152.64.0/24AS252") ==
+                ["Object has wrong source, should be TEST-NONAUTH"]
+
+        queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
+    }
+
+    def "modify out of region route, with override, wrong source"() {
+        given:
+        dbfixture(getTransient("OUT-OF-REGION-ROUTE"))
+        when:
+        def ack = syncUpdateWithResponse("""
+                route:          213.152.64.0/24
+                descr:          A route
+                descr:          and another descr
+                origin:         AS252
+                mnt-by:         LIR-MNT
+                source:         TEST
+                override:       denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.warningSuccessMessagesFor("Modify", "[route] 213.152.64.0/24AS252") ==
+                ["Object has wrong source, should be TEST-NONAUTH"]
+
+        queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
     }
 
 }
