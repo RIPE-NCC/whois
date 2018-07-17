@@ -366,7 +366,7 @@ public interface AttributeSyntax extends Documented {
             " action accept announce except refine networks into inbound\n" +
             " outbound\n" +
             "\n" +
-            "Names starting with certain prefixes are reserved for\n" +             // TODO: [ES] implement per type
+            "Names starting with certain prefixes are reserved for\n" +
             "certain object types.  Names starting with \"as-\" are\n" +
             "reserved for as set names.  Names starting with \"rs-\" are\n" +
             "reserved for route set names.  Names starting with \"rtrs-\"\n" +
