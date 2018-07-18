@@ -71,21 +71,6 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                source:         TEST-NONAUTH
-                """,
-                "COMAINTAINED-OUT-OF-REGION-AUTNUM": """\
-                aut-num:        AS252
-                as-name:        End-User-1
-                descr:          description
-                status:         OTHER
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-LIR1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
                 mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST-NONAUTH
                 """,
@@ -120,7 +105,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST
                 """,
-                "COMAINTAINED-IN-REGION-INETNUM": """\
+                "IN-REGION-INETNUM": """\
                 inetnum:     10.2.0.0 - 10.2.255.255
                 netname:     ReallyAmazingNetname
                 country:     NL
@@ -139,30 +124,12 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 descr:          A route
                 origin:         AS252
                 mnt-by:         LIR-MNT
-                created:        2002-05-21T15:33:55Z
-                last-modified:  2009-10-15T09:32:17Z
-                source:         TEST-NONAUTH
-                """,
-                "COMAINTAINED-OUT-OF-REGION-ROUTE": """\
-                route:          213.152.64.0/24
-                descr:          A route
-                origin:         AS252
-                mnt-by:         LIR-MNT
                 mnt-by:         RIPE-NCC-HM-MNT
                 created:        2002-05-21T15:33:55Z
                 last-modified:  2009-10-15T09:32:17Z
                 source:         TEST-NONAUTH
                 """,
                 "IN-REGION-ROUTE": """\
-                route:          10.1.0.0/16
-                descr:          A route
-                origin:         AS252
-                mnt-by:         LIR-MNT
-                created:        2002-05-21T15:33:55Z
-                last-modified:  2009-10-15T09:32:17Z
-                source:         TEST
-                """,
-                "COMAINTAINED-IN-REGION-ROUTE": """\
                 route:          10.1.0.0/16
                 descr:          A route
                 origin:         AS252
@@ -251,6 +218,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST-NONAUTH
 
                 password:   lir
@@ -285,6 +253,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST
 
                 password:   lir
@@ -310,7 +279,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
     def "modify out of region aut-num, rs maintainer"() {
         given:
-        dbfixture(getTransient("COMAINTAINED-OUT-OF-REGION-AUTNUM"))
+        dbfixture(getTransient("OUT-OF-REGION-AUTNUM"))
         when:
         def ack = syncUpdateWithResponse("""
                 aut-num:        AS252
@@ -344,7 +313,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
     def "modify out of region aut-num, wrong source, rs maintainer"() {
         given:
-        dbfixture(getTransient("COMAINTAINED-OUT-OF-REGION-AUTNUM"))
+        dbfixture(getTransient("OUT-OF-REGION-AUTNUM"))
         when:
         def ack = syncUpdateWithResponse("""
                 aut-num:        AS252
@@ -956,7 +925,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
     def "create in region route, wrong source, rs maintainer"() {
         given:
-        dbfixture(getTransient("COMAINTAINED-IN-REGION-INETNUM"))
+        dbfixture(getTransient("IN-REGION-INETNUM"))
         when:
         def ack = syncUpdateWithResponse("""
                 route:          10.2.0.0/16
@@ -1099,6 +1068,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 descr:          and another descr
                 origin:         AS252
                 mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST-NONAUTH
                 
                 password: lir                
@@ -1117,7 +1087,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
     def "modify out of region route, rs maintainer"() {
         given:
-        dbfixture(getTransient("COMAINTAINED-OUT-OF-REGION-ROUTE"))
+        dbfixture(getTransient("OUT-OF-REGION-ROUTE"))
         when:
         def ack = syncUpdateWithResponse("""
                 route:          213.152.64.0/24
@@ -1177,6 +1147,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 descr:          and another descr
                 origin:         AS252
                 mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST-NONAUTH
                 
                 password: lir                
@@ -1197,7 +1168,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
     def "modify in region route, rs maintainer, with wrong source"() {
         given:
-        dbfixture(getTransient("COMAINTAINED-IN-REGION-ROUTE"))
+        dbfixture(getTransient("IN-REGION-ROUTE"))
         when:
         def ack = syncUpdateWithResponse("""
                 route:          10.1.0.0/16
