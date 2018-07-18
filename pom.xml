@@ -773,6 +773,10 @@
                         net.ripe.db.whois.common.EndToEndTest,
                         net.ripe.db.whois.common.ManualTest
                     </excludedGroups>
+                    <systemPropertyVariables>
+                        <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
+                        <hazelcast.phone.home.enabled>false</hazelcast.phone.home.enabled>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
