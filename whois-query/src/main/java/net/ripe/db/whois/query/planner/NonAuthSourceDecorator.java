@@ -31,7 +31,7 @@ class NonAuthSourceDecorator implements ResponseDecorator {
     public Iterable<? extends ResponseObject> decorate(Query query, Iterable<? extends ResponseObject> input) {
 
         if (!query.getSources().isEmpty() && !query.getSources().contains(nonAuthSource)
-                && !query.getSources().stream().anyMatch(source -> sourceContext.getAllSourceNames().contains(CIString.ciString(source)))) {
+                && !query.getSources().stream().anyMatch(source -> sourceContext.getGrsSourceNames().contains(CIString.ciString(source)))) {
 
             List<? extends ResponseObject> filteredResponse = Lists.newArrayList(input);
             filteredResponse.removeIf(obj -> obj instanceof RpslObject && ((RpslObject) obj).getValueForAttribute(AttributeType.SOURCE).equals(CIString.ciString(nonAuthSource)));
