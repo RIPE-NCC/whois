@@ -219,7 +219,7 @@ public class WhoisSearchService {
     private void validateSources(final HttpServletRequest request, final Set<String> sources) {
         for (final String source : sources) {
             // NONAUTH source object is in main source (RIPE source)
-            boolean isOutOfRegionSource = nonAuthSource.equalsIgnoreCase(source);
+            boolean isOutOfRegionSource = source.equalsIgnoreCase(nonAuthSource);
             if (!isOutOfRegionSource && !sourceContext.getAllSourceNames().contains(ciString(source))) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
                         .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSource(source)))
