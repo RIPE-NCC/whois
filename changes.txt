@@ -1,5 +1,8 @@
 # next
 
+# 1.91.6
+[all] Updated Spring framework to 4.3.18.
+
 # 1.91.5
 [all] Specify database latin1 character set and collation for testing.
 
