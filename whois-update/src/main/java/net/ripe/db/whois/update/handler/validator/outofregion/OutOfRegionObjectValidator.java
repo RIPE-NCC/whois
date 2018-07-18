@@ -49,7 +49,7 @@ public class OutOfRegionObjectValidator implements BusinessRuleValidator {
 
         if (!outOfRegionUtil.isMaintainedInRirSpace(updatedObject)) {
             if (!(updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER) || updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER))) {
-                updateContext.addMessage(update, UpdateMessages.cannotCreateOutOfRegionObject());
+                updateContext.addMessage(update, UpdateMessages.cannotCreateOutOfRegionObject(updatedObject.getType()));
             }
         }
     }
