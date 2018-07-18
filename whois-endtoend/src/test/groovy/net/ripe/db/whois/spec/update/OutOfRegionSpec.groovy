@@ -87,21 +87,6 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                source:         TEST
-                """,
-                "COMAINTAINED-IN-REGION-AUTNUM": """\
-                aut-num:        AS251
-                as-name:        End-User-1
-                descr:          description
-                status:         OTHER
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-LIR1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
                 mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST
                 """,
@@ -193,7 +178,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
       ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
       ack.errorMessagesFor("Create", "[aut-num] AS252") == [
-              "Cannot create out of region objects"
+              "Cannot create out of region aut-num objects"
       ]
       ack.warningMessagesFor("Create", "[aut-num] AS252") ==
               ["Supplied attribute 'source' has been replaced with a generated value"]
@@ -391,7 +376,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
     def "modify in region aut-num, nonauth source, rs maintainer"() {
         given:
-        dbfixture(getTransient("COMAINTAINED-IN-REGION-AUTNUM"))
+        dbfixture(getTransient("IN-REGION-AUTNUM"))
         when:
         def ack = syncUpdateWithResponse("""
                 aut-num:        AS251
@@ -521,6 +506,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST-NONAUTH
 
                 password:   lir
@@ -617,7 +603,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
         ack.errorMessagesFor("Create", "[aut-num] AS252") == [
-                "Cannot create out of region objects"
+                "Cannot create out of region aut-num objects"
         ]
 
         queryObjectNotFound("-rBG -T aut-num AS252", "aut-num", "AS252")
@@ -845,7 +831,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[route] 213.152.64.0/24AS252" }
         ack.errorMessagesFor("Create", "[route] 213.152.64.0/24AS252") == [
                 "Authorisation for [inetnum] 213.152.64.0 - 213.152.95.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
-                "Cannot create out of region objects"
+                "Cannot create out of region route objects"
         ]
 
         queryObjectNotFound("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
@@ -1000,7 +986,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[route] 213.152.64.0/24AS252" }
         ack.errorMessagesFor("Create", "[route] 213.152.64.0/24AS252") == [
                 "Authorisation for [inetnum] 213.152.64.0 - 213.152.95.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
-                "Cannot create out of region objects"
+                "Cannot create out of region route objects"
         ]
         ack.warningMessagesFor("Create", "[route] 213.152.64.0/24AS252") ==
                 ["Supplied attribute 'source' has been replaced with a generated value"]
@@ -1232,6 +1218,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
                 descr:          and another descr
                 origin:         AS252
                 mnt-by:         LIR-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
                 source:         TEST
                 
                 password: lir                
@@ -1252,7 +1239,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
     def "modify out of region route, rs maintainer, wrong source"() {
         given:
-        dbfixture(getTransient("COMAINTAINED-OUT-OF-REGION-ROUTE"))
+        dbfixture(getTransient("OUT-OF-REGION-ROUTE"))
         when:
         def ack = syncUpdateWithResponse("""
                 route:          213.152.64.0/24
