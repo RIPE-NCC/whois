@@ -17,12 +17,15 @@ import java.util.List;
 @Component
 class NonAuthSourceDecorator implements ResponseDecorator {
 
+    private String source;
     private String nonAuthSource;
     private SourceContext sourceContext;
 
     @Autowired
     public NonAuthSourceDecorator(@Value("${whois.nonauth.source}") final String nonAuthSource,
+                                  @Value("${whois.source}") final String source,
                                   SourceContext sourceContext) {
+        this.source = source;
         this.nonAuthSource = nonAuthSource;
         this.sourceContext = sourceContext;
     }
@@ -30,14 +33,19 @@ class NonAuthSourceDecorator implements ResponseDecorator {
     @Override
     public Iterable<? extends ResponseObject> decorate(Query query, Iterable<? extends ResponseObject> input) {
 
-        if (!query.getSources().isEmpty() && !query.getSources().contains(nonAuthSource)
-                && !query.getSources().stream().anyMatch(source -> sourceContext.getGrsSourceNames().contains(CIString.ciString(source)))) {
-
-            List<? extends ResponseObject> filteredResponse = Lists.newArrayList(input);
-            filteredResponse.removeIf(obj -> obj instanceof RpslObject && ((RpslObject) obj).getValueForAttribute(AttributeType.SOURCE).equals(CIString.ciString(nonAuthSource)));
-            return filteredResponse;
+        if (!query.getSources().isEmpty() && !query.getSources().containsAll(Lists.newArrayList(this.source, nonAuthSource))) {
+            if (query.getSources().contains(nonAuthSource)) {
+                return filteroutResources(input, CIString.ciString(source));
+            } else if (query.getSources().contains(source)) {
+                return filteroutResources(input, CIString.ciString(nonAuthSource));
+            }
         }
-
         return input;
+    }
+
+    private Iterable<? extends ResponseObject> filteroutResources(Iterable<? extends ResponseObject> input, CIString source) {
+        List<? extends ResponseObject> filteredResponse = Lists.newArrayList(input);
+        filteredResponse.removeIf(obj -> obj instanceof RpslObject && ((RpslObject) obj).getValueForAttribute(AttributeType.SOURCE).equals(source));
+        return filteredResponse;
     }
 }
