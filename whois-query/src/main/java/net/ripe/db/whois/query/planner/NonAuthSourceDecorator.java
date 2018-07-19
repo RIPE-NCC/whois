@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.executor.decorators.ResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +18,12 @@ class NonAuthSourceDecorator implements ResponseDecorator {
 
     private String source;
     private String nonAuthSource;
-    private SourceContext sourceContext;
 
     @Autowired
     public NonAuthSourceDecorator(@Value("${whois.nonauth.source}") final String nonAuthSource,
-                                  @Value("${whois.source}") final String source,
-                                  SourceContext sourceContext) {
+                                  @Value("${whois.source}") final String source) {
         this.source = source;
         this.nonAuthSource = nonAuthSource;
-        this.sourceContext = sourceContext;
     }
 
     @Override
