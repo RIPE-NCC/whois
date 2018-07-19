@@ -485,6 +485,14 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Cannot create out of region %s objects", objectType.getName());
     }
 
+    public static Message cannotUseReservedAsNumber(final Long asNumber) {
+        return new Message(Type.ERROR, "Cannot use reserved AS number %d", asNumber);
+    }
+
+    public static Message autnumNotFound(final Long asNumber) {
+        return new Message(Type.WARNING, "Specified origin AS number %d doesn't exist in the RIPE database", asNumber);
+    }
+
     public static Message sourceNotAllowed(final ObjectType objectType, final CharSequence source) {
         return new Message(Type.ERROR, "Source %s is not allowed for %s objects", source, objectType.getName());
     }
