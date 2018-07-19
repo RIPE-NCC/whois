@@ -1,4 +1,6 @@
 -- this could be parsed as well, but we want to avoid that overhead for each integration test
+-- all resources listed here are in region
+-- the out of region resources should be mentioned in comments to they're easier to find when creating tests
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS102');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS103');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS200');
@@ -8,48 +10,8 @@ INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS300');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS650');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS12666');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS12668');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '::/3');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2000::/16');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2001::/22');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2001:600::/23');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2001:800::/21');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2001:1000::/20');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2001:2000::/19');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2001:4000::/18');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2001:8000::/17');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2002::/15');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2004::/14');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2008::/13');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2010::/12');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2020::/11');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2040::/10');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2080::/9');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2100::/8');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2200::/7');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2400::/6');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '2800::/5');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '3000::/4');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '4000::/2');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '8000::/1');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '0.0.0.0/1');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '128.0.0.0/2');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '192.0.0.0/4');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '208.0.0.0/6');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '212.0.0.0/8');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.0.0.0/9');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.128.0.0/12');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.144.0.0/13');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.152.0.0/18');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.152.96.0/19');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.152.128.0/17');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.153.0.0/16');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.154.0.0/15');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.156.0.0/14');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.160.0.0/11');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '213.192.0.0/10');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '214.0.0.0/7');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '216.0.0.0/5');
-INSERT INTO authoritative_resource (source, resource) VALUES ('test', '224.0.0.0/3');
+INSERT INTO authoritative_resource (source, resource) VALUES ('test', '::/0');
+INSERT INTO authoritative_resource (source, resource) VALUES ('test', '0.0.0.0/0');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS222');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS333');
 -- legacy autnums
