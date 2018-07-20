@@ -18,20 +18,20 @@ class NonAuthSourceDecorator implements ResponseDecorator {
 
     private final String source;
     private final String nonAuthSource;
-    private final List<String> RIPE_AUTH_AND_NONAUTH_SOURCES;
+    private final List<String> ripeAuthAndNonauthSources;
 
     @Autowired
     public NonAuthSourceDecorator(@Value("${whois.nonauth.source}") final String nonAuthSource,
                                   @Value("${whois.source}") final String source) {
         this.source = source;
         this.nonAuthSource = nonAuthSource;
-        RIPE_AUTH_AND_NONAUTH_SOURCES = Lists.newArrayList(this.source, nonAuthSource);
+        this.ripeAuthAndNonauthSources = Lists.newArrayList(this.source, nonAuthSource);
     }
 
     @Override
     public Iterable<? extends ResponseObject> decorate(Query query, Iterable<? extends ResponseObject> input) {
 
-          if (!query.getSources().containsAll(RIPE_AUTH_AND_NONAUTH_SOURCES)) {
+          if (!query.getSources().containsAll(ripeAuthAndNonauthSources)) {
             if (query.getSources().contains(nonAuthSource)) {
                 return filteroutResources(input, CIString.ciString(source));
             } else if (query.getSources().contains(source)) {
