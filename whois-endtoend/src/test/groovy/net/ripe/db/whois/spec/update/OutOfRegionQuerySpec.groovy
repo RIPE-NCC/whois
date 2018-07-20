@@ -38,13 +38,13 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
     /*
     *  If both sources are defined both "source: RIPE" and “source: RIPE-NONAUTH” ROUTE(6) objects are returned.
     * */
-    def "query -s TEST,TEST-NONAUTH -mB 193.4.0.0/16 within source TEST"() {
+    def "query -source TEST TEST-NONAUTH -mB 193.4.0.0/16 within source TEST"() {
         when:
         databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST")
         databaseHelper.addObjectToSource("TEST", "route: 193.4.1.0/24\norigin: AS102\nsource: TEST-NONAUTH")
         databaseHelper.addObjectToSource("2-GRS", "route: 193.4.1.0/24\norigin: AS102\ndescr: prove is from 2GRS-source\nsource: 2GRS")
 
-        def response = query("--sources TEST,TEST-NONAUTH -mB 193.4.0.0/16")
+        def response = query("-source TEST,TEST-NONAUTH -mB 193.4.0.0/16")
         then:
         response =~ "Information related to '193.4.0.0/24AS103'"
         response =~ "route:          193.4.0.0/24\n" +

@@ -21,6 +21,7 @@ public interface SourceContext extends BasicSourceContext {
 
     boolean isAcl();
     boolean isMain();
+    boolean isOutOfRegion(String source);
 
     boolean isVirtual();
     boolean isVirtual(CIString ciString);

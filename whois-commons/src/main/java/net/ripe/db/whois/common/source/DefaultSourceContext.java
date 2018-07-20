@@ -251,6 +251,11 @@ public class DefaultSourceContext implements SourceContext {
         return getCurrentSource().getName().equals(mainSourceName);
     }
 
+    // source: NONAUTH are placed in RIPE source to represent object out of region
+    public boolean isOutOfRegion(String source) {
+        return source.equalsIgnoreCase(nonauthRipeSourceNameString);
+    }
+
     public boolean isVirtual() {
         return isVirtual(getCurrentSource().getName());
     }

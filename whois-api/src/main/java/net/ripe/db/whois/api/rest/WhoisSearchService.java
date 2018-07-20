@@ -19,7 +19,6 @@ import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -102,18 +101,15 @@ public class WhoisSearchService {
     private final AccessControlListManager accessControlListManager;
     private final RpslObjectStreamer rpslObjectStreamer;
     private final SourceContext sourceContext;
-    private final String nonAuthSource;
 
     @Autowired
     public WhoisSearchService(
             final AccessControlListManager accessControlListManager,
             final RpslObjectStreamer rpslObjectStreamer,
-            final SourceContext sourceContext,
-            @Value("${whois.nonauth.source}") final String nonAuthSource) {
+            final SourceContext sourceContext) {
         this.accessControlListManager = accessControlListManager;
         this.rpslObjectStreamer = rpslObjectStreamer;
         this.sourceContext = sourceContext;
-        this.nonAuthSource = nonAuthSource;
     }
 
     /**
@@ -218,9 +214,7 @@ public class WhoisSearchService {
 
     private void validateSources(final HttpServletRequest request, final Set<String> sources) {
         for (final String source : sources) {
-            // NONAUTH source object is in main source (RIPE source)
-            boolean isOutOfRegionSource = source.equalsIgnoreCase(nonAuthSource);
-            if (!isOutOfRegionSource && !sourceContext.getAllSourceNames().contains(ciString(source))) {
+            if (!sourceContext.isOutOfRegion(source) && !sourceContext.getAllSourceNames().contains(ciString(source))) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
                         .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSource(source)))
                         .build());
