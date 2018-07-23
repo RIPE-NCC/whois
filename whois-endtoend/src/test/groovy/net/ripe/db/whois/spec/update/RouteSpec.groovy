@@ -378,16 +378,11 @@ class RouteSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Unknown object referenced AS10000",
-                      "Authorisation for [route] 99.13.0.0/16AS10000 failed using \"origin:\" no valid maintainer found"
-              ]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
+        queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
 
     def "create child route, invalid inject address"() {
@@ -1309,15 +1304,11 @@ class RouteSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route6] 2001:600::/32AS300300" }
-        ack.errorMessagesFor("Create", "[route6] 2001:600::/32AS300300") ==
-              ["Unknown object referenced AS300300",
-                      "Authorisation for [route6] 2001:600::/32AS300300 failed using \"origin:\" no valid maintainer found"]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObjectNotFound("-rGBT route6 2001:600::/32", "route6", "2001:600::/32")
+        queryObject("-rGBT route6 2001:600::/32", "route6", "2001:600::/32")
     }
 
 }

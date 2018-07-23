@@ -304,8 +304,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         def responseRoute = syncUpdate modifyRoute
 
       then:
-        responseRoute =~ /ERROR/
-        responseRoute =~ /Unknown object referenced AS12726/
+        responseRoute =~ /SUCCESS/
     }
 
     def "modify route noop"() {
@@ -344,7 +343,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /Create FAILED: \[route\] 212.166.64.0\/19AS99999/
         response =~ /Authorisation for \[route\] 212.166.64.0\/19AS99999 failed/
-        response =~ /using "origin:"/
+        response =~ /using "route:"/
     }
 
     def "create route aut-num with mnt-by authentication"() {
@@ -574,9 +573,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Authorisation for \[route\] 180.0.0.0\/16AS123 failed
             using "mnt-by:"
             not authenticated by: TEST-MNT/
-        response =~ /Authorisation for \[aut-num\] AS123 failed
-            using "mnt-by:"
-            not authenticated by: TEST-MNT/
     }
 
     def "create route ipaddress exact match mnt-routes authentication inetnum"() {
@@ -633,10 +629,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /FAIL/
         response =~ /Authorisation for \[route\] 195.0.0.0\/24AS123 failed
-            using "mnt-by:"
-            not authenticated by: TEST-MNT/
-
-        response =~ /Authorisation for \[aut-num\] AS123 failed
             using "mnt-by:"
             not authenticated by: TEST-MNT/
 
@@ -719,10 +711,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /FAIL/
         response =~ /Authorisation for \[route\] 194.0.0.0\/28AS123 failed
-            using "mnt-by:"
-            not authenticated by: TEST-MNT/
-
-        response =~ /Authorisation for \[aut-num\] AS123 failed
             using "mnt-by:"
             not authenticated by: TEST-MNT/
 
