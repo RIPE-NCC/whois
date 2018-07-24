@@ -36,12 +36,13 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 
 @Component
 public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
-    private final AttributeGenerator[] attributeGenerators;
+    private final List<AttributeGenerator> attributeGenerators;
     private final Transformer[] transformers;
     private final RpslObjectDao rpslObjectDao;
     private final UpdateLockDao updateLockDao;
@@ -58,7 +59,7 @@ public class SingleUpdateHandler {
     private CIString nonAuthSource;
 
     @Autowired
-    public SingleUpdateHandler(final AttributeGenerator[] attributeGenerators,
+    public SingleUpdateHandler(final List<AttributeGenerator> attributeGenerators,
                                final Transformer[] transformers,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
@@ -69,6 +70,8 @@ public class SingleUpdateHandler {
                                final PendingUpdateHandler pendingUpdateHandler,
                                final SsoTranslator ssoTranslator) {
         this.attributeGenerators = attributeGenerators;
+        // sort AttributeGenerators so they are executed in a predictable order
+        this.attributeGenerators.sort((lhs, rhs) -> lhs.getClass().getName().compareToIgnoreCase(rhs.getClass().getName()));
         this.transformers = transformers;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
