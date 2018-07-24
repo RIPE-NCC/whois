@@ -2042,9 +2042,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             final WhoisResources whoisResources = RestTest.mapClientException(e);
-            RestTest.assertErrorCount(whoisResources, 2);
-            RestTest.assertErrorMessage(whoisResources, 0, "Error", "Unrecognized source: %s", "RIPE");
-            RestTest.assertErrorMessage(whoisResources, 1, "Error", "\"%s\" is not valid for this object type", "admin-c");
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "\"%s\" is not valid for this object type", "admin-c");
         }
     }
 

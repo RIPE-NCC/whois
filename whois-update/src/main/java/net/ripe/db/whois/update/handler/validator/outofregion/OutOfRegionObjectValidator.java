@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.handler.validator.outofregion;
 
 import com.google.common.collect.ImmutableList;
+
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -9,7 +11,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.util.OutOfRegionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,11 +24,11 @@ public class OutOfRegionObjectValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(AUT_NUM, ROUTE, ROUTE6);
 
-    private final OutOfRegionUtil outOfRegionUtil;
+    private final AuthoritativeResourceData authoritativeResourceData;
 
     @Autowired
-    public OutOfRegionObjectValidator(final OutOfRegionUtil outOfRegionUtil) {
-        this.outOfRegionUtil = outOfRegionUtil;
+    public OutOfRegionObjectValidator(final AuthoritativeResourceData authoritativeResourceData) {
+        this.authoritativeResourceData = authoritativeResourceData;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class OutOfRegionObjectValidator implements BusinessRuleValidator {
             return;
         }
 
-        if (!outOfRegionUtil.isMaintainedInRirSpace(updatedObject)) {
+        if (!authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject)) {
             if (!(updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER) || updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER))) {
                 updateContext.addMessage(update, UpdateMessages.cannotCreateOutOfRegionObject(updatedObject.getType()));
             }

@@ -894,8 +894,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS94967295" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS94967295") ==
+              ["Object has wrong source, should be TEST-NONAUTH"]
 
         queryObject("-rGBT aut-num AS94967295", "aut-num", "AS94967295")
     }
@@ -932,8 +934,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS4294967295" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS4294967295") ==
+              ["Object has wrong source, should be TEST-NONAUTH"]
 
         queryObject("-rGBT aut-num AS4294967295", "aut-num", "AS4294967295")
     }
@@ -974,8 +978,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS65535" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS65535") ==
+            ["Object has wrong source, should be TEST-NONAUTH"]
 
         queryObject("-rGBT aut-num AS65535", "aut-num", "AS65535")
     }
@@ -1016,8 +1022,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] As0" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] As0") ==
+              ["Object has wrong source, should be TEST-NONAUTH"]
 
         queryObject("-rGBT aut-num As0", "aut-num", "As0")
     }
@@ -2590,8 +2598,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS702" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS702") ==
+              ["Object has wrong source, should be TEST-NONAUTH"]
 
         queryObject("-rBG -T aut-num AS702", "aut-num", "AS702")
     }
@@ -2674,8 +2684,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS260" }
+            ack.warningSuccessMessagesFor("Create", "[aut-num] AS260") ==
+                ["Object has wrong source, should be TEST-NONAUTH"]
 
             query_object_matches("-rBG -T aut-num AS260", "aut-num", "AS260", "status:\\s*OTHER")
     }
@@ -2938,187 +2950,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     }
 
 
-    def "create aut-num, apnic as-block, with mnt-by LIR, status ASSIGNED, LIR pw, not on legacy list"() {
-        given:
-        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
-
-        expect:
-        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
-        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                aut-num:        AS444
-                as-name:        End-User-1
-                descr:          description
-                status:         ASSIGNED
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-OTO1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
-                source:         TEST
-
-                password:   lir
-                password:   rpsl
-                password:   owner3
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
-        ack.warningSuccessMessagesFor("Create", "[aut-num] AS444") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
-
-        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
-    }
-
-    def "create aut-num, apnic as-block, with mnt-by LIR, no status, LIR pw, not on legacy list"() {
-        given:
-        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
-
-        expect:
-        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
-        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                aut-num:        AS444
-                as-name:        End-User-1
-                descr:          description
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-OTO1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
-                source:         TEST
-
-                password:   lir
-                password:   rpsl
-                password:   owner3
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
-
-        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
-    }
-
-
-    def "create aut-num, apnic as-block, with mnt-by LIR, status LEGACY, LIR pw, not on legacy list"() {
-        given:
-        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
-
-        expect:
-        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
-        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                aut-num:        AS444
-                as-name:        End-User-1
-                descr:          description
-                status:         LEGACY
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-OTO1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
-                source:         TEST
-
-                password:   lir
-                password:   rpsl
-                password:   owner3
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
-        ack.warningSuccessMessagesFor("Create", "[aut-num] AS444") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
-
-        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
-    }
-
-    def "create aut-num, apnic as-block, with mnt-by LIR, status OTHER, LIR pw, not on legacy list"() {
-        given:
-        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
-
-        expect:
-        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
-        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                aut-num:        AS444
-                as-name:        End-User-1
-                descr:          description
-                status:         OTHER
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-OTO1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
-                source:         TEST
-
-                password:   lir
-                password:   rpsl
-                password:   owner3
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
-
-        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
-    }
-
-
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3374,10 +3205,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
-                ["\"status:\" attribute cannot be removed"]
+                ["\"status:\" attribute cannot be removed","Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
@@ -3417,10 +3248,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
-                ["\"status:\" attribute cannot be removed"]
+                ["\"status:\" attribute cannot be removed", "Object has wrong source, should be TEST-NONAUTH"]
 
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
@@ -3833,10 +3664,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS445" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS445") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                "Object has wrong source, should be TEST-NONAUTH"]
 
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
@@ -3876,10 +3708,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS445" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS445") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                "Object has wrong source, should be TEST-NONAUTH"]
 
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
@@ -4017,10 +3850,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
@@ -4063,10 +3897,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
+                ["Supplied attribute 'status' has been replaced with a generated value",
+                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }

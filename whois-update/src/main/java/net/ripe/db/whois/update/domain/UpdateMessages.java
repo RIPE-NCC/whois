@@ -170,12 +170,20 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Reserved name used");
     }
 
+    public static Message reservedNameUsed(final CharSequence name) {
+        return new Message(Type.ERROR, "Reserved name '%s' used", name);
+    }
+
+    public static Message reservedPrefixUsed(final CharSequence prefix, final ObjectType type) {
+        return new Message(Type.ERROR, "Names starting with '%s' are reserved for '%s'.", prefix, type.getName());
+    }
+
     // NOTE: this errormessage is being used by webupdates.
     public static Message newKeywordAndObjectExists() {
         return new Message(Type.ERROR, "Enforced new keyword specified, but the object already exists in the database");
     }
 
-    public static Message invalidMaintainerForOrganisationType(CharSequence orgType) {
+    public static Message invalidMaintainerForOrganisationType(final CharSequence orgType) {
         return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
     }
 
