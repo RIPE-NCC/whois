@@ -11,6 +11,7 @@ INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS250');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS251');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS300');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS333');
+INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS400');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS456');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS650');
 INSERT INTO authoritative_resource (source, resource) VALUES ('test', 'AS789');

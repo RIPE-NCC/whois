@@ -71,7 +71,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
       given:
 
       expect:
-        queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
+      queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
 
       when:
         def message = send new Message(
