@@ -55,9 +55,6 @@ public class UpdateNotifier {
         this.maintainers = maintainers;
     }
 
-    // add notification to origin aut-num on successful creation of route/route6 object
-
-
     public void sendNotifications(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         if (updateContext.isDryRun()) {
             return;
