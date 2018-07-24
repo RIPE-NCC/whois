@@ -511,8 +511,7 @@ public enum AttributeType implements Documented {
     ORIGIN(new Builder("origin", "or")
             .doc("Specifies the AS that originates the route." +
                     "The corresponding aut-num object should be registered in the database.")
-            .syntax(AS_NUMBER_SYNTAX)
-            .references(ObjectType.AUT_NUM)),
+            .syntax(AS_NUMBER_SYNTAX)),
 
     OWNER(new Builder("owner", "ow")
             .doc("Specifies the owner of the public key.")
