@@ -2,12 +2,12 @@ package net.ripe.db.whois.update.generator;
 
 import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.util.OutOfRegionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,16 +18,16 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.SOURCE;
 @Component
 public class SourceGenerator extends AttributeGenerator {
 
-    private final OutOfRegionUtil outOfRegionUtil;
+    private final AuthoritativeResourceData authoritativeResourceData;
 
     private final CIString source;
     private final CIString nonAuthSource;
 
     @Autowired
-    public SourceGenerator(final OutOfRegionUtil outOfRegionUtil,
+    public SourceGenerator(final AuthoritativeResourceData authoritativeResourceData,
                            @Value("${whois.source}") final String source,
                            @Value("${whois.nonauth.source}") final String nonAuthSource) {
-        this.outOfRegionUtil = outOfRegionUtil;
+        this.authoritativeResourceData = authoritativeResourceData;
         this.source = ciString(source);
         this.nonAuthSource = ciString(nonAuthSource);
     }
@@ -51,7 +51,7 @@ public class SourceGenerator extends AttributeGenerator {
             return updatedObject;
         }
 
-        boolean outOfRegion = !outOfRegionUtil.isMaintainedInRirSpace(updatedObject);
+        boolean outOfRegion = !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject);
         final CIString source = updatedObject.getValueForAttribute(SOURCE);
 
         if (outOfRegion && source.equals(this.source)) {

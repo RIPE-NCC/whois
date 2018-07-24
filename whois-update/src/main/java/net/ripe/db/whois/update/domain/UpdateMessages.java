@@ -170,12 +170,20 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Reserved name used");
     }
 
+    public static Message reservedNameUsed(final CharSequence name) {
+        return new Message(Type.ERROR, "Reserved name '%s' used", name);
+    }
+
+    public static Message reservedPrefixUsed(final CharSequence prefix, final ObjectType type) {
+        return new Message(Type.ERROR, "Names starting with '%s' are reserved for '%s'.", prefix, type.getName());
+    }
+
     // NOTE: this errormessage is being used by webupdates.
     public static Message newKeywordAndObjectExists() {
         return new Message(Type.ERROR, "Enforced new keyword specified, but the object already exists in the database");
     }
 
-    public static Message invalidMaintainerForOrganisationType(CharSequence orgType) {
+    public static Message invalidMaintainerForOrganisationType(final CharSequence orgType) {
         return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
     }
 
@@ -485,20 +493,20 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Cannot create out of region %s objects", objectType.getName());
     }
 
-    public static Message cannotUseReservedAsNumber(final Long asNumber) {
-        return new Message(Type.ERROR, "Cannot use reserved AS number %d", asNumber);
-    }
-
-    public static Message autnumNotFound(final Long asNumber) {
-        return new Message(Type.WARNING, "Specified origin AS number %d doesn't exist in the RIPE database", asNumber);
-    }
-
     public static Message sourceNotAllowed(final ObjectType objectType, final CharSequence source) {
         return new Message(Type.ERROR, "Source %s is not allowed for %s objects", source, objectType.getName());
     }
 
     public static Message wrongOutOfRegionSource(final CharSequence expectedSource) {
         return new Message(Type.WARNING, "Object has wrong source, should be %s", expectedSource);
+    }
+
+    public static Message cannotUseReservedAsNumber(final Long asNumber) {
+        return new Message(Type.ERROR, "Cannot use reserved AS number %d", asNumber);
+    }
+
+    public static Message autnumNotFound(final Long asNumber) {
+        return new Message(Type.WARNING, "Specified origin AS number %d doesn't exist in the RIPE database", asNumber);
     }
 
     public static Message messageSignedMoreThanOneWeekAgo() {

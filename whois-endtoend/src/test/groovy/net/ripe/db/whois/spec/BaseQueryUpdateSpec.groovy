@@ -45,6 +45,10 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
         BasicFixtures.basicFixtures
     }
 
+    /**
+     * Override this method to return a list of test case specific authoritative resources.
+     * @return list of authoritative resources
+     */
     List<String> getAuthoritativeResources() {
         Lists.newArrayList();
     }
@@ -59,6 +63,7 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
 
     private void allAuthoritativeResources() {
         if (!getAuthoritativeResources().isEmpty()) {
+            // if authoritative resources for this test case have been specified clear the existing ones and add the test case specific ones
             getAuthoritativeResourceDao().delete("test", "0.0.0.0/0")
             getAuthoritativeResourceDao().delete("test", "::/0")
             getAuthoritativeResources().forEach(new Consumer<String>() {
