@@ -61,8 +61,10 @@ public class SourceValidator implements BusinessRuleValidator {
                 updateContext.addMessage(update, UpdateMessages.sourceNotAllowed(updatedObject.getType(), source));
             }
         } else {
+            boolean outOfRegion = updatedObject.getType() == ROUTE || updatedObject.getType() == ROUTE6?
+                    !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(updatedObject) :
+                    !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject);
 
-            boolean outOfRegion = !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject);
             boolean rsOrOverride = updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER) || updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
 
             if (outOfRegion && rsOrOverride && this.source.equals(source)) {
