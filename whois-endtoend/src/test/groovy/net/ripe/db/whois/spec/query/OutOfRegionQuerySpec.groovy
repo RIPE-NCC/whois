@@ -1,4 +1,4 @@
-package net.ripe.db.whois.spec.update
+package net.ripe.db.whois.spec.query
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
@@ -10,7 +10,7 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
     def setupSpec() {
         DatabaseHelper.setupDatabase()
         DatabaseHelper.addGrsDatabases("1-GRS", "2-GRS", "3-GRS")
-        whoisFixture.start();
+        BaseEndToEndSpec.whoisFixture.start();
     }
 
     /*
@@ -38,7 +38,7 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
     /*
     *  If both sources are defined both "source: RIPE" and “source: RIPE-NONAUTH” ROUTE(6) objects are returned.
     * */
-    def "query -source TEST TEST-NONAUTH -mB 193.4.0.0/16 within source TEST"() {
+    def "query -source TEST,TEST-NONAUTH -mB 193.4.0.0/16 within source TEST"() {
         when:
         databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST")
         databaseHelper.addObjectToSource("TEST", "route: 193.4.1.0/24\norigin: AS102\nsource: TEST-NONAUTH")
@@ -103,19 +103,22 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
 
         def response = query("--resource -mB 193.4.0.0/16")
         then:
-        response =~ "Information related to '193.4.0.0/24AS103'"
-        response =~ "route:          193.4.0.0/24\n" +
-                    "origin:         AS103\n" +
-                    "source:         TEST"
-        response =~ "Information related to '193.4.1.0/24AS102'"
-        response =~ "route:          193.4.1.0/24\n" +
-                    "origin:         AS102\n" +
-                    "source:         TEST-NONAUTH"
-        response =~ "Information related to '193.4.1.0/24AS102"
-        response =~ "route:          193.4.1.0/24\n" +
-                    "origin:         AS102\n" +
-                    "descr:          prove is from 2GRS-source\n" +
-                    "source:         2GRS"
+        response.contains(
+                "% Information related to '193.4.0.0/24AS103'\n" +
+                "\n" +
+                "route:          193.4.0.0/24\n" +
+                "origin:         AS103\n" +
+                "source:         TEST\n" +
+                "\n" +
+                "% Information related to '193.4.1.0/24AS102'\n" +
+                "\n" +
+                "route:          193.4.1.0/24\n" +
+                "origin:         AS102\n" +
+                "descr:          prove is from 2GRS-source\n" +
+                "source:         2GRS\n" +
+                "\n" +
+                "% This query was served by the RIPE Database Query Service version 0.1-ENDTOEND (DHCP-21-92)"
+        )
     }
 
     def "query --resource AS1000 match in GRS"() {
