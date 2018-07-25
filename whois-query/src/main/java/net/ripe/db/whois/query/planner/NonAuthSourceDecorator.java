@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.executor.decorators.ResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,10 @@ class NonAuthSourceDecorator implements ResponseDecorator {
 
     @Override
     public Iterable<? extends ResponseObject> decorate(Query query, Iterable<? extends ResponseObject> input) {
-
-          if (!query.getSources().containsAll(ripeAuthAndNonauthSources)) {
+            // if --resources flag then filter out any NONAUTH objects
+        if (query.hasOption(QueryFlag.RESOURCE)) {
+            return filteroutResources(input, CIString.ciString(nonAuthSource));
+        } else if (!query.getSources().containsAll(ripeAuthAndNonauthSources)) {
             if (query.getSources().contains(nonAuthSource)) {
                 return filteroutResources(input, CIString.ciString(source));
             } else if (query.getSources().contains(source)) {
@@ -43,7 +46,15 @@ class NonAuthSourceDecorator implements ResponseDecorator {
 
     private Iterable<? extends ResponseObject> filteroutResources(Iterable<? extends ResponseObject> input, CIString source) {
         List<? extends ResponseObject> filteredResponse = Lists.newArrayList(input);
-        filteredResponse.removeIf(obj -> obj instanceof RpslObject && ((RpslObject) obj).getValueForAttribute(AttributeType.SOURCE).equals(source));
+        List<ResponseObject> listResponsesToRemove = Lists.newArrayList();
+        for (int i = 0; i < filteredResponse.size(); i++) {
+            ResponseObject obj = filteredResponse.get(i);
+            if (obj instanceof RpslObject && ((RpslObject) obj).getValueForAttribute(AttributeType.SOURCE).equals(source)) {
+                listResponsesToRemove.add(filteredResponse.get(i-1));
+                listResponsesToRemove.add(obj);
+            }
+        }
+        filteredResponse.removeAll(listResponsesToRemove);
         return filteredResponse;
     }
 }

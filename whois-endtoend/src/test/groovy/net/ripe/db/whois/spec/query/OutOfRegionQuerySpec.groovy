@@ -95,35 +95,49 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
     /*
     * For queries with the "resources" flag, don't return out of region objects from RIPE-NONAUTH' but from the GRS database
     * */
-    def "query --resource -mB 193.4.0.0/16 within source 2-GRS"() {
+    def "query --resource 193.4.1.0/24 within source 2-GRS"() {
         when:
         databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST")
         databaseHelper.addObjectToSource("TEST", "route: 193.4.1.0/24\norigin: AS102\nsource: TEST-NONAUTH")
         databaseHelper.addObjectToSource("2-GRS", "route: 193.4.1.0/24\norigin: AS102\ndescr: prove is from 2GRS-source\nsource: 2GRS")
 
-        def response = query("--resource -mB 193.4.0.0/16")
+        def response = query("--resource 193.4.1.0/24")
         then:
         response.contains(
-                "% Information related to '193.4.0.0/24AS103'\n" +
-                "\n" +
-                "route:          193.4.0.0/24\n" +
-                "origin:         AS103\n" +
-                "source:         TEST\n" +
-                "\n" +
                 "% Information related to '193.4.1.0/24AS102'\n" +
                 "\n" +
                 "route:          193.4.1.0/24\n" +
                 "origin:         AS102\n" +
                 "descr:          prove is from 2GRS-source\n" +
-                "source:         2GRS\n" +
-                "\n" +
-                "% This query was served by the RIPE Database Query Service version 0.1-ENDTOEND (DHCP-21-92)"
+                "source:         2GRS\n"
         )
+    }
+
+    /*
+    * For queries with the "resources" flag, don't return out of region objects from RIPE-NONAUTH' but from the GRS database
+    * */
+    def "query --resource 193.4.0.0/23 within source 2-GRS"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST")
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.1.0/24\norigin: AS102\nsource: TEST-NONAUTH")
+        databaseHelper.addObjectToSource("2-GRS", "route: 193.4.1.0/24\norigin: AS102\ndescr: prove is from 2GRS-source\nsource: 2GRS")
+
+        def response = query("--resource -mB 193.4.0.0/23")
+        then:
+        response =~ "Information related to '193.4.0.0/24AS103"
+        response =~ "source:         TEST"
+        response !=~ "source:         TEST-NONAUTH"
+        response =~ "Information related to '193.4.1.0/24AS102"
+        response =~ "route:          193.4.1.0/24\n" +
+                    "origin:         AS102\n" +
+                    "descr:          prove is from 2GRS-source\n" +
+                    "source:         2GRS"
+//>>>>>>> Stashed changes:whois-endtoend/src/test/groovy/net/ripe/db/whois/spec/update/OutOfRegionQuerySpec.groovy
     }
 
     def "query --resource AS1000 match in GRS"() {
         when:
-        databaseHelper.addObjectToSource("1-GRS", "aut-num: AS1000\nsource: TEST-NONAUTH")
+        databaseHelper.addObjectToSource("1-GRS", "aut-num: AS1000\nsource: 1-GRS")
         databaseHelper.addObjectToSource("2-GRS", "aut-num: AS10")
         databaseHelper.addObjectToSource("3-GRS", "aut-num: AS100")
         databaseHelper.addObjectToSource("TEST", "aut-num: AS1000\ndescr: prove is from TEST-source\nsource: TEST-NONAUTH")
