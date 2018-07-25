@@ -73,7 +73,14 @@ public class AuthoritativeResource {
     }
 
     public boolean isMaintainedInRirSpace(final RpslObject rpslObject) {
-        return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
+        switch (rpslObject.getType()) {
+            // for route(6)s we only check against the prefix, not the origin AS (which could be out of region)
+            case ROUTE:
+            case ROUTE6:
+                return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getTypeAttribute().getCleanValue());
+            default:
+                return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
+        }
     }
 
     public boolean isMaintainedInRirSpace(final ObjectType objectType, final CIString pkey) {
@@ -82,8 +89,10 @@ public class AuthoritativeResource {
                 case AUT_NUM:
                     return autNums.contains(parseAsn(pkey));
                 case INETNUM:
+                case ROUTE:
                     return inetRanges.contains(parseRangeOrSingleAddress(pkey));
                 case INET6NUM:
+                case ROUTE6: // we only check against the prefix, not the origin AS (which could be out of region)
                     return inet6Ranges.contains(parseIpv6(pkey));
                 default:
                     return true;
