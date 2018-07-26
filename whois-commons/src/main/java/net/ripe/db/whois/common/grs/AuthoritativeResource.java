@@ -14,6 +14,8 @@ import net.ripe.commons.ip.SortedRangeSet;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
+import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
@@ -25,6 +27,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
+
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 
 @Immutable
 public class AuthoritativeResource {
@@ -73,14 +78,7 @@ public class AuthoritativeResource {
     }
 
     public boolean isMaintainedInRirSpace(final RpslObject rpslObject) {
-        switch (rpslObject.getType()) {
-            // for route(6)s we only check against the prefix, not the origin AS (which could be out of region)
-            case ROUTE:
-            case ROUTE6:
-                return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getTypeAttribute().getCleanValue());
-            default:
-                return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
-        }
+        return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
     }
 
     public boolean isMaintainedInRirSpace(final ObjectType objectType, final CIString pkey) {
@@ -89,16 +87,39 @@ public class AuthoritativeResource {
                 case AUT_NUM:
                     return autNums.contains(parseAsn(pkey));
                 case INETNUM:
-                case ROUTE:
                     return inetRanges.contains(parseRangeOrSingleAddress(pkey));
                 case INET6NUM:
-                case ROUTE6: // we only check against the prefix, not the origin AS (which could be out of region)
                     return inet6Ranges.contains(parseIpv6(pkey));
                 default:
                     return true;
             }
         } catch (IllegalArgumentException ignored) {
             return false;
+        }
+    }
+
+    /**
+     * Is this route(6) maintained in this RIR space?
+     * We only consider the prefix, not the origin.
+     * @param rpslObject the route(6)
+     * @return true when route(6) is maintained in this RIR space
+     */
+    public boolean isRouteMaintainedInRirSpace(final RpslObject rpslObject) {
+        switch (rpslObject.getType()) {
+            case ROUTE:
+                return isMaintainedInRirSpace(
+                        INETNUM,
+                        // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
+                        ciString(Ipv4RouteEntry.parse(rpslObject.getKey().toString(), 0).getKey().toString())
+                );
+            case ROUTE6:
+                return isMaintainedInRirSpace(
+                        INETNUM,
+                        // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
+                        ciString(Ipv6RouteEntry.parse(rpslObject.getKey().toString(), 0).getKey().toString())
+                );
+            default:
+                throw new IllegalArgumentException(String.format("%s is not a route", rpslObject.getType()));
         }
     }
 

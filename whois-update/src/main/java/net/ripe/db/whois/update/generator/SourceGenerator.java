@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.common.rpsl.AttributeType.SOURCE;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
 
 @Component
 public class SourceGenerator extends AttributeGenerator {
@@ -51,7 +53,10 @@ public class SourceGenerator extends AttributeGenerator {
             return updatedObject;
         }
 
-        boolean outOfRegion = !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject);
+        boolean outOfRegion = updatedObject.getType() == ROUTE || updatedObject.getType() == ROUTE6?
+                !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(updatedObject) :
+                !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject);
+
         final CIString source = updatedObject.getValueForAttribute(SOURCE);
 
         if (outOfRegion && source.equals(this.source)) {

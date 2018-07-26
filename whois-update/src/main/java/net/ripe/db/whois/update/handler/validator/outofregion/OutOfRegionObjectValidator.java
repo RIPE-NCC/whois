@@ -47,7 +47,11 @@ public class OutOfRegionObjectValidator implements BusinessRuleValidator {
             return;
         }
 
-        if (!authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject)) {
+        boolean outOfRegion = updatedObject.getType() == ROUTE || updatedObject.getType() == ROUTE6?
+                !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(updatedObject) :
+                !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject);
+
+        if (outOfRegion) {
             if (!(updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER) || updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER))) {
                 updateContext.addMessage(update, UpdateMessages.cannotCreateOutOfRegionObject(updatedObject.getType()));
             }
