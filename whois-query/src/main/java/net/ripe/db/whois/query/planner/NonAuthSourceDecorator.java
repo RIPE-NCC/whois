@@ -6,12 +6,15 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.executor.decorators.ResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 @Component
@@ -46,15 +49,20 @@ class NonAuthSourceDecorator implements ResponseDecorator {
 
     private Iterable<? extends ResponseObject> filteroutResources(Iterable<? extends ResponseObject> input, CIString source) {
         List<? extends ResponseObject> filteredResponse = Lists.newArrayList(input);
-        List<ResponseObject> listResponsesToRemove = Lists.newArrayList();
-        for (int i = 0; i < filteredResponse.size(); i++) {
-            ResponseObject obj = filteredResponse.get(i);
-            if (obj instanceof RpslObject && ((RpslObject) obj).getValueForAttribute(AttributeType.SOURCE).equals(source)) {
-                listResponsesToRemove.add(filteredResponse.get(i-1));
-                listResponsesToRemove.add(obj);
+        Collections.reverse(filteredResponse);
+        Iterator iterator = filteredResponse.iterator();
+        while (iterator.hasNext()) {
+            iterator.next();
+            if (iterator instanceof RpslObject && ((RpslObject) iterator).getValueForAttribute(AttributeType.SOURCE).equals(source)) {
+                // remove Rpsl object
+                iterator.remove();
+                // remove message about object
+                if (iterator.next() instanceof MessageObject) {
+                    iterator.remove();
+                }
             }
         }
-        filteredResponse.removeAll(listResponsesToRemove);
+        Collections.reverse(filteredResponse);
         return filteredResponse;
     }
 }

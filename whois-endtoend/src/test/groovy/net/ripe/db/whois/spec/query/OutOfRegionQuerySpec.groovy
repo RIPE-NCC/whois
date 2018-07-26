@@ -132,7 +132,6 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
                     "origin:         AS102\n" +
                     "descr:          prove is from 2GRS-source\n" +
                     "source:         2GRS"
-//>>>>>>> Stashed changes:whois-endtoend/src/test/groovy/net/ripe/db/whois/spec/update/OutOfRegionQuerySpec.groovy
     }
 
     def "query --resource AS1000 match in GRS"() {
