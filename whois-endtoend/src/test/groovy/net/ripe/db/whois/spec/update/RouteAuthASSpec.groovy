@@ -44,7 +44,6 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      ORIGIN-MB-MNT
-                mnt-routes:  ORIGIN-MR-MNT
                 source:      TEST
                 """,
             "AS10000-LOW-ROUTES": """\
@@ -55,7 +54,6 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      ORIGIN-MB-MNT
                 mnt-lower:   ORIGIN-ML-MNT
-                mnt-routes:  ORIGIN-MR-MNT
                 source:      TEST
                 """,
             "ROUTE": """\
@@ -464,7 +462,6 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000-LOW-ROUTES") + "password: mb-origin\npassword: hm")
-        query_object_matches("-r -T aut-num AS10000", "aut-num", "AS10000", "mnt-routes:")
         syncUpdate(getTransient("ROUTE") + "password: mr-origin\npassword: mb-parent\npassword: mb-child")
         queryObject("-r -T route 99.13.0.0/16", "route", "99.13.0.0/16")
 
