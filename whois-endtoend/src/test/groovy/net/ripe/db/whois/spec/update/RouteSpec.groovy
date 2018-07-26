@@ -1348,7 +1348,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 body: """\
                 route:          99.13.0.0/16
                 descr:          Route
-                origin:         AS131072
+                origin:         AS12666
                 mnt-by:         CHILD-MB-MNT
                 source:         TEST
 
@@ -1364,8 +1364,8 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 1, 0)
-        ack.warningSuccessMessagesFor("Create", "[route] 99.13.0.0/16AS131072") ==
-                ["Specified origin AS number 131072 doesn't exist in the RIPE database"]
+        ack.warningSuccessMessagesFor("Create", "[route] 99.13.0.0/16AS12666") ==
+                ["Specified origin AS number 12666 is allocated to the RIPE region but doesn't exist in the RIPE database"]
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }

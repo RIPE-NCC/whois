@@ -505,8 +505,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Cannot use reserved AS number %d", asNumber);
     }
 
-    public static Message autnumNotFound(final Long asNumber) {
-        return new Message(Type.WARNING, "Specified origin AS number %d doesn't exist in the RIPE database", asNumber);
+    public static Message autnumNotFoundInDatabase(final Long asNumber) {
+        return new Message(Type.WARNING, "Specified origin AS number %d is allocated to the RIPE region but doesn't exist in the RIPE database", asNumber);
     }
 
     public static Message messageSignedMoreThanOneWeekAgo() {

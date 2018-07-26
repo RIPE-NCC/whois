@@ -3,6 +3,8 @@ package net.ripe.db.whois.update.handler.validator.route;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -28,11 +30,14 @@ public class OriginValidator implements BusinessRuleValidator {
     private final List<LongRange> reservedAsnumbers;
 
     private final RpslObjectDao rpslObjectDao;
+    private final AuthoritativeResourceData authoritativeResourceData;
 
     @Autowired
     public OriginValidator(final RpslObjectDao rpslObjectDao,
-                           @Value("${whois.reserved.as.numbers}") final String reservedAsNumbers) {
+                           @Value("${whois.reserved.as.numbers}") final String reservedAsNumbers,
+                           final AuthoritativeResourceData authoritativeResourceData) {
         this.rpslObjectDao = rpslObjectDao;
+        this.authoritativeResourceData = authoritativeResourceData;
         this.reservedAsnumbers = parseReservedAsNumbers(reservedAsNumbers);
     }
 
@@ -53,12 +58,14 @@ public class OriginValidator implements BusinessRuleValidator {
             return;
         }
 
-        AutNum autnum = AutNum.parse(updatedObject.getValueForAttribute(AttributeType.ORIGIN));
+        final CIString autnumKey = updatedObject.getValueForAttribute(AttributeType.ORIGIN);
+        AutNum autnum = AutNum.parse(autnumKey);
 
         if (isReservedAsNumber(autnum.getValue())) {
             updateContext.addMessage(update, UpdateMessages.cannotUseReservedAsNumber(autnum.getValue()));
-        } else if (rpslObjectDao.findByKeyOrNull(ObjectType.AUT_NUM, updatedObject.getValueForAttribute(AttributeType.ORIGIN)) == null) {
-            updateContext.addMessage(update, UpdateMessages.autnumNotFound(autnum.getValue()));
+        } else if (authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(ObjectType.AUT_NUM, autnumKey) &&
+                   rpslObjectDao.findByKeyOrNull(ObjectType.AUT_NUM, autnumKey) == null) {
+            updateContext.addMessage(update, UpdateMessages.autnumNotFoundInDatabase(autnum.getValue()));
         }
     }
 
