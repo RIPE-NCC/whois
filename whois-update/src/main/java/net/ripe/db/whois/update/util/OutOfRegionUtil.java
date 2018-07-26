@@ -3,6 +3,9 @@ package net.ripe.db.whois.update.util;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
+import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +40,15 @@ public class OutOfRegionUtil {
             default:
                 return authoritativeResource.isMaintainedInRirSpace(rpslObject);
         }
+    }
+
+    public boolean isRouteMaintainedInRirSpace(final Ipv4RouteEntry routeEntry) {
+        final RpslObject parse;
+
+            final String input = ObjectType.ROUTE.getName() + ": " + routeEntry.getKey().toString()+ "\n" +
+                    "origin: "+routeEntry.getOrigin();
+            parse = RpslObject.parse(input);
+        return this.isMaintainedInRirSpace(parse);
     }
 
 }

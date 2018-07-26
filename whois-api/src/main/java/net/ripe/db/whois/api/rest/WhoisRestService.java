@@ -1,11 +1,13 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.InetAddresses;
+import com.sun.net.httpserver.Headers;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -19,6 +21,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
+import net.ripe.db.whois.update.util.OutOfRegionUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,6 +32,7 @@ import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -39,6 +43,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.List;
 
 import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
@@ -57,6 +62,7 @@ public class WhoisRestService {
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
     private final LoggerContext loggerContext;
+    private final OutOfRegionUtil outOfRegionUtil;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -66,7 +72,8 @@ public class WhoisRestService {
                             final WhoisObjectMapper whoisObjectMapper,
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
-                            final LoggerContext loggerContext) {
+                            final LoggerContext loggerContext,
+                            final OutOfRegionUtil outOfRegionUtil) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectStreamer = rpslObjectStreamer;
         this.sourceContext = sourceContext;
@@ -75,6 +82,7 @@ public class WhoisRestService {
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
         this.loggerContext = loggerContext;
+        this.outOfRegionUtil = outOfRegionUtil;
     }
 
     @DELETE
@@ -260,6 +268,11 @@ public class WhoisRestService {
                     .build());
         }
 
+        if(sourceContext.getCurrentSource().equals(sourceContext.getWhoisMasterSource())
+                && !outOfRegionUtil.isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0))) {
+            return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key);
+        }
+
         final QueryBuilder queryBuilder = new QueryBuilder().
                 addFlag(QueryFlag.EXACT).
                 addFlag(QueryFlag.NO_GROUPING).
@@ -284,6 +297,17 @@ public class WhoisRestService {
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }
+    }
+
+    private Response redirect(final String context, final String source, final String objectType, final String pkey) {
+
+
+        final URI uri = URI.create(String.format("%s/%s/%s/%s",
+                context,
+                source,
+                objectType, pkey));
+        return Response.seeOther(uri).build();
+
     }
 
     private boolean isTrusted(final HttpServletRequest request) {
