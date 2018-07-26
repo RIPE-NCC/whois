@@ -763,9 +763,13 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
             if (attributeType == null) {
                 objectMessages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
             } else {
-                if (AttributeType.CHANGED.equals(attributeType)) {
+                if (attributeType == AttributeType.CHANGED) {
                     continue;
                 }
+                if ((rpslObject.getType() == ObjectType.AUT_NUM) && (attributeType == MNT_ROUTES)) {
+                    continue;
+                }
+
                 final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
                 if (attributeTemplate == null) {
                     objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
