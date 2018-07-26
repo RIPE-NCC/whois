@@ -501,6 +501,14 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Object has wrong source, should be %s", expectedSource);
     }
 
+    public static Message cannotUseReservedAsNumber(final Long asNumber) {
+        return new Message(Type.ERROR, "Cannot use reserved AS number %d", asNumber);
+    }
+
+    public static Message autnumNotFoundInDatabase(final Long asNumber) {
+        return new Message(Type.WARNING, "Specified origin AS number %d is allocated to the RIPE region but doesn't exist in the RIPE database", asNumber);
+    }
+
     public static Message messageSignedMoreThanOneWeekAgo() {
         return new Message(Type.WARNING, "Message was signed more than one week ago");
     }

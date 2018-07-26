@@ -952,7 +952,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 1, 0)
         ack.warningSuccessMessagesFor("Create", "[route] 10.1.0.0/16AS252") ==
-                ["Supplied attribute 'source' has been replaced with a generated value"]
+            [ "Supplied attribute 'source' has been replaced with a generated value" ]
 
         queryObject("-rGBT route 10.1.0.0/16", "route", "10.1.0.0/16")
     }
@@ -980,7 +980,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 1, 0)
         ack.warningSuccessMessagesFor("Create", "[route] 10.2.0.0/16AS252") ==
-                ["Object has wrong source, should be TEST"]
+            [ "Object has wrong source, should be TEST" ]
 
         queryObject("-rGBT route 10.2.0.0/16", "route", "10.2.0.0/16")
     }

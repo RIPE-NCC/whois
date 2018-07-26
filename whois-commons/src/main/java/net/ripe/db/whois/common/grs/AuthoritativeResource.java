@@ -29,11 +29,12 @@ import java.util.Scanner;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 
 @Immutable
 public class AuthoritativeResource {
-    private static final Set<ObjectType> RESOURCE_TYPES = Sets.newEnumSet(Lists.newArrayList(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM), ObjectType.class);
+    private static final Set<ObjectType> RESOURCE_TYPES = Sets.newEnumSet(Lists.newArrayList(ObjectType.AUT_NUM, ObjectType.INETNUM, INET6NUM), ObjectType.class);
 
     private final SortedRangeSet<Asn, AsnRange> autNums;
     private final SortedRangeSet<Ipv4, Ipv4Range> inetRanges;
@@ -114,7 +115,7 @@ public class AuthoritativeResource {
                 );
             case ROUTE6:
                 return isMaintainedInRirSpace(
-                        INETNUM,
+                        INET6NUM,
                         // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
                         ciString(Ipv6RouteEntry.parse(rpslObject.getKey().toString(), 0).getKey().toString())
                 );
