@@ -1,8 +1,11 @@
 package net.ripe.db.whois.spec.query
 
+import com.google.common.collect.Sets
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
+import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseEndToEndSpec
+import net.ripe.db.whois.spec.BasicFixtures
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class OutOfRegionQuerySpec extends BaseEndToEndSpec {
@@ -10,12 +13,19 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
     def setupSpec() {
         DatabaseHelper.setupDatabase()
         DatabaseHelper.addGrsDatabases("1-GRS", "2-GRS", "3-GRS")
-        BaseEndToEndSpec.whoisFixture.start();
+        whoisFixture.start();
+    }
+
+    def setup () {
+        def rpslObjects = Sets.newHashSet();
+        rpslObjects.addAll(BasicFixtures.basicFixtures.values().collect { RpslObject.parse(it.stripIndent()) })
+        getDatabaseHelper().addObjects(rpslObjects)
     }
 
     /*
     *  If no source is defined (the default) both "source: RIPE" and “source: RIPE-NONAUTH” ROUTE(6) objects are returned.
     * */
+    // J23
     def "query -mB 193.4.0.0/16 without specified source"() {
         when:
         databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST")
@@ -55,6 +65,233 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
                     "origin:         AS102\n" +
                     "source:         TEST-NONAUTH"
         response !=~ "descr: prove is from 2GRS-source"
+    }
+
+    def "query autnum in TEST, not return NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST",
+            RpslObject.parse(
+                "aut-num:        AS100\n" +
+                "status:         OTHER\n" +
+                "org:            ORG-OTO1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         LIR-MNT\n" +
+                "source:         TEST-NONAUTH"
+            )
+        )
+
+        def response = query("-source TEST AS100")
+        then:
+        !response.contains("% Information related to 'AS100'")
+        !response.contains("% No abuse contact registered for AS100")
+        !response.contains("organisation:   ORG-OTO1-TEST")
+        !response.contains("person:         Test Person")
+    }
+
+    def "query autnum in TEST-NONAUTH, not return TEST"() {
+        when:
+        databaseHelper.addObjectToSource("TEST",
+            RpslObject.parse(
+                "aut-num:        AS100\n" +
+                "status:         OTHER\n" +
+                "org:            ORG-OTO1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         LIR-MNT\n" +
+                "source:         TEST"
+            )
+        )
+
+        def response = query("-source TEST-NONAUTH AS100")
+        then:
+        !response.contains("% Information related to 'AS100'")
+        !response.contains("% No abuse contact registered for AS100")
+        response.contains("%ERROR:101: no entries found")
+        response.contains("% No entries found in source TEST-NONAUTH.")
+    }
+
+    def "query autnum in TEST-NONAUTH, return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST",
+            RpslObject.parse(
+                "aut-num:        AS100\n" +
+                "status:         OTHER\n" +
+                "org:            ORG-OTO1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         LIR-MNT\n" +
+                "source:         TEST-NONAUTH"
+            )
+        )
+
+        def response = query("-source TEST-NONAUTH AS100")
+        then:
+        response.contains("% Information related to 'AS100'")
+        response.contains("% No abuse contact registered for AS100")
+        response.contains("organisation:   ORG-OTO1-TEST")
+        response.contains("person:         Test Person")
+    }
+
+    def "query autnum in TEST and TEST-NONAUTH, return TEST"() {
+        when:
+        databaseHelper.addObjectToSource("TEST",
+            RpslObject.parse(
+                "aut-num:        AS100\n" +
+                "status:         OTHER\n" +
+                "org:            ORG-OTO1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         LIR-MNT\n" +
+                "source:         TEST"
+            )
+        )
+
+        def response = query("AS100")
+        then:
+        response.contains("% Information related to 'AS100'")
+        response.contains("% No abuse contact registered for AS100")
+        response.contains("aut-num:        AS100")
+        response.contains("organisation:   ORG-OTO1-TEST")
+        response.contains("person:         Test Person")
+    }
+
+    def "query autnum in TEST and TEST-NONAUTH, return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST",
+            RpslObject.parse(
+                "aut-num:        AS100\n" +
+                "status:         OTHER\n" +
+                "org:            ORG-OTO1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         LIR-MNT\n" +
+                "source:         TEST-NONAUTH"
+            )
+        )
+
+        def response = query("AS100")
+        then:
+        response.contains("% Information related to 'AS100'")
+        response.contains("% No abuse contact registered for AS100")
+        response.contains("aut-num:        AS100")
+        response.contains("organisation:   ORG-OTO1-TEST")
+        response.contains("person:         Test Person")
+    }
+
+    // C22
+    def "query exact route in TEST, do not return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST-NONAUTH")
+
+        def response = query("-s TEST -B 193.4.0.0/24")
+        then:
+        response !=~ "source: TEST-NONAUTH"
+    }
+
+    // C23
+    def "query more specific route in TEST, do not return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST-NONAUTH")
+
+        def response = query("-s TEST -mB 193.4.0.0/23")
+        then:
+        !response.contains("TEST-NONAUTH")
+    }
+
+    // E22
+    def "query exact route in TEST-NONAUTH, do not return TEST"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST")
+
+        def response = query("-s TEST-NONAUTH -B 193.4.0.0/24")
+        then:
+        !response.contains("source:         TEST\n")
+    }
+
+    // E23
+    def "query more specific route in TEST-NONAUTH, do not return TEST"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST")
+
+        def response = query("-s TEST-NONAUTH -mB 193.4.0.0/23")
+        then:
+        !response.contains("source:         TEST\n")
+    }
+
+    // F22
+    def "query exact route in TEST-NONAUTH, return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST-NONAUTH")
+
+        def response = query("-s TEST-NONAUTH -B 193.4.0.0/24")
+        then:
+        !response.contains("source:         TEST\n")
+    }
+
+    // F23
+    def "query more specific route in TEST-NONAUTH, return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS103\nsource: TEST-NONAUTH")
+
+        def response = query("-s TEST-NONAUTH -mB 193.4.0.0/23")
+        then:
+        !response.contains("source:         TEST\n")
+    }
+
+    // G23
+    def "query more specific route in TEST-NONAUTH, return only TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS102\nsource: TEST")
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.1.0/24\norigin: AS103\nsource: TEST-NONAUTH")
+
+        def response = query("-s TEST-NONAUTH -mB 193.4.0.0/23")
+        then:
+        !response.contains("source:         TEST\n")
+    }
+
+    // H22
+    def "query exact route in both sources, return TEST"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS102\nsource: TEST")
+
+        def response = query("-B 193.4.0.0/24")
+        then:
+        response.contains("person:         Test Person\n")
+        response.contains("route:          193.4.0.0/24\n")
+    }
+
+    // H23
+    def "query more specific route in both sources, return TEST"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS102\nsource: TEST")
+
+        def response = query("-mB 193.4.0.0/23")
+        then:
+        response.contains("route:          193.4.0.0/24\n")
+    }
+
+    // I22
+    def "query exact route in both sources, return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS102\nsource: TEST-NONAUTH")
+
+        def response = query("-B 193.4.0.0/24")
+        then:
+        response.contains("person:         Test Person\n")
+        response.contains("route:          193.4.0.0/24\n")
+        response.contains("source:         TEST-NONAUTH\n")
+    }
+
+    // I23
+    def "query more specific route in both sources, return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route: 193.4.0.0/24\norigin: AS102\nsource: TEST-NONAUTH")
+
+        def response = query("-mB 193.4.0.0/23")
+        then:
+        response.contains("route:          193.4.0.0/24\n")
+        response.contains("source:         TEST-NONAUTH\n")
     }
 
     /*
