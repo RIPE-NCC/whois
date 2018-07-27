@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.util;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
 import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
 import net.ripe.db.whois.common.iptree.RouteEntry;

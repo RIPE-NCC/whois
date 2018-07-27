@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.InetAddresses;
-import com.sun.net.httpserver.Headers;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -33,7 +32,6 @@ import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -273,7 +271,6 @@ public class WhoisRestService {
             return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key);
         }
 
-
         final QueryBuilder queryBuilder = new QueryBuilder().
                 addFlag(QueryFlag.EXACT).
                 addFlag(QueryFlag.NO_GROUPING).
@@ -313,7 +310,7 @@ public class WhoisRestService {
 
         return false;
     }
-    
+
     private Response redirect(final String context, final String source, final String objectType, final String pkey) {
 
 
