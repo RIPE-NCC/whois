@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
+import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -268,10 +269,10 @@ public class WhoisRestService {
                     .build());
         }
 
-        if(sourceContext.getCurrentSource().equals(sourceContext.getWhoisMasterSource())
-                && !outOfRegionUtil.isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0))) {
+        if(requiresNonauthRedirect(objectType, key)) {
             return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key);
         }
+
 
         final QueryBuilder queryBuilder = new QueryBuilder().
                 addFlag(QueryFlag.EXACT).
@@ -299,6 +300,20 @@ public class WhoisRestService {
         }
     }
 
+    private boolean requiresNonauthRedirect(final String objectType, final String key) {
+        if(sourceContext.getCurrentSource().equals(sourceContext.getWhoisMasterSource())) {
+            if(ObjectType.getByName(objectType).equals(ObjectType.ROUTE)) {
+                return !outOfRegionUtil.isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0));
+            }
+
+            if(ObjectType.getByName(objectType).equals(ObjectType.ROUTE6)) {
+                return !outOfRegionUtil.isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key, 0));
+            }
+        }
+
+        return false;
+    }
+    
     private Response redirect(final String context, final String source, final String objectType, final String pkey) {
 
 

@@ -528,4 +528,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
 
+    public void addAuthoritativeResource(final String source, final String resource) {
+        internalsTemplate.execute("insert into authoritative_resource (source, resource) values ('"+source+"', '"+resource+"')");
+        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+    }
+
 }
