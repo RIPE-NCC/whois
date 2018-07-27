@@ -4344,7 +4344,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_route_out_of_region_redirect() {
-    databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
         databaseHelper.addObject(
                 "route:           192.168.0.0/24\n" +
                         "descr:           Test route\n" +
@@ -4359,36 +4359,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         target.property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE);
 
         final Response response = target.request().get();
-        assertThat(response.getStatus(), is(Response.Status.SEE_OTHER.getStatusCode()));
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
         assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
 
-
-//        assertThat(whoisResources.getErrorMessages(), is(empty()));
-//        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-//
-//        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-//        assertThat(whoisObject.getLink().getHref(), is("http://rest-test.db.ripe.net/test-nonauth/route/192.168.0.0/24AS12726"));
-//
-//        final List<Attribute> primaryKey = whoisObject.getPrimaryKey();
-//        assertThat(primaryKey, hasSize(2));
-//        assertThat(primaryKey, contains(new Attribute("route", "192.168.0.0/24"),
-//                new Attribute("origin", "AS12726")));
-//
-//        assertThat(whoisObject.getAttributes(), contains(
-//                new Attribute("route", "192.168.0.0/24"),
-//                new Attribute("descr", "Test route"),
-//                new Attribute("origin", "AS12726"),
-//                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test-nonauth/mntner/OWNER-MNT"), null),
-//                new Attribute("mnt-routes", "OWNER-MNT {192.168.0.0/16}", null, "mntner", Link.create("http://rest-test.db.ripe.net/test-nonauth/mntner/OWNER-MNT"), null),
-//                new Attribute("source", "TEST-NONAUTH")
-//        ));
     }
-
-    //        INSERT INTO authoritative_resource (source, resource) VALUES ('test', '0.0.0.0/0');
-
-//        internalsTemplate.execute("delete from authoritative_resource where source ='test' and resource = '0.0.0.0/0'");
-
-
 
     // helper methods
 

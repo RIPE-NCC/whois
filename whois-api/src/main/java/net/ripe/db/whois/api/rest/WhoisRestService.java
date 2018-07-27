@@ -306,7 +306,7 @@ public class WhoisRestService {
                 context,
                 source,
                 objectType, pkey));
-        return Response.seeOther(uri).build();
+        return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
 
     }
 
