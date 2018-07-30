@@ -267,7 +267,7 @@ public class WhoisRestService {
                     .build());
         }
 
-        if(requiresNonauthRedirect(objectType, key)) {
+        if(requiresNonauthRedirect(source, objectType, key)) {
             return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key);
         }
 
@@ -297,8 +297,8 @@ public class WhoisRestService {
         }
     }
 
-    private boolean requiresNonauthRedirect(final String objectType, final String key) {
-        if(sourceContext.getCurrentSource().equals(sourceContext.getWhoisMasterSource())) {
+    private boolean requiresNonauthRedirect(final String source, final String objectType, final String key) {
+        if(sourceContext.getCurrentSource().equals(sourceContext.getWhoisMasterSource()) && sourceContext.getWhoisMasterSource().getName().equals(source)) {
             if(ObjectType.getByName(objectType).equals(ObjectType.ROUTE)) {
                 return !outOfRegionUtil.isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0));
             }
@@ -372,7 +372,7 @@ public class WhoisRestService {
     }
 
     private boolean isValidSource(final String source) {
-        return sourceContext.getAllSourceNames().contains(ciString(source));
+        return sourceContext.getAllSourceNames().contains(ciString(source)) || sourceContext.getNonauthSource().getName().equals(source);
     }
 
     void setDryRun(final UpdateContext updateContext, final String dryRun) {
