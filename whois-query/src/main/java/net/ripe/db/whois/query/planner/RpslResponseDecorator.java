@@ -20,6 +20,7 @@ import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
+import net.ripe.db.whois.query.filter.AttributeFilter;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +58,10 @@ public class RpslResponseDecorator {
     private final FilterTagsDecorator filterTagsDecorator;
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final AbuseCInfoDecorator abuseCInfoDecorator;
-    private final NonAuthSourceDecorator nonAuthSourceDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
     private final SsoTokenTranslator ssoTokenTranslator;
     private final CrowdClient crowdClient;
+    private final Set<AttributeFilter> attributeFilters;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -71,16 +72,15 @@ public class RpslResponseDecorator {
                                  final FilterTagsDecorator filterTagsDecorator,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
-                                 final NonAuthSourceDecorator nonAuthSourceDecorator,
                                  final SsoTokenTranslator ssoTokenTranslator,
                                  final CrowdClient crowdClient,
+                                 final Set<AttributeFilter> attributeFilters,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
         this.dummifyDecorator = dummifyDecorator;
         this.sourceContext = sourceContext;
         this.abuseCInfoDecorator = abuseCInfoDecorator;
-        this.nonAuthSourceDecorator = nonAuthSourceDecorator;
         this.ssoTokenTranslator = ssoTokenTranslator;
         this.crowdClient = crowdClient;
         this.validSyntaxFilterFunction = new SyntaxFilterFunction(true);
@@ -89,6 +89,7 @@ public class RpslResponseDecorator {
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
         this.briefAbuseCFunction = new BriefAbuseCFunction(abuseCFinder);
         this.decorators = Sets.newHashSet(decorators);
+        this.attributeFilters = attributeFilters;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -99,7 +100,6 @@ public class RpslResponseDecorator {
         decoratedResult = filterTagsDecorator.decorate(query, decoratedResult);
         decoratedResult = filterPersonalDecorator.decorate(query, decoratedResult);
         decoratedResult = abuseCInfoDecorator.decorate(query, decoratedResult);
-        decoratedResult = nonAuthSourceDecorator.decorate(query, decoratedResult);
 
         decoratedResult = applySyntaxFilter(query, decoratedResult);
         decoratedResult = filterEmail(query, decoratedResult);
@@ -142,7 +142,7 @@ public class RpslResponseDecorator {
         }
 
         if (query.isGrouping()) {
-            return new GroupRelatedFunction(rpslObjectDao, query, decorators);
+            return new GroupRelatedFunction(rpslObjectDao, query, decorators, attributeFilters);
         }
 
         return new GroupObjectTypesFunction(rpslObjectDao, query, decorators);

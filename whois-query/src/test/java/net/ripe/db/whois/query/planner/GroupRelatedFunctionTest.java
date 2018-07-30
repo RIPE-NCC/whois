@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
@@ -39,13 +40,13 @@ public class GroupRelatedFunctionTest {
         query = Query.parse("foo");
         relatedToMessage = new MessageObject(QueryMessages.relatedTo("10.0.0.0"));
 
-        subject = new GroupRelatedFunction(rpslObjectDao, query, Sets.newHashSet(decorator));
+        subject = new GroupRelatedFunction(rpslObjectDao, query, Sets.newHashSet(decorator), Collections.emptySet());
     }
 
     @Test
     public void apply_messageObject() {
         final ResponseObject input = new MessageObject("");
-        final Iterable<ResponseObject> responseObjects = subject.apply(input);
+        final Iterable<? extends ResponseObject> responseObjects = subject.apply(input);
         final Iterable<ResponseObject> relatedObjects = subject.getGroupedAfter();
 
         verify(decorator, times(0)).appliesToQuery(query);
@@ -60,7 +61,7 @@ public class GroupRelatedFunctionTest {
 
         when(decorator.appliesToQuery(query)).thenReturn(false);
 
-        final Iterable<ResponseObject> responseObjects = subject.apply(input);
+        final Iterable<? extends ResponseObject> responseObjects = subject.apply(input);
         final Iterable<ResponseObject> relatedObjects = subject.getGroupedAfter();
 
         verify(decorator, times(0)).decorate(query, (RpslObject) input);
@@ -86,7 +87,7 @@ public class GroupRelatedFunctionTest {
         when(rpslObjectDao.getById(1)).thenReturn((RpslObject) result1);
         when(rpslObjectDao.getById(2)).thenReturn((RpslObject) result2);
 
-        final Iterable<ResponseObject> responseObjects = subject.apply(input);
+        final Iterable<? extends ResponseObject> responseObjects = subject.apply(input);
         final Iterable<ResponseObject> relatedObjects = subject.getGroupedAfter();
 
         assertThat(responseObjects, contains(relatedToMessage, input, result2, result1));

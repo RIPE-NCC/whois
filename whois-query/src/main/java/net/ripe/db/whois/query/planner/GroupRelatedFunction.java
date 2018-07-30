@@ -7,8 +7,9 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.MessageObject;
+import net.ripe.db.whois.query.filter.AttributeFilter;
 import net.ripe.db.whois.query.query.Query;
 
 import java.util.Arrays;
@@ -20,17 +21,22 @@ class GroupRelatedFunction implements GroupFunction {
     private final RpslObjectDao rpslObjectDao;
     private final Set<PrimaryObjectDecorator> decorators;
     private final Query query;
+    private final Set<AttributeFilter> attributeFilters;
 
-    public GroupRelatedFunction(final RpslObjectDao rpslObjectDao, final Query query, final Set<PrimaryObjectDecorator> decorators) {
+    public GroupRelatedFunction(final RpslObjectDao rpslObjectDao,
+                                final Query query,
+                                final Set<PrimaryObjectDecorator> decorators,
+                                final Set<AttributeFilter> attributeFilters) {
         this.rpslObjectDao = rpslObjectDao;
         this.decorators = decorators;
         this.query = query;
+        this.attributeFilters = attributeFilters;
     }
 
     @Override
-    public Iterable<ResponseObject> apply(final ResponseObject input) {
+    public Iterable<? extends ResponseObject> apply(final ResponseObject input) {
         if (input instanceof RpslObject) {
-            Iterable<ResponseObject> result = Arrays.asList(new MessageObject(QueryMessages.relatedTo(((RpslObject) input).getKey())), input);
+            Iterable<? extends ResponseObject> result = Arrays.asList(new MessageObject(QueryMessages.relatedTo(((RpslObject) input).getKey())), input);
 
             final SortedSet<RpslObjectInfo> relatedTo = Sets.newTreeSet();
             for (final PrimaryObjectDecorator decorator : decorators) {
@@ -40,6 +46,10 @@ class GroupRelatedFunction implements GroupFunction {
             }
 
             result = Iterables.concat(result, CollectionHelper.iterateProxy(rpslObjectDao, relatedTo));
+
+            for (AttributeFilter attributeFilter : attributeFilters) {
+                result = attributeFilter.filter(result, query.getSources());
+            }
 
             return result;
         }

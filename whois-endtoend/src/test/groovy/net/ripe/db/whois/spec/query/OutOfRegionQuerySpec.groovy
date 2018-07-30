@@ -129,8 +129,8 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
         then:
         response.contains("% Information related to 'AS100'")
         response.contains("% No abuse contact registered for AS100")
-        response.contains("organisation:   ORG-OTO1-TEST")
-        response.contains("person:         Test Person")
+        !response.contains("organisation:   ORG-OTO1-TEST")
+        !response.contains("person:         Test Person")
     }
 
     def "query autnum in TEST and TEST-NONAUTH, return TEST"() {
@@ -292,6 +292,92 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
         then:
         response.contains("route:          193.4.0.0/24\n")
         response.contains("source:         TEST-NONAUTH\n")
+    }
+
+    // C34
+    def "query exact route6 in TEST, do not return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route6: 2001:1578:0200::/40\norigin: AS102\nsource: TEST-NONAUTH")
+
+        def response = query("-s TEST -B 2001:1578:0200::/40")
+        then:
+        !response.contains("route6:         2001:1578:0200::/40\n")
+    }
+
+    // C35
+    def "query more specific route6 in TEST, do not return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route6: 2001:1578:0200::/40\norigin: AS102\nsource: TEST-NONAUTH")
+
+        def response = query("-s TEST -mB 2001:1578:0200::/39")
+        then:
+        !response.contains("route6:         2001:1578:0200::/40\n")
+    }
+
+    // D35
+    def "query more specific route6 in TEST, return only TEST"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route6: 2001:1578:0200::/40\norigin: AS102\nsource: TEST-NONAUTH")
+        databaseHelper.addObjectToSource("TEST", "route6: 2001:1578:0300::/40\norigin: AS103\nsource: TEST")
+
+        def response = query("-s TEST -mB 2001:1578:0200::/39")
+        then:
+        response.contains("route6:         2001:1578:0300::/40\n")
+        !response.contains("source:         TEST-NONAUTH\n")
+    }
+
+    // E34
+    def "query exact route6 in TEST-NONAUTH, do not return TEST"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route6: 2001:1578:0300::/40\norigin: AS103\nsource: TEST")
+
+        def response = query("-s TEST-NONAUTH -B 2001:1578:0300::/40")
+        then:
+        !response.contains("person:         Test Person\n")
+        !response.contains("route6:         2001:1578:0300::/40\n")
+    }
+
+    // E35
+    def "query more specific route6 in TEST-NONAUTH, do not return TEST"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route6: 2001:1578:0300::/40\norigin: AS103\nsource: TEST")
+
+        def response = query("-s TEST-NONAUTH -mB 2001:1578:0200::/39")
+        then:
+        !response.contains("route6:         2001:1578:0300::/40\n")
+    }
+
+    // F34
+    def "query exact route6 in TEST-NONAUTH, return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route6: 2001:1578:0300::/40\norigin: AS103\nsource: TEST-NONAUTH")
+
+        def response = query("-s TEST-NONAUTH -B 2001:1578:0300::/40")
+        then:
+        !response.contains("person:         Test Person\n")
+        response.contains("route6:         2001:1578:0300::/40\n")
+    }
+
+    // F35
+    def "query more specific route6 in TEST-NONAUTH, return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route6: 2001:1578:0300::/40\norigin: AS103\nsource: TEST-NONAUTH")
+
+        def response = query("-s TEST-NONAUTH -mB 2001:1578:0200::/39")
+        then:
+        response.contains("route6:         2001:1578:0300::/40\n")
+    }
+
+    // G35
+    def "query more specific route6 in TEST-NONAUTH, only return TEST-NONAUTH"() {
+        when:
+        databaseHelper.addObjectToSource("TEST", "route6: 2001:1578:0200::/40\norigin: AS102\nsource: TEST")
+        databaseHelper.addObjectToSource("TEST", "route6: 2001:1578:0300::/40\norigin: AS103\nsource: TEST-NONAUTH")
+
+        def response = query("-s TEST-NONAUTH -mB 2001:1578:0200::/39")
+        then:
+        !response.contains("route6:         2001:1578:0200::/40\n")
+        response.contains("route6:         2001:1578:0300::/40\n")
     }
 
     /*
