@@ -102,6 +102,10 @@ public class WhoisRestService {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
+            if(requiresNonauthRedirect(source, objectType, key)) {
+                return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key);
+            }
+
             auditlogRequest(request);
 
             checkForMainSource(request, source);
@@ -312,8 +316,6 @@ public class WhoisRestService {
     }
 
     private Response redirect(final String context, final String source, final String objectType, final String pkey) {
-
-
         final URI uri = URI.create(String.format("%s/%s/%s/%s",
                 context,
                 source,
@@ -365,14 +367,16 @@ public class WhoisRestService {
 
     private void checkForMainSource(final HttpServletRequest request, final String source) {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+            if(!sourceContext.getNonauthSource().getName().toString().equalsIgnoreCase(source)) {
+                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
                     .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSource(source)))
                     .build());
+            }
         }
     }
 
     private boolean isValidSource(final String source) {
-        return sourceContext.getAllSourceNames().contains(ciString(source)) || sourceContext.getNonauthSource().getName().equals(source);
+        return sourceContext.getAllSourceNames().contains(ciString(source)) || sourceContext.getNonauthSource().getName().toString().equalsIgnoreCase(source);
     }
 
     void setDryRun(final UpdateContext updateContext, final String dryRun) {

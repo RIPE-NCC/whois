@@ -4386,6 +4386,52 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void delete_route_out_of_region_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+        databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().delete();
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void delete_route6_out_of_region_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "::/0");
+
+        databaseHelper.addObject(
+                "route6:           2a01:500::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test/route6/2a01:500::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().delete();
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route6/2a01:500::/22AS12726".toLowerCase()));
+
+        databaseHelper.addAuthoritativeResource("test", "::/0");
+
+    }
+
+    @Test
     public void lookup_route_out_of_region_no_redirect() {
         databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
         databaseHelper.addObject(
@@ -4422,6 +4468,55 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final Response response = RestTest.target(getPort(), "whois/test-nonauth/route6/2a01:500::/22AS12726")
                 .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
                 .request().get();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        databaseHelper.addAuthoritativeResource("test", "::/0");
+
+    }
+
+    @Test
+    public void delete_route_out_of_region_no_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+        databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .queryParam("password", "test")
+                .request().delete();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void delete_route6_out_of_region_no_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "::/0");
+
+        databaseHelper.addObject(
+                "route6:           2a01:500::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT \n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route6/2a01:500::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .queryParam("password", "test")
+                .request()
+                .delete();
+
+        System.out.println(response.readEntity(String.class));
 
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
 
