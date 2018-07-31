@@ -19,6 +19,7 @@ import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.dao.Inet6numDao;
 import net.ripe.db.whois.query.dao.InetnumDao;
@@ -62,6 +63,7 @@ public class RpslObjectSearcherTest {
     @Mock Ipv4DomainTree ipv4DomainTree;
     @Mock Ipv6DomainTree ipv6DomainTree;
     @Mock Set<AttributeFilter> attributeFilters;
+    @Mock SourceContext sourceContext;
     @InjectMocks RpslObjectSearcher subject;
 
     @Before
@@ -154,13 +156,13 @@ public class RpslObjectSearcherTest {
     @Test
     public void inverse_lookup_never_returns_null() {
         for (final AttributeType attributeType : AttributeType.values()) {
-            assertNotNull(subject.search(Query.parse("-i " + attributeType.getName() + " query")));
+            assertNotNull(subject.search(Query.parse("-i " + attributeType.getName() + " query"), sourceContext));
         }
     }
 
     @Test
     public void inverse_lookup_unsupported_attribute() {
-        final Iterator<? extends ResponseObject> responseIterator = subject.search(Query.parse("-i e-mail,phone something")).iterator();
+        final Iterator<? extends ResponseObject> responseIterator = subject.search(Query.parse("-i e-mail,phone something"), sourceContext).iterator();
 
         assertThat(responseIterator.next().toString(), is(QueryMessages.attributeNotSearchable("e-mail").toString()));
         assertThat(responseIterator.next().toString(), is(QueryMessages.attributeNotSearchable("phone").toString()));
@@ -217,7 +219,7 @@ public class RpslObjectSearcherTest {
 
     private void assertQueryResult(final String query, final RpslObject... expectedResults) {
         final Set<RpslObject> rpslObjects = Sets.newLinkedHashSet();
-        for (final ResponseObject responseObject : subject.search(Query.parse(query))) {
+        for (final ResponseObject responseObject : subject.search(Query.parse(query), sourceContext)) {
             if (responseObject instanceof RpslObject) {
                 rpslObjects.add((RpslObject) responseObject);
             }

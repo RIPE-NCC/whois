@@ -41,7 +41,7 @@ public class SearchQueryExecutorTest {
 
     @Before
     public void setUp() throws Exception {
-        when(rpslObjectSearcher.search(any(Query.class))).thenReturn((Iterable)Collections.emptyList());
+        when(rpslObjectSearcher.search(any(Query.class), any(SourceContext.class))).thenReturn((Iterable)Collections.emptyList());
         when(rpslResponseDecorator.getResponse(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -94,7 +94,7 @@ public class SearchQueryExecutorTest {
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(query, responseHandler);
-        verify(rpslObjectSearcher, never()).search(query);
+        verify(rpslObjectSearcher, never()).search(query, sourceContext);
 
         assertThat(responseHandler.getResponseObjects(), hasSize(1));   // make sure that e.g. 'no results found' is not printed
         assertThat(responseHandler.getResponseObjects().get(0), Matchers.<ResponseObject>is(new MessageObject(QueryMessages.unknownSource("UNKNOWN"))));
@@ -111,7 +111,7 @@ public class SearchQueryExecutorTest {
         verify(sourceContext).setCurrent(Source.slave("APNIC-GRS"));
         verify(sourceContext).setCurrent(Source.slave("ARIN-GRS"));
         verify(sourceContext, times(2)).removeCurrentSource();
-        verify(rpslObjectSearcher, times(2)).search(query);
+        verify(rpslObjectSearcher, times(2)).search(query, sourceContext);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class SearchQueryExecutorTest {
         verify(sourceContext).setCurrent(Source.slave("APNIC-GRS"));
         verify(sourceContext).setCurrent(Source.slave("ARIN-GRS"));
         verify(sourceContext, times(2)).removeCurrentSource();
-        verify(rpslObjectSearcher, times(2)).search(query);
+        verify(rpslObjectSearcher, times(2)).search(query, sourceContext);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class SearchQueryExecutorTest {
         verify(sourceContext).setCurrent(Source.slave("ARIN-GRS"));
         verify(sourceContext).setCurrent(Source.slave("RIPE"));
         verify(sourceContext, times(3)).removeCurrentSource();
-        verify(rpslObjectSearcher, times(3)).search(query);
+        verify(rpslObjectSearcher, times(3)).search(query, sourceContext);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class SearchQueryExecutorTest {
         verify(sourceContext).setCurrent(Source.slave("APNIC-GRS"));
         verify(sourceContext).setCurrent(Source.slave("ARIN-GRS"));
         verify(sourceContext, times(2)).removeCurrentSource();
-        verify(rpslObjectSearcher, times(2)).search(query);
+        verify(rpslObjectSearcher, times(2)).search(query, sourceContext);
     }
 
     @Test
@@ -176,7 +176,7 @@ public class SearchQueryExecutorTest {
         verify(sourceContext).setCurrent(Source.slave("ARIN-GRS"));
         verify(sourceContext).setCurrent(Source.slave("RIPE"));
         verify(sourceContext, times(3)).removeCurrentSource();
-        verify(rpslObjectSearcher, times(3)).search(query);
+        verify(rpslObjectSearcher, times(3)).search(query, sourceContext);
     }
 
     @Test
@@ -189,7 +189,7 @@ public class SearchQueryExecutorTest {
 
         verify(sourceContext).setCurrent(Source.slave("RIPE"));
         verify(sourceContext).removeCurrentSource();
-        verify(rpslObjectSearcher).search(query);
+        verify(rpslObjectSearcher).search(query, sourceContext);
     }
 
     @Test
@@ -198,7 +198,7 @@ public class SearchQueryExecutorTest {
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(query, responseHandler);
-        verify(rpslObjectSearcher).search(query);
+        verify(rpslObjectSearcher).search(query, sourceContext);
         verify(rpslResponseDecorator).getResponse(eq(query), any(Iterable.class));
 
         assertThat(responseHandler.getResponseObjects(), contains((ResponseObject) new MessageObject(QueryMessages.noResults("RIPE").toString())));
@@ -217,7 +217,7 @@ public class SearchQueryExecutorTest {
         verify(sourceContext).setCurrent(Source.slave("APNIC-GRS"));
         verify(sourceContext).setCurrent(Source.slave("ARIN-GRS"));
         verify(sourceContext, times(3)).removeCurrentSource();
-        verify(rpslObjectSearcher, times(3)).search(query);
+        verify(rpslObjectSearcher, times(3)).search(query, sourceContext);
     }
 
     @Test
@@ -232,7 +232,7 @@ public class SearchQueryExecutorTest {
         verify(sourceContext).setCurrent(Source.slave("APNIC-GRS"));
         verify(sourceContext).setCurrent(Source.slave("ARIN-GRS"));
         verify(sourceContext, times(2)).removeCurrentSource();
-        verify(rpslObjectSearcher, times(2)).search(query);
+        verify(rpslObjectSearcher, times(2)).search(query, sourceContext);
     }
 
 }

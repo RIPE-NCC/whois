@@ -45,13 +45,7 @@ class GroupRelatedFunction implements GroupFunction {
                 }
             }
 
-            result = Iterables.concat(result, CollectionHelper.iterateProxy(rpslObjectDao, relatedTo));
-
-            for (AttributeFilter attributeFilter : attributeFilters) {
-                result = attributeFilter.filter(result, query.getSources());
-            }
-
-            return result;
+            return Iterables.concat(result, CollectionHelper.iterateProxy(rpslObjectDao, relatedTo));
         }
 
         return Collections.singletonList(input);

@@ -23,6 +23,7 @@ import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.dao.Inet6numDao;
 import net.ripe.db.whois.query.dao.InetnumDao;
@@ -90,7 +91,7 @@ class RpslObjectSearcher {
         this.attributeFilters = attributeFilters;
     }
 
-    public Iterable<? extends ResponseObject> search(final Query query) {
+    public Iterable<? extends ResponseObject> search(final Query query, final SourceContext sourceContext) {
         Iterable<? extends ResponseObject> result = Collections.emptyList();
 
         if (query.isInverse()) {
@@ -104,7 +105,7 @@ class RpslObjectSearcher {
         }
 
         for (AttributeFilter attributeFilter : attributeFilters) {
-            result = attributeFilter.filter(result, query.getSources());
+            result = attributeFilter.filter(result, query.getSources(), sourceContext);
         }
 
         return result;

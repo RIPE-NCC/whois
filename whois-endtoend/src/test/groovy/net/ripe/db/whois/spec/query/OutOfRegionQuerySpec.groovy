@@ -129,8 +129,8 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
         then:
         response.contains("% Information related to 'AS100'")
         response.contains("% No abuse contact registered for AS100")
-        !response.contains("organisation:   ORG-OTO1-TEST")
-        !response.contains("person:         Test Person")
+        response.contains("organisation:   ORG-OTO1-TEST")
+        response.contains("person:         Test Person")
     }
 
     def "query autnum in TEST and TEST-NONAUTH, return TEST"() {
