@@ -62,8 +62,6 @@ public class RpslResponseDecoratorTest {
     @Mock SsoTokenTranslator ssoTokenTranslator;
     @Mock CrowdClient crowdClient;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
-    @InjectMocks
-    NonAuthSourceDecorator nonAuthSourceDecorator;
 
     RpslResponseDecorator subject;
 
@@ -77,7 +75,6 @@ public class RpslResponseDecoratorTest {
                 filterTagsDecorator,
                 filterPlaceholdersDecorator,
                 abuseCInfoDecorator,
-                nonAuthSourceDecorator,
                 ssoTokenTranslator,
                 crowdClient,
                 decorator);
