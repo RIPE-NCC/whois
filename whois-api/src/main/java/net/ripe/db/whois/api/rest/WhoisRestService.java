@@ -48,6 +48,7 @@ import java.util.List;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 
 @Component
 @Path("/")
@@ -302,13 +303,16 @@ public class WhoisRestService {
     }
 
     private boolean requiresNonauthRedirect(final String source, final String objectType, final String key) {
-        if(sourceContext.getCurrentSource().equals(sourceContext.getWhoisMasterSource()) && sourceContext.getWhoisMasterSource().getName().equals(source)) {
-            if(ObjectType.getByName(objectType).equals(ObjectType.ROUTE)) {
-                return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0));
-            }
-
-            if(ObjectType.getByName(objectType).equals(ObjectType.ROUTE6)) {
-                return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key, 0));
+        if (sourceContext.getCurrentSource().equals(sourceContext.getWhoisMasterSource()) && sourceContext.getWhoisMasterSource().getName().equals(source)) {
+            switch (ObjectType.getByName(objectType)) {
+                case AUT_NUM:
+                    return !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
+                case ROUTE:
+                    return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0));
+                case ROUTE6:
+                    return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key, 0));
+                default:
+                    return false;
             }
         }
 
