@@ -108,7 +108,7 @@ public class WhoisRestService {
             }
 
             if(requiresRipeRedirect(source, objectType, key)) {
-                return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key);
+                return redirect(request.getServletPath(), sourceContext.getWhoisMasterSource().getName().toString(), objectType, key);
             }
 
             auditlogRequest(request);
