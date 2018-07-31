@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
 import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -21,7 +22,6 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
-import net.ripe.db.whois.update.util.OutOfRegionUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -61,7 +61,7 @@ public class WhoisRestService {
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
     private final LoggerContext loggerContext;
-    private final OutOfRegionUtil outOfRegionUtil;
+    private final AuthoritativeResourceData authoritativeResourceData;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -72,7 +72,7 @@ public class WhoisRestService {
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
                             final LoggerContext loggerContext,
-                            final OutOfRegionUtil outOfRegionUtil) {
+                            final AuthoritativeResourceData authoritativeResourceData) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectStreamer = rpslObjectStreamer;
         this.sourceContext = sourceContext;
@@ -81,7 +81,7 @@ public class WhoisRestService {
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
         this.loggerContext = loggerContext;
-        this.outOfRegionUtil = outOfRegionUtil;
+        this.authoritativeResourceData = authoritativeResourceData;
     }
 
     @DELETE
@@ -304,11 +304,11 @@ public class WhoisRestService {
     private boolean requiresNonauthRedirect(final String source, final String objectType, final String key) {
         if(sourceContext.getCurrentSource().equals(sourceContext.getWhoisMasterSource()) && sourceContext.getWhoisMasterSource().getName().equals(source)) {
             if(ObjectType.getByName(objectType).equals(ObjectType.ROUTE)) {
-                return !outOfRegionUtil.isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0));
+                return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0));
             }
 
             if(ObjectType.getByName(objectType).equals(ObjectType.ROUTE6)) {
-                return !outOfRegionUtil.isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key, 0));
+                return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key, 0));
             }
         }
 

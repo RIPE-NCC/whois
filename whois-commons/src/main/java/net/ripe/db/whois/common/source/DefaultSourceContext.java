@@ -77,8 +77,6 @@ public class DefaultSourceContext implements SourceContext {
         this.nonauthRipeSourceNameString = nonauthRipeSourceNameString;
         this.mainNonAuthSource = Source.master(this.nonauthRipeSourceNameString);
 
-
-
         final Set<CIString> additionalSources = Sets.newLinkedHashSet();
         final Set<CIString> grsSources = Sets.newLinkedHashSet();
         final Map<CIString, CIString> newAliases = Maps.newLinkedHashMap();
