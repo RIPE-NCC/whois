@@ -107,6 +107,10 @@ public class WhoisRestService {
                 return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key);
             }
 
+            if(requiresRipeRedirect(source, objectType, key)) {
+                return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key);
+            }
+
             auditlogRequest(request);
 
             checkForMainSource(request, source);
@@ -157,6 +161,14 @@ public class WhoisRestService {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+
+            if(requiresNonauthRedirect(source, objectType, key)) {
+                return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key);
+            }
+
+            if(requiresRipeRedirect(source, objectType, key)) {
+                return redirect(request.getServletPath(), sourceContext.getWhoisMasterSource().getName().toString(), objectType, key);
+            }
 
             auditlogRequest(request);
 
@@ -276,6 +288,10 @@ public class WhoisRestService {
             return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key);
         }
 
+        if(requiresRipeRedirect(source, objectType, key)) {
+            return redirect(request.getServletPath(), sourceContext.getWhoisMasterSource().getName().toString(), objectType, key);
+        }
+
         final QueryBuilder queryBuilder = new QueryBuilder().
                 addFlag(QueryFlag.EXACT).
                 addFlag(QueryFlag.NO_GROUPING).
@@ -303,7 +319,7 @@ public class WhoisRestService {
     }
 
     private boolean requiresNonauthRedirect(final String source, final String objectType, final String key) {
-        if (sourceContext.getCurrentSource().equals(sourceContext.getWhoisMasterSource()) && sourceContext.getWhoisMasterSource().getName().equals(source)) {
+        if (sourceContext.getWhoisMasterSource().getName().equals(source)) {
             switch (ObjectType.getByName(objectType)) {
                 case AUT_NUM:
                     return !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
@@ -311,6 +327,23 @@ public class WhoisRestService {
                     return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0));
                 case ROUTE6:
                     return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key, 0));
+                default:
+                    return false;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean requiresRipeRedirect(final String source, final String objectType, final String key) {
+        if(sourceContext.getNonauthSource().getName().equals(source)) {
+            switch (ObjectType.getByName(objectType)) {
+                case AUT_NUM:
+                    return authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
+                case ROUTE:
+                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0));
+                case ROUTE6:
+                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key, 0));
                 default:
                     return false;
             }
