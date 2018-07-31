@@ -20,6 +20,7 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
 import org.glassfish.jersey.client.filter.EncodingFilter;
@@ -49,7 +50,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -63,7 +66,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "source:      TEST");
+            "source:      TEST\n");
 
     private static final RpslObject RIPE_NCC_HM_MNT = RpslObject.parse("" +
             "mntner:      RIPE-NCC-HM-MNT\n" +
@@ -73,7 +76,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$tnG/zrDw$nps8tg76q4jgg5zg5o6os. # hm\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      RIPE-NCC-HM-MNT\n" +
-            "source:      TEST");
+            "source:      TEST\n");
 
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
             "person:    Test Person\n" +
@@ -1690,4 +1693,222 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
+    // If no source is defined (the default) both "source: RIPE" and “source: RIPE-NONAUTH” ROUTE(6) objects are returned
+    @Test
+    public void search_autnum_no_sources_given() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST-NONAUTH");
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST");
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertTrue(hasSourceTestNonAuth);
+        assertTrue(hasSourceTest);
+    }
+
+    // searching for inetnum without specifying sources should return all related object even route with source: NONAUTH
+    @Test
+    public void search_inetnum_no_sources_given() {
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:          RIPE-NCC-RPSL-MNT\n" +
+                "auth:            MD5-PW# Filtered\n" +
+                "descr:           This maintainer may be used to create objects to represent\n" +
+                "descr:           routing policy in the RIPE Database for number resources not\n" +
+                "descr:           allocated or assigned from the RIPE NCC.\n" +
+                "admin-c:         TP1-TEST\n" +
+                "remarks:         *******************************************************\n" +
+                "remarks:         * The password for this object is 'RPSL', without the *\n" +
+                "remarks:         * quotes. Do NOT use this maintainer as 'mnt-by'. *\n" +
+                "remarks:         *******************************************************\n" +
+                "mnt-by:          RIPE-NCC-HM-MNT\n" +
+                "source:          TEST\n"));
+        // inetnum with route TEST-NONAUTH
+        databaseHelper.addObject(RpslObject.parse("" +
+                "inetnum:         10.0.0.0 - 10.0.0.255\n" +
+                "netname:         NON-RIPE-NCC-MANAGED-ADDRESS-BLOCK\n" +
+                "descr:           IPv4 address block not managed by the RIPE NCC\n" +
+                "admin-c:         TP1-TEST\n" +
+                "tech-c:          TP1-TEST\n" +
+                "status:          ALLOCATED UNSPECIFIED\n" +
+                "mnt-by:          RIPE-NCC-HM-MNT\n" +
+                "mnt-lower:       RIPE-NCC-HM-MNT\n" +
+                "mnt-routes:      RIPE-NCC-RPSL-MNT\n" +
+                "source:          TEST\n"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           10.0.0.0/24\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          RIPE-NCC-RPSL-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+
+        ipTreeUpdater.rebuild();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0/24")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST-NONAUTH");
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST");
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(4));
+        assertTrue(hasSourceTestNonAuth);
+        assertTrue(hasSourceTest);
+    }
+
+    @Test
+    public void search_route_no_sources_given() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST-NONAUTH");
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST");
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertTrue(hasSourceTestNonAuth);
+        assertTrue(hasSourceTest);
+    }
+
+    //  If "sources" is used in queries out-of-region resources will be shown only if ‘RIPE-NONAUTH’ is included explicitly.
+    @Test
+    public void search_autnum_by_sources_nonauth_given() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST-NONAUTH")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test
+    public void search_route_by_sources_nonauth_given() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&source=TEST-NONAUTH")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test
+    public void search_route_by_sources_auth_given() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&source=TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST-NONAUTH");
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST");
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertFalse(hasSourceTestNonAuth);
+        assertTrue(hasSourceTest);
+    }
+
+    @Test
+    public void search_inetnum_with_resource_flag() {
+        databaseHelper.addObject(RIPE_NCC_HM_MNT);
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:          RIPE-NCC-RPSL-MNT\n" +
+                "auth:            MD5-PW# Filtered\n" +
+                "descr:           This maintainer may be used to create objects to represent\n" +
+                "descr:           routing policy in the RIPE Database for number resources not\n" +
+                "descr:           allocated or assigned from the RIPE NCC.\n" +
+                "admin-c:         TP1-TEST\n" +
+                "remarks:         *******************************************************\n" +
+                "remarks:         * The password for this object is 'RPSL', without the *\n" +
+                "remarks:         * quotes. Do NOT use this maintainer as 'mnt-by'. *\n" +
+                "remarks:         *******************************************************\n" +
+                "mnt-by:          RIPE-NCC-HM-MNT\n" +
+                "source:          TEST\n"));
+        // inetnum with route TEST-NONAUTH
+        databaseHelper.addObject(RpslObject.parse("" +
+                "inetnum:         193.4.0.0 - 193.4.0.255\n" +
+                "netname:         NON-RIPE-NCC-MANAGED-ADDRESS-BLOCK\n" +
+                "descr:           IPv4 address block not managed by the RIPE NCC\n" +
+                "admin-c:         TP1-TEST\n" +
+                "tech-c:          TP1-TEST\n" +
+                "status:          ALLOCATED UNSPECIFIED\n" +
+                "mnt-by:          RIPE-NCC-HM-MNT\n" +
+                "mnt-lower:       RIPE-NCC-HM-MNT\n" +
+                "mnt-routes:      RIPE-NCC-RPSL-MNT\n" +
+                "source:          TEST\n"));
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/24\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/24&resource")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST-NONAUTH");
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST");
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(4));
+        assertTrue(hasSourceTestNonAuth);
+        assertTrue(hasSourceTest);
+    }
+
+    // helping method
+    private boolean hasObjectWithSpecifiedSource(List<WhoisObject> whoisObjects, String source) {
+        return whoisObjects
+                .stream()
+                .anyMatch(object -> object.getAttributes()
+                        .stream()
+                        .anyMatch(attr -> AttributeType.SOURCE.equals(AttributeType.getByName(attr.getName()))
+                                && attr.getValue().equalsIgnoreCase(source)));
+    }
 }

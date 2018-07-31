@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static java.util.Collections.emptySet;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -77,6 +78,7 @@ public class RpslResponseDecoratorTest {
                 abuseCInfoDecorator,
                 ssoTokenTranslator,
                 crowdClient,
+                emptySet(),
                 decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));

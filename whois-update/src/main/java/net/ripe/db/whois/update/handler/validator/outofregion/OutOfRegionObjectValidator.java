@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.outofregion;
 
 import com.google.common.collect.ImmutableList;
+
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
