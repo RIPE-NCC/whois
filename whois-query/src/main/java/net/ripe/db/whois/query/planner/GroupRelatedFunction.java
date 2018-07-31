@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.filter.AttributeFilter;
 import net.ripe.db.whois.query.query.Query;
 
 import java.util.Arrays;
@@ -21,16 +20,13 @@ class GroupRelatedFunction implements GroupFunction {
     private final RpslObjectDao rpslObjectDao;
     private final Set<PrimaryObjectDecorator> decorators;
     private final Query query;
-    private final Set<AttributeFilter> attributeFilters;
 
     public GroupRelatedFunction(final RpslObjectDao rpslObjectDao,
                                 final Query query,
-                                final Set<PrimaryObjectDecorator> decorators,
-                                final Set<AttributeFilter> attributeFilters) {
+                                final Set<PrimaryObjectDecorator> decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.decorators = decorators;
         this.query = query;
-        this.attributeFilters = attributeFilters;
     }
 
     @Override

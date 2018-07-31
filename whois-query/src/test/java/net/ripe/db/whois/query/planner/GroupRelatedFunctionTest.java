@@ -7,8 +7,8 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
 import org.junit.Before;
@@ -18,12 +18,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GroupRelatedFunctionTest {
@@ -40,7 +41,7 @@ public class GroupRelatedFunctionTest {
         query = Query.parse("foo");
         relatedToMessage = new MessageObject(QueryMessages.relatedTo("10.0.0.0"));
 
-        subject = new GroupRelatedFunction(rpslObjectDao, query, Sets.newHashSet(decorator), Collections.emptySet());
+        subject = new GroupRelatedFunction(rpslObjectDao, query, Sets.newHashSet(decorator));
     }
 
     @Test
