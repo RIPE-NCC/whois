@@ -11,9 +11,11 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
+@Order(3)
 public class ChangedAttributeTransformer implements Transformer {
 
     private final ChangedAttrFeatureToggle changedAttrFeatureToggle;
