@@ -16,6 +16,7 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
 import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
+import net.ripe.db.whois.common.iptree.RouteEntry;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
@@ -123,6 +124,24 @@ public class AuthoritativeResource {
                 throw new IllegalArgumentException(String.format("%s is not a route", rpslObject.getType()));
         }
     }
+
+
+    public boolean isRouteMaintainedInRirSpace(final Ipv4RouteEntry routeEntry) {
+        return isMaintainedInRirSpace(ObjectType.ROUTE, routeEntry);
+    }
+
+    public boolean isRouteMaintainedInRirSpace(final Ipv6RouteEntry routeEntry) {
+        return isMaintainedInRirSpace(ObjectType.ROUTE6, routeEntry);
+    }
+
+    private boolean isMaintainedInRirSpace(final ObjectType routeType, final RouteEntry<?> routeEntry) {
+         final RpslObject rpsl = RpslObject.parse(
+                routeType.getName() + ": " + routeEntry.getKey().toString()+ "\n" +
+                        "origin: "+routeEntry.getOrigin());
+
+        return this.isRouteMaintainedInRirSpace(rpsl);
+    }
+
 
     private AsnRange parseAsn(final CIString pkey) {
         return Asn.parse(pkey.toString()).asRange();
