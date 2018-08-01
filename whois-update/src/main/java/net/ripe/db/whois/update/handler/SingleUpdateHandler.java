@@ -102,6 +102,13 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.objectNotFound(updatedObject.getFormattedKey()));
         }
 
+        // apply object transformation
+        for (Transformer transformer : transformers) {
+            updatedObject = transformer.transform(updatedObject, update, updateContext, action);
+        }
+
+        validateObject(update, updateContext, updatedObject);
+
         // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...), bail out if so
         PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
         updateContext.setPreparedUpdate(preparedUpdate);
@@ -109,31 +116,23 @@ public class SingleUpdateHandler {
             throw new UpdateFailedException();
         }
 
-        // apply object transformation
-        RpslObject updatedObjectWithAutoKeys = updatedObject;
-        for (Transformer transformer : transformers) {
-            updatedObjectWithAutoKeys = transformer.transform(updatedObjectWithAutoKeys, update, updateContext, action);
-        }
-
-        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
-
         // add authentication to context
         authenticator.authenticate(origin, preparedUpdate, updateContext);
 
         // attributegenerators rely on authentication info
         for (AttributeGenerator attributeGenerator : attributeGenerators) {
-            updatedObjectWithAutoKeys = attributeGenerator.generateAttributes(originalObject, updatedObjectWithAutoKeys, update, updateContext);
+            updatedObject = attributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
         }
 
         // need to recalculate action after attributegenerators
-        action = getAction(originalObject, updatedObjectWithAutoKeys, update, updateContext, keyword);
+        action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
         if (action == Action.NOOP) {
-            updatedObjectWithAutoKeys = originalObject;
+            updatedObject = originalObject;
         }
 
         // re-generate preparedUpdate
-        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
+        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
@@ -144,7 +143,9 @@ public class SingleUpdateHandler {
         }
 
         // defer setting prepared update so that on failure, we report back with the object without resolved auto keys
-        // FIXME: [AH] per-attribute error messages generated up to this point will not get reported in ACK if they have been changed (by attributeGenerator or AUTO-key generator), as the report goes for the pre-auto-key-generated version of the object, in which the newly generated attributes are not present
+        // FIXME: [AH] per-attribute error messages generated up to this point will not get reported in ACK
+        // if they have been changed (by attributeGenerator or AUTO-key generator), as the report goes for the
+        // pre-auto-key-generated version of the object, in which the newly generated attributes are not present
         updateContext.setPreparedUpdate(preparedUpdate);
 
         if (updateContext.isDryRun() && !updateContext.isBatchUpdate()) {
@@ -222,11 +223,16 @@ public class SingleUpdateHandler {
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
-        ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
-        ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
-    }
+        }
 
         return updatedObject;
+    }
+
+    private void validateObject(final Update update, final UpdateContext updateContext, final RpslObject updatedObject) {
+        final ObjectMessages messages = updateContext.getMessages(update);
+
+        ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
+        ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
     }
 
     private Action getAction(@Nullable final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final Keyword keyword) {
