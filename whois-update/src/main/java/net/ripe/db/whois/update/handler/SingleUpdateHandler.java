@@ -23,6 +23,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.generator.AttributeGenerator;
+import net.ripe.db.whois.update.handler.transform.Latin1Transformer;
 import net.ripe.db.whois.update.handler.transform.Transformer;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
     private final AttributeGenerator[] attributeGenerators;
     private final Transformer[] transformers;
+    private final Latin1Transformer latin1Transformer;
     private final RpslObjectDao rpslObjectDao;
     private final UpdateLockDao updateLockDao;
     private final Authenticator authenticator;
@@ -58,6 +60,7 @@ public class SingleUpdateHandler {
     @Autowired
     public SingleUpdateHandler(final AttributeGenerator[] attributeGenerators,
                                final Transformer[] transformers,
+                               final Latin1Transformer latin1Transformer,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final Authenticator authenticator,
@@ -68,6 +71,7 @@ public class SingleUpdateHandler {
                                final SsoTranslator ssoTranslator) {
         this.attributeGenerators = attributeGenerators;
         this.transformers = transformers;
+        this.latin1Transformer = latin1Transformer;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
         this.updateLockDao = updateLockDao;
@@ -91,6 +95,11 @@ public class SingleUpdateHandler {
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
         RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
 
+        // TODO: [ES] separated from other transformers, as changing the ordering of this method broke tests
+        updatedObject = latin1Transformer.transform(updatedObject, update, updateContext);
+
+        validateObject(update, updateContext, updatedObject);
+
         Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
@@ -102,13 +111,6 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.objectNotFound(updatedObject.getFormattedKey()));
         }
 
-        // apply object transformation
-        for (Transformer transformer : transformers) {
-            updatedObject = transformer.transform(updatedObject, update, updateContext, action);
-        }
-
-        validateObject(update, updateContext, updatedObject);
-
         // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...), bail out if so
         PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
         updateContext.setPreparedUpdate(preparedUpdate);
@@ -116,23 +118,31 @@ public class SingleUpdateHandler {
             throw new UpdateFailedException();
         }
 
+        // apply object transformation
+        RpslObject updatedObjectWithAutoKeys = updatedObject;
+        for (Transformer transformer : transformers) {
+            updatedObjectWithAutoKeys = transformer.transform(updatedObjectWithAutoKeys, update, updateContext, action);
+        }
+
+        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
+
         // add authentication to context
         authenticator.authenticate(origin, preparedUpdate, updateContext);
 
         // attributegenerators rely on authentication info
         for (AttributeGenerator attributeGenerator : attributeGenerators) {
-            updatedObject = attributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+            updatedObjectWithAutoKeys = attributeGenerator.generateAttributes(originalObject, updatedObjectWithAutoKeys, update, updateContext);
         }
 
         // need to recalculate action after attributegenerators
-        action = getAction(originalObject, updatedObject, update, updateContext, keyword);
+        action = getAction(originalObject, updatedObjectWithAutoKeys, update, updateContext, keyword);
         updateContext.setAction(update, action);
         if (action == Action.NOOP) {
-            updatedObject = originalObject;
+            updatedObjectWithAutoKeys = originalObject;
         }
 
         // re-generate preparedUpdate
-        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
+        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
