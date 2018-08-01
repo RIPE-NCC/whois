@@ -137,15 +137,6 @@ public class AuthoritativeResource {
         );
     }
 
-
-    public boolean isRouteMaintainedInRirSpace(final Ipv4RouteEntry routeEntry) {
-        return isMaintainedInRirSpace(ObjectType.ROUTE, routeEntry);
-    }
-
-    public boolean isRouteMaintainedInRirSpace(final Ipv6RouteEntry routeEntry) {
-        return isMaintainedInRirSpace(ObjectType.ROUTE6, routeEntry);
-    }
-
     private boolean isMaintainedInRirSpace(final ObjectType routeType, final RouteEntry<?> routeEntry) {
          final RpslObject rpsl = RpslObject.parse(
                 routeType.getName() + ": " + routeEntry.getKey().toString()+ "\n" +
