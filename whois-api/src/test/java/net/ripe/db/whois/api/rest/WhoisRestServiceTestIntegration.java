@@ -16,12 +16,15 @@ import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceDao;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -58,6 +61,7 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -4360,6 +4364,531 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
         MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+    }
+
+    @Test
+    public void lookup_route_out_of_region_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+        databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().get();
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void lookup_route6_out_of_region_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "::/0");
+
+        databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().get();
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route6/2a01:400::/22AS12726".toLowerCase()));
+
+        databaseHelper.addAuthoritativeResource("test", "::/0");
+
+    }
+
+    @Test
+    public void delete_route_out_of_region_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+        databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().delete();
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void delete_route6_out_of_region_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "::/0");
+
+        databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().delete();
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route6/2a01:400::/22AS12726".toLowerCase()));
+
+        databaseHelper.addAuthoritativeResource("test", "::/0");
+
+    }
+
+    @Test
+    public void update_route_out_of_region_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+        final RpslObject rpslObject = databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request()
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void update_route6_out_of_region_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "::/0");
+
+        final RpslObject rpslObject = databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request()
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route6/2a01:400::/22AS12726".toLowerCase()));
+
+        databaseHelper.addAuthoritativeResource("test", "::/0");
+
+    }
+
+    @Test
+    public void lookup_route_out_of_region_no_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+        databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().get();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void lookup_route6_out_of_region_no_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "::/0");
+
+        databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().get();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        databaseHelper.addAuthoritativeResource("test", "::/0");
+
+    }
+
+    @Test
+    public void delete_route_out_of_region_no_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+        databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .queryParam("password", "test")
+                .request().delete();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void delete_route6_out_of_region_no_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "::/0");
+
+        databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT \n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .queryParam("password", "test")
+                .request()
+                .delete();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        databaseHelper.addAuthoritativeResource("test", "::/0");
+
+    }
+
+    @Test
+    public void update_route_out_of_region_no_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+        final RpslObject rpslObject = databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void update_route6_out_of_region_no_redirect() {
+        databaseHelper.deleteAuthoritativeResource("test", "::/0");
+
+        final RpslObject rpslObject = databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT \n" +
+                        "source:          TEST-NONAUTH\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        databaseHelper.addAuthoritativeResource("test", "::/0");
+
+    }
+
+
+    @Test
+    public void lookup_route_in_region_redirect() {
+        databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().get();
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route/192.168.0.0/24AS12726".toLowerCase()));
+    }
+
+    @Test
+    public void lookup_route6_in_region_redirect() {
+        databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().get();
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route6/2a01:400::/22AS12726".toLowerCase()));
+
+    }
+
+    @Test
+    public void delete_route_in_region_redirect() {
+        databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().delete();
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route/192.168.0.0/24AS12726".toLowerCase()));
+    }
+
+    @Test
+    public void delete_route6_in_region_redirect() {
+        databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().delete();
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route6/2a01:400::/22AS12726".toLowerCase()));
+
+    }
+
+    @Test
+    public void update_route_in_region_redirect() {
+        final RpslObject rpslObject = databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request()
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route/192.168.0.0/24AS12726".toLowerCase()));
+    }
+
+    @Test
+    public void update_route6_in_region_redirect() {
+        final RpslObject rpslObject = databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test-nonauth/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request()
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
+
+        assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route6/2a01:400::/22AS12726".toLowerCase()));
+
+    }
+
+    @Test
+    public void lookup_route_in_region_no_redirect() {
+        databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().get();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+    }
+
+    @Test
+    public void lookup_route6_in_region_no_redirect() {
+        databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .request().get();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+    }
+
+    @Test
+    public void delete_route_in_region_no_redirect() {
+        databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .queryParam("password", "test")
+                .request().delete();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+    }
+
+    @Test
+    public void delete_route6_in_region_no_redirect() {
+
+        databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT \n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .queryParam("password", "test")
+                .request()
+                .delete();
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+    }
+
+    @Test
+    public void update_route_in_region_no_redirect() {
+        final RpslObject rpslObject = databaseHelper.addObject(
+                "route:           192.168.0.0/24\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+
+        final Response response = RestTest.target(getPort(), "whois/test/route/192.168.0.0/24AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+    }
+
+    @Test
+    public void update_route6_in_region_no_redirect() {
+
+        final RpslObject rpslObject = databaseHelper.addObject(
+                "route6:           2a01:400::/22\n" +
+                        "descr:           Test route\n" +
+                        "origin:          AS12726\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "mnt-routes:      OWNER-MNT \n" +
+                        "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final Response response = RestTest.target(getPort(), "whois/test/route6/2a01:400::/22AS12726")
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
+
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
     }
 
     // helper methods

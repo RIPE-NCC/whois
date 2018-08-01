@@ -36,6 +36,7 @@ public class DefaultSourceContext implements SourceContext {
     private final CIString mainSourceName;
     private final Source mainMasterSource;
     private final Source mainSlaveSource;
+    private final Source mainNonAuthSource;
 
     private final String nonauthRipeSourceNameString;
 
@@ -74,6 +75,7 @@ public class DefaultSourceContext implements SourceContext {
         this.mainSlaveSource = Source.slave(mainSourceName);
 
         this.nonauthRipeSourceNameString = nonauthRipeSourceNameString;
+        this.mainNonAuthSource = Source.master(this.nonauthRipeSourceNameString);
 
         final Set<CIString> additionalSources = Sets.newLinkedHashSet();
         final Set<CIString> grsSources = Sets.newLinkedHashSet();
@@ -232,6 +234,13 @@ public class DefaultSourceContext implements SourceContext {
 
     public Source getWhoisSlaveSource() {
         return mainSlaveSource;
+    }
+
+    public Source getWhoisMasterSource() {
+        return mainMasterSource;
+    }
+    public Source getNonauthSource() {
+        return mainNonAuthSource;
     }
 
     @Override
