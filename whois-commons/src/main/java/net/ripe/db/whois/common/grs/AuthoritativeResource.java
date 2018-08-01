@@ -106,28 +106,39 @@ public class AuthoritativeResource {
      * @return true when route(6) is maintained in this RIR space
      */
     public boolean isRouteMaintainedInRirSpace(final RpslObject rpslObject) {
-        switch (rpslObject.getType()) {
+        return isRouteMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
+    }
+
+    public boolean isRouteMaintainedInRirSpace(final ObjectType objectType, CIString key) {
+        switch (objectType) {
             case ROUTE:
-                return isMaintainedInRirSpace(
-                        INETNUM,
-                        // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
-                        ciString(Ipv4RouteEntry.parse(rpslObject.getKey().toString(), 0).getKey().toString())
-                );
+                return isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key.toString(), 0));
             case ROUTE6:
-                return isMaintainedInRirSpace(
-                        INET6NUM,
-                        // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
-                        ciString(Ipv6RouteEntry.parse(rpslObject.getKey().toString(), 0).getKey().toString())
-                );
+                return isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key.toString(), 0));
             default:
-                throw new IllegalArgumentException(String.format("%s is not a route", rpslObject.getType()));
+                throw new IllegalArgumentException(String.format("%s is not a route", objectType));
         }
+    }
+
+    public boolean isRouteMaintainedInRirSpace(final Ipv4RouteEntry routeEntry) {
+        return isMaintainedInRirSpace(
+                INETNUM,
+                // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
+                ciString(routeEntry.getKey().toString())
+        );
+    }
+
+    public boolean isRouteMaintainedInRirSpace(final Ipv6RouteEntry routeEntry) {
+        return isMaintainedInRirSpace(
+                INET6NUM,
+                // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
+                ciString(routeEntry.getKey().toString())
+        );
     }
 
     private AsnRange parseAsn(final CIString pkey) {
         return Asn.parse(pkey.toString()).asRange();
     }
-
 
     private Ipv6Range parseIpv6(final CIString pkey) {
         // use whois-common library to parse input

@@ -807,6 +807,32 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_autnum_out_of_region() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS105\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-NONAUTH\n");
+        databaseHelper.addObject(autnum);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(),
+                "whois/TEST-NONAUTH/aut-num/AS105")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(whoisObject.getTags(), contains(
+                new WhoisTag("foobar", "description"),
+                new WhoisTag("other", "other stuff"),
+                new WhoisTag("unref", "28")));
+    }
+
+    @Test
     public void lookup_mntner() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT").request().get(WhoisResources.class);
 

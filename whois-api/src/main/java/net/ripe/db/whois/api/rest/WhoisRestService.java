@@ -336,7 +336,7 @@ public class WhoisRestService {
     }
 
     private boolean isValidSource(final String source) {
-        return sourceContext.getAllSourceNames().contains(ciString(source));
+        return sourceContext.isOutOfRegion(source) || sourceContext.getAllSourceNames().contains(ciString(source));
     }
 
     void setDryRun(final UpdateContext updateContext, final String dryRun) {

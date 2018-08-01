@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest.mapper;
 
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
+import net.ripe.db.whois.api.rest.SourceResolver;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.common.domain.CIString;
@@ -19,6 +20,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -28,12 +31,15 @@ public class FormattedServerAttributeMapperTest {
 
     @Mock
     private ReferencedTypeResolver referencedTypeResolver;
+    @Mock
+    private SourceResolver sourceResolver;
 
     private FormattedServerAttributeMapper subject;
 
     @Before
     public void setup() {
-        subject = new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL);
+        subject = new FormattedServerAttributeMapper(referencedTypeResolver, sourceResolver, BASE_URL);
+        when(sourceResolver.getSource(anyString(), any(CIString.class))).thenReturn("TEST");
     }
 
     @Test
