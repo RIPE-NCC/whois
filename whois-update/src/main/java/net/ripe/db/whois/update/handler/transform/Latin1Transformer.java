@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.transform;
 
-import net.ripe.db.whois.common.CharacterSetConversion;
+import net.ripe.db.whois.common.Latin1Conversion;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -8,9 +8,11 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
+@Order(1)
 public class Latin1Transformer implements Transformer {
 
     public RpslObject transform(final RpslObject rpslObject,
@@ -19,13 +21,13 @@ public class Latin1Transformer implements Transformer {
                                 final Action action) {
         final RpslObjectBuilder updatedRpslObject = new RpslObjectBuilder();
         for (RpslAttribute attribute : rpslObject.getAttributes()) {
-            if (CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue())) {
+            if (Latin1Conversion.isLatin1(attribute.getValue())) {
                 updatedRpslObject.append(attribute);
             } else {
                 updatedRpslObject.append(
                         new RpslAttribute(attribute.getType(),
-                                CharacterSetConversion.convertToLatin1(attribute.getValue())));
-                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()));
+                                Latin1Conversion.convertToLatin1(attribute.getValue())));
+                updateContext.addMessage(update, attribute, UpdateMessages.valueChangedDueToLatin1Conversion());
             }
         }
         return updatedRpslObject.get();

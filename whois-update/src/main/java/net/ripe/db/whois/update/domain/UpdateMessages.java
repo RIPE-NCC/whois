@@ -606,8 +606,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
     }
 
-    public static Message valueChangedDueToLatin1Conversion(final String attributeName) {
-        return new Message(Type.WARNING, "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", attributeName);
+    public static Message valueChangedDueToLatin1Conversion() {
+        return new Message(Type.WARNING, "Attribute value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
     }
 
     public static Message replacedNonBreakSpaces() {
