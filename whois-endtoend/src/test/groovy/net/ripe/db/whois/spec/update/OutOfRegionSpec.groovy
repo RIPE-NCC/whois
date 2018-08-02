@@ -455,12 +455,6 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
                  "Object has wrong source, should be TEST"]
-
-        when:
-        def autnum = restLookup(ObjectType.AUT_NUM, "AS251", "update");
-
-        then:
-        hasAttribute(autnum, "source", "TEST-NONAUTH", null);
     }
 
     def "modify in region aut-num, nonauth source, using override"() {
@@ -494,12 +488,6 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
                  "Object has wrong source, should be TEST"]
-
-        when:
-        def autnum = restLookup(ObjectType.AUT_NUM, "AS251", "update");
-
-        then:
-        hasAttribute(autnum, "source", "TEST-NONAUTH", null);
     }
 
     def "modify out of region aut-num, using override"() {
@@ -1781,6 +1769,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ]
 
         queryObject("-rGBT route6 2001:400::/24", "route6", "2001:400::/24")
+        restLookup(ObjectType.ROUTE6, "2001:400::/24AS252", "update");
     }
 
     def "modify out of region route6, rs maintainer, wrong source"() {

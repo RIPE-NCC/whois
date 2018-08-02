@@ -39,7 +39,7 @@ public class FormattedServerAttributeMapperTest {
     @Before
     public void setup() {
         subject = new FormattedServerAttributeMapper(referencedTypeResolver, sourceResolver, BASE_URL);
-        when(sourceResolver.getSource(anyString(), any(CIString.class))).thenReturn("TEST");
+        when(sourceResolver.getSource(anyString(), any(CIString.class), anyString())).thenReturn("TEST");
     }
 
     @Test

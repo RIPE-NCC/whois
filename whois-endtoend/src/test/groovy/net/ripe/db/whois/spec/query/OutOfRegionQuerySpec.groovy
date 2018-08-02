@@ -457,18 +457,4 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
                     "source:         2GRS"
     }
 
-    def "query --resource AS1000 match in GRS"() {
-        when:
-        databaseHelper.addObjectToSource("1-GRS", "aut-num: AS1000\nsource: 1-GRS")
-        databaseHelper.addObjectToSource("2-GRS", "aut-num: AS10")
-        databaseHelper.addObjectToSource("3-GRS", "aut-num: AS100")
-        databaseHelper.addObjectToSource("TEST", "aut-num: AS1000\ndescr: prove is from TEST-source\nsource: TEST-NONAUTH")
-
-        def response = query("--resource AS1000")
-        then:
-        response =~ "aut-num:        AS1000"
-        response != ~"No entries found"
-        response != ~"descr: prove is from TEST-source"
-    }
-
 }

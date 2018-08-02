@@ -44,7 +44,7 @@ public class FormattedServerAttributeMapper implements FormattedAttributeMapper 
             final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), value) : null;
 
             final Link link = (referencedType != null) ?
-                    Link.create(baseUrl, sourceResolver.getSource(referencedType, value), referencedType, getLinkValue(rpslAttribute.getType(), value)) : null;
+                    Link.create(baseUrl, sourceResolver.getSource(referencedType, value, source), referencedType, getLinkValue(rpslAttribute.getType(), value)) : null;
 
             result.add(new Attribute(rpslAttribute.getKey(), value.toString(), rpslAttribute.getCleanComment(), referencedType, link, null));
         }

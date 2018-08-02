@@ -72,7 +72,7 @@ public class WhoisObjectServerMapperTest {
         });
         whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper, resourceHolderSearch, abuseContactSearch, managedAttributeSearch);
         when(parameters.getUnformatted()).thenReturn(Boolean.FALSE);
-        when(sourceResolver.getSource(anyString(), any(CIString.class))).thenReturn("test");
+        when(sourceResolver.getSource(anyString(), any(CIString.class), anyString())).thenReturn("test");
     }
 
     @Test

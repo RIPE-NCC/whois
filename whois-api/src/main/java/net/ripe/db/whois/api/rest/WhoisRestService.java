@@ -7,8 +7,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
-import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -49,6 +47,8 @@ import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMap
 import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
 
 @Component
 @Path("/")
@@ -324,9 +324,9 @@ public class WhoisRestService {
                 case AUT_NUM:
                     return !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
                 case ROUTE:
-                    return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0));
+                    return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE, ciString(key));
                 case ROUTE6:
-                    return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key, 0));
+                    return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE6, ciString(key));
                 default:
                     return false;
             }
@@ -341,9 +341,9 @@ public class WhoisRestService {
                 case AUT_NUM:
                     return authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
                 case ROUTE:
-                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key, 0));
+                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE, ciString(key));
                 case ROUTE6:
-                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key, 0));
+                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE6, ciString(key));
                 default:
                     return false;
             }

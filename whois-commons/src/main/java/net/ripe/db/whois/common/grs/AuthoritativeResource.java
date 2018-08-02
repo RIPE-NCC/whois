@@ -16,7 +16,6 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
 import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
-import net.ripe.db.whois.common.iptree.RouteEntry;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
@@ -111,17 +110,21 @@ public class AuthoritativeResource {
     }
 
     public boolean isRouteMaintainedInRirSpace(final ObjectType objectType, CIString key) {
-        switch (objectType) {
-            case ROUTE:
-                return isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key.toString(), 0));
-            case ROUTE6:
-                return isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key.toString(), 0));
-            default:
-                throw new IllegalArgumentException(String.format("%s is not a route", objectType));
+        try {
+            switch (objectType) {
+                case ROUTE:
+                    return isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key.toString(), 0));
+                case ROUTE6:
+                    return isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key.toString(), 0));
+            }
+        } catch (IllegalArgumentException iae) {
+            return true; // if route key parsing failed we can't determine if it's out of region
         }
+
+        throw new IllegalArgumentException(String.format("%s is not a route", objectType));
     }
 
-    public boolean isRouteMaintainedInRirSpace(final Ipv4RouteEntry routeEntry) {
+    private boolean isRouteMaintainedInRirSpace(final Ipv4RouteEntry routeEntry) {
         return isMaintainedInRirSpace(
                 INETNUM,
                 // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
@@ -129,22 +132,13 @@ public class AuthoritativeResource {
         );
     }
 
-    public boolean isRouteMaintainedInRirSpace(final Ipv6RouteEntry routeEntry) {
+    private boolean isRouteMaintainedInRirSpace(final Ipv6RouteEntry routeEntry) {
         return isMaintainedInRirSpace(
                 INET6NUM,
                 // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
                 ciString(routeEntry.getKey().toString())
         );
     }
-
-    private boolean isMaintainedInRirSpace(final ObjectType routeType, final RouteEntry<?> routeEntry) {
-         final RpslObject rpsl = RpslObject.parse(
-                routeType.getName() + ": " + routeEntry.getKey().toString()+ "\n" +
-                        "origin: "+routeEntry.getOrigin());
-
-        return this.isRouteMaintainedInRirSpace(rpsl);
-    }
-
 
     private AsnRange parseAsn(final CIString pkey) {
         return Asn.parse(pkey.toString()).asRange();

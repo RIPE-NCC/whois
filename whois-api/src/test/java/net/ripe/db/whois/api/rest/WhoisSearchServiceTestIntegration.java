@@ -50,7 +50,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -1808,7 +1807,38 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+
+        final WhoisObject autnum = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(autnum.getType(), is("aut-num"));
+        assertThat(autnum.getSource().getId(), is("test-nonauth"));
+        assertThat(autnum.getLink().getType(), is("locator"));
+        assertThat(autnum.getLink().getHref(), is("http://rest-test.db.ripe.net/test-nonauth/aut-num/AS102"));
+        assertThat(autnum.getAttributes(), contains(
+                new Attribute("aut-num", "AS102"),
+                new Attribute("as-name", "End-User-2"),
+                new Attribute("descr", "description"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST-NONAUTH")
+        ));
+
+        final WhoisObject person = whoisResources.getWhoisObjects().get(1);
+
+        assertThat(person.getType(), is("person"));
+        assertThat(person.getSource().getId(), is("test"));
+        assertThat(person.getLink().getType(), is("locator"));
+        assertThat(person.getLink().getHref(), is("http://rest-test.db.ripe.net/test/person/TP1-TEST"));
+        assertThat(person.getAttributes(), contains(
+                new Attribute("person", "Test Person"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31 6 12345678"),
+                new Attribute("nic-hdl", "TP1-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")
+        ));
     }
 
     @Test
@@ -1827,10 +1857,41 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+
+        final WhoisObject route = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(route.getType(), is("route"));
+        assertThat(route.getSource().getId(), is("test-nonauth"));
+        assertThat(route.getLink().getType(), is("locator"));
+        assertThat(route.getLink().getHref(), is("http://rest-test.db.ripe.net/test-nonauth/route/193.4.0.0/16AS102"));
+        assertThat(route.getAttributes(), contains(
+                new Attribute("route", "193.4.0.0/16"),
+                new Attribute("descr", "Ripe test allocation"),
+                new Attribute("origin", "AS102"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("mnt-lower", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST-NONAUTH")
+        ));
+
+        final WhoisObject person = whoisResources.getWhoisObjects().get(1);
+
+        assertThat(person.getType(), is("person"));
+        assertThat(person.getSource().getId(), is("test"));
+        assertThat(person.getLink().getType(), is("locator"));
+        assertThat(person.getLink().getHref(), is("http://rest-test.db.ripe.net/test/person/TP1-TEST"));
+        assertThat(person.getAttributes(), contains(
+                new Attribute("person", "Test Person"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31 6 12345678"),
+                new Attribute("nic-hdl", "TP1-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")
+        ));
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void search_route_by_sources_auth_given() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "route:           193.4.0.0/16\n" +
@@ -1844,13 +1905,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&source=TEST")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
-
-        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST-NONAUTH");
-        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(),"TEST");
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertFalse(hasSourceTestNonAuth);
-        assertTrue(hasSourceTest);
     }
 
     @Test
