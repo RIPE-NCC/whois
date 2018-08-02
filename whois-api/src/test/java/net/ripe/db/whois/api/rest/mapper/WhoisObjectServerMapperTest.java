@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
+import net.ripe.db.whois.api.rest.SourceResolver;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Parameters;
@@ -39,6 +40,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -56,6 +58,8 @@ public class WhoisObjectServerMapperTest {
     private ManagedAttributeSearch managedAttributeSearch;
     @Mock
     private Parameters parameters;
+    @Mock
+    private SourceResolver sourceResolver;
 
     private WhoisObjectServerMapper whoisObjectServerMapper;
     private WhoisObjectMapper whoisObjectMapper;
@@ -63,11 +67,12 @@ public class WhoisObjectServerMapperTest {
     @Before
     public void setup() {
         whoisObjectMapper = new WhoisObjectMapper(BASE_URL, new AttributeMapper[]{
-                new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL),
+                new FormattedServerAttributeMapper(referencedTypeResolver, sourceResolver, BASE_URL),
                 new FormattedClientAttributeMapper()
         });
         whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper, resourceHolderSearch, abuseContactSearch, managedAttributeSearch);
         when(parameters.getUnformatted()).thenReturn(Boolean.FALSE);
+        when(sourceResolver.getSource(anyString(), any(CIString.class))).thenReturn("test");
     }
 
     @Test

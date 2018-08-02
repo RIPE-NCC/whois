@@ -34,7 +34,7 @@ public class MntRoutesValidatorTest {
 
     @Test
     public void getTypes() {
-        assertThat(subject.getTypes(), contains(ObjectType.AUT_NUM, ObjectType.INET6NUM, ObjectType.INETNUM, ObjectType.ROUTE, ObjectType.ROUTE6));
+        assertThat(subject.getTypes(), contains(ObjectType.INET6NUM, ObjectType.INETNUM, ObjectType.ROUTE, ObjectType.ROUTE6));
     }
 
     @Test

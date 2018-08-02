@@ -44,7 +44,6 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      ORIGIN-MB-MNT
-                mnt-routes:  ORIGIN-MR-MNT
                 source:      TEST
                 """,
             "AS10000-LOW-ROUTES": """\
@@ -55,7 +54,6 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      ORIGIN-MB-MNT
                 mnt-lower:   ORIGIN-ML-MNT
-                mnt-routes:  ORIGIN-MR-MNT
                 source:      TEST
                 """,
             "ROUTE": """\
@@ -71,7 +69,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
       given:
 
       expect:
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
+      queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
 
       when:
         def message = send new Message(
@@ -92,15 +90,9 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS9000" }
-        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS9000") ==
-              ["Unknown object referenced AS9000",
-                      "Authorisation for [route] 99.13.0.0/16AS9000 failed using \"origin:\" no valid maintainer found"]
-
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
     }
 
     def "create child route, no origin exists, override"() {
@@ -127,16 +119,13 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 1)
-        ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS9000" }
-        ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS9000") ==
-              ["Unknown object referenced AS9000"]
-        ack.infoMessagesFor("Create", "[route] 99.13.0.0/16AS9000") == [
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.infoSuccessMessagesFor("Create", "[route] 99.13.0.0/16AS9000") == [
                 "Authorisation override used"]
 
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
+        queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
 
     def "create child route, no passwords, override"() {
@@ -209,48 +198,6 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
 
-    def "create child route, origin mb no password"() {
-      given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
-        queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS10000") + "password: mb-origin\npassword: hm")
-        queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
-
-      expect:
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          99.13.0.0/16
-                descr:          Route
-                origin:         AS10000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-parent
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-
-        def success = ack.pendingUpdates.find { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        success != null
-        success.warnings == ["This update has only passed one of the two required hierarchical authorisations"]
-        success.infos == ["Authorisation for [aut-num] AS10000 failed using \"mnt-by:\" not authenticated by: ORIGIN-MB-MNT",
-                          "The route object 99.13.0.0/16AS10000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
-    }
-
     def "create child route, origin mb ml, mb password supplied"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
@@ -289,92 +236,6 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
 
-    def "create child route, origin mb ml, ml password supplied"() {
-      given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
-        queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS10000-LOW") + "password: mb-origin\npassword: hm")
-        queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
-
-      expect:
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          99.13.0.0/16
-                descr:          Route
-                origin:         AS10000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-parent
-                password:   ml-origin
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.warningPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Authorisation for [aut-num] AS10000 failed using \"mnt-by:\" not authenticated by: ORIGIN-MB-MNT",
-               "The route object 99.13.0.0/16AS10000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
-    }
-
-    def "create child route, origin mb mr, mb password supplied"() {
-      given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
-        queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS10000-ROUTES") + "password: mb-origin\npassword: hm")
-        queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
-
-      expect:
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          99.13.0.0/16
-                descr:          Route
-                origin:         AS10000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-parent
-                password:   mb-origin
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.warningPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Authorisation for [aut-num] AS10000 failed using \"mnt-routes:\" not authenticated by: ORIGIN-MR-MNT",
-               "The route object 99.13.0.0/16AS10000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
-    }
-
     def "create child route, origin mb mr, mr password supplied"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
@@ -411,92 +272,6 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
-    }
-
-    def "create child route, origin mb ml mr, mb password supplied"() {
-      given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
-        queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS10000-LOW-ROUTES") + "password: mb-origin\npassword: hm")
-        queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
-
-      expect:
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          99.13.0.0/16
-                descr:          Route
-                origin:         AS10000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-parent
-                password:   mb-origin
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.warningPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Authorisation for [aut-num] AS10000 failed using \"mnt-routes:\" not authenticated by: ORIGIN-MR-MNT",
-               "The route object 99.13.0.0/16AS10000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
-    }
-
-    def "create child route, origin mb ml mr, ml password supplied"() {
-      given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
-        queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS10000-LOW-ROUTES") + "password: mb-origin\npassword: hm")
-        queryObject("-r -T aut-num AS10000", "aut-num", "AS10000")
-
-      expect:
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                route:          99.13.0.0/16
-                descr:          Route
-                origin:         AS10000
-                mnt-by:         CHILD-MB-MNT
-                source:         TEST
-
-                password:   mb-child
-                password:   mb-parent
-                password:   ml-origin
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 2)
-        ack.pendingUpdates.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
-        ack.warningPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["This update has only passed one of the two required hierarchical authorisations"]
-        ack.infoPendingMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
-              ["Authorisation for [aut-num] AS10000 failed using \"mnt-routes:\" not authenticated by: ORIGIN-MR-MNT",
-               "The route object 99.13.0.0/16AS10000 will be saved for one week pending the second authorisation"]
-
-        queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
 
     def "create child route, origin mb ml mr, mr password supplied"() {
@@ -604,14 +379,11 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[route] 255.13.0.0/16AS999000" }
-        ack.errorMessagesFor("Modify", "[route] 255.13.0.0/16AS999000") ==
-              ["Unknown object referenced AS999000"]
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
 
-        query_object_not_matches("-rGBT route 255.13.0.0/16", "route", "255.13.0.0/16", "just added")
+        queryObject("-rGBT route 255.13.0.0/16", "route", "255.13.0.0/16")
     }
 
     def "delete child route, no origin, child mb password supplied"() {
@@ -690,7 +462,6 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("AS0 - AS4294967295") + "override: denis,override1")
         queryObject("-r -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS10000-LOW-ROUTES") + "password: mb-origin\npassword: hm")
-        query_object_matches("-r -T aut-num AS10000", "aut-num", "AS10000", "mnt-routes:")
         syncUpdate(getTransient("ROUTE") + "password: mr-origin\npassword: mb-parent\npassword: mb-child")
         queryObject("-r -T route 99.13.0.0/16", "route", "99.13.0.0/16")
 
