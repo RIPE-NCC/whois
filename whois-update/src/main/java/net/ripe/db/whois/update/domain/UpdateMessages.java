@@ -654,6 +654,10 @@ public final class UpdateMessages {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
     }
 
+    public static Message mntRoutesAttributeRemoved() {
+        return new Message(Messages.Type.WARNING, "Deprecated attribute \"mnt-routes\". This attribute has been removed.");
+    }
+
     public static Message emailAddressCannotBeUsed(final CIString value) {
         return new Message(Type.ERROR, "The email address \"%s\" cannot be used.", value);
     }

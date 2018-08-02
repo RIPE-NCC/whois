@@ -747,6 +747,59 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                               to AS1 11:22:33:44:55:66:77:88 at 11:22:33:44:55:66:77:87
                               action pref=100;
                               networks {1.2.3.4/24, 1::2/35}
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent()
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
+
+        queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
+    }
+
+    def "create aut-num, mnt-routes attributes are filtered out"() {
+      given:
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
+
+      expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+
+      when:
+        def message = syncUpdate("""
+                aut-num:        AS250
+                as-name:      ASTEST
+                descr:        TEST TELEKOM
+                status:       ASSIGNED
+                import:       from AS1 accept {1.2.3.4/24}
+                export:       to AS2 announce {1.2.3.4/24}
+                mp-import:    afi ipv4.unicast from AS1 accept ANY;
+                mp-export:    afi ipv6 to AS1 announce {1.2.3.4/24};
+                mp-import:    afi ipv4.multicast, ipv6, ipv4.unicast
+                              from AS1 1.2.3.4 at 1.2.3.4
+                              accept AS2 AND { 1.2.3.4/2, 11:22:33:44:55:66:77:88/35} OR as10;
+                mp-import:    afi ipv4
+                              from AS1 11:22:33:44:55:66:77:88 at 11:22:33:44:55::87
+                              action community.append(100:10);
+                              accept ANY;
+                mp-default:   afi ipv4, ipv4.unicast, ipv6
+                              to AS1 11:22:33:44:55:66:77:88 at 11:22:33:44:55:66:77:87
+                              action pref=100;
+                              networks {1.2.3.4/24, 1::2/35}
                 mnt-routes:   LIR2-MNT {1.2.3.0/25, 1::0/35}
                 mnt-routes:   LIR2-MNT {1.2.3.0/25, 1::0/35}
                 mnt-routes:   LIR2-MNT {1.2.3.0/25}
@@ -771,10 +824,14 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
+                ["Deprecated attribute \"mnt-routes\". This attribute has been removed."]
+
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
+        !queryMatches("-rGBT aut-num AS250", "mnt-routes")
     }
 
     def "create aut-num, import only"() {
@@ -1792,6 +1849,53 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT aut-num AS200", "aut-num", "AS200", "RIPE-NCC-END-MNT")
     }
 
+    def "modify aut-num, added mnt-routes are filtered out"() {
+      given:
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+
+      expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS200
+                as-name:        ASTEST
+                descr:          description
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                mnt-routes:     ROUTES-MNT      # added
+                source:         TEST
+                password:   lir
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
+        ack.warningSuccessMessagesFor("No operation", "[aut-num] AS200") ==
+                ["Deprecated attribute \"mnt-routes\". This attribute has been removed.",
+                 "Submitted object identical to database object"]
+
+        !queryMatches("-rGBT aut-num AS200", "mnt-routes")
+    }
+
+
     def "create aut-num, (mp-)import/export/default have invalid AS values"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
@@ -2585,7 +2689,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 remarks:      --------------------------------------------------------------
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                mnt-routes:   ROUTES-MNT
                 mnt-by:       RIPE-NCC-END-MNT
                 source:       TEST
 

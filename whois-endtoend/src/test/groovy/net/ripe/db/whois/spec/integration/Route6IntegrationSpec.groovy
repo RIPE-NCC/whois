@@ -71,7 +71,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           "foobar" Ltd
                     org:             ORG-NCC1-RIPE
                     mnt-by:          TEST-MNT
-                    mnt-routes:      ROUTES-MNT
                     source:          TEST
                 """,
                 "AS789": """\
@@ -88,7 +87,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           "bogus" Ltd
                     org:             ORG-NCC1-RIPE
                     mnt-by:          TEST-MNT
-                    mnt-routes:      ROUTES-MNT
                     source:          TEST
                 """,
                 "MNTBY_ROUTE6": """\
@@ -884,7 +882,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: "bogus" Ltd
                             org: ORG-NCC1-RIPE
                             mnt-by: TEST-MNT
-                            mnt-routes: ROUTES-MNT
                             source: TEST
                             delete: reason
                             password: update
