@@ -33,6 +33,10 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
         whoisFixture.dumpSchema()
     }
 
+    def dumpInternalsSchema() {
+        whoisFixture.dumpInternalsSchema()
+    }
+
     def dnsCheckedFor(String key) {
         whoisFixture.dnsCheckedFor(key)
     }
