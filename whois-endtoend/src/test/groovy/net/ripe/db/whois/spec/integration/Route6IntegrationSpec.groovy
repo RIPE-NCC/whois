@@ -57,6 +57,14 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:       TEST-MNT
                     source:       TEST
                 """,
+                "AS103": """\
+                    aut-num:         AS103
+                    as-name:         TEST-AS
+                    org:             ORG-NCC1-RIPE
+                    notify:          notify@as103.net
+                    mnt-by:          TEST-MNT
+                    source:          TEST
+                """,
                 "AS123": """\
                     aut-num:         AS123
                     as-name:         SNS-AS
@@ -959,4 +967,73 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /SUCCESS/
     }
 
+    def "create route6 with non-existant origin aut-num"() {
+        given:
+        queryObjectNotFound("-r -T aut-num AS76", "aut-num", "AS76")
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route6:  2001:1578:0200::/40
+                            descr:  Test route6
+                            origin: AS76
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent()))
+      expect:
+        insertRoute =~ /SUCCESS/
+    }
+
+    def "create route6 and notify origin aut-num"() {
+        given:
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route6:  2001:1578:0200::/40
+                            descr:  Test route6
+                            origin: AS103
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent()))
+      expect:
+        insertRoute =~ /SUCCESS/
+
+        def notif = notificationFor "notify@as103.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.created.any { it.type == "route6" && it.key == "2001:1578:200::/40" }
+
+        noMoreMessages()
+
+      when:
+        def updateRoute = syncUpdate(new SyncUpdate(data: """\
+                            route6:  2001:1578:0200::/40
+                            descr:  Test route6
+                            origin: AS103
+                            remarks: updated
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent()))
+        then:
+          updateRoute =~ /SUCCESS/
+
+          noMoreMessages()
+    }
+
+    def "create route6 without notify origin aut-num"() {
+        given:
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route6:  2001:1578:0200::/40
+                            descr:  Test route6
+                            origin: AS123
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent()))
+      expect:
+        insertRoute =~ /SUCCESS/
+
+        noMoreMessages()
+    }
 }

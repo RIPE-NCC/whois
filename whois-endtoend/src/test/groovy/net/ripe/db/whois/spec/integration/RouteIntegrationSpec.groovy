@@ -67,6 +67,14 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:       TEST-MNT
                     source:       TEST
                 """,
+                "AS103": """\
+                    aut-num:         AS103
+                    as-name:         TEST-AS
+                    org:             ORG-NCC1-RIPE
+                    notify:          notify@as103.net
+                    mnt-by:          TEST-MNT
+                    source:          TEST
+                """,
                 "AS123": """\
                     aut-num:         AS123
                     as-name:         SNS-AS
@@ -1080,4 +1088,75 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         expect:
         insertRoute =~ /\nNumber of objects found:\s+0\n/
     }
+
+    def "create route with non-existant origin aut-num"() {
+        given:
+        queryObjectNotFound("-r -T aut-num AS76", "aut-num", "AS76")
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route:  195.0.0.0/24
+                            descr:  Test route
+                            origin: AS76
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent()))
+      expect:
+        insertRoute =~ /SUCCESS/
+    }
+
+    def "create route and notify origin aut-num"() {
+        given:
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route:  195.0.0.0/24
+                            descr:  Test route
+                            origin: AS103
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent()))
+      expect:
+        insertRoute =~ /SUCCESS/
+
+        def notif = notificationFor "notify@as103.net"
+        notif.subject =~ "Notification of RIPE Database changes"
+        notif.created.any { it.type == "route" && it.key == "195.0.0.0/24" }
+
+        noMoreMessages()
+
+      when:
+        def updateRoute = syncUpdate(new SyncUpdate(data: """\
+                            route:  195.0.0.0/24
+                            descr:  Test route
+                            origin: AS103
+                            remarks: updated
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent()))
+        then:
+          updateRoute =~ /SUCCESS/
+
+          noMoreMessages()
+    }
+
+    def "create route without notify origin aut-num"() {
+        given:
+        def insertRoute = syncUpdate(new SyncUpdate(data: """\
+                            route:  195.0.0.0/24
+                            descr:  Test route
+                            origin: AS123
+                            mnt-by: TEST-MNT
+                            source: TEST
+                            password: update
+                            password: emptypassword
+                            """.stripIndent()))
+      expect:
+        insertRoute =~ /SUCCESS/
+
+        noMoreMessages()
+    }
+
 }
