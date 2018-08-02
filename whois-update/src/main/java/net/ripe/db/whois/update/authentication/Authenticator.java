@@ -83,13 +83,7 @@ public class Authenticator {
         typesWithPendingAuthenticationSupport = Maps.newEnumMap(ObjectType.class);
         for (final AuthenticationStrategy authenticationStrategy : authenticationStrategies) {
             for (final ObjectType objectType : authenticationStrategy.getTypesWithPendingAuthenticationSupport()) {
-                Set<String> strategiesWithPendingAuthenticationSupport = typesWithPendingAuthenticationSupport.get(objectType);
-                if (strategiesWithPendingAuthenticationSupport == null) {
-                    strategiesWithPendingAuthenticationSupport = new HashSet<>();
-                    typesWithPendingAuthenticationSupport.put(objectType, strategiesWithPendingAuthenticationSupport);
-                }
-
-                strategiesWithPendingAuthenticationSupport.add(authenticationStrategy.getName());
+                typesWithPendingAuthenticationSupport.computeIfAbsent(objectType, k -> new HashSet<>()).add(authenticationStrategy.getName());
             }
         }
 
@@ -102,13 +96,7 @@ public class Authenticator {
 
     private static void addMaintainers(final Map<CIString, Set<Principal>> principalsMap, final Set<CIString> maintainers, final Principal principal) {
         for (final CIString maintainer : maintainers) {
-            Set<Principal> principals = principalsMap.get(maintainer);
-            if (principals == null) {
-                principals = Sets.newLinkedHashSet();
-                principalsMap.put(maintainer, principals);
-            }
-
-            principals.add(principal);
+            principalsMap.computeIfAbsent(maintainer, k -> Sets.newLinkedHashSet()).add(principal);
         }
     }
 

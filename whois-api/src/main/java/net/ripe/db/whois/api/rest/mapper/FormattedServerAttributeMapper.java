@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
+import net.ripe.db.whois.api.rest.SourceResolver;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.common.domain.CIString;
@@ -23,12 +24,15 @@ public class FormattedServerAttributeMapper implements FormattedAttributeMapper 
     private static final AttributeParser.MntRoutesParser MNT_ROUTES_PARSER = new AttributeParser.MntRoutesParser();
 
     private final ReferencedTypeResolver referencedTypeResolver;
+    private final SourceResolver sourceResolver;
     private final String baseUrl;
 
     @Autowired
     public FormattedServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver,
-                                        @Value("${api.rest.baseurl}") final String baseUrl) {
+                                          final SourceResolver sourceResolver,
+                                          @Value("${api.rest.baseurl}") final String baseUrl) {
         this.referencedTypeResolver = referencedTypeResolver;
+        this.sourceResolver = sourceResolver;
         this.baseUrl = baseUrl;
     }
 
@@ -38,7 +42,10 @@ public class FormattedServerAttributeMapper implements FormattedAttributeMapper 
         for (CIString value : rpslAttribute.getCleanValues()) {
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
             final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), value) : null;
-            final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, getLinkValue(rpslAttribute.getType(), value)) : null;
+
+            final Link link = (referencedType != null) ?
+                    Link.create(baseUrl, sourceResolver.getSource(referencedType, value, source), referencedType, getLinkValue(rpslAttribute.getType(), value)) : null;
+
             result.add(new Attribute(rpslAttribute.getKey(), value.toString(), rpslAttribute.getCleanComment(), referencedType, link, null));
         }
         return result;
