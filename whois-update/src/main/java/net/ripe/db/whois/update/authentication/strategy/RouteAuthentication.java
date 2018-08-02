@@ -30,11 +30,6 @@ abstract class RouteAuthentication extends AuthenticationStrategyBase {
         return update.getAction().equals(Action.CREATE) && (update.getType().equals(ObjectType.ROUTE) || update.getType().equals(ObjectType.ROUTE6));
     }
 
-    @Override
-    public Set<ObjectType> getTypesWithPendingAuthenticationSupport() {
-        return Sets.newHashSet(ObjectType.ROUTE, ObjectType.ROUTE6);
-    }
-
     List<RpslObject> getCandidatesForMntRoutesAuthentication(final RpslObject authenticationObject, final PreparedUpdate update) {
         final IpInterval ipInterval = IpInterval.parse(update.getUpdatedObject().getTypeAttribute().getCleanValue());
 

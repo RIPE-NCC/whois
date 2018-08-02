@@ -10,16 +10,20 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class Latin1TransformerTest {
 
     @Mock
@@ -31,8 +35,6 @@ public class Latin1TransformerTest {
 
     @Before
     public void setUp() throws Exception {
-        this.update = mock(Update.class);
-        this.updateContext = mock(UpdateContext.class);
         this.subject = new Latin1Transformer();
     }
 
@@ -70,7 +72,7 @@ public class Latin1TransformerTest {
 
         final RpslObject transformedPerson = subject.transform(person, update, updateContext, Action.NOOP);
 
-        assertNotNull(transformedPerson);
+        assertThat(transformedPerson, is(not(nullValue())));
         assertThat(transformedPerson.getAttributes().size(), is(7));
         assertThat(transformedPerson.getValueForAttribute(AttributeType.ADDRESS), is("???????? ?????,??????"));
         verify(updateContext).addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion("address"));
