@@ -497,10 +497,6 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Source %s is not allowed for %s objects", source, objectType.getName());
     }
 
-    public static Message wrongOutOfRegionSource(final CharSequence expectedSource) {
-        return new Message(Type.WARNING, "Object has wrong source, should be %s", expectedSource);
-    }
-
     public static Message cannotUseReservedAsNumber(final Long asNumber) {
         return new Message(Type.ERROR, "Cannot use reserved AS number %d", asNumber);
     }
