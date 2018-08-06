@@ -83,7 +83,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:         AP1-TEST
             notify:         noreply@ripe.net
             mnt-lower:      UPD-MNT
-            mnt-routes:     UPD-MNT
             mnt-by:         UPD-MNT
             source:         TEST
             """,
@@ -139,7 +138,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         tech-c:         AP1-TEST
                         notify:         noreply@ripe.net
                         mnt-lower:      UPD-MNT
-                        mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password:       update
