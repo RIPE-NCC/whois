@@ -4223,6 +4223,50 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(updateResponse.getErrorMessages().get(1).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # update comment")));
     }
 
+    @Test
+    public void comment_separator_not_included_in_response() {
+        databaseHelper.addObject(
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark # comment\n" +
+                "source:    TEST\n");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP1-TEST.json?unfiltered")
+                .request(MediaType.APPLICATION_JSON)
+                .get(WhoisResources.class);
+
+        final WhoisObject person = response.getWhoisObjects().get(0);
+        assertThat(person.getAttributes().get(6).getName(), is("remarks"));
+        assertThat(person.getAttributes().get(6).getValue(), is("remark"));
+        assertThat(person.getAttributes().get(6).getComment(), is("comment"));
+    }
+
+    @Test
+    public void multiple_comment_separators_not_included_in_response() {
+        databaseHelper.addObject(
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark # # comment\n" +
+                "source:    TEST\n");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP1-TEST.json?unfiltered")
+                .request(MediaType.APPLICATION_JSON)
+                .get(WhoisResources.class);
+
+        final WhoisObject person = response.getWhoisObjects().get(0);
+        assertThat(person.getAttributes().get(6).getName(), is("remarks"));
+        assertThat(person.getAttributes().get(6).getValue(), is("remark"));
+        assertThat(person.getAttributes().get(6).getComment(), is("comment"));
+    }
+
     // Cross-origin requests
 
     @Test
