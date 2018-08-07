@@ -63,7 +63,7 @@ public class SearchQueryExecutor implements QueryExecutor {
         for (final Source source : sources) {
             try {
                 sourceContext.setCurrent(source);
-                final Iterable<? extends ResponseObject> searchResults = rpslObjectSearcher.search(query);
+                final Iterable<? extends ResponseObject> searchResults = rpslObjectSearcher.search(query, sourceContext);
 
                 for (final ResponseObject responseObject : rpslResponseDecorator.getResponse(query, searchResults)) {
 

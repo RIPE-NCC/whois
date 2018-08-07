@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -38,12 +37,13 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 
 @Component
 public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
-    private final AttributeGenerator[] attributeGenerators;
+    private final List<AttributeGenerator> attributeGenerators;
     private final Transformer[] transformers;
     private final Latin1Transformer latin1Transformer;
     private final RpslObjectDao rpslObjectDao;
@@ -57,8 +57,11 @@ public class SingleUpdateHandler {
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
 
+    @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.nonauth.source}')}")
+    private CIString nonAuthSource;
+
     @Autowired
-    public SingleUpdateHandler(final AttributeGenerator[] attributeGenerators,
+    public SingleUpdateHandler(final List<AttributeGenerator> attributeGenerators,
                                final Transformer[] transformers,
                                final Latin1Transformer latin1Transformer,
                                final AttributeSanitizer attributeSanitizer,
@@ -70,6 +73,8 @@ public class SingleUpdateHandler {
                                final PendingUpdateHandler pendingUpdateHandler,
                                final SsoTranslator ssoTranslator) {
         this.attributeGenerators = attributeGenerators;
+        // sort AttributeGenerators so they are executed in a predictable order
+        this.attributeGenerators.sort((lhs, rhs) -> lhs.getClass().getName().compareToIgnoreCase(rhs.getClass().getName()));
         this.transformers = transformers;
         this.latin1Transformer = latin1Transformer;
         this.attributeSanitizer = attributeSanitizer;
@@ -215,11 +220,6 @@ public class SingleUpdateHandler {
 
         if (RpslObjectFilter.isFiltered(updatedObject)) {
             updateContext.addMessage(update, UpdateMessages.filteredNotAllowed());
-        }
-
-        final CIString objectSource = updatedObject.getValueOrNullForAttribute(AttributeType.SOURCE);
-        if (objectSource != null && !source.equals(objectSource)) {
-            updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource.toUpperCase()));
         }
 
         if (Operation.DELETE.equals(update.getOperation())) {

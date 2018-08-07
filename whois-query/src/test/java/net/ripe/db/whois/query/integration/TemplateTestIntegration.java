@@ -435,7 +435,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "status:         [generated]  [single]     [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
-                "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
@@ -696,18 +695,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     \"fltr-\" are reserved for filter set names. Names starting\n" +
                 "     with \"prng-\" are reserved for peering set names. Names\n" +
                 "     starting with \"irt-\" are reserved for irt names.\n" +
-                "\n" +
-                "mnt-routes\n" +
-                "\n" +
-                "   This attribute references a maintainer object which is used in\n" +
-                "   determining authorisation for the creation of route6 objects.\n" +
-                "   This entry is for the mnt-routes attribute of aut-num class.\n" +
-                "   After the reference to the maintainer, an optional list of\n" +
-                "   prefix ranges inside of curly braces or the keyword \"ANY\" may\n" +
-                "   follow. The default, when no additional set items are\n" +
-                "   specified, is \"ANY\" or all more specifics.\n" +
-                "\n" +
-                "     <mnt-name> [ { list of (<ipv4-address>/<prefix> or <ipv6-address>/<prefix>) } | ANY ]\n" +
                 "\n" +
                 "mnt-by\n" +
                 "\n" +

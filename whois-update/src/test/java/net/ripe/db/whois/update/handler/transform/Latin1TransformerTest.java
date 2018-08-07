@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
@@ -69,7 +71,7 @@ public class Latin1TransformerTest {
 
         final RpslObject transformedPerson = subject.transform(person, update, updateContext);
 
-        assertNotNull(transformedPerson);
+        assertThat(transformedPerson, is(not(nullValue())));
         assertThat(transformedPerson.getAttributes().size(), is(7));
         assertThat(transformedPerson.getValueForAttribute(AttributeType.ADDRESS), is("???????? ?????,??????"));
         verify(updateContext).addMessage(update, person.getAttributes().get(1), UpdateMessages.valueChangedDueToLatin1Conversion());

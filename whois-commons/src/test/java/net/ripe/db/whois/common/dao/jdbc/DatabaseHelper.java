@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.jdbc.driver.LoggingDriver;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -81,6 +82,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     @Autowired ApplicationContext applicationContext;
     @Autowired AttributeSanitizer attributeSanitizer;
     @Autowired SourceContext sourceContext;
+    @Autowired AuthoritativeResourceData authoritativeResourceData;
+
 
     RpslObjectDao rpslObjectDao;
     RpslObjectUpdateDao rpslObjectUpdateDao;
@@ -518,4 +521,16 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             }
         });
     }
+
+    public void deleteAuthoritativeResource(final String source, final String resource) {
+        internalsTemplate.execute("delete from authoritative_resource where source ='"+source+"' and resource = '"+resource+"'");
+        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+    }
+
+
+    public void addAuthoritativeResource(final String source, final String resource) {
+        internalsTemplate.execute("insert into authoritative_resource (source, resource) values ('"+source+"', '"+resource+"')");
+        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+    }
+
 }
