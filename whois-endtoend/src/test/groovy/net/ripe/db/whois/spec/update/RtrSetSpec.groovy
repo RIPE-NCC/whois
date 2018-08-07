@@ -37,9 +37,9 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 descr:        test rtr-set
                 members:      rtr1.isp.net,
                               rtrs-foo:AS123234:rtrs-test,
-                              10.233.33.0/24,
+                              10.233.33.1,
                 mp-members:   2001:1578::/32,
-                              192.233.33.0/24,
+                              192.233.33.1,
                               AS123:rtrs-foo
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
