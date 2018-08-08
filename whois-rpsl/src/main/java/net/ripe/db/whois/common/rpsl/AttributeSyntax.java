@@ -728,10 +728,29 @@ public interface AttributeSyntax extends Documented {
                     return validateRouteSetWithRange(objectType, value);
 
                 case RTR_SET:
-                    return allowIpv6 && IPV6_SYNTAX.matches(objectType, value) ||
-                            INET_RTR_SYNTAX.matches(objectType, value) ||
-                            RTR_SET_SYNTAX.matches(objectType, value) ||
-                            IPV4_SYNTAX.matches(objectType, value);
+                    if (allowIpv6 && IPV6_SYNTAX.matches(objectType, value)) {
+                        return true;
+                    }
+
+                    if (INET_RTR_SYNTAX.matches(objectType, value)) {
+                        return true;
+                    }
+
+                    if (RTR_SET_SYNTAX.matches(objectType, value)) {
+                        return true;
+                    }
+
+                    if (IPV4_SYNTAX.matches(objectType, value)) {
+                        if (value.contains("-") || value.contains("/")) {
+                            return false;
+                        }
+
+                        if (Ipv4Resource.parse(value).getPrefixLength() == 1) {
+                            return true;
+                        }
+                    }
+
+                    return false;
 
                 default:
                     return false;
