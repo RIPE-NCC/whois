@@ -283,7 +283,7 @@ public class FullTextIndex extends RebuildableIndex {
     }
 
     private static String sanitise(final String value) {
-        return CharMatcher.JAVA_ISO_CONTROL.removeFrom(value);
+        return CharMatcher.javaIsoControl().removeFrom(value);
     }
 
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
