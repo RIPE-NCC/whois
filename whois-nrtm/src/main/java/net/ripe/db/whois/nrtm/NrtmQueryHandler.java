@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.rpsl.Dummifier;
+import org.apache.commons.lang.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelException;
@@ -20,6 +21,8 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.scheduling.TaskScheduler;
@@ -42,6 +45,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private final NrtmLog nrtmLog;
     private final String applicationVersion;
     private final String source;
+    private final String nonAuthSource;
     private final long updateInterval;
     private final boolean keepaliveEndOfStream;
 
@@ -52,20 +56,22 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             "% See http://www.ripe.net/db/support/db-terms-conditions.pdf";
 
     public NrtmQueryHandler(
-            final SerialDao serialDao,
-            final Dummifier dummifier,
-            final TaskScheduler clientSynchronisationScheduler,
+            @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
+            @Qualifier("dummifierNrtm") final Dummifier dummifier,
+            @Qualifier("clientSynchronisationScheduler") final TaskScheduler clientSynchronisationScheduler,
             final NrtmLog nrtmLog,
-            final String applicationVersion,
-            final String source,
-            final long updateInterval,
-            final boolean keepaliveEndOfStream) {
+            @Value("${application.version}") final String applicationVersion,
+            @Value("${whois.source}") final String source,
+            @Value("${whois.nonauth.source:}") final String nonAuthSource,
+            @Value("${nrtm.update.interval:60}") final long updateInterval,
+            @Value("${nrtm.keepalive.end.of.stream:false}") final boolean keepaliveEndOfStream) {
         this.serialDao = serialDao;
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;
         this.nrtmLog = nrtmLog;
         this.applicationVersion = applicationVersion;
         this.source = source;
+        this.nonAuthSource = nonAuthSource;
         this.updateInterval = updateInterval;
         this.keepaliveEndOfStream = keepaliveEndOfStream;
     }
@@ -104,7 +110,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             final int version = query.getVersion();
             writeMessage(channel, String.format("%%START Version: %d %s %d-%d",
                     version,
-                    source,
+                    query.getSource(),
                     query.getSerialBegin(),
                     query.getSerialEnd()
             ));
@@ -139,7 +145,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
     private Query parseQueryString(final String queryString) {
         try {
-            return new Query(source, queryString);
+            return new Query(source, nonAuthSource, queryString);
         } catch (OptionException e) {
             throw new IllegalArgumentException("%ERROR:405: syntax error: " + e.getMessage());
         }
@@ -179,7 +185,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             }
         }
 
-        writeMessage(channel, String.format("%%END %s", source));
+        writeMessage(channel, String.format("%%END %s", query.getSource()));
     }
 
     private int writeSerials(final int begin, final int end, final Query query, final Channel channel) {
@@ -233,7 +239,12 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     private void handleSourcesQuery(final Channel channel) {
-        writeMessage(channel, source + ":" + NrtmServer.NRTM_VERSION + ":X:" + serialDao.getSerials());
+        final SerialRange serialRange = serialDao.getSerials();
+
+        writeMessage(channel, source + ":" + NrtmServer.NRTM_VERSION + ":X:" + serialRange);
+        if (StringUtils.isNotEmpty(nonAuthSource)) {
+            writeMessage(channel, nonAuthSource + ":" + NrtmServer.NRTM_VERSION + ":X:" + serialRange);
+        }
     }
 
     private void handleVersionQuery(final Channel channel) {
