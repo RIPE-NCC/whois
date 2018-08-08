@@ -33,6 +33,10 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
         whoisFixture.dumpSchema()
     }
 
+    def dumpInternalsSchema() {
+        whoisFixture.dumpInternalsSchema()
+    }
+
     def dnsCheckedFor(String key) {
         whoisFixture.dnsCheckedFor(key)
     }
@@ -81,10 +85,6 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
 
     def removeObject(String string) {
         getDatabaseHelper().deleteObject(RpslObject.parse(string))
-    }
-
-    def pendingUpdates(ObjectType objectType, String pkey) {
-        getPendingUpdateDao().findByTypeAndKey(objectType, pkey)
     }
 
 }

@@ -1,5 +1,18 @@
 # next
 
+# 1.91.6
+[all] Updated Spring framework to 4.3.18.
+[update] Validate reserved words and prefixes.
+
+# 1.91.5
+[all] Specify database latin1 character set and collation for testing.
+
+# 1.91.4
+[update] Non-break spaces not handled properly by REST API and Syncupdates.
+[rdap] RDAP related contact information is filtered.
+[all] Added wait loop to Database dummifier task.
+
+
 # 1.91.3
 [update] Don't return internal Zonemaster errors.
 [update] Fixed Syncupdates compressed response.

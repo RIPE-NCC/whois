@@ -50,7 +50,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     notify:         noreply@ripe.net
                     mnt-lower:      TEST-MNT
-                    mnt-routes:     TEST-MNT
                     mnt-by:         TEST-MNT
                     source:         TEST
                     """,

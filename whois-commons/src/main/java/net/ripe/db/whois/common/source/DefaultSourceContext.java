@@ -36,6 +36,9 @@ public class DefaultSourceContext implements SourceContext {
     private final CIString mainSourceName;
     private final Source mainMasterSource;
     private final Source mainSlaveSource;
+    private final Source mainNonAuthSource;
+
+    private final String nonauthRipeSourceNameString;
 
     private final Map<Source, SourceConfiguration> sourceConfigurations = Maps.newLinkedHashMap();
 
@@ -51,6 +54,7 @@ public class DefaultSourceContext implements SourceContext {
     @Autowired
     public DefaultSourceContext(
             @Value("${whois.source}") final String mainSourceNameString,
+            @Value("${whois.nonauth.source}") final String nonauthRipeSourceNameString,
             @Value("${whois.additional.sources}") final String additionalSourceNames,
             @Value("${grs.sources}") final String grsSourceNames,
             @Value("${nrtm.import.sources}") final String nrtmSourceNames,
@@ -69,6 +73,9 @@ public class DefaultSourceContext implements SourceContext {
         mainSourceName = ciString(mainSourceNameString);
         this.mainMasterSource = Source.master(mainSourceName);
         this.mainSlaveSource = Source.slave(mainSourceName);
+
+        this.nonauthRipeSourceNameString = nonauthRipeSourceNameString;
+        this.mainNonAuthSource = Source.master(this.nonauthRipeSourceNameString);
 
         final Set<CIString> additionalSources = Sets.newLinkedHashSet();
         final Set<CIString> grsSources = Sets.newLinkedHashSet();
@@ -214,16 +221,26 @@ public class DefaultSourceContext implements SourceContext {
     }
 
     public void setCurrent(final Source source) {
-        final SourceConfiguration sourceConfiguration = sourceConfigurations.get(source);
-        if (sourceConfiguration == null) {
-            throw new IllegalSourceException(source.getName().toString());
+        if (this.nonauthRipeSourceNameString.equals(source.getName().toString())) {
+            setCurrentSourceToWhoisMaster();
+        } else {
+            final SourceConfiguration sourceConfiguration = sourceConfigurations.get(source);
+            if (sourceConfiguration == null) {
+                throw new IllegalSourceException(source.getName().toString());
+            }
+            current.set(sourceConfiguration);
         }
-
-        current.set(sourceConfiguration);
     }
 
     public Source getWhoisSlaveSource() {
         return mainSlaveSource;
+    }
+
+    public Source getWhoisMasterSource() {
+        return mainMasterSource;
+    }
+    public Source getNonauthSource() {
+        return mainNonAuthSource;
     }
 
     @Override
@@ -241,6 +258,11 @@ public class DefaultSourceContext implements SourceContext {
 
     public boolean isMain() {
         return getCurrentSource().getName().equals(mainSourceName);
+    }
+
+    // source: NONAUTH are placed in RIPE source to represent object out of region
+    public boolean isOutOfRegion(String source) {
+        return source.equalsIgnoreCase(nonauthRipeSourceNameString);
     }
 
     public boolean isVirtual() {
