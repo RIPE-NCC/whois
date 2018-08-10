@@ -7,7 +7,10 @@ import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.Dummifier;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -202,7 +205,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
             final SerialEntry serialEntry = readSerial(serial);
 
-            if (serialEntry != null) {
+            if (serialEntry != null && isSerialEntryQueriedSourceType(query.getSource(), serialEntry.getRpslObject())) {
                 if (dummifier.isAllowed(version, serialEntry.getRpslObject())) {
                     final String operation = serialEntry.getOperation().toString();
                     final String message;
@@ -236,6 +239,19 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private boolean isRequestedSerialInRange(final Query query, final SerialRange range) {
         return query.getSerialBegin() >= range.getBegin() && query.getSerialBegin() <= range.getEnd() &&
                 query.getSerialEnd() >= range.getBegin() && query.getSerialEnd() <= range.getEnd();
+    }
+
+    private boolean isSerialEntryQueriedSourceType(final String queriedSource, final RpslObject rpslObject) {
+        if (queriedSource != null && isObjectTypeAutnumOrRoute(rpslObject)) {
+            return queriedSource.equals(rpslObject.getValueForAttribute(AttributeType.SOURCE).toString());
+        }
+        return true;
+    }
+
+    private boolean isObjectTypeAutnumOrRoute(final RpslObject rpslObject) {
+        return ObjectType.AUT_NUM.equals(rpslObject.getType())
+                || ObjectType.ROUTE.equals(rpslObject.getType())
+                || ObjectType.ROUTE6.equals(rpslObject.getType());
     }
 
     private void handleSourcesQuery(final Channel channel) {
