@@ -65,7 +65,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             final NrtmLog nrtmLog,
             @Value("${application.version}") final String applicationVersion,
             @Value("${whois.source}") final String source,
-            @Value("${whois.nonauth.source:}") final String nonAuthSource,
+            @Value("${whois.nonauth.source}") final String nonAuthSource,
             @Value("${nrtm.update.interval:60}") final long updateInterval,
             @Value("${nrtm.keepalive.end.of.stream:false}") final boolean keepaliveEndOfStream) {
         this.serialDao = serialDao;
