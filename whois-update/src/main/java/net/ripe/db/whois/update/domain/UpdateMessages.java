@@ -661,4 +661,8 @@ public final class UpdateMessages {
     public static Message inconsistentOrgNameFormatting() {
         return new Message(Type.ERROR, "Tab characters, multiple lines, or multiple whitespaces are not allowed in the \"org-name:\" value.");
     }
+
+    public static Message shortFormatAttributeReplaced() {
+        return new Message(Type.WARNING, "Short format attribute name(s) have been replaced.");
+    }
 }
