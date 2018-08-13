@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.Dummifier;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -242,16 +241,10 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     private boolean isSerialEntryQueriedSourceType(final String queriedSource, final RpslObject rpslObject) {
-        if (queriedSource != null && isObjectTypeAutnumOrRoute(rpslObject)) {
+        if (queriedSource != null && rpslObject.containsAttribute(AttributeType.SOURCE)) {
             return queriedSource.equals(rpslObject.getValueForAttribute(AttributeType.SOURCE).toString());
         }
         return true;
-    }
-
-    private boolean isObjectTypeAutnumOrRoute(final RpslObject rpslObject) {
-        return ObjectType.AUT_NUM.equals(rpslObject.getType())
-                || ObjectType.ROUTE.equals(rpslObject.getType())
-                || ObjectType.ROUTE6.equals(rpslObject.getType());
     }
 
     private void handleSourcesQuery(final Channel channel) {

@@ -99,6 +99,19 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
+    public void queryKeepAliveOnePreExistingObjectDifferentSource() throws Exception {
+        databaseHelper.addObject(RpslObject.parse("mntner:testmntner\nmnt-by:testmntner\nsource:TEST"));
+        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-LAST -k", (updateInterval + 1));
+
+        client.start();
+        //super.databaseHelper.addObject(RpslObject.parse("aut-num:AS4294967207\nsource:TEST-NONAUTH"));
+        String response = client.end();
+
+        assertThat(response, not(containsString("testmntner")));
+        //assertThat(response, not(containsString("AS4294967207")));
+    }
+
+    @Test
     public void mirrorQueryOneSerialEntry() throws Exception {
         databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST");
 

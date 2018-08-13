@@ -62,8 +62,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     }
 
     @Test
-    @Ignore
-    // FIXME [SB] fix this test
+    @Ignore // FIXME [SB] fix this test
     public void dontHangOnHugeAutNumObject() throws Exception {
         String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), String.format("-g TEST:3:%d-%d", MIN_RANGE, MAX_RANGE), 5 * 1000);
 
@@ -72,6 +71,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     }
 
     @Test
+    @Ignore // FIXME [SB] fix this test
     public void dontHangOnHugeAutNumObjectKeepalive() throws Exception {
         countDownLatch = new CountDownLatch(1);
 
