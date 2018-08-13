@@ -713,7 +713,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:         UPD-MNT\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
-                        "source:         TEST", currentDateTime, currentDateTime)))
+                        "source:         TEST-NONAUTH", currentDateTime, currentDateTime)))
 
         when:
         def update = syncUpdate new SyncUpdate(data: """\
@@ -778,7 +778,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:         UPD-MNT\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
-                        "source:         TEST", currentDateTime, currentDateTime)))
+                        "source:         TEST-NONAUTH", currentDateTime, currentDateTime)))
 
     }
 
@@ -814,7 +814,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:         UPD-MNT\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
-                        "source:         TEST", currentDateTime, currentDateTime)))
+                        "source:         TEST-NONAUTH", currentDateTime, currentDateTime)))
 
     }
 
