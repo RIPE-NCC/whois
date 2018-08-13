@@ -3,10 +3,8 @@ package net.ripe.db.whois.update.handler.validator.common;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -32,16 +30,12 @@ public class SourceValidator implements BusinessRuleValidator {
 
     private static final Set<ObjectType> NON_AUTH_OBJECT_TYPES = ImmutableSet.of(AUT_NUM, ROUTE, ROUTE6);
 
-    private final AuthoritativeResourceData authoritativeResourceData;
-
     private final CIString source;
     private final CIString nonAuthSource;
 
     @Autowired
-    public SourceValidator(final AuthoritativeResourceData authoritativeResourceData,
-                           @Value("${whois.source}") final String source,
+    public SourceValidator(@Value("${whois.source}") final String source,
                            @Value("${whois.nonauth.source}") final String nonAuthSource) {
-        this.authoritativeResourceData = authoritativeResourceData;
         this.source = ciString(source);
         this.nonAuthSource = ciString(nonAuthSource);
     }
@@ -59,20 +53,6 @@ public class SourceValidator implements BusinessRuleValidator {
         if (!NON_AUTH_OBJECT_TYPES.contains(updatedObject.getType())) {
             if (source.equals(this.nonAuthSource)) {
                 updateContext.addMessage(update, UpdateMessages.sourceNotAllowed(updatedObject.getType(), source));
-            }
-        } else {
-            boolean outOfRegion = updatedObject.getType() == ROUTE || updatedObject.getType() == ROUTE6?
-                    !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(updatedObject) :
-                    !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject);
-
-            boolean rsOrOverride = updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER) || updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
-
-            if (outOfRegion && rsOrOverride && this.source.equals(source)) {
-                updateContext.addMessage(update, UpdateMessages.wrongOutOfRegionSource(this.nonAuthSource));
-            }
-
-            if (!outOfRegion && rsOrOverride && this.nonAuthSource.equals(source)) {
-                updateContext.addMessage(update, UpdateMessages.wrongOutOfRegionSource(this.source));
             }
         }
     }
