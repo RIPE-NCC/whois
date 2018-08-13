@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -47,9 +46,7 @@ public class SourceGenerator extends AttributeGenerator {
     }
 
     private RpslObject generateSource(final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
-        boolean rsOrOverride = updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER) || updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
-
-        if (update.getOperation() == Operation.DELETE || rsOrOverride) {
+        if (update.getOperation() == Operation.DELETE) {
             return updatedObject;
         }
 

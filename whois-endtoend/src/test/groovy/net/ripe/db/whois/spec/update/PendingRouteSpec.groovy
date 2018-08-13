@@ -140,6 +140,9 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         def notif = notificationFor "mntnfy_owner@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
 
+        def asnotify = notificationFor "notify_as100@ripe.net"
+        asnotify.subject =~ "Notification of RIPE Database changes"
+
         noMoreMessages()
 
         queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
@@ -669,6 +672,9 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         def notif2 = notificationFor "mntnfy_owner@ripe.net"
         notif2.subject =~ "Notification of RIPE Database changes"
+
+        def asnotify = notificationFor "notify_as100@ripe.net"
+        asnotify.subject =~ "Notification of RIPE Database changes"
 
         noMoreMessages()
 
