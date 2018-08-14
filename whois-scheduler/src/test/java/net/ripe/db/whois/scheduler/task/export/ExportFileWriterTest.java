@@ -36,6 +36,7 @@ public class ExportFileWriterTest {
 
     @Mock FilenameStrategy filenameStrategy;
     @Mock DecorationStrategy decorationStrategy;
+    @Mock ExportFilter exportFilter;
 
     ExportFileWriter subject;
 
@@ -55,7 +56,9 @@ public class ExportFileWriterTest {
             }
         });
 
-        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy);
+        when(exportFilter.shouldExport(any(RpslObject.class))).thenReturn(true);
+
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy, exportFilter);
     }
 
     @SuppressWarnings("unchecked")
@@ -104,6 +107,6 @@ public class ExportFileWriterTest {
 
     @Test(expected = RuntimeException.class)
     public void unexisting_folder() throws IOException {
-        new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy);
+        new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, exportFilter);
     }
 }
