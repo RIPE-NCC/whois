@@ -22,7 +22,7 @@ public class ShortFormatTransformer implements Transformer {
         final ListIterator<RpslAttribute> iterator = builder.getAttributes().listIterator();
         while (iterator.hasNext()) {
             final RpslAttribute rpslAttribute = iterator.next();
-            if (!rpslAttribute.getType().getName().equals(rpslAttribute.getKey())) {
+            if (rpslAttribute.getType() != null && !rpslAttribute.getType().getName().equals(rpslAttribute.getKey())) {
                 iterator.set(new RpslAttribute(rpslAttribute.getType(), rpslAttribute.getValue()));
                 updated = true;
             }
