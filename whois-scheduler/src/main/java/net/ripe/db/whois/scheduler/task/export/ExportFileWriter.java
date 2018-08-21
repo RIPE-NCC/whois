@@ -40,10 +40,12 @@ public class ExportFileWriter {
 
         for (final ObjectType objectType : ObjectType.values()) {
             final String filename = filenameStrategy.getFilename(objectType);
-            try {
-                getWriter(filename);
-            } catch (IOException e) {
-                throw new RuntimeException("Initializing: " + filename, e);
+            if (filename != null) {
+                try {
+                    getWriter(filename);
+                } catch (IOException e) {
+                    throw new RuntimeException("Initializing: " + filename, e);
+                }
             }
         }
     }
@@ -51,16 +53,18 @@ public class ExportFileWriter {
     public void write(final RpslObject object, final List<Tag> tags) throws IOException {
         if (exportFilter.shouldExport(object)) {
             final String filename = filenameStrategy.getFilename(object.getType());
-            final Writer writer = getWriter(filename);
+            if (filename != null) {
+                final Writer writer = getWriter(filename);
 
-            final RpslObject decoratedObject = decorationStrategy.decorate(object);
-            if (decoratedObject != null) {
-                writer.write('\n');
-                decoratedObject.writeTo(writer);
-
-                if (!tags.isEmpty()) {
+                final RpslObject decoratedObject = decorationStrategy.decorate(object);
+                if (decoratedObject != null) {
                     writer.write('\n');
-                    writer.write(new TagResponseObject(decoratedObject.getKey(), tags).toString());
+                    decoratedObject.writeTo(writer);
+
+                    if (!tags.isEmpty()) {
+                        writer.write('\n');
+                        writer.write(new TagResponseObject(decoratedObject.getKey(), tags).toString());
+                    }
                 }
             }
         }
