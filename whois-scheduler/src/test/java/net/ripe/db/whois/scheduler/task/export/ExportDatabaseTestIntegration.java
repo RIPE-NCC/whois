@@ -44,6 +44,8 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
     Set<RpslObject> objects;
 
+    private final static Set<ObjectType> NON_AUTH_TYPES = Sets.immutableEnumSet(ObjectType.AUT_NUM, ObjectType.ROUTE, ObjectType.ROUTE6);
+
     @Before
     public void setupServer() {
         objects = Sets.newHashSet();
@@ -471,9 +473,13 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         for (final ObjectType objectType : ObjectType.values()) {
             checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
             checkFile("internal/split/ripe.db." + objectType.getName() + ".gz");
-            checkFile("dbase/split/ripe-nonauth.db." + objectType.getName() + ".gz");
-            checkFile("internal/split/ripe-nonauth.db." + objectType.getName() + ".gz");
+            if (NON_AUTH_TYPES.contains(objectType)) {
+                checkFile("dbase/split/ripe-nonauth.db." + objectType.getName() + ".gz");
+                checkFile("internal/split/ripe-nonauth.db." + objectType.getName() + ".gz");
+            }
         }
+
+
 
         checkFile("dbase/split/ripe.db.aut-num.gz", "aut-num:        AS252");
         checkFile("dbase/split/ripe-nonauth.db.aut-num.gz", "aut-num:        AS251");
