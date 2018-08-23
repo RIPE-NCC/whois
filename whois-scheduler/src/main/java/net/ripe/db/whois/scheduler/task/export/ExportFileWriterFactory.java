@@ -24,6 +24,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
 class ExportFileWriterFactory {
     private static final String SPLITFILE_FOLDERNAME = "split";
     private static final String CURRENTSERIAL_FILENAME = "RIPE.CURRENTSERIAL";
+    private static final String CURRENTSERIAL_NONAUTH_FILENAME = "RIPE-NONAUTH.CURRENTSERIAL";
 
     private final DummifierNrtm dummifierNrtm;
     private final DummifierCurrent dummifierCurrent;
@@ -62,6 +63,8 @@ class ExportFileWriterFactory {
         try {
             FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDirNew, CURRENTSERIAL_FILENAME));
             FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_FILENAME));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDirNew, CURRENTSERIAL_NONAUTH_FILENAME));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_NONAUTH_FILENAME));
         } catch (IOException e) {
             throw new RuntimeException("Writing current serial", e);
         }

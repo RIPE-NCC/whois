@@ -105,11 +105,11 @@ public class WhoisRestService {
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
             if(requiresNonauthRedirect(source, objectType, key)) {
-                return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
+                return redirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
             }
 
             if(requiresRipeRedirect(source, objectType, key)) {
-                return redirect(request.getServletPath(), sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
+                return redirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
             }
 
             auditlogRequest(request);
@@ -164,11 +164,11 @@ public class WhoisRestService {
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
             if(requiresNonauthRedirect(source, objectType, key)) {
-                return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
+                return redirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
             }
 
             if(requiresRipeRedirect(source, objectType, key)) {
-                return redirect(request.getServletPath(), sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
+                return redirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
             }
 
             auditlogRequest(request);
@@ -286,11 +286,11 @@ public class WhoisRestService {
         }
 
         if(requiresNonauthRedirect(source, objectType, key)) {
-            return redirect(request.getServletPath(), sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
+            return redirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
         }
 
         if(requiresRipeRedirect(source, objectType, key)) {
-            return redirect(request.getServletPath(), sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
+            return redirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
         }
 
         final QueryBuilder queryBuilder = new QueryBuilder().
@@ -353,10 +353,10 @@ public class WhoisRestService {
         return false;
     }
 
-    private Response redirect(final String context, final String source, final String objectType, final String pkey, String queryString) {
+    private Response redirect(final String source, final String objectType, final String pkey, String queryString) {
         final URI uri = StringUtils.isBlank(queryString)?
-            URI.create(String.format("%s/%s/%s/%s", context, source, objectType, pkey)) :
-            URI.create(String.format("%s/%s/%s/%s", context, source, objectType, pkey) + "?" + queryString);
+            URI.create(String.format("%s/%s/%s", source, objectType, pkey)) :
+            URI.create(String.format("%s/%s/%s", source, objectType, pkey) + "?" + queryString);
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
 
