@@ -23,6 +23,7 @@ import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,6 +65,7 @@ public class WhoisRestService {
     private final SsoTranslator ssoTranslator;
     private final LoggerContext loggerContext;
     private final AuthoritativeResourceData authoritativeResourceData;
+    private final String baseUrl;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -74,7 +76,8 @@ public class WhoisRestService {
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
                             final LoggerContext loggerContext,
-                            final AuthoritativeResourceData authoritativeResourceData) {
+                            final AuthoritativeResourceData authoritativeResourceData,
+                            @Value("${api.rest.baseurl}") final String baseUrl) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectStreamer = rpslObjectStreamer;
         this.sourceContext = sourceContext;
@@ -84,6 +87,7 @@ public class WhoisRestService {
         this.ssoTranslator = ssoTranslator;
         this.loggerContext = loggerContext;
         this.authoritativeResourceData = authoritativeResourceData;
+        this.baseUrl = baseUrl;
     }
 
     @DELETE
@@ -105,11 +109,11 @@ public class WhoisRestService {
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {
-                return redirectNonAuthOrRequiresRipeRedirect(request, sourceContext.getNonauthSource().getName().toString(), objectType, key);
+                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
             }
 
             if(requiresRipeRedirect(source, objectType, key)) {
-                return redirectNonAuthOrRequiresRipeRedirect(request, sourceContext.getWhoisMasterSource().getName().toString(), objectType, key);
+                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
             }
 
             auditLogRequest(request);
@@ -164,11 +168,11 @@ public class WhoisRestService {
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {
-                return redirectNonAuthOrRequiresRipeRedirect(request, sourceContext.getNonauthSource().getName().toString(), objectType, key);
+                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
             }
 
             if(requiresRipeRedirect(source, objectType, key)) {
-                return redirectNonAuthOrRequiresRipeRedirect(request, sourceContext.getWhoisMasterSource().getName().toString(), objectType, key);
+                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
             }
 
             auditLogRequest(request);
@@ -305,11 +309,11 @@ public class WhoisRestService {
         }
 
         if(requiresNonAuthRedirect(source, objectType, key)) {
-            return redirectNonAuthOrRequiresRipeRedirect(request, sourceContext.getNonauthSource().getName().toString(), objectType, key);
+            return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
         }
 
         if(requiresRipeRedirect(source, objectType, key)) {
-            return redirectNonAuthOrRequiresRipeRedirect(request, sourceContext.getWhoisMasterSource().getName().toString(), objectType, key);
+            return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
         }
 
         final Parameters parameters = new Parameters.Builder()
@@ -355,12 +359,10 @@ public class WhoisRestService {
         return false;
     }
 
-    private Response redirectNonAuthOrRequiresRipeRedirect(final HttpServletRequest request, final String source, final String objectType, final String pkey) {
-        final String requestUrl = request.getScheme() + "://" + request.getServerName();
-        final String queryString = request.getQueryString();
+    private Response redirectNonAuthOrRequiresRipeRedirect(final String source, final String objectType, final String pkey, final String queryString) {
         final URI uri = StringUtils.isBlank(queryString)?
-                URI.create(String.format("%s/%s/%s/%s", requestUrl, source, objectType, pkey)) :
-                URI.create(String.format("%s/%s/%s/%s", requestUrl, source, objectType, pkey) + "?" + queryString);
+                URI.create(String.format("%s/%s/%s/%s", baseUrl, source, objectType, pkey)) :
+                URI.create(String.format("%s/%s/%s/%s", baseUrl, source, objectType, pkey) + "?" + queryString);
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
     }
 
