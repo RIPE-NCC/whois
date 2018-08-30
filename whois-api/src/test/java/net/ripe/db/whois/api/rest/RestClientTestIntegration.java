@@ -88,6 +88,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     RestClient restClient;
+    @Autowired
+    WhoisRestService whoisRestService;
 
     @Before
     public void setup() throws Exception {
@@ -101,6 +103,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%d/whois", getPort()));
         ReflectionTestUtils.setField(restClient, "sourceName", "TEST");
+
+        ReflectionTestUtils.setField(whoisRestService, "baseUrl", String.format("http://localhost:%d/whois", getPort()));
     }
 
     @Test
