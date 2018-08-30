@@ -1,5 +1,8 @@
 # next
 
+# 1.92.4
+[api] Refactored redirect for objects with nonauth source.
+
 # 1.92.3
 [api] Fixed URL path in REST API redirect for objects with nonauth source.
 
