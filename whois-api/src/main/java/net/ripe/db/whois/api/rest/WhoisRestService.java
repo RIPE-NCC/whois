@@ -359,6 +359,7 @@ public class WhoisRestService {
         return false;
     }
 
+    //TODO: GAB: Return 308 for updates once there is a better support for it.
     private Response redirectNonAuthOrRequiresRipeRedirect(final String source, final String objectType, final String pkey, final String queryString) {
         final URI uri = StringUtils.isBlank(queryString)?
                 URI.create(String.format("%s/%s/%s/%s", baseUrl, source, objectType, pkey)) :
