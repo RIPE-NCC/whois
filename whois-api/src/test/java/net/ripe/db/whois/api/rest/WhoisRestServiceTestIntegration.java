@@ -4428,7 +4428,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request().get();
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
         databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
     }
 
@@ -4450,7 +4450,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request().get();
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route6/2a01:400::/22AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test-nonauth/route6/2a01:400::/22AS12726".toLowerCase()));
 
         databaseHelper.addAuthoritativeResource("test", "::/0");
 
@@ -4474,7 +4474,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request().delete();
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
         databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
     }
 
@@ -4496,7 +4496,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request().delete();
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route6/2a01:400::/22AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test-nonauth/route6/2a01:400::/22AS12726".toLowerCase()));
 
         databaseHelper.addAuthoritativeResource("test", "::/0");
 
@@ -4521,7 +4521,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
         databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
     }
 
@@ -4544,7 +4544,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test-nonauth/route6/2a01:400::/22AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test-nonauth/route6/2a01:400::/22AS12726".toLowerCase()));
 
         databaseHelper.addAuthoritativeResource("test", "::/0");
 
@@ -4707,7 +4707,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request().get();
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route/192.168.0.0/24AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test/route/192.168.0.0/24AS12726".toLowerCase()));
     }
 
     @Test
@@ -4726,7 +4726,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request().get();
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route6/2a01:400::/22AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test/route6/2a01:400::/22AS12726".toLowerCase()));
 
     }
 
@@ -4747,7 +4747,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request().delete();
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route/192.168.0.0/24AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test/route/192.168.0.0/24AS12726".toLowerCase()));
     }
 
     @Test
@@ -4766,7 +4766,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request().delete();
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route6/2a01:400::/22AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test/route6/2a01:400::/22AS12726".toLowerCase()));
 
     }
 
@@ -4788,7 +4788,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route/192.168.0.0/24AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test/route/192.168.0.0/24AS12726".toLowerCase()));
     }
 
     @Test
@@ -4808,7 +4808,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML));
 
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
-        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("whois/test/route6/2a01:400::/22AS12726".toLowerCase()));
+        assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test/route6/2a01:400::/22AS12726".toLowerCase()));
 
     }
 
