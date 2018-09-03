@@ -251,10 +251,10 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         final SerialRange serialRange = serialDao.getSerials();
 
         final StringBuilder sb = new StringBuilder();
-        sb.append(source).append(":").append(NrtmServer.NRTM_VERSION).append(":X:").append(serialRange);
+        sb.append(String.format("%s:%d:X:%s", source, NrtmServer.NRTM_VERSION, serialRange));
 
         if (StringUtils.isNotEmpty(nonAuthSource)) {
-            sb.append("\n").append(nonAuthSource).append(":").append(NrtmServer.NRTM_VERSION).append(":X:").append(serialRange);
+            sb.append(String.format("\n%s:%d:X:%s", nonAuthSource, NrtmServer.NRTM_VERSION, serialRange));
         }
 
         writeMessage(channel, sb.toString());
