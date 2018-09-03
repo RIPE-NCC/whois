@@ -69,6 +69,9 @@ public class SystemInfoQueryExecutor implements QueryExecutor {
 
                 for (final CIString source : sourceContext.getAllSourceNames()) {
                     builder.append(String.format("%s:3:N:0-0\n", source));
+                    if (sourceContext.getNonauthSource() != null && sourceContext.getWhoisMasterSource().getName().equals(source)) {
+                        builder.append(String.format("%s:3:N:0-0\n", sourceContext.getNonauthSource().getName()));
+                    }
                 }
                 responseString = builder.toString();
                 break;

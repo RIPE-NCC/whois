@@ -272,4 +272,19 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
                 "source:         TEST"));
         assertThat(response, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
     }
+
+    @Test
+    public void should_not_have_blank_lines_between_sources() throws Exception {
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
+
+        assertThat(response, containsString(
+                "% The RIPE Database is subject to Terms and Conditions.\n" +
+                        "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                        "\n" +
+                        "TEST:3:X:0-0\n" +
+                        "TEST-NONAUTH:3:X:0-0\n" +
+                        "\n"
+        ));
+    }
+
 }
