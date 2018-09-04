@@ -2,6 +2,8 @@
 
 # 1.92.4
 [api] Refactored redirect for objects with nonauth source.
+[query] Added nonauth source to "--list-sources" response.
+[nrtm] Removed empty line between sources in "-q sources" response.
 
 # 1.92.3
 [api] Fixed URL path in REST API redirect for objects with nonauth source.
