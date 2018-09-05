@@ -229,7 +229,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-i mnt-lower TST-MNT2", "as-block", "AS222 - AS333")
     }
 
-    // TODO: [ES] failing test
     def "rebuild with autnum"() {
         databaseHelper.addObject("" +
                 "aut-num:        AS101\n" +
@@ -240,7 +239,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "tech-c:         NAB-NIC\n" +
                 "notify:         noreply@ripe.net\n" +
                 "mnt-lower:      TST-MNT\n" +
-                "mnt-routes:     TST-MNT\n" +
                 "mnt-by:         TST-MNT2\n" +
                 "source:         TEST\n")
 
@@ -253,7 +251,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-i notify noreply@ripe.net", "aut-num", "AS101")
         queryObject("-i mnt-by TST-MNT2", "aut-num", "AS101")
         queryObject("-i mnt-lower TST-MNT", "aut-num", "AS101")
-        queryObject("-i mnt-routes TST-MNT", "aut-num", "AS101")
         queryObject("-i admin-c NAB-NIC", "aut-num", "AS101")
         queryObject("-i tech-c NAB-NIC", "aut-num", "AS101")
     }

@@ -333,6 +333,10 @@ ${response}
         return whoisFixture.getPendingUpdateDao()
     }
 
+    def getAuthoritativeResourceDao() {
+        return whoisFixture.getAuthoritativeResourceDao()
+    }
+
     def getApplicationContext() {
         return whoisFixture.getApplicationContext()
     }

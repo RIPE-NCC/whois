@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 // TODO: [ES] refactor use of two variables (one static) for port number
 @Component
@@ -39,7 +37,6 @@ public class NrtmServer implements ApplicationService {
 
     @Autowired
     public NrtmServer(final NrtmChannelsRegistry nrtmChannelsRegistry,
-
                       final NrtmServerPipelineFactory nrtmServerPipelineFactory,
                       final MaintenanceMode maintenanceMode) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;

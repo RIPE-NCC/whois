@@ -224,7 +224,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      PARENT-MB-MNT
-                source:      TEST
+                source:      TEST-NONAUTH
                 """,
             "SUB2-MNT": """\
                 mntner:      SUB2-MNT
@@ -1565,7 +1565,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      PARENT-MB-MNT
-                source:      TEST
+                source:      TEST-NONAUTH
                 delete: member reclaim
 
                 person:  Ping Person

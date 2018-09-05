@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.ip;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -30,6 +31,13 @@ public class Ipv6ResourceTest {
         subject = Ipv6Resource.parse("::2001");
         assertThat(subject.begin(), is(BigInteger.valueOf(8193)));
         assertThat(subject.end(), is(BigInteger.valueOf(8193)));
+    }
+
+    // TODO: [ES] ::ffff:0:0/96 not handled properly — This prefix is used for IPv6 transition mechanisms and designated as an IPv4-mapped IPv6 address.
+    @Ignore
+    @Test
+    public void ipv4_mapped_ipv6_address() {
+        subject = Ipv6Resource.parse("::ffff:c16e:370c/128");       // "Address has to be 16 bytes long"
     }
 
     @Test

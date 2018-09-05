@@ -3,10 +3,12 @@ package net.ripe.db.whois;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
+import net.ripe.db.whois.api.rest.WhoisRestService;
 import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
+import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceDao;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.TestDateTimeProvider;
@@ -19,6 +21,7 @@ import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -66,9 +69,12 @@ public class WhoisFixture {
     protected RpslObjectUpdateDao rpslObjectUpdateDao;
     protected TagsDao tagsDao;
     protected PendingUpdateDao pendingUpdateDao;
+    protected AuthoritativeResourceDao authoritativeResourceDao;
+    protected AuthoritativeResourceData authoritativeResourceData;
     protected MailGateway mailGateway;
     protected MessageDequeue messageDequeue;
     protected DataSource whoisDataSource;
+    protected DataSource internalsDataSource;
     protected DnsGatewayStub dnsGatewayStub;
 
     protected IpRanges ipRanges;
@@ -81,6 +87,7 @@ public class WhoisFixture {
     protected IndexDao indexDao;
     protected WhoisServer whoisServer;
     protected RestClient restClient;
+    protected WhoisRestService whoisRestService;
     protected TestWhoisLog testWhoisLog;
 
     static {
@@ -118,11 +125,15 @@ public class WhoisFixture {
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
         tagsDao = applicationContext.getBean(TagsDao.class);
         pendingUpdateDao = applicationContext.getBean(PendingUpdateDao.class);
+        authoritativeResourceDao = applicationContext.getBean(AuthoritativeResourceDao.class);
+        authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
         mailGateway = applicationContext.getBean(MailGateway.class);
         whoisDataSource = applicationContext.getBean(SourceAwareDataSource.class);
+        internalsDataSource = applicationContext.getBean("internalsDataSource", DataSource.class);
         sourceContext = applicationContext.getBean(SourceContext.class);
         indexDao = applicationContext.getBean(IndexDao.class);
         restClient = applicationContext.getBean(RestClient.class);
+        whoisRestService = applicationContext.getBean(WhoisRestService.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
 
         databaseHelper.setup();
@@ -130,6 +141,7 @@ public class WhoisFixture {
 
 
         ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
+        ReflectionTestUtils.setField(whoisRestService, "baseUrl", String.format("http://localhost:%d/whois", jettyBootstrap.getPort()));
 
         initData();
     }
@@ -155,6 +167,10 @@ public class WhoisFixture {
 
     public void dumpSchema() throws Exception {
         DatabaseHelper.dumpSchema(whoisDataSource);
+    }
+
+    public void dumpInternalsSchema() throws Exception {
+        DatabaseHelper.dumpSchema(internalsDataSource);
     }
 
     public String send(final String content) {
@@ -239,6 +255,10 @@ public class WhoisFixture {
         return pendingUpdateDao;
     }
 
+    public AuthoritativeResourceDao getAuthoritativeResourceDao() {
+        return authoritativeResourceDao;
+    }
+
     public RpslObjectDao getRpslObjectDao() {
         return rpslObjectDao;
     }
@@ -314,6 +334,10 @@ public class WhoisFixture {
 
     public void reloadTrees() {
         ipTreeUpdater.update();
+    }
+
+    public void refreshAuthoritativeResourceData() {
+        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
     }
 
     public SourceContext getSourceContext() {
