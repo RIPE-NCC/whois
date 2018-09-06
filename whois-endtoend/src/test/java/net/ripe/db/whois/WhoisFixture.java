@@ -96,11 +96,11 @@ public class WhoisFixture {
         System.setProperty("application.version", "0.1-ENDTOEND");
         System.setProperty("mail.update.threads", "2");
         System.setProperty("mail.dequeue.interval", "10");
-        System.setProperty("whois.maintainers.enduser", "RIPE-NCC-END-MNT");
-        System.setProperty("whois.maintainers.legacy", "RIPE-NCC-LEGACY-MNT");
-        System.setProperty("whois.maintainers.alloc", "RIPE-NCC-HM-MNT,RIPE-NCC-HM2-MNT");
-        System.setProperty("whois.maintainers.enum", "RIPE-GII-MNT,RIPE-NCC-MNT");
-        System.setProperty("whois.maintainers.dbm", "RIPE-NCC-LOCKED-MNT,RIPE-DBM-MNT");
+//        System.setProperty("whois.maintainers.enduser", "RIPE-NCC-END-MNT");
+//        System.setProperty("whois.maintainers.legacy", "RIPE-NCC-LEGACY-MNT");
+//        System.setProperty("whois.maintainers.alloc", "RIPE-NCC-HM-MNT,RIPE-NCC-HM2-MNT");
+//        System.setProperty("whois.maintainers.enum", "RIPE-GII-MNT,RIPE-NCC-MNT");
+//        System.setProperty("whois.maintainers.dbm", "RIPE-NCC-LOCKED-MNT,RIPE-DBM-MNT");
         System.setProperty("nrtm.enabled", "false");
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("feature.toggle.changed.attr.available", "true");

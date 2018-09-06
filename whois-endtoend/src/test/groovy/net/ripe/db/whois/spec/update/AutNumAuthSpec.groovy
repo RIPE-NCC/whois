@@ -10,19 +10,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getFixtures() {
         [
-            "RIPE-NCC-RPSL-MNT": """\
-                mntner:      RIPE-NCC-RPSL-MNT
-                descr:       This maintainer may be used to create objects to represent
-                descr:       routing policy in the RIPE Database for number resources not
-                descr:       allocated or assigned from the RIPE NCC.
-                upd-to:      updto_hm@ripe.net
-                mnt-nfy:     mntnfy_hm@ripe.net
-                notify:      notify_hm@ripe.net
-                auth:        MD5-PW \$1\$0W0joRg1\$eOOcT4JsBIh6q3mu/yTvj1 # rpsl
-                notify:      dbtest@ripe.net
-                mnt-by:      RIPE-DBM-MNT
-                source:      TEST
-                """,
             "AS251NOSTAT": """\
                 aut-num:        AS251
                 as-name:        End-User-1
@@ -115,7 +102,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-block:       AS444 - AS555
                 descr:          APNIC ASN block
                 mnt-by:         RIPE-DBM-MNT
-                mnt-lower:      RIPE-NCC-RPSL-MNT
                 source:         TEST
                 """,
             "AS0 - AS4294967295": """\
