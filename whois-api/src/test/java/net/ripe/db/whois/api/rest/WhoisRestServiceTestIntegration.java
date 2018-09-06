@@ -116,7 +116,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "phone:     +31-1234567890\n" +
             "e-mail:    noreply@ripe.net\n" +
             "mnt-by:    OWNER-MNT\n" +
-            "mnt-by:    RIPE-NCC-RPSL-MNT\n" +
             "nic-hdl:   PP2-TEST\n" +
             "remarks:   remark\n" +
             "source:    TEST\n");
@@ -234,7 +233,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         databaseHelper.addObject(RPSL_MNT_PERSON);
 
-        final RpslObject updatedObject = new RpslObjectBuilder(RPSL_MNT_PERSON).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
+        final RpslObject updatedObject = new RpslObjectBuilder(RPSL_MNT_PERSON)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "updated"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.MNT_BY, "RIPE-NCC-RPSL-MNT"))
+                .get();
         final WhoisResources updatedPerson = whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject);
         try {
             RestTest.target(getPort(), "whois/test/person/PP2-TEST?password=test")
@@ -244,9 +246,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException ex) {
             final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(whoisResources, 1);
-            RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot add or remove a RIPE NCC maintainer");
             assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
-
         }
     }
 
@@ -267,8 +268,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot add or remove a RIPE NCC maintainer");
             RestTest.assertErrorMessage(whoisResources, 1, "Error", "The maintainer '%s' was not found in the database", "RIPE-NCC-RPSL-MNT");
-            RestTest.assertErrorMessage(whoisResources, 2, "Error", "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
-            RestTest.assertErrorMessage(whoisResources, 3, "Error", "Unknown object referenced %s", "RIPE-NCC-RPSL-MNT");
+            RestTest.assertErrorMessage(whoisResources, 2, "Error", "Unknown object referenced %s", "RIPE-NCC-RPSL-MNT");
             assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
         }
     }

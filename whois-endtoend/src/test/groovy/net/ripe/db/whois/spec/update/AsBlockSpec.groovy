@@ -439,7 +439,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
     def "modify as-block, change mnt-by, old mnt-by pw supplied, new mnt-by pw not supplied"() {
 
         given:
-            syncUpdate(getTransient("RIPE-DBM-STARTUP-MNT") + "password:startup")
+            syncUpdate(getTransient("RIPE-DBM-STARTUP-MNT") + "password:startup\noverride:       denis,override1")
             syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
 
         expect:
@@ -513,7 +513,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
     def "modify as-block, add multiple mnt-by"() {
 
         given:
-        syncUpdate(getTransient("RIPE-DBM-STARTUP-MNT") + "password:startup")
+        syncUpdate(getTransient("RIPE-DBM-STARTUP-MNT") + "password:startup\noverride:       denis,override1")
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
         expect:
         queryObject("-rBGT mntner RIPE-DBM-STARTUP-MNT", "mntner", "RIPE-DBM-STARTUP-MNT")

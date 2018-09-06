@@ -1905,7 +1905,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "status:          ALLOCATED UNSPECIFIED\n" +
                 "mnt-by:          RIPE-NCC-HM-MNT\n" +
                 "mnt-lower:       RIPE-NCC-HM-MNT\n" +
-                "mnt-routes:      RIPE-NCC-RPSL-MNT\n" +
                 "source:          TEST\n"));
         databaseHelper.addObject(RpslObject.parse("" +
                 "route:           193.4.0.0/24\n" +
