@@ -145,8 +145,10 @@ public class DummifierNrtm implements Dummifier {
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toLowerCase();
         switch(source) {
             case "ripe":
+            case "ripe-nonauth":
             case "ripe-grs":
             case "test":
+            case "test-nonauth":
             case "test-grs":
                 return Lists.newArrayList(
                         new RpslAttribute("remarks", "        ****************************"),

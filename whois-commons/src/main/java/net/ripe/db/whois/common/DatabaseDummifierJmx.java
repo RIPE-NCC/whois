@@ -100,11 +100,18 @@ public class DatabaseDummifierJmx extends JmxBase {
                 cleanUpAuthIndex(jdbcTemplate, executorService);
 
                 executorService.shutdown();
+
                 try {
-                    executorService.awaitTermination(1, TimeUnit.DAYS);
+                    while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+                        LOGGER.info("ExecutorService {} active {} completed {} tasks",
+                            ((ThreadPoolExecutor) executorService).getActiveCount(),
+                            ((ThreadPoolExecutor) executorService).getCompletedTaskCount(),
+                            ((ThreadPoolExecutor) executorService).getTaskCount());
+                    }
                 } catch (InterruptedException e) {
                     LOGGER.error("shutdown", e);
                 }
+
                 return "Database dummified";
             }
         });

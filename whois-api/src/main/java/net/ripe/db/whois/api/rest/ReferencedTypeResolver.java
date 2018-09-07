@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ public class ReferencedTypeResolver {
     private final RpslObjectDao rpslObjectDao;
 
     @Autowired
-    public ReferencedTypeResolver(final RpslObjectDao rpslObjectDao) {
+    public ReferencedTypeResolver(@Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao) {
         this.rpslObjectDao = rpslObjectDao;
     }
 

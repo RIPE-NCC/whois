@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest.domain;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -13,6 +14,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "service")
 @JsonInclude(NON_EMPTY)
+@Immutable
 public class Service {
 
     @XmlAttribute
@@ -23,13 +25,11 @@ public class Service {
         this.name = name;
     }
 
-    public Service() {}
+    public Service() {
+        // required no-arg constructor
+    }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
     }
 }

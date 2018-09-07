@@ -10,7 +10,7 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rest.ApiResponseHandler;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
-import net.ripe.db.whois.api.search.IndexTemplate;
+import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -107,7 +107,7 @@ public class WhoisRdapService {
     public WhoisRdapService(final QueryHandler queryHandler,
                             final RpslObjectDao objectDao,
                             final AbuseCFinder abuseCFinder,
-                            final NoticeFactory noticeFactory,
+                            final RdapObjectMapper rdapObjectMapper,
                             final DelegatedStatsService delegatedStatsService,
                             final FullTextIndex fullTextIndex,
                             final SourceContext sourceContext,
@@ -116,7 +116,7 @@ public class WhoisRdapService {
         this.queryHandler = queryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
-        this.rdapObjectMapper = new RdapObjectMapper(noticeFactory, port43);
+        this.rdapObjectMapper = rdapObjectMapper;
         this.delegatedStatsService = delegatedStatsService;
         this.fullTextIndex = fullTextIndex;
         this.source = sourceContext.getCurrentSource().getName().toString();

@@ -134,6 +134,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "sponsoring-org: [optional]   [single]     [ ]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
+                "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
@@ -222,6 +223,18 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "tech-c\n" +
                 "\n" +
                 "   References a technical contact.\n" +
+                "\n" +
+                "     From 2 to 4 characters optionally followed by up to 6 digits\n" +
+                "     optionally followed by a source specification.  The first digit\n" +
+                "     must not be \"0\".  Source specification starts with \"-\" followed\n" +
+                "     by source name up to 9-character length.\n" +
+                "\n" +
+                "abuse-c\n" +
+                "\n" +
+                "   References an abuse contact. This can only be a ROLE object containing\n" +
+                "   an \"abuse-mailbox:\" attribute. Making this reference will remove any\n" +
+                "   query limits for the ROLE object. These ROLE objects are considered to\n" +
+                "   include only commercial data.\n" +
                 "\n" +
                 "     From 2 to 4 characters optionally followed by up to 6 digits\n" +
                 "     optionally followed by a source specification.  The first digit\n" +
@@ -418,10 +431,10 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "sponsoring-org: [optional]   [single]     [ ]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
+                "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [generated]  [single]     [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
-                "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
@@ -625,6 +638,18 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     must not be \"0\".  Source specification starts with \"-\" followed\n" +
                 "     by source name up to 9-character length.\n" +
                 "\n" +
+                "abuse-c\n" +
+                "\n" +
+                "   References an abuse contact. This can only be a ROLE object containing\n" +
+                "   an \"abuse-mailbox:\" attribute. Making this reference will remove any\n" +
+                "   query limits for the ROLE object. These ROLE objects are considered to\n" +
+                "   include only commercial data.\n" +
+                "\n" +
+                "     From 2 to 4 characters optionally followed by up to 6 digits\n" +
+                "     optionally followed by a source specification.  The first digit\n" +
+                "     must not be \"0\".  Source specification starts with \"-\" followed\n" +
+                "     by source name up to 9-character length.\n" +
+                "\n" +
                 "status\n" +
                 "\n" +
                 "   Specifies the status of the resource.\n" +
@@ -670,18 +695,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     \"fltr-\" are reserved for filter set names. Names starting\n" +
                 "     with \"prng-\" are reserved for peering set names. Names\n" +
                 "     starting with \"irt-\" are reserved for irt names.\n" +
-                "\n" +
-                "mnt-routes\n" +
-                "\n" +
-                "   This attribute references a maintainer object which is used in\n" +
-                "   determining authorisation for the creation of route6 objects.\n" +
-                "   This entry is for the mnt-routes attribute of aut-num class.\n" +
-                "   After the reference to the maintainer, an optional list of\n" +
-                "   prefix ranges inside of curly braces or the keyword \"ANY\" may\n" +
-                "   follow. The default, when no additional set items are\n" +
-                "   specified, is \"ANY\" or all more specifics.\n" +
-                "\n" +
-                "     <mnt-name> [ { list of (<ipv4-address>/<prefix> or <ipv6-address>/<prefix>) } | ANY ]\n" +
                 "\n" +
                 "mnt-by\n" +
                 "\n" +

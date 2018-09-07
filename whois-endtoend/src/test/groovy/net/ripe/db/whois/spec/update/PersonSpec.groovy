@@ -42,7 +42,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 nic-hdl: FOP1-TEST
                 remarks: test person
                 notify:  dbtest-nfy@ripe.net
-                abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 """,
@@ -1111,7 +1110,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 nic-hdl: FOP1-TEST
                 remarks: test person
                 notify:  dbtest-nfy@ripe.net
-                abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
                 source:  TEST
 
@@ -1166,7 +1164,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 remarks: test person
                 notify:  dbtest-nfy@ripe.net
                 notify:  dbtest-nfy@ripe.net
-                abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
                 mnt-by:  OWNER3-MNT, OWNER2-MNT
                 mnt-by:  OWNER-MNT, OWNER-MNT
@@ -1498,4 +1495,128 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ackFor message
         queryLineMatches("-GBr -T person FP1-TEST", "remarks")
     }
+
+    def "create person with abuse-mailbox"() {
+        expect:
+        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                remarks:
+                abuse-mailbox: abuse@ripe.net
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                password: owner
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Create", "[person] FP1-TEST") ==
+                [ "\"abuse-mailbox\" is not valid for this object type"]
+    }
+
+    def "modify person, add abuse-mailbox"() {
+        given:
+        dbfixture("" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST")
+
+        expect:
+        queryObject("-r -T person FP1-TEST", "person", "First Person")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                abuse-mailbox: dbtest-abuse2@ripe.net
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[person] FP1-TEST") ==
+                [ "\"abuse-mailbox\" is not valid for this object type"]
+    }
+
+    def "modify person, remove abuse-mailbox"() {
+        given:
+        dbfixture("" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "abuse-mailbox: dbtest-abuse@ripe.net\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST")
+
+        expect:
+        queryObject("-r -T person FP1-TEST", "person", "First Person")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
 }

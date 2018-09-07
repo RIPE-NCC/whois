@@ -16,6 +16,7 @@ import org.jboss.netty.channel.MessageEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -28,14 +29,17 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static net.ripe.db.whois.nrtm.NrtmQueryHandlerTest.StringMatcher.instanceofString;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,7 +59,9 @@ public class NrtmQueryHandlerTest {
     @Mock private NrtmLog nrtmLogMock;
 
     private static final long UPDATE_INTERVAL = 1;
+    private static final boolean KEEPALIVE_END_OF_STREAM = false;
     private static final String SOURCE = "RIPE";
+    private static final String NONAUTH_SOURCE = "";
     private static final String VERSION = "1.0-SNAPSHOT";
 
     private static final RpslObject inetnum = RpslObject.parse("inetnum:10.0.0.1");
@@ -85,7 +91,7 @@ public class NrtmQueryHandlerTest {
             }
         });
 
-        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, UPDATE_INTERVAL);
+        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, NONAUTH_SOURCE, UPDATE_INTERVAL, KEEPALIVE_END_OF_STREAM);
         NrtmQueryHandler.PendingWrites.add(channelMock);
     }
 
@@ -102,12 +108,14 @@ public class NrtmQueryHandlerTest {
 
         InOrder orderedChannelMock = inOrder(channelMock);
 
+        verify(channelMock, times(7)).write(argThat(instanceofString()));
         orderedChannelMock.verify(channelMock).write("%START Version: 2 RIPE 1-2\n\n");
         orderedChannelMock.verify(channelMock).write("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
         orderedChannelMock.verify(channelMock).write("ADD\n\n");
         orderedChannelMock.verify(channelMock).write(inetnum + "\n");
         orderedChannelMock.verify(channelMock).write("ADD\n\n");
         orderedChannelMock.verify(channelMock).write(DummifierNrtm.getPlaceholderPersonObject() + "\n");
+        orderedChannelMock.verify(channelMock).write("%END RIPE\n\n");
     }
 
     @Test
@@ -116,7 +124,8 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("% nrtm-server-" + VERSION + "\n\n");
+        verify(channelMock).write(argThat(instanceofString()));
+        verify(channelMock).write("% nrtm-server-" + VERSION + "\n\n");
     }
 
     @Test
@@ -125,7 +134,8 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write(SOURCE + ":3:X:1-2\n\n");
+        verify(channelMock).write(argThat(instanceofString()));
+        verify(channelMock).write(SOURCE + ":3:X:1-2\n\n");
     }
 
     @Test
@@ -134,24 +144,42 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("%START Version: 3 RIPE 1-2\n\n");
-        verify(channelMock, times(1)).write("ADD 1\n\n");
-        verify(channelMock, times(1)).write(inetnum.toString() + "\n");
-        verify(channelMock, times(0)).write("ADD 2\n\n");
-        verify(channelMock, times(0)).write(person.toString() + "\n");
-        verify(channelMock, times(1)).write("%END RIPE\n\n");
+        verify(channelMock, times(4)).write(argThat(instanceofString()));
+        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(channelMock).write("ADD 1\n\n");
+        verify(channelMock).write(inetnum.toString() + "\n");
+        verify(channelMock, never()).write("ADD 2\n\n");
+        verify(channelMock, never()).write(person.toString() + "\n");
+        verify(channelMock).write("%END RIPE\n\n");
     }
 
     @Test
-    public void keepalive() throws Exception {
+    public void keepalive() {
         when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-LAST -k");
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("%START Version: 3 RIPE 1-2\n\n");
-        verify(mySchedulerMock, times(1)).scheduleAtFixedRate(any(Runnable.class), anyLong());
-        verify(channelMock, times(1)).write("ADD 1\n\n");
-        verify(channelMock, times(1)).write(inetnum.toString() + "\n");
+        verify(channelMock, times(3)).write(argThat(instanceofString()));
+        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
+        verify(channelMock).write("ADD 1\n\n");
+        verify(channelMock).write(inetnum.toString() + "\n");
+    }
+
+    @Test
+    public void keepaliveEndOfStreamIndicator() {
+        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, NONAUTH_SOURCE, UPDATE_INTERVAL, true);
+
+        when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-LAST -k");
+
+        subject.messageReceived(contextMock, messageEventMock);
+
+        verify(channelMock, times(4)).write(argThat(instanceofString()));
+        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
+        verify(channelMock).write("ADD 1\n\n");
+        verify(channelMock).write(inetnum.toString() + "\n");
+        verify(channelMock).write("%END 1 - 2\n\n");
     }
 
     @Test
@@ -160,8 +188,11 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("ADD 1\n\n");
-        verify(channelMock, times(1)).write(inetnum.toString() + "\n");
+        verify(channelMock, times(4)).write(argThat(instanceofString()));
+        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(channelMock).write("ADD 1\n\n");
+        verify(channelMock).write(inetnum.toString() + "\n");
+        verify(channelMock).write("%END RIPE\n\n");
     }
 
     @Test
@@ -210,14 +241,17 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
+        verify(channelMock, times(3)).write(argThat(instanceofString()));
+        verify(channelMock).write("%START Version: 2 RIPE 1-1\n\n");
+        verify(channelMock).write("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
+        verify(channelMock).write("%END RIPE\n\n");
     }
 
     @Test
     public void channelConnected() throws Exception {
         subject.channelConnected(contextMock, channelStateEventMock);
 
-        verify(channelMock, times(1)).write(NrtmQueryHandler.TERMS_AND_CONDITIONS + "\n\n");
+        verify(channelMock).write(NrtmQueryHandler.TERMS_AND_CONDITIONS + "\n\n");
     }
 
     @Test
@@ -228,9 +262,9 @@ public class NrtmQueryHandlerTest {
         messageReceived();
         unsetPending(channelMock);
 
-        verify(channelMock, times(1)).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
         verify(channelMock, atMost(1)).write(any(String.class));
-        verify(mySchedulerMock, times(1)).scheduleAtFixedRate(any(Runnable.class), anyLong());
+        verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
     }
 
     @Test
@@ -267,4 +301,21 @@ public class NrtmQueryHandlerTest {
         }).start();
     }
 
+    /**
+     * Check that an argument is an instanceof String.
+     * any(String.class) is also matched by Object.class, if the method accepts Object.
+     */
+    static class StringMatcher extends ArgumentMatcher<Object> {
+
+        static final StringMatcher instance = new StringMatcher();
+
+        @Override
+        public boolean matches(final Object argument) {
+            return (argument instanceof String);
+        }
+
+        static StringMatcher instanceofString() {
+            return instance;
+        }
+    }
 }

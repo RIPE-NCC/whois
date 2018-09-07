@@ -18,6 +18,7 @@ import static net.ripe.db.whois.api.transfer.ResponseHandling.createResponse;
 @Path("/transfer/inetnum/{inetnum:.*}")
 public class InetnumTransfersRestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InetnumTransfersRestService.class);
+
     private final InetnumTransfersService inetnumTransfersService;
 
     @Autowired
@@ -46,7 +47,7 @@ public class InetnumTransfersRestService {
             LOGGER.warn("TransferFailedException:{}", exc.getMessage());
             return createResponse(request, exc.getMessage(), exc.getStatus());
         } catch (Exception exc) {
-            LOGGER.warn("Exception:{}", exc.getMessage());
+            LOGGER.warn("{}:{}", exc.getClass().getName(), exc.getMessage());
             return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -72,7 +73,7 @@ public class InetnumTransfersRestService {
             LOGGER.warn("TransferFailedException:{}", exc.getMessage());
             return createResponse(request, exc.getMessage(), exc.getStatus());
         } catch (Exception exc) {
-            LOGGER.warn("Exception:{}", exc.getMessage());
+            LOGGER.warn("{}:{}", exc.getClass().getName(), exc.getMessage());
             return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
         }
     }

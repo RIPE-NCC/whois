@@ -431,6 +431,65 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /Error:   "assignment-size:" value cannot be changed/
     }
 
+    def "modify, status not AGGREGATED-BY-LIR cant add assignment-size"() {
+        given:
+        def parent = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num: 2001::/8
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: ES
+                                        admin-c: TEST-PN
+                                        status: AGGREGATED-BY-LIR
+                                        tech-c: TEST-PN
+                                        mnt-lower: RIPE-NCC-HM-MNT
+                                        mnt-by: TEST-MNT
+                                        assignment-size: 64
+                                        source: TEST
+                                        password: update
+                                        password: emptypassword
+                                    """.stripIndent()))
+
+        def child = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num: 2001::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: ES
+                                        admin-c: TEST-PN
+                                        status: ASSIGNED
+                                        tech-c: TEST-PN
+                                        mnt-by: OTHER-MNT
+                                        source: TEST
+                                        password: emptypassword
+                                        password: otherpassword
+                                    """.stripIndent()))
+        expect:
+        parent =~ /SUCCESS/
+        child =~ /SUCCESS/
+
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num: 2001::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: ES
+                                        admin-c: TEST-PN
+                                        status: ASSIGNED
+                                        assignment-size: 32
+                                        tech-c: TEST-PN
+                                        mnt-by: OTHER-MNT
+                                        source: TEST
+                                        password: emptypassword
+                                        password: otherpassword
+                                    """.stripIndent()))
+
+        then:
+        update.contains("" +
+                "assignment-size: 32\n" +
+                "***Error:   \"assignment-size:\" attribute only allowed with status\n" +
+                "            AGGREGATED-BY-LIR")
+
+    }
+
     def "modify, status ASSIGNED ANYCAST needs endusermntner auth for adding org and mnt-lower"() {
       when:
         def update = syncUpdate(new SyncUpdate(data: """\

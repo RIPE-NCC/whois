@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.RecoverableDataAccessException;
@@ -52,6 +53,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Repository
+@Primary
 @RetryFor(RecoverableDataAccessException.class)
 public class JdbcRpslObjectDao implements RpslObjectDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRpslObjectDao.class);

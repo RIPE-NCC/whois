@@ -61,9 +61,7 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
             validateRequiredAssignmentSize(update, updateContext, object, ipv6Resource);
             validTotalNrAggregatedByLirInHierarchy(update, updateContext, ipv6Resource);
         } else {
-            for (final RpslAttribute attribute : object.findAttributes(AttributeType.ASSIGNMENT_SIZE)) {
-                updateContext.addMessage(update, attribute, UpdateMessages.attributeAssignmentSizeNotAllowed());
-            }
+            addMessagesForAttributeAssignmentSizeNotAllowed(object, update, updateContext);
         }
 
         validatePrefixLengthForParent(update, updateContext, ipv6Resource);
@@ -144,8 +142,18 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
         final RpslAttribute updatedStatus = update.getUpdatedObject().findAttribute(AttributeType.STATUS);
 
         final Inet6numStatus inet6numStatus = Inet6numStatus.getStatusFor(updatedStatus.getCleanValue());
-        if (inet6numStatus.equals(Inet6numStatus.AGGREGATED_BY_LIR) && assignmentSizeHasChanged(update)) {
-            updateContext.addMessage(update, UpdateMessages.cantChangeAssignmentSize());
+        if (assignmentSizeHasChanged(update)) {
+            if(inet6numStatus.equals(Inet6numStatus.AGGREGATED_BY_LIR)) {
+                updateContext.addMessage(update, UpdateMessages.cantChangeAssignmentSize());
+            } else {
+                addMessagesForAttributeAssignmentSizeNotAllowed(update.getUpdatedObject(), update, updateContext);
+            }
+        }
+    }
+
+    private void addMessagesForAttributeAssignmentSizeNotAllowed(final RpslObject object, final PreparedUpdate update, final UpdateContext updateContext) {
+        for (final RpslAttribute attribute : object.findAttributes(AttributeType.ASSIGNMENT_SIZE)) {
+            updateContext.addMessage(update, attribute, UpdateMessages.attributeAssignmentSizeNotAllowed());
         }
     }
 

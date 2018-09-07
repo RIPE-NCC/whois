@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SourceContextTest {
     final String mainSourceNameString = "RIPE";
+    final String nonauthRipeSourceNameString = "RIPE-NONAUTH";
     final String additionalSourceNames = "RIPE,RIPE-GRS,APNIC-GRS";
     final String grsSourceNames = "RIPE-GRS,APNIC-GRS";
     final String nrtmSourceNames = "NRTM-GRS";
@@ -49,6 +50,7 @@ public class SourceContextTest {
 
         subject = new DefaultSourceContext(
                 mainSourceNameString,
+                nonauthRipeSourceNameString,
                 additionalSourceNames,
                 grsSourceNames,
                 nrtmSourceNames,
@@ -114,6 +116,7 @@ public class SourceContextTest {
         try {
             new DefaultSourceContext(
                 mainSourceNameString,
+                nonauthRipeSourceNameString,
                 invalidAdditionalSource,
                 grsSourceNames,
                 nrtmSourceNames,
@@ -140,6 +143,7 @@ public class SourceContextTest {
         final String noAdditionalSources = "";
         subject = new DefaultSourceContext(
             mainSourceNameString,
+            nonauthRipeSourceNameString,
             noAdditionalSources,
             grsSourceNames,
             nrtmSourceNames,

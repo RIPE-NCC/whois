@@ -24,6 +24,8 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+
 @Component
 public class AuthoritativeResourceData {
     private final static Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceData.class);
@@ -66,7 +68,14 @@ public class AuthoritativeResourceData {
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_HOUR)
     synchronized public void refreshAuthoritativeResourceCache() {
         final LocalDate date = dateTimeProvider.getCurrentDate();
-        final long lastImportTime = dailySchedulerDao.getDailyTaskFinishTime(date, AuthoritativeResourceImportTask.class);
+        final long lastImportTime;
+        try {
+            lastImportTime = dailySchedulerDao.getDailyTaskFinishTime(date, AuthoritativeResourceImportTask.class);
+        } catch (RuntimeException e) {
+            LOGGER.warn("Refreshing failed on get finish time due to {}: {}", e.getClass().getName(), e.getMessage());
+            return;
+        }
+
         if (lastImportTime > lastRefresh) {
             LOGGER.info("Authoritative resource data import detected, finished at {} (previous run: {})", new LocalDateTime(lastImportTime), new LocalDateTime(lastRefresh));
             lastRefresh = lastImportTime;
@@ -76,7 +85,7 @@ public class AuthoritativeResourceData {
                     state = resourceDataDao.getState(source);
                     authoritativeResourceCache.put(sourceName, resourceDataDao.load(sourceName));
                 } catch (RuntimeException e) {
-                    LOGGER.error("Refreshing: {}", sourceName, e);
+                    LOGGER.warn("Refreshing: {} failed due to {}: {}", sourceName, e.getClass().getName(), e.getMessage());
                 }
             }
         }
@@ -84,7 +93,13 @@ public class AuthoritativeResourceData {
 
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_MINUTE)
     synchronized public void refreshAuthoritativeResourceCacheOnChange() {
-        final ResourceDataDao.State latestState = resourceDataDao.getState(source);
+        final ResourceDataDao.State latestState;
+        try {
+            latestState = resourceDataDao.getState(source);
+        } catch (RuntimeException e) {
+            LOGGER.warn("Refreshing failed on get state due to {}: {}", e.getClass().getName(), e.getMessage());
+            return;
+        }
 
         if ((state == null) || latestState.compareTo(state) != 0) {
             this.state = latestState;
@@ -92,7 +107,7 @@ public class AuthoritativeResourceData {
                 LOGGER.debug("Refresh: {}", source);
                 authoritativeResourceCache.put(source, resourceDataDao.load(source));
             } catch (RuntimeException e) {
-                LOGGER.error("Refreshing: {}", source, e);
+                LOGGER.warn("Refreshing on change: {} failed due to {}: {}", source, e.getClass().getName(), e.getMessage());
             }
         }
     }
@@ -105,5 +120,9 @@ public class AuthoritativeResourceData {
         }
 
         return authoritativeResource;
+    }
+
+    public AuthoritativeResource getAuthoritativeResource() {
+        return getAuthoritativeResource(ciString(this.source));
     }
 }

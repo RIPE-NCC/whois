@@ -49,14 +49,14 @@ public class WhoisObjectMapperTest {
         assertThat(primaryKeyAttribute.getName(), is("mntner"));
         assertThat(primaryKeyAttribute.getValue(), is("TST-MNT"));
         assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("mntner", "TST-MNT", null, null, null),
-                new Attribute("descr", "MNTNER for test", null, null, null),
-                new Attribute("admin-c", "TP1-TEST", null, null, null),
-                new Attribute("upd-to", "dbtest@ripe.net", null, null, null),
-                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
-                new Attribute("auth", "PGPKEY-28F6CD6C", null, null, null),
-                new Attribute("mnt-by", "TST-MNT", null, null, null),
-                new Attribute("source", "TEST", null, null, null)
+                new Attribute("mntner", "TST-MNT", null, null, null, null),
+                new Attribute("descr", "MNTNER for test", null, null, null, null),
+                new Attribute("admin-c", "TP1-TEST", null, null, null, null),
+                new Attribute("upd-to", "dbtest@ripe.net", null, null, null, null),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("auth", "PGPKEY-28F6CD6C", null, null, null, null),
+                new Attribute("mnt-by", "TST-MNT", null, null, null, null),
+                new Attribute("source", "TEST", null, null, null, null)
         ));
     }
 
@@ -83,16 +83,16 @@ public class WhoisObjectMapperTest {
         assertThat(primaryKeyAttribute.getName(), is("as-set"));
         assertThat(primaryKeyAttribute.getValue(), is("AS-set-attendees"));
         assertThat(whoisObject.getAttributes(), containsInAnyOrder(
-                new Attribute("as-set", "AS-set-attendees", null, null, null),
-                new Attribute("descr", "AS-set containing all attendees' ASNs.", null, null, null),
-                new Attribute("tech-c", "TS1-TEST", null, null, null),
-                new Attribute("admin-c", "TS1-TEST", null, null, null),
-                new Attribute("members", "as1", null, null, null),
-                new Attribute("members", "as2", null, null, null),
-                new Attribute("members", "as3", null, null, null),
-                new Attribute("members", "", null, null, null),     // note: this is incorrect syntax but still handled by the mapper
-                new Attribute("mnt-by", "TS1-MNT", null, null, null),
-                new Attribute("source", "TEST", null, null, null)
+                new Attribute("as-set", "AS-set-attendees", null, null, null, null),
+                new Attribute("descr", "AS-set containing all attendees' ASNs.", null, null, null, null),
+                new Attribute("tech-c", "TS1-TEST", null, null, null, null),
+                new Attribute("admin-c", "TS1-TEST", null, null, null, null),
+                new Attribute("members", "as1", null, null, null, null),
+                new Attribute("members", "as2", null, null, null, null),
+                new Attribute("members", "as3", null, null, null, null),
+                new Attribute("members", "", null, null, null, null),     // note: this is incorrect syntax but still handled by the mapper
+                new Attribute("mnt-by", "TS1-MNT", null, null, null, null),
+                new Attribute("source", "TEST", null, null, null, null)
         ));
     }
 
