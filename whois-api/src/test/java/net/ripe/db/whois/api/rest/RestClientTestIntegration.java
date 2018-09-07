@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
+import org.apache.commons.httpclient.HttpStatus;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,9 @@ import javax.ws.rs.core.Cookie;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DESCR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.SOURCE;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
@@ -84,6 +88,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     RestClient restClient;
+    @Autowired
+    WhoisRestService whoisRestService;
 
     @Before
     public void setup() throws Exception {
@@ -97,6 +103,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%d/whois", getPort()));
         ReflectionTestUtils.setField(restClient, "sourceName", "TEST");
+
+        ReflectionTestUtils.setField(whoisRestService, "baseUrl", String.format("http://localhost:%d/whois", getPort()));
     }
 
     @Test
@@ -157,8 +165,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void lookup_with_wrong_password() throws Exception {
         final RpslObject object = restClient.request().lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
-        assertThat(object.getValueForAttribute(AttributeType.SOURCE).toString(), is("TEST"));
-        assertThat(object.findAttribute(AttributeType.SOURCE).getCleanComment(), is("Filtered"));
+        assertThat(object.getValueForAttribute(SOURCE).toString(), is("TEST"));
+        assertThat(object.findAttribute(SOURCE).getCleanComment(), is("Filtered"));
         assertThat(object.getValueForAttribute(AttributeType.AUTH).toString(), is("MD5-PW"));
         assertThat(object.findAttribute(AttributeType.AUTH).getCleanComment(), is("Filtered"));
     }
@@ -171,8 +179,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test"));
         assertThat(object.findAttribute(AttributeType.AUTH).getCleanComment(), is("test"));
-        assertThat(object.findAttribute(AttributeType.SOURCE).getCleanComment(), not(is("Filtered")));
-        assertThat(object.findAttribute(AttributeType.SOURCE).getCleanComment(), is(nullValue()));
+        assertThat(object.findAttribute(SOURCE).getCleanComment(), not(is("Filtered")));
+        assertThat(object.findAttribute(SOURCE).getCleanComment(), is(nullValue()));
     }
 
     @Test
@@ -180,8 +188,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final RpslObject object = restClient.request()
                 .lookup(ObjectType.PERSON, TEST_PERSON.getKey().toString());
 
-        assertThat(object.findAttribute(AttributeType.SOURCE).getCleanComment(), not(is("Filtered")));
-        assertThat(object.findAttribute(AttributeType.SOURCE).getCleanComment(), is(nullValue()));
+        assertThat(object.findAttribute(SOURCE).getCleanComment(), not(is("Filtered")));
+        assertThat(object.findAttribute(SOURCE).getCleanComment(), is(nullValue()));
     }
 
     @Test
@@ -660,6 +668,87 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         final RpslObject forComparison = new RpslObjectBuilder(person).remove(5).get();
         assertThat(created.toString(), containsString(forComparison.toString()));
+    }
+
+    @Test
+    public void lookup_from_incorrect_source() {
+
+        databaseHelper.addObject("" +
+                "aut-num:        AS100\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-NONAUTH\n");
+
+        // restClient assumes TEST source, should be redirected to NONAUTH source and get correct object
+        final RpslObject autnum = restClient.request().lookup(ObjectType.AUT_NUM, "AS100");
+
+        assertThat(autnum.getValueForAttribute(SOURCE), is(ciString("TEST-NONAUTH")));
+    }
+
+    @Test
+    public void update_incorrect_source() {
+
+        databaseHelper.addObject("" +
+                "aut-num:        AS100\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-NONAUTH\n");
+
+        // restClient assumes TEST source, should be redirected to NONAUTH source and get correct object
+        final RpslObject autnum = restClient.request()
+                .addParam("password", "test")
+                .update(RpslObject.parse(
+                    "aut-num:        AS100\n" +
+                    "as-name:        End-User-2\n" +
+                    "descr:          description2\n" +
+                    "admin-c:        TP1-TEST\n" +
+                    "tech-c:         TP1-TEST\n" +
+                    "mnt-by:         OWNER-MNT\n" +
+                    "source:         TEST-NONAUTH\n"
+                )
+        );
+
+        assertThat(autnum.getValueForAttribute(DESCR), is(ciString("description2")));
+    }
+
+    @Test
+    public void delete_incorrect_source() {
+
+        databaseHelper.addObject("" +
+                "aut-num:        AS100\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST-NONAUTH\n");
+
+        // restClient assumes TEST source, should be redirected to NONAUTH source and get correct object
+        final RpslObject autnum = restClient.request()
+                .addParam("password", "test")
+                .delete(RpslObject.parse(
+                        "aut-num:        AS100\n" +
+                        "as-name:        End-User-2\n" +
+                        "descr:          description2\n" +
+                        "admin-c:        TP1-TEST\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "source:         TEST-NONAUTH\n"
+                    )
+                );
+
+        try {
+            restClient.request().lookup(ObjectType.AUT_NUM, "AS100");
+            fail("Autnum was not deleted");
+        } catch (RestClientException rce) {
+            assertThat(rce.getStatus(), is(HttpStatus.SC_NOT_FOUND));
+        }
     }
 
     @Test

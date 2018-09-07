@@ -380,7 +380,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 "Membership claim is not supported by mbrs-by-ref: attribute of the referenced set [AS-TEST]"]
         ack.warningMessagesFor("Modify", "[aut-num] AS352") ==
               ["Supplied attribute 'status' has been replaced with a generated value",
-              "Object has wrong source, should be TEST-NONAUTH"]
+              "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "mnt-by:\\s*LIR-MNT")
     }

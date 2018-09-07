@@ -83,7 +83,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:         AP1-TEST
             notify:         noreply@ripe.net
             mnt-lower:      UPD-MNT
-            mnt-routes:     UPD-MNT
             mnt-by:         UPD-MNT
             source:         TEST
             """,
@@ -139,7 +138,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         tech-c:         AP1-TEST
                         notify:         noreply@ripe.net
                         mnt-lower:      UPD-MNT
-                        mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password:       update
@@ -715,7 +713,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:         UPD-MNT\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
-                        "source:         TEST", currentDateTime, currentDateTime)))
+                        "source:         TEST-NONAUTH", currentDateTime, currentDateTime)))
 
         when:
         def update = syncUpdate new SyncUpdate(data: """\
@@ -780,7 +778,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:         UPD-MNT\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
-                        "source:         TEST", currentDateTime, currentDateTime)))
+                        "source:         TEST-NONAUTH", currentDateTime, currentDateTime)))
 
     }
 
@@ -816,7 +814,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:         UPD-MNT\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
-                        "source:         TEST", currentDateTime, currentDateTime)))
+                        "source:         TEST-NONAUTH", currentDateTime, currentDateTime)))
 
     }
 

@@ -755,6 +755,165 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getStr().getValue(), is("\"<b>DEV</b> mntner\""));
     }
 
+    @Test
+    public void basic_search_nonauth_aut_num_object() throws Exception {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=AS101");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void basic_search_nonauth_route_object() throws Exception {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "route: 211.43.192.0/19\n" +
+                        "origin: AS101\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=211.43.192.0/19");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void basic_search_found_all_objects_with_nonauth_value_in_attribute() throws Exception {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "route: 211.43.192.0/19\n" +
+                        "origin: AS101\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=RIPE-NONAUTH");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+        assertThat(queryResponse.getResults(), hasSize(3));
+    }
+
+    @Test
+    public void basic_search_ignore_source_attribute() throws Exception {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "route: 211.43.192.0/19\n" +
+                        "origin: AS101\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=RIPE-NONAUTH");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(0L));
+        assertThat(queryResponse.getResults(), hasSize(0));
+    }
+
+    @Test
+    public void advanced_search_nonauth_aut_num_objects() throws Exception {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(descr:(RIPE%5C-NONAUTH))+AND+(object-type:aut-num)");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(2L));
+        assertThat(queryResponse.getResults(), hasSize(2));
+    }
+
+    @Test
+    public void advanced_search_aut_num_route_with_same_descr() throws Exception {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "route: 211.43.192.0/19\n" +
+                        "origin: AS101\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(descr:(RIPE%5C-NONAUTH))+AND+(object-type:aut-num+OR+object-type:route)");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+        assertThat(queryResponse.getResults(), hasSize(3));
+    }
+
+    @Test
+    public void advanced_search_nonauth_ignore_source() throws Exception {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(source:(RIPE%5C-NONAUTH))+AND+(object-type:aut-num)");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(0L));
+        assertThat(queryResponse.getResults(), hasSize(0));
+    }
+
     // helper methods
 
     private QueryResponse query(final String queryString) {

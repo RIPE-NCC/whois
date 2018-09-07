@@ -1,5 +1,24 @@
 # next
 
+# 1.92.4
+[api] Refactored redirect for objects with nonauth source.
+[query] Added nonauth source to "--list-sources" response.
+[nrtm] Removed empty line between sources in "-q sources" response.
+
+# 1.92.3
+[api] Fixed URL path in REST API redirect for objects with nonauth source.
+
+# 1.92.2
+[all] Added nonauth source to database dump and split files for NWI-5.
+
+# 1.92.1
+[nrtm] Added separate sources for NWI-5.
+[update] Replace short-format attribute names on update (#501)
+[all] Fixed rtr-set members and mp-members syntax (#499)
+
+# 1.92
+[all] Initial NWI-5 release
+
 # 1.91.6
 [all] Updated Spring framework to 4.3.18.
 [update] Validate reserved words and prefixes.
