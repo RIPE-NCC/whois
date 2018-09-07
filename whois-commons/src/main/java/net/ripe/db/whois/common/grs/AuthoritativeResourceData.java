@@ -24,6 +24,8 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+
 @Component
 public class AuthoritativeResourceData {
     private final static Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceData.class);
@@ -118,5 +120,9 @@ public class AuthoritativeResourceData {
         }
 
         return authoritativeResource;
+    }
+
+    public AuthoritativeResource getAuthoritativeResource() {
+        return getAuthoritativeResource(ciString(this.source));
     }
 }

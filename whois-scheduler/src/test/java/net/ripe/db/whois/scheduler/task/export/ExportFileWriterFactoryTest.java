@@ -34,7 +34,7 @@ public class ExportFileWriterFactoryTest {
 
     @Before
     public void setup() {
-        subject = new ExportFileWriterFactory(dummifierNrtm, dummifierCurrent, "internal", "dbase_new", "dbase");
+        subject = new ExportFileWriterFactory(dummifierNrtm, dummifierCurrent, "internal", "dbase_new", "dbase", "test", "test-nonauth");
     }
 
     @Test(expected = IllegalStateException.class)

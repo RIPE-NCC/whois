@@ -11,7 +11,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.WebApplicationException;
 
-public abstract class AbstractTransferTest extends AbstractIntegrationTest {
+public abstract class AbstractTransferTestIntegration extends AbstractIntegrationTest {
     protected static final String OVERRIDE_USER = "overrideUser";
     protected static final String OVERRIDE_PASSWORD = "overridePassword";
     protected static final String OVERRIDE_LINE = OVERRIDE_USER + "," + OVERRIDE_PASSWORD + ",myreason";

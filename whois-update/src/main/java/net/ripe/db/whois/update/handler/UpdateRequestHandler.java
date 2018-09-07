@@ -79,15 +79,6 @@ public class UpdateRequestHandler {
             return new UpdateResponse(UpdateStatus.SUCCESS, responseFactory.createHelpResponse(updateContext, updateRequest.getOrigin()));
         }
 
-        final Collection<Update> updates = updateRequest.getUpdates();
-        if (updateContext.isDryRun() && updates.size() > 1) {
-            for (final Update update : updates) {
-                updateContext.failedUpdate(update, UpdateMessages.dryRunOnlySupportedOnSingleUpdate());
-            }
-
-            return createUpdateResponse(updateRequest, updateContext);
-        }
-
         try {
             sourceContext.setCurrentSourceToWhoisMaster();
 

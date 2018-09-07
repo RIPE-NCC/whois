@@ -158,8 +158,8 @@ public interface AttributeParser<T> {
     }
 
     final class NameParser implements AttributeParser {
-        final private Pattern NAME = Pattern.compile("(?i)[a-z][a-z0-9_-]{0,78}[a-z0-9]");
-        final private Set<String> reserved = ImmutableSet.of(
+        private static final Pattern NAME = Pattern.compile("(?i)[a-z][a-z0-9_-]{0,78}[a-z0-9]");
+        private static final Set<String> RESERVED = ImmutableSet.of(
                 "ANY", "AS-ANY", "RS-ANY", "PEERAS", "AND", "OR", "NOT",
                 "ATOMIC", "FROM", "TO", "AT", "ACTION", "ACCEPT", "ANNOUNCE",
                 "EXCEPT", "REFINE", "NETWORKS", "INTO", "INBOUND", "OUTBOUND");
@@ -168,7 +168,7 @@ public interface AttributeParser<T> {
         public String parse(final String s) {
             if (!StringUtils.isBlank(s) &&
                     NAME.matcher(s).matches() &&
-                    !reserved.contains(s.toUpperCase())) {
+                    ! RESERVED.contains(s.toUpperCase())) {
                 return s;
             }
             throw new AttributeParseException("Unexpected parse result", s);

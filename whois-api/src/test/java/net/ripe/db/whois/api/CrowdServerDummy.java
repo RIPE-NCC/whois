@@ -80,8 +80,8 @@ public class CrowdServerDummy implements Stub {
                     response.getWriter().println(getUuid(uuid));
                 }
             }
-            else if (parameterMap.get("uuid") != null) {
-                final String username = usermap.get(parameterMap.get("uuid")[0]);
+            else if (parameterMap.get("restriction") != null) {
+                final String username = usermap.get(parameterMap.get("restriction")[0].split("=")[1]);
                 if (username == null) {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 } else {
@@ -120,7 +120,11 @@ public class CrowdServerDummy implements Stub {
         }
 
         private String getUsername(final String uuid) {
-            return String.format("<user name=\"%s\"></user>", uuid);
+            return String.format("" +
+                    "<users expand=\"user\">\n" +
+                    "   <user name=\"%s\">\n" +
+                    "   </user>\n" +
+                    "</users>", uuid);
         }
     }
 

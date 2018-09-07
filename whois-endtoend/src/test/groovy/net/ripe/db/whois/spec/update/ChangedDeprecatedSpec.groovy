@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
-import org.junit.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
@@ -341,7 +340,6 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         syncUpdateVerifyNoopSuccess(PERSON_WITH_CHANGED,response)
-        syncUpdateVerifyHasDeprecatedWarning(response)
         verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
 
@@ -357,7 +355,6 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyNoopSuccess(PERSON_WITH_CHANGED,response)
-        mailVerifyHasDeprecatedWarning(response)
         verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
 
@@ -369,10 +366,9 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
 
         when:
-        def errorsAndWarnings = restModify(PERSON_WITH_CHANGED)
+        restModify(PERSON_WITH_CHANGED)
 
         then:
-        restVerifyHasDeprecatedWarning(errorsAndWarnings)
         verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
 

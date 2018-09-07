@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -20,7 +21,9 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,11 +42,15 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.List;
 
 import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
 
 @Component
 @Path("/")
@@ -57,6 +64,8 @@ public class WhoisRestService {
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
     private final LoggerContext loggerContext;
+    private final AuthoritativeResourceData authoritativeResourceData;
+    private final String baseUrl;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -66,7 +75,9 @@ public class WhoisRestService {
                             final WhoisObjectMapper whoisObjectMapper,
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
-                            final LoggerContext loggerContext) {
+                            final LoggerContext loggerContext,
+                            final AuthoritativeResourceData authoritativeResourceData,
+                            @Value("${api.rest.baseurl}") final String baseUrl) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectStreamer = rpslObjectStreamer;
         this.sourceContext = sourceContext;
@@ -75,6 +86,8 @@ public class WhoisRestService {
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
         this.loggerContext = loggerContext;
+        this.authoritativeResourceData = authoritativeResourceData;
+        this.baseUrl = baseUrl;
     }
 
     @DELETE
@@ -95,7 +108,15 @@ public class WhoisRestService {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
-            auditlogRequest(request);
+            if(requiresNonAuthRedirect(source, objectType, key)) {
+                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
+            }
+
+            if(requiresRipeRedirect(source, objectType, key)) {
+                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
+            }
+
+            auditLogRequest(request);
 
             checkForMainSource(request, source);
             setDryRun(updateContext, dryRun);
@@ -146,7 +167,15 @@ public class WhoisRestService {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
-            auditlogRequest(request);
+            if(requiresNonAuthRedirect(source, objectType, key)) {
+                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
+            }
+
+            if(requiresRipeRedirect(source, objectType, key)) {
+                return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
+            }
+
+            auditLogRequest(request);
 
             checkForMainSource(request, source);
             setDryRun(updateContext, dryRun);
@@ -193,7 +222,7 @@ public class WhoisRestService {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
-            auditlogRequest(request);
+            auditLogRequest(request);
 
             checkForMainSource(request, source);
             setDryRun(updateContext, dryRun);
@@ -204,15 +233,15 @@ public class WhoisRestService {
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
             return updatePerformer.createResponse(
-                updateContext,
-                updatePerformer.performUpdate(
-                        updateContext,
-                        origin,
-                        update,
-                        Keyword.NEW,
-                        request),
-                update,
-                request);
+                    updateContext,
+                    updatePerformer.performUpdate(
+                            updateContext,
+                            origin,
+                            update,
+                            Keyword.NEW,
+                            request),
+                    update,
+                    request);
 
         } catch (Exception e) {
             updatePerformer.logWarning(String.format("Caught %s: %s", e.getClass().toString(), e.getMessage()));
@@ -272,18 +301,70 @@ public class WhoisRestService {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
         }
 
-        try {
-            final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request)).setMatchPrimaryKeyOnly(true);
-            final Parameters parameters = new Parameters.Builder()
-                                    .unformatted(isQueryParamSet(unformatted))
-                                    .managedAttributes(isQueryParamSet(managedAttributes))
-                                    .resourceHolder(isQueryParamSet(resourceHolder))
-                                    .abuseContact(isQueryParamSet(abuseContact))
-                                    .build();
-            return rpslObjectStreamer.handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, null);
-        } catch (QueryException e) {
+        final Query query;
+        try{
+            query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request)).setMatchPrimaryKeyOnly(true);
+        }catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }
+
+        if(requiresNonAuthRedirect(source, objectType, key)) {
+            return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
+        }
+
+        if(requiresRipeRedirect(source, objectType, key)) {
+            return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
+        }
+
+        final Parameters parameters = new Parameters.Builder()
+                .unformatted(isQueryParamSet(unformatted))
+                .managedAttributes(isQueryParamSet(managedAttributes))
+                .resourceHolder(isQueryParamSet(resourceHolder))
+                .abuseContact(isQueryParamSet(abuseContact))
+                .build();
+        return rpslObjectStreamer.handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, null);
+    }
+
+    private boolean requiresNonAuthRedirect(final String source, final String objectType, final String key) {
+        if (sourceContext.getWhoisMasterSource().getName().equals(source)) {
+            switch (ObjectType.getByName(objectType)) {
+                case AUT_NUM:
+                    return !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
+                case ROUTE:
+                    return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE, ciString(key));
+                case ROUTE6:
+                    return !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE6, ciString(key));
+                default:
+                    return false;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean requiresRipeRedirect(final String source, final String objectType, final String key) {
+        if(sourceContext.getNonauthSource().getName().equals(source)) {
+            switch (ObjectType.getByName(objectType)) {
+                case AUT_NUM:
+                    return authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, ciString(key));
+                case ROUTE:
+                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE, ciString(key));
+                case ROUTE6:
+                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(ROUTE6, ciString(key));
+                default:
+                    return false;
+            }
+        }
+
+        return false;
+    }
+
+    //TODO: GAB: Return 308 for updates once there is a better support for it.
+    private Response redirectNonAuthOrRequiresRipeRedirect(final String source, final String objectType, final String pkey, final String queryString) {
+        final URI uri = StringUtils.isBlank(queryString)?
+                URI.create(String.format("%s/%s/%s/%s", baseUrl, source, objectType, pkey)) :
+                URI.create(String.format("%s/%s/%s/%s", baseUrl, source, objectType, pkey) + "?" + queryString);
+        return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
     }
 
     private boolean isTrusted(final HttpServletRequest request) {
@@ -323,20 +404,22 @@ public class WhoisRestService {
         }
     }
 
-    private void auditlogRequest(final HttpServletRequest request) {
+    private void auditLogRequest(final HttpServletRequest request) {
         loggerContext.log(new HttpRequestMessage(request));
     }
 
     private void checkForMainSource(final HttpServletRequest request, final String source) {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSource(source)))
-                    .build());
+            if(!sourceContext.getNonauthSource().getName().toString().equalsIgnoreCase(source)) {
+                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                        .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSource(source)))
+                        .build());
+            }
         }
     }
 
     private boolean isValidSource(final String source) {
-        return sourceContext.getAllSourceNames().contains(ciString(source));
+        return sourceContext.isOutOfRegion(source) || sourceContext.getAllSourceNames().contains(ciString(source));
     }
 
     void setDryRun(final UpdateContext updateContext, final String dryRun) {

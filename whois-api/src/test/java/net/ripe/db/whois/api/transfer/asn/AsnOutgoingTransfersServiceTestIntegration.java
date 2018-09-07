@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.transfer.asn;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import net.ripe.db.whois.api.transfer.AbstractTransferTest;
+import net.ripe.db.whois.api.transfer.AbstractTransferTestIntegration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceDao;
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class AsnOutgoingTransfersServiceIntegrationTest extends AbstractAsnTransferInternalTest {
+public class AsnOutgoingTransfersServiceTestIntegration extends AbstractAsnTransferTestIntegration {
     private static final String AS1_____far_first_of_ripe_block = "AS1";
     private static final String AS10____first_of_ripe_block = "AS10";
     private static final String AS15____middle_in_ripe_block = "AS15";
@@ -529,7 +529,7 @@ public class AsnOutgoingTransfersServiceIntegrationTest extends AbstractAsnTrans
     // helper methods
 
     private String transferOut(final String asNum) {
-        return transferOut(asNum, AbstractTransferTest.OVERRIDE_LINE);
+        return transferOut(asNum, AbstractTransferTestIntegration.OVERRIDE_LINE);
     }
 
     private String transferOut(final String asNum, final String overrideLine) {

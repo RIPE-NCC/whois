@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.handler.transformpipeline;
+package net.ripe.db.whois.update.handler.transform;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -10,35 +10,36 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class LatinTransformerTest {
+@RunWith(MockitoJUnitRunner.class)
+public class Latin1TransformerTest {
 
     @Mock
-    Update update;
+    private Update update;
     @Mock
-    UpdateContext updateContext;
+    private UpdateContext updateContext;
 
-    private LatinTransformer subject;
+    private Latin1Transformer subject;
 
     @Before
     public void setUp() throws Exception {
-        update = mock(Update.class);
-        updateContext = mock(UpdateContext.class);
-        subject = new LatinTransformer();
+        this.subject = new Latin1Transformer();
     }
 
     @Test
-    public void should_be_already_latin() throws Exception {
-
+    public void should_be_already_latin() {
         final RpslObject person = RpslObject.parse("" +
                 "person:     Test Person\n" +
                 "address:    street\n" +
@@ -48,16 +49,16 @@ public class LatinTransformerTest {
                 "mnt-by:     UPD-MNT\n" +
                 "source:     TEST\n");
         when(update.getSubmittedObject()).thenReturn(person);
-        RpslObject transformedPerson = subject.transform(person, update, updateContext, Action.NOOP);
+
+        final RpslObject transformedPerson = subject.transform(person, update, updateContext, Action.NOOP);
 
         assertNotNull(transformedPerson);
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
     }
 
-
     @Test
-    public void should_convert_into_latin() throws Exception {
+    public void should_convert_into_latin() {
         final RpslObject person = new RpslObjectBuilder()
                 .append(new RpslAttribute(AttributeType.PERSON, "Test Person"))
                 .append(new RpslAttribute(AttributeType.ADDRESS, "Тверская улица,москва"))
@@ -69,13 +70,14 @@ public class LatinTransformerTest {
                 .get();
         when(update.getSubmittedObject()).thenReturn(person);
 
-        RpslObject transformedPerson = subject.transform(person, update, updateContext, Action.NOOP);
+        final RpslObject transformedPerson = subject.transform(person, update, updateContext, Action.NOOP);
 
-        assertNotNull(transformedPerson);
+        assertThat(transformedPerson, is(not(nullValue())));
         assertThat(transformedPerson.getAttributes().size(), is(7));
         assertThat(transformedPerson.getValueForAttribute(AttributeType.ADDRESS), is("???????? ?????,??????"));
         verify(updateContext).addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion("address"));
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
     }
+
 }

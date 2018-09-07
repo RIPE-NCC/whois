@@ -21,7 +21,9 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -29,6 +31,7 @@ import java.net.URL;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -70,15 +73,30 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void get_help_parameter_only() throws Exception {
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
+    public void get_help_parameter_only() {
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
                 .request()
-                .get(String.class);
+                .get(Response.class);
 
-        assertThat(response, containsString("You have requested Help information from the RIPE NCC Database"));
-        assertThat(response, containsString("From-Host: 127.0.0.1"));
-        assertThat(response, containsString("Date/Time: "));
-        assertThat(response, not(containsString("$")));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_ENCODING), is(nullValue()));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
+
+        final String responseBody = response.readEntity(String.class);
+        assertThat(responseBody, containsString("You have requested Help information from the RIPE NCC Database"));
+        assertThat(responseBody, containsString("From-Host: 127.0.0.1"));
+        assertThat(responseBody, containsString("Date/Time: "));
+        assertThat(responseBody, not(containsString("$")));
+    }
+
+    @Test
+    public void get_help_parameter_only_compressed() {
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
+                .request()
+                .header("Accept-Encoding","gzip, deflate")
+                .get(Response.class);
+
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_ENCODING), is("gzip"));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
     }
 
     @Ignore("TODO: [ES] post without content type returns internal server error")
@@ -195,6 +213,41 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString("No operation: [mntner] mntner"));
         assertThat(response, containsString("***Info:    Dry-run performed, no changes to the database have been made"));
+    }
+
+    /*
+     * TODO: [ES] Replace non-break spaces with regular spaces.
+     * The non-break space character is unicode \u00A0, consisting of bytes 0xC2 0xA0.
+     * These bytes are (incorrectly) transformed into latin-1 character 0xA0, which doesn't display properly.
+     * Instead, non-break spaces should be converted to a regular space.
+     */
+    @Ignore
+    @Test
+    public void non_break_spaces_not_filtered() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject("" +
+                "mntner:        SSO-MNT\n" +
+                "descr:         description\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          SSO person@net.net\n" +
+                "mnt-by:        SSO-MNT\n" +
+                "source:        TEST");
+
+        final String person = "" +
+                "person:    Test\u00a0Person\n" +
+                "address:   \u00a0Amsterdam\n" +
+                "phone:     +31-6-123456\n" +
+                "nic-hdl:   TP2-TEST\n" +
+                "mnt-by:    SSO-MNT\n" +
+                "source:    TEST";
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person))
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-TEST"));
     }
 
     @Test
@@ -357,6 +410,57 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] TESTING-MNT"));
+    }
+
+    @Test
+    public void create_person_with_changed_attribute() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                                "person:        Test Person\n" +
+                                "address:       Amsterdam\n" +
+                                "phone:         +31\n" +
+                                "nic-hdl:       TP2-RIPE\n" +
+                                "mnt-by:        mntner\n" +
+                                "changed:       user@host.org 20171025\n" +
+                                "source:        TEST\n" +
+                                "password: emptypassword\n"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-RIPE   Test Person"));
+        assertThat(response, containsString("***Warning: Deprecated attribute \"changed\". This attribute has been removed."));
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-RIPE").containsAttribute(AttributeType.CHANGED), is(false));
+    }
+
+    @Test
+    public void create_person_with_changed_attributes() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                                "person:        Test Person\n" +
+                                "address:       Amsterdam\n" +
+                                "phone:         +31\n" +
+                                "nic-hdl:       TP2-RIPE\n" +
+                                "mnt-by:        mntner\n" +
+                                "changed:       user@host.org 20171025\n" +
+                                "changed:       user1@host.org 20171026\n" +
+                                "changed:       user2@host.org 20171027\n" +
+                                "changed:       user3@host.org 20171028\n" +
+                                "source:        TEST\n" +
+                                "password: emptypassword\n"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-RIPE   Test Person"));
+        assertThat(response, containsString("***Warning: Deprecated attribute \"changed\". This attribute has been removed."));
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-RIPE").containsAttribute(AttributeType.CHANGED), is(false));
     }
 
     @Test

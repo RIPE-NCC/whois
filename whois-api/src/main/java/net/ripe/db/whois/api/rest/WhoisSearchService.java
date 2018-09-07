@@ -214,7 +214,7 @@ public class WhoisSearchService {
 
     private void validateSources(final HttpServletRequest request, final Set<String> sources) {
         for (final String source : sources) {
-            if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
+            if (!sourceContext.isOutOfRegion(source) && !sourceContext.getAllSourceNames().contains(ciString(source))) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
                         .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSource(source)))
                         .build());

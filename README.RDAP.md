@@ -75,3 +75,19 @@ If an entity primary key matches more than one object, a 500 Internal Server Err
 
 For example: https://rdap.db.ripe.net/entity/AZRT
 
+Mntner entity not supported
+---------------------------
+Lookup organisation,person and role entities are supported, but mntner objects are not. 
+
+Organisation entity is not returned in ip or autnum query responses
+-------------------------------------------------------------------
+An org: reference from an inetnum,inet6num,autnum resource is not included in the query response.
+
+By contrast, ARIN returns the org reference as a "registrant" entity.
+
+Related Contact information is Filtered
+---------------------------------------
+Any related contact entities ("technical","administrative","abuse" etc) have filtered contact information, i.e. "e-mail" and "notify" values are not included. This was done to avoid blocking clients for inadvertently querying excessively for personal data.
+
+A workaround is to query for each entity separately using the contact's nic-hdl, and the unfiltered information is returned (although a limit for personal data does apply).
+
