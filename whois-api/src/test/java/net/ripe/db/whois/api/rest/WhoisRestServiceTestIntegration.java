@@ -202,23 +202,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
 
-    @Test
-    public void create_object_mntby_rpsl_test() {
-        try {
-            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
-                    .request()
-                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, RPSL_MNT_PERSON), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (BadRequestException ex) {
-            final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
-            RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot add or remove a RIPE NCC maintainer");
-            RestTest.assertErrorMessage(whoisResources, 1, "Error", "The maintainer '%s' was not found in the database", "RIPE-NCC-RPSL-MNT");
-            RestTest.assertErrorMessage(whoisResources, 2, "Error", "Unknown object referenced %s", "RIPE-NCC-RPSL-MNT");
-            assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
-        }
-    }
-
-
     @Test // check to see if we can change an attributed on an object that has RIPE-NCC-RPSL-MNT as mnt-by. should fail and tell them to fix
     public void existing_mntby_ncc_rpsl_test() {
         databaseHelper.addObject("" +
