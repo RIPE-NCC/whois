@@ -1,4 +1,5 @@
 # next
+[all] updated dependencies
 
 # 1.92.4
 [api] Refactored redirect for objects with nonauth source.
