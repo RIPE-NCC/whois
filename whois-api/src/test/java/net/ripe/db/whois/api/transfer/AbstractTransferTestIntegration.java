@@ -58,14 +58,6 @@ public abstract class AbstractTransferTestIntegration extends AbstractIntegratio
                 "source:        TEST");
 
         databaseHelper.addObject("" +
-                "mntner:        RIPE-NCC-RPSL-MNT\n" +
-                "descr:         Maintainer\n" +
-                "admin-c:       PERSON-TEST\n" +
-                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                "mnt-by:        RIPE-NCC-RPSL-MNT\n" +
-                "source:        TEST");
-
-        databaseHelper.addObject("" +
                 "organisation:    ORG-NCC1-RIPE\n" +
                 "org-name:        RIPE Network Coordination Centre\n" +
                 "org-type:        RIR\n" +

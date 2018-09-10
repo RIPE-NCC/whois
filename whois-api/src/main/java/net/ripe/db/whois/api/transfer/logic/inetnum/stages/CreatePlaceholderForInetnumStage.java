@@ -47,7 +47,6 @@ public class CreatePlaceholderForInetnumStage extends InetnumTransferStage {
             "status:          ALLOCATED UNSPECIFIED\n" +
             "mnt-by:          RIPE-NCC-HM-MNT\n" +
             "mnt-lower:       RIPE-NCC-HM-MNT\n" +
-            "mnt-routes:      RIPE-NCC-RPSL-MNT\n" +
             "source:          %s";
 
     public CreatePlaceholderForInetnumStage(final String source) {
