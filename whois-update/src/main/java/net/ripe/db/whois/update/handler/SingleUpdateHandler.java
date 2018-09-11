@@ -49,7 +49,6 @@ public class SingleUpdateHandler {
     private final Authenticator authenticator;
     private final UpdateObjectHandler updateObjectHandler;
     private final IpTreeUpdater ipTreeUpdater;
-    private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
@@ -67,7 +66,6 @@ public class SingleUpdateHandler {
                                final UpdateObjectHandler updateObjectHandler,
                                final RpslObjectDao rpslObjectDao,
                                final IpTreeUpdater ipTreeUpdater,
-                               final PendingUpdateHandler pendingUpdateHandler,
                                final SsoTranslator ssoTranslator) {
         this.attributeGenerators = attributeGenerators;
         // sort AttributeGenerators so they are executed in a predictable order
@@ -79,7 +77,6 @@ public class SingleUpdateHandler {
         this.authenticator = authenticator;
         this.updateObjectHandler = updateObjectHandler;
         this.ipTreeUpdater = ipTreeUpdater;
-        this.pendingUpdateHandler = pendingUpdateHandler;
         this.ssoTranslator = ssoTranslator;
     }
 
@@ -154,20 +151,9 @@ public class SingleUpdateHandler {
 
         if (updateContext.isDryRun() && !updateContext.isBatchUpdate()) {
             throw new UpdateAbortedException();
-        } else if (pendingAuthentication) {
-            pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
-            if (eligibleForPendingUpdateCleanup(preparedUpdate, updateContext)) {
-                pendingUpdateHandler.cleanup(preparedUpdate.getUpdatedObject());
-            }
         }
-    }
-
-    private boolean eligibleForPendingUpdateCleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
-        return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
-                Action.CREATE == preparedUpdate.getAction() &&
-                UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
     }
 
     @CheckForNull

@@ -11,14 +11,10 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
-import net.ripe.db.whois.update.authentication.strategy.MntByAuthentication;
-import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.OverrideCredential;
@@ -35,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.CheckForNull;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,7 +46,6 @@ public class Authenticator {
 
     private final IpRanges ipRanges;
     private final UserDao userDao;
-    private final PendingUpdateDao pendingUpdateDao;
     private final LoggerContext loggerContext;
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
@@ -62,12 +56,10 @@ public class Authenticator {
                          final UserDao userDao,
                          final Maintainers maintainers,
                          final LoggerContext loggerContext,
-                         final AuthenticationStrategy[] authenticationStrategies,
-                         final PendingUpdateDao pendingUpdateDao) {
+                         final AuthenticationStrategy[] authenticationStrategies) {
         this.ipRanges = ipRanges;
         this.userDao = userDao;
         this.loggerContext = loggerContext;
-        this.pendingUpdateDao = pendingUpdateDao;
         Arrays.sort(authenticationStrategies);
         this.authenticationStrategies = Arrays.asList(authenticationStrategies);
 
@@ -195,8 +187,6 @@ public class Authenticator {
             }
         }
 
-        filterAuthentication(updateContext, update, passedAuthentications, failedAuthentications, pendingAuthentications);
-
         final Subject subject = new Subject(principals, passedAuthentications, failedAuthentications, pendingAuthentications);
         if (!authenticationMessages.isEmpty()) {
             handleFailure(update, updateContext, subject, authenticationMessages);
@@ -245,32 +235,6 @@ public class Authenticator {
     public boolean supportsPendingAuthentication(final ObjectType objectType) {
         final Set<String> supportedPendingAuths = typesWithPendingAuthenticationSupport.get(objectType);
         return supportedPendingAuths != null && !supportedPendingAuths.isEmpty();
-    }
-
-    private void filterAuthentication(final UpdateContext updateContext, final PreparedUpdate update, final Set<String> passedAuthentications, final Set<String> failedAuthentications, final Map<String, Collection<RpslObject>> pendingAuthentications) {
-        // we only have pending filter ATM
-        if (isPending(update, updateContext, pendingAuthentications.keySet())) {
-            final PendingUpdate pendingUpdate = findAndStorePendingUpdate(updateContext, update);
-            if (pendingUpdate != null) {
-                if (failedAuthentications.remove(MntByAuthentication.class.getSimpleName())) {
-                    passedAuthentications.add(MntByAuthentication.class.getSimpleName());
-                }
-            }
-        }
-    }
-
-    @CheckForNull
-    private PendingUpdate findAndStorePendingUpdate(final UpdateContext updateContext, final PreparedUpdate update) {
-        final RpslObject rpslObject = new RpslObjectBuilder(update.getUpdatedObject()).removeAttributeType(AttributeType.CREATED).removeAttributeType(AttributeType.LAST_MODIFIED).get();
-
-        for (final PendingUpdate pendingUpdate : pendingUpdateDao.findByTypeAndKey(rpslObject.getType(), rpslObject.getKey().toString())) {
-            final RpslObject pendingObject = new RpslObjectBuilder(pendingUpdate.getObject()).removeAttributeType(AttributeType.CREATED).removeAttributeType(AttributeType.LAST_MODIFIED).get();
-            if (rpslObject.equals(pendingObject)) {
-                updateContext.addPendingUpdate(update, pendingUpdate);
-                return pendingUpdate;
-            }
-        }
-        return null;
     }
 
     public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final PendingUpdate pendingUpdate) {
