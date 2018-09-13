@@ -80,3 +80,22 @@ CREATE TABLE `default_maintainer_history` (
   `in_progress` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `abuse_email`;
+CREATE TABLE `abuse_email` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `address` varchar(256) NOT NULL,
+  `checked_at` int(10),
+  `comment` varchar(256),
+  `status` varchar(256),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `abuse_org_email`;
+CREATE TABLE `abuse_org_email` (
+  `org_id` int(10) UNSIGNED NOT NULL,
+  `email_id` int(10) UNSIGNED NOT NULL,
+  `deleted_at` int(10),
+  PRIMARY KEY (`org_id`, `email_id`),
+  CONSTRAINT FOREIGN KEY (`email_id`) REFERENCES `abuse_email` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
