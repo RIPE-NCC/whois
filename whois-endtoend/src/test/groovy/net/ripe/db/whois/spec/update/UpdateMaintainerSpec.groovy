@@ -670,7 +670,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.errors.any {it.operation == "Create" && it.key == "[mntner] RIPE-NCC-RPSL-MNT"}
         ack.countErrorWarnInfo(2, 0, 0)
         ack.errorMessagesFor("Create", "[mntner] RIPE-NCC-RPSL-MNT") ==
-                ["Authentication by RIPE NCC maintainers only allowed from within the RIPE NCC network","You cannot create a RIPE maintainer"]
+                ["Authentication by RIPE NCC maintainers only allowed from within the RIPE NCC network","You cannot create a RIPE NCC maintainer"]
 
         queryObjectNotFound("-rGBT mntner RIPE-NCC-RPSL-MNT", "mntner", "RIPE-NCC-RPSL-MNT")
     }
