@@ -10,19 +10,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getFixtures() {
         [
-            "RIPE-NCC-RPSL-MNT": """\
-                mntner:      RIPE-NCC-RPSL-MNT
-                descr:       This maintainer may be used to create objects to represent
-                descr:       routing policy in the RIPE Database for number resources not
-                descr:       allocated or assigned from the RIPE NCC.
-                upd-to:      updto_hm@ripe.net
-                mnt-nfy:     mntnfy_hm@ripe.net
-                notify:      notify_hm@ripe.net
-                auth:        MD5-PW \$1\$0W0joRg1\$eOOcT4JsBIh6q3mu/yTvj1 # rpsl
-                notify:      dbtest@ripe.net
-                mnt-by:      RIPE-DBM-MNT
-                source:      TEST
-                """,
             "AS251NOSTAT": """\
                 aut-num:        AS251
                 as-name:        End-User-1
@@ -115,7 +102,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-block:       AS444 - AS555
                 descr:          APNIC ASN block
                 mnt-by:         RIPE-DBM-MNT
-                mnt-lower:      RIPE-NCC-RPSL-MNT
                 source:         TEST
                 """,
             "AS0 - AS4294967295": """\
@@ -954,7 +940,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS94967295" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS94967295") ==
-              ["Object has wrong source, should be TEST-NONAUTH"]
+              ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rGBT aut-num AS94967295", "aut-num", "AS94967295")
     }
@@ -994,7 +980,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS4294967295" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS4294967295") ==
-              ["Object has wrong source, should be TEST-NONAUTH"]
+              ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rGBT aut-num AS4294967295", "aut-num", "AS4294967295")
     }
@@ -1038,7 +1024,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS65535" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS65535") ==
-            ["Object has wrong source, should be TEST-NONAUTH"]
+            ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rGBT aut-num AS65535", "aut-num", "AS65535")
     }
@@ -1082,7 +1068,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] As0" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] As0") ==
-              ["Object has wrong source, should be TEST-NONAUTH"]
+              ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rGBT aut-num As0", "aut-num", "As0")
     }
@@ -2704,7 +2690,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS702" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS702") ==
-              ["Object has wrong source, should be TEST-NONAUTH"]
+              ["Supplied attribute 'source' has been replaced with a generated value"]
 
         queryObject("-rBG -T aut-num AS702", "aut-num", "AS702")
     }
@@ -2790,7 +2776,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS260" }
             ack.warningSuccessMessagesFor("Create", "[aut-num] AS260") ==
-                ["Object has wrong source, should be TEST-NONAUTH"]
+                ["Supplied attribute 'source' has been replaced with a generated value"]
 
             query_object_matches("-rBG -T aut-num AS260", "aut-num", "AS260", "status:\\s*OTHER")
     }
@@ -3354,7 +3340,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
-                ["\"status:\" attribute cannot be removed", "Object has wrong source, should be TEST-NONAUTH"]
+                ["\"status:\" attribute cannot be removed", "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
@@ -3771,7 +3757,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS445" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS445") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
-                "Object has wrong source, should be TEST-NONAUTH"]
+                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
@@ -3815,7 +3801,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS445" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS445") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
-                "Object has wrong source, should be TEST-NONAUTH"]
+                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
