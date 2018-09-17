@@ -33,7 +33,6 @@ public class InetnumTransferErrorsServiceTestIntegration extends AbstractInetnum
             "status:         ALLOCATED UNSPECIFIED\n" +
             "mnt-by:         RIPE-NCC-HM-MNT\n" +
             "mnt-lower:      RIPE-NCC-HM-MNT\n" +
-            "mnt-routes:     RIPE-NCC-RPSL-MNT\n" +
             "created:        2014-11-07T14:14:58Z\n" +
             "last-modified:  2014-11-07T14:14:58Z\n" +
             "source:         TEST";
@@ -76,7 +75,6 @@ public class InetnumTransferErrorsServiceTestIntegration extends AbstractInetnum
             "status:          ALLOCATED UNSPECIFIED\n" +
             "mnt-by:          RIPE-NCC-HM-MNT\n" +
             "mnt-lower:       RIPE-NCC-HM-MNT\n" +
-            "mnt-routes:      RIPE-NCC-RPSL-MNT\n" +
             "created:         2014-11-07T14:14:51Z\n" +
             "last-modified:   2014-11-07T14:14:51Z\n" +
             "source:          TEST\n";
