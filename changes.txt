@@ -1,6 +1,9 @@
 # next
 [all] updated dependencies
 
+# 1.92.5
+[all] Removed references to the RPSL maintainer.
+
 # 1.92.4
 [api] Refactored redirect for objects with nonauth source.
 [query] Added nonauth source to "--list-sources" response.

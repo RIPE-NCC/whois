@@ -635,7 +635,7 @@ public final class UpdateMessages {
     }
 
     public static Message creatingRipeMaintainerForbidden() {
-        return new Message(Type.ERROR, "You cannot create a RIPE maintainer");
+        return new Message(Type.ERROR, "You cannot create a RIPE NCC maintainer");
     }
 
     public static Message netnameCannotBeChanged() {
