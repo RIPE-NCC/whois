@@ -91,6 +91,8 @@ CREATE TABLE `abuse_email` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE UNIQUE INDEX abuse_email_address_i on `abuse_email`(`address`);
+
 DROP TABLE IF EXISTS `abuse_org_email`;
 CREATE TABLE `abuse_org_email` (
   `org_id` varchar(256) NOT NULL,
