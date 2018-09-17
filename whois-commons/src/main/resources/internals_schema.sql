@@ -103,3 +103,19 @@ CREATE TABLE `abuse_org_email` (
   PRIMARY KEY (`org_id`, `email_id`),
   CONSTRAINT FOREIGN KEY (`email_id`) REFERENCES `abuse_email` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `abuse_ticket`;
+CREATE TABLE `abuse_ticket` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `status` varchar(256),
+  `last_checked` timestamp null default null,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `abuse_org_ticket`;
+CREATE TABLE `abuse_ticket` (
+  `org_id` varchar(256) NOT NULL,
+  `ticket_id` int(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`org_id`, `email_id`),
+  CONSTRAINT FOREIGN KEY (`ticket_id`) REFERENCES `abuse_ticket` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
