@@ -1720,19 +1720,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_inetnum_no_sources_given() {
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
-        databaseHelper.addObject(RpslObject.parse("" +
-                "mntner:          RIPE-NCC-RPSL-MNT\n" +
-                "auth:            MD5-PW# Filtered\n" +
-                "descr:           This maintainer may be used to create objects to represent\n" +
-                "descr:           routing policy in the RIPE Database for number resources not\n" +
-                "descr:           allocated or assigned from the RIPE NCC.\n" +
-                "admin-c:         TP1-TEST\n" +
-                "remarks:         *******************************************************\n" +
-                "remarks:         * The password for this object is 'RPSL', without the *\n" +
-                "remarks:         * quotes. Do NOT use this maintainer as 'mnt-by'. *\n" +
-                "remarks:         *******************************************************\n" +
-                "mnt-by:          RIPE-NCC-HM-MNT\n" +
-                "source:          TEST\n"));
         // inetnum with route TEST-NONAUTH
         databaseHelper.addObject(RpslObject.parse("" +
                 "inetnum:         10.0.0.0 - 10.0.0.255\n" +
@@ -1743,14 +1730,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "status:          ALLOCATED UNSPECIFIED\n" +
                 "mnt-by:          RIPE-NCC-HM-MNT\n" +
                 "mnt-lower:       RIPE-NCC-HM-MNT\n" +
-                "mnt-routes:      RIPE-NCC-RPSL-MNT\n" +
                 "source:          TEST\n"));
         databaseHelper.addObject(RpslObject.parse("" +
                 "route:           10.0.0.0/24\n" +
                 "descr:           Ripe test allocation\n" +
                 "origin:          AS102\n" +
                 "admin-c:         TP1-TEST\n" +
-                "mnt-by:          RIPE-NCC-RPSL-MNT\n" +
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
 
@@ -1910,19 +1895,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_inetnum_with_resource_flag() {
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
-        databaseHelper.addObject(RpslObject.parse("" +
-                "mntner:          RIPE-NCC-RPSL-MNT\n" +
-                "auth:            MD5-PW# Filtered\n" +
-                "descr:           This maintainer may be used to create objects to represent\n" +
-                "descr:           routing policy in the RIPE Database for number resources not\n" +
-                "descr:           allocated or assigned from the RIPE NCC.\n" +
-                "admin-c:         TP1-TEST\n" +
-                "remarks:         *******************************************************\n" +
-                "remarks:         * The password for this object is 'RPSL', without the *\n" +
-                "remarks:         * quotes. Do NOT use this maintainer as 'mnt-by'. *\n" +
-                "remarks:         *******************************************************\n" +
-                "mnt-by:          RIPE-NCC-HM-MNT\n" +
-                "source:          TEST\n"));
         // inetnum with route TEST-NONAUTH
         databaseHelper.addObject(RpslObject.parse("" +
                 "inetnum:         193.4.0.0 - 193.4.0.255\n" +
@@ -1933,7 +1905,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "status:          ALLOCATED UNSPECIFIED\n" +
                 "mnt-by:          RIPE-NCC-HM-MNT\n" +
                 "mnt-lower:       RIPE-NCC-HM-MNT\n" +
-                "mnt-routes:      RIPE-NCC-RPSL-MNT\n" +
                 "source:          TEST\n"));
         databaseHelper.addObject(RpslObject.parse("" +
                 "route:           193.4.0.0/24\n" +
