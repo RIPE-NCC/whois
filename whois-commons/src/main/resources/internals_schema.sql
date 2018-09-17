@@ -113,7 +113,7 @@ CREATE TABLE `abuse_ticket` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `abuse_org_ticket`;
-CREATE TABLE `abuse_ticket` (
+CREATE TABLE `abuse_org_ticket` (
   `org_id` varchar(256) NOT NULL,
   `ticket_id` int(10) UNSIGNED NOT NULL,
   PRIMARY KEY (`org_id`, `email_id`),
