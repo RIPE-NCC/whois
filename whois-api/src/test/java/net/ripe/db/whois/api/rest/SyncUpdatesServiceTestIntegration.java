@@ -102,7 +102,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     @Ignore("TODO: [ES] post without content type returns internal server error")
     @Test
     public void post_without_content_type() throws Exception {
-        assertThat(post(), not(containsString("Internal Server Error")));
+        assertThat(postWithoutContentType(), not(containsString("Internal Server Error")));
     }
 
     @Test
@@ -788,8 +788,35 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void replace_attributes_when_rpsl_has_double_generated_attributes() throws Exception {
+    public void update_person_with_lower_case_source() {
+        databaseHelper.addObject(RpslObject.parse(
+            "person:        Test Person\n" +
+            "nic-hdl:       TP1-TEST\n" +
+            "source:        test"));
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST").toString(), containsString("source:         test"));
 
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                        "address:        Home\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP1-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "remarks:         test remark\n" +
+                        "remarks:         another test remark\n" +
+                        "source:         test\n" +
+                        "password: emptypassword");
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
+
+        assertThat(response, containsString("Modify SUCCEEDED: [person] TP1-TEST   Test Person"));
+    }
+
+    @Test
+    public void replace_attributes_when_rpsl_has_double_generated_attributes() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
 
@@ -828,7 +855,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         return mailSender.anyMoreMessages();
     }
 
-    private String post() throws IOException {
+    private String postWithoutContentType() throws IOException {
         final URL url = new URL(String.format("http://localhost:%d/whois/syncupdates/test", getPort()));
         final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
