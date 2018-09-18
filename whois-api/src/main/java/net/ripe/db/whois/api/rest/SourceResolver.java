@@ -7,47 +7,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
-
 @Component
 public class SourceResolver {
 
     private final AuthoritativeResourceData authoritativeResourceData;
-    private final String mainSourceNameString;
-    private final String nonAuthSourceName;
+    private final CIString mainSource;
+    private final CIString nonAuthSource;
 
     @Autowired
     public SourceResolver(final AuthoritativeResourceData authoritativeResourceData,
-                          @Value("${whois.source}") final String mainSourceNameString,
-                          // TODO [SB]: we need to either use the property or the SourceContext for the nonauth source
-                          @Value("${whois.nonauth.source}") final String nonAuthSourceName) {
+                          @Value("${whois.source}") final String mainSource,
+                          @Value("${whois.nonauth.source}") final String nonAuthSource) {
         this.authoritativeResourceData = authoritativeResourceData;
-        this.mainSourceNameString = mainSourceNameString.toLowerCase();
-        this.nonAuthSourceName = nonAuthSourceName.toLowerCase();
+        this.mainSource = CIString.ciString(mainSource);
+        this.nonAuthSource = CIString.ciString(nonAuthSource);
     }
 
     public String getSource(final String type, final CIString key, final String requestedSource) {
-
-        if (!requestedSource.toLowerCase().equals(mainSourceNameString) && !requestedSource.toLowerCase().equals(nonAuthSourceName)) {
+        if (!mainSource.equals(requestedSource) && !nonAuthSource.equals(requestedSource)) {
             return requestedSource;
         }
 
-        ObjectType objectType = ObjectType.getByNameOrNull(type);
-
-        if (objectType != null) {
-            switch (objectType) {
-                case AUT_NUM:
-                    return authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(AUT_NUM, key)?
-                            mainSourceNameString : nonAuthSourceName;
-                case ROUTE:
-                case ROUTE6:
-                    return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(objectType, key)?
-                            mainSourceNameString : nonAuthSourceName;
-                default:
-                    return mainSourceNameString;
-            }
+        final ObjectType objectType = ObjectType.getByNameOrNull(type);
+        if (objectType == null) {
+            return mainSource.toLowerCase();
         }
 
-        return mainSourceNameString;
+        return isMainSource(objectType, key) ? mainSource.toLowerCase() : nonAuthSource.toLowerCase();
+    }
+
+    private boolean isMainSource(final ObjectType objectType, final CIString key) {
+        switch (objectType) {
+            case AUT_NUM:
+                return authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(objectType, key);
+            case ROUTE:
+            case ROUTE6:
+                return authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(objectType, key);
+            default:
+                return true;
+        }
     }
 }
