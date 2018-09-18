@@ -139,6 +139,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/syncupdates/test?DIFF=yes")
                     .request()
                     .get(String.class);
+            fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), containsString("the DIFF method is not actually supported by the Syncupdates interface"));
         }
@@ -546,6 +547,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/syncupdates/test?NEW=yes")
                     .request()
                     .get(String.class);
+            fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), containsString("DATA parameter is missing"));
         }
