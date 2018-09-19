@@ -1,6 +1,10 @@
 # next
 [all] updated dependencies
 
+# 1.92.6
+[api] Make source comparison case-insensitive (fixes lookup bug for object with lowercase source value).
+[query] Make source attribute comparison case-insensitive.
+
 # 1.92.5
 [all] Removed references to the RPSL maintainer.
 
