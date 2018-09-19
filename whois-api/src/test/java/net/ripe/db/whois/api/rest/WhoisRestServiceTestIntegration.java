@@ -350,6 +350,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_person_lowercase_source() {
+        databaseHelper.addObject(RpslObject.parse("person: Test Person\nnic-hdl: TP2-TEST\nmnt-by: OWNER-MNT\nsource: test"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("source:         test"));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes().get(whoisObject.getAttributes().size() - 1).getValue(), is("test"));
+    }
+
+    @Test
     public void lookup_person_unfiltered() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
@@ -3283,6 +3296,29 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void update_lower_case_source() {
+        databaseHelper.addObject(RpslObject.parse("person: Test Person\nnic-hdl: TP2-TEST\nmnt-by: OWNER-MNT\nsource: test"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("source:         test"));
+        final RpslObject updatedObject = RpslObject.parse(
+                "person: Test Person\n" +
+                "nic-hdl: TP2-TEST\n" +
+                "address: Amsterdam\n" +
+                "phone: +31-6-12345678\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: test");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertInfoCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Info", "Value %s converted to %s", "test", "TEST");
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getAttributes().get(object.getAttributes().size() - 1).getValue(), is("TEST"));
     }
 
     @Test

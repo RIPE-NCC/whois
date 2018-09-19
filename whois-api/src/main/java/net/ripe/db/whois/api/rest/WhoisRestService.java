@@ -302,17 +302,17 @@ public class WhoisRestService {
         }
 
         final Query query;
-        try{
+        try {
             query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request)).setMatchPrimaryKeyOnly(true);
-        }catch (QueryException e) {
+        } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }
 
-        if(requiresNonAuthRedirect(source, objectType, key)) {
+        if (requiresNonAuthRedirect(source, objectType, key)) {
             return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
         }
 
-        if(requiresRipeRedirect(source, objectType, key)) {
+        if (requiresRipeRedirect(source, objectType, key)) {
             return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getWhoisMasterSource().getName().toString(), objectType, key, request.getQueryString());
         }
 
