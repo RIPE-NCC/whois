@@ -88,7 +88,7 @@ CREATE TABLE `abuse_email` (
   `checked_at` timestamp null default null,
   `comment` varchar(256),
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `status` varchar(256),
+  `status` varchar(7) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
