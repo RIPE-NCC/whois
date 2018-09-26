@@ -32,6 +32,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -63,7 +64,7 @@ public class SyncUpdatesServiceTest {
     @Before
     public void setUp() {
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(request.getHeaderNames()).thenReturn(Iterators.asEnumeration(Iterators.<String>emptyIterator()));
+        when(request.getHeaderNames()).thenReturn(Iterators.asEnumeration(Collections.emptyIterator()));
         when(request.getCookies()).thenReturn(new Cookie[]{});
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
