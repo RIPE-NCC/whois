@@ -115,3 +115,6 @@ CREATE TABLE `abuse_ticket` (
   `ticket_id` int(10) UNSIGNED NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE INDEX abuse_ticket_org_id_i ON abuse_ticket(org_id);
+CREATE UNIQUE INDEX abuse_ticket_ticket_id_i on abuse_ticket(ticket_id);
