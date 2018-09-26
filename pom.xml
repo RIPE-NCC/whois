@@ -32,7 +32,7 @@
         <aspectj.version>1.8.8</aspectj.version>
         <awaitility.version>1.3.5</awaitility.version>
 
-        <bouncycastle.version>1.59</bouncycastle.version>
+        <bouncycastle.version>1.60</bouncycastle.version>
 
         <c3po.version>0.9.5.1</c3po.version>
         <commons-compress.version>1.10</commons-compress.version>
@@ -51,7 +51,7 @@
 
         <findbugs.version>1.3.9</findbugs.version>
 
-        <guava.version>19.0</guava.version>
+        <guava.version>26.0-jre</guava.version>
 
         <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
         <hazelcast.version>2.6.10</hazelcast.version>
@@ -64,7 +64,7 @@
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.12</junit.version>
-        <jetty.version>9.4.8.v20171121</jetty.version>
+        <jetty.version>9.4.11.v20180605</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.12</jersey.version>
         <jackson.version>2.9.5</jackson.version>
