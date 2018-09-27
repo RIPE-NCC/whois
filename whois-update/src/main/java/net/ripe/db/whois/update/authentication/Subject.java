@@ -50,12 +50,4 @@ public class Subject {
     public Set<String> getFailedAuthentications() {
         return failedAuthentications;
     }
-
-    public Set<String> getPendingAuthentications() {
-        return unmodifiableSet(pendingAuthentications.keySet());
-    }
-
-    public Set<RpslObject> getPendingAuthenticationCandidates() {
-        return Sets.newLinkedHashSet(Iterables.concat(pendingAuthentications.values()));
-    }
 }

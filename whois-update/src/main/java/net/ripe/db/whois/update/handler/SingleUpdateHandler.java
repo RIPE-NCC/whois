@@ -137,11 +137,8 @@ public class SingleUpdateHandler {
         // re-generate preparedUpdate
         preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
-        // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
-        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION == updateContext.getStatus(preparedUpdate);
-
-        if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {
+        if ((!businessRulesOk) || (updateContext.hasErrors(update))) {
             throw new UpdateFailedException();
         }
 

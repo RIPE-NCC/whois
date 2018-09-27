@@ -317,8 +317,6 @@ public class AuthenticatorPrincipalTest {
 
         subject.authenticate(origin, update, updateContext);
         verifySubject(updateContext, new Subject(Principal.OVERRIDE_MAINTAINER));
-        verify(authenticationStrategy1).getTypesWithPendingAuthenticationSupport();
-        verify(authenticationStrategy2).getTypesWithPendingAuthenticationSupport();
         verify(update).getUpdate();
         verifyNoMoreInteractions(userDao, update, updateContext);
     }

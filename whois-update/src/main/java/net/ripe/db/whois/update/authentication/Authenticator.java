@@ -8,14 +8,12 @@ import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
-import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.OverrideCredential;
 import net.ripe.db.whois.update.domain.PasswordCredential;
@@ -49,7 +47,6 @@ public class Authenticator {
     private final LoggerContext loggerContext;
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
-    private final Map<ObjectType, Set<String>> typesWithPendingAuthenticationSupport;
 
     @Autowired
     public Authenticator(final IpRanges ipRanges,
@@ -71,19 +68,6 @@ public class Authenticator {
         addMaintainers(tempPrincipalsMap, maintainers.getEnumMaintainers(), Principal.ENUM_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getDbmMaintainers(), Principal.DBM_MAINTAINER);
         this.principalsMap = Collections.unmodifiableMap(tempPrincipalsMap);
-
-        typesWithPendingAuthenticationSupport = Maps.newEnumMap(ObjectType.class);
-        for (final AuthenticationStrategy authenticationStrategy : authenticationStrategies) {
-            for (final ObjectType objectType : authenticationStrategy.getTypesWithPendingAuthenticationSupport()) {
-                typesWithPendingAuthenticationSupport.computeIfAbsent(objectType, k -> new HashSet<>()).add(authenticationStrategy.getName());
-            }
-        }
-
-        for (final Map.Entry<ObjectType, Set<String>> objectTypeSetEntry : typesWithPendingAuthenticationSupport.entrySet()) {
-            final Set<String> authenticationStrategyNames = objectTypeSetEntry.getValue();
-            Validate.isTrue(authenticationStrategyNames.size() > 1, "Pending authentication makes no sense for 1 authentication strategy:", authenticationStrategyNames);
-            LOGGER.info("Pending authentication supported for {}: {}", objectTypeSetEntry.getKey(), authenticationStrategyNames);
-        }
     }
 
     private static void addMaintainers(final Map<CIString, Set<Principal>> principalsMap, final Set<CIString> maintainers, final Principal principal) {
@@ -123,7 +107,7 @@ public class Authenticator {
         }
 
         if (!authenticationMessages.isEmpty()) {
-            handleFailure(update, updateContext, Subject.EMPTY, authenticationMessages);
+            handleFailure(update, updateContext, authenticationMessages);
             return Subject.EMPTY;
         }
 
@@ -143,7 +127,7 @@ public class Authenticator {
         }
 
         authenticationMessages.add(UpdateMessages.overrideAuthenticationFailed());
-        handleFailure(update, updateContext, Subject.EMPTY, authenticationMessages);
+        handleFailure(update, updateContext, authenticationMessages);
         return Subject.EMPTY;
     }
 
@@ -165,12 +149,7 @@ public class Authenticator {
                         passedAuthentications.add(authenticationStrategy.getName());
                     } catch (AuthenticationFailedException e) {
                         authenticationMessages.addAll(e.getAuthenticationMessages());
-
-                        if (authenticationStrategy.getTypesWithPendingAuthenticationSupport().contains(update.getType())) {
-                            pendingAuthentications.put(authenticationStrategy.getName(), e.getCandidates());
-                        } else {
-                            failedAuthentications.add(authenticationStrategy.getName());
-                        }
+                        failedAuthentications.add(authenticationStrategy.getName());
                     }
                 }
             }
@@ -189,7 +168,7 @@ public class Authenticator {
 
         final Subject subject = new Subject(principals, passedAuthentications, failedAuthentications, pendingAuthentications);
         if (!authenticationMessages.isEmpty()) {
-            handleFailure(update, updateContext, subject, authenticationMessages);
+            handleFailure(update, updateContext, authenticationMessages);
         }
 
         return subject;
@@ -208,37 +187,11 @@ public class Authenticator {
         return principals;
     }
 
-    private void handleFailure(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject, final Set<Message> authenticationMessages) {
-        if (isPending(update, updateContext, subject.getPendingAuthentications()) && subject.getFailedAuthentications().isEmpty()) {
-            updateContext.status(update, UpdateStatus.PENDING_AUTHENTICATION);
-        } else {
-            updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
-        }
+    private void handleFailure(final PreparedUpdate update, final UpdateContext updateContext, final Set<Message> authenticationMessages) {
+        updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
 
         for (final Message message : authenticationMessages) {
             updateContext.addMessage(update, message);
         }
-    }
-
-    boolean isPending(final PreparedUpdate update, final UpdateContext updateContext, final Set<String> pendingAuths) {
-        if (Action.CREATE != update.getAction()) {
-            return false;
-        }
-
-        final Set<String> supportedPendingAuths = typesWithPendingAuthenticationSupport.get(update.getType());
-
-        return !updateContext.hasErrors(update)
-                && pendingAuths.size() > 0
-                && pendingAuths.size() < supportedPendingAuths.size();
-    }
-
-    public boolean supportsPendingAuthentication(final ObjectType objectType) {
-        final Set<String> supportedPendingAuths = typesWithPendingAuthenticationSupport.get(objectType);
-        return supportedPendingAuths != null && !supportedPendingAuths.isEmpty();
-    }
-
-    public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final PendingUpdate pendingUpdate) {
-        final Set<String> authenticationStrategyNames = typesWithPendingAuthenticationSupport.get(objectType);
-        return pendingUpdate.getPassedAuthentications().containsAll(authenticationStrategyNames);
     }
 }
