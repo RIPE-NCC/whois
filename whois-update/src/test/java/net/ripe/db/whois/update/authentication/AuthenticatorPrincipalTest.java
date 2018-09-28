@@ -113,8 +113,7 @@ public class AuthenticatorPrincipalTest {
         verifySubject(updateContext, new Subject(
                 Sets.newHashSet(excpectedPrincipals),
                 Collections.singleton(authenticationStrategy1.getName()),
-                Collections.<String>emptySet(),
-                Collections.<String, Collection<RpslObject>>emptyMap()
+                Collections.<String>emptySet()
         ));
     }
 
@@ -145,8 +144,7 @@ public class AuthenticatorPrincipalTest {
         verifySubject(updateContext, new Subject(
                 Collections.<Principal>emptySet(),
                 Collections.<String>emptySet(),
-                Collections.singleton(authenticationStrategy2.getName()),
-                Collections.<String, Collection<RpslObject>>emptyMap()
+                Collections.singleton(authenticationStrategy2.getName())
         ));
     }
 
