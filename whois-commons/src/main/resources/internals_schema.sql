@@ -1,14 +1,3 @@
-DROP TABLE IF EXISTS `pending_updates`;
-CREATE TABLE pending_updates (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `object_type` tinyint(3) unsigned NOT NULL,
-  `pkey` varchar(254) NOT NULL,
-  `stored_date` date NOT NULL DEFAULT '0000-00-00',
-  `passed_authentications` VARCHAR(100) NOT NULL,
-  `object` longblob NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 DROP TABLE IF EXISTS `scheduler`;
 CREATE TABLE `scheduler` (
   `date` date NOT NULL,
