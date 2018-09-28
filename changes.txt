@@ -1,6 +1,11 @@
 # next
 [all] updated dependencies
 
+# 1.92.7
+[all] Removed remaining pending update code (NWI-5)
+[all] Schema changes for 2017-02 Abuse-c validation.
+[api] Upgrades to libraries (#505)
+
 # 1.92.6
 [api] Make source comparison case-insensitive (fixes lookup bug for object with lowercase source value).
 [query] Make source attribute comparison case-insensitive.
