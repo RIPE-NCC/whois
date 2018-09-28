@@ -76,7 +76,7 @@
         <!-- TODO: [ES] javax.mail-api 1.5.2 causes gmaven plugin to fail -->
         <mail.version>1.4.5</mail.version>
         <mariadb-java-client.version>1.2.0</mariadb-java-client.version>
-        <mockito.version>1.9.5</mockito.version>
+        <mockito.version>2.22.0</mockito.version>
 
         <netty.version>3.10.6.Final</netty.version>
 
