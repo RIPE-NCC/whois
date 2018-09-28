@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.scheduler;
 
 import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import org.joda.time.LocalDate;
 import org.junit.Test;
@@ -20,14 +19,13 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DailySchedulerTest {
-    @Mock private TestDateTimeProvider dateTimeProvider = new TestDateTimeProvider();
     @Mock private MaintenanceMode mockMaintenanceMode;
     @Mock private DailySchedulerDao mockDailySchedulerDao;
     @Mock private DailyScheduledTask mockTask;
     @InjectMocks @Autowired private DailyScheduler subject;
 
     @Test
-    public void testDailyScheduledTasksInRegularMode() throws Exception {
+    public void testDailyScheduledTasksInRegularMode() {
         when(mockMaintenanceMode.allowUpdate()).thenReturn(Boolean.TRUE);
         when(mockDailySchedulerDao.acquireDailyTask(any(LocalDate.class), any(Class.class), anyString())).thenReturn(Boolean.TRUE);
         subject.setScheduledTasks(mockTask);
@@ -41,7 +39,7 @@ public class DailySchedulerTest {
     }
 
     @Test
-    public void testDailyScheduledTasksAcquiringProblem() throws Exception {
+    public void testDailyScheduledTasksAcquiringProblem() {
         when(mockMaintenanceMode.allowUpdate()).thenReturn(Boolean.TRUE);
         when(mockDailySchedulerDao.acquireDailyTask(any(LocalDate.class), any(Class.class), anyString())).thenReturn(Boolean.FALSE);
         subject.setScheduledTasks(mockTask);
@@ -55,7 +53,7 @@ public class DailySchedulerTest {
     }
 
     @Test
-    public void testDailyScheduledTasksInMaintenanceMode() throws Exception {
+    public void testDailyScheduledTasksInMaintenanceMode() {
         when(mockMaintenanceMode.allowUpdate()).thenReturn(Boolean.FALSE);
         subject.setScheduledTasks(mockTask);
 

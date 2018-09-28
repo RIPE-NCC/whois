@@ -9,8 +9,6 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -20,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -62,15 +61,11 @@ public class WhoisServerHandlerTest {
         when(channel.getRemoteAddress()).thenReturn(new InetSocketAddress(inetAddress, 80));
         when(channel.getPipeline()).thenReturn(pipeline);
 
-        doNothing().when(queryHandler).streamResults(any(Query.class), eq(inetAddress), eq(0), argThat(new BaseMatcher<ResponseHandler>() {
+        doNothing().when(queryHandler).streamResults(any(Query.class), eq(inetAddress), eq(0), argThat(new ArgumentMatcher<ResponseHandler>() {
             @Override
-            public boolean matches(final Object o) {
-                ((ResponseHandler) o).handle(responseObject);
+            public boolean matches(final ResponseHandler o) {
+                o.handle(responseObject);
                 return true;
-            }
-
-            @Override
-            public void describeTo(final Description description) {
             }
         }));
     }

@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.pipeline;
 
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.domain.MessageObject;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
@@ -30,17 +29,15 @@ public class ServedByHandlerTest {
         subject = new ServedByHandler("");
 
         when(queryCompletedEventMock.getChannel()).thenReturn(channelMock);
-        when(channelMock.isOpen()).thenReturn(true);
     }
 
     @Test
     public void test_handleDownstream_whois() {
-        when(messageEventMock.getMessage()).thenReturn(new MessageObject(""));
         subject.handleDownstream(ctxMock, messageEventMock);
         verify(ctxMock, times(1)).sendDownstream(messageEventMock);
 
         subject.handleDownstream(ctxMock, queryCompletedEventMock);
         verify(ctxMock, times(1)).sendDownstream(queryCompletedEventMock);
-        verify(channelMock, times(1)).write(QueryMessages.servedByNotice(anyString()));
+        verify(channelMock, times(1)).write(QueryMessages.servedByNotice(any()));
     }
 }

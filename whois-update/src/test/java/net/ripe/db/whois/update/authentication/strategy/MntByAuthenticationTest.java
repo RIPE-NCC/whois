@@ -278,7 +278,7 @@ public class MntByAuthenticationTest {
                 eq(updateContext),
                 argThat(new ArgumentMatcher<Collection<RpslObject>>() {
                     @Override
-                    public boolean matches(final Object argument) {
+                    public boolean matches(final Collection<RpslObject> argument) {
                         return ((Collection<RpslObject>) argument).containsAll(parentCandidates);
                     }
                 }))).thenReturn(parentCandidates);
