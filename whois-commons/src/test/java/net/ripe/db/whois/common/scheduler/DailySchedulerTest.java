@@ -8,13 +8,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,29 +29,29 @@ public class DailySchedulerTest {
     @Test
     public void testDailyScheduledTasksInRegularMode() throws Exception {
         when(mockMaintenanceMode.allowUpdate()).thenReturn(Boolean.TRUE);
-        when(mockDailySchedulerDao.acquireDailyTask((LocalDate) anyObject(), (Class) anyObject(), anyString())).thenReturn(Boolean.TRUE);
+        when(mockDailySchedulerDao.acquireDailyTask(any(LocalDate.class), any(Class.class), anyString())).thenReturn(Boolean.TRUE);
         subject.setScheduledTasks(mockTask);
 
         subject.executeScheduledTasks();
 
         verify(mockTask).run();
-        verify(mockDailySchedulerDao).acquireDailyTask((LocalDate) anyObject(), (Class) anyObject(), anyString());
-        verify(mockDailySchedulerDao).markTaskDone(anyLong(), (LocalDate) anyObject(), (Class) anyObject());
-        verify(mockDailySchedulerDao).removeOldScheduledEntries((LocalDate) anyObject());
+        verify(mockDailySchedulerDao).acquireDailyTask(any(LocalDate.class), any(Class.class), anyString());
+        verify(mockDailySchedulerDao).markTaskDone(anyLong(), any(LocalDate.class), any(Class.class));
+        verify(mockDailySchedulerDao).removeOldScheduledEntries(any(LocalDate.class));
     }
 
     @Test
     public void testDailyScheduledTasksAcquiringProblem() throws Exception {
         when(mockMaintenanceMode.allowUpdate()).thenReturn(Boolean.TRUE);
-        when(mockDailySchedulerDao.acquireDailyTask((LocalDate) anyObject(), (Class)any(), anyString())).thenReturn(Boolean.FALSE);
+        when(mockDailySchedulerDao.acquireDailyTask(any(LocalDate.class), any(Class.class), anyString())).thenReturn(Boolean.FALSE);
         subject.setScheduledTasks(mockTask);
 
         subject.executeScheduledTasks();
 
         verify(mockTask, never()).run();
-        verify(mockDailySchedulerDao).acquireDailyTask((LocalDate) anyObject(), (Class) anyObject(), anyString());
-        verify(mockDailySchedulerDao, never()).markTaskDone(anyLong(), (LocalDate) anyObject(), (Class) anyObject());
-        verify(mockDailySchedulerDao).removeOldScheduledEntries((LocalDate) anyObject());
+        verify(mockDailySchedulerDao).acquireDailyTask(any(LocalDate.class), any(Class.class), anyString());
+        verify(mockDailySchedulerDao, never()).markTaskDone(anyLong(), any(LocalDate.class), any(Class.class));
+        verify(mockDailySchedulerDao).removeOldScheduledEntries(any(LocalDate.class));
     }
 
     @Test
@@ -63,8 +62,8 @@ public class DailySchedulerTest {
         subject.executeScheduledTasks();
 
         verify(mockTask, never()).run();
-        verify(mockDailySchedulerDao, never()).acquireDailyTask((LocalDate) anyObject(), (Class) anyObject(), anyString());
-        verify(mockDailySchedulerDao, never()).markTaskDone(anyLong(), (LocalDate) anyObject(), (Class) anyObject());
-        verify(mockDailySchedulerDao, never()).removeOldScheduledEntries((LocalDate) anyObject());
+        verify(mockDailySchedulerDao, never()).acquireDailyTask(any(LocalDate.class), any(Class.class), anyString());
+        verify(mockDailySchedulerDao, never()).markTaskDone(anyLong(), any(LocalDate.class), any(Class.class));
+        verify(mockDailySchedulerDao, never()).removeOldScheduledEntries(any(LocalDate.class));
     }
 }
