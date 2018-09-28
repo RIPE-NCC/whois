@@ -68,10 +68,6 @@ public class UpdateResult {
         return objectMessages.getMessages().getMessages(Messages.Type.INFO);
     }
 
-    public boolean isPending() {
-        return status.equals(UpdateStatus.PENDING_AUTHENTICATION);
-    }
-
     public boolean isNoop() {
         return Action.NOOP.equals(action);
     }
@@ -125,13 +121,7 @@ public class UpdateResult {
 
     private void writeMessages(final Writer writer, final Messages messages, final String separator) throws IOException {
         for (final Message message : messages.getAllMessages()) {
-            Messages.Type type = message.getType();
-            if (UpdateStatus.PENDING_AUTHENTICATION.equals(status) && Messages.Type.ERROR.equals(type)) {
-                writer.write(UpdateMessages.print(new Message(Messages.Type.INFO, message.getFormattedText())));
-            } else {
-                writer.write(UpdateMessages.print(message));
-            }
-
+            writer.write(UpdateMessages.print(message));
             writer.write(separator);
         }
     }
