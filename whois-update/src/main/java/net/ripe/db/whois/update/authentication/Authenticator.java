@@ -22,7 +22,6 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +29,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +134,6 @@ public class Authenticator {
 
         final Set<String> passedAuthentications = new HashSet<>();
         final Set<String> failedAuthentications = new HashSet<>();
-        final Map<String, Collection<RpslObject>> pendingAuthentications = new HashMap<>();
 
         if (update.getCredentials().ofType(PasswordCredential.class).size() > 20) {
             authenticationMessages.add(UpdateMessages.tooManyPasswordsSpecified());
@@ -166,7 +162,7 @@ public class Authenticator {
             }
         }
 
-        final Subject subject = new Subject(principals, passedAuthentications, failedAuthentications, pendingAuthentications);
+        final Subject subject = new Subject(principals, passedAuthentications, failedAuthentications);
         if (!authenticationMessages.isEmpty()) {
             handleFailure(update, updateContext, authenticationMessages);
         }
