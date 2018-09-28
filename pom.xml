@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.92.7</version>
+    <version>1.93-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -96,7 +96,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
-      <tag>whois-1.92.7</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <distributionManagement>
