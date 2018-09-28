@@ -23,9 +23,9 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -110,7 +110,7 @@ public class QueryHandlerBlockedTest {
             assertThat(e.getCompletionInfo(), is(queryCompletionInfo));
             assertThat(e.getMessages(), contains(messages));
 
-            verify(whoisLog).logQueryResult(anyString(), eq(0), eq(0), eq(queryCompletionInfo), anyLong(), eq(remoteAddress), eq(contextId), eq(query.toString()));
+            verify(whoisLog).logQueryResult(isNull(), eq(0), eq(0), eq(queryCompletionInfo), anyLong(), eq(remoteAddress), eq(contextId), eq(query.toString()));
             verify(responseHandler, never()).handle(any(ResponseObject.class));
         }
     }

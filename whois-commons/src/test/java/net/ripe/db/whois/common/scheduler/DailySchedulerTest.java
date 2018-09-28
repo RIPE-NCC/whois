@@ -1,14 +1,14 @@
 package net.ripe.db.whois.common.scheduler;
 
 import net.ripe.db.whois.common.MaintenanceMode;
+import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import org.joda.time.LocalDate;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -19,49 +19,55 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DailySchedulerTest {
-    @Mock private MaintenanceMode mockMaintenanceMode;
-    @Mock private DailySchedulerDao mockDailySchedulerDao;
-    @Mock private DailyScheduledTask mockTask;
-    @InjectMocks @Autowired private DailyScheduler subject;
+    @Mock private MaintenanceMode maintenanceMode;
+    @Mock private DailySchedulerDao dailySchedulerDao;
+    @Mock private DailyScheduledTask dailyScheduledTask;
+    private TestDateTimeProvider dateTimeProvider = new TestDateTimeProvider();
+    private DailyScheduler subject;
+
+    @Before
+    public void setUp() {
+        this.subject = new DailyScheduler(dateTimeProvider, dailySchedulerDao, maintenanceMode);
+    }
 
     @Test
     public void testDailyScheduledTasksInRegularMode() {
-        when(mockMaintenanceMode.allowUpdate()).thenReturn(Boolean.TRUE);
-        when(mockDailySchedulerDao.acquireDailyTask(any(LocalDate.class), any(Class.class), anyString())).thenReturn(Boolean.TRUE);
-        subject.setScheduledTasks(mockTask);
+        when(maintenanceMode.allowUpdate()).thenReturn(Boolean.TRUE);
+        when(dailySchedulerDao.acquireDailyTask(any(LocalDate.class), any(Class.class), anyString())).thenReturn(Boolean.TRUE);
+        subject.setScheduledTasks(dailyScheduledTask);
 
         subject.executeScheduledTasks();
 
-        verify(mockTask).run();
-        verify(mockDailySchedulerDao).acquireDailyTask(any(LocalDate.class), any(Class.class), anyString());
-        verify(mockDailySchedulerDao).markTaskDone(anyLong(), any(LocalDate.class), any(Class.class));
-        verify(mockDailySchedulerDao).removeOldScheduledEntries(any(LocalDate.class));
+        verify(dailyScheduledTask).run();
+        verify(dailySchedulerDao).acquireDailyTask(any(LocalDate.class), any(Class.class), anyString());
+        verify(dailySchedulerDao).markTaskDone(anyLong(), any(LocalDate.class), any(Class.class));
+        verify(dailySchedulerDao).removeOldScheduledEntries(any(LocalDate.class));
     }
 
     @Test
     public void testDailyScheduledTasksAcquiringProblem() {
-        when(mockMaintenanceMode.allowUpdate()).thenReturn(Boolean.TRUE);
-        when(mockDailySchedulerDao.acquireDailyTask(any(LocalDate.class), any(Class.class), anyString())).thenReturn(Boolean.FALSE);
-        subject.setScheduledTasks(mockTask);
+        when(maintenanceMode.allowUpdate()).thenReturn(Boolean.TRUE);
+        when(dailySchedulerDao.acquireDailyTask(any(LocalDate.class), any(Class.class), anyString())).thenReturn(Boolean.FALSE);
+        subject.setScheduledTasks(dailyScheduledTask);
 
         subject.executeScheduledTasks();
 
-        verify(mockTask, never()).run();
-        verify(mockDailySchedulerDao).acquireDailyTask(any(LocalDate.class), any(Class.class), anyString());
-        verify(mockDailySchedulerDao, never()).markTaskDone(anyLong(), any(LocalDate.class), any(Class.class));
-        verify(mockDailySchedulerDao).removeOldScheduledEntries(any(LocalDate.class));
+        verify(dailyScheduledTask, never()).run();
+        verify(dailySchedulerDao).acquireDailyTask(any(LocalDate.class), any(Class.class), anyString());
+        verify(dailySchedulerDao, never()).markTaskDone(anyLong(), any(LocalDate.class), any(Class.class));
+        verify(dailySchedulerDao).removeOldScheduledEntries(any(LocalDate.class));
     }
 
     @Test
     public void testDailyScheduledTasksInMaintenanceMode() {
-        when(mockMaintenanceMode.allowUpdate()).thenReturn(Boolean.FALSE);
-        subject.setScheduledTasks(mockTask);
+        when(maintenanceMode.allowUpdate()).thenReturn(Boolean.FALSE);
+        subject.setScheduledTasks(dailyScheduledTask);
 
         subject.executeScheduledTasks();
 
-        verify(mockTask, never()).run();
-        verify(mockDailySchedulerDao, never()).acquireDailyTask(any(LocalDate.class), any(Class.class), anyString());
-        verify(mockDailySchedulerDao, never()).markTaskDone(anyLong(), any(LocalDate.class), any(Class.class));
-        verify(mockDailySchedulerDao, never()).removeOldScheduledEntries(any(LocalDate.class));
+        verify(dailyScheduledTask, never()).run();
+        verify(dailySchedulerDao, never()).acquireDailyTask(any(LocalDate.class), any(Class.class), anyString());
+        verify(dailySchedulerDao, never()).markTaskDone(anyLong(), any(LocalDate.class), any(Class.class));
+        verify(dailySchedulerDao, never()).removeOldScheduledEntries(any(LocalDate.class));
     }
 }

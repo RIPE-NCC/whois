@@ -30,7 +30,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QueryHandler_AclTest {
+public class QueryHandlerAclTest {
     @Mock WhoisLog whoisLog;
     @Mock AccessControlListManager accessControlListManager;
     @Mock SourceContext sourceContext;
@@ -77,8 +77,6 @@ public class QueryHandler_AclTest {
                 return Sets.newHashSet(personTest, roleTest).contains(invocationOnMock.getArguments()[0]);
             }
         });
-
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
     }
 
     @Test
@@ -161,6 +159,6 @@ public class QueryHandler_AclTest {
     }
 
     private void verifyLog(final Query query, final QueryCompletionInfo completionInfo, final int nrAccounted, final int nrNotAccounted) {
-        verify(whoisLog).logQueryResult(anyString(), eq(nrAccounted), eq(nrNotAccounted), eq(completionInfo), anyLong(), eq(remoteAddress), eq(contextId), eq(query.toString()));
+        verify(whoisLog).logQueryResult(isNull(), eq(nrAccounted), eq(nrNotAccounted), eq(completionInfo), anyLong(), eq(remoteAddress), eq(contextId), eq(query.toString()));
     }
 }

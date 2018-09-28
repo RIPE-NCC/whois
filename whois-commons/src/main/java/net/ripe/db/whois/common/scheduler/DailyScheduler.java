@@ -26,7 +26,8 @@ public class DailyScheduler {
     private List<DailyScheduledTask> scheduledTasks = Collections.emptyList();
 
     @Autowired
-    public DailyScheduler(final DateTimeProvider dateTimeProvider, DailySchedulerDao dailySchedulerDao,
+    public DailyScheduler(final DateTimeProvider dateTimeProvider,
+                          final DailySchedulerDao dailySchedulerDao,
                           final MaintenanceMode maintenanceMode) {
         this.dateTimeProvider = dateTimeProvider;
         this.dailySchedulerDao = dailySchedulerDao;
