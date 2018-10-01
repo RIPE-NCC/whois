@@ -19,14 +19,11 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.whois.nrtm.NrtmQueryHandlerTest.StringMatcher.instanceofString;
@@ -82,13 +79,10 @@ public class NrtmQueryHandlerTest {
         when(serialDaoMock.getByIdForNrtm(2)).thenReturn(new SerialEntry(Operation.UPDATE, true, 2, 1000, 1000, person.toByteArray()));
         when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, person)).thenReturn(false);
 
-        when(mySchedulerMock.scheduleAtFixedRate(any(Runnable.class), anyLong())).thenAnswer(new Answer<ScheduledFuture<?>>() {
-            @Override
-            public ScheduledFuture<?> answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                ((Runnable) args[0]).run();
-                return null;
-            }
+        when(mySchedulerMock.scheduleAtFixedRate(any(Runnable.class), anyLong())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            ((Runnable) args[0]).run();
+            return null;
         });
 
         subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, NONAUTH_SOURCE, UPDATE_INTERVAL, KEEPALIVE_END_OF_STREAM);
@@ -305,7 +299,7 @@ public class NrtmQueryHandlerTest {
      * Check that an argument is an instanceof String.
      * any(String.class) is also matched by Object.class, if the method accepts Object.
      */
-    static class StringMatcher extends ArgumentMatcher<Object> {
+    static class StringMatcher implements ArgumentMatcher<Object> {
 
         static final StringMatcher instance = new StringMatcher();
 

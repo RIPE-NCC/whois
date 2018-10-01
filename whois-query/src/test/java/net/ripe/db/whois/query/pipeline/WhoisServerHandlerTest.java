@@ -2,11 +2,9 @@ package net.ripe.db.whois.query.pipeline;
 
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import org.jboss.netty.channel.Channel;
@@ -18,10 +16,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -34,7 +32,6 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,26 +51,23 @@ public class WhoisServerHandlerTest {
 
     @Before
     public void setUp() throws Exception {
-
-        when(ctx.getChannel()).thenReturn(channel);
-        when(channelStateEvent.getChannel()).thenReturn(channel);
         when(messageEvent.getChannel()).thenReturn(channel);
         when(channel.getRemoteAddress()).thenReturn(new InetSocketAddress(inetAddress, 80));
         when(channel.getPipeline()).thenReturn(pipeline);
 
-        doNothing().when(queryHandler).streamResults(any(Query.class), eq(inetAddress), eq(0), argThat(new ArgumentMatcher<ResponseHandler>() {
-            @Override
-            public boolean matches(final ResponseHandler o) {
+        doNothing().when(queryHandler).streamResults(
+            any(Query.class),
+            eq(inetAddress),
+            eq(0),
+            argThat(o -> {
                 o.handle(responseObject);
                 return true;
-            }
-        }));
+            }));
     }
 
     @Test
-    public void messageReceived_no_proxy_no_personal_object() throws Exception {
-        final Query query = Query.parse("10.0.0.0");
-        when(messageEvent.getMessage()).thenReturn(query);
+    public void messageReceived_no_proxy_no_personal_object() {
+        when(messageEvent.getMessage()).thenReturn(Query.parse("10.0.0.0"));
 
         subject.messageReceived(ctx, messageEvent);
 
@@ -86,11 +80,7 @@ public class WhoisServerHandlerTest {
 
     @Test
     public void messageReceived_closed() throws Exception {
-        final Query query = Query.parse("-V test,10.0.0.0 10.0.0.0");
-
-        final RpslObject responseObject = mock(RpslObject.class);
-        when(responseObject.getType()).thenReturn(ObjectType.INETNUM);
-        when(messageEvent.getMessage()).thenReturn(query);
+        when(messageEvent.getMessage()).thenReturn(Query.parse("-V test,10.0.0.0 10.0.0.0"));
 
         subject.channelClosed(ctx, channelStateEvent);
 
