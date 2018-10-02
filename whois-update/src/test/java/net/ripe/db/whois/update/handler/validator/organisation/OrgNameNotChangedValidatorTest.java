@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
@@ -105,8 +106,7 @@ public class OrgNameNotChangedValidatorTest {
 
     @After
     public void reset() {
-        when(subjectObject.hasPrincipal(Matchers.eq(Principal.RS_MAINTAINER))).thenReturn(false);
-        when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        Mockito.reset(subjectObject);
     }
 
     @Test

@@ -3,14 +3,10 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.update.authentication.Principal;
-import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -22,12 +18,9 @@ import static net.ripe.db.whois.update.handler.validator.organisation.LirAttribu
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_MULTIPLE_USER_MNTNER;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_SINGLE_USER_MNTNER;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.NON_LIR_ORG;
-import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.NON_LIR_ORG_MULTIPLE_USER_MNTNER;
-import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.NON_LIR_ORG_SINGLE_USER_MNTNER;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -41,17 +34,9 @@ public class LirMntByAttributeCountValidatorTest {
     @Mock
     UpdateContext updateContext;
     @Mock
-    Subject authenticationSubject;
-    @Mock
     Maintainers maintainers;
-
     @InjectMocks
     LirMntByAttributeCountValidator subject;
-
-    @Before
-    public void setup() {
-        when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
-    }
 
     @Test
     public void getActions() {
@@ -69,21 +54,6 @@ public class LirMntByAttributeCountValidatorTest {
     @Test
     public void update_of_not_lir_with_single_mntner() {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(update.getUpdatedObject()).thenReturn(NON_LIR_ORG_SINGLE_USER_MNTNER);
-
-        subject.validate(update, updateContext);
-
-        verify(update).getReferenceObject();
-        verifyNoMoreInteractions(update);
-        verifyZeroInteractions(maintainers, updateContext);
-    }
-
-    @Test
-    public void update_of_not_lir_with_multiple_mntner() {
-        when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(update.getUpdatedObject()).thenReturn(NON_LIR_ORG_MULTIPLE_USER_MNTNER);
 
         subject.validate(update, updateContext);
 
@@ -96,7 +66,6 @@ public class LirMntByAttributeCountValidatorTest {
     public void update_of_lir_with_single_mntner() {
         when(maintainers.isRsMaintainer(ciString("MNT1-LIR"))).thenReturn(false);
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_SINGLE_USER_MNTNER);
 
         subject.validate(update, updateContext);
@@ -114,7 +83,6 @@ public class LirMntByAttributeCountValidatorTest {
         when(maintainers.isRsMaintainer(ciString("MNT1-LIR"))).thenReturn(false);
         when(maintainers.isRsMaintainer(ciString("MNT2-LIR"))).thenReturn(false);
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_MULTIPLE_USER_MNTNER);
 
         subject.validate(update, updateContext);

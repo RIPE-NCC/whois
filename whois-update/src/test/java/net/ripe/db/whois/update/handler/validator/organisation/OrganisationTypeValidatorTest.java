@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -22,7 +21,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,13 +35,11 @@ public class OrganisationTypeValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock Subject authenticationSubject;
-    @Mock Maintainers maintainers;
 
     @InjectMocks OrganisationTypeValidator subject;
 
     @Before
     public void setup() {
-        when(maintainers.getAllocMaintainers()).thenReturn(ciSet("ALLOC-MNT"));
         when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
     }
 
