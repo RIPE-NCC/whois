@@ -37,7 +37,6 @@ public class AbuseCNoLimitWarningValidatorTest {
         final RpslObject role = RpslObject.parse("role: Some Role\nnic-hdl: TEST-NIC\nabuse-mailbox: abuse@ripe.net");
 
         when(update.hasOriginalObject()).thenReturn(false);
-        when(update.getReferenceObject()).thenReturn(role);
         when(update.getUpdatedObject()).thenReturn(role);
 
         subject.validate(update, updateContext);
