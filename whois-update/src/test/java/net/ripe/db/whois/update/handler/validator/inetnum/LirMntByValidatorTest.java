@@ -47,7 +47,6 @@ public class LirMntByValidatorTest {
     public void setup() {
         when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
         when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"))).thenReturn(true);
-        when(maintainers.isRsMaintainer(ciSet("TEST-MNT"))).thenReturn(false);
         when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT", "TEST2-MNT"))).thenReturn(true);
     }
 
@@ -121,7 +120,6 @@ public class LirMntByValidatorTest {
                 "status:       ALLOCATED PA\n" +
                 "mnt-by:       RIPE-NCC-HM-MNT\n" +
                 "mnt-by:       TEST2-MNT");
-        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
@@ -145,8 +143,6 @@ public class LirMntByValidatorTest {
                 "status:       ALLOCATED PA\n" +
                 "mnt-by:       RIPE-NCC-HM-MNT\n" +
                 "mnt-by:       TEST-MNT");
-        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
@@ -238,31 +234,6 @@ public class LirMntByValidatorTest {
                 "status:       ALLOCATED PA\n" +
                 "mnt-by:       RIPE-NCC-HM-MNT\n" +
                 "mnt-by:       TEST-MNT\n");
-        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
-        when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
-        verifyNoMoreInteractions(maintainers);
-    }
-
-    @Test
-    public void modify_mntby_add_lir_mntner_on_inetnum_with_override() {
-        final RpslObject rpslOriginalObject = RpslObject.parse("" +
-                "inetnum:      192.168.0.0 - 192.169.255.255\n" +
-                "status:       ALLOCATED PA\n" +
-                "mnt-by:       RIPE-NCC-HM-MNT\n");
-        final RpslObject rpslUpdatedlObject = RpslObject.parse("" +
-                "inetnum:      192.168.0.0 - 192.169.255.255\n" +
-                "status:       ALLOCATED PA\n" +
-                "mnt-by:       RIPE-NCC-HM-MNT\n" +
-                "mnt-by:       TEST-MNT\n");
-        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
 
@@ -307,7 +278,7 @@ public class LirMntByValidatorTest {
                 "inetnum:      192.168.0.0 - 192.169.255.255\n" +
                 "status:       ALLOCATED PA\n" +
                 "mnt-by:       RIPE-NCC-HM-MNT\n");
-        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
+//        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);
         when(update.getUpdatedObject()).thenReturn(rpslUpdatedlObject);
