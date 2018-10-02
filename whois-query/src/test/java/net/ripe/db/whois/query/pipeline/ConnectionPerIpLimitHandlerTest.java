@@ -21,11 +21,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.eq;
@@ -53,7 +51,7 @@ public class ConnectionPerIpLimitHandlerTest {
 
         when(ipResourceConfiguration.isUnlimitedConnections(any(IpInterval.class))).thenReturn(false);
         when(ipResourceConfiguration.isProxy(any(IpInterval.class))).thenReturn(false);
-        when(channel.write(anyObject())).thenReturn(channelFuture);
+        when(channel.write(any())).thenReturn(channelFuture);
     }
 
     @Test
@@ -67,7 +65,7 @@ public class ConnectionPerIpLimitHandlerTest {
 
         verify(ctx, times(2)).sendUpstream(event);
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -89,7 +87,7 @@ public class ConnectionPerIpLimitHandlerTest {
             }
         }));
         verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
-        verify(whoisLog).logQueryResult(anyString(), eq(0), eq(0), eq(QueryCompletionInfo.REJECTED), eq(0L), (InetAddress) Mockito.anyObject(), Mockito.anyInt(), eq(""));
+        verify(whoisLog).logQueryResult(anyString(), eq(0), eq(0), eq(QueryCompletionInfo.REJECTED), eq(0L), any(), Mockito.anyInt(), eq(""));
         verify(ctx, times(2)).sendUpstream(openEvent);
     }
 
@@ -113,7 +111,7 @@ public class ConnectionPerIpLimitHandlerTest {
         verify(ctx, times(3)).sendUpstream(openEvent);
         verify(ctx, times(3)).sendUpstream(closeEvent);
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -131,7 +129,7 @@ public class ConnectionPerIpLimitHandlerTest {
 
         verify(ctx, times(3)).sendUpstream(event);
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -149,7 +147,7 @@ public class ConnectionPerIpLimitHandlerTest {
 
         verify(ctx, times(3)).sendUpstream(event);
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -169,7 +167,7 @@ public class ConnectionPerIpLimitHandlerTest {
         verify(ctx, times(2)).sendUpstream(event);
         verify(ctx, times(1)).sendUpstream(event2);
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -192,7 +190,7 @@ public class ConnectionPerIpLimitHandlerTest {
         verify(ctx, times(4)).sendUpstream(openEvent);
         verify(ctx, times(2)).sendUpstream(closeEvent);
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 }

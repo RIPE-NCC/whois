@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -24,8 +23,8 @@ import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
@@ -51,7 +50,7 @@ public class AuthoritativeResourceImportTaskTest {
     }
 
     @Test
-    public void init_url_not_defined() throws IOException {
+    public void init_url_not_defined() {
         subject.run();
         verify(resourceDataDao).store(eq("test"), resourceCaptor.capture());
         assertThat(resourceCaptor.getValue().getNrAutNums(), is(0));
@@ -60,10 +59,10 @@ public class AuthoritativeResourceImportTaskTest {
     }
 
     @Test
-    public void download_not_resource_data() throws IOException {
+    public void download_not_resource_data() {
         when(valueResolver.resolveStringValue(anyString())).thenReturn("http://www.ripe.net/download");
         subject.run();
-        verify(resourceDataDao, never()).store(anyString(), Mockito.<AuthoritativeResource>anyObject());
+        verify(resourceDataDao, never()).store(anyString(), any());
     }
 
     @Test
