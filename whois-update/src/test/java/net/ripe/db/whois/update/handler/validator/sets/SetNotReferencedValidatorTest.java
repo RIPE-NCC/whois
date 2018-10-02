@@ -53,7 +53,6 @@ public class SetNotReferencedValidatorTest {
     public void set_that_has_no_incoming_references() {
         final RpslObject asSet = RpslObject.parse("as-set: AS1325:AS-lopp");
         when(update.getUpdatedObject()).thenReturn(asSet);
-        when(objectDao.findMemberOfByObjectTypeWithoutMbrsByRef(ObjectType.AS_SET, "rs-AH")).thenReturn(Lists.<RpslObjectInfo>newArrayList());
 
         subject.validate(update, updateContext);
 

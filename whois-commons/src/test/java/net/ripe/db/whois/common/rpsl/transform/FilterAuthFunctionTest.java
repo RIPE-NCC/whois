@@ -143,7 +143,6 @@ public class FilterAuthFunctionTest {
         final UserSession userSession = new UserSession("noreply@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
         userSession.setUuid("76cab38b73eb-ac91-4336-94f3-d06e5500");
         when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
-        when(crowdClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenReturn("user@host.org");
 
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner: SSO-MNT\n" +

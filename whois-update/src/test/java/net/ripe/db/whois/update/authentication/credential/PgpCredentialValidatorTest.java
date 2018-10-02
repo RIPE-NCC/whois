@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class PgpCredentialValidatorTest {
     @Mock private PreparedUpdate preparedUpdate;
-
+    @Mock private Update update;
     @Mock private UpdateContext updateContext;
     @Mock private RpslObjectDao rpslObjectDao;
     @Mock private DateTimeProvider dateTimeProvider;
@@ -92,6 +92,7 @@ public class PgpCredentialValidatorTest {
     @Before
     public void setup() {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        when(preparedUpdate.getUpdate()).thenReturn(update);
     }
 
     @Test
@@ -376,6 +377,7 @@ public class PgpCredentialValidatorTest {
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
 
         assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
 

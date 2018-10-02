@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.source.IllegalSourceException;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +39,6 @@ public class AuthoritativeResourceDataTest {
 
     @Test
     public void refresh() {
-        when(dailySchedulerDao.getDailyTaskFinishTime(any(LocalDate.class), any(Class.class))).thenReturn(10l);
         when(resourceDataDao.load(any(String.class))).thenReturn(AuthoritativeResource.unknown());
 
         subject.init();

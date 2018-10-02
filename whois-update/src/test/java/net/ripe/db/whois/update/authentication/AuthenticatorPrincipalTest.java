@@ -19,7 +19,6 @@ import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.OverrideCredential;
 import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -33,7 +32,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
@@ -348,7 +346,7 @@ public class AuthenticatorPrincipalTest {
         assertThat(capturedSubject.getFailedAuthentications(), containsInAnyOrder(expectedSubject.getFailedAuthentications().toArray()));
 
         if (!capturedSubject.getFailedAuthentications().isEmpty()) {
-            verify(updateContext, atLeastOnce()).status(any(Update.class), eq(UpdateStatus.FAILED_AUTHENTICATION));
+            verify(updateContext, atLeastOnce()).status(eq(update), eq(UpdateStatus.FAILED_AUTHENTICATION));
         }
     }
 }

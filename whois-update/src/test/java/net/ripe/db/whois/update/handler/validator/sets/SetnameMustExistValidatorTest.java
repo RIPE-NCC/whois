@@ -71,7 +71,6 @@ public class SetnameMustExistValidatorTest {
 
     @Test
     public void validate_no_hiearchy() {
-        when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: FLTR-ND"));
 
         subject.validate(update, updateContext);
@@ -94,8 +93,6 @@ public class SetnameMustExistValidatorTest {
     @Test
     public void validate_autnum_lookup_does_not_exist_with_override() {
         when(updateSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
-        when(update.getType()).thenReturn(ObjectType.AS_SET);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-set: AS101:AS-TEST"));
 
         subject.validate(update, updateContext);
 
