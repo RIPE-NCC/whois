@@ -60,9 +60,6 @@ public class EnumDomainAuthorisationValidatorTest {
     @Test
     public void validate_override() {
         when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("domain: 2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
-
-        when(authSubject.hasPrincipal(Principal.ENUM_MAINTAINER)).thenReturn(false);
 
         subject.validate(update, updateContext);
 

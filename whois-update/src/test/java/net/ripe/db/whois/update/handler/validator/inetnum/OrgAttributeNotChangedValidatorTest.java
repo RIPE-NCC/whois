@@ -194,9 +194,7 @@ public class OrgAttributeNotChangedValidatorTest {
                 "org: ORG-PQ-TEST\n" +
                 "mnt-by: OTHER-MNT");
         when(update.getUpdatedObject()).thenReturn(updated);
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
         subject.validate(update, updateContext);
 
@@ -235,9 +233,7 @@ public class OrgAttributeNotChangedValidatorTest {
                 "mnt-lower:    LIR-MNT\n" +
                 "source:       TEST");
         when(update.getUpdatedObject()).thenReturn(updated);
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
         subject.validate(update, updateContext);
 
@@ -276,9 +272,7 @@ public class OrgAttributeNotChangedValidatorTest {
                 "mnt-lower:    LIR-MNT\n" +
                 "source:       TEST");
         when(update.getUpdatedObject()).thenReturn(updated);
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
         subject.validate(update, updateContext);
 
@@ -301,7 +295,6 @@ public class OrgAttributeNotChangedValidatorTest {
                 "org: ORG-PQ-TEST\n" +
                 "mnt-by: RIPE-NCC-HM-MNT");
         when(update.getUpdatedObject()).thenReturn(updated);
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
@@ -344,7 +337,6 @@ public class OrgAttributeNotChangedValidatorTest {
                 "source:       TEST");
 
         when(update.getUpdatedObject()).thenReturn(updated);
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
@@ -387,7 +379,6 @@ public class OrgAttributeNotChangedValidatorTest {
                 "source:       TEST");
 
         when(update.getUpdatedObject()).thenReturn(updated);
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
@@ -411,7 +402,6 @@ public class OrgAttributeNotChangedValidatorTest {
                 "aut-num: AS123\n" +
                 "mnt-by: RIPE-NCC-HM-MNT");
         when(update.getUpdatedObject()).thenReturn(updated);
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
@@ -453,7 +443,6 @@ public class OrgAttributeNotChangedValidatorTest {
                 "source:       TEST");
 
         when(update.getUpdatedObject()).thenReturn(updated);
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
@@ -495,7 +484,6 @@ public class OrgAttributeNotChangedValidatorTest {
                 "source:       TEST");
 
         when(update.getUpdatedObject()).thenReturn(updated);
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
 
@@ -523,8 +511,6 @@ public class OrgAttributeNotChangedValidatorTest {
                 "org: ORG-WG-TEST\n" +
                 "mnt-by: RIPE-NCC-HM-MNT");
         when(update.getUpdatedObject()).thenReturn(updated);
-
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
 
         subject.validate(update, updateContext);
 
@@ -569,8 +555,6 @@ public class OrgAttributeNotChangedValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(updated);
 
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
-
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -614,8 +598,6 @@ public class OrgAttributeNotChangedValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(updated);
 
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
-
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -653,8 +635,6 @@ public class OrgAttributeNotChangedValidatorTest {
 
     @Test
     public void validate_resource_not_maintained_by_ripe_override_for_inetnum() {
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
-        when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
 
         final RpslObject original = RpslObject.parse("" +
@@ -694,8 +674,6 @@ public class OrgAttributeNotChangedValidatorTest {
 
     @Test
     public void validate_resource_not_maintained_by_ripe_override_for_inet6num() {
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
-        when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
 
         final RpslObject original = RpslObject.parse("" +
