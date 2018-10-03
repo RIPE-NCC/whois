@@ -96,9 +96,9 @@ CREATE TABLE `abuse_org_email` (
 DROP TABLE IF EXISTS `abuse_ticket`;
 CREATE TABLE `abuse_ticket` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_checked` timestamp null default null,
-  `last_modified` timestamp null default null,
+  `created_at` timestamp NOT NULL,
+  `last_checked` timestamp NOT NULL,
+  `last_modified` timestamp NOT NULL,
   `org_id` varchar(256) NOT NULL,
   `status` varchar(256),
   `ticket_id` int(10) UNSIGNED NOT NULL,
