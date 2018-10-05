@@ -92,7 +92,7 @@ public class RemoteAddressFilterTest {
         verify(filterChain).doFilter(argThat(new CheckRemoteAddress("193.0.20.1")), any(ServletResponse.class));
     }
 
-    private static class CheckRemoteAddress extends ArgumentMatcher<ServletRequest> {
+    private static class CheckRemoteAddress implements ArgumentMatcher<ServletRequest> {
         private final String address;
 
         private CheckRemoteAddress(final String address) {
@@ -100,8 +100,8 @@ public class RemoteAddressFilterTest {
         }
 
         @Override
-        public boolean matches(final Object argument) {
-            final HttpServletRequest httpServletRequest = (HttpServletRequest) argument;
+        public boolean matches(final ServletRequest servletRequest) {
+            final HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
             assertThat(httpServletRequest.getRemoteAddr(), is(address));
             return true;
         }
