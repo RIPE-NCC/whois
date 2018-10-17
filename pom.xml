@@ -35,10 +35,10 @@
         <bouncycastle.version>1.60</bouncycastle.version>
 
         <c3po.version>0.9.5.1</c3po.version>
-        <commons-compress.version>1.10</commons-compress.version>
+        <commons-compress.version>1.18</commons-compress.version>
         <commons-net.version>3.4</commons-net.version>
         <commons-io.version>2.4</commons-io.version>
-        <commons-codec.version>1.10</commons-codec.version>
+        <commons-codec.version>1.11</commons-codec.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
