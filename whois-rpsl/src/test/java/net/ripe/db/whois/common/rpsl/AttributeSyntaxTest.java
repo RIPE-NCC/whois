@@ -229,7 +229,7 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void email() throws Exception {
+    public void email() {
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "@");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a@");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org 20180529");
@@ -241,6 +241,7 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a.a");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "'anthing`can1242go!(&)^!&@^21here@0.2345678901234567890123456789012345678901");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "test@ümlaut.email");
     }
 
     @Test
