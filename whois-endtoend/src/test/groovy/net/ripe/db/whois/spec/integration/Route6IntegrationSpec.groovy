@@ -951,7 +951,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[route6\] 2000::\/12AS123/
     }
 
-    def "create route6, without pending authentication"() {
+    def "create route6"() {
         given:
         def response = syncUpdate(new SyncUpdate(data: """\
                 route6: 5353::0/24
