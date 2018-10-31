@@ -2,6 +2,11 @@
 [all] updated dependencies
 [update] bogons
 
+# 1.92.9
+[all] Updated Spring version (#513)
+[all] Updated JavaMail version.
+[all] Improved Email address validation (#481)
+
 # 1.92.8
 [all] Schema changes for 2017-02 Abuse-c validation.
 
