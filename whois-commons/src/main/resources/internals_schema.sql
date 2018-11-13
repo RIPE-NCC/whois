@@ -74,9 +74,9 @@ DROP TABLE IF EXISTS `abuse_email`;
 CREATE TABLE `abuse_email` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `address` varchar(256) NOT NULL,
-  `checked_at` timestamp null default null,
+  `checked_at` datetime,
   `comment` varchar(256),
-  `created_at` timestamp NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL,
   `status` varchar(7) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -86,8 +86,8 @@ CREATE UNIQUE INDEX abuse_email_address_i on `abuse_email`(`address`);
 DROP TABLE IF EXISTS `abuse_org_email`;
 CREATE TABLE `abuse_org_email` (
   `org_id` varchar(256) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT 0,
-  `deleted_at` timestamp null default null,
+  `created_at` datetime NOT NULL,
+  `deleted_at` datetime,
   `email_id` int(10) UNSIGNED NOT NULL,
   PRIMARY KEY (`org_id`, `email_id`),
   CONSTRAINT FOREIGN KEY (`email_id`) REFERENCES `abuse_email` (`id`)
@@ -96,9 +96,9 @@ CREATE TABLE `abuse_org_email` (
 DROP TABLE IF EXISTS `abuse_ticket`;
 CREATE TABLE `abuse_ticket` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `created_at` timestamp NOT NULL DEFAULT 0,
-  `last_checked` timestamp NOT NULL DEFAULT 0,
-  `last_modified` timestamp NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL,
+  `last_checked` datetime NOT NULL,
+  `last_modified` datetime NOT NULL,
   `org_id` varchar(256) NOT NULL,
   `status` varchar(256),
   `ticket_id` int(10) UNSIGNED NOT NULL,
