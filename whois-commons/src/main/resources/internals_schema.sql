@@ -98,10 +98,10 @@ CREATE TABLE `abuse_ticket` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `created_at` datetime NOT NULL,
   `last_checked` datetime NOT NULL,
-  `last_modified` datetime NOT NULL,
   `org_id` varchar(256) NOT NULL,
-  `status` varchar(256),
+  `ticketia_status` varchar(256) NOT NULL,
   `ticket_id` int(10) UNSIGNED NOT NULL,
+  `state` char(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
