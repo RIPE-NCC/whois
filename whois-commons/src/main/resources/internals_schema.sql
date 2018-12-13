@@ -85,11 +85,15 @@ CREATE UNIQUE INDEX abuse_email_address_i on `abuse_email`(`address`);
 
 DROP TABLE IF EXISTS `abuse_org_email`;
 CREATE TABLE `abuse_org_email` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `org_id` varchar(256) NOT NULL,
   `created_at` datetime NOT NULL,
   `deleted_at` datetime,
   `email_id` int(10) UNSIGNED NOT NULL,
-  PRIMARY KEY (`org_id`, `email_id`),
+  `object_type` tinyint(3) UNSIGNED NOT NULL,
+  `object_pkey` varchar(254) NOT NULL,
+  `abuse_nic_hdl` varchar(30) NOT NULL,
+  PRIMARY KEY (`id`),
   CONSTRAINT FOREIGN KEY (`email_id`) REFERENCES `abuse_email` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
