@@ -43,6 +43,7 @@
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
         <commons-validator.version>1.5.1</commons-validator.version>
+        <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
 
         <diffutils.version>1.3.0</diffutils.version>
