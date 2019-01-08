@@ -4,10 +4,10 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.common.CharacterSetConversion;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.SignatureSubpacketTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -21,6 +21,8 @@ import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
 import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -31,6 +33,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class PgpPublicKeyWrapper implements KeyWrapper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PgpPublicKeyWrapper.class);
+
     private static final String PGP_HEADER = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
     private static final String PGP_FOOTER = "-----END PGP PUBLIC KEY BLOCK-----";
     private static final String METHOD = "PGP";
@@ -112,9 +117,10 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
             }
 
             return new PgpPublicKeyWrapper(masterKey, subKeys);
-        } catch (IOException e) {
+        } catch (IOException | PGPException e) {
             throw new IllegalArgumentException("The supplied object has no key");
-        } catch (PGPException e) {
+        } catch (Exception e) {
+            LOGGER.warn("Unexpected error, throwing no key by default", e);
             throw new IllegalArgumentException("The supplied object has no key");
         }
     }
