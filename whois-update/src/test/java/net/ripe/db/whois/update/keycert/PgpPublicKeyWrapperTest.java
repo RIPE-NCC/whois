@@ -13,6 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -23,6 +24,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PgpPublicKeyWrapperTest {
+
+    // copied from GnuPG source ./common/openpgpdefs.h
+    private static final int PUBKEY_ALGO_EDDSA = 22;
 
     @Mock DateTimeProvider dateTimeProvider;
 
@@ -39,23 +43,22 @@ public class PgpPublicKeyWrapperTest {
     }
 
     @Test
-    public void pgpFingerprint() throws Exception {
-        PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
+    public void pgpFingerprint() {
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
 
-        assertThat(subject.getFingerprint(),
-                is("D079 99F1 92D5 41B6 E7BC  6578 9175 DB8D A8D1 6B70"));
+        assertThat(subject.getFingerprint(), is("D079 99F1 92D5 41B6 E7BC  6578 9175 DB8D A8D1 6B70"));
     }
 
     @Test
-    public void isPgpKey() throws IOException {
+    public void isPgpKey() {
         assertThat(PgpPublicKeyWrapper.looksLikePgpKey(pgpKeycert), is(true));
         assertThat(PgpPublicKeyWrapper.looksLikePgpKey(x509Keycert), is(false));
     }
 
     @Test
-    public void isEquals() throws IOException {
-        PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
-        PgpPublicKeyWrapper another = PgpPublicKeyWrapper.parse(anotherPgpKeycert);
+    public void isEquals() {
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
+        final PgpPublicKeyWrapper another = PgpPublicKeyWrapper.parse(anotherPgpKeycert);
 
         assertThat(subject.equals(subject), is(true));
         assertThat(subject.equals(another), is(false));
@@ -63,14 +66,14 @@ public class PgpPublicKeyWrapperTest {
 
     @Test
     public void method() {
-        PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
 
         assertThat(subject.getMethod(), is("PGP"));
     }
 
     @Test
     public void owner() {
-        PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
 
         assertThat(subject.getOwners(), containsInAnyOrder("Test Person5 <noreply5@ripe.net>"));
     }
@@ -87,10 +90,10 @@ public class PgpPublicKeyWrapperTest {
 
     @Test
     public void onePublicKeyWithMultipleSubkeys() throws Exception {
-        PgpPublicKeyWrapper result = PgpPublicKeyWrapper.parse(RpslObject.parse(getResource("keycerts/PGPKEY-MULTIPLE-SUBKEYS.TXT")));
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(RpslObject.parse(getResource("keycerts/PGPKEY-MULTIPLE-SUBKEYS.TXT")));
 
-        assertNotNull(result.getPublicKey());
-        assertThat(result.getSubKeys(), hasSize(1));
+        assertNotNull(subject.getPublicKey());
+        assertThat(subject.getSubKeys(), hasSize(1));
     }
 
     @Test
@@ -104,8 +107,8 @@ public class PgpPublicKeyWrapperTest {
     }
 
     @Test
-    public void isExpired() throws Exception {
-        PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
+    public void isExpired() {
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
                         "key-cert:       PGPKEY-C88CA438\n" +
                         "method:         PGP\n" +
@@ -139,14 +142,47 @@ public class PgpPublicKeyWrapperTest {
     }
 
     @Test
-    public void notExpired() throws Exception {
-        PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
+    public void notExpired() {
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(pgpKeycert);
 
         assertThat(subject.isExpired(dateTimeProvider), is(false));
     }
 
     @Test
-    public void isRevoked() throws Exception {
+    public void curve_25519() {
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
+            RpslObject.parse(
+                "key-cert:        PGPKEY-2424420B\n" +
+                        "method:          PGP\n" +
+                        "owner:           Test User <noreply@ripe.net>\n" +
+                        "fingerpr:        3F0D 878A 9352 5F7C 4BED  F475 A72E FF2A 2424 420B\n" +
+                        "certif:          -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                        "certif:          Comment: GPGTools - http://gpgtools.org\n" +
+                        "certif:\n" +
+                        "certif:          mDMEXDSFIBYJKwYBBAHaRw8BAQdAApW0Ud7TmlaWDeMN6nfxRSRbC5sE8U+oKc8Y\n" +
+                        "certif:          4nQWT7C0HFRlc3QgVXNlciA8bm9yZXBseUByaXBlLm5ldD6IkAQTFggAOBYhBD8N\n" +
+                        "certif:          h4qTUl98S+30dacu/yokJEILBQJcNIUgAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4B\n" +
+                        "certif:          AheAAAoJEKcu/yokJEIL4cwA/2jOgBV0OHylbE5iDx1VIoMnIJCS12JODgwqwMms\n" +
+                        "certif:          rbVfAP9RAtdxNqdt/Bwu5mX6fTSGSff6yicqzGretWlkRh8aBbg4BFw0hSASCisG\n" +
+                        "certif:          AQQBl1UBBQEBB0Dx8kHIOKw/klxcIYcYhY28leG80qnPMgP4wgRK5JpefQMBCAeI\n" +
+                        "certif:          eAQYFggAIBYhBD8Nh4qTUl98S+30dacu/yokJEILBQJcNIUgAhsMAAoJEKcu/yok\n" +
+                        "certif:          JEILEp4BAJLGZuQ5qJkl8eqGKb6BCVmoynaFTutYbm2IIed6pmDJAQCa7CqeUY1V\n" +
+                        "certif:          duNXCkPvStUGG6dIRgtWlW7vwSVwgnd3BA==\n" +
+                        "certif:          =GGwH\n" +
+                        "certif:          -----END PGP PUBLIC KEY BLOCK-----\n" +
+                        "admin-c:         AA1-RIPE\n" +
+                        "tech-c:          AA1-RIPE\n" +
+                        "mnt-by:          UPD-MNT\n" +
+                        "source:          TEST"));
+
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PUBKEY_ALGO_EDDSA));
+        assertThat(subject.getFingerprint(), is("3F0D 878A 9352 5F7C 4BED  F475 A72E FF2A 2424 420B"));
+        assertThat(subject.getMethod(), is("PGP"));
+        assertThat(subject.getOwners(), contains("Test User <noreply@ripe.net>"));
+    }
+
+    @Test
+    public void isRevoked() {
         try {
             PgpPublicKeyWrapper.parse(
                     RpslObject.parse(

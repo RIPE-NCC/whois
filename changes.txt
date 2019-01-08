@@ -2,6 +2,9 @@
 [all] updated dependencies
 [update] bogons
 
+# 1.93
+[all] Updated to Bouncy Castle 1.60 (supports Curve 25519)
+
 # 1.92.9
 [all] Updated Spring version (#513)
 [all] Updated JavaMail version.
