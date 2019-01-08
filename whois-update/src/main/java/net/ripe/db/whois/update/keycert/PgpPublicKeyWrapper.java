@@ -71,7 +71,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
                     final PGPPublicKey key = keyIterator.next();
                     if (key.isMasterKey()) {
                         if (masterKey == null) {
-                            if (key.isRevoked()) {
+                            if (key.hasRevocation()) {
                                 throw new IllegalArgumentException("The supplied key is revoked");
                             }
 
@@ -84,7 +84,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
                             continue;
                         }
 
-                        if (key.isRevoked()) {
+                        if (key.hasRevocation()) {
                             continue;
                         }
 
@@ -119,6 +119,8 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
             return new PgpPublicKeyWrapper(masterKey, subKeys);
         } catch (IOException | PGPException e) {
             throw new IllegalArgumentException("The supplied object has no key");
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.warn("Unexpected error, throwing no key by default", e);
             throw new IllegalArgumentException("The supplied object has no key");
