@@ -279,6 +279,39 @@ public class PgpPublicKeyWrapperTest {
     }
 
     @Test
+    public void unreadable_keyring() {
+        try {
+            PgpPublicKeyWrapper.parse(
+                RpslObject.parse(
+                    "key-cert:        PGPKEY-2424420B\n" +
+                    "method:          PGP\n" +
+                    "owner:           Test User <noreply@ripe.net>\n" +
+                    "fingerpr:        3F0D 878A 9352 5F7C 4BED  F475 A72E FF2A 2424 420B\n" +
+                    "certif:          -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                    "certif:          Comment: GPGTools - http://gpgtools.org\n" +
+                    "certif:=20\n" +    // adding a quoted-printable space causes the parsing error
+                    "certif:          mDMEXDSFIBYJKwYBBAHaRw8BAQdAApW0Ud7TmlaWDeMN6nfxRSRbC5sE8U+oKc8Y\n" +
+                    "certif:          4nQWT7C0HFRlc3QgVXNlciA8bm9yZXBseUByaXBlLm5ldD6IkAQTFggAOBYhBD8N\n" +
+                    "certif:          h4qTUl98S+30dacu/yokJEILBQJcNIUgAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4B\n" +
+                    "certif:          AheAAAoJEKcu/yokJEIL4cwA/2jOgBV0OHylbE5iDx1VIoMnIJCS12JODgwqwMms\n" +
+                    "certif:          rbVfAP9RAtdxNqdt/Bwu5mX6fTSGSff6yicqzGretWlkRh8aBbg4BFw0hSASCisG\n" +
+                    "certif:          AQQBl1UBBQEBB0Dx8kHIOKw/klxcIYcYhY28leG80qnPMgP4wgRK5JpefQMBCAeI\n" +
+                    "certif:          eAQYFggAIBYhBD8Nh4qTUl98S+30dacu/yokJEILBQJcNIUgAhsMAAoJEKcu/yok\n" +
+                    "certif:          JEILEp4BAJLGZuQ5qJkl8eqGKb6BCVmoynaFTutYbm2IIed6pmDJAQCa7CqeUY1V\n" +
+                    "certif:          duNXCkPvStUGG6dIRgtWlW7vwSVwgnd3BA==\n" +
+                    "certif:          =GGwH\n" +
+                    "certif:          -----END PGP PUBLIC KEY BLOCK-----\n" +
+                    "admin-c:         AA1-RIPE\n" +
+                    "tech-c:          AA1-RIPE\n" +
+                    "mnt-by:          UPD-MNT\n" +
+                    "source:          TEST"));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), is("The supplied object has no key"));
+        }
+    }
+
+    @Test
     public void isRevoked() {
         try {
             PgpPublicKeyWrapper.parse(
