@@ -87,6 +87,7 @@ DROP TABLE IF EXISTS `abuse_org_email`;
 CREATE TABLE `abuse_org_email` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `org_id` varchar(256) NOT NULL,
+  `enduser_org_id` varchar(256),
   `created_at` datetime NOT NULL,
   `deleted_at` datetime,
   `email_id` int(10) UNSIGNED NOT NULL,
@@ -105,6 +106,7 @@ CREATE TABLE `abuse_ticket` (
   `org_id` varchar(256) NOT NULL,
   `ticketia_status` varchar(256) NOT NULL,
   `ticket_id` int(10) UNSIGNED NOT NULL,
+  `ticket_type` char(1) NOT NULL,
   `state` char(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
