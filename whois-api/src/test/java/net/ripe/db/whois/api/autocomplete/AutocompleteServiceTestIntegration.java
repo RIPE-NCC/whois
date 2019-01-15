@@ -395,7 +395,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void plaintext_response_on_errors() throws Exception {
+    public void plaintext_response_on_errors() {
         try {
             queryRaw("test", "invalid");
             fail();
@@ -408,7 +408,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void plaintext_request_not_acceptable() throws Exception {
+    public void plaintext_request_not_acceptable() {
         try {
             RestTest
                 .target(getPort(), String.format("whois/autocomplete?query=%s&field=%s", "query", "nic-hdl"))
