@@ -3,10 +3,10 @@ package net.ripe.db.whois.api.transfer.inetnum;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceDao;
 import net.ripe.db.whois.api.transfer.logic.inetnum.InetnumTransfer;
+import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -21,7 +21,9 @@ import java.net.URLEncoder;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 
 @Category(IntegrationTest.class)
@@ -215,6 +217,30 @@ public class InetnumOutgoingTransfersServiceTestIntegration extends AbstractInet
         databaseHelper.addObject(INETNUM_RIPE_173_0_LEFT);
 
         ipTreeUpdater.rebuild();
+    }
+
+    // TODO: [ES] an in-region placeholder should not be necessary for an out-of-region transfer
+    @Test
+    public void in_region_placeholder_required() {
+        databaseHelper.addObject("inetnum:     77.0.0.0 - 95.255.255.255\n" +
+                "netname:        EU-ZZ-77\n" +
+                "descr:          To determine the registration information for a more\n" +
+                "descr:          specific range, please try a more specific query.\n" +
+                "descr:          If you see this object as a result of a single IP query,\n" +
+                "descr:          it means the IP address is currently in the free pool of\n" +
+                "descr:          address space managed by the RIPE NCC.\n" +
+                "country:        EU # Country is in fact world wide\n" +
+                "admin-c:        IANA1-RIPE\n" +
+                "tech-c:         IANA1-RIPE\n" +
+                "status:         ALLOCATED UNSPECIFIED\n" +
+                "mnt-by:         RIPE-NCC-HM-MNT\n" +
+                "created:        2007-07-25T17:20:12Z\n" +
+                "last-modified:  2015-09-23T13:18:27Z\n" +
+                "source:         TEST");
+
+        transferOut("92.202.0.0-92.203.255.255");
+
+        assertThat(inetnumWithNetnameExists("92.202.0.0/15", InetnumTransfer.NON_RIPE_NETNAME), is(true));
     }
 
     @Test
