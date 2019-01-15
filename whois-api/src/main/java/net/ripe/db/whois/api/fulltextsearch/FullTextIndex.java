@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -270,18 +271,12 @@ public class FullTextIndex extends RebuildableIndex {
         document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_NOT_TOKENIZED));
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            final String cleanValue;
-            try {
-                cleanValue = attribute.getCleanValue().toString();
-            } catch (IllegalStateException e) {
-                LOGGER.warn("Skipping {} attribute in {}: {} due to {}", attribute.getType(), rpslObject.getType(), rpslObject.getKey(), e.getMessage());
-                continue;
-            }
-
-            if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
-              document.add(new Field(attribute.getKey(), sanitise(filterAttribute(cleanValue)), NOT_INDEXED_NOT_TOKENIZED));
-            } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                document.add(new Field(attribute.getKey(), sanitise(cleanValue), INDEXED_AND_TOKENIZED));
+            for (CIString cleanValue : attribute.getCleanValues()) {
+                if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
+                  document.add(new Field(attribute.getKey(), normaliseAttributeValue(cleanValue), NOT_INDEXED_NOT_TOKENIZED));
+                } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
+                    document.add(new Field(attribute.getKey(), normaliseAttributeValue(cleanValue), INDEXED_AND_TOKENIZED));
+                }
             }
         }
 
@@ -290,15 +285,11 @@ public class FullTextIndex extends RebuildableIndex {
         indexWriter.addDocument(facetsConfig.build(taxonomyWriter, document));
     }
 
-    private static String sanitise(final String value) {
-        return CharMatcher.javaIsoControl().removeFrom(value);
-    }
-
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
         indexWriter.deleteDocuments(new Term(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId())));
     }
 
-    private String filterAttribute(final String value) {
+    private String normaliseAttributeValue(final CIString value) {
         if (value.toLowerCase().startsWith("md5-pw")) {
             return "MD5-PW";
         }
@@ -307,7 +298,11 @@ public class FullTextIndex extends RebuildableIndex {
             return "SSO";
         }
 
-        return value;
+        return sanitise(value);
+    }
+
+    private static String sanitise(final CIString value) {
+        return CharMatcher.javaIsoControl().removeFrom(value);
     }
 
     final class DatabaseObjectProcessor implements Runnable {
