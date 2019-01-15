@@ -420,6 +420,22 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         }
     }
 
+    @Test
+    public void filter_comment() {
+        databaseHelper.addObject("organisation: ORG-AA1-TEST\norg-name: Any Address # comment\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(getValues(query("AA1", "organisation", "org-name"), "org-name"), contains("Any Address"));
+    }
+
+    @Test
+    public void filter_comment_multiline_value() {
+        databaseHelper.addObject("organisation: ORG-AA1-TEST\norg-name: Any # comment\n+Address # comment\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(getValues(query("AA1", "organisation", "org-name"), "org-name"), contains("Any Address"));
+    }
+
     // complex lookups (specify attributes)
 
     @Test
@@ -655,6 +671,17 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                             "193.0.0.0 - 193.255.255.255"),
                             "key"),
                 contains("193.0.0.0 - 193.255.255.255"));
+    }
+
+    @Test
+    public void select_filter_comment() {
+        databaseHelper.addObject("organisation: ORG-AA1-TEST\norg-name: Any Address # comment\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(
+            getValues(
+                query(Lists.newArrayList(AttributeType.ORG_NAME), Lists.newArrayList(ObjectType.ORGANISATION), Lists.newArrayList(AttributeType.ORG_NAME), "any"), "org-name"),
+            contains("Any Address"));
     }
 
     // helper methods

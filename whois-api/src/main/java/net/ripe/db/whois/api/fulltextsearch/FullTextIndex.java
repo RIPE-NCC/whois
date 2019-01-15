@@ -270,10 +270,18 @@ public class FullTextIndex extends RebuildableIndex {
         document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_NOT_TOKENIZED));
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
+            final String cleanValue;
+            try {
+                cleanValue = attribute.getCleanValue().toString();
+            } catch (IllegalStateException e) {
+                LOGGER.warn("Skipping {} attribute in {}: {} due to {}", attribute.getType(), rpslObject.getType(), rpslObject.getKey(), e.getMessage());
+                continue;
+            }
+
             if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
-              document.add(new Field(attribute.getKey(), sanitise(filterAttribute(attribute.getValue().trim())), NOT_INDEXED_NOT_TOKENIZED));
+              document.add(new Field(attribute.getKey(), sanitise(filterAttribute(cleanValue)), NOT_INDEXED_NOT_TOKENIZED));
             } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                document.add(new Field(attribute.getKey(), sanitise(attribute.getValue().trim()), INDEXED_AND_TOKENIZED));
+                document.add(new Field(attribute.getKey(), sanitise(cleanValue), INDEXED_AND_TOKENIZED));
             }
         }
 
