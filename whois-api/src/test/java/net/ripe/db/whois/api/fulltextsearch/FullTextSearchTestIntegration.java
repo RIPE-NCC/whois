@@ -46,12 +46,12 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         fullTextIndex.rebuild();
     }
 
     @Test
-    public void search_no_params() throws Exception {
+    public void search_no_params() {
         try {
             query("");
             fail();
@@ -61,7 +61,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_empty_query_param() throws Exception {
+    public void search_empty_query_param() {
         try {
             query("q=");
             fail();
@@ -71,7 +71,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_single_result() throws Exception {
+    public void search_single_result() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV-MNT\n" +
                 "source: RIPE"));
@@ -90,7 +90,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_single_result_json() throws Exception {
+    public void search_single_result_json() {
         databaseHelper.addObject(RpslObject.parse("mntner: DEV-MNT\n" +
                 "source: RIPE"));
         fullTextIndex.update();
@@ -111,7 +111,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void search_multiple_results_with_highlighting() throws Exception {
+    public void search_multiple_results_with_highlighting() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +
                 "remarks: Some remark\n" +
@@ -138,7 +138,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_multiple_results_with_facet() throws Exception {
+    public void search_multiple_results_with_facet() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +
                 "remarks: Some remark\n" +
@@ -208,7 +208,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_no_match() throws Exception {
+    public void search_no_match() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV-MNT\n" +
                 "source: RIPE"));
@@ -221,7 +221,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_match_subword_case_change() throws Exception {
+    public void search_word_match_subword_case_change() {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
@@ -235,7 +235,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_match_subword_dash_separator() throws Exception {
+    public void search_word_match_subword_dash_separator() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:  MNT-TESTUA\n" +
                 "source: RIPE"));
@@ -248,7 +248,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_match_first_subword() throws Exception {
+    public void search_word_match_first_subword() {
         databaseHelper.addObject(
                 "person: Test Person\n" +
                  "nic-hdl: TP1-TEST");
@@ -261,7 +261,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_match_original() throws Exception {
+    public void search_word_match_original() {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald1\n" +
                 "nic-hdl: AA1-RIPE\n" +
@@ -275,7 +275,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_with_matching_object_type() throws Exception {
+    public void search_word_with_matching_object_type() {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
@@ -289,7 +289,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_with_non_matching_object_type() throws Exception {
+    public void search_word_with_non_matching_object_type() {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
@@ -318,7 +318,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void search_hyphenated_complete_word() throws Exception {
+    public void search_hyphenated_complete_word() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:  TESTUA-MNT\n" +
                 "source: RIPE"));
@@ -334,7 +334,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_hyphenated_partial_word() throws Exception {
+    public void search_hyphenated_partial_word() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:  TESTUA-MNT\n" +
                 "source: RIPE"));
@@ -350,7 +350,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_match_all_terms() throws Exception {
+    public void search_match_all_terms() {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
                 "nic-hdl: JM1-RIPE\n" +
@@ -403,7 +403,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_inetnum() throws Exception {
+    public void search_inetnum() {
         databaseHelper.addObject(
                "inetnum:        193.0.0.0 - 193.0.0.255\n" +
                "netname:        RIPE-NCC\n" +
@@ -425,7 +425,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void search_inetnum_with_prefix_length() throws Exception {
+    public void search_inetnum_with_prefix_length() {
         databaseHelper.addObject(
                 "inetnum:        10.0.0.0/24\n" +
                 "netname:        RIPE-NCC\n" +
@@ -436,7 +436,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_inetnum_multiple_matches() throws Exception {
+    public void search_inetnum_multiple_matches() {
         databaseHelper.addObject(
                 "inetnum:        193.0.0.0 - 193.0.0.255\n" +
                 "netname:        RIPE-NCC\n" +
@@ -453,7 +453,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_inet6num() throws Exception {
+    public void search_inet6num() {
         databaseHelper.addObject(
                 "inet6num: 2001:0638:0501::/48\n" +
                 "netname: RIPE-NCC\n" +
@@ -471,7 +471,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_inet6num_double_colons() throws Exception {
+    public void search_inet6num_double_colons() {
         databaseHelper.addObject(
                 "inet6num: 2a00:1f78::fffe/48\n" +
                 "netname: RIPE-NCC\n" +
@@ -484,7 +484,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_inet6num_multiple_matches() throws Exception {
+    public void search_inet6num_multiple_matches() {
         databaseHelper.addObject(
                 "inet6num: 2a00:1f78:7a2b:2001::/64\n" +
                 "netname: RIPE-NCC\n" +
@@ -499,7 +499,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_filter_comma_when_indexing() throws Exception {
+    public void search_filter_comma_when_indexing() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
@@ -519,7 +519,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_filter_comma_on_query_term() throws Exception {
+    public void search_filter_comma_on_query_term() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
@@ -559,7 +559,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_multiple_matches_but_only_one_result() throws Exception {
+    public void search_multiple_matches_but_only_one_result() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
@@ -579,7 +579,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_match_partial_email_address() throws Exception {
+    public void search_match_partial_email_address() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
@@ -756,7 +756,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void basic_search_nonauth_aut_num_object() throws Exception {
+    public void basic_search_nonauth_aut_num_object() {
         databaseHelper.addObject(
                 "aut-num: AS101\n" +
                         "as-name: End-User-1\n" +
@@ -775,7 +775,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void basic_search_nonauth_route_object() throws Exception {
+    public void basic_search_nonauth_route_object() {
         databaseHelper.addObject(
                 "aut-num: AS101\n" +
                         "as-name: End-User-1\n" +
@@ -798,7 +798,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void basic_search_found_all_objects_with_nonauth_value_in_attribute() throws Exception {
+    public void basic_search_found_all_objects_with_nonauth_value_in_attribute() {
         databaseHelper.addObject(
                 "aut-num: AS101\n" +
                         "as-name: End-User-1\n" +
@@ -824,7 +824,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void basic_search_ignore_source_attribute() throws Exception {
+    public void basic_search_ignore_source_attribute() {
         databaseHelper.addObject(
                 "aut-num: AS101\n" +
                         "as-name: End-User-1\n" +
@@ -847,7 +847,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void advanced_search_nonauth_aut_num_objects() throws Exception {
+    public void advanced_search_nonauth_aut_num_objects() {
         databaseHelper.addObject(
                 "aut-num: AS101\n" +
                         "as-name: End-User-1\n" +
@@ -868,7 +868,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void advanced_search_aut_num_route_with_same_descr() throws Exception {
+    public void advanced_search_aut_num_route_with_same_descr() {
         databaseHelper.addObject(
                 "aut-num: AS101\n" +
                         "as-name: End-User-1\n" +
@@ -894,7 +894,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void advanced_search_nonauth_ignore_source() throws Exception {
+    public void advanced_search_nonauth_ignore_source() {
         databaseHelper.addObject(
                 "aut-num: AS101\n" +
                         "as-name: End-User-1\n" +
