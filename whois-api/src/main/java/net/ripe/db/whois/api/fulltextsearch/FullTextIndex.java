@@ -1,12 +1,12 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -60,6 +60,8 @@ public class FullTextIndex extends RebuildableIndex {
 
     public static final Analyzer QUERY_ANALYZER = new FullTextAnalyzer(FullTextAnalyzer.Operation.QUERY);
     public static final Analyzer INDEX_ANALYZER = new FullTextAnalyzer(FullTextAnalyzer.Operation.INDEX);
+
+    private static final Joiner COMMA_JOINER = Joiner.on(", ").skipNulls();
 
     static final String[] FIELD_NAMES;
 
@@ -271,12 +273,11 @@ public class FullTextIndex extends RebuildableIndex {
         document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_NOT_TOKENIZED));
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            for (CIString cleanValue : attribute.getCleanValues()) {
-                if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
-                  document.add(new Field(attribute.getKey(), normaliseAttributeValue(cleanValue), NOT_INDEXED_NOT_TOKENIZED));
-                } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                    document.add(new Field(attribute.getKey(), normaliseAttributeValue(cleanValue), INDEXED_AND_TOKENIZED));
-                }
+            final String cleanValue = COMMA_JOINER.join(attribute.getCleanValues());
+            if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
+              document.add(new Field(attribute.getKey(), normaliseAttributeValue(cleanValue), NOT_INDEXED_NOT_TOKENIZED));
+            } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
+                document.add(new Field(attribute.getKey(), normaliseAttributeValue(cleanValue), INDEXED_AND_TOKENIZED));
             }
         }
 
@@ -289,7 +290,7 @@ public class FullTextIndex extends RebuildableIndex {
         indexWriter.deleteDocuments(new Term(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId())));
     }
 
-    private String normaliseAttributeValue(final CIString value) {
+    private String normaliseAttributeValue(final String value) {
         if (value.toLowerCase().startsWith("md5-pw")) {
             return "MD5-PW";
         }
@@ -301,7 +302,7 @@ public class FullTextIndex extends RebuildableIndex {
         return sanitise(value);
     }
 
-    private static String sanitise(final CIString value) {
+    private static String sanitise(final String value) {
         return CharMatcher.javaIsoControl().removeFrom(value);
     }
 

@@ -168,6 +168,51 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_list_value_attribute_single_value() {
+        databaseHelper.addObject("mntner: AA1-MNT\nsource: RIPE");
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-AA1-RIPE\n" +
+                "mnt-ref: AA1-MNT # ignore this comment\n" +
+                "source: RIPE"));
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(AA1)+AND+(object-type:organisation)&facet=true");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        final SolrDocument solrDocument = queryResponse.getResults().get(0);
+        assertThat(solrDocument.getFirstValue("primary-key"), is("2"));
+        assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
+        assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT"));
+    }
+
+    @Test
+    public void search_list_value_attribute_multiple_values() {
+        databaseHelper.addObject("mntner: AA1-MNT\nsource: RIPE");
+        databaseHelper.addObject("mntner: AA2-MNT\nsource: RIPE");
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-AA1-RIPE\n" +
+                "mnt-ref: AA1-MNT, AA2-MNT # ignore this comment\n" +
+                "source: RIPE"));
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(AA1)+AND+(object-type:organisation)&facet=true");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        final SolrDocument solrDocument = queryResponse.getResults().get(0);
+        assertThat(solrDocument.getFirstValue("primary-key"), is("3"));
+        assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
+        assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT, AA2-MNT"));
+    }
+
+    @Test
     public void search_object_contains_control_character() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +

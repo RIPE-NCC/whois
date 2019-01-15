@@ -436,6 +436,14 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(getValues(query("AA1", "organisation", "org-name"), "org-name"), contains("Any Address"));
     }
 
+    @Test
+    public void filter_comment_multiple_values() {
+        databaseHelper.addObject("route-set: AS34086:RS-OTC\nmembers: 46.29.103.32/27\nmembers: 46.29.96.0/24\nmnt-ref:AA1-MNT, # first\n+AA2-MNT,    # second\n\tAA3-MNT\t#third\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(getValues(query("AS34086:RS-OTC", "route-set", "mnt-ref"), "mnt-ref"), contains("AA1-MNT, AA2-MNT, AA3-MNT"));
+    }
+
     // complex lookups (specify attributes)
 
     @Test
