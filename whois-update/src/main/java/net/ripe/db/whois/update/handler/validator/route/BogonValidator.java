@@ -38,7 +38,7 @@ public class BogonValidator implements BusinessRuleValidator {
     private final Set<Interval> bogons;
 
     @Autowired
-    public BogonValidator(@Value("${ipranges.bogons}") final String ... bogons) {
+    public BogonValidator(@Value("${ipranges.bogons:}") final String ... bogons) {
         this.bogons = parseBogonPrefixes(bogons);
     }
 

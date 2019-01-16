@@ -97,6 +97,7 @@ public class WhoisFixture {
         System.setProperty("nrtm.enabled", "false");
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("feature.toggle.changed.attr.available", "true");
+        System.setProperty("ipranges.bogons", "192.0.2.0/24,2001:2::/48");
     }
 
     public void start() throws Exception {
