@@ -649,4 +649,8 @@ public final class UpdateMessages {
     public static Message shortFormatAttributeReplaced() {
         return new Message(Type.WARNING, "Short format attribute name(s) have been replaced.");
     }
+
+    public static Message bogonPrefixNotAllowed(final String prefix) {
+        return new Message(Type.ERROR, "Bogon prefix %s is not allowed.", prefix);
+    }
 }
