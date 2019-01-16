@@ -3,10 +3,10 @@ package net.ripe.db.whois.api.transfer.inetnum;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceDao;
 import net.ripe.db.whois.api.transfer.logic.inetnum.InetnumTransfer;
+import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -19,14 +19,14 @@ import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 
 @Category(IntegrationTest.class)
-public class InetnumIncomeTransfersServiceTestIntegration extends AbstractInetnumTransferInternalTest {
+public class InetnumIncomingTransfersServiceTestIntegration extends AbstractInetnumTransferInternalTest {
 
     private static final String INETNUM_NON_RIPE_202_8 = "" +
             "inetnum:        202.0.0.0 - 202.255.255.255\n" +
@@ -262,6 +262,30 @@ public class InetnumIncomeTransfersServiceTestIntegration extends AbstractInetnu
         ipTreeUpdater.rebuild();
     }
 
+    @Test
+    public void in_region_placeholder() {
+        databaseHelper.addObject("inetnum:     128.0.0.0 - 255.255.255.255\n" +
+                "netname:        EU-ZZ-128\n" +
+                "descr:          To determine the registration information for a more\n" +
+                "descr:          specific range, please try a more specific query.\n" +
+                "descr:          If you see this object as a result of a single IP query,\n" +
+                "descr:          it means the IP address is currently in the free pool of\n" +
+                "descr:          address space managed by the RIPE NCC.\n" +
+                "country:        EU # Country is in fact world wide\n" +
+                "admin-c:        IANA1-RIPE\n" +
+                "tech-c:         IANA1-RIPE\n" +
+                "status:         ALLOCATED UNSPECIFIED\n" +
+                "mnt-by:         RIPE-NCC-HM-MNT\n" +
+                "created:        2007-07-25T17:20:12Z\n" +
+                "last-modified:  2015-09-23T13:18:27Z\n" +
+                "source:         TEST");
+
+        // 200.0.0.0 - 200.127.255.255
+        transferIn("200.0.0.0/9");
+
+        assertThat(inetNumExists("200.0.0.0-200.255.255.255"), is(false));
+        assertThat(inetNumExists("200.128.0.0-200.255.255.255"), is(true));
+    }
 
     @Test
     public void it_should_delete_placeholder_if_it_is_an_exact_match() {
