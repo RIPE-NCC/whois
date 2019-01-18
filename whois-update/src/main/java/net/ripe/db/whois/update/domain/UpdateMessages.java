@@ -554,6 +554,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\"");
     }
 
+    public static Message duplicateAbuseC(final CharSequence abuseC, final CharSequence organisation) {
+        return new Message(Type.WARNING, "Duplicate abuse-c \"%s\" also found in referenced organisation \"%s\".", abuseC, organisation);
+    }
+
     public static Message abuseContactNotRemovable() {
         return new Message(Type.ERROR, "\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object");
     }
