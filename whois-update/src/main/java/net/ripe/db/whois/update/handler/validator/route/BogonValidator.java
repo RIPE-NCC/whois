@@ -50,11 +50,7 @@ public class BogonValidator implements BusinessRuleValidator {
         }
 
         final Optional<CIString> prefix = getPrefix(updatedObject);
-        if (!prefix.isPresent()) {
-            return;
-        }
-
-        if (isBogon(prefix.get().toString())) {
+        if (prefix.isPresent() && isBogon(prefix.get().toString())) {
             updateContext.addMessage(update, UpdateMessages.bogonPrefixNotAllowed(prefix.get().toString()));
         }
     }
