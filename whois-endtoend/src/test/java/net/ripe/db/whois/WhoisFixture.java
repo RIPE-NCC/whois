@@ -8,7 +8,6 @@ import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
-import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceDao;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.TestDateTimeProvider;
@@ -67,7 +66,6 @@ public class WhoisFixture {
     protected RpslObjectDao rpslObjectDao;
     protected RpslObjectUpdateDao rpslObjectUpdateDao;
     protected TagsDao tagsDao;
-    protected AuthoritativeResourceDao authoritativeResourceDao;
     protected AuthoritativeResourceData authoritativeResourceData;
     protected MailGateway mailGateway;
     protected MessageDequeue messageDequeue;
@@ -117,7 +115,6 @@ public class WhoisFixture {
         rpslObjectDao = applicationContext.getBean(RpslObjectDao.class);
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
         tagsDao = applicationContext.getBean(TagsDao.class);
-        authoritativeResourceDao = applicationContext.getBean(AuthoritativeResourceDao.class);
         authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
         mailGateway = applicationContext.getBean(MailGateway.class);
         whoisDataSource = applicationContext.getBean(SourceAwareDataSource.class);
@@ -241,10 +238,6 @@ public class WhoisFixture {
 
     public TagsDao getTagsDao() {
         return tagsDao;
-    }
-
-    public AuthoritativeResourceDao getAuthoritativeResourceDao() {
-        return authoritativeResourceDao;
     }
 
     public RpslObjectDao getRpslObjectDao() {

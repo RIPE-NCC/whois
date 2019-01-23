@@ -321,10 +321,6 @@ ${response}
         return whoisFixture.getTagsDao()
     }
 
-    def getAuthoritativeResourceDao() {
-        return whoisFixture.getAuthoritativeResourceDao()
-    }
-
     def getApplicationContext() {
         return whoisFixture.getApplicationContext()
     }

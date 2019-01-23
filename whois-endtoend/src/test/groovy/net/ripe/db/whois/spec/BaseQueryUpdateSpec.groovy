@@ -9,8 +9,6 @@ import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.RpslObject
 import org.joda.time.LocalDateTime
 
-import java.util.function.Consumer
-
 import static net.ripe.db.whois.common.domain.CIString.ciString
 
 abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
@@ -59,21 +57,6 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
         rpslObjects.addAll(fixtures.values().collect { RpslObject.parse(it.stripIndent()) })
 
         getDatabaseHelper().addObjects(rpslObjects)
-    }
-
-    private void allAuthoritativeResources() {
-        if (!getAuthoritativeResources().isEmpty()) {
-            // if authoritative resources for this test case have been specified clear the existing ones and add the test case specific ones
-            getAuthoritativeResourceDao().delete("test", "0.0.0.0/0")
-            getAuthoritativeResourceDao().delete("test", "::/0")
-            getAuthoritativeResources().forEach(new Consumer<String>() {
-                @Override
-                void accept(String res) {
-                    getAuthoritativeResourceDao().create("test", res)
-                }
-            })
-            whoisFixture.refreshAuthoritativeResourceData();
-        }
     }
 
     String getFixture(String key) {
