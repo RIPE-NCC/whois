@@ -27,9 +27,9 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 
 @Component
-public class DuplicateAbuseCValidator implements BusinessRuleValidator {
+public class AbuseCDuplicateValidator implements BusinessRuleValidator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DuplicateAbuseCValidator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbuseCDuplicateValidator.class);
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
@@ -39,7 +39,7 @@ public class DuplicateAbuseCValidator implements BusinessRuleValidator {
     private final RpslObjectDao rpslObjectDao;
 
     @Autowired
-    public DuplicateAbuseCValidator(final Ipv4Tree ipv4Tree, final Ipv6Tree ipv6Tree, final RpslObjectDao rpslObjectDao) {
+    public AbuseCDuplicateValidator(final Ipv4Tree ipv4Tree, final Ipv6Tree ipv6Tree, final RpslObjectDao rpslObjectDao) {
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.rpslObjectDao = rpslObjectDao;
