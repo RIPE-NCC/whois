@@ -168,11 +168,11 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_list_value_attribute_single_value() {
+    public void search_list_value_attribute_single_value_and_comment() {
         databaseHelper.addObject("mntner: AA1-MNT\nsource: RIPE");
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-AA1-RIPE\n" +
-                "mnt-ref: AA1-MNT # ignore this comment\n" +
+                "mnt-ref: AA1-MNT # include this comment\n" +
                 "source: RIPE"));
         fullTextIndex.rebuild();
 
@@ -186,16 +186,16 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
         assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
         assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
-        assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT"));
+        assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT # include this comment"));
     }
 
     @Test
-    public void search_list_value_attribute_multiple_values() {
+    public void search_list_value_attribute_multiple_values_and_comment() {
         databaseHelper.addObject("mntner: AA1-MNT\nsource: RIPE");
         databaseHelper.addObject("mntner: AA2-MNT\nsource: RIPE");
         databaseHelper.addObject(RpslObject.parse(
                 "organisation: ORG-AA1-RIPE\n" +
-                "mnt-ref: AA1-MNT, AA2-MNT # ignore this comment\n" +
+                "mnt-ref: AA1-MNT, AA2-MNT # include this comment\n" +
                 "source: RIPE"));
         fullTextIndex.rebuild();
 
@@ -209,7 +209,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
         assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
         assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
-        assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT, AA2-MNT"));
+        assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT, AA2-MNT # include this comment"));
     }
 
     @Test

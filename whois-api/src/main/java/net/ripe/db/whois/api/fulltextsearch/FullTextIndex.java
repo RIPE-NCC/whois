@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -60,8 +59,6 @@ public class FullTextIndex extends RebuildableIndex {
 
     public static final Analyzer QUERY_ANALYZER = new FullTextAnalyzer(FullTextAnalyzer.Operation.QUERY);
     public static final Analyzer INDEX_ANALYZER = new FullTextAnalyzer(FullTextAnalyzer.Operation.INDEX);
-
-    private static final Joiner COMMA_JOINER = Joiner.on(", ").skipNulls();
 
     static final String[] FIELD_NAMES;
 
@@ -273,11 +270,10 @@ public class FullTextIndex extends RebuildableIndex {
         document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_NOT_TOKENIZED));
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            final String cleanValue = COMMA_JOINER.join(attribute.getCleanValues());
             if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
-              document.add(new Field(attribute.getKey(), normaliseAttributeValue(cleanValue), NOT_INDEXED_NOT_TOKENIZED));
+              document.add(new Field(attribute.getKey(), normaliseAttributeValue(attribute.getValue()), NOT_INDEXED_NOT_TOKENIZED));
             } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                document.add(new Field(attribute.getKey(), normaliseAttributeValue(cleanValue), INDEXED_AND_TOKENIZED));
+                document.add(new Field(attribute.getKey(), normaliseAttributeValue(attribute.getValue()), INDEXED_AND_TOKENIZED));
             }
         }
 
