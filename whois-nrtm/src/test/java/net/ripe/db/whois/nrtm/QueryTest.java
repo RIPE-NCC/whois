@@ -1,5 +1,8 @@
 package net.ripe.db.whois.nrtm;
 
+import joptsimple.OptionException;
+import org.junit.Test;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -7,13 +10,10 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.Test;
-
-import joptsimple.OptionException;
-
 public class QueryTest {
 
     public static final String SOURCE = "RIPE";
+    public static final String NONAUTH_SOURCE = "RIPE-NONAUTH";
 
     @Test(expected = NullPointerException.class)
     public void null_argument() {
@@ -64,7 +64,7 @@ public class QueryTest {
     @Test
     public void flag_g_wrong_source() {
         try {
-            new Query(SOURCE, "-g FOO");
+            new Query(SOURCE, NONAUTH_SOURCE, "-g FOO");
             fail("No exception thrown");
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), containsString("ERROR:403"));

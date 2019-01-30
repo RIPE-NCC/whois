@@ -15,40 +15,39 @@ import java.util.List;
 
 public class CreatePlaceholderForInetnumStage extends InetnumTransferStage {
 
-    public static final String TEMPLATE = "" +
+    private static final String TEMPLATE = "" +
             "inetnum:         %s\n" +
             "netname:         " + InetnumTransfer.NON_RIPE_NETNAME + "\n" +
-            "descr:           IPv4 address block not managed by the RIPE NCC\n" +
-            "remarks:         ------------------------------------------------------\n" +
-            "remarks:         \n" +
-            "remarks:         You can find the whois server to query, or the\n" +
-            "remarks:         IANA registry to query on this web page:\n" +
-            "remarks:         http://www.iana.org/assignments/ipv4-address-space\n" +
-            "remarks:         \n" +
-            "remarks:         You can access databases of other RIR's at:\n" +
-            "remarks:         \n" +
-            "remarks:         AFRINIC (Africa)\n" +
-            "remarks:         http://www.afrinic.net/ whois.afrinic.net\n" +
-            "remarks:         \n" +
-            "remarks:         APNIC (Asia Pacific)\n" +
-            "remarks:         http://www.apnic.net/ whois.apnic.net\n" +
-            "remarks:         \n" +
-            "remarks:         ARIN (Northern America)\n" +
-            "remarks:         http://www.arin.net/ whois.arin.net\n" +
-            "remarks:         \n" +
-            "remarks:         LACNIC (Latin America and the Carribean)\n" +
-            "remarks:         http://www.lacnic.net/ whois.lacnic.net\n" +
-            "remarks:         \n" +
-            "remarks:         ------------------------------------------------------\n" +
-            "country:         EU # Country is really world wide\n" +
-            "org:             ORG-IANA1-RIPE\n" +
-            "admin-c:         IANA1-RIPE\n" +
-            "tech-c:          IANA1-RIPE\n" +
-            "status:          ALLOCATED UNSPECIFIED\n" +
-            "mnt-by:          RIPE-NCC-HM-MNT\n" +
-            "mnt-lower:       RIPE-NCC-HM-MNT\n" +
-            "mnt-routes:      RIPE-NCC-RPSL-MNT\n" +
-            "source:          %s";
+            "descr:          IPv4 address block not managed by the RIPE NCC\n" +
+            "remarks:        ------------------------------------------------------\n" +
+            "remarks:\n" +
+            "remarks:        For registration information,\n" +
+            "remarks:        you can consult the following sources:\n" +
+            "remarks:\n" +
+            "remarks:        IANA\n" +
+            "remarks:        http://www.iana.org/assignments/ipv4-address-space\n" +
+            "remarks:        http://www.iana.org/assignments/iana-ipv4-special-registry\n" +
+            "remarks:        http://www.iana.org/assignments/ipv4-recovered-address-space\n" +
+            "remarks:\n" +
+            "remarks:        AFRINIC (Africa)\n" +
+            "remarks:        http://www.afrinic.net/ whois.afrinic.net\n" +
+            "remarks:\n" +
+            "remarks:        APNIC (Asia Pacific)\n" +
+            "remarks:        http://www.apnic.net/ whois.apnic.net\n" +
+            "remarks:\n" +
+            "remarks:        ARIN (Northern America)\n" +
+            "remarks:        http://www.arin.net/ whois.arin.net\n" +
+            "remarks:\n" +
+            "remarks:        LACNIC (Latin America and the Carribean)\n" +
+            "remarks:        http://www.lacnic.net/ whois.lacnic.net\n" +
+            "remarks:\n" +
+            "remarks:        ------------------------------------------------------\n" +
+            "country:        EU # Country is really world wide\n" +
+            "admin-c:        IANA1-RIPE\n" +
+            "tech-c:         IANA1-RIPE\n" +
+            "status:         ALLOCATED UNSPECIFIED\n" +
+            "mnt-by:         RIPE-NCC-HM-MNT\n" +
+            "source:         %s";
 
     public CreatePlaceholderForInetnumStage(final String source) {
         super(source);

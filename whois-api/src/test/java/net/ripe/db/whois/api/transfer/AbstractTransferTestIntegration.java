@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.ws.rs.WebApplicationException;
 
@@ -18,6 +19,12 @@ public abstract class AbstractTransferTestIntegration extends AbstractIntegratio
 
     @Autowired
     protected RestClient restClient;
+
+    @Before
+    public void setUpRestClient() {
+        ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%d/whois", getPort()));
+        ReflectionTestUtils.setField(restClient, "sourceName", "TEST");
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -55,14 +62,6 @@ public abstract class AbstractTransferTestIntegration extends AbstractIntegratio
         databaseHelper.addObject("" +
                 "person:        Any Anonymous\n" +
                 "nic-hdl:       IANA1-RIPE\n" +
-                "source:        TEST");
-
-        databaseHelper.addObject("" +
-                "mntner:        RIPE-NCC-RPSL-MNT\n" +
-                "descr:         Maintainer\n" +
-                "admin-c:       PERSON-TEST\n" +
-                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                "mnt-by:        RIPE-NCC-RPSL-MNT\n" +
                 "source:        TEST");
 
         databaseHelper.addObject("" +

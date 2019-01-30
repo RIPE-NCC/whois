@@ -389,7 +389,8 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
     @Test
     public void create_basicObject() {
         // Only these objects are supported right now
-        final HashSet<ObjectType> types = Sets.newHashSet(ObjectType.MNTNER, ObjectType.ORGANISATION, ObjectType.ROLE, ObjectType.PERSON,   // 1st batch
+        final HashSet<ObjectType> types = Sets.newHashSet(
+                ObjectType.MNTNER, ObjectType.ORGANISATION, ObjectType.ROLE, ObjectType.PERSON,   // 1st batch
                 ObjectType.INET6NUM, ObjectType.INETNUM);       // 2nd batch
 
         for (final ObjectType objectType : types) {

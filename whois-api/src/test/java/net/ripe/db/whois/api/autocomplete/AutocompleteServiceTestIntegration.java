@@ -11,6 +11,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,6 +132,19 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("invalid arguments"));
         }
+    }
+
+    // TODO: [ES] Unexpected error in log: "Caught Cannot parse '81.26.54.100 \- *': '*' or '?' not allowed as first character in WildcardQuery on 81.26.54.100 -"
+    //            Causes empty response (no match).
+    @Ignore
+    @Test
+    public void wildcard_not_allowed_as_first_character() {
+        databaseHelper.addObject("inetnum: 0.0.0.0 - 255.255.255.255\nsource: TEST");
+        databaseHelper.addObject("inetnum: 81.26.54.100 - 81.26.54.107\nsource: TEST");
+        rebuildIndex();
+
+        RestTest.target(getPort(), "whois/autocomplete?field=inetnum&query=81.26.54.100+-+").request().get(String.class);
+        fail();     // TODO: expect match
     }
 
     @Test

@@ -12,6 +12,8 @@ public interface SourceContext extends BasicSourceContext {
     CIString getAlias(CIString source);
     void setCurrentSourceToWhoisMaster();
     Source getWhoisSlaveSource();
+    Source getWhoisMasterSource();
+    Source getNonauthSource();
 
     void setCurrent(Source source);
 
@@ -21,6 +23,7 @@ public interface SourceContext extends BasicSourceContext {
 
     boolean isAcl();
     boolean isMain();
+    boolean isOutOfRegion(String source);
 
     boolean isVirtual();
     boolean isVirtual(CIString ciString);

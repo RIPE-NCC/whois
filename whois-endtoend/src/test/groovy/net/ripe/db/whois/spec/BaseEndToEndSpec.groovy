@@ -296,14 +296,6 @@ ${response}
         whoisFixture.getMailSender().reset()
     }
 
-    def noPendingUpdates() {
-        countPendingUpdates() == 0
-    }
-
-    def countPendingUpdates() {
-        whoisFixture.getDatabaseHelper().getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class)
-    }
-
     def object(String string) {
         return RpslObject.parse(string.stripIndent()).toString()
     }
@@ -329,8 +321,8 @@ ${response}
         return whoisFixture.getTagsDao()
     }
 
-    def getPendingUpdateDao() {
-        return whoisFixture.getPendingUpdateDao()
+    def getAuthoritativeResourceDao() {
+        return whoisFixture.getAuthoritativeResourceDao()
     }
 
     def getApplicationContext() {

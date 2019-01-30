@@ -48,7 +48,6 @@ public abstract class AsnTransferStage extends TransferStage<Asn> {
             "remarks:         \n" +
             "remarks:         ------------------------------------------------------\n" +
             "mnt-by:          RIPE-DBM-MNT\n" +
-            "mnt-lower:       RIPE-NCC-RPSL-MNT\n" +
             "source:          %s";
     protected static final String RIPE_AS_BLOCK_TEMPLATE =
             "as-block:        %s\n" +

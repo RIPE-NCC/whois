@@ -1,4 +1,66 @@
 # next
+[all] updated dependencies
+[update] bogons
+
+# 1.93
+[all] Updated to Bouncy Castle 1.60 (supports Curve 25519)
+
+# 1.92.9
+[all] Updated Spring version (#513)
+[all] Updated JavaMail version.
+[all] Improved Email address validation (#481)
+
+# 1.92.8
+[all] Schema changes for 2017-02 Abuse-c validation.
+
+# 1.92.7
+[all] Removed remaining pending update code (NWI-5)
+[all] Schema changes for 2017-02 Abuse-c validation.
+[api] Upgrades to libraries (#505)
+
+# 1.92.6
+[api] Make source comparison case-insensitive (fixes lookup bug for object with lowercase source value).
+[query] Make source attribute comparison case-insensitive.
+
+# 1.92.5
+[all] Removed references to the RPSL maintainer.
+
+# 1.92.4
+[api] Refactored redirect for objects with nonauth source.
+[query] Added nonauth source to "--list-sources" response.
+[nrtm] Removed empty line between sources in "-q sources" response.
+
+# 1.92.3
+[api] Fixed URL path in REST API redirect for objects with nonauth source.
+
+# 1.92.2
+[all] Added nonauth source to database dump and split files for NWI-5.
+
+# 1.92.1
+[nrtm] Added separate sources for NWI-5.
+[update] Replace short-format attribute names on update (#501)
+[all] Fixed rtr-set members and mp-members syntax (#499)
+
+# 1.92
+[all] Initial NWI-5 release
+
+# 1.91.6
+[all] Updated Spring framework to 4.3.18.
+[update] Validate reserved words and prefixes.
+
+# 1.91.5
+[all] Specify database latin1 character set and collation for testing.
+
+# 1.91.4
+[update] Non-break spaces not handled properly by REST API and Syncupdates.
+[rdap] RDAP related contact information is filtered.
+[all] Added wait loop to Database dummifier task.
+
+
+# 1.91.3
+[update] Don't return internal Zonemaster errors.
+[update] Fixed Syncupdates compressed response.
+[all] Updated Apache Velocity from 1.7 to 2.0.
 
 # 1.91.2
 [all] Jackson 2.9.5

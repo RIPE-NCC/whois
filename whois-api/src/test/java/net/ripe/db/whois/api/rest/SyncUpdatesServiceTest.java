@@ -28,11 +28,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.util.List;
+import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -62,9 +62,9 @@ public class SyncUpdatesServiceTest {
     @InjectMocks SyncUpdatesService subject;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(request.getHeaderNames()).thenReturn(Iterators.asEnumeration(Iterators.<String>emptyIterator()));
+        when(request.getHeaderNames()).thenReturn(Iterators.asEnumeration(Collections.emptyIterator()));
         when(request.getCookies()).thenReturn(new Cookie[]{});
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
@@ -73,7 +73,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_no_parameters() throws Exception {
+    public void handle_no_parameters() {
         final String data = null;
         final String help = null;
         final String nnew = null;
@@ -90,7 +90,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_only_new_parameter() throws Exception {
+    public void handle_only_new_parameter() {
         final String data = null;
         final String help = null;
         final String nnew = "YES";
@@ -107,7 +107,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_only_diff_parameter() throws Exception {
+    public void handle_only_diff_parameter() {
         final String data = null;
         final String help = null;
         final String nnew = null;
@@ -124,7 +124,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_only_data_parameter() throws Exception {
+    public void handle_only_data_parameter() {
         final String data = "person";
         final String help = null;
         final String nnew = null;
@@ -141,7 +141,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_unauthorised() throws Exception {
+    public void handle_unauthorised() {
         final String data = "person";
         final String help = null;
         final String nnew = null;
@@ -159,7 +159,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_diff_and_data_parameters() throws Exception {
+    public void handle_diff_and_data_parameters() {
         final String data = "lkajkafa";
         final String help = null;
         final String nnew = null;
@@ -176,7 +176,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void throw_illegal_argument_exception() throws Exception {
+    public void throw_illegal_argument_exception() {
         try {
             final String data = "person";
             final String help = null;
@@ -198,7 +198,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void throw_runtime_exception() throws Exception {
+    public void throw_runtime_exception() {
         try {
             final String data = "person";
             final String help = null;
@@ -220,7 +220,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_invalid_encoding() throws Exception {
+    public void handle_invalid_encoding() {
         final String data = "person";
         final String help = null;
         final String nnew = null;
@@ -237,28 +237,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void content_type_and_content_length_in_response() throws Exception {
-        final String data = "person";
-        final String help = null;
-        final String nnew = null;
-        final String diff = null;
-        final String redirect = null;
-        final String source = "test";
-        final String contentType = "text/plain; charset=US-ASCII";
-        final String ssoToken = null;
-
-        final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
-
-        List<Object> contentLengthResponse = response.getMetadata().get(HttpHeaders.CONTENT_TYPE);
-        assertThat(contentLengthResponse.size(), is(1));
-        assertThat(contentLengthResponse.get(0).toString(), is("text/plain"));
-        List<Object> contentTypeResponse = response.getMetadata().get(HttpHeaders.CONTENT_LENGTH);
-        assertThat(contentTypeResponse.size(), is(1));
-        assertThat(contentTypeResponse.get(0).toString(), is("2"));
-    }
-
-    @Test
-    public void handle_invalid_content_type() throws Exception {
+    public void handle_invalid_content_type() {
         final String data = "person";
         final String help = null;
         final String nnew = null;
@@ -272,13 +251,10 @@ public class SyncUpdatesServiceTest {
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
         assertThat(response.getEntity().toString(), is("OK"));
-        List<Object> contentLengthResponse = response.getMetadata().get(HttpHeaders.CONTENT_TYPE);
-        assertThat(contentLengthResponse.size(), is(1));
-        assertThat(contentLengthResponse.get(0).toString(), is("text/plain"));
     }
 
     @Test
-    public void handle_redirect_allowed() throws Exception {
+    public void handle_redirect_allowed() {
         final String data = "person";
         final String help = null;
         final String nnew = null;
@@ -296,7 +272,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_redirect_is_ignored() throws Exception {
+    public void handle_redirect_is_ignored() {
         final String data = "person";
         final String help = null;
         final String nnew = null;
@@ -313,7 +289,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_multipart_post() throws Exception {
+    public void handle_multipart_post() {
         final String data = "person:   Ed Shryane\n" +
                 "address:  Ripe NCC Singel 258\n" +
                 "phone:    +31-61238-2827\n" +
@@ -353,7 +329,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_multipart_post_invalid_sso_token() throws Exception {
+    public void handle_multipart_post_invalid_sso_token() {
         final String data = "person:   Ed Shryane\n" +
                 "address:  Ripe NCC Singel 258\n" +
                 "phone:    +31-61238-2827\n" +
@@ -393,7 +369,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void log_callback() throws Exception {
+    public void log_callback() throws IOException {
         final String message = "message";
         final OutputStream outputStream = mock(OutputStream.class);
 
@@ -404,7 +380,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void request_to_string() throws Exception {
+    public void request_to_string() {
         SyncUpdatesService.Request request = new SyncUpdatesService.Request.RequestBuilder()
                 .setData("person: name\naddress: Singel 258")
                 .setNew("no")

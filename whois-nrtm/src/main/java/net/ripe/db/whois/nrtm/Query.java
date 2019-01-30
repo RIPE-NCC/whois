@@ -1,15 +1,14 @@
 package net.ripe.db.whois.nrtm;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 @Immutable
 public class Query {
@@ -29,16 +28,22 @@ public class Query {
 
     private final OptionSet options;
     private final String supportedSource;
+    private final String supportedNonAuthSource;
 
+    private String source;
     private int version;
     private int serialBegin;
     private int serialEnd;
     private QueryArgument queryArgument;
 
     public Query(final String supportedSource, final String queryString) {
-        this.supportedSource = supportedSource;
-        options = PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class));
+        this(supportedSource, null, queryString);
+    }
 
+    public Query(final String source, final String nonAuthSource, final String queryString) {
+        this.supportedSource = source;
+        this.supportedNonAuthSource = nonAuthSource;
+        this.options = parseOptions(queryString);
         validateAndParseQuery();
     }
 
@@ -72,8 +77,10 @@ public class Query {
         try {
             Iterator<String> streamInfo = COLON_SPLITTER.split((String) options.valueOf("g")).iterator();
 
-            final String source = streamInfo.next();
-            if (!supportedSource.equalsIgnoreCase(source)) {
+            source = streamInfo.next();
+            if (!supportedSource.equalsIgnoreCase(source) &&
+                    (StringUtils.isNotEmpty(supportedNonAuthSource) &&
+                        !supportedNonAuthSource.equalsIgnoreCase(source))) {
                 throw new IllegalArgumentException("%ERROR:403: unknown source " + source);
             }
 
@@ -101,6 +108,14 @@ public class Query {
         } catch (NoSuchElementException e) {
             throw new IllegalArgumentException("%ERROR:405: syntax error", e);
         }
+    }
+
+    private OptionSet parseOptions(final String queryString) {
+        return PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class));
+    }
+
+    public String getSource() {
+        return source;
     }
 
     public int getSerialBegin() {

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationTest {
+
     @Autowired RpslObjectsExporter rpslObjectsExporter;
     @Autowired SourceContext sourceContext;
 
@@ -42,6 +43,8 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
     }
 
     Set<RpslObject> objects;
+
+    private final static Set<ObjectType> NON_AUTH_TYPES = Sets.immutableEnumSet(ObjectType.AUT_NUM, ObjectType.ROUTE, ObjectType.ROUTE6);
 
     @Before
     public void setupServer() {
@@ -449,4 +452,37 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
             assertThat(contents, containsString(expectedContent));
         }
     }
+
+    @Test
+    public void export_mix_of_sources() throws IOException {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS252\n" +
+                "source:         TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS251\n" +
+                "source:         TEST-NONAUTH"));
+
+        sourceContext.removeCurrentSource();
+
+        rpslObjectsExporter.export();
+
+        assertThat(tmpDir.exists(), is(false));
+        assertThat(exportDir.exists(), is(true));
+
+        for (final ObjectType objectType : ObjectType.values()) {
+            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
+            checkFile("internal/split/ripe.db." + objectType.getName() + ".gz");
+            if (NON_AUTH_TYPES.contains(objectType)) {
+                checkFile("dbase/split/ripe-nonauth.db." + objectType.getName() + ".gz");
+                checkFile("internal/split/ripe-nonauth.db." + objectType.getName() + ".gz");
+            }
+        }
+
+
+
+        checkFile("dbase/split/ripe.db.aut-num.gz", "aut-num:        AS252");
+        checkFile("dbase/split/ripe-nonauth.db.aut-num.gz", "aut-num:        AS251");
+    }
+
 }

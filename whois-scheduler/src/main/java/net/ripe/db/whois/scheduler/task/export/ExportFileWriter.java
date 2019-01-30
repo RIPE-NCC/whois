@@ -26,35 +26,46 @@ public class ExportFileWriter {
     private final File baseDir;
     private final FilenameStrategy filenameStrategy;
     private final DecorationStrategy decorationStrategy;
+    private final ExportFilter exportFilter;
     private final Map<String, Writer> writerMap = Maps.newHashMap();
 
-    public ExportFileWriter(final File baseDir, final FilenameStrategy filenameStrategy, final DecorationStrategy decorationStrategy) {
+    public ExportFileWriter(final File baseDir,
+                            final FilenameStrategy filenameStrategy,
+                            final DecorationStrategy decorationStrategy,
+                            final ExportFilter exportFilter) {
         this.baseDir = baseDir;
         this.filenameStrategy = filenameStrategy;
         this.decorationStrategy = decorationStrategy;
+        this.exportFilter = exportFilter;
 
         for (final ObjectType objectType : ObjectType.values()) {
             final String filename = filenameStrategy.getFilename(objectType);
-            try {
-                getWriter(filename);
-            } catch (IOException e) {
-                throw new RuntimeException("Initializing: " + filename, e);
+            if (filename != null) {
+                try {
+                    getWriter(filename);
+                } catch (IOException e) {
+                    throw new RuntimeException("Initializing: " + filename, e);
+                }
             }
         }
     }
 
     public void write(final RpslObject object, final List<Tag> tags) throws IOException {
-        final String filename = filenameStrategy.getFilename(object.getType());
-        final Writer writer = getWriter(filename);
+        if (exportFilter.shouldExport(object)) {
+            final String filename = filenameStrategy.getFilename(object.getType());
+            if (filename != null) {
+                final Writer writer = getWriter(filename);
 
-        final RpslObject decoratedObject = decorationStrategy.decorate(object);
-        if (decoratedObject != null) {
-            writer.write('\n');
-            decoratedObject.writeTo(writer);
+                final RpslObject decoratedObject = decorationStrategy.decorate(object);
+                if (decoratedObject != null) {
+                    writer.write('\n');
+                    decoratedObject.writeTo(writer);
 
-            if (!tags.isEmpty()) {
-                writer.write('\n');
-                writer.write(new TagResponseObject(decoratedObject.getKey(), tags).toString());
+                    if (!tags.isEmpty()) {
+                        writer.write('\n');
+                        writer.write(new TagResponseObject(decoratedObject.getKey(), tags).toString());
+                    }
+                }
             }
         }
     }

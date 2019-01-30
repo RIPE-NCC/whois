@@ -712,6 +712,11 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
         query("--list-sources") =~ "TEST:3:N:0-0"
     }
 
+    def "--list-sources display nonauth source"() {
+        expect:
+        query("--list-sources") =~ "TEST:3:N:0-0\nTEST-NONAUTH:3:N:0-0\nTEST-GRS:3:N:0-0"
+    }
+
     // --version
 
     def "--version"() {

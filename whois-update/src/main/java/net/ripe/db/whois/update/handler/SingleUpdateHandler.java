@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -37,26 +36,29 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 
 @Component
 public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
-    private final AttributeGenerator[] attributeGenerators;
+    private final List<AttributeGenerator> attributeGenerators;
     private final Transformer[] transformers;
     private final RpslObjectDao rpslObjectDao;
     private final UpdateLockDao updateLockDao;
     private final Authenticator authenticator;
     private final UpdateObjectHandler updateObjectHandler;
     private final IpTreeUpdater ipTreeUpdater;
-    private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
 
+    @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.nonauth.source}')}")
+    private CIString nonAuthSource;
+
     @Autowired
-    public SingleUpdateHandler(final AttributeGenerator[] attributeGenerators,
+    public SingleUpdateHandler(final List<AttributeGenerator> attributeGenerators,
                                final Transformer[] transformers,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
@@ -64,9 +66,10 @@ public class SingleUpdateHandler {
                                final UpdateObjectHandler updateObjectHandler,
                                final RpslObjectDao rpslObjectDao,
                                final IpTreeUpdater ipTreeUpdater,
-                               final PendingUpdateHandler pendingUpdateHandler,
                                final SsoTranslator ssoTranslator) {
         this.attributeGenerators = attributeGenerators;
+        // sort AttributeGenerators so they are executed in a predictable order
+        this.attributeGenerators.sort((lhs, rhs) -> lhs.getClass().getName().compareToIgnoreCase(rhs.getClass().getName()));
         this.transformers = transformers;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
@@ -74,7 +77,6 @@ public class SingleUpdateHandler {
         this.authenticator = authenticator;
         this.updateObjectHandler = updateObjectHandler;
         this.ipTreeUpdater = ipTreeUpdater;
-        this.pendingUpdateHandler = pendingUpdateHandler;
         this.ssoTranslator = ssoTranslator;
     }
 
@@ -135,11 +137,8 @@ public class SingleUpdateHandler {
         // re-generate preparedUpdate
         preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
-        // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
-        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION == updateContext.getStatus(preparedUpdate);
-
-        if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {
+        if ((!businessRulesOk) || (updateContext.hasErrors(update))) {
             throw new UpdateFailedException();
         }
 
@@ -149,20 +148,9 @@ public class SingleUpdateHandler {
 
         if (updateContext.isDryRun() && !updateContext.isBatchUpdate()) {
             throw new UpdateAbortedException();
-        } else if (pendingAuthentication) {
-            pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
-            if (eligibleForPendingUpdateCleanup(preparedUpdate, updateContext)) {
-                pendingUpdateHandler.cleanup(preparedUpdate.getUpdatedObject());
-            }
         }
-    }
-
-    private boolean eligibleForPendingUpdateCleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
-        return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
-                Action.CREATE == preparedUpdate.getAction() &&
-                UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
     }
 
     @CheckForNull
@@ -204,11 +192,6 @@ public class SingleUpdateHandler {
 
         if (RpslObjectFilter.isFiltered(updatedObject)) {
             updateContext.addMessage(update, UpdateMessages.filteredNotAllowed());
-        }
-
-        final CIString objectSource = updatedObject.getValueOrNullForAttribute(AttributeType.SOURCE);
-        if (objectSource != null && !source.equals(objectSource)) {
-            updateContext.addMessage(update, UpdateMessages.unrecognizedSource(objectSource.toUpperCase()));
         }
 
         if (Operation.DELETE.equals(update.getOperation())) {

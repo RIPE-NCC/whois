@@ -1165,6 +1165,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             createResource("entities?fn=T%EBst%20Person3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
+            fail();
         } catch (NotFoundException e) {
             // expected - Jetty uses UTF-8 when decoding characters, not latin1
         }
