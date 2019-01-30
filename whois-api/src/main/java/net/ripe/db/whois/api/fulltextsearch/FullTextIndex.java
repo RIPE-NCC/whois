@@ -271,9 +271,9 @@ public class FullTextIndex extends RebuildableIndex {
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
-              document.add(new Field(attribute.getKey(), normaliseAttributeValue(attribute.getValue()), NOT_INDEXED_NOT_TOKENIZED));
+              document.add(new Field(attribute.getKey(), sanitise(filterAttribute(attribute.getValue().trim())), NOT_INDEXED_NOT_TOKENIZED));
             } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                document.add(new Field(attribute.getKey(), normaliseAttributeValue(attribute.getValue()), INDEXED_AND_TOKENIZED));
+                document.add(new Field(attribute.getKey(), sanitise(attribute.getValue().trim()), INDEXED_AND_TOKENIZED));
             }
         }
 
@@ -282,11 +282,16 @@ public class FullTextIndex extends RebuildableIndex {
         indexWriter.addDocument(facetsConfig.build(taxonomyWriter, document));
     }
 
+    private static String sanitise(final String value) {
+        // TODO: [ES] also strips newlines, attribute cannot be re-constructed later
+        return CharMatcher.javaIsoControl().removeFrom(value);
+    }
+
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
         indexWriter.deleteDocuments(new Term(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId())));
     }
 
-    private String normaliseAttributeValue(final String value) {
+    private String filterAttribute(final String value) {
         if (value.toLowerCase().startsWith("md5-pw")) {
             return "MD5-PW";
         }
@@ -295,11 +300,7 @@ public class FullTextIndex extends RebuildableIndex {
             return "SSO";
         }
 
-        return sanitise(value);
-    }
-
-    private static String sanitise(final String value) {
-        return CharMatcher.javaIsoControl().removeFrom(value);
+        return value;
     }
 
     final class DatabaseObjectProcessor implements Runnable {
