@@ -11,11 +11,12 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
     //FIXME [TP] this workaround with the authenticator and the principalsMap is a hack to...
     //FIXME [TP] ...temporarilly allow hierarchical *mail*updates with power maintainers. Do not replicate this logic.
 
-    static net.ripe.db.whois.update.authentication.Authenticator authenticator;
-    static Map principalsMap;
+    static net.ripe.db.whois.update.authentication.Authenticator authenticator
+    static Map principalsMap
 
     def setupSpec(){
-        authenticator = getApplicationContext().getBean(net.ripe.db.whois.update.authentication.Authenticator.class);
+        resetTime()
+        authenticator = getApplicationContext().getBean(net.ripe.db.whois.update.authentication.Authenticator.class)
         principalsMap = ReflectionTestUtils.getField(authenticator, "principalsMap")
     }
 
@@ -24,11 +25,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     private static void clearPowerMaintainers() {
-        ReflectionTestUtils.setField(authenticator, "principalsMap", Collections.emptyMap());
+        ReflectionTestUtils.setField(authenticator, "principalsMap", Collections.emptyMap())
     }
 
     private static void restorePowerMaintainers() {
-        ReflectionTestUtils.setField(authenticator, "principalsMap", principalsMap);
+        ReflectionTestUtils.setField(authenticator, "principalsMap", principalsMap)
     }
 
   @Override
@@ -199,6 +200,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "inline pgp signed mailupdate"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-18T17:06:50")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-AAAAAAAA       # primary key doesn't match public key id
@@ -282,10 +285,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 1, 0)
+      ack.countErrorWarnInfo(0, 0, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Message was signed more than one week ago"]
   }
 
   def "inline pgp signed mailupdate with DSA key and RIPEMD160 Hash"() {
@@ -400,6 +401,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "inline pgp signed syncupdate"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-18T17:12:27")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-AAAAAAAA       # primary key doesn't match public key id
@@ -478,6 +481,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "inline pgp signed syncupdate including spaces and extra header lines"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-18T17:15:43")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -515,6 +520,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "inline pgp signed mailupdate with extra empty lines in content"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-18T17:15:43")) // current time must be within 1 hour of signing time
+
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -564,10 +572,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 1, 0)
+      ack.countErrorWarnInfo(0, 0, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Message was signed more than one week ago"]
   }
 
   def "inline pgp signed mailupdate with invalid keycert referenced by mntner"() {
@@ -618,6 +624,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "inline pgp signed syncupdate with SHA512 hash"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-18T17:30:38")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -654,6 +662,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "inline pgp signed syncupdate with 4096 bit public key"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-18T17:31:42")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-E7220D0A
@@ -760,8 +770,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "inline pgp signed mailupdate signed by second subkey"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-11T13:00:00"))
     when:
-      setTime(new LocalDateTime(2013, 1, 11, 13, 0))
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
                 method:         PGP
@@ -1093,6 +1104,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "inline pgp signed mailupdate when maintainer has multiple pgp auth lines"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-18T17:45:48")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-AAAAAAAA       # primary key doesn't match public key id 5763950D
@@ -1220,13 +1233,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 1, 0)
+      ack.countErrorWarnInfo(0, 0, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Message was signed more than one week ago"]
   }
 
   def "inline pgp signed mailupdate with double pgp signed update"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-18T17:50:33")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-81CCF97D
@@ -1326,10 +1339,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 1, 0)
+      ack.countErrorWarnInfo(0, 0, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Message was signed more than one week ago"]
   }
 
   @Ignore("TODO")
@@ -1395,6 +1406,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "multipart mixed pgp signed message with base64 encoded signature part"() {
+    given:
+      setTime(LocalDateTime.parse("2014-09-22T17:33:40")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -1453,6 +1466,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "multipart alternative pgp signed message"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-02T16:53:25")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -1535,14 +1550,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 2, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute has been removed.",
-                "Message was signed more than one week ago"]
+                "Deprecated attribute \"changed\". This attribute has been removed."]
   }
 
   def "multipart plaintext pgp signed message"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-03T09:17:29")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -1606,14 +1622,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 2, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-        "Deprecated attribute \"changed\". This attribute has been removed.",
-        "Message was signed more than one week ago"]
+        "Deprecated attribute \"changed\". This attribute has been removed."]
   }
 
   def "multipart plaintext pgp signed message with unknown encoding"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-08T15:05:05")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -1802,6 +1819,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "multipart alternative X509 signed message"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-03T09:32:01")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       AUTO-1
@@ -1935,14 +1954,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 2, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute has been removed.",
-                "Message was signed more than one week ago"]
+                "Deprecated attribute \"changed\". This attribute has been removed."]
   }
 
   def "multipart plaintext X509 signed message"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-03T09:33:44")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       AUTO-1
@@ -2059,11 +2079,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 2, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute has been removed.",
-                "Message was signed more than one week ago"]
+                "Deprecated attribute \"changed\". This attribute has been removed."]
   }
 
   def "multipart plaintext X509 signed message when maintainer only has pgp keycert"() {
@@ -2563,6 +2582,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "multipart plaintext x509 signed message keycert is expired"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-11T14:27:09")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:     AUTO-1
@@ -2641,11 +2662,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
     then:
       def ack = ackFor message
 
-      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.contents =~ "Warning: Certificate in keycert X509-1 has expired"
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Error:   Certificate in keycert X509-1 has expired"
   }
 
   def "multipart plaintext x509 signed message keycert is not yet valid"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-11T12:40:44")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:     AUTO-1
@@ -2729,8 +2752,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "multipart plaintext X509 signed message with hierarchical authentication"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-11T13:00:00"))
     when:
-      setTime(new LocalDateTime(2013, 1, 11, 13, 0))
       syncUpdate new SyncUpdate(data: """
                 key-cert:       AUTO-1
                 method:         X509
@@ -2773,7 +2797,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: hm")
 
-      clearPowerMaintainers();
+      clearPowerMaintainers()
 
       def message = send "From: noreply@ripe.net\n" +
               "Content-Type: multipart/signed; boundary=\"Apple-Mail=_93B09F74-BFD6-4EDB-9C10-C12CBBB1B61A\"; " +
@@ -2856,8 +2880,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "multipart plaintext PGP signed message with hierarchical authentication"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-11T13:00:00"))
     when:
-      setTime(new LocalDateTime(2013, 1, 11, 13, 0))
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
@@ -2867,7 +2892,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: hm")
-      clearPowerMaintainers();
+      clearPowerMaintainers()
     then:
       def message = send "From: noreply@ripe.net\n" +
               "Content-Type: multipart/signed; boundary=\"Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB\"; " +
@@ -2930,8 +2955,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "multipart plaintext PGP signed syncupdate with hierarchical authentication"() {
+    given:
+      setTime(LocalDateTime.parse("2013-04-08T17:00:29"))
     when:
-      setTime(new LocalDateTime(2013, 1, 11, 13, 0))
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-E06D7E01
                 method:         PGP
@@ -3005,6 +3031,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "multipart plaintext PGP signed message with hierarchical authentication and different signers"() {
+    given:
+      setTime(LocalDateTime.parse("2013-01-08T16:09:06")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -3014,7 +3042,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: hm")
-      clearPowerMaintainers();
+      clearPowerMaintainers()
 
     then:
           def message = send  "From: inetnum@ripe.net\n" +
@@ -3091,6 +3119,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "inline plaintext PGP signed message with obsolete application/pgp content-type"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-20T15:22:20")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -3138,10 +3168,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 1, 0)
+      ack.countErrorWarnInfo(0, 0, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Message was signed more than one week ago"]
   }
 
   def "pgp signed message with public key attached is not supported"() {
@@ -3242,7 +3270,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "=APKb\n" +
               "-----END PGP SIGNATURE-----\n" +
               "\n" +
-              "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG--";
+              "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG--"
 
     then:
       def ack = ackFor message
@@ -3253,6 +3281,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "PGP signed mailupdate with non-ASCII character succeeds"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-20T15:13:56")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -3331,6 +3361,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "pgp signed multipart/mixed nested part"() {
+    given:
+      setTime(LocalDateTime.parse("2016-03-31T17:25:15")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
