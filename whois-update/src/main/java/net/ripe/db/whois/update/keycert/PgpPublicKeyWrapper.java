@@ -40,6 +40,8 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
     private static final String PGP_FOOTER = "-----END PGP PUBLIC KEY BLOCK-----";
     private static final String METHOD = "PGP";
 
+    private static final Long SECONDS_IN_ONE_DAY = 60L * 60L * 24L;
+
     private static final Provider PROVIDER = new BouncyCastleProvider();
 
     private final PGPPublicKey masterKey;
@@ -71,20 +73,12 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
                     final PGPPublicKey key = keyIterator.next();
                     if (key.isMasterKey()) {
                         if (masterKey == null) {
-                            if (key.hasRevocation()) {
-                                throw new IllegalArgumentException("The supplied key is revoked");
-                            }
-
                             masterKey = key;
                         } else {
                             throw new IllegalArgumentException("The supplied object has multiple keys");
                         }
                     } else {
                         if (masterKey == null) {
-                            continue;
-                        }
-
-                        if (key.hasRevocation()) {
                             continue;
                         }
 
@@ -186,13 +180,18 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
     }
 
     public boolean isExpired(final DateTimeProvider dateTimeProvider) {
-        final int validDays = masterKey.getValidDays();
-        if (validDays > 0) {
-            final LocalDateTime expired = (new LocalDateTime(masterKey.getCreationTime())).plusDays(validDays);
+        final long validSeconds = masterKey.getValidSeconds();
+        if (validSeconds > 0) {
+            final int days = Long.valueOf(Long.divideUnsigned(validSeconds, SECONDS_IN_ONE_DAY)).intValue();
+            final LocalDateTime expired = (new LocalDateTime(masterKey.getCreationTime())).plusDays(days);
             return expired.isBefore(dateTimeProvider.getCurrentDateTime());
         }
 
         return false;
+    }
+
+    public boolean isRevoked() {
+        return masterKey.hasRevocation();
     }
 
     @Override
