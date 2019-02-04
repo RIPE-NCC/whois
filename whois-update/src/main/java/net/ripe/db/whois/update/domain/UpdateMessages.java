@@ -482,11 +482,11 @@ public final class UpdateMessages {
     }
 
     public static Message certificateHasExpired(final CharSequence name) {
-        return new Message(Type.WARNING, "Certificate in keycert %s has expired", name);
+        return new Message(Type.ERROR, "Certificate in keycert %s has expired", name);
     }
 
     public static Message publicKeyHasExpired(final CharSequence name) {
-        return new Message(Type.WARNING, "Public key in keycert %s has expired", name);
+        return new Message(Type.ERROR, "Public key in keycert %s has expired", name);
     }
 
     public static Message cannotCreateOutOfRegionObject(final ObjectType objectType) {
