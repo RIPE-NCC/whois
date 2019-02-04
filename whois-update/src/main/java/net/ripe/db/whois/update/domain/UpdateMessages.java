@@ -505,8 +505,8 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Specified origin AS number %d is allocated to the RIPE region but doesn't exist in the RIPE database", asNumber);
     }
 
-    public static Message messageSignedMoreThanOneWeekAgo() {
-        return new Message(Type.WARNING, "Message was signed more than one week ago");
+    public static Message messageSignedMoreThanOneHourAgo() {
+        return new Message(Type.ERROR, "Message was signed more than one hour ago");
     }
 
     public static Message eitherSimpleOrComplex(final ObjectType objectType, final CharSequence simple, final CharSequence complex) {

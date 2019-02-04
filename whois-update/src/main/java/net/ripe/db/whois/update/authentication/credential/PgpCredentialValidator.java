@@ -68,7 +68,7 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential> {
             }
 
             if (!offeredCredential.verifySigningTime(dateTimeProvider)) {
-                updateContext.addMessage(update, UpdateMessages.messageSignedMoreThanOneWeekAgo());
+                updateContext.addMessage(update, UpdateMessages.messageSignedMoreThanOneHourAgo());
             }
 
             return true;
