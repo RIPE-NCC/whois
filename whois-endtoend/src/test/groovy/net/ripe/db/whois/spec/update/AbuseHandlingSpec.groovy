@@ -1,4 +1,5 @@
 package net.ripe.db.whois.spec.update
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -728,6 +729,63 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 "Authorisation override used"]
 
         query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127", "abuse-c")
+    }
+
+    def "create ASSIGNED PA, then modify, duplicate abuse-c"() {
+      given:
+      expect:
+        query_object_matches("-r -T role AH1-TEST", "role", "Abuse Handler", "abuse-mailbox:")
+
+      when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.127
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP2-TEST
+                abuse-c:      AH1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                override:   denis,override1
+
+                inetnum:      192.168.200.0 - 192.168.200.127
+                netname:      TEST-NET-NAME
+                descr:        TEST network updated
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP2-TEST
+                abuse-c:      AH1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                password:   lir
+
+                """.stripIndent()
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 2
+        ack.summary.assertSuccess(2, 1, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 2, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
+                "Authorisation override used"]
+        ack.warningSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
+                "Duplicate abuse-c \"AH1-TEST\" also found in referenced organisation \"ORG-LIRA-TEST\"."]
+
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
+                "Duplicate abuse-c \"AH1-TEST\" also found in referenced organisation \"ORG-LIRA-TEST\"."]
     }
 
     def "create ROLE, with abuse-mailbox, self ref"() {
