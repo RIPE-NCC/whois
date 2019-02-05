@@ -2378,7 +2378,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
       // warning on certificate expired should NOT appear if the keycert doesn't authorise the update
-      !(ack.contents =~ "Warning: Certificate in keycert X509-1 has expired")
+      !(ack.contents =~ "Certificate in keycert X509-1 has expired")
   }
 
   def "multipart plaintext x509 signed message update fails when keycert is missing"() {
