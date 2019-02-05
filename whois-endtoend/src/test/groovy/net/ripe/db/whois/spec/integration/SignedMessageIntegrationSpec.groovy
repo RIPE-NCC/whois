@@ -195,6 +195,67 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:         OWNER-MNT
                 source:         TEST
+                """,
+            "PGPKEY-C88CA438": """\
+                key-cert:       PGPKEY-C88CA438
+                method:         PGP
+                owner:          Expired <expired@ripe.net>
+                fingerpr:       610A 2457 2BA3 A575 5F85  4DD8 5E62 6C72 C88C A438
+                certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:         Version: GnuPG v1.4.12 (Darwin)
+                certif:         Comment: GPGTools - http://gpgtools.org
+                certif:
+                certif:         mI0EUOoKSgEEAMvJBJzUBKDA8BGK+KpJMuGSOXnQgvymxgyOUOBVkLpeOcPQMy1A
+                certif:         4fffXJ4V0xdlqtikDATCnSIBS17ihi7xD8fUvKF4dJrq+rmaVULoy06B68IcfYKQ
+                certif:         yoRJqGii/1Z47FuudeJp1axQs1JER3OJ64IHuLblFIT7oS+YWBLopc1JABEBAAG0
+                certif:         GkV4cGlyZWQgPGV4cGlyZWRAcmlwZS5uZXQ+iL4EEwECACgFAlDqCkoCGwMFCQAB
+                certif:         UYAGCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJEF5ibHLIjKQ4tEMD/j8VYxdY
+                certif:         V6JM8rDokg+zNE4Ifc7nGaUrsrF2YRmcIg6OXVhPGLIqfQB2IsKub595sA1vgwNs
+                certif:         +Cg0tzaQfzWh2Nz5NxFGnDHm5tPfOfiADwpMuLtZby390Wpbwk7VGZMqfcDXt3uy
+                certif:         Ch4rvayDTtzQqDVqo1kLgK5dIc/UIlX3jaxWuI0EUOoKSgEEANYcEMxrEGD4LSgk
+                certif:         vHVECSOB0q32CN/wSrvVzL6hP8RuO0gwwVQH1V8KCYiY6kDEk33Qb4f1bTo+Wbi6
+                certif:         9yFvn1OvLh3/idb3U1qSq2+Y6Snl/kvgoVJQuS9x1NePtCYL2kheTAGiswg6CxTF
+                certif:         RZ3c7CaNHsCbUdIpQmNUxfcWBH3PABEBAAGIpQQYAQIADwUCUOoKSgIbDAUJAAFR
+                certif:         gAAKCRBeYmxyyIykON13BACeqmXZNe9H/SK2AMiFLIx2Zfyw/P0cKabn3Iaan7iF
+                certif:         kSwrZQhF4571MBxb9U41Giiyza/t7vLQH1S+FYFUqfWCa8p1VQDRavi4wDgy2PDp
+                certif:         ouhDqH+Mfkqb7yv40kYOUJ02eKkdgSgwTEcpfwq9GU4kJLVO5O3Y3nOEAx736gPQ
+                certif:         xw==
+                certif:         =XcVO
+                certif:         -----END PGP PUBLIC KEY BLOCK-----
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                """,
+            "PGPKEY-8947C26B": """\
+                key-cert:       PGPKEY-8947C26B
+                method:         PGP
+                owner:          Test User <revoked@ripe.net>
+                fingerpr:       610A 2457 2BA3 A575 5F85  4DD8 5E62 6C72 C88C A438
+                certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:         Comment: GPGTools - http://gpgtools.org
+                certif:         
+                certif:         mI0EXFm2FwEEALc4QJzSrefgg33AOHhS45L2kbSNTcXNVmVfk5ra2h3kr9ia8C5I
+                certif:         yLBz78108XD+0QwdMM3/acaJPqUxOkVzmwf5ydd1nJn1ZeLznfrSWnvb4DSxNGeU
+                certif:         yVm8j6I53Ay5WDEJWUu3XQzUHnqYeb3Fcwa5MjPzf8iBbFmdi6riLLBHABEBAAGI
+                certif:         tgQgAQgAIBYhBHSJUuDx58YlX1PWwpKhmKCJR8JrBQJcWbZ5Ah0AAAoJEJKhmKCJ
+                certif:         R8Jr6kkD/10EHYfhXVxwF5zeH6hMKEBQLYtJMo2fcK7055njT6PTS3tVWnjQ2UDB
+                certif:         8ExA34/LJuDXn19qZSpAM4NP2SwxpC8kPecvY+0Akdu3mwV8X525/A4eQ1l0+pF6
+                certif:         TL0gF9+kLLRyIg9Qbme1tf2734gu8JfKZek83O/9prv1xnsYz3ArtBxUZXN0IFVz
+                certif:         ZXIgPHJldm9rZWRAcmlwZS5uZXQ+iM4EEwEIADgWIQR0iVLg8efGJV9T1sKSoZig
+                certif:         iUfCawUCXFm2FwIbAwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgAAKCRCSoZigiUfC
+                certif:         a2BDBACEP9SlUsPCRcsAFlM/lg/7prXSLzZhi3gpVYKkEDKRafpBBa5XcfmoSSiY
+                certif:         r6hcwq5r5O0ezfLVi75VeZq+R8CsaSWDqp0FFS7n/2o87PIyZog0fyqrJIt/97Tn
+                certif:         mOpX1wWbFEBC25k52jUP10VA7jPDq12b/8BrqCSD+aD5y7rVR7iNBFxZthcBBADO
+                certif:         z3HfUAcmk/DeFOJWjYhUj/b0m+pAG/2PLEUrj9DelJeRwEa8dTUN1AaTdn5pvf2p
+                certif:         qPXPr9EHRSdhum5kFq4SkrEW9wYrvdfYVAs4UTCC/xjP6JDAYRWc153yzJaFeRk4
+                certif:         TZn76PA957bekHTKk1jwOgJmqQ+Mjpzv1IK4vZnvswARAQABiLYEGAEIACAWIQR0
+                certif:         iVLg8efGJV9T1sKSoZigiUfCawUCXFm2FwIbDAAKCRCSoZigiUfCa5mzA/sF3aZW
+                certif:         m2+4zh9w1qWHkARTu4aB8YzaT7cLihMYS94h/wzcJPbMDmhUJZNtVkKC2OEvaeSw
+                certif:         RpZrD3N2Cq5uuELopJhaDFpnKntc2NmmUn8P06gW0Ep1uyObPJfID/xDWznZH8SQ
+                certif:         357CfW0mENdBquWnAtGxABuv//JeCp0Ar3WkEg==
+                certif:         =Ofyo
+                certif:         -----END PGP PUBLIC KEY BLOCK-----
+                mnt-by:         OWNER-MNT
+                source:         TEST
                 """
     ]
   }
@@ -3598,6 +3659,89 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "***Error:   Authorisation for [person] FP1-TEST failed\n" +
               "            using \"mnt-by:\"\n" +
               "            not authenticated by: OWNER-MNT")
+  }
+
+  def "pgp signed message with expired key"() {
+    given:
+      setTime(LocalDateTime.parse("2019-02-05T17:02:00")) // current time must be within 1 hour of signing time
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-C88CA438\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA256
+                
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                -----BEGIN PGP SIGNATURE-----
+                Comment: GPGTools - http://gpgtools.org
+                
+                iMUEAQEIAC8WIQRhCiRXK6OldV+FTdheYmxyyIykOAUCXFmzeBEcZXhwaXJlZEBy
+                aXBlLm5ldAAKCRBeYmxyyIykOD52A/0RfF5+gnNrJEd4FhS9In/MDoBJi08C3pHp
+                q5wCuzwv9RP9vnN/pUSsNDfCYvOJnDLceBaceIvszpSfRxts73PwqFEA/KRcqmy1
+                0deBMOpFzP2z+LpMBPVRxrWPv2lEaaf5KGopThQOmrFXjYYsyuruf20UEtzMhWX2
+                cjfleMW4Xw==
+                =BT/+
+                -----END PGP SIGNATURE-----
+                """.stripIndent())
+    then:
+      def ack = ackFor message
+
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Public key in keycert PGPKEY-C88CA438 has expired"
+  }
+
+  def "pgp signed message with revoked key"() {
+    given:
+      setTime(LocalDateTime.parse("2019-02-05T17:02:00")) // current time must be within 1 hour of signing time
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-8947C26B\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA256
+                
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                -----BEGIN PGP SIGNATURE-----
+                Comment: GPGTools - http://gpgtools.org
+                
+                iLMEAQEIAB0WIQR0iVLg8efGJV9T1sKSoZigiUfCawUCXFm2NAAKCRCSoZigiUfC
+                a6pyBACKVnh3pmxhhanWEY2YpCSXRB12YHlOgXmNtrPgDuGmYta9qUHDiH0OM30P
+                SvWG48UXXDc+eH3UmjJOuPM1AJ6Ms3totvdxDj1QkSzckkrVqxbz5UZ0bnfxea6O
+                XttJxq5FbaSzl1IR7FYu9kT8afqKm45R1mjogG35tp2J5ApX4Q==
+                =5zUI
+                -----END PGP SIGNATURE-----
+                """.stripIndent())
+    then:
+      def ack = ackFor message
+
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Public key in keycert PGPKEY-8947C26B is revoked"
   }
 
   def "pgp signed multipart/mixed nested part"() {

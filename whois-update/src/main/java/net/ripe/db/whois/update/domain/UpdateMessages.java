@@ -489,6 +489,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Public key in keycert %s has expired", name);
     }
 
+    public static Message publicKeyIsRevoked(final CharSequence name) {
+        return new Message(Type.ERROR, "Public key in keycert %s is revoked", name);
+    }
+
     public static Message cannotCreateOutOfRegionObject(final ObjectType objectType) {
         return new Message(Type.ERROR, "Cannot create out of region %s objects", objectType.getName());
     }
