@@ -478,7 +478,7 @@ public final class UpdateMessages {
     }
 
     public static Message certificateNotYetValid(final CharSequence name) {
-        return new Message(Type.WARNING, "Certificate in keycert %s is not yet valid", name);
+        return new Message(Type.ERROR, "Certificate in keycert %s is not yet valid", name);
     }
 
     public static Message certificateHasExpired(final CharSequence name) {

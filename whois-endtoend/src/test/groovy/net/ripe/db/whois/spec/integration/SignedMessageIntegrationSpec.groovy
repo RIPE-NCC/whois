@@ -2749,8 +2749,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
     then:
       def ack = ackFor message
 
-      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.contents =~ "Warning: Certificate in keycert X509-1 is not yet valid"
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Error:   Certificate in keycert X509-1 is not yet valid"
   }
 
   def "multipart plaintext X509 signed message with hierarchical authentication"() {
