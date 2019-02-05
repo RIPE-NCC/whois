@@ -3744,6 +3744,51 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "Public key in keycert PGPKEY-8947C26B is revoked"
   }
 
+  def "pgp signed message has expired"() {
+    given:
+      setTime(LocalDateTime.parse("2019-02-05T18:38:00")) // current time is >1 hour after signing time
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA256
+                
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                -----BEGIN PGP SIGNATURE-----
+                Comment: GPGTools - http://gpgtools.org
+                
+                iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAlxZu6IACgkQu8y7LVdj
+                lQ2+lgf/TbF6zpMUzfMEwT/bzHgpLuk5HcQ6x8d959WRIHYmpf/835T8I4E57l9Q
+                HfmMQfJ18H3emZeUro1FoiR9Zn5yfuoufJLjKgZDubJEteOfGiPn5qSb6+qGUs+l
+                Gyx36Y7McqQBhXx1GOX4yPY92yceXVQjBrEzFnZactF8Nw1Qcd+wzUvJ1Wkp9427
+                6Sh5KrTwrZv7GzU7LFFpg4zjIdg/kw2KAYykVjlgJduDOmKbZr0Bg/zVL2kgTPId
+                iWmi1ezPchI/egyWOk4LhQUo5pt6Umz0filn4biM/D7eJQltShzKH+0GZNYBe2g7
+                9RtMtNMzojs5RXER+S8U07RhVgYtrg==
+                =yqKe
+                -----END PGP SIGNATURE-----
+                """.stripIndent())
+    then:
+      def ack = ackFor message
+
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Message was signed more than one hour ago"
+  }
+
+
   def "pgp signed multipart/mixed nested part"() {
     given:
       setTime(LocalDateTime.parse("2016-03-31T17:25:15")) // current time must be within 1 hour of signing time
@@ -3811,6 +3856,5 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       def ack = ackFor message
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
-
 
 }
