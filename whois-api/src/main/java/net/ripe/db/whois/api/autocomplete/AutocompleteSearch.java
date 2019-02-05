@@ -28,11 +28,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -42,6 +44,8 @@ public class AutocompleteSearch {
 
     // results will always be sorted by lookup key (which is case sensitive, and by string value)
     private static final Sort SORT_BY_LOOKUP_KEY = new Sort(new SortField(FullTextIndex.LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
+
+    private static final Pattern COMMENT_PATTERN = Pattern.compile("#.*");
 
     private static final int MAX_SEARCH_RESULTS = 10;
 
@@ -88,9 +92,9 @@ public class AutocompleteSearch {
                                 ObjectType.getByName(doc.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME)));
 
                         if (template.getMultipleAttributes().contains(attribute)) {
-                            result.put(attribute.getName(), Lists.newArrayList(doc.getValues(attribute.getName())));
+                            result.put(attribute.getName(), filterComments(doc.getValues(attribute.getName())));
                         } else {
-                            result.put(attribute.getName(), doc.get(attribute.getName()));
+                            result.put(attribute.getName(), filterComment(doc.get(attribute.getName())));
                         }
                     }
 
@@ -99,6 +103,19 @@ public class AutocompleteSearch {
 
                 return results;
         });
+    }
+
+    @Nullable
+    private String filterComment(final String attributeValue) {
+        return (attributeValue == null) ? null : COMMENT_PATTERN.matcher(attributeValue).replaceFirst("").trim();
+    }
+
+    private List<String> filterComments(final String[] attributeValues) {
+        final List<String> response = Lists.newArrayListWithCapacity(attributeValues.length);
+        for (String attributeValue : attributeValues) {
+            response.add(filterComment(attributeValue));
+        }
+        return response;
     }
 
     // query by attribute(s)
