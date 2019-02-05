@@ -290,6 +290,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "inline pgp signed mailupdate with DSA key and RIPEMD160 Hash"() {
+    given:
+      setTime(LocalDateTime.parse("2015-11-18T17:06:50")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-E5F13570
@@ -771,7 +773,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
   def "inline pgp signed mailupdate signed by second subkey"() {
     given:
-      setTime(LocalDateTime.parse("2013-01-11T13:00:00"))
+      setTime(LocalDateTime.parse("2015-11-18T17:33:17")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
@@ -2753,7 +2755,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
   def "multipart plaintext X509 signed message with hierarchical authentication"() {
     given:
-      setTime(LocalDateTime.parse("2013-01-11T13:00:00"))
+      setTime(LocalDateTime.parse("2013-01-07T10:44:27")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       AUTO-1
@@ -2881,7 +2883,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
   def "multipart plaintext PGP signed message with hierarchical authentication"() {
     given:
-      setTime(LocalDateTime.parse("2013-01-11T13:00:00"))
+      setTime(LocalDateTime.parse("2013-01-07T10:48:20")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
