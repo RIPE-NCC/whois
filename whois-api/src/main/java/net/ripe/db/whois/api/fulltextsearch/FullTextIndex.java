@@ -283,6 +283,7 @@ public class FullTextIndex extends RebuildableIndex {
     }
 
     private static String sanitise(final String value) {
+        // TODO: [ES] also strips newlines, attribute cannot be re-constructed later
         return CharMatcher.javaIsoControl().removeFrom(value);
     }
 
