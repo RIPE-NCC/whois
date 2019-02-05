@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.transfer.logic;
+package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -6,8 +6,6 @@ import net.ripe.db.whois.api.autocomplete.AutocompleteService;
 import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
-import net.ripe.db.whois.api.transfer.AsnTransfersRestService;
-import net.ripe.db.whois.api.transfer.InetnumTransfersRestService;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -30,8 +28,6 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final WhoisSearchService whoisSearchService;
     private final WhoisVersionService whoisVersionService;
     private final SyncUpdatesService syncUpdatesService;
-    private final AsnTransfersRestService asnTransfersRestService;
-    private final InetnumTransfersRestService inetnumTransfersRestService;
     private final WhoisMetadata whoisMetadata;
     private final GeolocationService geolocationService;
     private final AbuseContactService abuseContactService;
@@ -48,8 +44,6 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final WhoisSearchService whoisSearchService,
                                 final WhoisVersionService whoisVersionService,
                                 final SyncUpdatesService syncUpdatesService,
-                                final AsnTransfersRestService asnTransfersRestService,
-                                final InetnumTransfersRestService inetnumTransfersRestService,
                                 final WhoisMetadata whoisMetadata,
                                 final GeolocationService geolocationService,
                                 final AbuseContactService abuseContactService,
@@ -64,8 +58,6 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.whoisSearchService = whoisSearchService;
         this.whoisVersionService = whoisVersionService;
         this.syncUpdatesService = syncUpdatesService;
-        this.asnTransfersRestService = asnTransfersRestService;
-        this.inetnumTransfersRestService = inetnumTransfersRestService;
         this.whoisMetadata = whoisMetadata;
         this.geolocationService = geolocationService;
         this.abuseContactService = abuseContactService;
@@ -90,8 +82,6 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(whoisSearchService);
         resourceConfig.register(whoisVersionService);
         resourceConfig.register(syncUpdatesService);
-        resourceConfig.register(asnTransfersRestService);
-        resourceConfig.register(inetnumTransfersRestService);
         resourceConfig.register(whoisMetadata);
         resourceConfig.register(geolocationService);
         resourceConfig.register(abuseContactService);
