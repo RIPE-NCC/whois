@@ -22,7 +22,7 @@ public class BaseNrtmServerPipelineFactoryTest extends AbstractNrtmIntegrationBa
     @Autowired private List<ChannelHandler> channelHandlers;
 
     @Test
-    public void testChannelHandlersAddedToPipeline() throws Exception {
+    public void testChannelHandlersAddedToPipeline() {
         final ChannelPipeline pipeline1 = nrtmServerPipelineFactory.getPipeline();
         final ChannelPipeline pipeline2 = nrtmServerPipelineFactory.getPipeline();
 

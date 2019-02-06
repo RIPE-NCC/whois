@@ -47,7 +47,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         databaseHelper.addObject(MNTNER);
         databaseHelper.addObjectToSource("1-GRS", MNTNER);
 
@@ -60,20 +60,20 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @After
-    public void after() throws Exception {
+    public void after() {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);
     }
 
 
     @Test
-    public void check_mntner_exists() throws Exception {
+    public void check_mntner_exists() {
         objectExists(ObjectType.MNTNER, "OWNER-MNT", true);
     }
 
 
     @Test
-    public void add_person_from_nrtm() throws Exception {
+    public void add_person_from_nrtm() {
         final RpslObject person = RpslObject.parse("" +
                 "person: One Person\n" +
                 "nic-hdl: OP1-TEST\n" +
@@ -87,7 +87,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void add_mntner_from_nrtm_gap_in_serials() throws Exception {
+    public void add_mntner_from_nrtm_gap_in_serials() {
         final RpslObject mntner = RpslObject.parse("" +
                 "mntner: TEST-MNT\n" +
                 "source: TEST");
@@ -108,14 +108,14 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void delete_maintainer_from_nrtm() throws Exception {
+    public void delete_maintainer_from_nrtm() {
         databaseHelper.deleteObject(MNTNER);
 
         objectExists(ObjectType.MNTNER, "OWNER-MNT", false);
     }
 
     @Test // and also check dummification remarks are set correctly
-    public void create_and_update_mntner_from_nrtm() throws Exception {
+    public void create_and_update_mntner_from_nrtm() {
 
         final RpslObject mntner = RpslObject.parse("" +
                 "mntner: TEST-MNT\n" +
@@ -140,7 +140,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void network_error() throws Exception {
+    public void network_error() {
         final RpslObject mntner1 = RpslObject.parse("" +
                 "mntner: TEST1-MNT\n" +
                 "mnt-by: OWNER-MNT\n" +
@@ -223,7 +223,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     private void objectMatches(final RpslObject rpslObject) {
         Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(new Callable<RpslObject>() {
             @Override
-            public RpslObject call() throws Exception {
+            public RpslObject call() {
                 try {
                     sourceContext.setCurrent(Source.master("1-GRS"));
                     return databaseHelper.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());

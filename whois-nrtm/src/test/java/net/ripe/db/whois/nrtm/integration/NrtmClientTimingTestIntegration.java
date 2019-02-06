@@ -56,7 +56,7 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
     }
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         databaseHelper.addObject(MNTNER);
         databaseHelper.updateObject(MNTNER_UPDATED);
 
@@ -73,7 +73,7 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
     }
 
     @After
-    public void after() throws Exception {
+    public void after() {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);
     }
