@@ -18,6 +18,7 @@ import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
@@ -96,18 +97,18 @@ public class X509SignedMessage {
         return builder.toString();
     }
 
+    // The signing time must be within an hour of the current time.
     public boolean verifySigningTime(final DateTimeProvider dateTimeProvider) {
         final LocalDateTime signingTime = getSigningTime();
-        if (signingTime != null) {
-            final LocalDateTime oneWeekAgo = dateTimeProvider.getCurrentDateTime().minusDays(7);
-            if (signingTime.isBefore(oneWeekAgo)) {
-                return false;
-            }
+        if (signingTime == null) {
+            return true;
         }
 
-        return true;
+        final LocalDateTime currentTime = dateTimeProvider.getCurrentDateTime();
+        return (signingTime.isAfter(currentTime.minusHours(1)) && signingTime.isBefore(currentTime.plusHours(1)));
     }
 
+    @Nullable
     private LocalDateTime getSigningTime() {
         try {
             CMSProcessable cmsProcessable = new CMSProcessableByteArray(signedData.getBytes());
@@ -126,6 +127,7 @@ public class X509SignedMessage {
         return null;
     }
 
+    @Nullable
     private LocalDateTime getSigningTime(final SignerInformation signerInformation) {
         final AttributeTable signedAttributes = signerInformation.getSignedAttributes();
         if (signedAttributes != null) {

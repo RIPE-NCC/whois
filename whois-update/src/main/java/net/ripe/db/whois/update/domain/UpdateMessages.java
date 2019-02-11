@@ -478,15 +478,19 @@ public final class UpdateMessages {
     }
 
     public static Message certificateNotYetValid(final CharSequence name) {
-        return new Message(Type.WARNING, "Certificate in keycert %s is not yet valid", name);
+        return new Message(Type.ERROR, "Certificate in keycert %s is not yet valid", name);
     }
 
     public static Message certificateHasExpired(final CharSequence name) {
-        return new Message(Type.WARNING, "Certificate in keycert %s has expired", name);
+        return new Message(Type.ERROR, "Certificate in keycert %s has expired", name);
     }
 
     public static Message publicKeyHasExpired(final CharSequence name) {
-        return new Message(Type.WARNING, "Public key in keycert %s has expired", name);
+        return new Message(Type.ERROR, "Public key in keycert %s has expired", name);
+    }
+
+    public static Message publicKeyIsRevoked(final CharSequence name) {
+        return new Message(Type.ERROR, "Public key in keycert %s is revoked", name);
     }
 
     public static Message cannotCreateOutOfRegionObject(final ObjectType objectType) {
@@ -505,8 +509,8 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Specified origin AS number %d is allocated to the RIPE region but doesn't exist in the RIPE database", asNumber);
     }
 
-    public static Message messageSignedMoreThanOneWeekAgo() {
-        return new Message(Type.WARNING, "Message was signed more than one week ago");
+    public static Message messageSignedMoreThanOneHourAgo() {
+        return new Message(Type.ERROR, "Message was signed more than one hour ago");
     }
 
     public static Message eitherSimpleOrComplex(final ObjectType objectType, final CharSequence simple, final CharSequence complex) {
