@@ -43,7 +43,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
     }
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         databaseHelper.addObject(MNTNER);
         databaseHelper.addObjectToSource("1-GRS", MNTNER);
         databaseHelper.addObjectToSource("2-GRS", MNTNER);
@@ -62,13 +62,13 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
     }
 
     @After
-    public void after() throws Exception {
+    public void after() {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);
     }
 
     @Test
-    public void add_mntner_from_nrtm() throws Exception {
+    public void add_mntner_from_nrtm() {
         final RpslObject mntner = RpslObject.parse("" +
                 "mntner: TEST-MNT\n" +
                 "mnt-by: OWNER-MNT\n" +
@@ -84,7 +84,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
     private void objectExists(final ObjectType type, final String key, final String source, final boolean exists) {
         Awaitility.waitAtMost(Duration.FOREVER).until(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
                 try {
                     sourceContext.setCurrent(Source.master(source));
                     databaseHelper.lookupObject(type, key);
