@@ -7,6 +7,9 @@
 [update] Warn the user if the resource abuse-c is identical to the organisation abuse-c (#520)
 [query] Filter out comment in Autocomplete response (#518)
 
+# 1.92.15
+[all] Abuse-c Validation schema changes.
+
 # 1.92.14
 [all] Test elliptic curve algorithms.
 [all] Updated inetnum placeholder for transfers (#516)
