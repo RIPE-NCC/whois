@@ -313,8 +313,7 @@ public class PgpPublicKeyWrapperTest {
 
     @Test
     public void isRevoked() {
-        try {
-            PgpPublicKeyWrapper.parse(
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
                     RpslObject.parse(
                             "key-cert:       PGPKEY-A48E76B2\n" +
                             "method:         PGP\n" +
@@ -346,10 +345,7 @@ public class PgpPublicKeyWrapperTest {
                             "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                             "mnt-by:         UPD-MNT\n" +
                             "source:         TEST"));
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("The supplied key is revoked"));
-        }
+        assertThat(subject.isRevoked(), is(true));
     }
 
     private String getResource(final String resourceName) throws IOException {
