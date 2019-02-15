@@ -1,5 +1,8 @@
 # next
 
+# 1.93.1
+[all] Rebuilt release to fix JavaMail dependency.
+
 # 1.93
 [all] Updated to Bouncy Castle 1.60 (supports Curve 25519)
 [all] Updated dependencies
