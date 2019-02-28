@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
-import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
 import org.apache.lucene.index.IndexWriter;
@@ -17,12 +16,15 @@ public abstract class RebuildableIndex {
 
     private final Semaphore updateLock = new Semaphore(1);
 
+    private final Semaphore searchLock;
+
     protected final String indexDir;
     protected IndexTemplate index;
 
-    protected RebuildableIndex(final Logger logger, final String indexDir) {
+    protected RebuildableIndex(final Logger logger, final String indexDir, final int maxConcurrentSearches) {
         this.logger = logger;
         this.indexDir = indexDir;
+        this.searchLock = new Semaphore(maxConcurrentSearches, true);
     }
 
     protected void init(final IndexWriterConfig config, final IndexTemplate.WriteCallback initializer) {
@@ -99,7 +101,14 @@ public abstract class RebuildableIndex {
             throw new IllegalStateException("Index not found.");
         }
 
-        return index.search(searchCallback);
+        try {
+            searchLock.acquire();
+            return index.search(searchCallback);
+        } catch (InterruptedException ie) {
+            throw new IllegalStateException(ie);
+        } finally {
+            searchLock.release();
+        }
     }
 
     protected abstract void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException;
