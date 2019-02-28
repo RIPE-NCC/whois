@@ -232,7 +232,7 @@ public class FullTextSearch {
 
             for (final IndexableField field : document.getFields()) {
                 try {
-                    final String highlightedValue = highlighter.getBestFragment(INDEX_ANALYZER, field.stringValue(), field.stringValue());
+                    final String highlightedValue = highlighter.getBestFragment(INDEX_ANALYZER, field.stringValue(), StringEscapeUtils.escapeHtml4(field.stringValue()));
                     if (highlightedValue != null) {
                         final SearchResponse.Arr arr = new SearchResponse.Arr(field.name());
                         arr.setStr(new SearchResponse.Str(null, highlightedValue));
