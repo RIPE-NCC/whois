@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
@@ -199,7 +200,7 @@ public class FullTextSearch {
             final List<SearchResponse.Str> attributes = Lists.newArrayList();
 
             for (final IndexableField field : document.getFields()) {
-                attributes.add(new SearchResponse.Str(field.name(), field.stringValue()));
+                attributes.add(new SearchResponse.Str(field.name(), StringEscapeUtils.escapeHtml4(field.stringValue())));
             }
 
             resultDocument.setStrs(attributes);
