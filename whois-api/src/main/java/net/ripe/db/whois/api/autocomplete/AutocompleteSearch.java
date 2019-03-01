@@ -136,25 +136,25 @@ public class AutocompleteSearch {
 
     // query by object type
     private Query constructQuery(final Set<ObjectType> objectTypes) {
-        final BooleanQuery result = new BooleanQuery();
+        final BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         for (ObjectType objectType : objectTypes) {
-            result.add(
+            builder.add(
                 new TermQuery(
                     new Term(FullTextIndex.OBJECT_TYPE_FIELD_NAME, objectType.getName())),
                     BooleanClause.Occur.SHOULD);
         }
 
-        return result;
+        return builder.build();
     }
 
     private Query combine(final Query ... queries) {
-        final BooleanQuery result = new BooleanQuery();
+        final BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         for (Query query : queries) {
-            result.add(query, BooleanClause.Occur.MUST);
+            builder.add(query, BooleanClause.Occur.MUST);
         }
 
-        return result;
+        return builder.build();
     }
 }
