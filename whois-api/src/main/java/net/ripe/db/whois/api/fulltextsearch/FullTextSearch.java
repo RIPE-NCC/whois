@@ -105,6 +105,9 @@ public class FullTextSearch {
         return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
     }
 
+    //
+    // TODO: only search in possibly value fields, according to query string
+    //
     public SearchResponse search(final SearchRequest searchRequest) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 

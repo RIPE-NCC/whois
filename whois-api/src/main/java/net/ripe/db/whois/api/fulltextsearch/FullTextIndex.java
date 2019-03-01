@@ -15,13 +15,16 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.IntField;
 import org.apache.lucene.facet.FacetField;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
+import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.util.BytesRef;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -65,9 +68,12 @@ public class FullTextIndex extends RebuildableIndex {
     private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
     private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
 
-    private static final FieldType INDEXED_AND_TOKENIZED;
-    private static final FieldType INDEXED_NOT_TOKENIZED;
-    private static final FieldType NOT_INDEXED_NOT_TOKENIZED;
+    private static final FieldType OBJECT_TYPE_FIELD_TYPE;
+    private static final FieldType PRIMARY_KEY_FIELD_TYPE;
+    private static final FieldType LOOKUP_KEY_FIELD_TYPE;
+    private static final FieldType FILTERED_ATTRIBUTE_FIELD_TYPE;
+    private static final FieldType ATTRIBUTE_FIELD_TYPE;
+
 
     static {
         final List<String> names = newArrayListWithExpectedSize(AttributeType.values().length);
@@ -79,26 +85,37 @@ public class FullTextIndex extends RebuildableIndex {
 
         FIELD_NAMES = names.toArray(new String[names.size()]);
 
-        // field can be used for searching (including partial matches) but NOT sorting
-        INDEXED_AND_TOKENIZED = new FieldType();
-        INDEXED_AND_TOKENIZED.setIndexOptions(IndexOptions.NONE);
-        INDEXED_AND_TOKENIZED.setStored(true);
-        INDEXED_AND_TOKENIZED.setTokenized(true);
-        INDEXED_AND_TOKENIZED.freeze();
+        OBJECT_TYPE_FIELD_TYPE = new FieldType();
+        OBJECT_TYPE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        OBJECT_TYPE_FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
+        OBJECT_TYPE_FIELD_TYPE.setStored(true);
+        OBJECT_TYPE_FIELD_TYPE.setTokenized(false);
+        OBJECT_TYPE_FIELD_TYPE.freeze();
 
-        // field can be used for sorting, and searching (but no partial matches)
-        INDEXED_NOT_TOKENIZED = new FieldType();
-        INDEXED_NOT_TOKENIZED.setIndexOptions(IndexOptions.DOCS);       // TODO: [ES] check value
-        INDEXED_NOT_TOKENIZED.setStored(true);
-        INDEXED_NOT_TOKENIZED.setTokenized(false);
-        INDEXED_NOT_TOKENIZED.freeze();
+        PRIMARY_KEY_FIELD_TYPE = new FieldType();
+        PRIMARY_KEY_FIELD_TYPE.setNumericType(FieldType.NumericType.INT);
+        PRIMARY_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);       // TODO: [ES] check value
+        PRIMARY_KEY_FIELD_TYPE.setStored(true);
+        PRIMARY_KEY_FIELD_TYPE.setTokenized(false);
+        PRIMARY_KEY_FIELD_TYPE.freeze();
 
-        // field can be used for sorting, but not for searching
-        NOT_INDEXED_NOT_TOKENIZED = new FieldType();
-        NOT_INDEXED_NOT_TOKENIZED.setIndexOptions(IndexOptions.DOCS);
-        NOT_INDEXED_NOT_TOKENIZED.setStored(true);
-        NOT_INDEXED_NOT_TOKENIZED.setTokenized(false);
-        NOT_INDEXED_NOT_TOKENIZED.freeze();
+        LOOKUP_KEY_FIELD_TYPE = new FieldType();
+        LOOKUP_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);       // TODO: [ES] check value
+        LOOKUP_KEY_FIELD_TYPE.setStored(true);
+        LOOKUP_KEY_FIELD_TYPE.setTokenized(false);
+        LOOKUP_KEY_FIELD_TYPE.freeze();
+
+        FILTERED_ATTRIBUTE_FIELD_TYPE = new FieldType();
+        FILTERED_ATTRIBUTE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FILTERED_ATTRIBUTE_FIELD_TYPE.setStored(true);
+        FILTERED_ATTRIBUTE_FIELD_TYPE.setTokenized(false);      // no partial matches
+        FILTERED_ATTRIBUTE_FIELD_TYPE.freeze();
+
+        ATTRIBUTE_FIELD_TYPE = new FieldType();
+        ATTRIBUTE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        ATTRIBUTE_FIELD_TYPE.setStored(true);
+        ATTRIBUTE_FIELD_TYPE.setTokenized(true);
+        ATTRIBUTE_FIELD_TYPE.freeze();
     }
 
     private final JdbcTemplate jdbcTemplate;
@@ -266,15 +283,24 @@ public class FullTextIndex extends RebuildableIndex {
 
     private void addEntry(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter, final RpslObject rpslObject) throws IOException {
         final Document document = new Document();
-        document.add(new Field(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId()), INDEXED_NOT_TOKENIZED));
-        document.add(new Field(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName(), INDEXED_AND_TOKENIZED));
-        document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_NOT_TOKENIZED));
+
+        // primary key
+        document.add(new IntField(PRIMARY_KEY_FIELD_NAME, rpslObject.getObjectId(), PRIMARY_KEY_FIELD_TYPE));
+
+        // object type
+        // document.add(new Field(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName(), OBJECT_TYPE_FIELD_TYPE));
+        document.add(new Field(OBJECT_TYPE_FIELD_NAME, new BytesRef(rpslObject.getType().getName()), OBJECT_TYPE_FIELD_TYPE));
+
+        // lookup key
+        // document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_NOT_TOKENIZED));
+        document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), LOOKUP_KEY_FIELD_TYPE));
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
-              document.add(new Field(attribute.getKey(), sanitise(filterAttribute(attribute.getValue().trim())), NOT_INDEXED_NOT_TOKENIZED));
+            if (FILTERED_ATTRIBUTES.contains(attribute.getType())) {
+                document.add(new Field(attribute.getKey(), sanitise(filterAttribute(attribute.getValue().trim())), FILTERED_ATTRIBUTE_FIELD_TYPE));
+
             } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                document.add(new Field(attribute.getKey(), sanitise(attribute.getValue().trim()), INDEXED_AND_TOKENIZED));
+                document.add(new Field(attribute.getKey(), sanitise(attribute.getValue().trim()), ATTRIBUTE_FIELD_TYPE));
             }
         }
 
@@ -289,7 +315,14 @@ public class FullTextIndex extends RebuildableIndex {
     }
 
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
-        indexWriter.deleteDocuments(new Term(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId())));
+        indexWriter.deleteDocuments(
+            NumericRangeQuery.newIntRange(
+                PRIMARY_KEY_FIELD_NAME,
+                1,
+                rpslObject.getObjectId(),
+                rpslObject.getObjectId(),
+                true,
+                true));
     }
 
     private String filterAttribute(final String value) {
