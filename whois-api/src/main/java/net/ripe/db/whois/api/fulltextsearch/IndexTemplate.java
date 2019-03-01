@@ -61,7 +61,7 @@ public class IndexTemplate implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         updateLock.acquireUninterruptibly();
 
         try {
