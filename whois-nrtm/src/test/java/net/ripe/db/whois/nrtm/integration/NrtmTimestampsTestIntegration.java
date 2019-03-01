@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThat;
 public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         nrtmServer.start();
     }
 

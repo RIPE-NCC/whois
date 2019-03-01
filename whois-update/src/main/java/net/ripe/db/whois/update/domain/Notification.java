@@ -21,7 +21,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 public final class Notification {
 
     public enum Type {
-        SUCCESS, SUCCESS_REFERENCE, FAILED_AUTHENTICATION, PENDING_UPDATE
+        SUCCESS, SUCCESS_REFERENCE, FAILED_AUTHENTICATION
     }
 
     private final String email;

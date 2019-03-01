@@ -10,13 +10,20 @@ import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.iptree.Ipv4Entry;
+import net.ripe.db.whois.common.iptree.Ipv4Tree;
+import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.joda.time.LocalDateTime;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
@@ -26,6 +33,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RdapObjectMapperTest {
@@ -34,7 +43,22 @@ public class RdapObjectMapperTest {
 
     @Mock
     private NoticeFactory noticeFactory;
+    @Mock
+    private RpslObjectDao rpslObjectDao;
+    @Mock
+    private Ipv4Tree ipv4Tree;
+    @Mock
+    private Ipv6Tree ipv6Tree;
 
+    private RdapObjectMapper mapper;
+
+    @Before
+    public void setup() {
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Collections.singletonList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
+        when(rpslObjectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\nnetname: ROOT-NET\nsource: TEST"));
+
+        this.mapper = new RdapObjectMapper(noticeFactory, rpslObjectDao, ipv4Tree, ipv6Tree, "whois.ripe.net");
+    }
 
     @Test
     public void ip() {
@@ -55,7 +79,6 @@ public class RdapObjectMapperTest {
                         "mnt-irt:        irt-IRT1\n" +
                         "notify:         notify@test.net\n" +
                         "org:            ORG-TOL1-TEST\n" +
-                        "changed:        ripe@test.net 20120101\n" +
                         "source:         TEST"),
                 RpslObject.parse(
                         "role:           Abuse Contact\n" +
@@ -75,7 +98,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getType(), is("OTHER"));
         assertThat(result.getCountry(), is("NL"));
         assertThat(result.getLang(), is("EN"));
-        assertThat(result.getParentHandle(), is(nullValue()));
+        assertThat(result.getParentHandle(), is("ROOT-NET"));
         assertThat(result.getPort43(), is("whois.ripe.net"));
 
         final List<Entity> entities = result.getEntitySearchResults();
@@ -133,7 +156,6 @@ public class RdapObjectMapperTest {
                 "mnt-lower:      UPD-MNT\n" +
                 "mnt-routes:     UPD-MNT\n" +
                 "mnt-by:         UPD-MNT\n" +
-                "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n")));
 
         assertThat(result.getHandle(), is("AS102"));
@@ -177,7 +199,6 @@ public class RdapObjectMapperTest {
                 "nserver:         ns.foo.net.0.0.193.in-addr.arpa. 10.0.0.0/32\n" +
                 "mnt-by:          RIPE-NCC-MNT\n" +
                 "ds-rdata:        52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF\n" +
-                "changed:         test@ripe.net 20120505\n" +
                 "source:          TEST")));
 
         assertThat(result.getHandle(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
@@ -240,8 +261,6 @@ public class RdapObjectMapperTest {
                 "ds-rdata: 52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
                 "ds-rdata: 17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
                 "ds-rdata: 17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
-                "changed:  test@test.net.au 20010816\n" +
-                "changed:  test@test.net.au 20121121\n" +
                 "mnt-by:   OWNER-MNT\n" +
                 "source:   TEST\n")));
 
@@ -289,7 +308,6 @@ public class RdapObjectMapperTest {
                 "notify:        first@last.org\n" +
                 "abuse-mailbox: first@last.org\n" +
                 "mnt-by:        TST-MNT\n" +
-                "changed:       first@last.org 20120220\n" +
                 "source:        TEST"));
 
         assertThat(result.getHandle(), is("FL1-TEST"));
@@ -344,7 +362,6 @@ public class RdapObjectMapperTest {
                 "admin-c:        TP1-TEST\n" +
                 "abuse-c:        ABU-TEST\n" +
                 "mnt-by:         FRED-MNT\n" +
-                "changed:        change@test.ripe\n" +
                 "source:         TEST"));
 
         assertThat(result.getHandle(), is("ORG-AC1-TEST"));
@@ -382,7 +399,6 @@ public class RdapObjectMapperTest {
         assertThat(result.getLang(), is("DK"));
     }
 
-
     @Test
     public void mapSearch_twoObjects() {
         final List<RpslObject> objects = Lists.newArrayList(
@@ -409,15 +425,17 @@ public class RdapObjectMapperTest {
         assertThat(last.getRemarks().get(0).getDescription().get(0), is("comment 2"));
     }
 
+    // helper methods
+
     private Object map(final RpslObject rpslObject) {
         return map(rpslObject, null);
     }
 
     private Object map(final RpslObject rpslObject, final RpslObject abuseContact) {
-        return new RdapObjectMapper(noticeFactory, "whois.ripe.net").map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContact);
+        return mapper.map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
-        return new RdapObjectMapper(noticeFactory, "whois.ripe.net").mapSearch("http://localhost", objects, lastUpdateds);
+        return mapper.mapSearch("http://localhost", objects, lastUpdateds);
     }
 }

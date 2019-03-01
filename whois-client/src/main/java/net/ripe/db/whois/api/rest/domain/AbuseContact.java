@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import net.ripe.db.whois.common.domain.CIString;
+
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -20,6 +22,11 @@ public class AbuseContact {
     public AbuseContact(final String key, final String email) {
         this.key = key;
         this.email = email;
+    }
+
+    public AbuseContact(final CIString key, final CIString email) {
+        this.key = key == null ? null : key.toString();
+        this.email = email == null ? null : email.toString();
     }
 
     public AbuseContact() {

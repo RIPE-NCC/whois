@@ -954,8 +954,64 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
+    }
+
+    def "lir org-name changed case sensitive organisation not ref"() {
+        given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name:     Test Org\n" +
+                "org-type:     LIR\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     TEST ORG
+                org-type:     LIR
+                address:      Singel 258
+                e-mail:       bitbucket@ripe.net
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                remarks:      Not a NOOP
+                source:       TEST
+                password: update
+                """.stripIndent())
+        then:
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
+    }
+
+    def "other org-name changed case sensitive organisation not ref"() {
+        given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     TEST ORG
+                org-type:     OTHER
+                address:      Singel 258
+                e-mail:       bitbucket@ripe.net
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                remarks:      Not a NOOP
+                source:       TEST
+                password: update
+                """.stripIndent())
+        then:
+        response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
     }
 
     def "lir org-name and address changed organisation ref by mntner"() {
@@ -990,8 +1046,44 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
+    }
+
+    def "lir org-name changed case sensitive organisation ref by mntner"() {
+        given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name:     Test Org\n" +
+                "org-type:     LIR\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+
+        databaseHelper.addObject("" +
+                "mntner: REF-MNT\n" +
+                "org:    ORG-TO1-TEST\n" +
+                "mnt-by: REF-MNT\n" +
+                "source: TEST")
+
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     TEST ORG
+                org-type:     LIR
+                address:      Singel 258
+                e-mail:       bitbucket@ripe.net
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                remarks:      Not a NOOP
+                source:       TEST
+                password: update
+                """.stripIndent())
+
+        then:
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
     }
 
     def "lir org-name and address changed organisation ref by resource without RSmntner not auth by RS mntner"() {
@@ -1026,8 +1118,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
     }
 
     def "lir org-name and address changed organisation ref by resource with RSmntner auth by RS mntner"() {
@@ -1068,8 +1160,54 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed via the LIR portal./
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed via the LIR portal./
+    }
+
+    def "other org-name changed organisation ref by resource with RSmntner auth by RS mntner"() {
+        given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$lg/7YFfk\$X6ScFx7wATYpuuh/VNU631 #end\n" +
+                "source: TEST");
+
+        databaseHelper.addObject("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       RIPE-NCC-END-MNT\n" +
+                "mnt-ref:      RIPE-NCC-END-MNT\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+
+        databaseHelper.addObject("" +
+                "aut-num: AS1234\n" +
+                "org: ORG-TO1-TEST\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "source: TEST")
+
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-TO1-TEST
+                org-name:     TEST ORG
+                org-type:     OTHER
+                address:      Singel 258
+                e-mail:       bitbucket@ripe.net
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-ref:      RIPE-NCC-END-MNT
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                remarks:      Not a NOOP
+                source:       TEST
+                password:     update
+                """.stripIndent())
+
+        then:
+        response =~ /\\*\\*\\*Error:   Organisation name can only be changed by the RIPE NCC for this/
     }
 
     def "lir org-name and address changed organisation ref by resource with RSmntner auth by override"() {

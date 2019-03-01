@@ -74,71 +74,6 @@ public class LirRipeMaintainedAttributesValidatorTest {
     }
 
     @Test
-    public void update_of_address() {
-        when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
-        when(update.getUpdatedObject()).thenReturn(LIR_ORG_ADDRESS);
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext).getSubject(update);
-        verify(update).getReferenceObject();
-        verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ADDRESS));
-        verifyNoMoreInteractions(update);
-    }
-
-    @Test
-    public void update_of_phone() {
-        when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
-        when(update.getUpdatedObject()).thenReturn(LIR_ORG_PHONE);
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext).getSubject(update);
-        verify(update).getReferenceObject();
-        verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.PHONE));
-        verifyNoMoreInteractions(updateContext);
-    }
-
-    @Test
-    public void update_of_fax() {
-        when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
-        when(update.getUpdatedObject()).thenReturn(LIR_ORG_FAX);
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext).getSubject(update);
-        verify(update).getReferenceObject();
-        verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.FAX_NO));
-        verifyNoMoreInteractions(updateContext);
-    }
-
-    @Test
-    public void update_of_email() {
-        when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
-        when(update.getUpdatedObject()).thenReturn(LIR_ORG_EMAIL);
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext).getSubject(update);
-        verify(update).getReferenceObject();
-        verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.E_MAIL));
-        verifyNoMoreInteractions(updateContext);
-    }
-
-
-    @Test
     public void update_of_mntby() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
@@ -151,22 +86,6 @@ public class LirRipeMaintainedAttributesValidatorTest {
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
-        verifyNoMoreInteractions(updateContext);
-    }
-
-    @Test
-    public void update_of_org_name() {
-        when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
-        when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG_NAME);
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext).getSubject(update);
-        verify(update).getReferenceObject();
-        verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -199,22 +118,6 @@ public class LirRipeMaintainedAttributesValidatorTest {
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE));
-        verifyNoMoreInteractions(updateContext);
-    }
-
-    @Test
-    public void update_of_abuse_mailbox() {
-        when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
-        when(update.getUpdatedObject()).thenReturn(LIR_ORG_ABUSE_MAILBOX);
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext).getSubject(update);
-        verify(update).getReferenceObject();
-        verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ABUSE_MAILBOX));
         verifyNoMoreInteractions(updateContext);
     }
 

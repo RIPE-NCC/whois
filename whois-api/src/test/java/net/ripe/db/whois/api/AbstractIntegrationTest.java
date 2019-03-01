@@ -20,14 +20,14 @@ public abstract class AbstractIntegrationTest extends AbstractDaoTest {
     @Autowired protected List<ApplicationService> applicationServices;
 
     @Before
-    public void startServer() throws Exception {
+    public void startServer() {
         for (final ApplicationService applicationService : applicationServices) {
             applicationService.start();
         }
     }
 
     @After
-    public void stopServer() throws Exception {
+    public void stopServer() {
         for (final ApplicationService applicationService : applicationServices) {
             applicationService.stop(true);
         }

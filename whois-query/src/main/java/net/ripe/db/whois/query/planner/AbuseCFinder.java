@@ -77,17 +77,39 @@ public class AbuseCFinder {
     @Nullable
     private RpslObject getAbuseContactRoleInternal(final RpslObject object) {
         try {
-            if (object.containsAttribute(AttributeType.ORG)) {
-                final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, object.getValueForAttribute(AttributeType.ORG));
-                if (organisation.containsAttribute(AttributeType.ABUSE_C)) {
-                    final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, organisation.getValueForAttribute(AttributeType.ABUSE_C));
-                    if (abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
-                        return abuseCRole;
-                    }
-                }
+            // use the abuse-c from the object if it exists:
+            RpslObject abuseContact = getAbuseC(object);
+            if (abuseContact != null) {
+                return abuseContact;
             }
+
+            // otherwise see if it can be obtained via an org attribute:
+            return getOrgAbuseC(object);
         } catch (EmptyResultDataAccessException ignored) {
             LOGGER.debug("Ignored invalid reference (object {})", object.getKey());
+        }
+
+        return null;
+    }
+
+    @CheckForNull
+    @Nullable
+    private RpslObject getOrgAbuseC(final RpslObject object) {
+        if (object.containsAttribute(AttributeType.ORG)) {
+            final RpslObject organisation = objectDao.getByKey(ObjectType.ORGANISATION, object.getValueForAttribute(AttributeType.ORG));
+            return getAbuseC(organisation);
+        }
+        return null;
+    }
+
+    @CheckForNull
+    @Nullable
+    private RpslObject getAbuseC(final RpslObject rpslObject) {
+        if (rpslObject.containsAttribute(AttributeType.ABUSE_C)) {
+            final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, rpslObject.getValueForAttribute(AttributeType.ABUSE_C));
+            if (abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
+                return abuseCRole;
+            }
         }
         return null;
     }

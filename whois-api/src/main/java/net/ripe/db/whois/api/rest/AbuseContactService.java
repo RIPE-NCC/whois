@@ -83,7 +83,7 @@ public class AbuseContactService {
                         new AbuseResources(
                             "abuse-contact",
                             Link.create(String.format("http://rest.db.ripe.net/abuse-contact/%s", key)),
-                            new Parameters(null, null, null, null, null, new AbusePKey(rpslObject.getKey().toString())),
+                            new Parameters.Builder().primaryKey(new AbusePKey(rpslObject.getKey().toString())).build(),
                             new AbuseContact(abuseRole != null ? abuseRole.getKey().toString() : "", abuseContact != null ? abuseContact : ""),
                             Link.create(WhoisResources.TERMS_AND_CONDITIONS)));
                 }

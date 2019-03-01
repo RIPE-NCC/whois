@@ -18,10 +18,16 @@ import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.iptree.IpEntry;
+import net.ripe.db.whois.common.iptree.Ipv4Entry;
+import net.ripe.db.whois.common.iptree.Ipv4Tree;
+import net.ripe.db.whois.common.iptree.Ipv6Entry;
+import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -29,6 +35,10 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import org.joda.time.LocalDateTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -54,10 +64,10 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
+@Component
 class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
-    private final String port43;
 
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
 
@@ -73,9 +83,22 @@ class RdapObjectMapper {
     }
 
     private final NoticeFactory noticeFactory;
+    private final RpslObjectDao rpslObjectDao;
+    private final Ipv4Tree ipv4Tree;
+    private final Ipv6Tree ipv6Tree;
+    private final String port43;
 
-    public RdapObjectMapper(final NoticeFactory noticeFactory, final String port43) {
+    @Autowired
+    public RdapObjectMapper(
+            final NoticeFactory noticeFactory,
+            final RpslObjectDao rpslObjectDao,
+            final Ipv4Tree ipv4Tree,
+            final Ipv6Tree ipv6Tree,
+            @Value("${rdap.port43:}") final String port43) {
         this.noticeFactory = noticeFactory;
+        this.rpslObjectDao = rpslObjectDao;
+        this.ipv4Tree = ipv4Tree;
+        this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
     }
 
@@ -163,7 +186,7 @@ class RdapObjectMapper {
         return rdapResponse;
     }
 
-    private static Ip createIp(final RpslObject rpslObject) {
+    private Ip createIp(final RpslObject rpslObject) {
         final Ip ip = new Ip();
         final IpInterval ipInterval = IpInterval.parse(rpslObject.getKey());
         ip.setHandle(rpslObject.getKey().toString());
@@ -173,13 +196,51 @@ class RdapObjectMapper {
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
         ip.setCountry(rpslObject.getValueForAttribute(AttributeType.COUNTRY).toString());
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
+        ip.setParentHandle(lookupParentHandle(ipInterval));
         if (rpslObject.containsAttribute(AttributeType.LANGUAGE)) {
             ip.setLang(rpslObject.findAttributes(AttributeType.LANGUAGE).get(0).getCleanValue().toString());
         }
 
-//        ip.setParentHandle(); TODO [AS] APNIC uses parent inet(6)num key, ARIN seems to use name (our netname) + handle of first less specific that is maintained by ARIN
-
         return ip;
+    }
+
+    @Nullable
+    private String lookupParentHandle(final IpInterval ipInterval) {
+        final RpslObject parentRpslObject;
+        try {
+            parentRpslObject = rpslObjectDao.getById(lookupParentIpEntry(ipInterval).getObjectId());
+        } catch (DataAccessException e) {
+            throw new IllegalStateException("Couldn't get parent for " + ipInterval.toString());
+        }
+
+        final CIString netname = parentRpslObject.getValueOrNullForAttribute(AttributeType.NETNAME);
+        if (netname == null) {
+            throw new IllegalStateException("No parentHandle for " + ipInterval.toString());
+        }
+
+        return netname.toString();
+    }
+
+    private IpEntry lookupParentIpEntry(final IpInterval ipInterval) {
+        if (ipInterval instanceof Ipv4Resource) {
+            final List<Ipv4Entry> firstLessSpecific = ipv4Tree.findFirstLessSpecific((Ipv4Resource) ipInterval);
+            if (firstLessSpecific.isEmpty()) {
+                throw new IllegalStateException("No parent for " + ipInterval.toString());
+            }
+
+            return firstLessSpecific.get(0);
+        }
+
+        if (ipInterval instanceof Ipv6Resource) {
+            final List<Ipv6Entry> firstLessSpecific = ipv6Tree.findFirstLessSpecific((Ipv6Resource) ipInterval);
+            if (firstLessSpecific.isEmpty()) {
+                throw new IllegalStateException("No parent for " + ipInterval.toString());
+            }
+
+            return firstLessSpecific.get(0);
+        }
+
+        throw new IllegalStateException("Unknown interval type " + ipInterval.getClass().getName());
     }
 
     private static Remark createRemark(final RpslObject rpslObject) {

@@ -76,6 +76,22 @@ public class AbuseCFinderTest {
     }
 
     @Test
+    public void inetnum_with_abusec_and_org_reference_with_abusec() {
+        final RpslObject root = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\norg: ORG-TEST1\nmnt-by:RS1-MNT");
+        final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1\nabuse-c: AH1-TEST\n");
+
+        final Ipv4Resource ipv4Resource = Ipv4Resource.parse(inetnum.getKey());
+        when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
+        when(objectDao.getByKey(ObjectType.ROLE, ciString("AH1-TEST"))).thenReturn(
+                RpslObject.parse("role: another abuse role\nabuse-mailbox: more_abuse@ripe.net\nnic-hdl: ABU-TEST")
+        );
+
+        assertThat(subject.getAbuseContact(inetnum), is("more_abuse@ripe.net"));
+
+        verifyZeroInteractions(maintainers);
+    }
+
+    @Test
     public void inetnum_without_org_reference() {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0");
 

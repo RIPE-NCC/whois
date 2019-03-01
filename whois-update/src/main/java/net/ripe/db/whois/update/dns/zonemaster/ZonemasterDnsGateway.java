@@ -35,7 +35,6 @@ public class ZonemasterDnsGateway implements DnsGateway {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDnsGateway.class);
 
-    // TODO: [ES] implement polling with backoff, to poll frequently at the start, and then less often as time goes by
     private static final int TEST_PROGRESS_SLEEP_SECONDS = 5;
     private static final int TEST_PROGRESS_MAXIMUM_RETRIES = ((60 * 5) / TEST_PROGRESS_SLEEP_SECONDS);
 
@@ -72,13 +71,13 @@ public class ZonemasterDnsGateway implements DnsGateway {
                 return new DnsCheckResponse(UpdateMessages.dnsCheckTimeout());
             } catch (ZonemasterException e) {
                 LOGGER.error("Error from Zonemaster: {}", e.getMessage());
-                return new DnsCheckResponse(UpdateMessages.dnsCheckError(e.getMessage()));
+                return new DnsCheckResponse(UpdateMessages.dnsCheckError());
             } catch (ProcessingException e) {
                 LOGGER.error("Error making request to Zonemaster, due to {}: {}", e.getClass().getName(), e.getMessage());
-                return new DnsCheckResponse(UpdateMessages.dnsCheckError("server error"));
+                return new DnsCheckResponse(UpdateMessages.dnsCheckError());
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
-                return new DnsCheckResponse(UpdateMessages.dnsCheckError("client error"));
+                return new DnsCheckResponse(UpdateMessages.dnsCheckError());
             }
         }
 

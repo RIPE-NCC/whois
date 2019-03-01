@@ -21,6 +21,10 @@ public class SearchResponse {
         this.result = result;
     }
 
+    public List<Lst> getLsts() {
+        return lsts;
+    }
+
     public void setLsts(final List<Lst> lsts) {
         this.lsts = lsts;
     }
@@ -117,6 +121,18 @@ public class SearchResponse {
         public void setArrs(final List<Arr> arrs) {
             this.arrs = arrs;
         }
+
+        public String getName() {
+            return name;
+        }
+
+        public List<Lst> getLsts() {
+            return lsts;
+        }
+
+        public List<Arr> getArrs() {
+            return arrs;
+        }
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -138,6 +154,14 @@ public class SearchResponse {
 
         public void setStr(final Str str) {
             this.str = str;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Str getStr() {
+            return str;
         }
     }
 

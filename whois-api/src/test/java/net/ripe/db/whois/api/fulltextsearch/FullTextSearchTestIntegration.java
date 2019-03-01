@@ -46,12 +46,12 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         fullTextIndex.rebuild();
     }
 
     @Test
-    public void search_no_params() throws Exception {
+    public void search_no_params() {
         try {
             query("");
             fail();
@@ -61,7 +61,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_empty_query_param() throws Exception {
+    public void search_empty_query_param() {
         try {
             query("q=");
             fail();
@@ -71,7 +71,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_single_result() throws Exception {
+    public void search_single_result() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV-MNT\n" +
                 "source: RIPE"));
@@ -90,28 +90,28 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_single_result_json() throws Exception {
+    public void search_single_result_json() {
         databaseHelper.addObject(RpslObject.parse("mntner: DEV-MNT\n" +
                 "source: RIPE"));
         fullTextIndex.update();
 
-        final SearchResponse queryResponse = queryJson("q=DEV-MNT");
+        final SearchResponse searchResponse = queryJson("q=DEV-MNT");
 
-        assertThat(queryResponse.getResult().getDocs(), hasSize(1));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs(), hasSize(4));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(0).getName(), is("primary-key"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(0).getValue(), is("1"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(1).getName(), is("object-type"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(1).getValue(), is("mntner"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(2).getName(), is("lookup-key"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(2).getValue(), is("DEV-MNT"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(3).getName(), is("mntner"));
-        assertThat(queryResponse.getResult().getDocs().get(0).getStrs().get(3).getValue(), is("DEV-MNT"));
+        assertThat(searchResponse.getResult().getDocs(), hasSize(1));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(4));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getName(), is("primary-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getValue(), is("1"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getName(), is("object-type"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getValue(), is("mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getName(), is("lookup-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getValue(), is("DEV-MNT"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getName(), is("mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getValue(), is("DEV-MNT"));
     }
 
 
     @Test
-    public void search_multiple_results_with_highlighting() throws Exception {
+    public void search_multiple_results_with_highlighting() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +
                 "remarks: Some remark\n" +
@@ -138,7 +138,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_multiple_results_with_facet() throws Exception {
+    public void search_multiple_results_with_facet() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +
                 "remarks: Some remark\n" +
@@ -165,6 +165,51 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(facet.getValueCount(), is(2));
         assertThat(facet.getValues().toString(), containsString("mntner (2)"));
         assertThat(facet.getValues().toString(), containsString("person (1)"));
+    }
+
+    @Test
+    public void search_list_value_attribute_single_value_and_comment() {
+        databaseHelper.addObject("mntner: AA1-MNT\nsource: RIPE");
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-AA1-RIPE\n" +
+                "mnt-ref: AA1-MNT # include this comment\n" +
+                "source: RIPE"));
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(AA1)+AND+(object-type:organisation)&facet=true");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        final SolrDocument solrDocument = queryResponse.getResults().get(0);
+        assertThat(solrDocument.getFirstValue("primary-key"), is("2"));
+        assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
+        assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT # include this comment"));
+    }
+
+    @Test
+    public void search_list_value_attribute_multiple_values_and_comment() {
+        databaseHelper.addObject("mntner: AA1-MNT\nsource: RIPE");
+        databaseHelper.addObject("mntner: AA2-MNT\nsource: RIPE");
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-AA1-RIPE\n" +
+                "mnt-ref: AA1-MNT, AA2-MNT # include this comment\n" +
+                "source: RIPE"));
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(AA1)+AND+(object-type:organisation)&facet=true");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        final SolrDocument solrDocument = queryResponse.getResults().get(0);
+        assertThat(solrDocument.getFirstValue("primary-key"), is("3"));
+        assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
+        assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT, AA2-MNT # include this comment"));
     }
 
     @Test
@@ -208,7 +253,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_no_match() throws Exception {
+    public void search_no_match() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV-MNT\n" +
                 "source: RIPE"));
@@ -221,7 +266,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_match_subword_case_change() throws Exception {
+    public void search_word_match_subword_case_change() {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
@@ -235,7 +280,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_match_subword_dash_separator() throws Exception {
+    public void search_word_match_subword_dash_separator() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:  MNT-TESTUA\n" +
                 "source: RIPE"));
@@ -248,7 +293,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_match_first_subword() throws Exception {
+    public void search_word_match_first_subword() {
         databaseHelper.addObject(
                 "person: Test Person\n" +
                  "nic-hdl: TP1-TEST");
@@ -261,7 +306,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_match_original() throws Exception {
+    public void search_word_match_original() {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald1\n" +
                 "nic-hdl: AA1-RIPE\n" +
@@ -275,7 +320,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_with_matching_object_type() throws Exception {
+    public void search_word_with_matching_object_type() {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
@@ -289,7 +334,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_word_with_non_matching_object_type() throws Exception {
+    public void search_word_with_non_matching_object_type() {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
                 "nic-hdl: AA1-RIPE\n" +
@@ -318,7 +363,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void search_hyphenated_complete_word() throws Exception {
+    public void search_hyphenated_complete_word() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:  TESTUA-MNT\n" +
                 "source: RIPE"));
@@ -334,7 +379,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_hyphenated_partial_word() throws Exception {
+    public void search_hyphenated_partial_word() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:  TESTUA-MNT\n" +
                 "source: RIPE"));
@@ -350,7 +395,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_match_all_terms() throws Exception {
+    public void search_match_all_terms() {
         databaseHelper.addObject(RpslObject.parse(
                 "person: John McDonald\n" +
                 "nic-hdl: JM1-RIPE\n" +
@@ -403,7 +448,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_inetnum() throws Exception {
+    public void search_inetnum() {
         databaseHelper.addObject(
                "inetnum:        193.0.0.0 - 193.0.0.255\n" +
                "netname:        RIPE-NCC\n" +
@@ -425,7 +470,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void search_inetnum_with_prefix_length() throws Exception {
+    public void search_inetnum_with_prefix_length() {
         databaseHelper.addObject(
                 "inetnum:        10.0.0.0/24\n" +
                 "netname:        RIPE-NCC\n" +
@@ -436,7 +481,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_inetnum_multiple_matches() throws Exception {
+    public void search_inetnum_multiple_matches() {
         databaseHelper.addObject(
                 "inetnum:        193.0.0.0 - 193.0.0.255\n" +
                 "netname:        RIPE-NCC\n" +
@@ -453,7 +498,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_inet6num() throws Exception {
+    public void search_inet6num() {
         databaseHelper.addObject(
                 "inet6num: 2001:0638:0501::/48\n" +
                 "netname: RIPE-NCC\n" +
@@ -471,7 +516,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_inet6num_double_colons() throws Exception {
+    public void search_inet6num_double_colons() {
         databaseHelper.addObject(
                 "inet6num: 2a00:1f78::fffe/48\n" +
                 "netname: RIPE-NCC\n" +
@@ -484,7 +529,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_inet6num_multiple_matches() throws Exception {
+    public void search_inet6num_multiple_matches() {
         databaseHelper.addObject(
                 "inet6num: 2a00:1f78:7a2b:2001::/64\n" +
                 "netname: RIPE-NCC\n" +
@@ -499,7 +544,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_filter_comma_when_indexing() throws Exception {
+    public void search_filter_comma_when_indexing() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
@@ -519,7 +564,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_filter_comma_on_query_term() throws Exception {
+    public void search_filter_comma_on_query_term() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
@@ -559,7 +604,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_multiple_matches_but_only_one_result() throws Exception {
+    public void search_multiple_matches_but_only_one_result() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
@@ -579,7 +624,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_match_partial_email_address() throws Exception {
+    public void search_match_partial_email_address() {
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: OWNER-MNT\n" +
                 "source: RIPE"));
@@ -650,7 +695,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_highlight_escaping() {
+    public void search_highlight_escaping_xml() {
         databaseHelper.addObject(
             RpslObject.parse(
                 "mntner: DEV-MNT\n" +
@@ -668,6 +713,250 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV<\\/b>-MNT"));
         assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
         assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("<b>DEV<\\/b> mntner"));
+    }
+
+    @Test
+    public void search_highlight_escaping_json() {
+        databaseHelper.addObject(
+            RpslObject.parse(
+                "mntner: DEV-MNT\n" +
+                "remarks: DEV mntner\n" +
+                "source: RIPE"));
+        fullTextIndex.update();
+
+        final SearchResponse searchResponse = queryJson("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E&wt=json");
+
+        // document
+        assertThat(searchResponse.getResult().getDocs(), hasSize(1));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(5));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getName(), is("primary-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(0).getValue(), is("1"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getName(), is("object-type"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(1).getValue(), is("mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getName(), is("lookup-key"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(2).getValue(), is("DEV-MNT"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getName(), is("mntner"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(3).getValue(), is("DEV-MNT"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getName(), is("remarks"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getValue(), is("DEV mntner"));
+
+        // highlighting
+        assertThat(searchResponse.getLsts(), hasSize(2));
+        assertThat(searchResponse.getLsts().get(0).getName(), is("responseHeader"));
+        assertThat(searchResponse.getLsts().get(1).getName(), is("highlighting"));
+        assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getName(), is("1"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("lookup-key"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV</b>-MNT"));
+    }
+
+    @Test
+    public void search_quote_escaping_xml() {
+        databaseHelper.addObject(
+            RpslObject.parse(
+                "mntner: DEV-MNT\n" +
+                "remarks: \"DEV mntner\"\n" +
+                "source: RIPE"));
+        fullTextIndex.update();
+
+        final QueryResponse queryResponse = query("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
+        assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(3));
+        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("\"<b>DEV<\\/b> mntner\""));
+    }
+
+    @Test
+    public void search_quote_escaping_json() {
+        databaseHelper.addObject(
+            RpslObject.parse(
+                "mntner: DEV-MNT\n" +
+                "remarks: \"DEV mntner\"\n" +
+                "source: RIPE"));
+        fullTextIndex.update();
+
+        final SearchResponse searchResponse = queryJson("q=DEV&hl=true&hl.simple.pre=%3Cb%3E&hl.simple.post=%3C/b%3E&wt=json");
+
+        // document
+        assertThat(searchResponse.getResult().getDocs(), hasSize(1));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs(), hasSize(5));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getName(), is("remarks"));
+        assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getValue(), is("\"DEV mntner\""));
+
+        // highlighting
+        assertThat(searchResponse.getLsts(), hasSize(2));
+        assertThat(searchResponse.getLsts().get(0).getName(), is("responseHeader"));
+        assertThat(searchResponse.getLsts().get(1).getName(), is("highlighting"));
+        assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getName(), is("1"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getName(), is("remarks"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getStr().getValue(), is("\"<b>DEV</b> mntner\""));
+    }
+
+    @Test
+    public void basic_search_nonauth_aut_num_object() {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=AS101");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void basic_search_nonauth_route_object() {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "route: 211.43.192.0/19\n" +
+                        "origin: AS101\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=211.43.192.0/19");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void basic_search_found_all_objects_with_nonauth_value_in_attribute() {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "route: 211.43.192.0/19\n" +
+                        "origin: AS101\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=RIPE-NONAUTH");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+        assertThat(queryResponse.getResults(), hasSize(3));
+    }
+
+    @Test
+    public void basic_search_ignore_source_attribute() {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "route: 211.43.192.0/19\n" +
+                        "origin: AS101\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=RIPE-NONAUTH");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(0L));
+        assertThat(queryResponse.getResults(), hasSize(0));
+    }
+
+    @Test
+    public void advanced_search_nonauth_aut_num_objects() {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(descr:(RIPE%5C-NONAUTH))+AND+(object-type:aut-num)");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(2L));
+        assertThat(queryResponse.getResults(), hasSize(2));
+    }
+
+    @Test
+    public void advanced_search_aut_num_route_with_same_descr() {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "route: 211.43.192.0/19\n" +
+                        "origin: AS101\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(descr:(RIPE%5C-NONAUTH))+AND+(object-type:aut-num+OR+object-type:route)");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+        assertThat(queryResponse.getResults(), hasSize(3));
+    }
+
+    @Test
+    public void advanced_search_nonauth_ignore_source() {
+        databaseHelper.addObject(
+                "aut-num: AS101\n" +
+                        "as-name: End-User-1\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        databaseHelper.addObject(
+                "aut-num: AS102\n" +
+                        "as-name: End-User-2\n" +
+                        "descr: RIPE-NONAUTH\n" +
+                        "source: RIPE-NONAUTH\n");
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(source:(RIPE%5C-NONAUTH))+AND+(object-type:aut-num)");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(0L));
+        assertThat(queryResponse.getResults(), hasSize(0));
     }
 
     // helper methods

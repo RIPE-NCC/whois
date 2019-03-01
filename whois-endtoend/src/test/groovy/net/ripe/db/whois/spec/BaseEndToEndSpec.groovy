@@ -296,7 +296,6 @@ ${response}
         whoisFixture.getMailSender().reset()
     }
 
-
     def object(String string) {
         return RpslObject.parse(string.stripIndent()).toString()
     }
@@ -322,8 +321,8 @@ ${response}
         return whoisFixture.getTagsDao()
     }
 
-    def getPendingUpdateDao() {
-        return whoisFixture.getPendingUpdateDao()
+    def getAuthoritativeResourceDao() {
+        return whoisFixture.getAuthoritativeResourceDao()
     }
 
     def getApplicationContext() {

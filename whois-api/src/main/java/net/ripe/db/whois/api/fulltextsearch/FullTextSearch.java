@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.search.IndexTemplate;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
@@ -215,7 +214,13 @@ public class FullTextSearch {
         final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
         final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
 
-        final SimpleHTMLFormatter formatter = new SimpleHTMLFormatter(escape(searchRequest.getHighlightPre()), escape(searchRequest.getHighlightPost()));
+        final SimpleHTMLFormatter formatter;
+        if (SearchRequest.XML_FORMAT.equals(searchRequest.getFormat())) {
+            formatter = new SimpleHTMLFormatter(escape(searchRequest.getHighlightPre()), escape(searchRequest.getHighlightPost()));
+        } else {
+            // don't escape highlighting in JSON responses
+            formatter = new SimpleHTMLFormatter(searchRequest.getHighlightPre(), searchRequest.getHighlightPost());
+        }
 
         final Highlighter highlighter = new Highlighter(formatter, new QueryScorer(query));
         highlighter.setTextFragmenter(new SimpleFragmenter(Integer.MAX_VALUE));

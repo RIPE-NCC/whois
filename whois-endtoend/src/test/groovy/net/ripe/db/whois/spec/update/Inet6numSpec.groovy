@@ -2259,4 +2259,41 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64", "just added")
     }
 
+    def "create with abuse-c"() {
+        expect:
+        queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:0600::/25
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+        ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/25") ==
+                ["Value 2001:0600::/25 converted to 2001:600::/25"]
+
+        queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+    }
+
 }

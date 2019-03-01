@@ -424,14 +424,21 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         databaseHelper.addObject(RpslObject.parse("" +
                 "person:         Test person\n" +
                 "nic-hdl:        TEST-PN\n" +
-                "source:         RIPE"));
+                "source:         TEST"));
+
+        // after the filtering the person reference in the mirror database is replaced with this DUMY-RIPE one
+        // which should then also be returned in the result as a related object
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person:         Dummy test person\n" +
+                "nic-hdl:        DUMY-RIPE\n" +
+                "source:         TEST"));
 
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner:         AS760-MNT\n" +
                 "descr:          Description\n" +
                 "admin-c:        TEST-PN\n" +
                 "auth:           MD5-PW $1$2$34567\n" +
-                "source:         RIPE"));
+                "source:         TEST"));
 
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-s TEST-GRS AS760-MNT");
         assertThat(response, stringMatchesRegexp("(?si)" +
@@ -454,6 +461,10 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "remarks:        \\* To view the original object, please query the RIPE Database at:\n" +
                 "remarks:        \\* http://www.ripe.net/whois\n" +
                 "remarks:        \\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\n" +
+                "\n" +
+                "person:         Dummy test person\n" +
+                "nic-hdl:        DUMY-RIPE\n" +
+                "source:         TEST\n" +
                 "\n" +
                 "% This query was served by the RIPE Database Query Service version 0.1-TEST \\(.*\\)\n" +
                 "\n" +
@@ -531,7 +542,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "descr:       MNTNER for test\n" +
                 "descr:       object not identical to one above\n" +
                 "admin-c:     ADM-TEST\n" +
-                "upd-to:      dbtest_at_ripe.net\n" +
+                "upd-to:      dbtest@@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
                 "mnt-by:      DEL-MNT\n" +
                 "source:      TEST");
@@ -580,7 +591,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "descr:       MNTNER for test\n" +
                 "descr:       object not identical to one above\n" +
                 "admin-c:     ADM-TEST\n" +
-                "upd-to:      dbtest_at_ripe.net\n" +
+                "upd-to:      dbtest@@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
                 "mnt-by:      DEL-MNT\n" +
                 "source:      TEST");

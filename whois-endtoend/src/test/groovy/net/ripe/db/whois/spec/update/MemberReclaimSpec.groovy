@@ -224,7 +224,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      PARENT-MB-MNT
-                source:      TEST
+                source:      TEST-NONAUTH
                 """,
             "SUB2-MNT": """\
                 mntner:      SUB2-MNT
@@ -1560,13 +1560,12 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
 
                 aut-num:     AS20000
                 as-name:     TEST-AS
-                remarks:     For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:      OTHER
                 descr:       Testing Authorisation code
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      PARENT-MB-MNT
-                source:      TEST
+                source:      TEST-NONAUTH
                 delete: member reclaim
 
                 person:  Ping Person

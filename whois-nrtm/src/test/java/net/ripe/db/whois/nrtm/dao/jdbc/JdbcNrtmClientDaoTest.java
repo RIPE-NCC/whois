@@ -54,7 +54,7 @@ public class JdbcNrtmClientDaoTest extends AbstractDaoTest {
     }
 
     @Test
-    public void objectExistsWithSerial() throws Exception {
+    public void objectExistsWithSerial() {
         final RpslObject object = databaseHelper.updateObject(databaseHelper.addObject(RpslObject.parse("aut-num: AS2345")));
 
         assertThat(subject.objectExistsWithSerial(2462345, object.getObjectId()), is(false));

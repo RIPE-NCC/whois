@@ -178,5 +178,25 @@ public class ChannelUtilTest {
         public ChannelFuture setReadable(boolean readable) {
             return null;
         }
+
+        @Override
+        public boolean getUserDefinedWritability(int i) {
+            return false;
+        }
+
+        @Override
+        public void setUserDefinedWritability(int i, boolean b) {
+
+        }
+
+        @Override
+        public Object getAttachment() {
+            return null;
+        }
+
+        @Override
+        public void setAttachment(Object o) {
+
+        }
     }
 }

@@ -1,8 +1,10 @@
 package net.ripe.db.whois.nrtm;
 
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
 import net.ripe.db.whois.common.domain.IpResourceTree;
+import net.ripe.db.whois.common.ip.IpInterval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,10 +21,12 @@ import java.util.List;
 
 @Component
 public class AccessControlList {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlList.class);
+
     private static final int TREE_UPDATE_IN_SECONDS = 600;
 
     private final JdbcTemplate jdbcTemplate;
-
     private IpResourceTree<Boolean> mirror;
 
     @Autowired
@@ -37,7 +41,11 @@ public class AccessControlList {
     @PostConstruct
     @Scheduled(fixedDelay = TREE_UPDATE_IN_SECONDS * 1000)
     public void reload() {
-        mirror = refreshEntries(loadIpMirror());
+        try {
+            mirror = refreshEntries(loadIpMirror());
+        } catch (RuntimeException e) {
+            LOGGER.warn("Reload failed due to {}: {}", e.getClass().getName(), e.getMessage());
+        }
     }
 
     public List<IpResourceEntry<Boolean>> loadIpMirror() {

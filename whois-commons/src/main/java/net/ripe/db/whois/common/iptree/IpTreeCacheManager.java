@@ -226,7 +226,7 @@ public class IpTreeCacheManager {
             LOGGER.debug("No update of IpTree needed (serial {} unchanged)", fromExclusive);
         } else if (fromExclusive > toInclusive) {
             if( cacheEntry.sourceConfiguration.getSource().isTest()) {
-                LOGGER.warn("Database went away; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+                LOGGER.info("Database went away; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
                 // For the test source, we reload the database every night, so in this case we do need a full rebuild of the ipTree.
                 rebuild(jdbcTemplate, cacheEntry);
             } else {

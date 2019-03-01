@@ -60,7 +60,7 @@ public class MessageParser {
         this.loggerContext = loggerContext;
     }
 
-    public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException, IOException {
+    public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException {
         final MailMessageBuilder messageBuilder = new MailMessageBuilder();
         messageBuilder.id(message.getMessageID());
 
@@ -76,7 +76,7 @@ public class MessageParser {
         parseReplyTo(messageBuilder, message);
 
         try {
-            parseContents(messageBuilder, message);
+            parseContents(updateContext, messageBuilder, message);
 
             final MailMessage mailMessage = messageBuilder.build();
             if (!mailMessage.getKeyword().isContentExpected() || !mailMessage.getContentWithCredentials().isEmpty()) {
@@ -135,10 +135,13 @@ public class MessageParser {
         }
     }
 
-    private void parseContents(@Nonnull final MailMessageBuilder messageBuilder, @Nonnull final MimeMessage message) throws MessagingException, IOException {
+    private void parseContents(
+            @Nonnull final UpdateContext updateContext,
+            @Nonnull final MailMessageBuilder messageBuilder,
+            @Nonnull final MimeMessage message) throws MessagingException, IOException {
         final MessageParts messageParts = new MessageParts();
 
-        parseContents(messageParts, message, null);
+        parseContents(updateContext, messageParts, message, null);
 
         for (final MessagePart messagePart : messageParts.parts) {
             final List<Credential> credentials = messagePart.credentials;
@@ -152,7 +155,11 @@ public class MessageParser {
         }
     }
 
-    private void parseContents(@Nonnull final MessageParts messageParts, @Nonnull final Part part, @Nullable final Part parentPart) throws MessagingException, IOException {
+    private void parseContents(
+            @Nonnull final UpdateContext updateContext,
+            @Nonnull final MessageParts messageParts,
+            @Nonnull final Part part,
+            @Nullable final Part parentPart) throws MessagingException, IOException {
         final ContentType contentType = new ContentType(part.getContentType());
         final Object content = getContent(part, contentType);
         final Charset charset = getCharset(contentType);
@@ -167,7 +174,12 @@ public class MessageParser {
                 throw new ParseException("Unexpected content: " + content);
             }
 
-            messageParts.add(new MessagePart(text, getSignedPart(part, parentPart)));
+            final String updatedText = replaceNonBreakSpaces(text);
+            if (!text.equals(updatedText)) {
+                updateContext.addGlobalMessage(UpdateMessages.replacedNonBreakSpaces());
+            }
+
+            messageParts.add(new MessagePart(updatedText, getSignedPart(part, parentPart)));
         } else if (content instanceof MimeMultipart) {
             final MimeMultipart multipart = (MimeMultipart) content;
             for (int count = 0; count < multipart.getCount(); count++) {
@@ -195,7 +207,7 @@ public class MessageParser {
                     final String signature = getRawContent(bodyPart);
                     last.addCredential(X509Credential.createOfferedCredential(signedData, signature));
                 } else {
-                    parseContents(messageParts, bodyPart, part);
+                    parseContents(updateContext, messageParts, bodyPart, part);
                 }
             }
         }
@@ -288,6 +300,14 @@ public class MessageParser {
         return ((headers != null) &&
                 (headers.length > 0) &&
                 ("base64".equals(headers[0])));
+    }
+
+    /*
+        Replace non-break spaces with regular spaces.
+        The non-break space character is unicode \u00A0, consisting of bytes 0xC2 0xA0, which is MIME encoded as =C2=A0.
+     */
+    String replaceNonBreakSpaces(final String text) {
+        return text.replace('\u00a0', '\u0020');
     }
 
     private static class MessageParts {

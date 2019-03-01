@@ -8,6 +8,8 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
+import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 
 import java.util.Collections;
@@ -47,9 +49,11 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
             params.setDsInfos(parseDsRdata(rpslObject.getValuesForAttribute(AttributeType.DS_RDATA)));
         }
 
+
         this.params = params;
     }
 
+    // TODO: [ES] replace STRING_SPLITTER with NServer.parse()
     private List<StartDomainTestRequest.Nameserver> parseNameservers(final Set<CIString> nserverValues) {
         final List<StartDomainTestRequest.Nameserver> nameservers = Lists.newArrayList();
         for (CIString nserverValue : nserverValues) {
@@ -59,15 +63,15 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         return nameservers;
     }
 
-    private List<StartDomainTestRequest.DsInfo> parseDsRdata(final Set<CIString> dsRdata) {
+    private List<StartDomainTestRequest.DsInfo> parseDsRdata(final Set<CIString> dsRdataValues) {
         final List<StartDomainTestRequest.DsInfo> dsInfos = Lists.newArrayList();
-        for (CIString dsRdataLine : dsRdata) {
-            final List<String> dsParts = SPACE_SPLITTER.splitToList(dsRdataLine.toString().trim());
-            if (dsParts.size() == 4) {
-                dsInfos.add(new StartDomainTestRequest.DsInfo(dsParts.get(0), dsParts.get(1), dsParts.get(2), dsParts.get(3)));
-            } else {
+        for (CIString dsRdataValue : dsRdataValues) {
+            try {
+                final DsRdata dsRdata = DsRdata.parse(dsRdataValue);
+                dsInfos.add(new StartDomainTestRequest.DsInfo(dsRdata.getKeytag(), dsRdata.getAlgorithm(), dsRdata.getDigestType(), dsRdata.getDigestHexString()));
+            } catch (AttributeParseException e) {
                 // this should not happen: ds-rdata attributes have already been validated
-                throw new IllegalArgumentException("invalid dsRdata: " + dsRdataLine);
+                throw new IllegalArgumentException("invalid dsRdata " + dsRdataValue + ": " + e.getMessage());
             }
         }
         return dsInfos;
@@ -163,15 +167,15 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
 
     public static class DsInfo {
         @JsonProperty("keytag")
-        private String keyTag;
+        private int keyTag;
         @JsonProperty
-        private String algorithm;
+        private int algorithm;
         @JsonProperty("digtype")
-        private String digestType;
+        private int digestType;
         @JsonProperty
         private String digest;
 
-        public DsInfo(final String keyTag, final String algorithm, final String digestType, final String digest) {
+        public DsInfo(final int keyTag, final int algorithm, final int digestType, final String digest) {
             this.keyTag = keyTag;
             this.algorithm = algorithm;
             this.digestType = digestType;

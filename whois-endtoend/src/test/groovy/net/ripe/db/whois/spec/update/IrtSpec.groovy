@@ -425,4 +425,155 @@ class IrtSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-rGBT inetnum 192.168.202.0 - 192.168.202.255", "inetnum", "192.168.202.0 - 192.168.202.255","mnt-irt:        irt-test")
     }
+
+    def "create IRT, with abuse-mailbox"() {
+        when:
+        def response = syncUpdate("""\
+                irt:           irt-test
+                address:       RIPE NCC
+                e-mail:        irt-dbtest@ripe.net
+                signature:     PGPKEY-D83C3FBD
+                encryption:    PGPKEY-D83C3FBD
+                auth:          PGPKEY-D83C3FBD
+                auth:          MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
+                irt-nfy:       irt_nfy1_dbtest@ripe.net
+                notify:        nfy_dbtest@ripe.net
+                abuse-mailbox: abuse@ripe.net
+                admin-c:       TP1-TEST
+                tech-c:        TP1-TEST
+                mnt-by:        OWNER-MNT
+                source:        TEST
+
+                password: owner
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", response)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[irt] irt-test" }
+        ack.errorMessagesFor("Create", "[irt] irt-test") ==
+                ["\"abuse-mailbox\" is not valid for this object type"]
+
+        queryObjectNotFound("-r -T irt irt-tesT", "irt", "irt-test")
+    }
+
+    def "modify IRT, add abuse-mailbox"() {
+        given:
+        dbfixture("""\
+                irt:           irt-test
+                address:       RIPE NCC
+                e-mail:        irt-dbtest@ripe.net
+                signature:     PGPKEY-D83C3FBD
+                encryption:    PGPKEY-D83C3FBD
+                auth:          PGPKEY-D83C3FBD
+                auth:          MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
+                irt-nfy:       irt_nfy1_dbtest@ripe.net
+                notify:        nfy_dbtest@ripe.net
+                admin-c:       TP1-TEST
+                tech-c:        TP1-TEST
+                mnt-by:        OWNER-MNT
+                source:        TEST
+                """.stripIndent());
+        expect:
+        queryObject("-r -T irt irt-tesT", "irt", "irt-test")
+
+        when:
+        def response = syncUpdate("""\
+                irt:           irt-test
+                address:       RIPE NCC
+                e-mail:        irt-dbtest@ripe.net
+                signature:     PGPKEY-D83C3FBD
+                encryption:    PGPKEY-D83C3FBD
+                auth:          PGPKEY-D83C3FBD
+                auth:          MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
+                irt-nfy:       irt_nfy1_dbtest@ripe.net
+                notify:        nfy_dbtest@ripe.net
+                abuse-mailbox: abuse2@ripe.net
+                admin-c:       TP1-TEST
+                tech-c:        TP1-TEST
+                mnt-by:        OWNER-MNT
+                source:        TEST
+
+                password: owner
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", response)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[irt] irt-test" }
+        ack.errorMessagesFor("Modify", "[irt] irt-test") ==
+                ["\"abuse-mailbox\" is not valid for this object type"]
+
+        ! queryMatches("-r -T irt irt-tesT", "abuse2@ripe.net")
+    }
+
+    def "modify IRT, remove abuse-mailbox"() {
+        given:
+        dbfixture("""\
+                irt:           irt-test
+                address:       RIPE NCC
+                e-mail:        irt-dbtest@ripe.net
+                signature:     PGPKEY-D83C3FBD
+                encryption:    PGPKEY-D83C3FBD
+                auth:          PGPKEY-D83C3FBD
+                auth:          MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
+                irt-nfy:       irt_nfy1_dbtest@ripe.net
+                notify:        nfy_dbtest@ripe.net
+                abuse-mailbox: abuse@ripe.net
+                admin-c:       TP1-TEST
+                tech-c:        TP1-TEST
+                mnt-by:        OWNER-MNT
+                source:        TEST
+                """.stripIndent());
+        expect:
+        queryObject("-r -T irt irt-tesT", "irt", "irt-test")
+
+        when:
+        def response = syncUpdate("""\
+                irt:           irt-test
+                address:       RIPE NCC
+                e-mail:        irt-dbtest@ripe.net
+                signature:     PGPKEY-D83C3FBD
+                encryption:    PGPKEY-D83C3FBD
+                auth:          PGPKEY-D83C3FBD
+                auth:          MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
+                irt-nfy:       irt_nfy1_dbtest@ripe.net
+                notify:        nfy_dbtest@ripe.net
+                admin-c:       TP1-TEST
+                tech-c:        TP1-TEST
+                mnt-by:        OWNER-MNT
+                source:        TEST
+
+                password: owner
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", response)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[irt] irt-test" }
+
+        !queryMatches("-r -T irt irt-tesT", "abuse-mailbox")
+    }
+
 }
