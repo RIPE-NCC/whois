@@ -1,5 +1,9 @@
 # next
 
+# 1.93.2
+[api] Impose a limit on the maximum number of concurrent fulltext searches to prevent memory exhaustion.
+[all] Increase limit in sanity check during GRS import.
+
 # 1.93.1
 [all] Rebuilt release to fix JavaMail dependency.
 
