@@ -365,8 +365,8 @@ public class JdbcRpslObjectOperations {
             }
 
             if (jdbcTemplate.queryForList("SHOW TABLES", String.class).contains("serials")) {
-                if (jdbcTemplate.queryForObject("SELECT count(*) FROM serials", Integer.class) > 30_000_000) {
-                    throw new IllegalStateException(String.format("%s has more than 30M serials, exiting", dbName));
+                if (jdbcTemplate.queryForObject("SELECT count(*) FROM serials", Integer.class) > 50_000_000) {
+                    throw new IllegalStateException(String.format("%s has more than 50M serials, exiting", dbName));
                 }
             }
         } catch (DataAccessException e) {
