@@ -116,7 +116,7 @@ public class IndexTemplate implements Closeable {
         taxonomyWriter.commit();
         indexWriter.commit();
 
-        readerManager = new ReaderManager(indexWriter, false, false);
+        readerManager = new ReaderManager(indexWriter, true);
     }
 
     private static void addFacetCategories(final TaxonomyWriter taxonomyWriter) throws IOException {
