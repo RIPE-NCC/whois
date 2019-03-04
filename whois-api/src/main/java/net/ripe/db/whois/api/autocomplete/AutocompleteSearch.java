@@ -76,7 +76,7 @@ public class AutocompleteSearch {
                 } catch (ParseException e) {
                     // TODO: [ES] fix parsing of asterisk (wildcard) as first character
                     LOGGER.info("Caught {} on {}", e.getMessage(), queryString);
-                    return Collections.<Map<String, Object>>emptyList();
+                    return Collections.emptyList();
                 }
 
                 final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, SORT_BY_LOOKUP_KEY);

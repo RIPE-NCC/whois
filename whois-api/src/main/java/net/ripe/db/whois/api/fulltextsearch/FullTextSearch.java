@@ -90,6 +90,9 @@ public class FullTextSearch {
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return internalServerError("Unexpected error");
+        } finally {
+            // some searches are long-running and consume lots of memory
+            System.gc();
         }
     }
 
