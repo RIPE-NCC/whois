@@ -2,6 +2,9 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
@@ -32,11 +35,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -55,10 +60,16 @@ public class FullTextSearch {
     private static final int MAX_RESULTS = 100;
 
     private final FullTextIndex fullTextIndex;
+    private final AccessControlListManager accessControlListManager;
+    private final Source source;
 
     @Autowired
-    public FullTextSearch(final FullTextIndex fullTextIndex) {
+    public FullTextSearch(final FullTextIndex fullTextIndex,
+                          final AccessControlListManager accessControlListManager,
+                          final SourceContext sourceContext) {
         this.fullTextIndex = fullTextIndex;
+        this.accessControlListManager = accessControlListManager;
+        this.source = sourceContext.getCurrentSource();
     }
 
     @GET
@@ -72,7 +83,8 @@ public class FullTextSearch {
         @QueryParam("hl.simple.pre") @DefaultValue("<b>") final String highlightPre,
         @QueryParam("hl.simple.post") @DefaultValue("</b>") final String highlightPost,
         @QueryParam("wt") @DefaultValue("xml") final String writerType,
-        @QueryParam("facet") @DefaultValue("false") final String facet) {
+        @QueryParam("facet") @DefaultValue("false") final String facet,
+        @Context final HttpServletRequest request) {
         try {
             return ok(search(
                 new SearchRequest.SearchRequestBuilder()
@@ -84,7 +96,7 @@ public class FullTextSearch {
                     .setHighlightPost(highlightPost)
                     .setFormat(writerType)
                     .setFacet(facet)
-                    .build()));
+                    .build(), request));
         } catch (IllegalArgumentException e) {
             return badRequest(e.getMessage());
         } catch (Exception e) {
@@ -105,7 +117,7 @@ public class FullTextSearch {
         return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
     }
 
-    public SearchResponse search(final SearchRequest searchRequest) {
+    public SearchResponse search(final SearchRequest searchRequest, final HttpServletRequest request) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         final QueryParser queryParser = new MultiFieldQueryParser(FullTextIndex.FIELD_NAMES, FullTextIndex.QUERY_ANALYZER);
@@ -119,9 +131,11 @@ public class FullTextSearch {
         }
 
         try {
-            return fullTextIndex.search(new IndexTemplate.SearchCallback<SearchResponse>() {
+            return fullTextIndex.search(
+                    new IndexTemplate.AccountingSearchCallback<SearchResponse>(accessControlListManager, request.getRemoteAddr(), source) {
+
                 @Override
-                public SearchResponse search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
+                protected SearchResponse doSearch(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 
                     final int maxResults = Math.max(MAX_RESULTS, indexReader.numDocs());
                     final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, false);

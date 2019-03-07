@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.containsString;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 
 @Category(IntegrationTest.class)
@@ -241,6 +243,6 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
                     .setFormat("xml")
                     .setHighlightPre("<b>")
                     .setHighlightPost("</b>")
-                    .build());
+                    .build(), mock(HttpServletRequest.class));
     }
 }

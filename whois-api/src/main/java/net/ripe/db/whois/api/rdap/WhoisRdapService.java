@@ -23,7 +23,6 @@ import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -56,7 +55,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
@@ -419,27 +417,13 @@ public class WhoisRdapService {
             throw badRequest("empty search term");
         }
 
-        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-        if (accessControlListManager.isDenied(remoteAddress) || !accessControlListManager.canQueryPersonalObjects(remoteAddress)) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
-        if (accessControlListManager.isDenied(remoteAddress)) {
-            throw new ForbiddenException(QueryMessages.accessDeniedPermanently(remoteAddress).getFormattedText());
-        } else if (!accessControlListManager.canQueryPersonalObjects(remoteAddress)) {
-            throw new ForbiddenException(QueryMessages.accessDeniedTemporarily(remoteAddress).getFormattedText());
-        }
-
-
         try {
-            final List<RpslObject> objects = fullTextIndex.search(new IndexTemplate.SearchCallback<List<RpslObject>>() {
-                @Override
-                public List<RpslObject> search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
-                    final Stopwatch stopWatch = Stopwatch.createStarted();
+            final List<RpslObject> objects = fullTextIndex.search(
+                    new IndexTemplate.AccountingSearchCallback<List<RpslObject>>(accessControlListManager, request.getRemoteAddr(), source) {
 
-                    final boolean useAcl = !accessControlListManager.isUnlimited(remoteAddress);
-                    int accountingLimit = -1;
-                    int accountedObjects = 0;
+                @Override
+                protected List<RpslObject> doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
+                    final Stopwatch stopWatch = Stopwatch.createStarted();
 
                     final List<RpslObject> results = Lists.newArrayList();
                     final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
@@ -453,17 +437,7 @@ public class WhoisRdapService {
                             final Document document = indexSearcher.doc(scoreDoc.doc);
 
                             final RpslObject rpslObject = convertLuceneDocumentToRpslObject(document);
-
-                            if (useAcl && accessControlListManager.requiresAcl(rpslObject, source)) {
-                                if (accountingLimit == -1) {
-                                    accountingLimit = accessControlListManager.getPersonalObjects(remoteAddress);
-                                }
-
-                                if (++accountedObjects > accountingLimit) {
-                                    throw new ForbiddenException(QueryMessages.accessDeniedTemporarily(remoteAddress).getFormattedText());
-                                }
-                            }
-
+                            account(rpslObject);
                             results.add(rpslObject);
                         }
 
@@ -473,10 +447,6 @@ public class WhoisRdapService {
                     } catch (ParseException e) {
                         LOGGER.error("handleSearch", e);
                         throw badRequest("cannot parse query " + term);
-                    } finally {
-                        if (accountedObjects > 0) {
-                            accessControlListManager.accountPersonalObjects(remoteAddress, accountedObjects);
-                        }
                     }
                 }
             });

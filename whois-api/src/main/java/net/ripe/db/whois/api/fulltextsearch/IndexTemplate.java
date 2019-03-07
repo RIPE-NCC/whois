@@ -1,6 +1,11 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
+import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.facet.taxonomy.FacetLabel;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
@@ -20,9 +25,11 @@ import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.ForbiddenException;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.concurrent.Semaphore;
 
 import static org.apache.lucene.util.IOUtils.closeWhileHandlingException;
@@ -160,4 +167,56 @@ public class IndexTemplate implements Closeable {
     public interface SearchCallback<T> {
         T search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException;
     }
+
+    public abstract static class AccountingSearchCallback<T> implements SearchCallback<T> {
+
+        private final AccessControlListManager accessControlListManager;
+        private final InetAddress remoteAddress;
+        private final Source source;
+
+        private int accountingLimit = -1;
+        private int accountedObjects = 0;
+
+        private final boolean shouldDoAccounting;
+
+        public AccountingSearchCallback(final AccessControlListManager accessControlListManager,
+                                        final String remoteAddress,
+                                        final Source source) {
+            this.accessControlListManager = accessControlListManager;
+            this.remoteAddress = InetAddresses.forString(remoteAddress);
+            this.shouldDoAccounting = !accessControlListManager.isUnlimited(this.remoteAddress);
+            this.source = source;
+        }
+
+        public T search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
+            if (accessControlListManager.isDenied(remoteAddress)) {
+                throw new ForbiddenException(QueryMessages.accessDeniedPermanently(remoteAddress).getFormattedText());
+            } else if (!accessControlListManager.canQueryPersonalObjects(remoteAddress)) {
+                throw new ForbiddenException(QueryMessages.accessDeniedTemporarily(remoteAddress).getFormattedText());
+            }
+
+            try {
+                return doSearch(indexReader, taxonomyReader, indexSearcher);
+            } finally {
+                if (shouldDoAccounting && accountedObjects > 0) {
+                    accessControlListManager.accountPersonalObjects(remoteAddress, accountedObjects);
+                }
+            }
+        }
+
+        protected abstract T doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException;
+
+        protected void account(final RpslObject rpslObject) {
+            if (shouldDoAccounting && accessControlListManager.requiresAcl(rpslObject, source)) {
+                if (accountingLimit == -1) {
+                    accountingLimit = accessControlListManager.getPersonalObjects(remoteAddress);
+                }
+
+                if (++accountedObjects > accountingLimit) {
+                    throw new ForbiddenException(QueryMessages.accessDeniedTemporarily(remoteAddress).getFormattedText());
+                }
+            }
+        }
+    }
+
 }
