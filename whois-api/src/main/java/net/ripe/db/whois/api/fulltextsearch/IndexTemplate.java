@@ -1,12 +1,17 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.FacetLabel;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
@@ -16,6 +21,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.ReaderManager;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
@@ -30,6 +36,8 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import static org.apache.lucene.util.IOUtils.closeWhileHandlingException;
@@ -166,9 +174,12 @@ public class IndexTemplate implements Closeable {
 
     public interface SearchCallback<T> {
         T search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException;
+
     }
 
     public abstract static class AccountingSearchCallback<T> implements SearchCallback<T> {
+
+        private static final Set<String> SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT = Sets.newHashSet("primary-key", "object-type", "lookup-key");
 
         private final AccessControlListManager accessControlListManager;
         private final InetAddress remoteAddress;
@@ -217,6 +228,25 @@ public class IndexTemplate implements Closeable {
                 }
             }
         }
+
+        protected RpslObject convertToRpslObject(Document document) {
+            final List<RpslAttribute> attributes = Lists.newArrayList();
+            int objectId = 0;
+
+            for (final IndexableField field : document.getFields()) {
+                if (SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT.contains(field.name())) {
+                    if ("primary-key".equals(field.name())) {
+                        objectId = Integer.parseInt(field.stringValue());
+                    }
+                } else {
+                    attributes.add(new RpslAttribute(AttributeType.getByName(field.name()), field.stringValue()));
+                }
+            }
+
+            attributes.add(new RpslAttribute(AttributeType.SOURCE, source.getName()));
+            return new RpslObject(objectId, attributes);
+        }
+
     }
 
 }

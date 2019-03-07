@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
@@ -39,7 +38,6 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -92,7 +90,6 @@ public class WhoisRdapService {
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
     private static final int SEARCH_MAX_RESULTS = 100;
-    private static final Set<String> SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT = Sets.newHashSet("primary-key", "object-type", "lookup-key");
 
     private final QueryHandler queryHandler;
     private final RpslObjectDao objectDao;
@@ -436,7 +433,7 @@ public class WhoisRdapService {
                         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                             final Document document = indexSearcher.doc(scoreDoc.doc);
 
-                            final RpslObject rpslObject = convertLuceneDocumentToRpslObject(document);
+                            final RpslObject rpslObject = convertToRpslObject(document);
                             account(rpslObject);
                             results.add(rpslObject);
                         }
@@ -468,24 +465,6 @@ public class WhoisRdapService {
             LOGGER.error(e.getMessage(), e);
             throw new IllegalStateException("search failed");
         }
-    }
-
-    private RpslObject convertLuceneDocumentToRpslObject(Document document) {
-        final List<RpslAttribute> attributes = Lists.newArrayList();
-        int objectId = 0;
-
-        for (final IndexableField field : document.getFields()) {
-            if (SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT.contains(field.name())) {
-                if ("primary-key".equals(field.name())) {
-                    objectId = Integer.parseInt(field.stringValue());
-                }
-            } else {
-                attributes.add(new RpslAttribute(AttributeType.getByName(field.name()), field.stringValue()));
-            }
-        }
-
-        attributes.add(new RpslAttribute(AttributeType.SOURCE, source.getName()));
-        return new RpslObject(objectId, attributes);
     }
 
     private class RdapAnalyzer extends Analyzer {

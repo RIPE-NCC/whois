@@ -150,7 +150,11 @@ public class FullTextSearch {
                     final int end = Math.min(start + searchRequest.getRows(), topDocs.totalHits);
                     for (int index = start; index < end; index++) {
                         final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
-                        documents.add(indexSearcher.doc(scoreDoc.doc));
+
+                        Document document = indexSearcher.doc(scoreDoc.doc);
+                        account(convertToRpslObject(document));
+
+                        documents.add(document);
                     }
 
                     final List<SearchResponse.Lst> responseLstList = Lists.newArrayList();
