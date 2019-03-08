@@ -34,6 +34,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
@@ -93,7 +94,6 @@ public class FullTextIndex extends RebuildableIndex {
         OBJECT_TYPE_FIELD_TYPE.freeze();
 
         PRIMARY_KEY_FIELD_TYPE = new FieldType();
-        // PRIMARY_KEY_FIELD_TYPE.setNumericType(FieldType.NumericType.INT);
         PRIMARY_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
         PRIMARY_KEY_FIELD_TYPE.setStored(true);
         PRIMARY_KEY_FIELD_TYPE.setTokenized(false);
@@ -144,19 +144,17 @@ public class FullTextIndex extends RebuildableIndex {
                 new IndexTemplate.WriteCallback() {
                     @Override
                     public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                        if (indexWriter.numDocs() == 0) {
+                        if (indexWriter.getDocStats().numDocs == 0) {
                             rebuild(indexWriter, taxonomyWriter);
                         } else {
-                            final Map<String, String> commitData = indexWriter.getCommitData();
-                            final String committedSource = commitData.get("source");
-
+                            final String committedSource = getCommitData(indexWriter, "source");
                             if (!source.equals(committedSource)) {
                                 LOGGER.warn("Index {} has invalid source: {}, rebuild", indexDir, committedSource);
                                 rebuild(indexWriter, taxonomyWriter);
                                 return;
                             }
 
-                            if (!commitData.containsKey("serial")) {
+                            if (getCommitData(indexWriter, "serial") == null) {
                                 LOGGER.warn("Index {} is missing serial, rebuild", indexDir);
                                 rebuild(indexWriter, taxonomyWriter);
                                 return;
@@ -237,10 +235,8 @@ public class FullTextIndex extends RebuildableIndex {
 
     @Override
     protected void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-        final Map<String, String> metadata = indexWriter.getCommitData();
         final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
-        final int last = Integer.parseInt(metadata.get("serial"));
-
+        final int last = Integer.parseInt(getCommitData(indexWriter, "serial"));
         if (last > end) {
             LOGGER.warn("Index serial ({}) higher than database serial ({}), rebuilding", last, end);
             rebuild(indexWriter, taxonomyWriter);
@@ -368,4 +364,20 @@ public class FullTextIndex extends RebuildableIndex {
     private boolean isEnabled() {
         return !StringUtils.isBlank(indexDir);
     }
+
+    @Nullable
+    private String getCommitData(final IndexWriter indexWriter, final String key) {
+        final Iterable<Map.Entry<String, String>> commitData = indexWriter.getLiveCommitData();
+        if (commitData != null) {
+            for (Map.Entry<String, String> entry : commitData) {
+                if (entry.getKey().equals(key)) {
+                    return entry.getValue();
+                }
+            }
+        }
+
+        return null;
+    }
 }
+
+

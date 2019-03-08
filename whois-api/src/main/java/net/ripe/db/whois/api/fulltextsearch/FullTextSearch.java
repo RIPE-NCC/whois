@@ -139,7 +139,7 @@ public class FullTextSearch {
 
                     final TopDocs topDocs = topFieldCollector.topDocs();
                     final int start = Math.max(0, searchRequest.getStart());
-                    final int end = Math.min(start + searchRequest.getRows(), topDocs.totalHits);
+                    final int end = Math.min(start + searchRequest.getRows(), Long.valueOf(topDocs.totalHits).intValue());
                     for (int index = start; index < end; index++) {
                         final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
                         documents.add(indexSearcher.doc(scoreDoc.doc));
@@ -160,7 +160,7 @@ public class FullTextSearch {
                     }
 
                     final SearchResponse searchResponse = new SearchResponse();
-                    searchResponse.setResult(createResult(searchRequest, documents, topDocs.totalHits));
+                    searchResponse.setResult(createResult(searchRequest, documents, Long.valueOf(topDocs.totalHits).intValue()));
                     searchResponse.setLsts(responseLstList);
 
                     return searchResponse;
