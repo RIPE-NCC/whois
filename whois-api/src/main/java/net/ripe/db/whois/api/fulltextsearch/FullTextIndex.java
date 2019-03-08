@@ -71,7 +71,6 @@ public class FullTextIndex extends RebuildableIndex {
     private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
 
     private static final FieldType OBJECT_TYPE_FIELD_TYPE;
-    private static final FieldType PRIMARY_KEY_FIELD_TYPE;
     private static final FieldType LOOKUP_KEY_FIELD_TYPE;
     private static final FieldType FILTERED_ATTRIBUTE_FIELD_TYPE;
     private static final FieldType ATTRIBUTE_FIELD_TYPE;
@@ -93,12 +92,6 @@ public class FullTextIndex extends RebuildableIndex {
         OBJECT_TYPE_FIELD_TYPE.setStored(false);
         OBJECT_TYPE_FIELD_TYPE.setTokenized(false);
         OBJECT_TYPE_FIELD_TYPE.freeze();
-
-        PRIMARY_KEY_FIELD_TYPE = new FieldType();
-        PRIMARY_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
-        PRIMARY_KEY_FIELD_TYPE.setStored(true);
-        PRIMARY_KEY_FIELD_TYPE.setTokenized(false);
-        PRIMARY_KEY_FIELD_TYPE.freeze();
 
         LOOKUP_KEY_FIELD_TYPE = new FieldType();
         LOOKUP_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
@@ -282,12 +275,12 @@ public class FullTextIndex extends RebuildableIndex {
         final Document document = new Document();
 
         // primary key
-        // document.add(new IntField(PRIMARY_KEY_FIELD_NAME, rpslObject.getObjectId(), PRIMARY_KEY_FIELD_TYPE));
         document.add(new IntPoint(PRIMARY_KEY_FIELD_NAME, rpslObject.getObjectId()));
+        document.add(new StoredField(PRIMARY_KEY_FIELD_NAME, rpslObject.getObjectId()));
 
         // object type
         document.add(new Field(OBJECT_TYPE_FIELD_NAME, new BytesRef(rpslObject.getType().getName()), OBJECT_TYPE_FIELD_TYPE));
-        document.add(new StoredField(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));      // also store contents
+        document.add(new StoredField(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));
 
         // lookup key
         // document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_NOT_TOKENIZED));
