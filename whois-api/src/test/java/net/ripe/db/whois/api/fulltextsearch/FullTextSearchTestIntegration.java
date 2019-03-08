@@ -176,7 +176,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
                 "source: RIPE"));
         fullTextIndex.rebuild();
 
-        final QueryResponse queryResponse = query("q=(AA1)+AND+(object-type:organisation)&facet=true");
+        final QueryResponse queryResponse = query("q=(AA1)+AND+(object-type:organisation)");
 
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
@@ -187,6 +187,50 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
         assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
         assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT # include this comment"));
+    }
+
+    @Test
+    public void search_list_value_attribute_comment() {
+        databaseHelper.addObject("mntner: AA1-MNT\nsource: RIPE");
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-AA1-RIPE\n" +
+                "mnt-ref: AA1-MNT # include this comment\n" +
+                "source: RIPE"));
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(include)+AND+(object-type:organisation)");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        final SolrDocument solrDocument = queryResponse.getResults().get(0);
+        assertThat(solrDocument.getFirstValue("primary-key"), is("2"));
+        assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
+        assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT # include this comment"));
+    }
+
+    @Test
+    public void search_list_value_attribute_single_value_and_comment_with_facet() {
+        databaseHelper.addObject("mntner: AA1-MNT\nsource: RIPE");
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-AA1-RIPE\n" +
+                "mnt-ref: AA1-MNT # include this comment\n" +
+                "source: RIPE"));
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(AA1)+AND+(object-type:organisation)&facet=true");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        final List<FacetField> facets = queryResponse.getFacetFields();
+        assertThat(facets.size(), is(1));
+        final FacetField facet = facets.get(0);
+        assertThat(facet.getName(), is("object-type"));
+        assertThat(facet.getValueCount(), is(1));
+        assertThat(facet.getValues().toString(), containsString("organisation (1)"));
     }
 
     @Test
