@@ -50,7 +50,7 @@ public class IndexTemplateTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         subject.close();
     }
 

@@ -8,9 +8,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import net.ripe.db.whois.api.rest.ApiResponseHandler;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
-import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -34,8 +34,8 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
-import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
-import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterGraphFilter;
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.index.IndexReader;
@@ -493,9 +493,9 @@ public class WhoisRdapService {
         @Override
         protected TokenStreamComponents createComponents(final String fieldName) {
             final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer();
-            TokenStream tok = new WordDelimiterFilter(
+            TokenStream tok = new WordDelimiterGraphFilter(
                     tokenizer,
-                    WordDelimiterFilter.PRESERVE_ORIGINAL,
+                    WordDelimiterGraphFilter.PRESERVE_ORIGINAL,
                     CharArraySet.EMPTY_SET);
             tok = new LowerCaseFilter(tok);
             return new TokenStreamComponents(tokenizer, tok);

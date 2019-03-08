@@ -15,7 +15,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.IntField;
+import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.facet.FacetField;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
@@ -23,7 +23,6 @@ import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.util.BytesRef;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +40,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,14 +93,14 @@ public class FullTextIndex extends RebuildableIndex {
         OBJECT_TYPE_FIELD_TYPE.freeze();
 
         PRIMARY_KEY_FIELD_TYPE = new FieldType();
-        PRIMARY_KEY_FIELD_TYPE.setNumericType(FieldType.NumericType.INT);
-        PRIMARY_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);       // TODO: [ES] check value
+        // PRIMARY_KEY_FIELD_TYPE.setNumericType(FieldType.NumericType.INT);
+        PRIMARY_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
         PRIMARY_KEY_FIELD_TYPE.setStored(true);
         PRIMARY_KEY_FIELD_TYPE.setTokenized(false);
         PRIMARY_KEY_FIELD_TYPE.freeze();
 
         LOOKUP_KEY_FIELD_TYPE = new FieldType();
-        LOOKUP_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);       // TODO: [ES] check value
+        LOOKUP_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
         LOOKUP_KEY_FIELD_TYPE.setStored(true);
         LOOKUP_KEY_FIELD_TYPE.setTokenized(false);
         LOOKUP_KEY_FIELD_TYPE.freeze();
@@ -278,14 +278,15 @@ public class FullTextIndex extends RebuildableIndex {
         final Map<String, String> metadata = Maps.newHashMap();
         metadata.put("serial", Integer.toString(serial));
         metadata.put("source", source);
-        indexWriter.setCommitData(metadata);
+        indexWriter.setLiveCommitData(new HashMap<>(metadata).entrySet(), true);
     }
 
     private void addEntry(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter, final RpslObject rpslObject) throws IOException {
         final Document document = new Document();
 
         // primary key
-        document.add(new IntField(PRIMARY_KEY_FIELD_NAME, rpslObject.getObjectId(), PRIMARY_KEY_FIELD_TYPE));
+        // document.add(new IntField(PRIMARY_KEY_FIELD_NAME, rpslObject.getObjectId(), PRIMARY_KEY_FIELD_TYPE));
+        document.add(new IntPoint(PRIMARY_KEY_FIELD_NAME, rpslObject.getObjectId()));
 
         // object type
         // document.add(new Field(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName(), OBJECT_TYPE_FIELD_TYPE));
@@ -316,13 +317,9 @@ public class FullTextIndex extends RebuildableIndex {
 
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
         indexWriter.deleteDocuments(
-            NumericRangeQuery.newIntRange(
+            IntPoint.newExactQuery(
                 PRIMARY_KEY_FIELD_NAME,
-                1,
-                rpslObject.getObjectId(),
-                rpslObject.getObjectId(),
-                true,
-                true));
+                rpslObject.getObjectId()));
     }
 
     private String filterAttribute(final String value) {
