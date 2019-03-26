@@ -43,7 +43,7 @@ public class AbuseCInfoDecoratorTest {
     @Test
     public void inet6num_with_abuse_contact() {
         final RpslObject object = RpslObject.parse("inet6num: ffc::0/64\norg: ORG-TEST");
-        when(abuseCFinder.getAbuseContact(object)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false)));
+        when(abuseCFinder.getAbuseContact(object)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
         when(sourceContext.isMain()).thenReturn(true);
 
         final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("AS3333"), Collections.singletonList(object)).iterator();

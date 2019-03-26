@@ -24,7 +24,7 @@ public class AbuseContactSearch {
     @Nullable
     public AbuseContact findAbuseContact(final RpslObject rpslObject) {
         return abuseCFinder.getAbuseContact(rpslObject)
-            .map(abuseContact -> new AbuseContact(abuseContact.getNicHandle(), abuseContact.getAbuseMailbox(), abuseContact.isSuspect()))
+            .map(abuseContact -> new AbuseContact(abuseContact.getNicHandle(), abuseContact.getAbuseMailbox(), abuseContact.isSuspect(), abuseContact.getOrgId()))
             .orElse(null);
     }
 }

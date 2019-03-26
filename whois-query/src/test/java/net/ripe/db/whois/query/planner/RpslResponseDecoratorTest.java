@@ -277,7 +277,7 @@ public class RpslResponseDecoratorTest {
     public void non_grouping_and_recursive_no_recursive_objects() {
         final RpslObject inetnum = RpslObject.parse(1, "inetnum: 10.0.0.0\norg:ORG1-TEST\nstatus:OTHER");
 
-        when(abuseCFinder.getAbuseContact(inetnum)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false)));
+        when(abuseCFinder.getAbuseContact(inetnum)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
 
         String result = execute("-G -B -T inetnum 10.0.0.0", inetnum);
 
@@ -293,7 +293,7 @@ public class RpslResponseDecoratorTest {
     public void non_grouping_and_recursive_with_recursive_objects() {
         RpslObject rpslObject = RpslObject.parse("inetnum: 10.0.0.0\ntech-c:NICHDL\norg:ORG1-TEST\nstatus:OTHER");
         when(decorator.appliesToQuery(any(Query.class))).thenReturn(true);
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false)));
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
 
         String result = execute("-G -B -T inetnum 10.0.0.0", rpslObject);
 
@@ -324,8 +324,8 @@ public class RpslResponseDecoratorTest {
             }
         });
 
-        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false)));
-        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false)));
+        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
 
         String result = execute("-G -B -T inetnum 10.0.0.0", object1, object2);
 
@@ -368,8 +368,8 @@ public class RpslResponseDecoratorTest {
             }
         });
 
-        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false)));
-        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false)));
+        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
 
         String result = execute("-B -T inetnum 10.0.0.0", object1, object2);
 

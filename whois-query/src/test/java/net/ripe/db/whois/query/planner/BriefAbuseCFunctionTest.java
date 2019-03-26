@@ -93,7 +93,7 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: RIPE\n" +
                 "abuse-mailbox: abuse@me.now");
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abusec@ripe.net"), false)));
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abusec@ripe.net"), false, ciString(""))));
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
@@ -108,7 +108,7 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: RIPE\n" +
                 "abuse-mailbox: abuse@me.now");
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false)));
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +

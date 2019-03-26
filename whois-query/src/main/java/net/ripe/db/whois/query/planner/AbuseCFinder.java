@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.planner;
 
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
@@ -51,8 +52,28 @@ public class AbuseCFinder {
                 Optional.of(new AbuseContact(
                         role.getKey(),
                         role.getValueForAttribute(AttributeType.ABUSE_MAILBOX),
-                        abuseValidationStatusDao.isSuspect(role.getValueForAttribute(AttributeType.ABUSE_MAILBOX))
+                        abuseValidationStatusDao.isSuspect(role.getValueForAttribute(AttributeType.ABUSE_MAILBOX)),
+                        getOrgToContact(object)
                 )) : Optional.empty();
+    }
+
+    @Nullable
+    private CIString getOrgToContact(final RpslObject object) {
+        if (object.containsAttribute(AttributeType.SPONSORING_ORG)) {
+            return object.getValueForAttribute(AttributeType.SPONSORING_ORG);
+        }
+
+        final RpslObject responsibleOrg = findResponsibleOrgObject(object);
+        return responsibleOrg != null? responsibleOrg.getValueForAttribute(AttributeType.ORG) : null;
+    }
+
+    @Nullable
+    private RpslObject findResponsibleOrgObject(final RpslObject rpslObject) {
+        if (rpslObject.containsAttribute(AttributeType.ORG)) {
+            return rpslObject;
+        }
+        final RpslObject parent = getParentObject(rpslObject);
+        return parent != null? findResponsibleOrgObject(parent) : null;
     }
 
     @CheckForNull

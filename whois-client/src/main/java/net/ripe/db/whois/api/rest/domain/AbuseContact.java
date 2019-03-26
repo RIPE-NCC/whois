@@ -22,16 +22,21 @@ public class AbuseContact {
     @XmlAttribute(name = "suspect")
     private boolean suspect;
 
-    public AbuseContact(final String key, final String email, final boolean suspect) {
+    @XmlAttribute(name = "org-id")
+    private String orgId;
+
+    public AbuseContact(final String key, final String email, final boolean suspect, final String orgId) {
         this.key = key;
         this.email = email;
         this.suspect = suspect;
+        this.orgId = orgId;
     }
 
-    public AbuseContact(final CIString key, final CIString email, final boolean suspect) {
+    public AbuseContact(final CIString key, final CIString email, final boolean suspect, final CIString orgId) {
         this.key = key == null ? null : key.toString();
         this.email = email == null ? null : email.toString();
         this.suspect = suspect;
+        this.orgId = orgId.toString();
     }
 
     public AbuseContact() {
@@ -48,5 +53,9 @@ public class AbuseContact {
 
     public boolean isSuspect() {
         return suspect;
+    }
+
+    public String getOrgId() {
+        return orgId;
     }
 }

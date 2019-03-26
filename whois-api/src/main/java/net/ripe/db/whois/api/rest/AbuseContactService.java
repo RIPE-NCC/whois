@@ -83,8 +83,8 @@ public class AbuseContactService {
                             Link.create(String.format("http://rest.db.ripe.net/abuse-contact/%s", key)),
                             new Parameters.Builder().primaryKey(new AbusePKey(rpslObject.getKey().toString())).build(),
                             optionalAbuseContact
-                                    .map(abuseContact -> new AbuseContact(abuseContact.getNicHandle(), abuseContact.getAbuseMailbox(), abuseContact.isSuspect()))
-                                    .orElseGet(() -> new AbuseContact("", "", false)),
+                                    .map(abuseContact -> new AbuseContact(abuseContact.getNicHandle(), abuseContact.getAbuseMailbox(), abuseContact.isSuspect(), abuseContact.getOrgId()))
+                                    .orElseGet(() -> new AbuseContact("", "", false, "")),
                             Link.create(WhoisResources.TERMS_AND_CONDITIONS)));
                 }
             }

@@ -51,10 +51,16 @@ class AbuseCInfoDecorator implements ResponseDecorator {
                     return;
                 }
 
-                final Optional<AbuseContact> abuseContact = abuseCFinder.getAbuseContact(object);
+                final Optional<AbuseContact> optionalAbuseContact = abuseCFinder.getAbuseContact(object);
 
-                if (abuseContact.isPresent()) {
-                    result.add(new MessageObject(QueryMessages.abuseCShown(object.getKey(), abuseContact.get().getAbuseMailbox())));
+                if (optionalAbuseContact.isPresent()) {
+                    optionalAbuseContact.ifPresent(abuseContact -> {
+                        if (abuseContact.isSuspect()) {
+                            result.add(new MessageObject(QueryMessages.unvalidatedAbuseCShown(object.getKey(), abuseContact.getAbuseMailbox(), abuseContact.getOrgId())));
+                        } else {
+                            result.add(new MessageObject(QueryMessages.abuseCShown(object.getKey(), abuseContact.getAbuseMailbox())));
+                        }
+                    });
                 } else {
                     result.add(new MessageObject(QueryMessages.abuseCNotRegistered(object.getKey())));
                 }
