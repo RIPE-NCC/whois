@@ -59,7 +59,7 @@ public class AbuseCInfoDecoratorTest {
     @Test
     public void autnum_without_abuse_contact() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS333\nas-name: TEST-NAME\norg: ORG-TOL1-TEST");
-        when(abuseCFinder.getAbuseContact(autnum)).thenReturn(null);
+        when(abuseCFinder.getAbuseContact(autnum)).thenReturn(Optional.empty());
         when(sourceContext.isMain()).thenReturn(true);
 
         final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("AS3333"), Collections.singletonList(autnum)).iterator();

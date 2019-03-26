@@ -128,7 +128,7 @@ public class RpslResponseDecoratorTest {
         final RpslObject inet = RpslObject.parse(1, "inetnum: 10.0.0.0\nmntner: TEST\norg: ORG1-TEST");
         final RpslObject inet6 = RpslObject.parse(1, "inet6num: ::0/0\nmntner: TEST\norg: ORG1-TEST");
 
-        when(abuseCFinder.getAbuseContact(any(RpslObject.class))).thenReturn(null);
+        when(abuseCFinder.getAbuseContact(any(RpslObject.class))).thenReturn(Optional.empty());
 
         final String response = execute("-b 10.0.0.0", inet, inet6);
         assertThat(response, is(
@@ -239,6 +239,8 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void non_grouping_and_recursive_no_rpsl_objects() {
+        when(abuseCFinder.getAbuseContact(any(RpslObject.class))).thenReturn(Optional.empty());
+
         String result = execute("-G -B -T inetnum 10.0.0.0", RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.0"));
 
         assertThat(result, is("% No abuse contact registered for 10.0.0.0 - 10.0.0.0\n\ninetnum:        10.0.0.0 - 10.0.0.0\n\n"));
