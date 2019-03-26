@@ -17,6 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
+
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
@@ -52,9 +54,9 @@ public class AbuseCFinderTest {
         when(ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(inetnum.getKey()))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(parent.getKey()), 5)));
         when(objectDao.getById(5)).thenReturn(parent);
 
-        final String abuseContact = subject.getAbuseContact(inetnum);
+        final Optional<AbuseContact> abuseContact = subject.getAbuseContact(inetnum);
 
-        assertThat(abuseContact, is(nullValue()));
+        assertThat(abuseContact.isPresent(), is(false));
 
         verify(maintainers).isRsMaintainer(ciSet());
         verifyNoMoreInteractions(maintainers);

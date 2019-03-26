@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.dao.AbuseValidationStatusDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 @Component
 public class AbuseCFinder {
@@ -28,23 +30,29 @@ public class AbuseCFinder {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final Maintainers maintainers;
+    private final AbuseValidationStatusDao abuseValidationStatusDao;
 
     @Autowired
     public AbuseCFinder(final RpslObjectDao objectDao,
                         final Ipv4Tree ipv4Tree,
                         final Ipv6Tree ipv6Tree,
-                        final Maintainers maintainers) {
+                        final Maintainers maintainers,
+                        final AbuseValidationStatusDao abuseValidationStatusDao) {
         this.objectDao = objectDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.maintainers = maintainers;
+        this.abuseValidationStatusDao = abuseValidationStatusDao;
     }
 
-    @CheckForNull
-    @Nullable
-    public String getAbuseContact(final RpslObject object) {
+    public Optional<AbuseContact> getAbuseContact(final RpslObject object) {
         final RpslObject role = getAbuseContactRole(object);
-        return (role != null) ? role.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString() : null;
+        return role != null?
+                Optional.of(new AbuseContact(
+                        role.getKey(),
+                        role.getValueForAttribute(AttributeType.ABUSE_MAILBOX),
+                        abuseValidationStatusDao.isSuspect(role.getValueForAttribute(AttributeType.ABUSE_MAILBOX))
+                )) : Optional.empty();
     }
 
     @CheckForNull

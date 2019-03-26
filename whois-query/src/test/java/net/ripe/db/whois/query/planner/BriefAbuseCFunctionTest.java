@@ -9,6 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
+
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -86,7 +89,7 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: RIPE\n" +
                 "abuse-mailbox: abuse@me.now");
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn("abusec@ripe.net");
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abusec@ripe.net"), false)));
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
@@ -101,7 +104,7 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: RIPE\n" +
                 "abuse-mailbox: abuse@me.now");
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn("abuse@ripe.net");
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false)));
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +

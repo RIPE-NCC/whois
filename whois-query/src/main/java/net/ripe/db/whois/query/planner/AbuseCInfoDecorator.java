@@ -2,7 +2,6 @@ package net.ripe.db.whois.query.planner;
 
 
 import net.ripe.db.whois.common.collect.IterableTransformer;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Deque;
 import java.util.EnumSet;
-import java.util.Map;
+import java.util.Optional;
 
 @Component
 class AbuseCInfoDecorator implements ResponseDecorator {
@@ -52,16 +51,15 @@ class AbuseCInfoDecorator implements ResponseDecorator {
                     return;
                 }
 
-                final String abuseContact = abuseCFinder.getAbuseContact(object);
+                final Optional<AbuseContact> abuseContact = abuseCFinder.getAbuseContact(object);
 
-                if (abuseContact != null) {
-                    result.add(new MessageObject(QueryMessages.abuseCShown(object.getKey(), abuseContact)));
+                if (abuseContact.isPresent()) {
+                    result.add(new MessageObject(QueryMessages.abuseCShown(object.getKey(), abuseContact.get().getAbuseMailbox())));
                 } else {
                     result.add(new MessageObject(QueryMessages.abuseCNotRegistered(object.getKey())));
                 }
 
                 result.add(input);
-                return;
             }
         };
     }

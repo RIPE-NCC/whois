@@ -19,14 +19,19 @@ public class AbuseContact {
     @XmlAttribute(name = "email")
     private String email;
 
-    public AbuseContact(final String key, final String email) {
+    @XmlAttribute(name = "suspect")
+    private boolean suspect;
+
+    public AbuseContact(final String key, final String email, final boolean suspect) {
         this.key = key;
         this.email = email;
+        this.suspect = suspect;
     }
 
-    public AbuseContact(final CIString key, final CIString email) {
+    public AbuseContact(final CIString key, final CIString email, final boolean suspect) {
         this.key = key == null ? null : key.toString();
         this.email = email == null ? null : email.toString();
+        this.suspect = suspect;
     }
 
     public AbuseContact() {
@@ -39,5 +44,9 @@ public class AbuseContact {
 
     public String getEmail() {
         return email;
+    }
+
+    public boolean isSuspect() {
+        return suspect;
     }
 }
