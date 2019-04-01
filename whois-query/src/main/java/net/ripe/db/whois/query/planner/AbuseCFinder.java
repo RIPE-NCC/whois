@@ -72,6 +72,11 @@ public class AbuseCFinder {
         if (rpslObject.containsAttribute(AttributeType.ORG)) {
             return rpslObject;
         }
+
+        if (rpslObject.getType() != ObjectType.INETNUM && rpslObject.getType() != ObjectType.INET6NUM) {
+            return null;
+        }
+
         final RpslObject parent = getParentObject(rpslObject);
         return parent != null? findResponsibleOrgObject(parent) : null;
     }
