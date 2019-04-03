@@ -135,3 +135,19 @@ Example:
 * Request: /domains?name=XXXX
  * Response: 403 Forbidden
 
+
+Netname may not match Whois
+----------------------------
+The netname value returned by RDAP may not match what is returned by Whois.
+
+Help Returns Not Found
+-----------------------
+Requesting /help returns 404 Not Found.
+
+
+Abuse-c Contact does not include Abuse Mailbox
+-----------------------------------------------
+An organisation's abuse-c email address is not included in an inetnum, inet6num, aut-num response. The abuse-c role is added as an "abuse" contact, but only an "e-mail" attribute is included in the vCard, not the "abuse-mailbox" attribute.
+
+Example: https://rdap.db.ripe.net/autnum/8447
+
