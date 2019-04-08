@@ -42,6 +42,7 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
         }
 
         for (final RpslObjectInfo referenceInfo : updateObjectDao.getReferences(update.getUpdatedObject())) {
+            // TODO: [ES] abuse-c reference can also be from a resource
             if (referenceInfo.getObjectType() == ObjectType.ORGANISATION) {
                 final Set<CIString> abuseCAttributes = objectDao.getById(referenceInfo.getObjectId()).getValuesForAttribute(AttributeType.ABUSE_C);
                 if (!abuseCAttributes.isEmpty() && abuseCAttributes.contains(update.getUpdatedObject().getValueForAttribute(AttributeType.NIC_HDL))) {
