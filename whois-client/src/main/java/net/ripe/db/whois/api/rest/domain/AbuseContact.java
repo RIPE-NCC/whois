@@ -36,7 +36,7 @@ public class AbuseContact {
         this.key = key == null ? null : key.toString();
         this.email = email == null ? null : email.toString();
         this.suspect = suspect;
-        this.orgId = orgId.toString();
+        this.orgId = orgId == null? null : orgId.toString();
     }
 
     public AbuseContact() {
