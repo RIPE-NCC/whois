@@ -63,6 +63,11 @@ public final class QueryMessages {
                 "\nAbuse-mailbox validation failed. Please refer to %s for further information.", key, value, orgId);
     }
 
+    public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value) {
+        return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'" +
+                        "\nAbuse-mailbox validation failed.", key, value);
+    }
+
     public static Message abuseCNotRegistered(final CharSequence key) {
         return new QueryMessage(Type.INFO, "No abuse contact registered for %s", key);
     }

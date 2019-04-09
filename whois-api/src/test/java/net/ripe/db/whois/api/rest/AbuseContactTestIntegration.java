@@ -114,7 +114,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    <parameters>\n" +
                 "        <primary-key value=\"193.0.0.0 - 193.0.0.255\"/>\n" +
                 "    </parameters>\n" +
-                "    <abuse-contacts key=\"TR1-TEST\" email=\"abuse@test.net\"/>\n" +
+                "    <abuse-contacts key=\"TR1-TEST\" email=\"abuse@test.net\" suspect=\"false\" org-id=\"ORG-OT1-TEST\"/>\n" +
                 "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
                 "</abuse-resources>"));
     }
@@ -186,7 +186,9 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
                 "    \"key\" : \"TR1-TEST\",\n" +
-                "    \"email\" : \"abuse@test.net\"\n" +
+                "    \"email\" : \"abuse@test.net\",\n" +
+                "    \"suspect\" : false,\n" +
+                "    \"org-id\" : \"ORG-OT1-TEST\"\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
@@ -233,7 +235,9 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
                 "    \"key\" : \"\",\n" +
-                "    \"email\" : \"\"\n" +
+                "    \"email\" : \"\",\n" +
+                "    \"suspect\" : false,\n" +
+                "    \"org-id\" : \"\"\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
@@ -299,7 +303,9 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
                 "    \"key\" : \"TR1-TEST\",\n" +
-                "    \"email\" : \"abuse@test.net\"\n" +
+                "    \"email\" : \"abuse@test.net\",\n" +
+                "    \"suspect\" : false,\n" +
+                "    \"org-id\" : \"ORG-OT1-TEST\"\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
@@ -340,7 +346,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    <parameters>\n" +
                 "        <primary-key value=\"2a00:1f78::/32\"/>\n" +
                 "    </parameters>\n" +
-                "    <abuse-contacts key=\"TR1-TEST\" email=\"abuse@test.net\"/>\n" +
+                "    <abuse-contacts key=\"TR1-TEST\" email=\"abuse@test.net\" suspect=\"false\" org-id=\"ORG-OT1-TEST\"/>\n" +
                 "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
                 "</abuse-resources>"));
     }

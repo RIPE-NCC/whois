@@ -56,7 +56,11 @@ class AbuseCInfoDecorator implements ResponseDecorator {
                 if (optionalAbuseContact.isPresent()) {
                     optionalAbuseContact.ifPresent(abuseContact -> {
                         if (abuseContact.isSuspect()) {
-                            result.add(new MessageObject(QueryMessages.unvalidatedAbuseCShown(object.getKey(), abuseContact.getAbuseMailbox(), abuseContact.getOrgId())));
+                            if (abuseContact.getOrgId() != null) {
+                                result.add(new MessageObject(QueryMessages.unvalidatedAbuseCShown(object.getKey(), abuseContact.getAbuseMailbox(), abuseContact.getOrgId())));
+                            } else {
+                                result.add(new MessageObject(QueryMessages.unvalidatedAbuseCShown(object.getKey(), abuseContact.getAbuseMailbox())));
+                            }
                         } else {
                             result.add(new MessageObject(QueryMessages.abuseCShown(object.getKey(), abuseContact.getAbuseMailbox())));
                         }
