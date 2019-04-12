@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -957,6 +958,22 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults().getNumFound(), is(0L));
         assertThat(queryResponse.getResults(), hasSize(0));
+    }
+
+    @Test
+    public void dont_include_null_elements() {
+        databaseHelper.addObject(
+            RpslObject.parse(
+                "mntner: DEV-MNT\n" +
+                "remarks: DEV mntner\n" +
+                "source: RIPE"));
+        fullTextIndex.update();
+
+        final String response = RestTest.target(getPort(), "whois/fulltextsearch/select.json?facet=true&format=xml&hl=true&q=(mntner)&start=0&wt=json")
+                .request()
+                .get(String.class);
+
+        assertThat(response, not(containsString("null")));
     }
 
     // helper methods
