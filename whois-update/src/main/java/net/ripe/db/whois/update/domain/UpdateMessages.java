@@ -537,13 +537,8 @@ public final class UpdateMessages {
                         + "This must reference a ROLE object with an \"abuse-mailbox:\"");
     }
 
-    public static Message abuseMailboxReferenced(final CharSequence role) {
-        return new Message(Type.ERROR, "There is an organisation referencing role %s's abuse-mailbox", role);
-    }
-
-    public static Message abuseMailboxCantBeAdded() {
-        return new Message(Type.ERROR, "\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
-                "referenced through the \"abuse-c:\" attribute in ORGANISATION, INET(6)NUM and AUT-NUM objects.");
+    public static Message abuseMailboxReferenced(final CharSequence role, final ObjectType objectType) {
+        return new Message(Type.ERROR, "There is an %s referencing role %s's abuse-mailbox", objectType, role);
     }
 
     public static Message keyNotFound(final String keyId) {
