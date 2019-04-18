@@ -538,7 +538,7 @@ public final class UpdateMessages {
     }
 
     public static Message abuseMailboxReferenced(final CharSequence role, final ObjectType objectType) {
-        return new Message(Type.ERROR, "There is an %s referencing role %s's abuse-mailbox", objectType, role);
+        return new Message(Type.ERROR, "There is an %s referencing role %s's abuse-mailbox", objectType.getName(), role);
     }
 
     public static Message keyNotFound(final String keyId) {

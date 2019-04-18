@@ -2626,7 +2626,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 1)
         ack.errors.any { it.operation == "Modify" && it.key == "[role] AH300-TEST   Standard Role" }
         ack.errorMessagesFor("Modify", "[role] AH300-TEST   Standard Role") == [
-                "There is an INETNUM referencing role Standard Role's abuse-mailbox"]
+                "There is an inetnum referencing role Standard Role's abuse-mailbox"]
     }
 
     def "remove abuse-mailbox from ROLE referenced as abuse-c from an INET6NUM"() {
@@ -2662,7 +2662,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 1)
         ack.errors.any { it.operation == "Modify" && it.key == "[role] AH300-TEST   Standard Role" }
         ack.errorMessagesFor("Modify", "[role] AH300-TEST   Standard Role") == [
-                "There is an INET6NUM referencing role Standard Role's abuse-mailbox"]
+                "There is an inet6num referencing role Standard Role's abuse-mailbox"]
     }
 
     def "remove abuse-mailbox from ROLE referenced as abuse-c from an AUTNUM"() {
@@ -2698,7 +2698,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 1)
         ack.errors.any { it.operation == "Modify" && it.key == "[role] AH300-TEST   Standard Role" }
         ack.errorMessagesFor("Modify", "[role] AH300-TEST   Standard Role") == [
-                "There is an AUT_NUM referencing role Standard Role's abuse-mailbox"]
+                "There is an aut-num referencing role Standard Role's abuse-mailbox"]
     }
 
 }
