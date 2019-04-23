@@ -1025,8 +1025,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 "source:         TEST")
 
         expect:
-        !queryLineMatches("AS200", "Please refer to ")
-        queryLineMatches("AS200", "% Abuse-mailbox validation failed.")
+        !queryLineMatches("AS200", "% Abuse-mailbox validation failed.")
 
         cleanup:
         databaseHelper.getInternalsTemplate().update("delete from abuse_email")
