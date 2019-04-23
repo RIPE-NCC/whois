@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
@@ -10,6 +11,7 @@ import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.dao.AbuseValidationStatusDao;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,11 +19,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
+
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -34,6 +38,7 @@ public class AbuseCFinderTest {
     @Mock Ipv6Tree ipv6Tree;
     @Mock RpslObjectDao objectDao;
     @Mock Maintainers maintainers;
+    @Mock AbuseValidationStatusDao abuseValidationStatusDao;
 
     @InjectMocks AbuseCFinder subject;
 
@@ -41,6 +46,7 @@ public class AbuseCFinderTest {
     public void setup() {
         when(maintainers.isRsMaintainer(ciSet())).thenReturn(false);
         when(maintainers.isRsMaintainer(ciSet("RS2-MNT"))).thenReturn(true);
+        when(abuseValidationStatusDao.isSuspect(any(CIString.class))).thenReturn(false);
     }
 
     @Test
@@ -52,9 +58,9 @@ public class AbuseCFinderTest {
         when(ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(inetnum.getKey()))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(parent.getKey()), 5)));
         when(objectDao.getById(5)).thenReturn(parent);
 
-        final String abuseContact = subject.getAbuseContact(inetnum);
+        final Optional<AbuseContact> abuseContact = subject.getAbuseContact(inetnum);
 
-        assertThat(abuseContact, is(nullValue()));
+        assertThat(abuseContact.isPresent(), is(false));
 
         verify(maintainers).isRsMaintainer(ciSet());
         verifyNoMoreInteractions(maintainers);
@@ -70,7 +76,7 @@ public class AbuseCFinderTest {
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG-TEST1"))).thenReturn(RpslObject.parse("organisation: ORG-TEST1\nabuse-c: ABU-TEST"));
         when(objectDao.getByKey(ObjectType.ROLE, ciString("ABU-TEST"))).thenReturn(RpslObject.parse("role: abuse role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: ABU-TEST"));
 
-        assertThat(subject.getAbuseContact(inetnum), is("abuse@ripe.net"));
+        assertThat(subject.getAbuseContact(inetnum).get().getAbuseMailbox(), is("abuse@ripe.net"));
 
         verifyZeroInteractions(maintainers);
     }
@@ -86,7 +92,7 @@ public class AbuseCFinderTest {
                 RpslObject.parse("role: another abuse role\nabuse-mailbox: more_abuse@ripe.net\nnic-hdl: ABU-TEST")
         );
 
-        assertThat(subject.getAbuseContact(inetnum), is("more_abuse@ripe.net"));
+        assertThat(subject.getAbuseContact(inetnum).get().getAbuseMailbox(), is("more_abuse@ripe.net"));
 
         verifyZeroInteractions(maintainers);
     }
@@ -95,7 +101,7 @@ public class AbuseCFinderTest {
     public void inetnum_without_org_reference() {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0");
 
-        assertThat(subject.getAbuseContact(inetnum), is(nullValue()));
+        assertThat(subject.getAbuseContact(inetnum).isPresent(), is(false));
     }
 
     @Test
@@ -109,7 +115,7 @@ public class AbuseCFinderTest {
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(object.getKey());
         when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
 
-        assertThat(subject.getAbuseContact(object), is("abuse@ripe.net"));
+        assertThat(subject.getAbuseContact(object).get().getAbuseMailbox(), is("abuse@ripe.net"));
 
         verifyZeroInteractions(maintainers);
     }
@@ -126,7 +132,7 @@ public class AbuseCFinderTest {
         when(objectDao.getByKey(ObjectType.ROLE, ciString("AB-TEST"))).thenReturn(RpslObject.parse("role: A Role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: AB-TEST"));
         when(objectDao.getById(1)).thenReturn(parent);
 
-        assertThat(subject.getAbuseContact(child), is("abuse@ripe.net"));
+        assertThat(subject.getAbuseContact(child).get().getAbuseMailbox(), is("abuse@ripe.net"));
 
         verify(maintainers).isRsMaintainer(ciSet());
         verifyNoMoreInteractions(maintainers);
@@ -142,7 +148,7 @@ public class AbuseCFinderTest {
         when(objectDao.getById(1)).thenReturn(root);
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG-TEST1"))).thenReturn(RpslObject.parse("organisation: ORG-TEST1"));
 
-        assertThat(subject.getAbuseContact(object), is(nullValue()));
+        assertThat(subject.getAbuseContact(object).isPresent(), is(false));
 
         verify(maintainers).isRsMaintainer(ciSet("RS2-MNT"));
         verifyNoMoreInteractions(maintainers);
@@ -155,7 +161,7 @@ public class AbuseCFinderTest {
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST\nabuse-c: AB-TEST"));
         when(objectDao.getByKey(ObjectType.ROLE, ciString("AB-TEST"))).thenReturn(RpslObject.parse("role: Abuse Role\nnic-hdl: AB-TEST\nabuse-mailbox: abuse@ripe.net"));
 
-        assertThat(subject.getAbuseContact(autnum), is("abuse@ripe.net"));
+        assertThat(subject.getAbuseContact(autnum).get().getAbuseMailbox(), is("abuse@ripe.net"));
         verifyZeroInteractions(ipv4Tree);
         verifyZeroInteractions(ipv6Tree);
 
@@ -168,7 +174,7 @@ public class AbuseCFinderTest {
 
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG1-TEST"))).thenReturn(RpslObject.parse("organisation: ORG1-TEST"));
 
-        assertThat(subject.getAbuseContact(autnum), is(nullValue()));
+        assertThat(subject.getAbuseContact(autnum).isPresent(), is(false));
 
         verifyZeroInteractions(maintainers);
     }
@@ -177,7 +183,7 @@ public class AbuseCFinderTest {
     public void getAbuseContacts_rootObject() {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0");
 
-        assertThat(subject.getAbuseContact(inetnum), is(nullValue()));
+        assertThat(subject.getAbuseContact(inetnum).isPresent(), is(false));
 
         verifyZeroInteractions(maintainers);
 
