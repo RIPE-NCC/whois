@@ -90,6 +90,6 @@ public class MustKeepAbuseMailboxIfReferencedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxReferenced("Abuse Role"));
+        verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxReferenced("Abuse Role", ObjectType.ORGANISATION));
     }
 }

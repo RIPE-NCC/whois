@@ -39,6 +39,21 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR2-MNT
                 source:       TEST
                 """,
+                "ABUSEC-PA": """\
+                inetnum:      192.170.0.0 - 192.170.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR2-TEST
+                admin-c:      SR1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH300-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                mnt-lower:    LIR2-MNT
+                source:       TEST
+                """,
                 "RS-ALLOC-PI": """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -155,6 +170,21 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 source:       TEST
                 """,
+                "ABUSEC-INET6NUM": """\
+                inet6num:     2001:600::/64
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH300-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       lir-MNT
+                mnt-lower:    LiR-MNT
+                status:       ASSIGNED PI
+                source:       TEST
+                """,
                 "LIR-AGGR-32-48-A": """\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
@@ -168,6 +198,26 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
                 source:       TEST
+                """,
+                "ABUSEC-AUTNUM"    : """\
+                aut-num:        AS101
+                as-name:        End-User-1
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                import-via:     AS6777 from AS5580 accept AS-ATRATO
+                export-via:     AS6777 to AS5580 announce AS2
+                remarks:        remarkable
+                org:            ORG-LIR1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                abuse-c:        AH300-TEST
+                notify:         noreply@ripe.net
+                mnt-lower:      lir-MNT
+                mnt-by:         lir-MNT
+                source:         TEST
                 """,
                 "ROLE-AM-NOREF": """\
                 role:         Abuse Role
@@ -205,6 +255,19 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 nic-hdl:      SR99-TEST
+                mnt-by:       LIR-MNT
+                source:       TEST
+                """,
+                "ROLE-AH300": """\
+                role:         Standard Role
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                abuse-mailbox:abuse@lir.net
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                nic-hdl:      AH300-TEST
                 mnt-by:       LIR-MNT
                 source:       TEST
                 """,
@@ -2528,6 +2591,114 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 "\"abuse-c\" is not valid for this object type"]
 
         query_object_not_matches("-r -T route 99.13.0.0/16", "route", "99.13.0.0/16", "TP1-test")
+    }
+
+    def "remove abuse-mailbox from ROLE referenced as abuse-c from an INETNUM"() {
+        given:
+        syncUpdate(getTransient("ROLE-AH300") + "override: denis,override1")
+        syncUpdate(getTransient("ABUSEC-PA") + "override: denis,override1")
+
+        when:
+        def message = syncUpdate("""\
+                role:         Standard Role
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                nic-hdl:      AH300-TEST
+                mnt-by:       LIR-MNT
+                source:       TEST
+                override:   denis,override1
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Modify" && it.key == "[role] AH300-TEST   Standard Role" }
+        ack.errorMessagesFor("Modify", "[role] AH300-TEST   Standard Role") == [
+                "There is an inetnum referencing role Standard Role's abuse-mailbox"]
+    }
+
+    def "remove abuse-mailbox from ROLE referenced as abuse-c from an INET6NUM"() {
+        given:
+        syncUpdate(getTransient("ROLE-AH300") + "override: denis,override1")
+        syncUpdate(getTransient("ABUSEC-INET6NUM") + "override: denis,override1")
+
+        when:
+        def message = syncUpdate("""\
+                role:         Standard Role
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                nic-hdl:      AH300-TEST
+                mnt-by:       LIR-MNT
+                source:       TEST
+                override:   denis,override1
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Modify" && it.key == "[role] AH300-TEST   Standard Role" }
+        ack.errorMessagesFor("Modify", "[role] AH300-TEST   Standard Role") == [
+                "There is an inet6num referencing role Standard Role's abuse-mailbox"]
+    }
+
+    def "remove abuse-mailbox from ROLE referenced as abuse-c from an AUTNUM"() {
+        given:
+        syncUpdate(getTransient("ROLE-AH300") + "override: denis,override1")
+        syncUpdate(getTransient("ABUSEC-AUTNUM") + "override: denis,override1")
+
+        when:
+        def message = syncUpdate("""\
+                role:         Standard Role
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                nic-hdl:      AH300-TEST
+                mnt-by:       LIR-MNT
+                source:       TEST
+                override:   denis,override1
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Modify" && it.key == "[role] AH300-TEST   Standard Role" }
+        ack.errorMessagesFor("Modify", "[role] AH300-TEST   Standard Role") == [
+                "There is an aut-num referencing role Standard Role's abuse-mailbox"]
     }
 
 }
