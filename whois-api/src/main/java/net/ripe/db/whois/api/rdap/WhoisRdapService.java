@@ -1,29 +1,28 @@
 package net.ripe.db.whois.api.rdap;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import net.ripe.db.whois.api.rest.ApiResponseHandler;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
-import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
+import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.handler.QueryHandler;
@@ -39,7 +38,6 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -53,7 +51,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
@@ -71,10 +68,11 @@ import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
@@ -92,7 +90,6 @@ public class WhoisRdapService {
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
     private static final int SEARCH_MAX_RESULTS = 100;
-    private static final Set<String> SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT = Sets.newHashSet("primary-key", "object-type", "lookup-key");
 
     private final QueryHandler queryHandler;
     private final RpslObjectDao objectDao;
@@ -100,8 +97,9 @@ public class WhoisRdapService {
     private final RdapObjectMapper rdapObjectMapper;
     private final DelegatedStatsService delegatedStatsService;
     private final FullTextIndex fullTextIndex;
-    private final String source;
+    private final Source source;
     private final String baseUrl;
+    private final AccessControlListManager accessControlListManager;
 
     @Autowired
     public WhoisRdapService(final QueryHandler queryHandler,
@@ -112,15 +110,17 @@ public class WhoisRdapService {
                             final FullTextIndex fullTextIndex,
                             final SourceContext sourceContext,
                             @Value("${rdap.port43:}") final String port43,
-                            @Value("${rdap.public.baseUrl:}") final String baseUrl) {
+                            @Value("${rdap.public.baseUrl:}") final String baseUrl,
+                            final AccessControlListManager accessControlListManager) {
         this.queryHandler = queryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
         this.rdapObjectMapper = rdapObjectMapper;
         this.delegatedStatsService = delegatedStatsService;
         this.fullTextIndex = fullTextIndex;
-        this.source = sourceContext.getCurrentSource().getName().toString();
+        this.source = sourceContext.getCurrentSource();
         this.baseUrl = baseUrl;
+        this.accessControlListManager = accessControlListManager;
     }
 
     @GET
@@ -277,12 +277,12 @@ public class WhoisRdapService {
 
     private Response createErrorResponse(final Response.Status status, final String errorTitle) {
         return Response.status(status)
-                .entity(rdapObjectMapper.mapError(status.getStatusCode(), errorTitle, Collections.EMPTY_LIST))
+                .entity(rdapObjectMapper.mapError(status.getStatusCode(), errorTitle, emptyList()))
                 .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
 
-    protected Response lookupResource(final HttpServletRequest request, final ObjectType objectType, final String key) {
+    private Response lookupResource(final HttpServletRequest request, final ObjectType objectType, final String key) {
         final Query query = Query.parse(
                 String.format("%s %s %s %s %s %s",
                         QueryFlag.NO_GROUPING.getLongFlag(),
@@ -292,7 +292,7 @@ public class WhoisRdapService {
                         QueryFlag.NO_FILTERING.getLongFlag(),
                         key));
 
-        if (!delegatedStatsService.isMaintainedInRirSpace(CIString.ciString(source), objectType, CIString.ciString(key))) {
+        if (!delegatedStatsService.isMaintainedInRirSpace(source.getName(), objectType, CIString.ciString(key))) {
             return redirect(getRequestPath(request), query);
         }
 
@@ -316,7 +316,7 @@ public class WhoisRdapService {
         return handleQuery(query, request);
     }
 
-    protected Response handleQuery(final Query query, final HttpServletRequest request) {
+    private Response handleQuery(final Query query, final HttpServletRequest request) {
 
         final int contextId = System.identityHashCode(Thread.currentThread());
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
@@ -404,12 +404,7 @@ public class WhoisRdapService {
     }
 
     private String objectTypesToString(final Collection<ObjectType> objectTypes) {
-        return COMMA_JOINER.join(Iterables.transform(objectTypes, new Function<ObjectType, String>() {
-            @Override
-            public String apply(final ObjectType input) {
-                return input.getName();
-            }
-        }));
+        return COMMA_JOINER.join(objectTypes.stream().map(ObjectType::getName).collect(Collectors.toList()));
     }
 
     private Response handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
@@ -420,10 +415,13 @@ public class WhoisRdapService {
         }
 
         try {
-            final List<RpslObject> objects = fullTextIndex.search(new IndexTemplate.SearchCallback<List<RpslObject>>() {
+            final List<RpslObject> objects = fullTextIndex.search(
+                    new IndexTemplate.AccountingSearchCallback<List<RpslObject>>(accessControlListManager, request.getRemoteAddr(), source) {
+
                 @Override
-                public List<RpslObject> search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
+                protected List<RpslObject> doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
                     final Stopwatch stopWatch = Stopwatch.createStarted();
+
                     final List<RpslObject> results = Lists.newArrayList();
                     final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
                     try {
@@ -434,7 +432,10 @@ public class WhoisRdapService {
                         final TopDocs topDocs = indexSearcher.search(query, maxResults);
                         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                             final Document document = indexSearcher.doc(scoreDoc.doc);
-                            results.add(convertLuceneDocumentToRpslObject(document));
+
+                            final RpslObject rpslObject = convertToRpslObject(document);
+                            account(rpslObject);
+                            results.add(rpslObject);
                         }
 
                         LOGGER.info("Found {} objects in {}", results.size(), stopWatch.stop());
@@ -451,13 +452,7 @@ public class WhoisRdapService {
                 throw notFound("not found");
             }
 
-            final Iterable<LocalDateTime> lastUpdateds = Iterables.transform(objects, new Function<RpslObject, LocalDateTime>() {
-                @Nullable
-                @Override
-                public LocalDateTime apply(@Nullable RpslObject input) {
-                    return objectDao.getLastUpdated(input.getObjectId());
-                }
-            });
+            final Iterable<LocalDateTime> lastUpdateds = objects.stream().map(input -> objectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
 
             return Response.ok(rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
@@ -470,24 +465,6 @@ public class WhoisRdapService {
             LOGGER.error(e.getMessage(), e);
             throw new IllegalStateException("search failed");
         }
-    }
-
-    private RpslObject convertLuceneDocumentToRpslObject(Document document) {
-        final List<RpslAttribute> attributes = Lists.newArrayList();
-        int objectId = 0;
-
-        for (final IndexableField field : document.getFields()) {
-            if (SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT.contains(field.name())) {
-                if ("primary-key".equals(field.name())) {
-                    objectId = Integer.parseInt(field.stringValue());
-                }
-            } else {
-                attributes.add(new RpslAttribute(AttributeType.getByName(field.name()), field.stringValue()));
-            }
-        }
-
-        attributes.add(new RpslAttribute(AttributeType.SOURCE, source));
-        return new RpslObject(objectId, attributes);
     }
 
     private class RdapAnalyzer extends Analyzer {
