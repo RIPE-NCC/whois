@@ -45,9 +45,7 @@ The following object(s) were processed SUCCESSFULLY:
 
     #foreach( $updateResult in $succeededUpdates )
     ---
-        #if ($updateResult.pending)
-            $updateResult.actionString PENDING: $updateResult.key
-        #elseif ($updateResult.noop)
+        #if ($updateResult.noop)
             No operation: $updateResult.key
         #else
             $updateResult.actionString SUCCEEDED: $updateResult.key

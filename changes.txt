@@ -1,5 +1,55 @@
 # next
-[all] updated dependencies
+
+# 1.93.2
+[api] Impose a limit on the maximum number of concurrent fulltext searches to prevent memory exhaustion.
+[all] Increase limit in sanity check during GRS import.
+
+# 1.93.1
+[all] Rebuilt release to fix JavaMail dependency.
+
+# 1.93
+[all] Updated to Bouncy Castle 1.60 (supports Curve 25519)
+[all] Updated dependencies
+[update] Bogons (#519)
+[update] Warn the user if the resource abuse-c is identical to the organisation abuse-c (#520)
+[query] Filter out comment in Autocomplete response (#518)
+
+# 1.92.15
+[all] Abuse-c Validation schema changes.
+
+# 1.92.14
+[all] Test elliptic curve algorithms.
+[all] Updated inetnum placeholder for transfers (#516)
+
+# 1.92.13
+[all] Abuse-c Validation schema changes.
+[update] Only validate reserved words on create, so existing objects can be updated.
+
+# 1.92.12
+[all] Abuse-c Validation schema changes.
+
+# 1.92.11
+[all] Abuse-c Validation schema changes.
+
+# 1.92.10
+[all] Abuse-c Validation schema changes.
+
+# 1.92.9
+[all] Updated Spring version (#513)
+[all] Updated JavaMail version.
+[all] Improved Email address validation (#481)
+
+# 1.92.8
+[all] Schema changes for 2017-02 Abuse-c validation.
+
+# 1.92.7
+[all] Removed remaining pending update code (NWI-5)
+[all] Schema changes for 2017-02 Abuse-c validation.
+[api] Upgrades to libraries (#505)
+
+# 1.92.6
+[api] Make source comparison case-insensitive (fixes lookup bug for object with lowercase source value).
+[query] Make source attribute comparison case-insensitive.
 
 # 1.92.5
 [all] Removed references to the RPSL maintainer.

@@ -174,10 +174,11 @@ public final class PgpSignedMessage {
         }
     }
 
+    // The signing time must be within an hour of the current time.
     public boolean verifySigningTime(final DateTimeProvider dateTimeProvider) {
         final LocalDateTime signingTime = new LocalDateTime(getPgpSignature().getCreationTime());
-        final LocalDateTime oneWeekAgo = dateTimeProvider.getCurrentDateTime().minusDays(7);
-        return !signingTime.isBefore(oneWeekAgo);
+        final LocalDateTime currentTime = dateTimeProvider.getCurrentDateTime();
+        return (signingTime.isAfter(currentTime.minusHours(1)) && signingTime.isBefore(currentTime.plusHours(1)));
     }
 
     public String getKeyId() {

@@ -2,11 +2,13 @@ package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeParser;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -20,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,6 +40,8 @@ public class ExcludedEmailValidator implements BusinessRuleValidator {
     private static final List<AttributeType> EMAIL_ATTRIBUTES = Stream.of(AttributeType.values())
         .filter(attributeType -> attributeType.getSyntax() == AttributeSyntax.EMAIL_SYNTAX)
         .collect(Collectors.toList());
+
+    private static final AttributeParser.EmailParser EMAIL_PARSER = new AttributeParser.EmailParser();
 
     private final List<CIString> excludedEmailAddresses;
 
@@ -86,12 +88,8 @@ public class ExcludedEmailValidator implements BusinessRuleValidator {
 
     private static String getAddress(final String value) {
         try {
-            final InternetAddress[] parsed = InternetAddress.parse(value.toString());
-            if (parsed.length != 1) {
-                throw new IllegalArgumentException("Found " + parsed.length + " addresses when parsing " + value.trim());
-            }
-            return parsed[0].getAddress();
-        } catch (AddressException e) {
+            return EMAIL_PARSER.parse(value).getAddress();
+        } catch (AttributeParseException e) {
             throw new IllegalArgumentException(e.getMessage() + ": " + value.trim());
         }
     }
