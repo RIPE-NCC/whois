@@ -192,6 +192,12 @@ public interface AttributeParser<T> {
                 throw new AttributeParseException("Illegal address", s);
             }
 
+            try {
+                parsed[0].validate();
+            } catch (AddressException e) {
+                throw new AttributeParseException(String.format("Invalid address (%s)", e.getMessage()), s);
+            }
+
             return parsed[0];
         }
     }
