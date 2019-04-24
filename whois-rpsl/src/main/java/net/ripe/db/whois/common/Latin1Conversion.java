@@ -14,10 +14,14 @@ import java.nio.charset.StandardCharsets;
 /**
  * Convert String to the latin-1 character set.
  *
- * (1) Control Codes (unicode \u0000 -> \u009F)
- *     Substitute all (except for tab, linefeed, carriage return)
+ * TODO: make substitutions, or remove certain characters.
+ *
+ * (1) Control Codes (unicode \u0000 -> \u009F)  TODO: this is \u0000 - \u001F, except for \u000A (newline)
+ *     Substitute all (except for tab, linefeed, carriage return) (TODO: or strip out)
  * (2) Latin Script (unicode \u0020 -> \u007E)
  *     Maps directly to latin-1.
+ * (2a) TODO: \u007F DEL character, strip out.
+ * (2b) \u0080 - \u009F Extended Control Characters (TODO: some mangled but not always)
  * (3) Latin-1 Supplement (unicode \u00A0 -> \u00FF)
  *     Substitute non-break space \u00A0 with regular space.
  * (4) Characters outside latin-1
