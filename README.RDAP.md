@@ -151,3 +151,17 @@ An organisation's abuse-c email address is not included in an inetnum, inet6num,
 
 Example: https://rdap.db.ripe.net/autnum/8447
 
+
+Entity does not include networks
+---------------------------------
+An entity (i.e. for an organisation) should include any related networks. 
+
+This list of networks should have a maximum size to prevent the response from growing too large and taking too long.
+
+Ref. RFC 7483, Section 5.1 The Entity Object Class. (https://tools.ietf.org/html/rfc7483#section-5.1).
+
+Example:
+* Request: http://rdap.db.ripe.net/entity/ORG-RIEN1-RIPE
+ * Response: Should include "networks" element with referenced networks, including 193.0.0.0 - 193.0.23.255
+
+
