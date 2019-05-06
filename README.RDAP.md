@@ -108,9 +108,15 @@ Any related contact entities ("technical","administrative","abuse" etc) have fil
 A workaround is to query for each entity separately using the contact's nic-hdl, and the unfiltered information is returned (although a limit for personal data does apply).
 
 
-CIDR ranges for IP networks
-------------------------------
+CIDR ranges for IP networks include prefix length
+-------------------------------------------------
 For an ip network object class, the "startAddress" and "endAddress" field values are in CIDR format (including prefix length).
+
+The prefix length should not be included (see examples in RFC7483).
+
+Example:
+* Request: https://rdap.db.ripe.net/ip/2003::/18
+ * Response: startAddress should be 2003:: and endAddress should be 2003:3fff:ffff:ffff:ffff:ffff:ffff:ffff.
 
 
 Resource handle and parentHandle
