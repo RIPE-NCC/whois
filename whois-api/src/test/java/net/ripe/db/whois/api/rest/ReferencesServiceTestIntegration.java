@@ -1290,6 +1290,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(
                 "role:        Test Role2\n" +
                 "nic-hdl:       TR2-TEST\n" +
+                "address:       Amsterdam\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        ANOTHER-MNT\n" +
                 "source:        TEST");
         databaseHelper.updateObject(
