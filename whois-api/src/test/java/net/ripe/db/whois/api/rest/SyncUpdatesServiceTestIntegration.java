@@ -214,15 +214,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("***Info:    Dry-run performed, no changes to the database have been made"));
     }
 
-    /*
-     * TODO: [ES] Replace non-break spaces with regular spaces.
-     * The non-break space character is unicode \u00A0, consisting of bytes 0xC2 0xA0.
-     * These bytes are (incorrectly) transformed into latin-1 character 0xA0, which doesn't display properly.
-     * Instead, non-break spaces should be converted to a regular space.
-     */
-    @Ignore
     @Test
-    public void non_break_spaces_not_filtered() {
+    public void non_break_spaces_are_substituted_with_regular_space() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject("" +
                 "mntner:        SSO-MNT\n" +
@@ -235,7 +228,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         final String person = "" +
                 "person:    Test\u00a0Person\n" +
-                "address:   \u00a0Amsterdam\n" +
+                "address:   Amsterdam\n" +
                 "phone:     +31-6-123456\n" +
                 "nic-hdl:   TP2-TEST\n" +
                 "mnt-by:    SSO-MNT\n" +
