@@ -1793,9 +1793,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
-        assertThat(response, not(containsString("<attribute name=\"remarks\" value=\"ελληνικά\"/>")));
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"????????\"/>"));
-        assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Attribute &quot;%s&quot; value changed due to conversion into the ISO-8859-1 (Latin-1) character set\">"));
+        assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Attribute value changed due to conversion into the ISO-8859-1 (Latin-1) character set\">"));
     }
 
     @Test
@@ -2681,7 +2680,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                                     WhoisResources.class);
 
             RestTest.assertWarningCount(response, 1);
-            RestTest.assertErrorMessage(response, 0, "Warning", "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", "address");
+            RestTest.assertErrorMessage(response, 0, "Warning", "Attribute value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
 
             final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
             assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        address: ???????? ?????,??????"));
