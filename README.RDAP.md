@@ -108,9 +108,15 @@ Any related contact entities ("technical","administrative","abuse" etc) have fil
 A workaround is to query for each entity separately using the contact's nic-hdl, and the unfiltered information is returned (although a limit for personal data does apply).
 
 
-CIDR ranges for IP networks
-------------------------------
+CIDR ranges for IP networks include prefix length
+-------------------------------------------------
 For an ip network object class, the "startAddress" and "endAddress" field values are in CIDR format (including prefix length).
+
+The prefix length should not be included (see examples in RFC7483).
+
+Example:
+* Request: https://rdap.db.ripe.net/ip/2003::/18
+ * Response: startAddress should be 2003:: and endAddress should be 2003:3fff:ffff:ffff:ffff:ffff:ffff:ffff.
 
 
 Resource handle and parentHandle
@@ -150,4 +156,18 @@ Abuse-c Contact does not include Abuse Mailbox
 An organisation's abuse-c email address is not included in an inetnum, inet6num, aut-num response. The abuse-c role is added as an "abuse" contact, but only an "e-mail" attribute is included in the vCard, not the "abuse-mailbox" attribute.
 
 Example: https://rdap.db.ripe.net/autnum/8447
+
+
+Entity does not include networks
+---------------------------------
+An entity (i.e. for an organisation) should include any related networks. 
+
+This list of networks should have a maximum size to prevent the response from growing too large and taking too long.
+
+Ref. RFC 7483, Section 5.1 The Entity Object Class. (https://tools.ietf.org/html/rfc7483#section-5.1).
+
+Example:
+* Request: http://rdap.db.ripe.net/entity/ORG-RIEN1-RIPE
+ * Response: Should include "networks" element with referenced networks, including 193.0.0.0 - 193.0.23.255
+
 

@@ -15,7 +15,7 @@
     <licenses>
         <license>
             <name>BSD</name>
-            <url>https://raw.github.com/RIPE-NCC/whois/master/LICENSE.txt</url>
+            <url>https://raw.github.com/RIPE-NCC/whois/master/LICENSE.md</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
