@@ -1798,16 +1798,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Attribute &quot;%s&quot; value changed due to conversion into the ISO-8859-1 (Latin-1) character set\">"));
     }
 
-    /*
-     * TODO: [ES] Replace non-break spaces with regular spaces.
-     * The non-break space character is unicode \u00A0, consisting of bytes 0xC2 0xA0.
-     * These bytes are (incorrectly) transformed into latin-1 character 0xA0, which doesn't display properly.
-     * Instead, non-break spaces should be converted to a regular space.
-     */
-    @Ignore
     @Test
-    public void create_succeeds_non_break_space_substituted() {
-        RestTest.target(getPort(), "whois/test/person?password=test")
+    public void create_succeeds_non_break_space_substituted_with_regular_space() {
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
             .post(Entity.entity(
                 "<whois-resources>\n" +
@@ -1825,7 +1818,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
-                "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+                "</whois-resources>", MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(response.getErrorMessages(), hasSize(1));
+        assertThat(response.getErrorMessages().get(0).getText(), is("Attribute value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getValue(), is("New Person"));
     }
 
     @Test
