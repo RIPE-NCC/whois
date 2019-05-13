@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -31,8 +30,6 @@ public class Latin1TransformerTest {
     @Mock
     private UpdateContext updateContext;
 
-    private Action action = null;
-
     private Latin1Transformer subject;
 
     @Before
@@ -52,7 +49,7 @@ public class Latin1TransformerTest {
                 "source:     TEST\n");
         when(update.getSubmittedObject()).thenReturn(person);
 
-        final RpslObject transformedPerson = subject.transform(person, update, updateContext, action);
+        final RpslObject transformedPerson = subject.transform(person, update, updateContext);
 
         assertNotNull(transformedPerson);
         verifyNoMoreInteractions(update);
@@ -72,7 +69,7 @@ public class Latin1TransformerTest {
                 .get();
         when(update.getSubmittedObject()).thenReturn(person);
 
-        final RpslObject transformedPerson = subject.transform(person, update, updateContext, action);
+        final RpslObject transformedPerson = subject.transform(person, update, updateContext);
 
         assertThat(transformedPerson, is(not(nullValue())));
         assertThat(transformedPerson.getAttributes().size(), is(7));
@@ -94,7 +91,7 @@ public class Latin1TransformerTest {
                 "source:     TEST\n");
         when(update.getSubmittedObject()).thenReturn(person);
 
-        final RpslObject transformedPerson = subject.transform(person, update, updateContext, action);
+        final RpslObject transformedPerson = subject.transform(person, update, updateContext);
 
         assertNotNull(transformedPerson);
         assertThat(transformedPerson.getValueForAttribute(AttributeType.PERSON).toString(), is("Test Person"));
