@@ -30,8 +30,8 @@ public class Latin1TransformerTest {
     private Update update;
     @Mock
     private UpdateContext updateContext;
-    @Mock
-    private Action action;
+
+    private Action action = null;
 
     private Latin1Transformer subject;
 
