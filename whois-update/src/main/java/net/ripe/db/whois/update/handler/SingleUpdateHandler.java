@@ -20,9 +20,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.generator.AttributeGenerator;
-import net.ripe.db.whois.update.handler.transform.Latin1Transformer;
 import net.ripe.db.whois.update.handler.transform.Transformer;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +43,6 @@ public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
     private final List<AttributeGenerator> attributeGenerators;
     private final Transformer[] transformers;
-    private final Latin1Transformer latin1Transformer;
     private final RpslObjectDao rpslObjectDao;
     private final UpdateLockDao updateLockDao;
     private final Authenticator authenticator;
@@ -62,7 +59,6 @@ public class SingleUpdateHandler {
     @Autowired
     public SingleUpdateHandler(final List<AttributeGenerator> attributeGenerators,
                                final Transformer[] transformers,
-                               final Latin1Transformer latin1Transformer,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final Authenticator authenticator,
@@ -74,7 +70,6 @@ public class SingleUpdateHandler {
         // sort AttributeGenerators so they are executed in a predictable order
         this.attributeGenerators.sort((lhs, rhs) -> lhs.getClass().getName().compareToIgnoreCase(rhs.getClass().getName()));
         this.transformers = transformers;
-        this.latin1Transformer = latin1Transformer;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
         this.updateLockDao = updateLockDao;
@@ -97,11 +92,6 @@ public class SingleUpdateHandler {
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
         RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
 
-        // TODO: [ES] separated from other transformers, as changing the ordering of this method broke tests
-        updatedObject = latin1Transformer.transform(updatedObject, update, updateContext);
-
-        validateObject(update, updateContext, updatedObject);
-
         Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
@@ -123,6 +113,7 @@ public class SingleUpdateHandler {
         // apply object transformation
         RpslObject updatedObjectWithAutoKeys = updatedObject;
         for (Transformer transformer : transformers) {
+            // TODO: latin1
             updatedObjectWithAutoKeys = transformer.transform(updatedObjectWithAutoKeys, update, updateContext, action);
         }
 
@@ -216,16 +207,11 @@ public class SingleUpdateHandler {
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
         }
 
         return updatedObject;
-    }
-
-    private void validateObject(final Update update, final UpdateContext updateContext, final RpslObject updatedObject) {
-        final ObjectMessages messages = updateContext.getMessages(update);
-
-        ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
-        ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
     }
 
     private Action getAction(@Nullable final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final Keyword keyword) {

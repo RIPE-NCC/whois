@@ -68,20 +68,14 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(
                 "role:          dummy role\n" +
                 "nic-hdl:       DR1-TEST\n" +
-                "address:       Amsterdam\n" +
-                "e-mail:        noreply@ripe.net\n" +
                 "source:        TEST");
         databaseHelper.addObject(
                 "person:        Test Person\n" +
                 "nic-hdl:       TP1-TEST\n" +
-                "address:       Amsterdam\n" +
-                "e-mail:        noreply@ripe.net\n" +
                 "source:        TEST");
         databaseHelper.addObject(
                 "role:          Test Role\n" +
                 "nic-hdl:       TR1-TEST\n" +
-                "address:       Amsterdam\n" +
-                "e-mail:        noreply@ripe.net\n" +
                 "source:        TEST");
         databaseHelper.addObject(
                 "mntner:        OWNER-MNT\n" +
@@ -1155,8 +1149,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(
                 "person:        Test Person2\n" +
                 "nic-hdl:       TP2-TEST\n" +
-                "address:       Amsterdam\n" +
-                "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        ANOTHER-MNT\n" +
                 "source:        TEST");
         databaseHelper.updateObject(
@@ -1190,8 +1182,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(
                 "person:        Test Person2\n" +
                 "nic-hdl:       TP2-TEST\n" +
-                "address:       Amsterdam\n" +
-                "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        ANOTHER-MNT\n" +
                 "source:        TEST");
         databaseHelper.updateObject(
@@ -1267,8 +1257,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(
                 "role:        Test Role2\n" +
                 "nic-hdl:       TR2-TEST\n" +
-                "address:       Amsterdam\n" +
-                "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        ANOTHER-MNT\n" +
                 "source:        TEST");
         databaseHelper.updateObject(
@@ -1302,8 +1290,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(
                 "role:        Test Role2\n" +
                 "nic-hdl:       TR2-TEST\n" +
-                "address:       Amsterdam\n" +
-                "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        ANOTHER-MNT\n" +
                 "source:        TEST");
         databaseHelper.updateObject(
