@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 /**
  * Transform an RPSL object into only valid latin-1 characters.
  *
- * This class is not extending Transformer, as it's done earlier in the update process, and regardless of update type.
+ * TODO: This class is not extending Transformer, as otherwise syntax checking can fail due to invalid character(s).
  */
 @Component
 public class Latin1Transformer {

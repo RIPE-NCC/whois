@@ -94,7 +94,7 @@ public class SingleUpdateHandler {
 
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
-        RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);        // TODO: syntax check fails here
+        RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
 
         Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
