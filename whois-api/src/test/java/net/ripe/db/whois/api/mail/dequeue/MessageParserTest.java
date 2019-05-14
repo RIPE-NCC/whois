@@ -807,26 +807,6 @@ public class MessageParserTest {
         assertThat(contentWithCredentials.getCredentials(), hasSize(0));
     }
 
-    @Test
-    public void parse_non_break_space() throws Exception {
-        final MailMessage message = subject.parse(
-                getMessage(
-                            "To: auto-dbm@ripe.net\n" +
-                            "From: No Reply <noreply@ripe.net>\n" +
-                            "Date: Thu, 30 Mar 2017 09:00:00 +0100\n" +
-                            "MIME-Version: 1.0\n" +
-                            "Content-Type: text/plain; charset=\"utf-8\"; format=flowed\n" +
-                            "Content-Language: en-GB\n" +
-                            "Content-Transfer-Encoding: 8bit\n" +
-                            "\n" +
-                            "\nperson:  Test\u00A0Person\n" +
-                            "\nsource: TEST\n" +
-                            "\n"),
-                updateContext);
-
-        assertThat(message.getUpdateMessage(), containsString("person:  Test Person"));
-    }
-
     private MimeMessage getMessage(final String message) throws MessagingException, IOException {
         return new MimeMessage(null, new ByteArrayInputStream(message.getBytes()));
     }

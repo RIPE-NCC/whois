@@ -258,6 +258,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.contents.contains("***Error:   No valid update found")
     }
 
+    // TODO: [ES] test fails
     def "non-break spaces are handled properly"() {
       when:
         def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
