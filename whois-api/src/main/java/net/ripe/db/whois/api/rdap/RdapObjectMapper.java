@@ -194,7 +194,7 @@ class RdapObjectMapper {
         ip.setStartAddress(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
         ip.setEndAddress(IpInterval.asIpInterval(ipInterval.endAsInetAddress()).toString());
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
-        ip.setCountry(rpslObject.getValueForAttribute(AttributeType.COUNTRY).toString());
+        ip.setCountry(rpslObject.findAttributes(AttributeType.COUNTRY).get(0).getCleanValue().toString());
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
         ip.setParentHandle(lookupParentHandle(ipInterval));
         if (rpslObject.containsAttribute(AttributeType.LANGUAGE)) {
