@@ -10,6 +10,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
+import net.ripe.db.whois.query.domain.QueryException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.FacetLabel;
@@ -31,7 +33,6 @@ import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.ForbiddenException;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -201,9 +202,9 @@ public class IndexTemplate implements Closeable {
 
         public T search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
             if (accessControlListManager.isDenied(remoteAddress)) {
-                throw new ForbiddenException(QueryMessages.accessDeniedPermanently(remoteAddress).getFormattedText());
+                throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(remoteAddress));
             } else if (!accessControlListManager.canQueryPersonalObjects(remoteAddress)) {
-                throw new ForbiddenException(QueryMessages.accessDeniedTemporarily(remoteAddress).getFormattedText());
+                throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress));
             }
 
             try {
@@ -224,7 +225,7 @@ public class IndexTemplate implements Closeable {
                 }
 
                 if (++accountedObjects > accountingLimit) {
-                    throw new ForbiddenException(QueryMessages.accessDeniedTemporarily(remoteAddress).getFormattedText());
+                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress));
                 }
             }
         }

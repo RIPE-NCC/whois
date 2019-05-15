@@ -4,10 +4,15 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.acl.IpResourceConfiguration;
+import net.ripe.db.whois.query.dao.jdbc.JdbcAccessControlListDao;
+import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.joda.time.LocalDate;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -16,6 +21,8 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
+import java.net.Inet4Address;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +40,11 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
+
     @Autowired FullTextIndex fullTextIndex;
+    @Autowired TestPersonalObjectAccounting testPersonalObjectAccounting;
+    @Autowired JdbcAccessControlListDao jdbcAccessControlListDao;
+    @Autowired IpResourceConfiguration ipResourceConfiguration;
 
     @BeforeClass
     public static void setProperty() {
@@ -49,6 +60,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     @Before
     public void setUp() {
         fullTextIndex.rebuild();
+        testPersonalObjectAccounting.resetAccounting();
     }
 
     @Test
@@ -676,6 +688,43 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+    @Test
+    public void temporary_block() {
+        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 5001);
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        fullTextIndex.rebuild();
+
+        try {
+            query("q=john%20mcdonald");
+            fail("request should have been blocked");
+        } catch (ClientErrorException cee) {
+            assertThat(cee.getResponse().getStatus(), is(429));
+        }
+    }
+
+    @Test
+    public void permanent_block() {
+        jdbcAccessControlListDao.savePermanentBlock(IpInterval.parse(Inet4Address.getLoopbackAddress().getHostAddress()), LocalDate.now(), 1, "test");
+        ipResourceConfiguration.reload();
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        fullTextIndex.rebuild();
+
+        try {
+            query("q=john%20mcdonald");
+            fail("request should have been blocked");
+        } catch (ClientErrorException cee) {
+            assertThat(cee.getResponse().getStatus(), is(429));
+        }
     }
 
     @Test
