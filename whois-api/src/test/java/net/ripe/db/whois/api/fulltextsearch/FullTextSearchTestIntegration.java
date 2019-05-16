@@ -19,7 +19,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import java.net.Inet4Address;
@@ -46,6 +49,8 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     @Autowired JdbcAccessControlListDao jdbcAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
 
+    private JdbcTemplate aclJdbcTemplate;
+
     @BeforeClass
     public static void setProperty() {
         // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
@@ -61,6 +66,11 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     public void setUp() {
         fullTextIndex.rebuild();
         testPersonalObjectAccounting.resetAccounting();
+    }
+
+    @Autowired
+    public void setAclDataSource(@Qualifier("aclDataSource") DataSource dataSource) {
+        this.aclJdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Test
@@ -710,7 +720,8 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void permanent_block() {
-        jdbcAccessControlListDao.savePermanentBlock(IpInterval.parse(Inet4Address.getLoopbackAddress().getHostAddress()), LocalDate.now(), 1, "test");
+        final IpInterval localhost = IpInterval.parse(Inet4Address.getLoopbackAddress().getHostAddress());
+        jdbcAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
         ipResourceConfiguration.reload();
 
         databaseHelper.addObject(RpslObject.parse(
@@ -724,6 +735,9 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
             fail("request should have been blocked");
         } catch (ClientErrorException cee) {
             assertThat(cee.getResponse().getStatus(), is(429));
+        } finally {
+            assertThat(aclJdbcTemplate.update("DELETE FROM acl_denied WHERE prefix = ?", localhost.toString()), is(1));
+            ipResourceConfiguration.reload();
         }
     }
 
