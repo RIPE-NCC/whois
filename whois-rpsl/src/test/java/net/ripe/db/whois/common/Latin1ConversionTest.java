@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -11,6 +10,8 @@ import static org.junit.Assert.assertThat;
 
 public class Latin1ConversionTest {
 
+    final static String SUPPLEMENT = "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+
     @Test
     public void convert_ascii_string() {
         final String ascii = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~";
@@ -19,10 +20,16 @@ public class Latin1ConversionTest {
     }
 
     @Test
-    public void convert_supplment_latin1_string() {
-        final String supplement = "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+    public void convert_supplement_latin1_string() {
+        assertThat(Latin1Conversion.convert(SUPPLEMENT), is(SUPPLEMENT));
+    }
 
-        assertThat(Latin1Conversion.convert(supplement), is(supplement));
+    @Test
+    public void convert_rpsl_with_supplement() {
+        assertThat(
+            Latin1Conversion.convert(RpslObject.parse("person: test\nnic-hdl: TP1-TEST\ndescr: " + SUPPLEMENT)),
+            is(RpslObject.parse("person: test\nnic-hdl: TP1-TEST\ndescr: " + SUPPLEMENT))
+        );
     }
 
     @Test
@@ -70,13 +77,11 @@ public class Latin1ConversionTest {
                 RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST\nsource: TEST")));
     }
 
-    // TODO: [ES] UTF-8 u-umlaut is converted to '?' not latin-1 umlaut
-    @Ignore
     @Test
-    public void utf8_umlaut_not_substituted_rpsl() {
+    public void unicode_umlaut_substituted_correctly() {
         assertThat(
             Latin1Conversion.convert(
-                RpslObject.parse("person: Test P\uC3BCrson\nnic-hdl: TP1-TEST\nsource: TEST")),
+                RpslObject.parse("person: Test P\u00FCrson\nnic-hdl: TP1-TEST\nsource: TEST")),
             is(
                 RpslObject.parse("person: Test Pürson\nnic-hdl: TP1-TEST\nsource: TEST")));
     }

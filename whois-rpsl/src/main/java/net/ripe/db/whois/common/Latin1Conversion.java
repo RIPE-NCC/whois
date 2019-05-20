@@ -87,7 +87,6 @@ public class Latin1Conversion {
      * @param value
      * @return
      */
-    // TODO: [ES] some UTF-8 like \uC3BC u-umlaut are not converted to latin-1 equivalent (0xFC).
     public static String convert(@Nonnull final String value) {
         final CharsetEncoder charsetEncoder = StandardCharsets.ISO_8859_1.newEncoder();
         final CharsetDecoder charsetDecoder = StandardCharsets.ISO_8859_1.newDecoder();
