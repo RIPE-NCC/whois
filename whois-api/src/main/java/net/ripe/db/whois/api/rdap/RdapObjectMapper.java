@@ -5,6 +5,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.commons.ip.AbstractIpRange;
+import net.ripe.commons.ip.Ipv4Range;
+import net.ripe.commons.ip.Ipv6Range;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -191,10 +194,10 @@ class RdapObjectMapper {
         final IpInterval ipInterval = IpInterval.parse(rpslObject.getKey());
         ip.setHandle(rpslObject.getKey().toString());
         ip.setIpVersion(rpslObject.getType() == INET6NUM ? "v6" : "v4");
-        ip.setStartAddress(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
-        ip.setEndAddress(IpInterval.asIpInterval(ipInterval.endAsInetAddress()).toString());
+        ip.setStartAddress(toIpRange(ipInterval).start().toString());
+        ip.setEndAddress(toIpRange(ipInterval).end().toString());
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
-        ip.setCountry(rpslObject.getValueForAttribute(AttributeType.COUNTRY).toString());
+        ip.setCountry(rpslObject.findAttributes(AttributeType.COUNTRY).get(0).getCleanValue().toString());
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
         ip.setParentHandle(lookupParentHandle(ipInterval));
         if (rpslObject.containsAttribute(AttributeType.LANGUAGE)) {
@@ -202,6 +205,10 @@ class RdapObjectMapper {
         }
 
         return ip;
+    }
+
+    private static AbstractIpRange toIpRange(IpInterval interval) {
+        return interval instanceof Ipv4Resource? Ipv4Range.parse(interval.toString()) : Ipv6Range.parse(interval.toString());
     }
 
     @Nullable

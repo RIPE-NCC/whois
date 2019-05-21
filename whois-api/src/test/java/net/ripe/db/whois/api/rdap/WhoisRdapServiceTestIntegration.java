@@ -215,8 +215,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getIpVersion(), is("v4"));
         assertThat(ip.getLang(), is("en"));
         assertThat(ip.getCountry(), is("NL"));
-        assertThat(ip.getStartAddress(), is("192.0.2.0/32"));
-        assertThat(ip.getEndAddress(), is("192.0.2.255/32"));
+        assertThat(ip.getStartAddress(), is("192.0.2.0"));
+        assertThat(ip.getEndAddress(), is("192.0.2.255"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getType(), is("OTHER"));
         assertThat(ip.getPort43(), is("whois.ripe.net"));
@@ -269,6 +269,34 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "netname:      TEST-NET-NAME\n" +
                 "descr:        TEST network\n" +
                 "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.0.255")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(ip.getIpVersion(), is("v4"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getStartAddress(), is("192.0.0.0"));
+        assertThat(ip.getEndAddress(), is("192.255.255.255"));
+        assertThat(ip.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getLang(), is(nullValue()));
+        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+    }
+
+    @Test
+    public void lookup_inetnum_multiple_country_codes() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "country:      DE\n" +
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
@@ -362,8 +390,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getIpVersion(), is("v6"));
         assertThat(ip.getCountry(), is("NL"));
         assertThat(ip.getLang(), is("EN"));
-        assertThat(ip.getStartAddress(), is("2001:2002:2003::/128"));
-        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
+        assertThat(ip.getStartAddress(), is("2001:2002:2003::"));
+        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff"));
         assertThat(ip.getName(), is("RIPE-NCC"));
         assertThat(ip.getType(), is("ASSIGNED PA"));
         assertThat(ip.getObjectClassName(), is("ip network"));
@@ -420,6 +448,33 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
         assertThat(ip.getIpVersion(), is("v6"));
         assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getStartAddress(), is("2001:2002:2003::"));
+        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff"));
+        assertThat(ip.getName(), is("RIPE-NCC"));
+        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+    }
+
+    @Test
+    public void lookup_inet6num_single_country_code() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        FR\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/2001:2002:2003:2004::")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(ip.getIpVersion(), is("v6"));
+        assertThat(ip.getCountry(), is("FR"));
         assertThat(ip.getStartAddress(), is("2001:2002:2003::/128"));
         assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
         assertThat(ip.getName(), is("RIPE-NCC"));
