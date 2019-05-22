@@ -310,8 +310,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
         assertThat(ip.getIpVersion(), is("v4"));
         assertThat(ip.getCountry(), is("NL"));
-        assertThat(ip.getStartAddress(), is("192.0.0.0/32"));
-        assertThat(ip.getEndAddress(), is("192.255.255.255/32"));
+        assertThat(ip.getStartAddress(), is("192.0.0.0"));
+        assertThat(ip.getEndAddress(), is("192.255.255.255"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getLang(), is(nullValue()));
         assertThat(ip.getParentHandle(), is("IANA-BLK"));
@@ -328,6 +328,34 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             // expected
             assertErrorTitle(e, "not found");
         }
+    }
+
+    @Test
+    public void lookup_inetnum() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.132.74.0 - 192.132.77.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        Ip ip = createResource("ip/192.132.75.165")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.132.74.0 - 192.132.77.255"));
+        assertThat(ip.getIpVersion(), is("v4"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getStartAddress(), is("192.132.74.0"));
+        assertThat(ip.getEndAddress(), is("192.132.77.255"));
+        assertThat(ip.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getLang(), is(nullValue()));
+        assertThat(ip.getParentHandle(), is("IANA-BLK"));
     }
 
     @Test
@@ -475,8 +503,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
         assertThat(ip.getIpVersion(), is("v6"));
         assertThat(ip.getCountry(), is("FR"));
-        assertThat(ip.getStartAddress(), is("2001:2002:2003::/128"));
-        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
+        assertThat(ip.getStartAddress(), is("2001:2002:2003::"));
+        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff"));
         assertThat(ip.getName(), is("RIPE-NCC"));
         assertThat(ip.getParentHandle(), is("IANA-BLK"));
     }
