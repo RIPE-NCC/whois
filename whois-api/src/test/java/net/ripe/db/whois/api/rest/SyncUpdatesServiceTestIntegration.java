@@ -731,6 +731,10 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ÅçÅç"));
     }
 
+    // TODO: [ES] test that non-latin1 characters are substituted (and check for update message)
+
+    // TODO: [ES] test that control characters are substituted (and check for update message)
+
     @Test
     public void create_person_with_filtered_source() {
         databaseHelper.addObject(PERSON_ANY1_TEST);

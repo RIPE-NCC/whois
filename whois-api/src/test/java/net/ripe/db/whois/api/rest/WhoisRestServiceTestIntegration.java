@@ -2453,7 +2453,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "}", getPort())));
     }
 
-    // TODO: [ES] no warning on conversion of \u03A3 to ? in latin-1 charset
+    // TODO: [ES] check for control character substitution (including new value and a warning message).
+
+    // TODO: [ES] no warning on conversion of \u03A3 to ? in latin-1 charset  (re-check)
     @Test
     public void create_utf8_character_encoding() {
         final RpslObject person = RpslObject.parse("" +
