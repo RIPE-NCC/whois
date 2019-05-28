@@ -729,6 +729,33 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_as_block_when_no_autnum_found() {
+        final Autnum autnum = createResource("autnum/103")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getHandle(), equalTo("AS100 "));
+        assertThat(autnum.getStartAutnum(), equalTo(100L));
+        assertThat(autnum.getEndAutnum(), equalTo(200L));
+        assertThat(autnum.getName(), equalTo("AS100-AS200"));
+        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
+        assertThat(autnum.getObjectClassName(), is("autnum"));
+    }
+
+    @Test
+    public void lookup_asblock_with_rdap_json_content_type() {
+        final Response response = createResource("autnum/103")
+                .request("application/rdap+json")
+                .get();
+
+        assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
+        final String entity = response.readEntity(String.class);
+        assertThat(entity, containsString("\"handle\" : \"AS100 \""));
+        assertThat(entity, containsString("\"startAutnum\" : 100"));
+        assertThat(entity, containsString("\"endAutnum\" : 200"));
+    }
+
+    @Test
     public void lookup_autnum_with_rdap_json_content_type() {
         final Response response = createResource("autnum/102")
                 .request("application/rdap+json")
