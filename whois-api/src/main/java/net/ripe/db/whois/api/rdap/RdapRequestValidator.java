@@ -1,18 +1,12 @@
 package net.ripe.db.whois.api.rdap;
 
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
-import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
-import net.ripe.db.whois.query.planner.AbuseCFinder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;

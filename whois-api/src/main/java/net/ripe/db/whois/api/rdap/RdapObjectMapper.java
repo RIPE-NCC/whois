@@ -5,7 +5,19 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.rdap.domain.*;
+import net.ripe.db.whois.api.rdap.domain.Entity;
+import net.ripe.db.whois.api.rdap.domain.Role;
+import net.ripe.db.whois.api.rdap.domain.Link;
+import net.ripe.db.whois.api.rdap.domain.Autnum;
+import net.ripe.db.whois.api.rdap.domain.Domain;
+import net.ripe.db.whois.api.rdap.domain.SearchResult;
+import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.Ip;
+import net.ripe.db.whois.api.rdap.domain.Remark;
+import net.ripe.db.whois.api.rdap.domain.Event;
+import net.ripe.db.whois.api.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.rdap.domain.Action;
+
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -17,6 +29,8 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import org.joda.time.LocalDateTime;
@@ -26,7 +40,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.core.Response;
+import java.util.Map;
+import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.HashMap;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.*;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
@@ -34,6 +54,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 @Component
 class RdapObjectMapper {
+    public static final String DIRECT_ALLOCATION = "DIRECT ALLOCATION";
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
@@ -284,7 +305,7 @@ class RdapObjectMapper {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
-        autnum.setType("DIRECT ALLOCATION");
+        autnum.setType(DIRECT_ALLOCATION);
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         return autnum;
     }
@@ -292,15 +313,16 @@ class RdapObjectMapper {
     private static Autnum createAsBlockResponse(final RpslObject rpslObject) {
         final Autnum autnum = new Autnum();
 
-        String key = rpslObject.getValueForAttribute(AttributeType.AS_BLOCK).toString();
-        String[] startAndEndKey = key.split("-");
+        final String key = rpslObject.getValueForAttribute(AttributeType.AS_BLOCK).toString();
+        final String handle = key.split("-")[0].replace(" ", "");
+        final AsBlockRange blockRange = getAsBlockRange(key);
 
-        autnum.setHandle(startAndEndKey[0]);
+        autnum.setHandle(handle);
         //TODO :check what should be the name
         autnum.setName(key.replace(" ", ""));
-        autnum.setStartAutnum(Long.parseLong(startAndEndKey[0].trim().substring(2)));
-        autnum.setEndAutnum(Long.parseLong(startAndEndKey[1].trim().substring(2)));
-        autnum.setType("DIRECT ALLOCATION");
+        autnum.setStartAutnum(blockRange.getBegin());
+        autnum.setEndAutnum(blockRange.getEnd());
+        autnum.setType(DIRECT_ALLOCATION);
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         return autnum;
     }
@@ -430,5 +452,13 @@ class RdapObjectMapper {
         }
 
         return builder.build();
+    }
+
+    private static AsBlockRange getAsBlockRange(String asBlock) {
+        try {
+            return AsBlockRange.parse(asBlock);
+        } catch (AttributeParseException ex) {
+            throw new InternalServerErrorException("Invalid AS Block found in database");
+        }
     }
 }

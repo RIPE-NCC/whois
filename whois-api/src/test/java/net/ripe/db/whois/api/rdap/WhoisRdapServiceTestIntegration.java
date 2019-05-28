@@ -673,6 +673,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_asBlock_bad_request() {
+        try {
+            createResource("as-block/XYZ")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertErrorTitle(e, "unknown type");
+        }
+    }
+
+    @Test
     public void lookup_autnum_head_method() {
         final Response response = createResource("autnum/102").request().head();
 
@@ -734,7 +746,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
-        assertThat(autnum.getHandle(), equalTo("AS100 "));
+        assertThat(autnum.getHandle(), equalTo("AS100"));
         assertThat(autnum.getStartAutnum(), equalTo(100L));
         assertThat(autnum.getEndAutnum(), equalTo(200L));
         assertThat(autnum.getName(), equalTo("AS100-AS200"));
@@ -750,7 +762,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
         final String entity = response.readEntity(String.class);
-        assertThat(entity, containsString("\"handle\" : \"AS100 \""));
+        assertThat(entity, containsString("\"handle\" : \"AS100\""));
         assertThat(entity, containsString("\"startAutnum\" : 100"));
         assertThat(entity, containsString("\"endAutnum\" : 200"));
     }

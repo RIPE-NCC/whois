@@ -185,7 +185,7 @@ public class RdapObjectMapperTest {
     @Test
     public void asBlock() {
         final Autnum result = (Autnum) map((RpslObject.parse("" +
-                "as-block:       AS100-AS200\n" +
+                "as-block:       AS100 - AS200\n" +
                 "member-of:      AS-TESTSET\n" +
                 "descr:          description\n" +
                 "import:         from AS1 accept ANY\n" +

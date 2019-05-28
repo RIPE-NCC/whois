@@ -2,23 +2,16 @@ package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rest.ApiResponseHandler;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.handler.QueryHandler;
-import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,13 +19,14 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.util.List;
-import static net.ripe.db.whois.common.rpsl.ObjectType.*;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
 
 @Component
 public class RdapQueryHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RdapQueryHandler.class);
 
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
-    private static final Logger LOGGER = LoggerFactory.getLogger(RdapQueryHandler.class);
     private final QueryHandler queryHandler;
 
     @Autowired
@@ -42,13 +36,12 @@ public class RdapQueryHandler {
 
     public List<RpslObject> handleQuery(final Query query, final HttpServletRequest request) {
 
-        final int contextId = System.identityHashCode(Thread.currentThread());
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
 
         final List<RpslObject> result = Lists.newArrayList();
 
         try {
-            queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
+            queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {
@@ -70,21 +63,24 @@ public class RdapQueryHandler {
 
     public List<RpslObject> handleAutNumQuery(final Query query, final HttpServletRequest request) {
 
-        final int contextId = System.identityHashCode(Thread.currentThread());
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
 
         final List<RpslObject> resultAutNum = Lists.newArrayList();
         final List<RpslObject> resultAsBlock = Lists.newArrayList();
 
         try {
-            queryHandler.streamResults(query, remoteAddress, contextId, new ApiResponseHandler() {
+            queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
                 @Override
                 public void handle(final ResponseObject responseObject) {
-                    if (responseObject instanceof RpslObject && ((RpslObject) responseObject).getType() == AUT_NUM) {
-                        resultAutNum.add((RpslObject) responseObject);
+                    if (responseObject instanceof RpslObject) {
 
-                        } else if(responseObject instanceof RpslObject && ((RpslObject) responseObject).getType() == AS_BLOCK) {
-                             resultAsBlock.add((RpslObject) responseObject);
+                        if (((RpslObject) responseObject).getType() == AUT_NUM) {
+                            resultAutNum.add((RpslObject) responseObject);
+                        } else {
+                            if (((RpslObject) responseObject).getType() == AS_BLOCK) {
+                                resultAsBlock.add((RpslObject) responseObject);
+                            }
+                        }
                     }
                 }
             });
