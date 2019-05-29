@@ -24,7 +24,11 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.iptree.*;
+import net.ripe.db.whois.common.iptree.Ipv4Tree;
+import net.ripe.db.whois.common.iptree.Ipv6Tree;
+import net.ripe.db.whois.common.iptree.Ipv6Entry;
+import net.ripe.db.whois.common.iptree.IpEntry;
+import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -54,7 +58,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 @Component
 class RdapObjectMapper {
-    public static final String DIRECT_ALLOCATION = "DIRECT ALLOCATION";
+    private static final String DIRECT_ALLOCATION = "DIRECT ALLOCATION";
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
