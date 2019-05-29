@@ -2,9 +2,11 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.domain.QueryException;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
@@ -99,6 +101,8 @@ public class FullTextSearch {
                     .build(), request));
         } catch (IllegalArgumentException e) {
             return badRequest(e.getMessage());
+        } catch (QueryException qe) {
+            throw RestServiceHelper.createWebApplicationException(qe, request);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return internalServerError("Unexpected error");

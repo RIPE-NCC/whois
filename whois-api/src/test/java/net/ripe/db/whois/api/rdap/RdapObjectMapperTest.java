@@ -86,8 +86,8 @@ public class RdapObjectMapperTest {
                 ));
 
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
-        assertThat(result.getStartAddress(), is("10.0.0.0/32"));
-        assertThat(result.getEndAddress(), is("10.255.255.255/32"));
+        assertThat(result.getStartAddress(), is("10.0.0.0"));
+        assertThat(result.getEndAddress(), is("10.255.255.255"));
         assertThat(result.getIpVersion(), is("v4"));
         assertThat(result.getName(), is("RIPE-NCC"));
         assertThat(result.getType(), is("OTHER"));
