@@ -16,12 +16,12 @@ public class Latin1ConversionTest {
     public void convert_ascii_string() {
         final String ascii = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
-        assertThat(Latin1Conversion.convert(ascii), is(ascii));
+        assertThat(Latin1Conversion.convertString(ascii), is(ascii));
     }
 
     @Test
     public void convert_supplement_latin1_string() {
-        assertThat(Latin1Conversion.convert(SUPPLEMENT), is(SUPPLEMENT));
+        assertThat(Latin1Conversion.convertString(SUPPLEMENT), is(SUPPLEMENT));
     }
 
     @Test
@@ -36,27 +36,27 @@ public class Latin1ConversionTest {
     public void convert_control_characters_string() {
         final String control = new String(new byte[]{0x0, 0x0a}, StandardCharsets.ISO_8859_1);
 
-        assertThat(Latin1Conversion.convert(control), is("?\n"));
+        assertThat(Latin1Conversion.convertString(control), is("?\n"));
     }
 
     @Test
     public void convert_non_break_space_string() {
         final String control = new String(new byte[]{(byte)0xa0}, StandardCharsets.ISO_8859_1);
 
-        assertThat(Latin1Conversion.convert(control), is(" "));
+        assertThat(Latin1Conversion.convertString(control), is(" "));
     }
 
     @Test
     public void convert_non_latin1_string() {
-        assertThat(Latin1Conversion.convert("ΣΔ"), is("??") );
-        assertThat(Latin1Conversion.convert("привет"), is("??????") );
-        assertThat(Latin1Conversion.convert("مرحبا"), is("?????") );
-        assertThat(Latin1Conversion.convert("你好ا"), is("???") );
+        assertThat(Latin1Conversion.convertString("ΣΔ"), is("??") );
+        assertThat(Latin1Conversion.convertString("привет"), is("??????") );
+        assertThat(Latin1Conversion.convertString("مرحبا"), is("?????") );
+        assertThat(Latin1Conversion.convertString("你好ا"), is("???") );
     }
 
     @Test
     public void convert_empty_input_string() {
-        assertThat(Latin1Conversion.convert(""), is("") );
+        assertThat(Latin1Conversion.convertString(""), is("") );
     }
 
     @Test
