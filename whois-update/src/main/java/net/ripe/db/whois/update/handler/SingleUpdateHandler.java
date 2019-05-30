@@ -21,7 +21,6 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.generator.AttributeGenerator;
-import net.ripe.db.whois.update.handler.transform.Latin1Transformer;
 import net.ripe.db.whois.update.handler.transform.Transformer;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,6 @@ public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
     private final List<AttributeGenerator> attributeGenerators;
     private final Transformer[] transformers;
-    private final Latin1Transformer latin1Transformer;
     private final RpslObjectDao rpslObjectDao;
     private final UpdateLockDao updateLockDao;
     private final Authenticator authenticator;
@@ -61,7 +59,6 @@ public class SingleUpdateHandler {
     @Autowired
     public SingleUpdateHandler(final List<AttributeGenerator> attributeGenerators,
                                final Transformer[] transformers,
-                               final Latin1Transformer latin1Transformer,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final Authenticator authenticator,
@@ -73,7 +70,6 @@ public class SingleUpdateHandler {
         // sort AttributeGenerators so they are executed in a predictable order
         this.attributeGenerators.sort((lhs, rhs) -> lhs.getClass().getName().compareToIgnoreCase(rhs.getClass().getName()));
         this.transformers = transformers;
-        this.latin1Transformer = latin1Transformer;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
         this.updateLockDao = updateLockDao;
@@ -210,9 +206,6 @@ public class SingleUpdateHandler {
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
-
-            // TODO: [ES] separated from other transformers, as this transform must be done before syntax checks.
-            updatedObject = latin1Transformer.transform(updatedObject, update, updateContext);
 
             ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);

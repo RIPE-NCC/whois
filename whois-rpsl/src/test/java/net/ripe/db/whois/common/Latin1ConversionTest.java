@@ -10,7 +10,7 @@ import static org.junit.Assert.assertThat;
 
 public class Latin1ConversionTest {
 
-    final static String SUPPLEMENT = "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+    private final static String SUPPLEMENT = "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
 
     @Test
     public void convert_ascii_string() {
@@ -27,7 +27,7 @@ public class Latin1ConversionTest {
     @Test
     public void convert_rpsl_with_supplement() {
         assertThat(
-            Latin1Conversion.convert(RpslObject.parse("person: test\nnic-hdl: TP1-TEST\ndescr: " + SUPPLEMENT)),
+            Latin1Conversion.convert("person: test\nnic-hdl: TP1-TEST\ndescr: " + SUPPLEMENT).getRpslObject(),
             is(RpslObject.parse("person: test\nnic-hdl: TP1-TEST\ndescr: " + SUPPLEMENT))
         );
     }
@@ -63,7 +63,7 @@ public class Latin1ConversionTest {
     public void convert_control_characters_rpsl() {
         assertThat(
             Latin1Conversion.convert(
-                RpslObject.parse("person: Test\u0000 Person\nnic-hdl: TP1-TEST\nsource: TEST")),
+                "person: Test\u0000 Person\nnic-hdl: TP1-TEST\nsource: TEST").getRpslObject(),
             is(
                 RpslObject.parse("person: Test? Person\nnic-hdl: TP1-TEST\nsource: TEST")));
     }
@@ -72,7 +72,7 @@ public class Latin1ConversionTest {
     public void convert_non_break_space_rpsl() {
         assertThat(
             Latin1Conversion.convert(
-                RpslObject.parse("person: Test\u00a0Person\nnic-hdl: TP1-TEST\nsource: TEST")),
+                "person: Test\u00a0Person\nnic-hdl: TP1-TEST\nsource: TEST").getRpslObject(),
             is(
                 RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST\nsource: TEST")));
     }
@@ -81,7 +81,7 @@ public class Latin1ConversionTest {
     public void unicode_umlaut_substituted_correctly() {
         assertThat(
             Latin1Conversion.convert(
-                RpslObject.parse("person: Test P\u00FCrson\nnic-hdl: TP1-TEST\nsource: TEST")),
+                "person: Test P\u00FCrson\nnic-hdl: TP1-TEST\nsource: TEST").getRpslObject(),
             is(
                 RpslObject.parse("person: Test Pürson\nnic-hdl: TP1-TEST\nsource: TEST")));
     }
@@ -90,7 +90,7 @@ public class Latin1ConversionTest {
     public void utf16_umlaut_not_substituted_rpsl() {
         assertThat(
             Latin1Conversion.convert(
-                RpslObject.parse("person: Test Pürson\nnic-hdl: TP1-TEST\nsource: TEST")),
+                "person: Test Pürson\nnic-hdl: TP1-TEST\nsource: TEST").getRpslObject(),
             is(
                 RpslObject.parse("person: Test Pürson\nnic-hdl: TP1-TEST\nsource: TEST")));
     }

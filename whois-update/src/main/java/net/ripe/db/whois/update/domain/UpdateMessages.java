@@ -610,7 +610,11 @@ public final class UpdateMessages {
     }
 
     public static Message valueChangedDueToLatin1Conversion() {
-        return new Message(Type.WARNING, "Attribute value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
+        return new Message(Type.WARNING, "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
+    }
+
+    public static Message valueChangedDueToLatin1Conversion(final String attributeName) {
+        return new Message(Type.WARNING, "Invalid character(s) were substituted in attribute \"%s\" value", attributeName);
     }
 
     public static Message oldPasswordsRemoved() {

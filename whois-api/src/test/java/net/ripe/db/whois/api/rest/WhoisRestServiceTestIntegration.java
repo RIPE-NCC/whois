@@ -2460,7 +2460,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void create_utf8_character_encoding() {
         final RpslObject person = RpslObject.parse("" +
                 "person:    Pauleth Palthen\n" +
-                "address:   test \u03A3 and \u00DF characters\n" +
+                "address:   test \u03A3 кая and \u00DF characters\n" +
                 "phone:     +31-1234567890\n" +
                 "e-mail:    noreply@ripe.net\n" +
                 "mnt-by:    OWNER-MNT\n" +
@@ -2673,19 +2673,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         {
             final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
                     .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
-                            new RpslAttribute(AttributeType.ADDRESS, "address: Тверская улица,москва")).sort().get();
+                            new RpslAttribute(AttributeType.ADDRESS, "Тверская улица,москва")).sort().get();
 
             final WhoisResources response =
                     RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
                             .request()
-                            .put(Entity.entity(map(update), MediaType.APPLICATION_XML),
+                            .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
                                     WhoisResources.class);
 
             RestTest.assertWarningCount(response, 1);
-            RestTest.assertErrorMessage(response, 0, "Warning", "Attribute value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
+            RestTest.assertErrorMessage(response, 0, "Warning", "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
 
             final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
-            assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        address: ???????? ?????,??????"));
+            assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        ???????? ?????,??????"));
         }
         {
             final WhoisResources response =
@@ -2693,7 +2693,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             .request()
                             .get(WhoisResources.class);
 
-            assertThat(response.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("address", "address: ???????? ?????,??????")));
+            assertThat(response.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("address", "???????? ?????,??????")));
         }
     }
 

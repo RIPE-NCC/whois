@@ -1,5 +1,7 @@
 package net.ripe.db.whois.common;
 
+import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,10 +10,10 @@ import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 /**
  * Convert input to latin-1 with substitutions.
@@ -64,16 +66,6 @@ public class Latin1Conversion {
         }
     }
 
-    /**
-     * Convert an RPSL object using latin-1 substitutions.
-     *
-     * @param rpslObject
-     * @return
-     */
-    public static RpslObject convert(final RpslObject rpslObject) {
-        return RpslObject.parse(convert(rpslObject.toByteArray()));
-    }
-
     // NB. input byte[] parameter is modified in-place
     private static byte[] convert(@Nonnull final byte[] input) {
         for (int offset = 0; offset < input.length; offset++) {
@@ -87,21 +79,54 @@ public class Latin1Conversion {
      * @param value
      * @return
      */
-    public static String convert(@Nonnull final String value) {
+    public static Latin1ConversionResult convert(@Nonnull final String value) {
         final CharsetEncoder charsetEncoder = StandardCharsets.ISO_8859_1.newEncoder();
-        final CharsetDecoder charsetDecoder = StandardCharsets.ISO_8859_1.newDecoder();
 
         charsetEncoder.onMalformedInput(CodingErrorAction.REPLACE);
         charsetEncoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
 
         try {
             final ByteBuffer encoded = charsetEncoder.encode(CharBuffer.wrap(value));
+
+            final RpslObject rpslObject = RpslObject.parse(encoded.array());
+            final String convertedRpslObject = new String(encoded.array(), StandardCharsets.ISO_8859_1);
+            final boolean globalSubstitution = !convertedRpslObject.equals(value);
+
             convert(encoded);
-            return charsetDecoder.decode(encoded).toString();
+
+            final RpslObject substitutedRpslObject = RpslObject.parse(encoded.array());
+
+            Set<RpslAttribute> substitutedAttributes = Sets.newHashSet();
+            for (int offset = 0; offset < rpslObject.getAttributes().size(); offset++) {
+                final RpslAttribute attribute = rpslObject.getAttributes().get(offset);
+                final RpslAttribute updatedAttribute = substitutedRpslObject.getAttributes().get(offset);
+
+                if (!attribute.equals(updatedAttribute)) {
+                    substitutedAttributes.add(updatedAttribute);
+                }
+            }
+
+            return new Latin1ConversionResult(substitutedRpslObject, globalSubstitution, substitutedAttributes);
         } catch (CharacterCodingException e) {
             LOGGER.error(value, e);
             throw new IllegalStateException(e);
         }
+    }
+
+    public static String convertString(@Nonnull final String value) {
+        final CharsetEncoder charsetEncoder = StandardCharsets.ISO_8859_1.newEncoder();
+
+        charsetEncoder.onMalformedInput(CodingErrorAction.REPLACE);
+        charsetEncoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
+        try {
+            final ByteBuffer encoded = charsetEncoder.encode(CharBuffer.wrap(value));
+            convert(encoded);
+            return new String(encoded.array(), StandardCharsets.ISO_8859_1);
+        } catch (CharacterCodingException e) {
+            LOGGER.error(value, e);
+            throw new IllegalStateException(e);
+        }
+
     }
 
     private static void convert(final ByteBuffer bb) {
