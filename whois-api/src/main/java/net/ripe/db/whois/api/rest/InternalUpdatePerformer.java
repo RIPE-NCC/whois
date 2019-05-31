@@ -97,19 +97,29 @@ public class InternalUpdatePerformer {
     }
 
     public Response createResponse(final UpdateContext updateContext, final WhoisResources whoisResources, final Update update, final HttpServletRequest request) {
-        final UpdateStatus status = updateContext.getStatus(update);
-
         final Response.ResponseBuilder responseBuilder;
-        if (status == UpdateStatus.SUCCESS) {
-            responseBuilder = Response.status(Response.Status.OK);
-        } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
-            responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
-        } else if (status == UpdateStatus.EXCEPTION) {
-            responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
-        } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
-            responseBuilder = Response.status(Response.Status.CONFLICT);
-        } else {
-            responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+        switch (updateContext.getStatus(update)) {
+            case SUCCESS:
+                responseBuilder = Response.status(Response.Status.OK);
+                break;
+            case FAILED_AUTHENTICATION:
+                responseBuilder = Response.status(Response.Status.UNAUTHORIZED);
+                    break;
+            case EXCEPTION:
+                responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+                break;
+            case FAILED:
+            default: {
+                if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
+                    responseBuilder = Response.status(Response.Status.CONFLICT);
+                } else {
+                    if (updateContext.getMessages(update).contains(UpdateMessages.unexpectedError())) {
+                        responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+                    } else {
+                        responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+                    }
+                }
+            }
         }
 
         return responseBuilder.entity(new StreamingResponse(request, whoisResources)).build();
