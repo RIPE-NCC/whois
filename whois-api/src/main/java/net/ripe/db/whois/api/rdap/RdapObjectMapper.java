@@ -193,7 +193,8 @@ class RdapObjectMapper {
         final Ip ip = new Ip();
         final IpInterval ipInterval = IpInterval.parse(rpslObject.getKey());
         ip.setHandle(rpslObject.getKey().toString());
-        ip.setIpVersion(rpslObject.getType() == INET6NUM ? "v6" : "v4");
+
+        ip.setIpVersion(rpslObject.getType() == INET6NUM? "v6" : "v4");
         ip.setStartAddress(toIpRange(ipInterval).start().toString());
         ip.setEndAddress(toIpRange(ipInterval).end().toString());
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
@@ -208,7 +209,15 @@ class RdapObjectMapper {
     }
 
     private static AbstractIpRange toIpRange(IpInterval interval) {
-        return interval instanceof Ipv4Resource? Ipv4Range.parse(interval.toString()) : Ipv6Range.parse(interval.toString());
+        return interval instanceof Ipv4Resource? toIpv4Range((Ipv4Resource)interval) : toIpv6Range((Ipv6Resource)interval);
+    }
+
+    private static AbstractIpRange toIpv4Range(final Ipv4Resource ipv4Resource) {
+        return Ipv4Range.from(ipv4Resource.begin()).to(ipv4Resource.end());
+    }
+
+    private static AbstractIpRange toIpv6Range(final Ipv6Resource ipv6Resource) {
+        return Ipv6Range.from(ipv6Resource.begin()).to(ipv6Resource.end());
     }
 
     @Nullable
