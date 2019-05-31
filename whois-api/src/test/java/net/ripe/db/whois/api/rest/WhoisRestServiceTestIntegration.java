@@ -1794,7 +1794,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"????????\"/>"));
-        assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Attribute value changed due to conversion into the ISO-8859-1 (Latin-1) character set\">"));
+        assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Value changed due to conversion into the ISO-8859-1 (Latin-1) character set\"/>"));
     }
 
     @Test
@@ -1873,7 +1873,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "</whois-resources>", MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(response.getErrorMessages(), hasSize(1));
-        assertThat(response.getErrorMessages().get(0).getText(), is("Attribute value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
+        assertThat(response.getErrorMessages().get(0).getText(), is("Invalid character(s) were substituted in attribute \"%s\" value"));
+        assertThat(response.getErrorMessages().get(0).getArgs(), hasSize(1));
+        assertThat(response.getErrorMessages().get(0).getArgs().get(0).getValue(), is("person"));
         assertThat(response.getWhoisObjects(), hasSize(1));
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getValue(), is("New Person"));
     }
