@@ -66,6 +66,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 
 @Component
 class RdapObjectMapper {
@@ -152,6 +153,7 @@ class RdapObjectMapper {
                 break;
             case PERSON:
             case ROLE:
+            case MNTNER:
             case ORGANISATION:
                 rdapResponse = createEntity(rpslObject);
                 break;
@@ -416,6 +418,10 @@ class RdapObjectMapper {
         switch (rpslObject.getType()) {
             case PERSON:
                 builder.addFn(rpslObject.getValueForAttribute(PERSON).toString());
+                builder.addKind("individual");
+                break;
+            case MNTNER:
+                builder.addFn(rpslObject.getValueForAttribute(AttributeType.MNTNER).toString());
                 builder.addKind("individual");
                 break;
             case ORGANISATION:

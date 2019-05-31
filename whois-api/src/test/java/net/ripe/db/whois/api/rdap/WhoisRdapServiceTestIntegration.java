@@ -25,7 +25,6 @@ import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1031,7 +1030,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("[ES] Lookup mntner entity not supported")
     @Test
     public void lookup_mntner_entity() {
         final Entity entity = createResource("entity/OWNER-MNT")
@@ -1039,6 +1037,33 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("OWNER-MNT"));
+
+        assertThat(entity.getHandle(), is("OWNER-MNT"));
+        final List<Object> vCardArray = entity.getVCardArray();
+        assertThat(vCardArray.get(0).toString(), is("vcard"));
+        assertThat(vCardArray.get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, OWNER-MNT], " +
+                "[kind, {}, text, individual]]"));
+
+        final List<Entity> entities = entity.getEntitySearchResults();
+        assertThat(entities, hasSize(2));
+        assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(0).getVCardArray(), is(nullValue()));
+
+        assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(1).getRoles(), contains(Role.ADMINISTRATIVE));
+        assertThat(entities.get(1).getVCardArray(), is(nullValue()));
+
+        assertThat(entity.getLinks(), hasSize(2));
+        assertThat(entity.getLinks().get(0).getRel(), is("self"));
+        assertThat(entity.getLinks().get(1).getRel(), is("copyright"));
+
+        assertThat(entity.getEvents(), hasSize(1));
+        assertThat(entity.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
+
+        assertThat(entity.getPort43(), is("whois.ripe.net"));
     }
 
     @Test
