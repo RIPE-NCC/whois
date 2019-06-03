@@ -72,6 +72,7 @@ public class RdapObjectMapperTest {
                         "tech-c:         TP1-TEST\n" +
                         "status:         OTHER\n" +
                         "language:       EN\n" +
+                        "language:       DK\n" +
                         "mnt-by:         TST-MNT\n" +
                         "mnt-lower:      TST-MNT\n" +
                         "mnt-domains:    TST-MNT\n" +
@@ -359,6 +360,7 @@ public class RdapObjectMapperTest {
                 "fax-no:         +31 98765432\n" +
                 "geoloc:         52.375599 4.899902\n" +
                 "language:       DK\n" +
+                "language:       EN\n" +
                 "admin-c:        TP1-TEST\n" +
                 "abuse-c:        ABU-TEST\n" +
                 "mnt-by:         FRED-MNT\n" +

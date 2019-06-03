@@ -318,6 +318,61 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_inetnum_multiple_language_codes() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     EN\n" +
+                "language:     DK\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.0.255")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(ip.getIpVersion(), is("v4"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getLang(), is("EN"));
+        assertThat(ip.getStartAddress(), is("192.0.0.0"));
+        assertThat(ip.getEndAddress(), is("192.255.255.255"));
+        assertThat(ip.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+    }
+
+    @Test
+    public void lookup_org_multiple_language_codes() {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-LANG-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "language:      DK\n" +
+                "language:      EN\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "admin-c:       TP2-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "tech-c:        TP2-TEST\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final Entity entity = createResource("entity/ORG-LANG-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getHandle(), equalTo("ORG-LANG-TEST"));
+        assertThat(entity.getLang(), is("DK"));
+    }
+
+    @Test
     public void lookup_inetnum_not_found() {
         try {
             createResource("ip/193.0.0.0")
