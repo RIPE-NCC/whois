@@ -72,6 +72,9 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
+    private static final String VCARD_KIND_INDIVIDUAL = "individual";
+    private static final String VCARD_KIND_ORG = "org";
+    private static final String VCARD_KIND_GROUP = "group";
 
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
 
@@ -418,19 +421,19 @@ class RdapObjectMapper {
         switch (rpslObject.getType()) {
             case PERSON:
                 builder.addFn(rpslObject.getValueForAttribute(PERSON).toString());
-                builder.addKind("individual");
+                builder.addKind(VCARD_KIND_INDIVIDUAL);
                 break;
             case MNTNER:
                 builder.addFn(rpslObject.getValueForAttribute(AttributeType.MNTNER).toString());
-                builder.addKind("individual");
+                builder.addKind(VCARD_KIND_INDIVIDUAL);
                 break;
             case ORGANISATION:
                 builder.addFn(rpslObject.getValueForAttribute(ORG_NAME).toString());
-                builder.addKind("org");
+                builder.addKind(VCARD_KIND_ORG);
                 break;
             case ROLE:
                 builder.addFn(rpslObject.getValueForAttribute(ROLE).toString());
-                builder.addKind("group");
+                builder.addKind(VCARD_KIND_GROUP);
                 break;
             default:
                 break;

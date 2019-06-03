@@ -33,6 +33,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -1064,6 +1065,41 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(entity.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         assertThat(entity.getPort43(), is("whois.ripe.net"));
+    }
+
+    @Test
+    public void lookup_entity_multiple_result_throw_error() {
+
+        databaseHelper.addObject("" +
+                "person:        MNTNER_PERSON\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31-1234567890\n" +
+                "e-mail:        noreply@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "nic-hdl:       TP2_MULTI\n" +
+                "remarks:       remark\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "mntner:        MNTNER_PERSON\n" +
+                "descr:         Owner Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "referral-by:   OWNER-MNT\n" +
+                "source:        TEST");
+
+        try {
+          createResource("entity/MNTNER_PERSON")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+          fail();
+        } catch (InternalServerErrorException e) {
+            final Entity entity = e.getResponse().readEntity(Entity.class);
+            assertThat(entity.getErrorTitle(), is("Unexpected result size: 2"));
+        }
     }
 
     @Test
