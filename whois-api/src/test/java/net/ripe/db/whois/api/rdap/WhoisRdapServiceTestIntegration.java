@@ -1076,12 +1076,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "phone:         +31-1234567890\n" +
                 "e-mail:        noreply@ripe.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "nic-hdl:       TP2_MULTI\n" +
+                "nic-hdl:       TP2-MULTI\n" +
                 "remarks:       remark\n" +
                 "source:        TEST");
 
         databaseHelper.addObject("" +
-                "mntner:        MNTNER_PERSON\n" +
+                "mntner:        TP2-MULTI\n" +
                 "descr:         Owner Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
@@ -1091,7 +1091,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
 
         try {
-          createResource("entity/MNTNER_PERSON")
+          createResource("entity/TP2-MULTI")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
