@@ -69,7 +69,7 @@ public class OriginValidator implements BusinessRuleValidator {
         }
     }
 
-    private boolean isReservedAsNumber(Long asn) {
+    public boolean isReservedAsNumber(Long asn) {
         for (LongRange range : this.reservedAsnumbers) {
             if (range.containsLong(asn)) {
                 return true;

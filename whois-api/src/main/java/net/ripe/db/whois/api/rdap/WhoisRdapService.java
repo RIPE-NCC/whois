@@ -215,7 +215,7 @@ public class WhoisRdapService {
     }
 
     private Response lookupForAutNum(final HttpServletRequest request, final String key) {
-        if (!delegatedStatsService.isMaintainedInRirSpace(source.getName(), AUT_NUM, CIString.ciString(key))) {
+        if (!delegatedStatsService.isMaintainedInRirSpace(source.getName(), AUT_NUM, CIString.ciString(key)) && !rdapRequestValidator.isReservedAsNumber(key)) {
             return redirect(getRequestPath(request), getQueryObject(ImmutableSet.of(AUT_NUM), key));
         }
 

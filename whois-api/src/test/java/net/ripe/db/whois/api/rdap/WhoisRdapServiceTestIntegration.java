@@ -838,6 +838,27 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_as_block_for_reserved_autnum() {
+        databaseHelper.addObject("" +
+                "as-block:       AS0 - AS6\n" +
+                "descr:          RIPE NCC block\n" +
+                "org:            ORG-TEST1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST");
+
+        final Autnum autnum = createResource("autnum/0")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getHandle(), equalTo("AS0"));
+        assertThat(autnum.getStartAutnum(), equalTo(0L));
+        assertThat(autnum.getEndAutnum(), equalTo(6L));
+        assertThat(autnum.getName(), equalTo("AS0-AS6"));
+        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
+        assertThat(autnum.getObjectClassName(), is("autnum"));
+    }
+
+    @Test
     public void lookup_asblock_with_rdap_json_content_type() {
         final Response response = createResource("autnum/103")
                 .request("application/rdap+json")
