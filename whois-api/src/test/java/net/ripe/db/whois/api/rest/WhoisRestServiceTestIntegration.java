@@ -1771,18 +1771,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    // TODO: [ES] unable to reproduce in test:
+    //      UTF-8 is sent to server, and it's stored as UTF8 in index table. In the test, the value is stored as latin1.
     @Test
     public void create_succeeds_latin1_abuse_mailbox() {
-        final String createResponse = RestTest.target(getPort(), "whois/test/role?password=test")
-            .request()
-            .post(Entity.entity(
-                "<whois-resources>\n" +
+        final byte[] request =
+                ("<whois-resources>\n" +
                 "    <objects>\n" +
                 "        <object type=\"role\">\n" +
                 "            <source id=\"TEST\"/>\n" +
                 "            <attributes>\n" +
                 "                <attribute name=\"role\" value=\"Zurich Role\"/>\n" +
-                "                <attribute name=\"address\" value=\"Z\u00FCrich\"/>\n" +           // unicode encoded u-umlaut
+                "                <attribute name=\"address\" value=\"Z\u00FCrich\"/>\n" +           // unicode encoded u-umlaut, will be encoded as UTF-8 (bytes 0xc3bc in byte[]).
                 "                <attribute name=\"e-mail\" value=\"info@Z\u00FCrich.city\"/>\n" +
                 "                <attribute name=\"abuse-mailbox\" value=\"abuse@Z\u00FCrich.city\"/>\n" +
                 "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
@@ -1791,9 +1791,16 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
-                "</whois-resources>", MediaType.APPLICATION_XML_TYPE.withCharset("UTF-8")), String.class);
+                "</whois-resources>").getBytes(Charsets.UTF_8);
 
-        assertThat(createResponse, containsString("<attribute name=\"abuse-mailbox\" value=\"abuse@Zürich.city\"/>"));
+        final String response = RestTest.target(getPort(), "whois/test/role?password=test")
+            .request()
+            .post(Entity.entity(request, MediaType.APPLICATION_XML_TYPE.withCharset("UTF-8")), String.class);
+
+        // TODO: value stored correctly as 0xFC during test, but not in production (0xC3BC)
+        assertThat(whoisTemplate.queryForObject("SELECT hex(abuse_mailbox) FROM abuse_mailbox WHERE abuse_mailbox like '%city'", String.class), containsString("5AFC72696368"));    // Zürich
+
+        assertThat(response, containsString("<attribute name=\"abuse-mailbox\" value=\"abuse@Zürich.city\"/>"));
         assertThat(queryTelnet("-r -i abuse-mailbox abuse@zürich.city"), containsString("abuse-mailbox:  abuse@Zürich.city"));
     }
 
