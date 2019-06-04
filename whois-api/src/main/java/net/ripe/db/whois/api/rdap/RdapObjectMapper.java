@@ -50,8 +50,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.api.rdap.NoticeFactory.addNoticeForMultipleValues;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
@@ -75,6 +75,9 @@ class RdapObjectMapper {
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
+
+    public static final String NOICE_MULTIPLE_VALUE_DESC = "There are multiple %s %s in %s, but only the first %s %s was returned.";
+    public static final String NOTICE_MULTIPLE_VALUE_TITLE = "Multiple %s found";
 
     private static final Joiner NEWLINE_JOINER = Joiner.on("\n");
 
@@ -481,5 +484,19 @@ class RdapObjectMapper {
         List<RpslAttribute> countries = rpslObject.findAttributes(AttributeType.COUNTRY);
         ip.setCountry(countries.get(0).getCleanValue().toString());
         addNoticeForMultipleValues(ip, AttributeType.COUNTRY, countries, ip.getHandle());
+    }
+
+    private static void addNoticeForMultipleValues(RdapObject rdapObject, AttributeType type, List<RpslAttribute> values, String key) {
+        if(values.isEmpty() || values.size() == 1) {
+            return;
+        }
+
+        String commaSeperatedValues = values.stream().map( x -> x.getCleanValue()).collect(Collectors.joining(","));
+
+        final Notice notice = new Notice();
+        notice.setTitle( String.format(NOTICE_MULTIPLE_VALUE_TITLE, type.getName()));
+        notice.getDescription().add(String.format(NOICE_MULTIPLE_VALUE_DESC, type.getName(), commaSeperatedValues, key, type.getName(), values.get(0).getCleanValue()));
+
+        rdapObject.getNotices().add(notice);
     }
 }

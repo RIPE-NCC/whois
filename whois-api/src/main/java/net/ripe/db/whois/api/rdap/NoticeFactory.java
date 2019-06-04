@@ -18,9 +18,6 @@ import java.util.stream.Collectors;
 @Component
 class NoticeFactory {
 
-    public static final String NOICE_MULTIPLE_VALUE_DESC = "There are multiple %s %s in %s, but only the first %s %s was returned.";
-    public static final String NOTICE_MULTIPLE_VALUE_TITLE = "Multiple %s found";
-
     private final String tncTitle;
     private final String tncDescription;
     private final String tncLinkrel;
@@ -82,20 +79,5 @@ class NoticeFactory {
         tnc.getDescription().add(this.tncDescription);
         tnc.getLinks().add(new Link(selfLink, tncLinkrel, tncLinkhref, null, this.tncLinktype));
         return tnc;
-    }
-
-
-    public static void addNoticeForMultipleValues(RdapObject rdapObject, AttributeType type, List<RpslAttribute> values, String key) {
-        if(values.isEmpty() || values.size() == 1) {
-            return;
-        }
-
-        String commaSeperatedValues = values.stream().map( x -> x.getCleanValue()).collect(Collectors.joining(","));
-
-        final Notice notice = new Notice();
-        notice.setTitle( String.format(NOTICE_MULTIPLE_VALUE_TITLE, type.getName()));
-        notice.getDescription().add(String.format(NOICE_MULTIPLE_VALUE_DESC, type.getName(), commaSeperatedValues, key, type.getName(), values.get(0).getCleanValue()));
-
-        rdapObject.getNotices().add(notice);
     }
 }
