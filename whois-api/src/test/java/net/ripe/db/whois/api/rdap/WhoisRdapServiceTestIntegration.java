@@ -315,6 +315,15 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getLang(), is(nullValue()));
         assertThat(ip.getParentHandle(), is("IANA-BLK"));
+
+        final List<Notice> notices = ip.getNotices();
+        assertThat(notices, hasSize(4));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Multiple country found"));
+        assertThat(notices.get(1).getDescription().get(0), is("There are multiple country NL,DE in 192.0.0.0 - 192.255.255.255, but only the first country NL was returned."));
+        assertThat(notices.get(2).getTitle(), is("Source"));
+        assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
     }
 
     @Test
@@ -344,6 +353,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getEndAddress(), is("192.255.255.255"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getParentHandle(), is("IANA-BLK"));
+
+        final List<Notice> notices = ip.getNotices();
+        assertThat(notices, hasSize(4));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Multiple language found"));
+        assertThat(notices.get(1).getDescription().get(0), is("There are multiple language EN,DK in 192.0.0.0 - 192.255.255.255, but only the first language EN was returned."));
+        assertThat(notices.get(2).getTitle(), is("Source"));
+        assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
+
     }
 
     @Test
@@ -370,6 +389,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(entity.getHandle(), equalTo("ORG-LANG-TEST"));
         assertThat(entity.getLang(), is("DK"));
+
+        final List<Notice> notices = entity.getNotices();
+        assertThat(notices, hasSize(4));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Multiple language found"));
+        assertThat(notices.get(1).getDescription().get(0), is("There are multiple language DK,EN in ORG-LANG-TEST, but only the first language DK was returned."));
+        assertThat(notices.get(2).getTitle(), is("Source"));
+        assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
+
     }
 
     @Test

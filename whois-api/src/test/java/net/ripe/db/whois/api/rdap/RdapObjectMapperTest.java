@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.rdap.domain.Domain;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -16,6 +17,7 @@ import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.hamcrest.MatcherAssert;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +34,7 @@ import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -399,6 +402,38 @@ public class RdapObjectMapperTest {
         assertThat(result.getPort43(), is("whois.ripe.net"));
 
         assertThat(result.getLang(), is("DK"));
+
+        final List<Notice> notices = result.getNotices();
+
+        MatcherAssert.assertThat(notices.get(0).getTitle(), is("Multiple language found"));
+        MatcherAssert.assertThat(notices.get(0).getDescription().get(0), is("There are multiple language DK,EN in ORG-AC1-TEST, but only the first language DK was returned."));
+    }
+
+    @Test
+    public void organisation_should_not_have_notice_for_language() {
+        final Entity result = (Entity) map(RpslObject.parse("" +
+                "organisation:   ORG-AC1-TEST\n" +
+                "org-name:       Acme Carpets\n" +
+                "org-type:       OTHER\n" +
+                "address:        Singel 258\n" +
+                "e-mail:         bitbucket@ripe.net\n" +
+                "descr:          Acme Carpet Organisation\n" +
+                "remark:         some remark\n" +
+                "phone:          +31 1234567\n" +
+                "fax-no:         +31 98765432\n" +
+                "geoloc:         52.375599 4.899902\n" +
+                "language:       DK\n" +
+                "admin-c:        TP1-TEST\n" +
+                "abuse-c:        ABU-TEST\n" +
+                "mnt-by:         FRED-MNT\n" +
+                "source:         TEST"));
+
+        assertThat(result.getLang(), is("DK"));
+
+        final List<Notice> notices = result.getNotices();
+
+        assertThat(notices, hasSize(1));
+        assertNull(notices.get(0));
     }
 
     @Test
