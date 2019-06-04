@@ -1772,6 +1772,32 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_succeeds_latin1_abuse_mailbox() {
+        final String createResponse = RestTest.target(getPort(), "whois/test/role?password=test")
+            .request()
+            .post(Entity.entity(
+                "<whois-resources>\n" +
+                "    <objects>\n" +
+                "        <object type=\"role\">\n" +
+                "            <source id=\"TEST\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"role\" value=\"Zurich Role\"/>\n" +
+                "                <attribute name=\"address\" value=\"Z\u00FCrich\"/>\n" +           // unicode encoded u-umlaut
+                "                <attribute name=\"e-mail\" value=\"info@Z\u00FCrich.city\"/>\n" +
+                "                <attribute name=\"abuse-mailbox\" value=\"abuse@Z\u00FCrich.city\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"ZR1-TEST\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "</whois-resources>", MediaType.APPLICATION_XML_TYPE.withCharset("UTF-8")), String.class);
+
+        assertThat(createResponse, containsString("<attribute name=\"abuse-mailbox\" value=\"abuse@Zürich.city\"/>"));
+        assertThat(queryTelnet("-r -i abuse-mailbox abuse@zürich.city"), containsString("abuse-mailbox:  abuse@Zürich.city"));
+    }
+
+    @Test
     public void create_succeeds_non_latin1_characters_substituted_in_response() {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
