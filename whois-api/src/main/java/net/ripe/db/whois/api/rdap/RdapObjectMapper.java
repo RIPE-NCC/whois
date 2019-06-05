@@ -76,9 +76,6 @@ class RdapObjectMapper {
 
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
 
-    public static final String NOICE_MULTIPLE_VALUE_DESC = "There are multiple %s %s in %s, but only the first %s %s was returned.";
-    public static final String NOTICE_MULTIPLE_VALUE_TITLE = "Multiple %s found";
-
     private static final Joiner NEWLINE_JOINER = Joiner.on("\n");
 
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
@@ -466,7 +463,7 @@ class RdapObjectMapper {
         return builder.build();
     }
 
-    private static void handleLanguageAttribute(RpslObject rpslObject, RdapObject rdapObject) {
+    private static void handleLanguageAttribute(final RpslObject rpslObject, final RdapObject rdapObject) {
         if (!rpslObject.containsAttribute(AttributeType.LANGUAGE)) {
             return;
         }
@@ -476,7 +473,7 @@ class RdapObjectMapper {
         addNoticeForMultipleValues(rdapObject, AttributeType.LANGUAGE, languages, rpslObject.getKey().toString());
     }
 
-    private static void handleCountryAttribute(RpslObject rpslObject, Ip ip) {
+    private static void handleCountryAttribute(final RpslObject rpslObject, final Ip ip) {
         if (!rpslObject.containsAttribute(AttributeType.COUNTRY)) {
             return;
         }
@@ -486,16 +483,18 @@ class RdapObjectMapper {
         addNoticeForMultipleValues(ip, AttributeType.COUNTRY, countries, ip.getHandle());
     }
 
-    private static void addNoticeForMultipleValues(RdapObject rdapObject, AttributeType type, List<RpslAttribute> values, String key) {
+    private static void addNoticeForMultipleValues(final RdapObject rdapObject, final AttributeType type, final List<RpslAttribute> values, final String key) {
         if(values.isEmpty() || values.size() == 1) {
             return;
         }
 
-        String commaSeperatedValues = values.stream().map( x -> x.getCleanValue()).collect(Collectors.joining(","));
+        final String commaSeperatedValues = values.stream().map( x -> x.getCleanValue()).collect(Collectors.joining(","));
+        final String title = String.format("Multiple %s attributes found", type.getName());
+        final String desc = String.format("There are multiple %s attributes %s in %s, but only the first %s %s was returned.", type.getName(), commaSeperatedValues, key, type.getName(), values.get(0).getCleanValue());
 
         final Notice notice = new Notice();
-        notice.setTitle( String.format(NOTICE_MULTIPLE_VALUE_TITLE, type.getName()));
-        notice.getDescription().add(String.format(NOICE_MULTIPLE_VALUE_DESC, type.getName(), commaSeperatedValues, key, type.getName(), values.get(0).getCleanValue()));
+        notice.setTitle(title);
+        notice.getDescription().add(desc);
 
         rdapObject.getNotices().add(notice);
     }
