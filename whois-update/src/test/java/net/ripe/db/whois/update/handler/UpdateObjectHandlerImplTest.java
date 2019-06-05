@@ -9,6 +9,7 @@ import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateFactory;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.junit.Before;
@@ -36,6 +37,7 @@ public class UpdateObjectHandlerImplTest {
     @Mock RpslObjectUpdateDao rpslObjectUpdateDao;
     @Mock SsoTranslator ssoTranslator;
     private UpdateObjectHandler subject;
+    private final UpdateFactory updateFactory = new UpdateFactory();
 
     @Before
     public void setUp() throws Exception {
@@ -127,12 +129,12 @@ public class UpdateObjectHandlerImplTest {
 
     private Update update(final RpslObject originalObject, final RpslObject updatedObject, final Operation operation) {
         Paragraph paragraph = new Paragraph((originalObject != null) ? originalObject.toString() : "", null);
-        return new Update(paragraph, operation, null, updatedObject);
+        return updateFactory.createUpdate(paragraph, operation, null, updatedObject.toString(), updateContext);
     }
 
 
     private PreparedUpdate update(final RpslObject originalObject, final RpslObject updatedObject, final Operation operation, final Action action) {
-        final Update update = new Update(new Paragraph(updatedObject.toString()), operation, null, updatedObject);
+        final Update update = updateFactory.createUpdate(new Paragraph(updatedObject.toString()), operation, null, updatedObject.toString(), updateContext);
         return new PreparedUpdate(update, originalObject, updatedObject, action);
     }
 }

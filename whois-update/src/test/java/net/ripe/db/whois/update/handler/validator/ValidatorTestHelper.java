@@ -12,10 +12,10 @@ public final class ValidatorTestHelper {
     }
 
     public static ObjectMessages validateUpdate(final BusinessRuleValidator subject, final RpslObject originalObject, final RpslObject updatedObject) {
-        final Update update = new Update(new Paragraph(updatedObject.toString()), Operation.UNSPECIFIED, null, updatedObject);
+        final UpdateContext updateContext = new UpdateContext(mock(LoggerContext.class));
+        final Update update = new UpdateFactory().createUpdate(new Paragraph(updatedObject.toString()), Operation.UNSPECIFIED, null, updatedObject.toString(), updateContext);
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, Action.MODIFY);
-        final UpdateContext updateContext = new UpdateContext(mock(LoggerContext.class));
 
         subject.validate(preparedUpdate, updateContext);
 
@@ -23,10 +23,10 @@ public final class ValidatorTestHelper {
     }
 
     public static ObjectMessages validateDelete(final BusinessRuleValidator subject, final RpslObject originalObject, final RpslObject updatedObject) {
-        final Update update = new Update(new Paragraph(updatedObject.toString()), Operation.UNSPECIFIED, null, updatedObject);
+        final UpdateContext updateContext = new UpdateContext(mock(LoggerContext.class));
+        final Update update = new UpdateFactory().createUpdate(new Paragraph(updatedObject.toString()), Operation.UNSPECIFIED, null, updatedObject.toString(), updateContext);
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, Action.DELETE);
-        final UpdateContext updateContext = new UpdateContext(mock(LoggerContext.class));
 
         subject.validate(preparedUpdate, updateContext);
 

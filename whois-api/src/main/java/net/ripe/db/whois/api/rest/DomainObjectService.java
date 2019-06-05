@@ -19,6 +19,7 @@ import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateFactory;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -62,6 +63,8 @@ public class DomainObjectService {
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
 
+    private final UpdateFactory updateFactory = new UpdateFactory();
+
     @Autowired
     public DomainObjectService(
             final WhoisObjectMapper whoisObjectMapper,
@@ -97,7 +100,7 @@ public class DomainObjectService {
 
             final Credentials credentials = createCredentials(updateContext.getUserSession(), passwords);
 
-            final List<Update> updates = extractUpdates(resources, credentials);
+            final List<Update> updates = extractUpdates(resources, credentials, updateContext);
 
             final WhoisResources updatedResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NEW, request);
 
@@ -162,7 +165,7 @@ public class DomainObjectService {
         }
     }
 
-    private List<Update> extractUpdates(final WhoisResources whoisResources, final Credentials credentials) {
+    private List<Update> extractUpdates(final WhoisResources whoisResources, final Credentials credentials, final UpdateContext updateContext) {
 
         List<Update> result = Lists.newArrayList();
 
@@ -174,7 +177,7 @@ public class DomainObjectService {
             }
             final RpslObject rpslObject = whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
             final Paragraph paragraph = new Paragraph(rpslObject.toString(), credentials);
-            final Update update = new Update(paragraph, Operation.UNSPECIFIED, null, rpslObject);
+            final Update update = updateFactory.createUpdate(paragraph, Operation.UNSPECIFIED, null, rpslObject.toString(), updateContext);
 
             result.add(update);
         }

@@ -152,7 +152,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
 
     @Override
     public List<String> getOwners() {
-        return Lists.newArrayList(Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString));
+        return Lists.newArrayList(Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertAndSubstitute));
     }
 
     @Override

@@ -15,6 +15,7 @@ import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateFactory;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
@@ -25,8 +26,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.ripe.db.whois.api.UpdateCreator.createUpdate;
-
 @Component
 public class UpdatesParser {
 
@@ -36,6 +35,8 @@ public class UpdatesParser {
     private static final Pattern DELETE_PATTERN = Pattern.compile("(?im)^delete:(.*)(?:\\n|$)");
 
     private static final Splitter CONTENT_SPLITTER = Splitter.on(Pattern.compile("(?m)^$")).trimResults().omitEmptyStrings();
+
+    private final UpdateFactory updateFactory = new UpdateFactory();
 
     public List<Paragraph> createParagraphs(final ContentWithCredentials contentWithCredentials, final UpdateContext updateContext) {
         String content = StringUtils.remove(contentWithCredentials.getContent(), '\r');
@@ -116,7 +117,7 @@ public class UpdatesParser {
 
         final Matcher matcher = PASSWORD_PATTERN.matcher(content);
         while (matcher.find()) {
-            result.add(new PasswordCredential(Latin1Conversion.convertString(matcher.group(1)).trim()));
+            result.add(new PasswordCredential(Latin1Conversion.convertAndSubstitute(matcher.group(1)).trim()));
         }
 
         return result;
@@ -151,7 +152,7 @@ public class UpdatesParser {
     private String extractOverride(final Set<Credential> credentials, final String paragraph) {
         final Matcher overrideMatcher = OVERRIDE_PATTERN.matcher(paragraph);
         while (overrideMatcher.find()) {
-            credentials.add(OverrideCredential.parse(Latin1Conversion.convertString(overrideMatcher.group(1)).trim()));
+            credentials.add(OverrideCredential.parse(Latin1Conversion.convertAndSubstitute(overrideMatcher.group(1)).trim()));
         }
 
         return overrideMatcher.reset().replaceAll("");
@@ -179,7 +180,7 @@ public class UpdatesParser {
             }
 
             try {
-                updates.add(createUpdate(paragraph, operation, deleteReasons, content, updateContext));
+                updates.add(updateFactory.createUpdate(paragraph, operation, deleteReasons, content, updateContext));
             } catch (IllegalArgumentException e) {
                 updateContext.ignore(paragraph);
             }

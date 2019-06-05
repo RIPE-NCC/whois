@@ -4,10 +4,11 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateFactory;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +25,10 @@ import java.util.Map;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuditLoggerTest {
@@ -37,7 +41,7 @@ public class AuditLoggerTest {
     @Before
     public void setUp() throws Exception {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime(2012, 12, 1, 0, 0));
-        update = new Update(new Paragraph("paragraph"), Operation.DELETE, Arrays.asList("reason"), RpslObject.parse("mntner:DEV-ROOT-MNT"));
+        update = new UpdateFactory().createUpdate(new Paragraph("paragraph"), Operation.DELETE, Arrays.asList("reason"), "mntner:DEV-ROOT-MNT", mock(UpdateContext.class));
 
         subject = new AuditLogger(dateTimeProvider, outputStream);
     }

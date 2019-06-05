@@ -18,7 +18,7 @@ public class Update implements UpdateContainer {
     private String effectiveCredential;
     private EffectiveCredentialType effectiveCredentialType;
 
-    public Update(final Paragraph paragraph, final Operation operation, @Nullable final List<String> deleteReasons, final RpslObject submittedObject) {
+    Update(final Paragraph paragraph, final Operation operation, @Nullable final List<String> deleteReasons, final RpslObject submittedObject) {
         Validate.notNull(paragraph, "paragraph cannot be null");
         Validate.notNull(operation, "operation cannot be null");
         Validate.notNull(submittedObject, "submittedObject cannot be null");

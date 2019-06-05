@@ -16,6 +16,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateFactory;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateResult;
 import net.ripe.db.whois.update.domain.UpdateStatus;
@@ -56,6 +57,8 @@ public class ResponseFactoryTest {
     private Origin origin;
     private List<UpdateResult> updateResults;
     private List<Paragraph> ignoredParagraphs;
+
+    private final UpdateFactory updateFactory = new UpdateFactory();
 
     @Before
     public void setUp() throws Exception {
@@ -364,13 +367,13 @@ public class ResponseFactoryTest {
 
     @Test
     public void notification_success() {
-        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
-        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
-        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        final String object1 = "mntner: DEV-ROOT1-MNT";
+        final Update update1 = updateFactory.createUpdate(new Paragraph(object1), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1, updateContext);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, RpslObject.parse(object1), Action.CREATE);
 
-        final RpslObject object2 = RpslObject.parse("mntner: DEV-ROOT2-MNT");
-        final Update update2 = new Update(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object2);
-        final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
+        final String object2 = "mntner: DEV-ROOT2-MNT";
+        final Update update2 = updateFactory.createUpdate(new Paragraph(object2), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object2, updateContext);
+        final PreparedUpdate create2 = new PreparedUpdate(update2, null, RpslObject.parse(object2), Action.CREATE);
 
         final Notification notification = new Notification("notify@me.com");
         notification.add(Notification.Type.SUCCESS, create1, updateContext);
@@ -404,9 +407,9 @@ public class ResponseFactoryTest {
     public void notification_success_with_user_in_the_session() {
         when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
-        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
-        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
-        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        final String object1 = "mntner: DEV-ROOT1-MNT";
+        final Update update1 = updateFactory.createUpdate(new Paragraph(object1), Operation.UNSPECIFIED, Lists.newArrayList(), object1, updateContext);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, update1.getSubmittedObject(), Action.CREATE);
 
         final Notification notification = new Notification("notify@me.com");
         notification.add(Notification.Type.SUCCESS, create1, updateContext);
@@ -423,9 +426,9 @@ public class ResponseFactoryTest {
 
         when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
-        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
-        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
-        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        final String object1 = "mntner: DEV-ROOT1-MNT";
+        final Update update1 = updateFactory.createUpdate(new Paragraph(object1), Operation.UNSPECIFIED, Lists.newArrayList(), object1, updateContext);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, update1.getSubmittedObject(), Action.CREATE);
         update1.setEffectiveCredential("test@ripe.net", Update.EffectiveCredentialType.SSO);
 
 
@@ -450,9 +453,9 @@ public class ResponseFactoryTest {
     @Test
     public void notification_success_with_effective_pgp_credentials() {
 
-        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
-        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
-        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        final String object1 = "mntner: DEV-ROOT1-MNT";
+        final Update update1 = updateFactory.createUpdate(new Paragraph(object1), Operation.UNSPECIFIED, Lists.newArrayList(), object1, updateContext);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, update1.getSubmittedObject(), Action.CREATE);
         update1.setEffectiveCredential("PGP-KEY-123", Update.EffectiveCredentialType.PGP);
 
 
@@ -477,14 +480,14 @@ public class ResponseFactoryTest {
 
     @Test
     public void notification_success_filter_auth() {
-        final RpslObject object = RpslObject.parse("" +
+        final String object = RpslObject.parse("" +
                 "mntner: DEV-MNT\n" +
                 "auth: MD5-PW $1$YmPozTxJ$s3eGZRVrKVGdSDTeEZJu//\n" +
                 "source: RIPE"
-        );
+        ).toString();
 
-        final Update update = new Update(new Paragraph(object.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object);
-        final PreparedUpdate create = new PreparedUpdate(update, null, object, Action.CREATE);
+        final Update update = updateFactory.createUpdate(new Paragraph(object), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object, updateContext);
+        final PreparedUpdate create = new PreparedUpdate(update, null, update.getSubmittedObject(), Action.CREATE);
 
         final Notification notification = new Notification("notify@me.com");
         notification.add(Notification.Type.SUCCESS, create, updateContext);
@@ -514,11 +517,11 @@ public class ResponseFactoryTest {
     @Test
     public void notification_success_reference() {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
-        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        final Update update1 = updateFactory.createUpdate(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.newArrayList(), object1.toString(), updateContext);
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
 
         final RpslObject object2 = RpslObject.parse("mntner: DEV-ROOT2-MNT");
-        final Update update2 = new Update(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object2);
+        final Update update2 = updateFactory.createUpdate(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.newArrayList(), object2.toString(), updateContext);
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
         final Notification notification = new Notification("notify@me.com");
@@ -549,11 +552,11 @@ public class ResponseFactoryTest {
     @Test
     public void notification_auth_failed() {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
-        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        final Update update1 = updateFactory.createUpdate(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.newArrayList(), object1.toString(), updateContext);
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
 
         final RpslObject object2 = RpslObject.parse("mntner: DEV-ROOT2-MNT");
-        final Update update2 = new Update(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object2);
+        final Update update2 = updateFactory.createUpdate(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.newArrayList(), object2.toString(), updateContext);
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
         final Notification notification = new Notification("notify@me.com");

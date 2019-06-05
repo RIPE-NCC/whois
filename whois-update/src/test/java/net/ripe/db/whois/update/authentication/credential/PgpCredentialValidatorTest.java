@@ -16,6 +16,7 @@ import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateFactory;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
@@ -383,6 +384,6 @@ public class PgpCredentialValidatorTest {
         final Paragraph paragraph = new Paragraph(" ");
         final RpslObject submittedObject = new RpslObject(Arrays.asList(new RpslAttribute(AttributeType.ORGANISATION, CIString.ciString("org-1"))));
 
-        return new Update(paragraph, Operation.DELETE, Arrays.asList(" "), submittedObject);
+        return new UpdateFactory().createUpdate(paragraph, Operation.DELETE, Arrays.asList(" "), submittedObject.toString(), updateContext);
     }
 }

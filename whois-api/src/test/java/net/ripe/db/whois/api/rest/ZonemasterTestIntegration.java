@@ -15,12 +15,15 @@ import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateFactory;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 @Category(IntegrationTest.class)
 public class ZonemasterTestIntegration extends AbstractIntegrationTest {
@@ -60,6 +63,6 @@ public class ZonemasterTestIntegration extends AbstractIntegrationTest {
 
     private static Update createUpdate(final RpslObject rpslObject) {
         final Paragraph paragraph = new Paragraph(rpslObject.toString(), new Credentials());
-        return new Update(paragraph, Operation.UNSPECIFIED, null, rpslObject);
+        return new UpdateFactory().createUpdate(paragraph, Operation.UNSPECIFIED, null, rpslObject.toString(), mock(UpdateContext.class));
     }
 }

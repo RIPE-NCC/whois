@@ -133,6 +133,6 @@ public class SsoCredentialValidatorTest {
         final Paragraph paragraph = new Paragraph(" ");
         final RpslObject submittedObject = new RpslObject(Arrays.asList(new RpslAttribute(AttributeType.ORGANISATION, CIString.ciString("org-1"))));
 
-        return new Update(paragraph, Operation.DELETE, Arrays.asList(" "), submittedObject);
+        return new UpdateFactory().createUpdate(paragraph, Operation.DELETE, Arrays.asList(" "), submittedObject.toString(), updateContext);
     }
 }
