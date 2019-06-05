@@ -278,7 +278,9 @@ public class SyncUpdatesService {
                 }
             }
         }
-        return Charsets.ISO_8859_1;
+
+        // application/x-www-form-urlencoded is UTF-8 by default
+        return Charsets.UTF_8;
     }
 
     @Nullable
