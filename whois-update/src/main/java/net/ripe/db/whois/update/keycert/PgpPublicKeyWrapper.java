@@ -1,11 +1,10 @@
 package net.ripe.db.whois.update.keycert;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.Latin1Conversion;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.bcpg.ArmoredInputStream;
@@ -153,13 +152,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
 
     @Override
     public List<String> getOwners() {
-        return Lists.newArrayList(Iterators.<String, String>transform(masterKey.getUserIDs(),
-                new Function<String, String>() {
-                    @Override
-                    public String apply(final String input) {
-                        return CharacterSetConversion.convertToLatin1(input);
-                    }
-                }));
+        return Lists.newArrayList(Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString));
     }
 
     @Override

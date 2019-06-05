@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.zip.GZIPInputStream;
 
@@ -32,7 +33,7 @@ public class RpslObjectFileReader implements Iterable<String> {
                 if (fileName.endsWith(".gz")) {
                     in = new GZIPInputStream(in);
                 }
-                bufferedReader = new BufferedReader(new InputStreamReader(in));
+                bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.ISO_8859_1));        // split files are written as latin-1
             } catch (IOException e) {
                 throw new IllegalArgumentException(fileName, e);
             }
