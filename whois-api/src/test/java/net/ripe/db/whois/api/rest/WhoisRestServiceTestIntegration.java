@@ -1774,6 +1774,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     // TODO: [ES] unable to reproduce in test:
     //      UTF-8 is sent to server, and it's stored as UTF8 in index table. In the test, the value is stored as latin1.
     @Test
+    @Ignore
     public void create_succeeds_latin1_abuse_mailbox() {
         final byte[] request =
                 ("<whois-resources>\n" +
