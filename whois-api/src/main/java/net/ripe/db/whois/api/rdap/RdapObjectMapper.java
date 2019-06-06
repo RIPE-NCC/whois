@@ -488,7 +488,7 @@ class RdapObjectMapper {
             return;
         }
 
-        final String commaSeperatedValues = values.stream().map( x -> x.getCleanValue()).collect(Collectors.joining(","));
+        final String commaSeperatedValues = values.stream().map( value -> value.getCleanValue()).collect(Collectors.joining(","));
         final String title = String.format("Multiple %s attributes found", type.getName());
         final String desc = String.format("There are multiple %s attributes %s in %s, but only the first %s %s was returned.", type.getName(), commaSeperatedValues, key, type.getName(), values.get(0).getCleanValue());
 
