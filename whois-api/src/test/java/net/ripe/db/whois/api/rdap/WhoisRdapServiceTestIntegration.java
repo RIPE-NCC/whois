@@ -1095,7 +1095,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-          fail();
+          fail();                                                                       // TODO: multiple matches will be fixed separately
         } catch (InternalServerErrorException e) {
             final Entity entity = e.getResponse().readEntity(Entity.class);
             assertThat(entity.getErrorTitle(), is("Unexpected result size: 2"));
