@@ -2,8 +2,10 @@ package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import com.mchange.v1.util.UnexpectedException;
 import net.ripe.db.whois.api.rest.ApiResponseHandler;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -73,18 +75,24 @@ public class RdapQueryHandler {
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {
+                        ObjectType objectType = ((RpslObject) responseObject).getType();
 
-                        if (((RpslObject) responseObject).getType() == AUT_NUM) {
-                            resultAutNum.add((RpslObject) responseObject);
-                        } else {
-                            if (((RpslObject) responseObject).getType() == AS_BLOCK) {
+                        switch (objectType) {
+                            case AUT_NUM: {
+                                resultAutNum.add((RpslObject) responseObject);
+                                break;
+                            }
+                            case AS_BLOCK: {
                                 resultAsBlock.add((RpslObject) responseObject);
+                                break;
+                            }
+                            default: {
+                                throw new UnexpectedException("Expected AUT_NUM or AS_Block but found " + objectType);
                             }
                         }
                     }
                 }
             });
-
             return resultAutNum.isEmpty() ? resultAsBlock : resultAutNum;
 
         } catch (final QueryException e) {
