@@ -321,7 +321,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Multiple country attributes found"));
-        assertThat(notices.get(1).getDescription().get(0), is("There are multiple country attributes NL,DE in 192.0.0.0 - 192.255.255.255, but only the first country NL was returned."));
+        assertThat(notices.get(1).getDescription().get(0), is("There are multiple country attributes NL, DE in 192.0.0.0 - 192.255.255.255, but only the first country NL was returned."));
         assertThat(notices.get(2).getTitle(), is("Source"));
         assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
     }
@@ -359,7 +359,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Multiple language attributes found"));
-        assertThat(notices.get(1).getDescription().get(0), is("There are multiple language attributes EN,DK in 192.0.0.0 - 192.255.255.255, but only the first language EN was returned."));
+        assertThat(notices.get(1).getDescription().get(0), is("There are multiple language attributes EN, DK in 192.0.0.0 - 192.255.255.255, but only the first language EN was returned."));
         assertThat(notices.get(2).getTitle(), is("Source"));
         assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
 
@@ -395,7 +395,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Multiple language attributes found"));
-        assertThat(notices.get(1).getDescription().get(0), is("There are multiple language attributes DK,EN in ORG-LANG-TEST, but only the first language DK was returned."));
+        assertThat(notices.get(1).getDescription().get(0), is("There are multiple language attributes DK, EN in ORG-LANG-TEST, but only the first language DK was returned."));
         assertThat(notices.get(2).getTitle(), is("Source"));
         assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
 

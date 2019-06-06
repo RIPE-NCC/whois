@@ -406,7 +406,7 @@ public class RdapObjectMapperTest {
         final List<Notice> notices = result.getNotices();
 
         assertThat(notices.get(0).getTitle(), is("Multiple language attributes found"));
-        assertThat(notices.get(0).getDescription().get(0), is("There are multiple language attributes DK,EN in ORG-AC1-TEST, but only the first language DK was returned."));
+        assertThat(notices.get(0).getDescription().get(0), is("There are multiple language attributes DK, EN in ORG-AC1-TEST, but only the first language DK was returned."));
     }
 
     @Test
