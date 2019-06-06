@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when;
 public class RdapObjectMapperTest {
 
     private static final LocalDateTime VERSION_TIMESTAMP = LocalDateTime.parse("2044-04-26T00:02:03.000");
+    public static final String REQUEST_URL = "http://localhost/";
 
     @Mock
     private NoticeFactory noticeFactory;
@@ -59,6 +60,7 @@ public class RdapObjectMapperTest {
     public void setup() {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Collections.singletonList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
         when(rpslObjectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\nnetname: ROOT-NET\nsource: TEST"));
+        when(noticeFactory.generateTnC(REQUEST_URL)).thenReturn(getTnCNotice());
 
         this.mapper = new RdapObjectMapper(noticeFactory, rpslObjectDao, ipv4Tree, ipv6Tree, "whois.ripe.net");
     }
@@ -433,7 +435,7 @@ public class RdapObjectMapperTest {
         final List<Notice> notices = result.getNotices();
 
         assertThat(notices, hasSize(1));
-        assertNull(notices.get(0));
+        assertThat(notices.get(0).getTitle(), is("Terms And Condition"));
     }
 
     @Test
@@ -469,10 +471,17 @@ public class RdapObjectMapperTest {
     }
 
     private Object map(final RpslObject rpslObject, final RpslObject abuseContact) {
-        return mapper.map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContact);
+        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, abuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
-        return mapper.mapSearch("http://localhost", objects, lastUpdateds);
+        return mapper.mapSearch(REQUEST_URL, objects, lastUpdateds);
+    }
+
+    private Notice getTnCNotice() {
+        Notice notice = new Notice();
+        notice.setTitle("Terms And Condition");
+        notice.getDescription().add("This is the RIPE Database query service. The objects are in RDAP format.");
+        return notice;
     }
 }
