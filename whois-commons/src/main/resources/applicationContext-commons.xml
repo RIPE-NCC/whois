@@ -29,6 +29,7 @@
         <property name="maxIdleTime" value="7200"/>
         <property name="preferredTestQuery" value="SELECT 1"/>
         <property name="idleConnectionTestPeriod" value="15"/>
+    	<property name="connectionCustomizerClassName" value="net.ripe.db.whois.common.jdbc.WhoisConnectorCustomizer"/>
     </bean>
 
     <bean id="aclDataSource" parent="abstractDataSource">
