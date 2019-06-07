@@ -12,12 +12,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -47,10 +47,10 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
         assertThat(aclEvents, hasSize(1));
 
         final Map<String, Object> entry = aclEvents.get(0);
-        assertThat((String) entry.get("prefix"), is("128.0.0.1/32"));
+        assertThat(entry.get("prefix"), is("128.0.0.1/32"));
         assertThat(new LocalDate(entry.get("event_time")), is(blockTime));
-        assertThat((Integer) entry.get("daily_limit"), is(limit));
-        assertThat((String) entry.get("event_type"), is(BlockEvent.Type.BLOCK_TEMPORARY.name()));
+        assertThat(entry.get("daily_limit"), is(limit));
+        assertThat(entry.get("event_type"), is(BlockEvent.Type.BLOCK_TEMPORARY.name()));
     }
 
 
@@ -65,10 +65,10 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
         assertThat(aclEvents, hasSize(1));
 
         final Map<String, Object> entry = aclEvents.get(0);
-        assertThat((String) entry.get("prefix"), is("2a03:f480:1:c::/64"));
+        assertThat(entry.get("prefix"), is("2a03:f480:1:c::/64"));
         assertThat(new LocalDate(entry.get("event_time")), is(blockTime));
-        assertThat((Integer) entry.get("daily_limit"), is(limit));
-        assertThat((String) entry.get("event_type"), is(BlockEvent.Type.BLOCK_TEMPORARY.name()));
+        assertThat(entry.get("daily_limit"), is(limit));
+        assertThat(entry.get("event_type"), is(BlockEvent.Type.BLOCK_TEMPORARY.name()));
 
     }
 
@@ -89,7 +89,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
     public void get_acl_events_empty() {
         final List<BlockEvents> temporaryBlocks = subject.getTemporaryBlocks(new LocalDate());
 
-        assertThat(temporaryBlocks, hasSize(0));
+        assertThat(temporaryBlocks, is(empty()));
     }
 
     @Test
@@ -171,21 +171,13 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
         subject.saveAclEvent(IpInterval.asIpInterval(inetAddress), blockTime, 1, type);
         return blockTime;
     }
-    
-    private String getPrefixAndLength(InetAddress inetAddress) {
-        if (inetAddress instanceof Inet4Address) {
-            return inetAddress.getHostAddress();
-        } else {
-            return inetAddress.getHostAddress() + "/64";
-        }
-    }
 
     @Test
     public void loadIpDenied() {
         List<IpResourceEntry<Boolean>> result;
 
         result = subject.loadIpDenied();
-        assertThat(result, hasSize(0));
+        assertThat(result, is(empty()));
 
         databaseHelper.insertAclIpDenied("128.0.0.2/32");
 
@@ -218,7 +210,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
         subject.removePermanentBlocksBefore(new LocalDate().plusDays(1));
         denied = subject.loadIpDenied();
 
-        assertThat(denied, hasSize(0));
+        assertThat(denied, is(empty()));
     }
 
     @Test
@@ -227,7 +219,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
         assertThat(databaseHelper.listAclEvents(), hasSize(1));
 
         subject.removeBlockEventsBefore(new LocalDate());
-        assertThat(databaseHelper.listAclEvents(), hasSize(0));
+        assertThat(databaseHelper.listAclEvents(), is(empty()));
     }
 
     @Test
@@ -235,7 +227,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
         List<IpResourceEntry<Integer>> result;
 
         result = subject.loadIpLimit();
-        assertThat(result, hasSize(0));
+        assertThat(result, is(empty()));
 
         databaseHelper.insertAclIpLimit("128.0.0.1", 1, false);
         databaseHelper.insertAclIpLimit("128.0.0.2", 2, false);
@@ -257,7 +249,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
         List<IpResourceEntry<Boolean>> result;
 
         result = subject.loadUnlimitedConnections();
-        assertThat(result, hasSize(0));
+        assertThat(result, is(empty()));
 
         databaseHelper.insertAclIpLimit("128.0.0.1", 1, false);
         databaseHelper.insertAclIpLimit("128.0.0.2", 2, true);
@@ -275,7 +267,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
         List<IpResourceEntry<Boolean>> result;
 
         result = subject.loadIpProxy();
-        assertThat(result, hasSize(0));
+        assertThat(result, is(empty()));
 
         databaseHelper.insertAclIpProxy("128.0.0.2");
 
@@ -308,10 +300,10 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
         assertThat(aclEvents, hasSize(1));
 
         final Map<String, Object> aclEvent = aclEvents.get(0);
-        assertThat((String) aclEvent.get("prefix"), is("128.0.0.1/32"));
+        assertThat(aclEvent.get("prefix"), is("128.0.0.1/32"));
         assertThat(new LocalDate(aclEvent.get("event_time")), is(blockTime));
-        assertThat((Integer) aclEvent.get("daily_limit"), is(limit));
-        assertThat((String) aclEvent.get("event_type"), is(BlockEvent.Type.BLOCK_PERMANENTLY.name()));
+        assertThat(aclEvent.get("daily_limit"), is(limit));
+        assertThat(aclEvent.get("event_type"), is(BlockEvent.Type.BLOCK_PERMANENTLY.name()));
     }
 
     @Test
@@ -331,10 +323,10 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
         assertThat(aclEvents, hasSize(1));
 
         final Map<String, Object> aclEvent = aclEvents.get(0);
-        assertThat((String) aclEvent.get("prefix"), is("2a03:f480:1:c::/64"));
+        assertThat(aclEvent.get("prefix"), is("2a03:f480:1:c::/64"));
         assertThat(new LocalDate(aclEvent.get("event_time")), is(blockTime));
-        assertThat((Integer) aclEvent.get("daily_limit"), is(limit));
-        assertThat((String) aclEvent.get("event_type"), is(BlockEvent.Type.BLOCK_PERMANENTLY.name()));
+        assertThat(aclEvent.get("daily_limit"), is(limit));
+        assertThat(aclEvent.get("event_type"), is(BlockEvent.Type.BLOCK_PERMANENTLY.name()));
     }
 
 }
