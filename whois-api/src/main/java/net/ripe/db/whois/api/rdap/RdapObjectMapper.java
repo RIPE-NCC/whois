@@ -352,12 +352,10 @@ class RdapObjectMapper {
 
         final String key = rpslObject.getValueForAttribute(AttributeType.AS_BLOCK).toString();
         final AsBlockRange blockRange = getAsBlockRange(key);
-        final String handle = String.format("AS%d", blockRange.getBegin());
 
-
-        autnum.setHandle(handle);
+        autnum.setHandle(blockRange.getBeginWithPrefix());
         //TODO :check what should be the name
-        autnum.setName(key.replace(" ", ""));
+        autnum.setName(blockRange.toString());
         autnum.setStartAutnum(blockRange.getBegin());
         autnum.setEndAutnum(blockRange.getEnd());
         autnum.setType(DIRECT_ALLOCATION);

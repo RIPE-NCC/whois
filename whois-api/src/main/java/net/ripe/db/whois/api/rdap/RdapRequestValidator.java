@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
+import net.ripe.db.whois.update.domain.ReservedAutnum;
 import net.ripe.db.whois.update.handler.validator.route.OriginValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,13 +16,13 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 @Component
 public class RdapRequestValidator {
 
-    private RdapExceptionMapper rdapExceptionMapper;
-    private OriginValidator originValidator;
+    private final RdapExceptionMapper rdapExceptionMapper;
+    private final ReservedAutnum reservedAutnum;
 
     @Autowired
-    public RdapRequestValidator(final RdapExceptionMapper rdapExceptionMapper, final OriginValidator originValidator) {
+    public RdapRequestValidator(final RdapExceptionMapper rdapExceptionMapper, final ReservedAutnum reservedAutnum) {
         this.rdapExceptionMapper = rdapExceptionMapper;
-        this.originValidator = originValidator;
+        this.reservedAutnum = reservedAutnum;
     }
 
     public void validateDomain(final String key) {
@@ -65,6 +66,6 @@ public class RdapRequestValidator {
     }
 
     public boolean isReservedAsNumber(String key) {
-        return originValidator.isReservedAsNumber( AutNum.parse(key).getValue());
+        return reservedAutnum.isReservedAsNumber( AutNum.parse(key).getValue());
     }
 }
