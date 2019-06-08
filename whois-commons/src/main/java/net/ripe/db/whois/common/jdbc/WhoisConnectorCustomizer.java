@@ -17,11 +17,12 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
     private static final String CHARACTER_SET_CLIENT = "character_set_client";
     private static final String CHARACTER_SET_RESULTS = "character_set_results";
 
-    private static final String PREFERRED_CHARACTER_SET = "latin1";
+    private static final String PREFERRED_CHARACTER_SET = "utf8mb4";
 
     @Override
     public void onCheckOut(final Connection connection, final String parentDataSourceIdentityToken) {
-        setSessionCharacterSet(connection);
+        getAndSetSessionValue(connection, CHARACTER_SET_CLIENT, PREFERRED_CHARACTER_SET);
+        getAndSetSessionValue(connection, CHARACTER_SET_RESULTS, PREFERRED_CHARACTER_SET);
     }
 
     @Override
@@ -39,17 +40,11 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
         // do nothing
     }
 
-    private void setSessionCharacterSet(final Connection connection) {
-        final Optional<String> characterSetClient = getSessionValue(connection, CHARACTER_SET_CLIENT);
-        if (characterSetClient.isPresent() && !PREFERRED_CHARACTER_SET.equals(characterSetClient.get())) {
-            LOGGER.info("Updating {} from {} to {}", CHARACTER_SET_CLIENT, characterSetClient.get(), PREFERRED_CHARACTER_SET);
-            setSessionValue(connection, CHARACTER_SET_CLIENT, PREFERRED_CHARACTER_SET);
-        }
-
-        final Optional<String> characterSetResults = getSessionValue(connection, CHARACTER_SET_RESULTS);
-        if (characterSetResults.isPresent() && !PREFERRED_CHARACTER_SET.equals(characterSetResults.get())) {
-            LOGGER.info("Updating {} from {} to {}", CHARACTER_SET_RESULTS, characterSetResults.get(), PREFERRED_CHARACTER_SET);
-            setSessionValue(connection, CHARACTER_SET_RESULTS, PREFERRED_CHARACTER_SET);
+    private void getAndSetSessionValue(final Connection connection, final String key, final String value) {
+        final Optional<String> sessionValue = getSessionValue(connection, key);
+        if (sessionValue.isPresent() && !value.equals(sessionValue.get())) {
+            LOGGER.info("Updating {} from {} to {}", key, sessionValue.get(), value);
+            setSessionValue(connection, key, value);
         }
     }
 
