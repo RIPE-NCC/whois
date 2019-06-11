@@ -63,11 +63,10 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
 
     @Override
     public void onAcquire(final Connection connection, final String parentDataSourceIdentityToken) {
-//        setNames(connection);
-        getAndSetSessionValue(connection, "character_set_client", PREFERRED_CHARACTER_SET);
+        getAndSetSessionValue(connection, "character_set_client", "utf8mb4");              // NB. NOT latin1
         getAndSetSessionValue(connection, "character_set_connection", PREFERRED_CHARACTER_SET);
         getAndSetSessionValue(connection, "character_set_results", PREFERRED_CHARACTER_SET);
-        // getAndSetSessionValue(connection, "collation_connection", PREFERRED_COLLATION);
+        getAndSetSessionValue(connection, "collation_connection", PREFERRED_COLLATION);
     }
 
     @Override
@@ -104,13 +103,4 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
             LOGGER.error("Caught {}: {} (ignored)", e.getClass().getName(), e.getMessage());
         }
     }
-
-    private void setNames(final Connection connection) {
-        try (final Statement statement = connection.createStatement()) {
-            statement.executeQuery(String.format("SET NAMES '%s' COLLATE '%s'", PREFERRED_CHARACTER_SET, PREFERRED_COLLATION));
-        } catch (SQLException e) {
-            LOGGER.error("Caught {}: {} (ignored)", e.getClass().getName(), e.getMessage());
-        }
-    }
-
 }
