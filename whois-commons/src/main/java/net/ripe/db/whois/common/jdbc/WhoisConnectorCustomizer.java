@@ -10,19 +10,50 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
 
+/*
+    Set connection (session) default to latin1 character set.
+
+    defaults locally (osx laptop / homebrew mariadb 10.2.22):
+        character_set_client = utf8mb4
+        character_set_connection = utf8mb4  *** different ***
+        character_set_database = latin1
+        character_set_results = utf8mb4
+        character_set_server = latin1
+        character_set_system = utf8
+        collation_connection = utf8mb4_unicode_ci   *** different ***
+        collation_database = latin1_swedish_ci
+        collation_server = latin1_swedish_ci
+    defaults on db-tools-1 (Centos 7.4/MariaDB 10.2.22):
+        character_set_client = utf8mb4
+        character_set_connection = latin1   **** different ***
+        character_set_database = latin1
+        character_set_results = utf8mb4
+        character_set_server = latin1
+        character_set_system = utf8
+        collation_connection = latin1_swedish_ci    *** different ***
+        collation_database = latin1_swedish_ci
+        collation_server = latin1_swedish_ci
+
+    Somehow, UTF8 characters are written into a VARCHAR column.
+
+    Tested:
+        * SET NAMES latin1 COLLATE latin1_swedish_ci
+            ** doesn't work on db-tools-1 (utf8 written into VARCHAR column)
+        * character_set_connection = latin1
+            ** doesn't work on db-tools-1
+        * character_set_client = utf8mb4
+            ** works on both osx and linux (latin1 written into VARCHAR column?)
+*/
 public class WhoisConnectorCustomizer implements ConnectionCustomizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisConnectorCustomizer.class);
 
-    private static final String CHARACTER_SET_CLIENT = "character_set_client";
-    private static final String CHARACTER_SET_RESULTS = "character_set_results";
-
     private static final String PREFERRED_CHARACTER_SET = "utf8mb4";
+    private static final String PREFERRED_COLLATION = "latin1_swedish_ci";
 
     @Override
     public void onCheckOut(final Connection connection, final String parentDataSourceIdentityToken) {
-        getAndSetSessionValue(connection, CHARACTER_SET_CLIENT, PREFERRED_CHARACTER_SET);
-        getAndSetSessionValue(connection, CHARACTER_SET_RESULTS, PREFERRED_CHARACTER_SET);
+        // do nothing
     }
 
     @Override
@@ -32,7 +63,11 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
 
     @Override
     public void onAcquire(final Connection connection, final String parentDataSourceIdentityToken) {
-        // do nothing
+//        setNames(connection);
+        getAndSetSessionValue(connection, "character_set_client", PREFERRED_CHARACTER_SET);
+        getAndSetSessionValue(connection, "character_set_connection", PREFERRED_CHARACTER_SET);
+        getAndSetSessionValue(connection, "character_set_results", PREFERRED_CHARACTER_SET);
+        // getAndSetSessionValue(connection, "collation_connection", PREFERRED_COLLATION);
     }
 
     @Override
@@ -65,6 +100,14 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
     private void setSessionValue(final Connection connection, final String key, final String value) {
         try (final Statement statement = connection.createStatement()) {
             statement.executeQuery(String.format("SET SESSION %s = '%s'", key, value));
+        } catch (SQLException e) {
+            LOGGER.error("Caught {}: {} (ignored)", e.getClass().getName(), e.getMessage());
+        }
+    }
+
+    private void setNames(final Connection connection) {
+        try (final Statement statement = connection.createStatement()) {
+            statement.executeQuery(String.format("SET NAMES '%s' COLLATE '%s'", PREFERRED_CHARACTER_SET, PREFERRED_COLLATION));
         } catch (SQLException e) {
             LOGGER.error("Caught {}: {} (ignored)", e.getClass().getName(), e.getMessage());
         }
