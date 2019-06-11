@@ -63,7 +63,7 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
 
     @Override
     public void onAcquire(final Connection connection, final String parentDataSourceIdentityToken) {
-        getAndSetSessionValue(connection, "character_set_client", "utf8mb4");              // NB. NOT latin1
+        getAndSetSessionValue(connection, "character_set_client", "utf8mb4");              // TODO: using latin1 will cause utf8 characters to be written to index tables.
         getAndSetSessionValue(connection, "character_set_connection", PREFERRED_CHARACTER_SET);
         getAndSetSessionValue(connection, "character_set_results", PREFERRED_CHARACTER_SET);
         getAndSetSessionValue(connection, "collation_connection", PREFERRED_COLLATION);
