@@ -245,21 +245,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(1).getDescription(), contains("Objects returned came from source", "TEST"));
         assertThat(notices.get(1).getLinks(), hasSize(0));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
-        assertThat(notices.get(2).getLinks(), hasSize(1));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/192.0.2.0/24"));
-        assertThat(notices.get(2).getLinks().get(0).getRel(), is("terms-of-service"));
-        assertThat(notices.get(2).getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
-        assertThat(notices.get(2).getLinks().get(0).getType(), is("application/pdf"));
 
-        assertThat(ip.getLinks(), hasSize(2));
-        assertThat(ip.getLinks().get(0).getRel(), is("self"));
-        assertThat(ip.getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/192.0.2.0/24"));
-        assertThat(ip.getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/ip/192.0.2.0/24"));
-        assertThat(ip.getLinks().get(1).getRel(), is("copyright"));
-        assertThat(ip.getLinks().get(1).getValue(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(ip.getLinks().get(1).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+        assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
     }
 
     @Test
@@ -443,16 +431,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/2001:2002:2003::/48"));
 
-        assertThat(ip.getLinks(), hasSize(2));
-        assertThat(ip.getLinks().get(0).getRel(), is("self"));
-        assertThat(ip.getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/2001:2002:2003::/48"));
-        assertThat(ip.getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/ip/2001:2002:2003::/48"));
-        assertThat(ip.getLinks().get(1).getRel(), is("copyright"));
-        assertThat(ip.getLinks().get(1).getValue(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(ip.getLinks().get(1).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
+        assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
     }
 
     @Test
@@ -558,8 +539,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/PP1-TEST"));
+
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/PP1-TEST");
     }
 
     @Test
@@ -640,8 +621,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/FR1-TEST"));
+
+        assertTnCNotice(notices.get(2),"https://rdap.db.ripe.net/entity/FR1-TEST");
     }
 
     // domain
@@ -695,14 +676,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa"));
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
-        final List<Link> links = domain.getLinks();
-        assertThat(links, hasSize(2));
-        Collections.sort(links);
-        assertThat(links.get(0).getRel(), equalTo("copyright"));
-        assertThat(links.get(1).getRel(), equalTo("self"));
+        assertCopyrightLink(domain.getLinks(), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
     }
 
     @Test
@@ -1095,15 +1071,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[adr, {label=One Org Street}, text, null], " +
                 "[email, {}, text, test@ripe.net]]"));
 
-        final List<Link> links = entity.getLinks();
-        assertThat(links, hasSize(2));
-        Collections.sort(links);
-        assertThat(links.get(0).getRel(), equalTo("copyright"));
-        assertThat(links.get(0).getValue(), equalTo("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(links.get(0).getHref(), equalTo("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(links.get(1).getRel(), equalTo("self"));
-        assertThat(links.get(1).getValue(), equalTo("https://rdap.db.ripe.net/entity/ORG-ONE-TEST"));
-        assertThat(links.get(1).getHref(), equalTo("https://rdap.db.ripe.net/entity/ORG-ONE-TEST"));
+
+        assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
 
         assertThat(entity.getRemarks(), hasSize(1));
         assertThat(entity.getRemarks().get(0).getDescription(), contains("Test organisation"));
@@ -1113,8 +1082,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/ORG-ONE-TEST"));
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
     }
 
     // search
@@ -1197,9 +1165,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             assertThat(response.getLinks().get(0).getRel(), is("copyright"));
             assertThat(response.getLinks().get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
             assertThat(response.getNotices(), hasSize(1));
-            assertThat(response.getNotices().get(0).getLinks(), hasSize(1));
-            assertThat(response.getNotices().get(0).getLinks().get(0).getRel(), is("terms-of-service"));
-            assertThat(response.getNotices().get(0).getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+            assertTnCNotice(response.getNotices().get(0),null);
         }
     }
 
@@ -1608,6 +1574,47 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net:8443"));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
+    }
+
+    @Test
+    public void get_help_response() {
+        final RdapObject help = createResource("help")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(RdapObject.class);
+
+        assertThat(help.getPort43(), is("whois.ripe.net"));
+        assertThat(help.getRdapConformance(), hasSize(1));
+        assertThat(help.getRdapConformance().get(0), equalTo("rdap_level_0"));
+
+        final List<Notice> notices = help.getNotices();
+        assertThat(notices, hasSize(1));
+        assertTnCNotice(notices.get(0), "https://rdap.db.ripe.net/help");
+
+        assertCopyrightLink(help.getLinks(), "https://rdap.db.ripe.net/help");
+    }
+
+    private void assertCopyrightLink(final List<Link> links, final String value) {
+        assertThat(links, hasSize(2));
+        Collections.sort(links);
+
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+
+        assertThat(links.get(1).getRel(), is("self"));
+        assertThat(links.get(1).getValue(), is(value));
+        assertThat(links.get(1).getHref(), is(value));
+    }
+
+    private void assertTnCNotice(final Notice notice, final String value) {
+        assertThat(notice.getTitle(), is("Terms and Conditions"));
+        assertThat(notice.getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
+        assertThat(notice.getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+
+        assertThat(notice.getLinks().get(0).getRel(), is("terms-of-service"));
+        assertThat(notice.getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
+        assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
 
     // helper methods

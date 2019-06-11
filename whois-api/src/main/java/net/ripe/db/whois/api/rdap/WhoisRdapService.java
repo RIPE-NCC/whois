@@ -223,6 +223,18 @@ public class WhoisRdapService {
         return handleSearch(new String[]{"domain"}, name, request);
     }
 
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
+    @Path("/help")
+    public Response help(@Context final HttpServletRequest request) {
+
+        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
+
+        return Response.ok(rdapObjectMapper.mapHelp(getRequestUrl(request)))
+                .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
+                .build();
+    }
+
     private void validateDomain(final String key) {
         try {
             Domain.parse(key);

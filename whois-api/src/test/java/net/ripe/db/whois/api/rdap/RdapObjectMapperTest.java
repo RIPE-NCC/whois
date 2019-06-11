@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.rdap.domain.Domain;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -423,6 +424,20 @@ public class RdapObjectMapperTest {
         assertThat(last.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
         assertThat(last.getRemarks(), hasSize(1));
         assertThat(last.getRemarks().get(0).getDescription().get(0), is("comment 2"));
+    }
+
+    @Test
+    public void help() {
+        final RdapObject result = mapper.mapHelp("http://localhost/rdap/help");
+
+        assertThat(result.getLinks(), hasSize(2));
+        assertThat(result.getLinks().get(0).getRel(), is("self"));
+        assertThat(result.getLinks().get(1).getRel(), is("copyright"));
+
+        assertThat(result.getEvents(), is(emptyIterable()));
+
+        assertThat(result.getStatus(), is(emptyIterable()));
+        assertThat(result.getPort43(), is("whois.ripe.net"));
     }
 
     // helper methods
