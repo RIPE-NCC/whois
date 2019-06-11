@@ -48,7 +48,7 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisConnectorCustomizer.class);
 
-    private static final String PREFERRED_CHARACTER_SET = "utf8mb4";
+    private static final String PREFERRED_CHARACTER_SET = "latin1";
     private static final String PREFERRED_COLLATION = "latin1_swedish_ci";
 
     @Override
