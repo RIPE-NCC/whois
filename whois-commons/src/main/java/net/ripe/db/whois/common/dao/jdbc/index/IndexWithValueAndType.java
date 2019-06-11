@@ -34,7 +34,7 @@ class IndexWithValueAndType extends IndexWithValue {
 
     @Override
     public int addToIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo, final RpslObject object, final String value) {
-        final String query = String.format("INSERT INTO %s (object_id, %s, object_type) VALUES (?, ?, ?)", lookupTableName, lookupColumnName);
+        final String query = String.format("INSERT INTO %s (object_id, %s, object_type) VALUES (?, CONVERT(? USING latin1), ?)", lookupTableName, lookupColumnName);
         return jdbcTemplate.update(query, objectInfo.getObjectId(), value, ObjectTypeIds.getId(objectInfo.getObjectType()));
     }
 }
