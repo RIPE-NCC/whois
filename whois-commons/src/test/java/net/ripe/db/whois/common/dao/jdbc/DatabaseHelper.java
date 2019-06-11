@@ -164,11 +164,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
 
-        final String masterUrl = String.format("jdbc:mariadb://localhost/%s_WHOIS?sessionVariables=" +
-                "character_set_client=latin1," +
-                "character_set_results=latin1," +
-                "character_set_connection=latin1," +
-                "collation_connection=latin1_swedish_ci", dbBaseName, JDBC_DRIVER);
+        final String masterUrl = String.format("jdbc:log:mariadb://localhost/%s_WHOIS;driver=%s", dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
 

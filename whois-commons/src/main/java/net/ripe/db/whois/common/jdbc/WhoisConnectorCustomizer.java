@@ -64,10 +64,10 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
     @Override
     public void onAcquire(final Connection connection, final String parentDataSourceIdentityToken) {
 //        setNames(connection);
-//        getAndSetSessionValue(connection, "character_set_client", PREFERRED_CHARACTER_SET);
-//        getAndSetSessionValue(connection, "character_set_connection", PREFERRED_CHARACTER_SET);
-//        getAndSetSessionValue(connection, "character_set_results", PREFERRED_CHARACTER_SET);
-//        // getAndSetSessionValue(connection, "collation_connection", PREFERRED_COLLATION);
+        getAndSetSessionValue(connection, "character_set_client", PREFERRED_CHARACTER_SET);
+        getAndSetSessionValue(connection, "character_set_connection", PREFERRED_CHARACTER_SET);
+        getAndSetSessionValue(connection, "character_set_results", PREFERRED_CHARACTER_SET);
+        // getAndSetSessionValue(connection, "collation_connection", PREFERRED_COLLATION);
     }
 
     @Override
