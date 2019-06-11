@@ -219,13 +219,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getEndAddress(), is("192.0.2.255"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getType(), is("OTHER"));
-        assertThat(ip.getPort43(), is("whois.ripe.net"));
         assertThat(ip.getObjectClassName(), is("ip network"));
         assertThat(ip.getParentHandle(), is("IANA-BLK"));
 
-        final List<String> rdapConformance = ip.getRdapConformance();
-        assertThat(rdapConformance, hasSize(1));
-        assertThat(rdapConformance, contains("rdap_level_0"));
+        assertCommon(ip);
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -413,9 +410,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getObjectClassName(), is("ip network"));
         assertThat(ip.getParentHandle(), is("IANA-BLK"));
 
-        final List<String> rdapConformance = ip.getRdapConformance();
-        assertThat(rdapConformance, hasSize(1));
-        assertThat(rdapConformance, contains("rdap_level_0"));
+        assertCommon(ip);
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -510,9 +505,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
+        assertCommon(entity);
         assertThat(entity.getHandle(), equalTo("PP1-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
-        assertThat(entity.getPort43(), is("whois.ripe.net"));
         assertThat(entity.getEntitySearchResults(), hasSize(1));
         assertThat(entity.getVCardArray().size(), is(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
@@ -523,8 +518,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[adr, {label=Singel 258}, text, null], " +
                 "[tel, {type=voice}, text, +31-1234567890], " +
                 "[email, {}, text, noreply@ripe.net]]"));
-        assertThat(entity.getRdapConformance(), hasSize(1));
-        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
+
         assertThat(entity.getObjectClassName(), is("entity"));
 
         assertThat(entity.getRemarks(), hasSize(0));
@@ -576,9 +570,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .get(Entity.class);
 
-        assertThat(entity.getHandle(), equalTo("PP1-TEST"));
-        assertThat(entity.getRdapConformance(), hasSize(1));
-        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(entity.getHandle(), equalTo("PP1-TEST"));assertCommon(entity);
     }
 
     // role entity
@@ -589,9 +581,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
+        assertCommon(entity);
         assertThat(entity.getHandle(), equalTo("FR1-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
-        assertThat(entity.getPort43(), is("whois.ripe.net"));
         assertThat(entity.getVCardArray().size(), is(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entity.getVCardArray().get(1).toString(), equalTo("" +
@@ -606,8 +598,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(entity.getEntitySearchResults().get(0).getRoles(), contains(Role.REGISTRANT));
         assertThat(entity.getEntitySearchResults().get(1).getHandle(), is("PP1-TEST"));
         assertThat(entity.getEntitySearchResults().get(1).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
-        assertThat(entity.getRdapConformance(), hasSize(1));
-        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(1));
@@ -633,11 +623,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
+        assertCommon(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(domain.getRdapConformance(), hasSize(1));
-        assertThat(domain.getRdapConformance().get(0), equalTo("rdap_level_0"));
-        assertThat(domain.getPort43(), is("whois.ripe.net"));
         assertThat(domain.getObjectClassName(), is("domain"));
 
         assertThat(domain.getNameservers(), hasSize(2));
@@ -770,17 +758,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
         assertThat(entities.get(1).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
 
-        final List<Link> links = autnum.getLinks();
-        assertThat(links, hasSize(2));
-        assertThat(links.get(0).getRel(), equalTo("self"));
-        assertThat(links.get(1).getRel(), equalTo("copyright"));
+        assertCopyrightLink(autnum.getLinks(), "https://rdap.db.ripe.net/autnum/102");
 
         final List<Notice> notices = autnum.getNotices();
         assertThat(notices, hasSize(3));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/autnum/102");
 
         final List<Remark> remarks = autnum.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -1038,11 +1023,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
+        assertCommon(entity);
         assertThat(entity.getHandle(), equalTo("ORG-ONE-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
-        assertThat(entity.getPort43(), is("whois.ripe.net"));
-        assertThat(entity.getRdapConformance(), hasSize(1));
-        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
         assertThat(entity.getLang(), is("EN"));
         assertThat(entity.getObjectClassName(), is("entity"));
 
@@ -1582,15 +1565,19 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(RdapObject.class);
 
-        assertThat(help.getPort43(), is("whois.ripe.net"));
-        assertThat(help.getRdapConformance(), hasSize(1));
-        assertThat(help.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertCommon(help);
 
         final List<Notice> notices = help.getNotices();
         assertThat(notices, hasSize(1));
         assertTnCNotice(notices.get(0), "https://rdap.db.ripe.net/help");
 
         assertCopyrightLink(help.getLinks(), "https://rdap.db.ripe.net/help");
+    }
+
+    private void assertCommon(RdapObject object) {
+        assertThat(object.getPort43(), is("whois.ripe.net"));
+        assertThat(object.getRdapConformance(), hasSize(1));
+        assertThat(object.getRdapConformance().get(0), equalTo("rdap_level_0"));
     }
 
     private void assertCopyrightLink(final List<Link> links, final String value) {
