@@ -12,37 +12,6 @@ import java.util.Optional;
 
 /*
     Set connection (session) default to latin1 character set.
-
-    defaults locally (osx laptop / homebrew mariadb 10.2.22):
-        character_set_client = utf8mb4
-        character_set_connection = utf8mb4  *** different ***
-        character_set_database = latin1
-        character_set_results = utf8mb4
-        character_set_server = latin1
-        character_set_system = utf8
-        collation_connection = utf8mb4_unicode_ci   *** different ***
-        collation_database = latin1_swedish_ci
-        collation_server = latin1_swedish_ci
-    defaults on db-tools-1 (Centos 7.4/MariaDB 10.2.22):
-        character_set_client = utf8mb4
-        character_set_connection = latin1   **** different ***
-        character_set_database = latin1
-        character_set_results = utf8mb4
-        character_set_server = latin1
-        character_set_system = utf8
-        collation_connection = latin1_swedish_ci    *** different ***
-        collation_database = latin1_swedish_ci
-        collation_server = latin1_swedish_ci
-
-    Somehow, UTF8 characters are written into a VARCHAR column.
-
-    Tested:
-        * SET NAMES latin1 COLLATE latin1_swedish_ci
-            ** doesn't work on db-tools-1 (utf8 written into VARCHAR column)
-        * character_set_connection = latin1
-            ** doesn't work on db-tools-1
-        * character_set_client = utf8mb4
-            ** works on both osx and linux (latin1 written into VARCHAR column?)
 */
 public class WhoisConnectorCustomizer implements ConnectionCustomizer {
 
@@ -63,7 +32,9 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
 
     @Override
     public void onAcquire(final Connection connection, final String parentDataSourceIdentityToken) {
-        getAndSetSessionValue(connection, "character_set_client", "utf8mb4");              // TODO: using latin1 will cause utf8 characters to be written to index tables.
+        // TODO: [ES] character_set_client=latin1 causes characters to be written to index tables with utf8 encoding.
+        //            Tested setting to utf8mb4 will use latin1 encoding, no idea why.
+        getAndSetSessionValue(connection, "character_set_client", "utf8mb4");
         getAndSetSessionValue(connection, "character_set_connection", PREFERRED_CHARACTER_SET);
         getAndSetSessionValue(connection, "character_set_results", PREFERRED_CHARACTER_SET);
         getAndSetSessionValue(connection, "collation_connection", PREFERRED_COLLATION);
