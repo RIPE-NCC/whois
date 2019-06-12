@@ -11,14 +11,15 @@ import java.sql.Statement;
 import java.util.Optional;
 
 /*
-    Set connection (session) default to latin1 character set.
+    Set connection (session) character encoding.
 */
 public class WhoisConnectorCustomizer implements ConnectionCustomizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisConnectorCustomizer.class);
 
-    private static final String PREFERRED_CHARACTER_SET = "latin1";
-    private static final String PREFERRED_COLLATION = "latin1_swedish_ci";
+    // the mariadb jdbc driver uses utf8, but data is stored as latin1
+    private static final String JDBC_DRIVER_CHARACTER_SET = "utf8mb4";
+    private static final String DATABASE_COLLATION = "latin1_swedish_ci";
 
     @Override
     public void onCheckOut(final Connection connection, final String parentDataSourceIdentityToken) {
@@ -32,12 +33,10 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
 
     @Override
     public void onAcquire(final Connection connection, final String parentDataSourceIdentityToken) {
-        // TODO: [ES] character_set_client=latin1 causes characters to be written to index tables with utf8 encoding.
-        //            Tested setting to utf8mb4 will use latin1 encoding, no idea why.
-        getAndSetSessionValue(connection, "character_set_client", "utf8mb4");
-        getAndSetSessionValue(connection, "character_set_connection", PREFERRED_CHARACTER_SET);
-        getAndSetSessionValue(connection, "character_set_results", PREFERRED_CHARACTER_SET);
-        getAndSetSessionValue(connection, "collation_connection", PREFERRED_COLLATION);
+        getAndSetSessionValue(connection, "character_set_client", JDBC_DRIVER_CHARACTER_SET);
+        getAndSetSessionValue(connection, "character_set_connection", JDBC_DRIVER_CHARACTER_SET);
+        getAndSetSessionValue(connection, "character_set_results", JDBC_DRIVER_CHARACTER_SET);
+        getAndSetSessionValue(connection, "collation_connection", DATABASE_COLLATION);
     }
 
     @Override
@@ -48,7 +47,7 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
     private void getAndSetSessionValue(final Connection connection, final String key, final String value) {
         final Optional<String> sessionValue = getSessionValue(connection, key);
         if (sessionValue.isPresent() && !value.equals(sessionValue.get())) {
-            LOGGER.info("Updating {} from {} to {}", key, sessionValue.get(), value);
+            LOGGER.debug("Updating {} from {} to {}", key, sessionValue.get(), value);
             setSessionValue(connection, key, value);
         }
     }
