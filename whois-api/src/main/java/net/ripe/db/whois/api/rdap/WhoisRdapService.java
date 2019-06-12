@@ -80,6 +80,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 
 @Component
 @Path("/")
@@ -227,11 +228,8 @@ public class WhoisRdapService {
     @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
     @Path("/help")
     public Response help(@Context final HttpServletRequest request) {
-
-        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
-
         return Response.ok(rdapObjectMapper.mapHelp(getRequestUrl(request)))
-                .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
 
@@ -290,7 +288,7 @@ public class WhoisRdapService {
     private Response createErrorResponse(final Response.Status status, final String errorTitle) {
         return Response.status(status)
                 .entity(rdapObjectMapper.mapError(status.getStatusCode(), errorTitle, emptyList()))
-                .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
 
@@ -367,7 +365,7 @@ public class WhoisRdapService {
                             resultObject,
                             objectDao.getLastUpdated(resultObject.getObjectId()),
                             abuseCFinder.getAbuseContactRole(resultObject)))
-                    .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
+                    .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
 
         } catch (final QueryException e) {
@@ -470,7 +468,7 @@ public class WhoisRdapService {
                     getRequestUrl(request),
                     objects,
                     lastUpdateds))
-                    .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
+                    .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
         }
         catch (IOException e) {
