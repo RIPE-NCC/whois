@@ -1915,6 +1915,42 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void modify_succeeds_non_break_space_substituted_with_regular_space_noop() {
+        databaseHelper.addObject(
+            "person:    New Person\n" +
+            "remarks:   Test\n" +
+            "address:   Amsterdam\n" +
+            "phone:     +31-1234567890\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   NP1-TEST\n" +
+            "source:    TEST");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/NP1-TEST?password=test")
+            .request()
+            .put(Entity.entity(
+                "<whois-resources>\n" +
+                "    <objects>\n" +
+                "        <object type=\"person\">\n" +
+                "            <source id=\"TEST\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"person\" value=\"New\u00a0Person\"/>\n" +    // non-break space
+                "                <attribute name=\"remarks\" value=\"Test\"/>\n" +
+                "                <attribute name=\"address\" value=\"Amsterdam\"/>\n" +
+                "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"NP1-TEST\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "</whois-resources>", MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertWarningCount(response, 2);
+        RestTest.assertErrorMessage(response, 0, "Warning", "Submitted object identical to database object");
+        RestTest.assertErrorMessage(response, 1, "Warning", "Invalid character(s) were substituted in attribute \"%s\" value", "person");
+    }
+
+    @Test
     public void create_concurrent() throws Exception {
         final int numThreads = 10;
         final AtomicInteger exceptions = new AtomicInteger();
