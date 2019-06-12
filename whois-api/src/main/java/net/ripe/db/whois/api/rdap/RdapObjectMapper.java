@@ -355,7 +355,8 @@ class RdapObjectMapper {
 
         autnum.setHandle(blockRange.getBeginWithPrefix());
         //TODO :check what should be the name
-        autnum.setName(blockRange.toString());
+        String asName = String.join("-", blockRange.getBeginWithPrefix(), blockRange.getEndWithPrefix());
+        autnum.setName(asName);
         autnum.setStartAutnum(blockRange.getBegin());
         autnum.setEndAutnum(blockRange.getEnd());
         autnum.setType(DIRECT_ALLOCATION);
