@@ -25,7 +25,6 @@ import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +33,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -992,7 +992,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("[ES] Lookup mntner entity not supported")
     @Test
     public void lookup_mntner_entity() {
         final Entity entity = createResource("entity/OWNER-MNT")
@@ -1000,6 +999,68 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("OWNER-MNT"));
+
+        assertThat(entity.getHandle(), is("OWNER-MNT"));
+        final List<Object> vCardArray = entity.getVCardArray();
+        assertThat(vCardArray.get(0).toString(), is("vcard"));
+        assertThat(vCardArray.get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, OWNER-MNT], " +
+                "[kind, {}, text, individual]]"));
+
+        final List<Entity> entities = entity.getEntitySearchResults();
+        assertThat(entities, hasSize(2));
+        assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(0).getVCardArray(), is(nullValue()));
+
+        assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(1).getRoles(), contains(Role.ADMINISTRATIVE));
+        assertThat(entities.get(1).getVCardArray(), is(nullValue()));
+
+        assertThat(entity.getLinks(), hasSize(2));
+        assertThat(entity.getLinks().get(0).getRel(), is("self"));
+        assertThat(entity.getLinks().get(1).getRel(), is("copyright"));
+
+        assertThat(entity.getEvents(), hasSize(1));
+        assertThat(entity.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
+
+        assertThat(entity.getPort43(), is("whois.ripe.net"));
+    }
+
+    @Test
+    public void lookup_entity_multiple_result_throw_error() {
+
+        databaseHelper.addObject("" +
+                "person:        MNTNER_PERSON\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31-1234567890\n" +
+                "e-mail:        noreply@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "nic-hdl:       TP2-MULTI\n" +
+                "remarks:       remark\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "mntner:        TP2-MULTI\n" +
+                "descr:         Owner Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "referral-by:   OWNER-MNT\n" +
+                "source:        TEST");
+
+        try {
+          createResource("entity/TP2-MULTI")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+          fail();                                                                       // TODO: multiple matches will be fixed separately
+        } catch (InternalServerErrorException e) {
+            final Entity entity = e.getResponse().readEntity(Entity.class);
+            assertThat(entity.getErrorTitle(), is("Unexpected result size: 2"));
+        }
     }
 
     @Test

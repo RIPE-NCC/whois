@@ -21,7 +21,11 @@ import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
+import net.ripe.db.whois.api.rdap.domain.vcard.VCardKind;
 import org.joda.time.LocalDateTime;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -82,7 +86,7 @@ public class RdapResponseJsonTest {
                 .addBday("--02-03")
                 .addAnniversary("20130101")
                 .addGender("M")
-                .addKind("individual")
+                .addKind(INDIVIDUAL)
                 .addLang(createMap(immutableEntry("pref", "1")), "fr")
                 .addLang(createMap(immutableEntry("pref", "2")), "en")
                 .addOrg("Example")
@@ -253,7 +257,7 @@ public class RdapResponseJsonTest {
 
         builder.addVersion()
                 .addFn("Joe User")
-                .addKind("individual")
+                .addKind(INDIVIDUAL)
                 .addOrg("Example")
                 .addTitle("Research Scientist")
                 .addRole("Project Lead")
@@ -387,7 +391,7 @@ public class RdapResponseJsonTest {
         final VCardBuilder builder = new VCardBuilder();
         builder.addVersion()
                 .addFn("Joe User")
-                .addKind("individual")
+                .addKind(INDIVIDUAL)
                 .addOrg("Example")
                 .addTitle("Research Scientist")
                 .addRole("Project Lead")
