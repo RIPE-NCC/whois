@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.rdap.domain.Domain;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.when;
 public class RdapObjectMapperTest {
 
     private static final LocalDateTime VERSION_TIMESTAMP = LocalDateTime.parse("2044-04-26T00:02:03.000");
+    public static final String REQUEST_URL = "http://localhost/";
 
     @Mock
     private NoticeFactory noticeFactory;
@@ -57,6 +59,7 @@ public class RdapObjectMapperTest {
     public void setup() {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Collections.singletonList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
         when(rpslObjectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\nnetname: ROOT-NET\nsource: TEST"));
+        when(noticeFactory.generateTnC(REQUEST_URL)).thenReturn(getTnCNotice());
 
         this.mapper = new RdapObjectMapper(noticeFactory, rpslObjectDao, ipv4Tree, ipv6Tree, "whois.ripe.net");
     }
@@ -73,6 +76,7 @@ public class RdapObjectMapperTest {
                         "tech-c:         TP1-TEST\n" +
                         "status:         OTHER\n" +
                         "language:       EN\n" +
+                        "language:       DK\n" +
                         "mnt-by:         TST-MNT\n" +
                         "mnt-lower:      TST-MNT\n" +
                         "mnt-domains:    TST-MNT\n" +
@@ -402,6 +406,7 @@ public class RdapObjectMapperTest {
                 "fax-no:         +31 98765432\n" +
                 "geoloc:         52.375599 4.899902\n" +
                 "language:       DK\n" +
+                "language:       EN\n" +
                 "admin-c:        TP1-TEST\n" +
                 "abuse-c:        ABU-TEST\n" +
                 "mnt-by:         FRED-MNT\n" +
@@ -440,6 +445,38 @@ public class RdapObjectMapperTest {
         assertThat(result.getPort43(), is("whois.ripe.net"));
 
         assertThat(result.getLang(), is("DK"));
+
+        final List<Notice> notices = result.getNotices();
+
+        assertThat(notices.get(0).getTitle(), is("Multiple language attributes found"));
+        assertThat(notices.get(0).getDescription().get(0), is("There are multiple language attributes DK, EN in ORG-AC1-TEST, but only the first language DK was returned."));
+    }
+
+    @Test
+    public void organisation_should_not_have_notice_for_language() {
+        final Entity result = (Entity) map(RpslObject.parse("" +
+                "organisation:   ORG-AC1-TEST\n" +
+                "org-name:       Acme Carpets\n" +
+                "org-type:       OTHER\n" +
+                "address:        Singel 258\n" +
+                "e-mail:         bitbucket@ripe.net\n" +
+                "descr:          Acme Carpet Organisation\n" +
+                "remark:         some remark\n" +
+                "phone:          +31 1234567\n" +
+                "fax-no:         +31 98765432\n" +
+                "geoloc:         52.375599 4.899902\n" +
+                "language:       DK\n" +
+                "admin-c:        TP1-TEST\n" +
+                "abuse-c:        ABU-TEST\n" +
+                "mnt-by:         FRED-MNT\n" +
+                "source:         TEST"));
+
+        assertThat(result.getLang(), is("DK"));
+
+        final List<Notice> notices = result.getNotices();
+
+        assertThat(notices, hasSize(1));
+        assertThat(notices.get(0).getTitle(), is("Terms And Condition"));
     }
 
     @Test
@@ -489,10 +526,17 @@ public class RdapObjectMapperTest {
     }
 
     private Object map(final RpslObject rpslObject, final RpslObject abuseContact) {
-        return mapper.map("http://localhost/", rpslObject, VERSION_TIMESTAMP, abuseContact);
+        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, abuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
-        return mapper.mapSearch("http://localhost", objects, lastUpdateds);
+        return mapper.mapSearch(REQUEST_URL, objects, lastUpdateds);
+    }
+
+    private Notice getTnCNotice() {
+        Notice notice = new Notice();
+        notice.setTitle("Terms And Condition");
+        notice.getDescription().add("This is the RIPE Database query service. The objects are in RDAP format.");
+        return notice;
     }
 }

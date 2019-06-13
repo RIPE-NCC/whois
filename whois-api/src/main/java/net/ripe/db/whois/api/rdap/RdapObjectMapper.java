@@ -16,6 +16,7 @@ import net.ripe.db.whois.api.rdap.domain.Event;
 import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
+import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
@@ -52,6 +53,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
@@ -207,12 +209,11 @@ class RdapObjectMapper {
         ip.setStartAddress(toIpRange(ipInterval).start().toString());
         ip.setEndAddress(toIpRange(ipInterval).end().toString());
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
-        ip.setCountry(rpslObject.findAttributes(AttributeType.COUNTRY).get(0).getCleanValue().toString());
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
         ip.setParentHandle(lookupParentHandle(ipInterval));
-        if (rpslObject.containsAttribute(AttributeType.LANGUAGE)) {
-            ip.setLang(rpslObject.findAttributes(AttributeType.LANGUAGE).get(0).getCleanValue().toString());
-        }
+
+        handleLanguageAttribute(rpslObject, ip);
+        handleCountryAttribute(rpslObject, ip);
 
         return ip;
     }
@@ -330,9 +331,7 @@ class RdapObjectMapper {
         entity.setVCardArray(createVCard(rpslObject));
         entity.getEntitySearchResults().addAll(createContactEntities(rpslObject));
 
-        if (rpslObject.containsAttribute(AttributeType.LANGUAGE)) {
-            entity.setLang(rpslObject.findAttributes(AttributeType.LANGUAGE).get(0).getCleanValue().toString());
-        }
+        handleLanguageAttribute(rpslObject, entity);
 
         return entity;
     }
@@ -475,5 +474,41 @@ class RdapObjectMapper {
         }
 
         return builder.build();
+    }
+
+    private static void handleLanguageAttribute(final RpslObject rpslObject, final RdapObject rdapObject) {
+        if (!rpslObject.containsAttribute(AttributeType.LANGUAGE)) {
+            return;
+        }
+
+        List<RpslAttribute> languages = rpslObject.findAttributes(AttributeType.LANGUAGE);
+        rdapObject.setLang(rpslObject.findAttributes(AttributeType.LANGUAGE).get(0).getCleanValue().toString());
+        addNoticeForMultipleValues(rdapObject, AttributeType.LANGUAGE, languages, rpslObject.getKey().toString());
+    }
+
+    private static void handleCountryAttribute(final RpslObject rpslObject, final Ip ip) {
+        if (!rpslObject.containsAttribute(AttributeType.COUNTRY)) {
+            return;
+        }
+
+        List<RpslAttribute> countries = rpslObject.findAttributes(AttributeType.COUNTRY);
+        ip.setCountry(countries.get(0).getCleanValue().toString());
+        addNoticeForMultipleValues(ip, AttributeType.COUNTRY, countries, ip.getHandle());
+    }
+
+    private static void addNoticeForMultipleValues(final RdapObject rdapObject, final AttributeType type, final List<RpslAttribute> values, final String key) {
+        if(values.isEmpty() || values.size() == 1) {
+            return;
+        }
+
+        final String commaSeperatedValues = values.stream().map( value -> value.getCleanValue()).collect(Collectors.joining(", "));
+        final String title = String.format("Multiple %s attributes found", type.getName());
+        final String desc = String.format("There are multiple %s attributes %s in %s, but only the first %s %s was returned.", type.getName(), commaSeperatedValues, key, type.getName(), values.get(0).getCleanValue());
+
+        final Notice notice = new Notice();
+        notice.setTitle(title);
+        notice.getDescription().add(desc);
+
+        rdapObject.getNotices().add(notice);
     }
 }
