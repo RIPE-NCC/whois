@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
+import net.ripe.db.whois.api.rdap.domain.vcard.VCardKind;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCardProperty;
 
 import java.util.List;
@@ -59,8 +60,8 @@ public class VCardBuilder {
         return addGeo(Maps.newHashMap(), value);
     }
 
-    public VCardBuilder addKind(final String value) {
-        properties.add(new VCardProperty("kind", Maps.newHashMap(), "text", value));
+    public VCardBuilder addKind(final VCardKind kind) {
+        properties.add(new VCardProperty("kind", Maps.newHashMap(), "text", kind.getValue()));
         return this;
     }
 

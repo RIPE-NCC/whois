@@ -22,6 +22,9 @@ import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -68,6 +71,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 
 @Component
 class RdapObjectMapper {
@@ -137,6 +141,10 @@ class RdapObjectMapper {
         return rdapObject;
     }
 
+    public RdapObject mapHelp(final String requestUrl) {
+        return mapCommons(new RdapObject(), requestUrl);
+    }
+
     private RdapObject getRdapObject(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, @Nullable final RpslObject abuseContact) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
@@ -154,6 +162,7 @@ class RdapObjectMapper {
                 break;
             case PERSON:
             case ROLE:
+            case MNTNER:
             case ORGANISATION:
                 rdapResponse = createEntity(rpslObject);
                 break;
@@ -415,15 +424,19 @@ class RdapObjectMapper {
         switch (rpslObject.getType()) {
             case PERSON:
                 builder.addFn(rpslObject.getValueForAttribute(PERSON).toString());
-                builder.addKind("individual");
+                builder.addKind(INDIVIDUAL);
+                break;
+            case MNTNER:
+                builder.addFn(rpslObject.getValueForAttribute(AttributeType.MNTNER).toString());
+                builder.addKind(INDIVIDUAL);
                 break;
             case ORGANISATION:
                 builder.addFn(rpslObject.getValueForAttribute(ORG_NAME).toString());
-                builder.addKind("org");
+                builder.addKind(ORGANISATION);
                 break;
             case ROLE:
                 builder.addFn(rpslObject.getValueForAttribute(ROLE).toString());
-                builder.addKind("group");
+                builder.addKind(GROUP);
                 break;
             default:
                 break;

@@ -20,7 +20,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.generator.AttributeGenerator;
 import net.ripe.db.whois.update.handler.transform.Transformer;
 import net.ripe.db.whois.update.sso.SsoTranslator;
@@ -143,7 +142,9 @@ public class SingleUpdateHandler {
         }
 
         // defer setting prepared update so that on failure, we report back with the object without resolved auto keys
-        // FIXME: [AH] per-attribute error messages generated up to this point will not get reported in ACK if they have been changed (by attributeGenerator or AUTO-key generator), as the report goes for the pre-auto-key-generated version of the object, in which the newly generated attributes are not present
+        // FIXME: [AH] per-attribute error messages generated up to this point will not get reported in ACK
+        // if they have been changed (by attributeGenerator or AUTO-key generator), as the report goes for the
+        // pre-auto-key-generated version of the object, in which the newly generated attributes are not present
         updateContext.setPreparedUpdate(preparedUpdate);
 
         if (updateContext.isDryRun() && !updateContext.isBatchUpdate()) {
@@ -205,9 +206,10 @@ public class SingleUpdateHandler {
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
-        ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
-        ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
-    }
+
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
+        }
 
         return updatedObject;
     }
