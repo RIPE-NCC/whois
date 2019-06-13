@@ -12,10 +12,14 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+
+import static java.util.Collections.emptyList;
 
 @Provider
 @Component
@@ -68,5 +72,20 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
 
     private RdapObject createErrorEntity(final int errorCode, final String errorTitle, String ... errorTexts) {
         return rdapObjectMapper.mapError(errorCode, errorTitle, Lists.newArrayList(errorTexts));
+    }
+
+    public NotFoundException notFound(final String errorTitle) {
+        return new NotFoundException(createErrorResponse(Response.Status.NOT_FOUND, errorTitle));
+    }
+
+    private Response createErrorResponse(final Response.Status status, final String errorTitle) {
+        return Response.status(status)
+                .entity(createErrorEntity(status.getStatusCode(), errorTitle))
+                .header("Content-Type", "application/rdap+json")
+                .build();
+    }
+
+    public BadRequestException badRequest(final String errorTitle) {
+        return new BadRequestException(createErrorResponse(Response.Status.BAD_REQUEST, errorTitle));
     }
 }

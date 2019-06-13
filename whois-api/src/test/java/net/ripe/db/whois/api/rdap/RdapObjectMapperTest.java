@@ -28,12 +28,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -167,6 +167,57 @@ public class RdapObjectMapperTest {
         assertThat(result.getStartAutnum(), is(nullValue()));
         assertThat(result.getEndAutnum(), is(nullValue()));
         assertThat(result.getName(), is("End-User-2"));
+        assertThat(result.getType(), is("DIRECT ALLOCATION"));
+        assertThat(result.getStatus(), is(emptyIterable()));
+        assertThat(result.getCountry(), is(nullValue()));
+
+        final List<Entity> entities = result.getEntitySearchResults();
+        assertThat(entities, hasSize(2));
+        assertThat(entities.get(0).getHandle(), is("AP1-TEST"));
+        assertThat(entities.get(0).getRoles(), containsInAnyOrder(Role.TECHNICAL, Role.ADMINISTRATIVE));
+        assertThat(entities.get(0).getVCardArray(), is(nullValue()));
+        assertThat(entities.get(1).getHandle(), is("UPD-MNT"));
+        assertThat(entities.get(1).getRoles().get(0), is(Role.REGISTRANT));
+        assertThat(entities.get(1).getVCardArray(), is(nullValue()));
+
+        assertThat(result.getRemarks().get(0).getDescription().get(0), is("description"));
+
+        assertThat(result.getLinks(), hasSize(2));
+        assertThat(result.getLinks().get(0).getRel(), is("self"));
+        assertThat(result.getLinks().get(1).getRel(), is("copyright"));
+        assertThat(result.getEvents(), hasSize(1));
+        assertThat(result.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(result.getEvents().get(0).getEventDate(), is(VERSION_TIMESTAMP));
+
+        assertThat(result.getPort43(), is("whois.ripe.net"));
+    }
+
+    @Test
+    public void asBlock() {
+        final Autnum result = (Autnum) map((RpslObject.parse("" +
+                "as-block:       AS100 - AS200\n" +
+                "member-of:      AS-TESTSET\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "default:        to AS1\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "mp-default:     to AS1\n" +
+                "remarks:        remarkable\n" +
+                "org:            ORG-NCC1-RIPE\n" +
+                "admin-c:        AP1-TEST\n" +
+                "tech-c:         AP1-TEST\n" +
+                "notify:         noreply@ripe.net\n" +
+                "mnt-lower:      UPD-MNT\n" +
+                "mnt-routes:     UPD-MNT\n" +
+                "mnt-by:         UPD-MNT\n" +
+                "source:         TEST\n")));
+
+        assertThat(result.getHandle(), is("AS100"));
+        assertThat(result.getStartAutnum(), is(100L));
+        assertThat(result.getEndAutnum(), is(200L));
+        assertThat(result.getName(), is("AS100-AS200"));
         assertThat(result.getType(), is("DIRECT ALLOCATION"));
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getCountry(), is(nullValue()));

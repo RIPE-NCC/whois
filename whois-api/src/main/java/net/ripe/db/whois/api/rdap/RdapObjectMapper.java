@@ -11,16 +11,20 @@ import net.ripe.commons.ip.Ipv6Range;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Domain;
+
 import net.ripe.db.whois.api.rdap.domain.Entity;
-import net.ripe.db.whois.api.rdap.domain.Event;
-import net.ripe.db.whois.api.rdap.domain.Ip;
+import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.Link;
+import net.ripe.db.whois.api.rdap.domain.SearchResult;
+
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
+
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Remark;
-import net.ripe.db.whois.api.rdap.domain.Role;
-import net.ripe.db.whois.api.rdap.domain.SearchResult;
+import net.ripe.db.whois.api.rdap.domain.Event;
+
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
@@ -30,15 +34,17 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.iptree.Ipv4Tree;
+import net.ripe.db.whois.common.iptree.Ipv6Tree;
+import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
-import net.ripe.db.whois.common.iptree.Ipv4Tree;
-import net.ripe.db.whois.common.iptree.Ipv6Entry;
-import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import org.joda.time.LocalDateTime;
@@ -48,33 +54,37 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import javax.ws.rs.InternalServerErrorException;
 import java.util.Map;
+import java.util.List;
+import java.util.Iterator;
 import java.util.Set;
+
+import java.util.HashMap;
+
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
+
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
-import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
 import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
-import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
-import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PHONE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
-import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
-import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 
 @Component
 class RdapObjectMapper {
+    private static final String DIRECT_ALLOCATION = "DIRECT ALLOCATION";
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
@@ -155,6 +165,9 @@ class RdapObjectMapper {
                 break;
             case AUT_NUM:
                 rdapResponse = createAutnumResponse(rpslObject);
+                break;
+            case AS_BLOCK:
+                rdapResponse = createAsBlockResponse(rpslObject);
                 break;
             case INETNUM:
             case INET6NUM:
@@ -253,7 +266,6 @@ class RdapObjectMapper {
             if (firstLessSpecific.isEmpty()) {
                 throw new IllegalStateException("No parent for " + ipInterval.toString());
             }
-
             return firstLessSpecific.get(0);
         }
 
@@ -262,10 +274,8 @@ class RdapObjectMapper {
             if (firstLessSpecific.isEmpty()) {
                 throw new IllegalStateException("No parent for " + ipInterval.toString());
             }
-
             return firstLessSpecific.get(0);
         }
-
         throw new IllegalStateException("Unknown interval type " + ipInterval.getClass().getName());
     }
 
@@ -340,7 +350,24 @@ class RdapObjectMapper {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
-        autnum.setType("DIRECT ALLOCATION");
+        autnum.setType(DIRECT_ALLOCATION);
+        autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
+        return autnum;
+    }
+
+    private static Autnum createAsBlockResponse(final RpslObject rpslObject) {
+        final Autnum autnum = new Autnum();
+
+        final String key = rpslObject.getValueForAttribute(AttributeType.AS_BLOCK).toString();
+        final AsBlockRange blockRange = getAsBlockRange(key);
+
+        autnum.setHandle(blockRange.getBeginWithPrefix());
+        //TODO :check what should be the name
+        String asName = String.join("-", blockRange.getBeginWithPrefix(), blockRange.getEndWithPrefix());
+        autnum.setName(asName);
+        autnum.setStartAutnum(blockRange.getBegin());
+        autnum.setEndAutnum(blockRange.getEnd());
+        autnum.setType(DIRECT_ALLOCATION);
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         return autnum;
     }
@@ -474,6 +501,15 @@ class RdapObjectMapper {
         }
 
         return builder.build();
+    }
+
+
+    private static AsBlockRange getAsBlockRange(String asBlock) {
+        try {
+            return AsBlockRange.parse(asBlock);
+        } catch (AttributeParseException ex) {
+            throw new InternalServerErrorException("Invalid AS Block found in database");
+        }
     }
 
     private static void handleLanguageAttribute(final RpslObject rpslObject, final RdapObject rdapObject) {

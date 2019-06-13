@@ -804,6 +804,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_asBlock_bad_request() {
+        try {
+            createResource("as-block/XYZ")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertErrorTitle(e, "unknown type");
+        }
+    }
+
+    @Test
     public void lookup_autnum_head_method() {
         final Response response = createResource("autnum/102").request().head();
 
@@ -854,6 +866,54 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         final List<Remark> remarks = autnum.getRemarks();
         assertThat(remarks, hasSize(1));
         assertThat(remarks.get(0).getDescription().get(0), is("A single ASN"));
+    }
+
+    @Test
+    public void lookup_as_block_when_no_autnum_found() {
+        final Autnum autnum = createResource("autnum/103")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getHandle(), equalTo("AS100"));
+        assertThat(autnum.getStartAutnum(), equalTo(100L));
+        assertThat(autnum.getEndAutnum(), equalTo(200L));
+        assertThat(autnum.getName(), equalTo("AS100-AS200"));
+        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
+        assertThat(autnum.getObjectClassName(), is("autnum"));
+    }
+
+    @Test
+    public void lookup_as_block_for_reserved_autnum() {
+        databaseHelper.addObject("" +
+                "as-block:       AS0 - AS6\n" +
+                "descr:          RIPE NCC block\n" +
+                "org:            ORG-TEST1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST");
+
+        final Autnum autnum = createResource("autnum/0")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getHandle(), equalTo("AS0"));
+        assertThat(autnum.getStartAutnum(), equalTo(0L));
+        assertThat(autnum.getEndAutnum(), equalTo(6L));
+        assertThat(autnum.getName(), equalTo("AS0-AS6"));
+        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
+        assertThat(autnum.getObjectClassName(), is("autnum"));
+    }
+
+    @Test
+    public void lookup_asblock_with_rdap_json_content_type() {
+        final Response response = createResource("autnum/103")
+                .request("application/rdap+json")
+                .get();
+
+        assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
+        final String entity = response.readEntity(String.class);
+        assertThat(entity, containsString("\"handle\" : \"AS100\""));
+        assertThat(entity, containsString("\"startAutnum\" : 100"));
+        assertThat(entity, containsString("\"endAutnum\" : 200"));
     }
 
     @Test
