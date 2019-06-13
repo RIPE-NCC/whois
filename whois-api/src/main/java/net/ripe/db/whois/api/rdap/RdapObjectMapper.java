@@ -135,6 +135,10 @@ class RdapObjectMapper {
         return rdapObject;
     }
 
+    public RdapObject mapHelp(final String requestUrl) {
+        return mapCommons(new RdapObject(), requestUrl);
+    }
+
     private RdapObject getRdapObject(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, @Nullable final RpslObject abuseContact) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
