@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.domain.ReservedAutnum;
-import net.ripe.db.whois.update.handler.validator.route.OriginValidator;
+import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,11 +56,11 @@ public class RdapRequestValidator {
     public void validateEntity(final String key) {
         if (key.toUpperCase().startsWith("ORG-")) {
             if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
-                throw new IllegalArgumentException("Invalid syntax.");
+                throw rdapExceptionMapper.badRequest("Invalid syntax.");
             }
         } else {
-            if (!AttributeType.NIC_HDL.isValidValue(ObjectType.PERSON, key)) {
-                throw new IllegalArgumentException("Invalid syntax.");
+            if (!AttributeType.MNTNER.isValidValue(MNTNER, key)) {
+                throw rdapExceptionMapper.badRequest("Invalid syntax.");
             }
         }
     }

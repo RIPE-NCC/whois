@@ -835,20 +835,14 @@
                         <exclude>**/net/ripe/db/whois/common/rpsl/**</exclude>
                         <exclude>**/net/ripe/db/whois/common/domain/**</exclude>
                         <exclude>**/net/ripe/db/whois/common/ip/**</exclude>
-
                         <exclude>**/net/ripe/db/whois/common/io/ByteArrayInput.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/io/ByteArrayOutput.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/io/RpslObjectFileReader.java</exclude>
-
-                        <!--<exclude>**/net/ripe/db/whois/common/CharacterSetConversion.java</exclude>-->
-
                         <exclude>**/net/ripe/db/whois/common/io/ByteArrayInputTest.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/io/ByteArrayOutputTest.java</exclude>
-
                         <exclude>**/net/ripe/db/whois/common/IllegalArgumentExceptionMessage.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
-                        <!--<exclude>**/net/ripe/db/whois/common/CharacterSetConversionTest.java</exclude>-->
                         <exclude>**/net/ripe/db/whois/common/EndToEndTest.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/IntegrationTest.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>

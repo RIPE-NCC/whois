@@ -25,14 +25,12 @@ public class RdapRequestValidatorTest {
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionForInvalidEntity() {
-        validator.validateEntity("invalidEntity");
-    }
-
     @Test
     public void shouldThrowExceptionForInvalidOrganisation() {
-        expectedEx.expect(IllegalArgumentException.class);
+        when(rdapExceptionMapper.badRequest("Invalid syntax."))
+                .thenReturn(new BadRequestException("Invalid syntax."));
+
+        expectedEx.expect(BadRequestException.class);
         expectedEx.expectMessage("Invalid syntax");
 
         validator.validateEntity("ORG-Test");

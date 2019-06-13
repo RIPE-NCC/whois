@@ -55,7 +55,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.common.rpsl.ObjectType.*;
+import static java.util.Collections.emptyList;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
+import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
+import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
+import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 
 @Component
 @Path("/")
@@ -129,11 +139,7 @@ public class WhoisRdapService {
                 return lookupWithRedirectUrl(request, key.contains(":") ? INET6NUM : INETNUM, key);
             }
             case "entity": {
-                try {
-                    rdapRequestValidator.validateEntity(key);
-                } catch (IllegalArgumentException e) {
-                    throw rdapExceptionMapper.badRequest(e.getMessage());
-                }
+                rdapRequestValidator.validateEntity(key);
 
                 final Set<ObjectType> whoisObjectTypes = Sets.newHashSet();
                 if (key.toUpperCase().startsWith("ORG-")) {
@@ -141,8 +147,8 @@ public class WhoisRdapService {
                 } else {
                     whoisObjectTypes.add(PERSON);
                     whoisObjectTypes.add(ROLE);
+                    whoisObjectTypes.add(MNTNER);
                 }
-
                 return lookupObject(request, whoisObjectTypes, key);
             }
             case "nameserver": {
@@ -203,6 +209,15 @@ public class WhoisRdapService {
         return handleSearch(new String[]{"domain"}, name, request);
     }
 
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
+    @Path("/help")
+    public Response help(@Context final HttpServletRequest request) {
+        return Response.ok(rdapObjectMapper.mapHelp(getRequestUrl(request)))
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
+    }
+
     private Response lookupWithRedirectUrl(final HttpServletRequest request, final ObjectType objectType, final String key) {
         final Query query = getQueryObject(ImmutableSet.of(objectType), key);
 
@@ -221,9 +236,16 @@ public class WhoisRdapService {
 
         //if no autnum is found, as-block should be returned
         final Query query = getQueryObject(ImmutableSet.of(AUT_NUM, AS_BLOCK), key);
-        List<RpslObject> result =  rdapQueryHandler.handleAutNumQuery(query, request);
+        List<RpslObject> result = rdapQueryHandler.handleAutNumQuery(query, request);
 
         return getResponse(request, result);
+    }
+
+    private Response createErrorResponse(final Response.Status status, final String errorTitle) {
+        return Response.status(status)
+                .entity(rdapObjectMapper.mapError(status.getStatusCode(), errorTitle, emptyList()))
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
     }
 
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
@@ -255,6 +277,7 @@ public class WhoisRdapService {
             throw new IllegalStateException("Unexpected result size: " + result.size());
         }
 
+
         final RpslObject resultObject = result.get(0);
 
         if (resultObject.getKey().equals(CIString.ciString("0.0.0.0 - 255.255.255.255")) ||
@@ -269,7 +292,7 @@ public class WhoisRdapService {
                         resultObject,
                         objectDao.getLastUpdated(resultObject.getObjectId()),
                         abuseCFinder.getAbuseContactRole(resultObject)))
-                .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
 
@@ -363,7 +386,7 @@ public class WhoisRdapService {
                     getRequestUrl(request),
                     objects,
                     lastUpdateds))
-                    .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
+                    .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
         }
         catch (IOException e) {
