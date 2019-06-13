@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.ReservedAutnum;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
@@ -27,18 +28,15 @@ public class OriginValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ROUTE, ObjectType.ROUTE6);
 
-    private final List<LongRange> reservedAsnumbers;
-
     private final RpslObjectDao rpslObjectDao;
     private final AuthoritativeResourceData authoritativeResourceData;
+    private final ReservedAutnum reservedAutnum;
 
     @Autowired
-    public OriginValidator(final RpslObjectDao rpslObjectDao,
-                           @Value("${whois.reserved.as.numbers}") final String reservedAsNumbers,
-                           final AuthoritativeResourceData authoritativeResourceData) {
+    public OriginValidator(final RpslObjectDao rpslObjectDao, final ReservedAutnum reservedAutnum, final AuthoritativeResourceData authoritativeResourceData) {
         this.rpslObjectDao = rpslObjectDao;
         this.authoritativeResourceData = authoritativeResourceData;
-        this.reservedAsnumbers = parseReservedAsNumbers(reservedAsNumbers);
+        this.reservedAutnum = reservedAutnum;
     }
 
     @Override
@@ -61,38 +59,11 @@ public class OriginValidator implements BusinessRuleValidator {
         final CIString autnumKey = updatedObject.getValueForAttribute(AttributeType.ORIGIN);
         AutNum autnum = AutNum.parse(autnumKey);
 
-        if (isReservedAsNumber(autnum.getValue())) {
+        if (reservedAutnum.isReservedAsNumber(autnum.getValue())) {
             updateContext.addMessage(update, UpdateMessages.cannotUseReservedAsNumber(autnum.getValue()));
         } else if (authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(ObjectType.AUT_NUM, autnumKey) &&
                    rpslObjectDao.findByKeyOrNull(ObjectType.AUT_NUM, autnumKey) == null) {
             updateContext.addMessage(update, UpdateMessages.autnumNotFoundInDatabase(autnum.getValue()));
         }
-    }
-
-    private boolean isReservedAsNumber(Long asn) {
-        for (LongRange range : this.reservedAsnumbers) {
-            if (range.containsLong(asn)) {
-                return true;
-            }
-            if (asn < range.getMinimumLong()) {
-                break;
-            }
-        }
-        return false;
-    }
-
-    private List<LongRange> parseReservedAsNumbers(final String reservedAsNumbers) {
-        final List<LongRange> parsedAsNumbers = Lists.newArrayList();
-
-        for (String reservedAsNumber : reservedAsNumbers.split(",")) {
-            if (reservedAsNumber.contains("-")) {
-                String[] startEnd = reservedAsNumber.split("-");
-                parsedAsNumbers.add(new LongRange(Long.parseLong(startEnd[0]), Long.parseLong(startEnd[1])));
-            } else {
-                parsedAsNumbers.add(new LongRange(Long.parseLong(reservedAsNumber), Long.parseLong(reservedAsNumber)));
-            }
-        }
-
-        return parsedAsNumbers;
     }
 }
