@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCardProperty;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static java.util.Collections.nCopies;
 
 import java.util.List;
@@ -15,7 +14,7 @@ public class VCardBuilder {
     private final List<VCardProperty> properties = Lists.newArrayList();
 
     public VCardBuilder addAdr(final Map parameters, final List values) {
-        properties.add(new VCardProperty("adr", parameters, "text", (List) getAdrTextOrDefault(values)));
+        properties.add(new VCardProperty("adr", parameters, "text", getAdrTextOrDefault(values)));
         return this;
     }
 
@@ -155,7 +154,7 @@ public class VCardBuilder {
         return new VCard(properties);
     }
 
-    private List getAdrTextOrDefault(List values){
-        return isEmpty(values) ? nCopies(7, "") : values; //Vcard text format is 7 empty element
+    private List getAdrTextOrDefault(final List values){
+        return (values == null || values.isEmpty()) ? nCopies(7, "") : values; //Vcard text format is 7 empty element
     }
 }

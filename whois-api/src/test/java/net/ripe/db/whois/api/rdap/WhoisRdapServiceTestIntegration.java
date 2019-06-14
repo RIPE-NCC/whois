@@ -992,7 +992,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +                         // TODO: [ES] no value?
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678]]"));
     }
 
