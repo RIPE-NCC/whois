@@ -137,6 +137,15 @@ public class RdapResponseJsonTest {
                 "  }, \"text\", \"http://example.org\" ] ]\n}"));
     }
 
+    @Test
+    public void vcard_address_text_test() throws Exception {
+        final VCardBuilder builder = new VCardBuilder();
+
+        builder.addAdr(createMap(immutableEntry("label", "Suite 1234")), null);
+
+        assertThat(marshal(builder.build()), equalTo("{\n  \"vcard\" : [ [ \"adr\", {\n    \"label\" : \"Suite 1234\"\n  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ] ]\n}"));
+    }
+
     private List createName(final String surname, final String given, final String prefix, final String suffix, final List honorifics) {
         return Lists.newArrayList(surname, given, prefix, suffix, honorifics);
     }

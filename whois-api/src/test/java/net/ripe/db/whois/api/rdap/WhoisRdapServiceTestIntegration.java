@@ -599,7 +599,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
-                "[adr, {label=Singel 258}, text, null], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31-1234567890], " +
                 "[email, {}, text, noreply@ripe.net]]"));
 
@@ -674,7 +674,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, null], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[email, {}, text, dbtest@ripe.net]]"));
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
@@ -999,7 +999,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 358}, text, null], " +
+                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678]]"));
     }
 
@@ -1097,7 +1097,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, null], " +                         // TODO: [ES] no value?
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678]]"));
     }
 
@@ -1256,7 +1256,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Organisation One], " +
                 "[kind, {}, text, org], " +
-                "[adr, {label=One Org Street}, text, null], " +
+                "[adr, {label=One Org Street}, text, [, , , , , , ]], " +
                 "[email, {}, text, test@ripe.net]]"));
 
 
