@@ -10,7 +10,7 @@ import static org.junit.Assert.assertThat;
 
 public class Latin1ConversionTest {
 
-    private final static String SUPPLEMENT = "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+    private final static String SUPPLEMENT = "¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
 
     @Test
     public void convert_ascii_string() {
@@ -44,6 +44,13 @@ public class Latin1ConversionTest {
         final String control = new String(new byte[]{(byte)0xa0}, StandardCharsets.ISO_8859_1);
 
         assertThat(Latin1Conversion.convertString(control), is(" "));
+    }
+
+    @Test
+    public void convert_silent_hyphen_string() {
+        final String control = new String(new byte[]{(byte)0xad}, StandardCharsets.ISO_8859_1);
+
+        assertThat(Latin1Conversion.convertString(control), is("-"));
     }
 
     @Test
