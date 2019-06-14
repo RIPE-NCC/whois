@@ -362,7 +362,7 @@ public class RdapObjectMapperTest {
                 "nic-hdl:       FL1-TEST\n" +
                 "remarks:       remark\n" +
                 "notify:        first@last.org\n" +
-                "abuse-mailbox: first@last.org\n" +
+                "abuse-mailbox: abuse@last.org\n" +
                 "mnt-by:        TST-MNT\n" +
                 "source:        TEST"));
 
@@ -377,7 +377,8 @@ public class RdapObjectMapperTest {
                 "[adr, {label=Singel 258}, text, null]\n" +
                 "[tel, {type=voice}, text, +31 20 123456]\n" +
                 "[tel, {type=fax}, text, +31 20 123457]\n" +
-                "[email, {}, text, first@last.org]\n" +
+                "[email, {type=email}, text, first@last.org]\n" +
+                "[email, {type=abuse}, text, abuse@last.org]\n" +
                 "[org, {}, text, ORG-TOL1-TEST]"));
 
         assertThat(result.getRoles(), is(emptyIterable()));
@@ -474,7 +475,7 @@ public class RdapObjectMapperTest {
                 "[adr, {label=Singel 258}, text, null]\n" +
                 "[tel, {type=voice}, text, +31 1234567]\n" +
                 "[tel, {type=fax}, text, +31 98765432]\n" +
-                "[email, {}, text, bitbucket@ripe.net]\n" +
+                "[email, {type=email}, text, bitbucket@ripe.net]\n" +
                 "[geo, {}, uri, 52.375599 4.899902]"));
 
         assertThat(result.getRoles(), is(emptyIterable()));

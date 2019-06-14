@@ -601,7 +601,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[kind, {}, text, individual], " +
                 "[adr, {label=Singel 258}, text, null], " +
                 "[tel, {type=voice}, text, +31-1234567890], " +
-                "[email, {}, text, noreply@ripe.net]]"));
+                "[email, {type=email}, text, noreply@ripe.net]]"));
 
         assertThat(entity.getObjectClassName(), is("entity"));
 
@@ -675,7 +675,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 258}, text, null], " +
-                "[email, {}, text, dbtest@ripe.net]]"));
+                "[email, {type=email}, text, dbtest@ripe.net]]"));
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
         assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
@@ -953,12 +953,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_autnum_has_abuse_contact() {
+    public void lookup_autnum_abuse_contact_from_org() {
         databaseHelper.addObject("" +
                 "role:          Abuse Contact\n" +
                 "address:       Singel 358\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       AB-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
@@ -1000,7 +1002,55 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 358}, text, null], " +
-                "[tel, {type=voice}, text, +31 6 12345678]]"));
+                "[tel, {type=voice}, text, +31 6 12345678], " +
+                "[email, {type=email}, text, work@test.com], " +
+                "[email, {type=email}, text, personal@test.com], " +
+                "[email, {type=abuse}, text, abuse@test.net]]"));
+    }
+
+    @Test
+    public void lookup_autnum_has_abuse_contact_object() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 358\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.updateObject("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "abuse-c:       AB-TEST\n" +
+                "source:        TEST");
+
+        final Autnum autnum = createResource("autnum/102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(autnum.getEntitySearchResults().get(1).getHandle(), is("TP1-TEST"));
+        assertThat(autnum.getEntitySearchResults().get(2).getHandle(), is("AB-TEST"));
+        assertThat(autnum.getEntitySearchResults().get(2).getRoles(), contains(Role.ABUSE));
+        assertThat(autnum.getEntitySearchResults().get(2).getVCardArray(), hasSize(2));
+        assertThat(autnum.getEntitySearchResults().get(2).getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(autnum.getEntitySearchResults().get(2).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Abuse Contact], " +
+                "[kind, {}, text, group], " +
+                "[adr, {label=Singel 358}, text, null], " +
+                "[tel, {type=voice}, text, +31 6 12345678], " +
+                "[email, {type=email}, text, work@test.com], " +
+                "[email, {type=email}, text, personal@test.com], " +
+                "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
     // general
@@ -1098,7 +1148,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
                 "[adr, {label=Singel 258}, text, null], " +                         // TODO: [ES] no value?
-                "[tel, {type=voice}, text, +31 6 12345678]]"));
+                "[tel, {type=voice}, text, +31 6 12345678], " +
+                "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
     // organisation entity
@@ -1257,7 +1308,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[fn, {}, text, Organisation One], " +
                 "[kind, {}, text, org], " +
                 "[adr, {label=One Org Street}, text, null], " +
-                "[email, {}, text, test@ripe.net]]"));
+                "[email, {type=email}, text, test@ripe.net]]"));
 
 
         assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
