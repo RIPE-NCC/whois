@@ -374,7 +374,7 @@ public class RdapObjectMapperTest {
                 "[version, {}, text, 4.0]\n" +
                 "[fn, {}, text, First Last]\n" +
                 "[kind, {}, text, individual]\n" +
-                "[adr, {label=Singel 258}, text, null]\n" +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]]\n" +
                 "[tel, {type=voice}, text, +31 20 123456]\n" +
                 "[tel, {type=fax}, text, +31 20 123457]\n" +
                 "[email, {}, text, first@last.org]\n" +
@@ -471,7 +471,7 @@ public class RdapObjectMapperTest {
                 "[version, {}, text, 4.0]\n" +
                 "[fn, {}, text, Acme Carpets]\n" +
                 "[kind, {}, text, org]\n" +
-                "[adr, {label=Singel 258}, text, null]\n" +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]]\n" +
                 "[tel, {type=voice}, text, +31 1234567]\n" +
                 "[tel, {type=fax}, text, +31 98765432]\n" +
                 "[email, {}, text, bitbucket@ripe.net]\n" +
