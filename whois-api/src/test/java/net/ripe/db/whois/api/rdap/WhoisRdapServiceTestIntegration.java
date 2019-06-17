@@ -20,6 +20,7 @@ import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
 import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
@@ -60,6 +61,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     FullTextIndex fullTextIndex;
+    @Autowired
+    TestWhoisLog queryLog;
 
     @BeforeClass
     public static void rdapSetProperties() {
@@ -655,6 +658,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("PP1-TEST"));assertCommon(entity);
+    }
+
+    @Test
+    public void lookup_entity_logged_in_query_log() {
+        createResource("entity/PP1-TEST")
+                        .request()
+                        .get(Entity.class);
+
+        assertThat(queryLog.getMessages(), hasSize(1));
+        assertThat(queryLog.getMessage(0), containsString(" PW-API-INFO <1+0+0> "));
+        assertThat(queryLog.getMessage(0), containsString(" PP1-TEST"));
     }
 
     // role entity
