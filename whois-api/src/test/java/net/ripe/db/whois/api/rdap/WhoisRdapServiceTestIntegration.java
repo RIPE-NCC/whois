@@ -20,6 +20,7 @@ import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
 import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
@@ -60,6 +61,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     FullTextIndex fullTextIndex;
+    @Autowired
+    TestWhoisLog queryLog;
 
     @BeforeClass
     public static void rdapSetProperties() {
@@ -599,7 +602,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
-                "[adr, {label=Singel 258}, text, null], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31-1234567890], " +
                 "[email, {type=email}, text, noreply@ripe.net]]"));
 
@@ -657,6 +660,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(entity.getHandle(), equalTo("PP1-TEST"));assertCommon(entity);
     }
 
+    @Test
+    public void lookup_entity_logged_in_query_log() {
+        createResource("entity/PP1-TEST")
+                        .request()
+                        .get(Entity.class);
+
+        assertThat(queryLog.getMessages(), hasSize(1));
+        assertThat(queryLog.getMessage(0), containsString(" PW-API-INFO <1+0+0> "));
+        assertThat(queryLog.getMessage(0), containsString(" PP1-TEST"));
+    }
+
     // role entity
 
     @Test
@@ -674,7 +688,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, null], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[email, {type=email}, text, dbtest@ripe.net]]"));
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
@@ -1001,7 +1015,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 358}, text, null], " +
+                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[email, {type=email}, text, work@test.com], " +
                 "[email, {type=email}, text, personal@test.com], " +
@@ -1046,7 +1060,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 358}, text, null], " +
+                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[email, {type=email}, text, work@test.com], " +
                 "[email, {type=email}, text, personal@test.com], " +
@@ -1147,7 +1161,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, null], " +                         // TODO: [ES] no value?
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
@@ -1307,9 +1321,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Organisation One], " +
                 "[kind, {}, text, org], " +
-                "[adr, {label=One Org Street}, text, null], " +
+                "[adr, {label=One Org Street}, text, [, , , , , , ]], " +
                 "[email, {type=email}, text, test@ripe.net]]"));
-
 
         assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
 

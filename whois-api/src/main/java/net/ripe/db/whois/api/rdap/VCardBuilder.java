@@ -19,6 +19,7 @@ import net.ripe.db.whois.api.rdap.domain.vcard.VCardName;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCardType;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCardProperty;
 import net.ripe.db.whois.common.domain.CIString;
+import static java.util.Collections.nCopies;
 
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class VCardBuilder {
     public VCardBuilder addAdr(final Set<CIString> addresses) {
         final String label = "label";
         if (!addresses.isEmpty()) {
-            addProperty(ADDRESS, ImmutableMap.of(label,NEWLINE_JOINER.join(addresses)), TEXT, "");
+            properties.add(new VCardProperty(ADDRESS, ImmutableMap.of(label,NEWLINE_JOINER.join(addresses)), TEXT, nCopies(7, ""))); //VCard format 7 empty elements for text
         }
         return this;
     }

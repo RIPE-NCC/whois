@@ -89,13 +89,22 @@ public class RdapResponseJsonTest {
                 " }, \"text\", \"individual\" ], [ \"org\", {" +
                 " }, \"text\", \"Example\" ], [ \"adr\", {\n" +
                 "    \"label\" : \"Suite 1234\\n4321 Rue Somewhere\"\n" +
-                "  }, \"text\", null ], [ \"tel\", {\n" +
+                "  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
                 "    \"type\" : \"voice\"\n" +
                 "  }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], [ \"tel\", {\n" +
                 "    \"type\" : \"voice\"\n" +
                 "  }, \"uri\", \"tel:+1-555-555-4321\" ], [ \"email\", {\n" +
                 "    \"type\" : \"email\"\n" +
                 "  }, \"text\", \"joe.user@example.com\" ], [ \"geo\", { }, \"uri\", \"geo:46.772673,-71.282945\" ] ]\n}"));
+    }
+
+    @Test
+    public void vcard_address_text_test() throws Exception {
+        final VCardBuilder builder = new VCardBuilder();
+
+        builder.addAdr(ciSet("Suite 1234"));
+
+        assertThat(marshal(builder.build()), equalTo("{\n  \"vcard\" : [ [ \"adr\", {\n    \"label\" : \"Suite 1234\"\n  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ] ]\n}"));
     }
 
     private List createName(final String surname, final String given, final String prefix, final String suffix, final List honorifics) {
@@ -380,7 +389,7 @@ public class RdapResponseJsonTest {
                 "[ \"org\", { }, \"text\", \"Example\" ], " +
                 "[ \"adr\", {\n" +
                         "      \"label\" : \"Suite 1234\\n4321 Rue Somewhere\"\n" +
-                "    }, \"text\", null ], [ \"tel\", {\n" +
+                "    }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ], [ \"tel\", {\n" +
                 "      \"type\" : \"voice\"\n" +
                 "    }, \"uri\", \"tel:+1-555-555-1234;ext=102\" ], " +
                 "[ \"email\", {\n" +
