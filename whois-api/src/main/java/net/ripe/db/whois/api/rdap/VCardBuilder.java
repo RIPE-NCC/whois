@@ -39,30 +39,30 @@ public class VCardBuilder {
     public VCardBuilder addAdr(final Set<CIString> addresses) {
         final String label = "label";
         if (!addresses.isEmpty()) {
-            addProperty(ADDRESS, ImmutableMap.of(label,NEWLINE_JOINER.join(addresses)), TEXT, null);
+            addProperty(ADDRESS, ImmutableMap.of(label,NEWLINE_JOINER.join(addresses)), TEXT, "");
         }
         return this;
     }
 
     public VCardBuilder addEmail(final Set<CIString> emails) {
-        emails.forEach( email -> addProperty(EMAIL, EMAIL_MAP, TEXT, email.toString()));
+        emails.forEach( email -> addProperty(EMAIL, EMAIL_MAP, TEXT, email));
         return this;
     }
 
     public VCardBuilder addAbuseMailBox(final CIString abuseMail) {
         if(abuseMail != null) {
-            addProperty(EMAIL, ABUSE_MAP, TEXT, abuseMail.toString());
+            addProperty(EMAIL, ABUSE_MAP, TEXT, abuseMail);
         }
         return this;
     }
 
     public VCardBuilder addFn(final CIString value) {
-        addProperty(FN, EMPTY_MAP, TEXT, value.toString());
+        addProperty(FN, EMPTY_MAP, TEXT, value);
         return this;
     }
 
     public VCardBuilder addGeo(final Set<CIString> geolocs) {
-        geolocs.forEach( geo -> addProperty(GEO, EMPTY_MAP, URI, geo.toString()));
+        geolocs.forEach( geo -> addProperty(GEO, EMPTY_MAP, URI, geo));
         return this;
     }
 
@@ -72,12 +72,12 @@ public class VCardBuilder {
     }
 
     public VCardBuilder addTel(final Set<CIString> phones) {
-        phones.forEach( phone -> addProperty(TELEPHONE, PHONE_MAP, getTelType(phone), phone.toString()));
+        phones.forEach( phone -> addProperty(TELEPHONE, PHONE_MAP, getTelType(phone), phone));
         return this;
     }
 
     public VCardBuilder addFax(final Set<CIString> faxes) {
-        faxes.forEach( fax -> addProperty(TELEPHONE, FAX_MAP, getTelType(fax), fax.toString()));
+        faxes.forEach( fax -> addProperty(TELEPHONE, FAX_MAP, getTelType(fax), fax));
         return this;
     }
 
@@ -87,12 +87,16 @@ public class VCardBuilder {
     }
 
     public VCardBuilder addOrg(final Set<CIString> values) {
-        values.forEach( org-> addProperty(ORG, EMPTY_MAP, TEXT, org.toString()));
+        values.forEach( org-> addProperty(ORG, EMPTY_MAP, TEXT, org));
         return this;
     }
 
     private void addProperty(VCardName name, final Map parameters, final VCardType type, final String value) {
         properties.add(new VCardProperty(name, parameters, type, value));
+    }
+
+    private void addProperty(VCardName name, final Map parameters, final VCardType type, final CIString value) {
+        addProperty(name, parameters, type, value.toString());
     }
 
     public VCard build() {
