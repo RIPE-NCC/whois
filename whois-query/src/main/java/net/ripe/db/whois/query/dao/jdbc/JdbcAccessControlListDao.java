@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -53,7 +53,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
                     limit,
                     type.name()
             );
-        } catch (DuplicateKeyException e) {
+        } catch (DataIntegrityViolationException e) {
             LOGGER.debug("Attempt to create temporary block twice: prefix {}, date {}", prefix, date);
         }
     }
