@@ -2889,4 +2889,51 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         createdKeycert =~ "owner:          \\?name\\? <test@ripe.net>"
     }
 
+    def "create keycert object, substitute utf8 characters in owner"() {
+        expect:
+        queryObjectNotFound("-r -T key-cert PGPKEY-81530CE5", "key-cert", "PGPKEY-81530CE5")
+
+        when:
+        def createResponse = syncUpdate("""\
+                key-cert:     PGPKEY-81530CE5
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Comment: GPGTools - http://gpgtools.org
+                certif:       
+                certif:       mI0EXQjxkQEEANUPiAPTvzUhnsS24TqnF+KMSpQ9WewSMZJoS3wGoCfd43ojwDOu
+                certif:       GM+KHmyW/xozSYmohGv3ijxZHfiAMe60Fmbk6oXRM3vggoKIEUL47SqEEj0KoMHq
+                certif:       PMQdloExseR8bwe/4+jfQlBFTuZICPxq8BNM0j/1kYtq/ANYek0bvlq9ABEBAAG0
+                certif:       HFnDvCBIw7bDtiA8bm9yZXBseUByaXBlLm5ldD6IzgQTAQgAOBYhBMCWkEUoLqES
+                certif:       u8LvBqquTeOBUwzlBQJdCPGRAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJ
+                certif:       EKquTeOBUwzlS0YD/2ll/+z/sS09eKRhgJafxP3BtZB7p4Wfsvn6qbMtAwKDE19C
+                certif:       jI3Xol9aHBWwQVlFRv8he6q4KCQWLQNlCBVb5zr4sj3MNu0ZkAuOd5TaxAwg39NJ
+                certif:       oEqFjOY6BSvxvV1rK8CoyLyRzQO4QAqLtsyEdo1f6oadJwzTuIyxy5ybnJPkuI0E
+                certif:       XQjxkQEEAMyOnAgcAyqWRIHbqWLX7xT6JGZB/6KjY7ydjj5Utn8+qFWFa3ZS4rQN
+                certif:       P8NLge1MG7t4lNeKnahL5JbghNP7o2WGyiNevfmU2R6Jf/D0hqHT0iTo7cw+z6CG
+                certif:       rwSKXXYfzenR/jDplfIaH2Cc5fnk5XeFkl0GfB+G0J8a7tReRnN5ABEBAAGItgQY
+                certif:       AQgAIBYhBMCWkEUoLqESu8LvBqquTeOBUwzlBQJdCPGRAhsMAAoJEKquTeOBUwzl
+                certif:       RcID/25XMrXRHwuq3IZMOJVGj0RvT62jOMjk2zkkBJvhN+oppOQogJMt3Js4n3jC
+                certif:       4OHLlOutrvy0SqZ3FVFWoNx2xI1JTzeybTXuq/hElm5d+gMRe+sYpTmSRGC9pZzU
+                certif:       eS9BNaCg1ILDy0I3N3SSChOtXaYRlPbap2KibUfzoTo5k4YZ
+                certif:       =XLqs
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                remarks:      pgp key with utf8 owner
+                notify:       noreply@ripe.net
+                mnt-by:       LIR-MNT
+                source:       TEST
+
+                password: lir
+                """.stripIndent())
+
+        then:
+        def createAck = new AckResponse("", createResponse)
+
+        createAck.summary.nrFound == 1
+        createAck.summary.assertSuccess(1, 1, 0, 0, 0)
+        createAck.summary.assertErrors(0, 0, 0, 0)
+        createAck.countErrorWarnInfo(0, 0, 0)
+
+        then:
+        def createdKeycert = queryObject("-rGBT key-cert PGPKEY-81530CE5", "key-cert", "PGPKEY-81530CE5")
+        createdKeycert =~ "owner:          Yü Höö <noreply@ripe.net>"
+    }
 }
