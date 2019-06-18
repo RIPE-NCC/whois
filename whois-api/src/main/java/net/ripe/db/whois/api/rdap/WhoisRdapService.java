@@ -1,18 +1,18 @@
 package net.ripe.db.whois.api.rdap;
 
+import com.google.common.base.Enums;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
+import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
@@ -35,6 +35,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,13 +59,6 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
-import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
-import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
-import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
-import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
-import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
-import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
-import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 
 @Component
@@ -122,36 +116,28 @@ public class WhoisRdapService {
 
         LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
 
-        switch (objectType.toLowerCase()) {
-            case "autnum": {
+        RdapRequestType requestType = getRequestType(objectType);
+        Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);
+
+        switch (requestType) {
+            case AUTNUM: {
                 String autnumKey = String.format("AS%s", key);
                 rdapRequestValidator.validateAutnum(autnumKey);
                 return lookupForAutNum(request, autnumKey);
             }
-            case "domain": {
+            case DOMAIN: {
                 rdapRequestValidator.validateDomain(key);
-                final Set<ObjectType> whoisObjectTypes = Sets.newHashSet();
-                whoisObjectTypes.add(DOMAIN);
                 return lookupObject(request, whoisObjectTypes, key);
             }
-            case "ip": {
+            case IP: {
                 rdapRequestValidator.validateIp(request.getRequestURI(), key);
-                return lookupWithRedirectUrl(request, key.contains(":") ? INET6NUM : INETNUM, key);
+                return lookupWithRedirectUrl(request, whoisObjectTypes, key);
             }
-            case "entity": {
+            case ENTITY: {
                 rdapRequestValidator.validateEntity(key);
-
-                final Set<ObjectType> whoisObjectTypes = Sets.newHashSet();
-                if (key.toUpperCase().startsWith("ORG-")) {
-                    whoisObjectTypes.add(ORGANISATION);
-                } else {
-                    whoisObjectTypes.add(PERSON);
-                    whoisObjectTypes.add(ROLE);
-                    whoisObjectTypes.add(MNTNER);
-                }
                 return lookupObject(request, whoisObjectTypes, key);
             }
-            case "nameserver": {
+            case NAMESERVER: {
                 throw rdapExceptionMapper.notFound("nameserver not found");
             }
             default: {
@@ -218,10 +204,10 @@ public class WhoisRdapService {
                 .build();
     }
 
-    private Response lookupWithRedirectUrl(final HttpServletRequest request, final ObjectType objectType, final String key) {
-        final Query query = getQueryObject(ImmutableSet.of(objectType), key);
+    private Response lookupWithRedirectUrl(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
+        final Query query = getQueryObject(objectTypes, key);
 
-        if (!delegatedStatsService.isMaintainedInRirSpace(source.getName(), objectType, CIString.ciString(key))) {
+        if (!delegatedStatsService.isMaintainedInRirSpace(source.getName(), objectTypes.iterator().next(), CIString.ciString(key))) {
             return redirect(getRequestPath(request), query);
         }
 
@@ -406,5 +392,14 @@ public class WhoisRdapService {
             tok = new LowerCaseFilter(tok);
             return new TokenStreamComponents(tokenizer, tok);
         }
+    }
+
+    private RdapRequestType getRequestType(String objectType) {
+        RdapRequestType type =  Enums.getIfPresent(RdapRequestType.class, objectType.toUpperCase()).orNull();
+        if(type == null) {
+            throw rdapExceptionMapper.badRequest("unknown type");
+        }
+
+        return type;
     }
 }
