@@ -40,6 +40,7 @@ import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -89,8 +90,6 @@ class RdapObjectMapper {
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
-
-    private static final Joiner NEWLINE_JOINER = Joiner.on("\n");
 
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
 
@@ -450,59 +449,35 @@ class RdapObjectMapper {
 
         switch (rpslObject.getType()) {
             case PERSON:
-                builder.addFn(rpslObject.getValueForAttribute(PERSON).toString());
-                builder.addKind(INDIVIDUAL);
+                builder.addFn(rpslObject.getValueForAttribute(PERSON))
+                        .addKind(INDIVIDUAL);
                 break;
             case MNTNER:
-                builder.addFn(rpslObject.getValueForAttribute(AttributeType.MNTNER).toString());
-                builder.addKind(INDIVIDUAL);
+                builder.addFn(rpslObject.getValueForAttribute(AttributeType.MNTNER))
+                        .addKind(INDIVIDUAL);
                 break;
             case ORGANISATION:
-                builder.addFn(rpslObject.getValueForAttribute(ORG_NAME).toString());
-                builder.addKind(ORGANISATION);
+                builder.addFn(rpslObject.getValueForAttribute(ORG_NAME))
+                        .addKind(ORGANISATION);
                 break;
             case ROLE:
-                builder.addFn(rpslObject.getValueForAttribute(ROLE).toString());
-                builder.addKind(GROUP);
+                builder.addFn(rpslObject.getValueForAttribute(ROLE))
+                        .addKind(GROUP);
                 break;
             default:
                 break;
         }
 
-        final Set<CIString> addresses = rpslObject.getValuesForAttribute(ADDRESS);
-        if (!addresses.isEmpty()) {
-            final Map<String, String> addressMap = Maps.newHashMap();
-            addressMap.put("label", NEWLINE_JOINER.join(addresses));
-            builder.addAdr(addressMap, null);                               // TODO: [ES] vcard address value is null
-        }
-
-        for (final CIString phone : rpslObject.getValuesForAttribute(PHONE)) {
-            final Map<String, String> phoneMap = Maps.newHashMap();
-            phoneMap.put("type", "voice");
-            builder.addTel(phoneMap, phone.toString());
-        }
-
-        for (final CIString fax : rpslObject.getValuesForAttribute(FAX_NO)) {
-            final Map<String, String> faxMap = Maps.newHashMap();
-            faxMap.put("type", "fax");
-            builder.addTel(faxMap, fax.toString());
-        }
-
-        for (final CIString email : rpslObject.getValuesForAttribute(E_MAIL)) {
-            builder.addEmail(email.toString());
-        }
-
-        for (final CIString org : rpslObject.getValuesForAttribute(ORG)) {
-            builder.addOrg(org.toString());
-        }
-
-        for (final CIString geoloc : rpslObject.getValuesForAttribute(GEOLOC)) {
-            builder.addGeo(geoloc.toString());
-        }
+        builder.addAdr(rpslObject.getValuesForAttribute(ADDRESS))
+                .addTel(rpslObject.getValuesForAttribute(PHONE))
+                .addFax(rpslObject.getValuesForAttribute(FAX_NO))
+                .addEmail(rpslObject.getValuesForAttribute(E_MAIL))
+                .addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
+                .addOrg(rpslObject.getValuesForAttribute(ORG))
+                .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
 
         return builder.build();
     }
-
 
     private static AsBlockRange getAsBlockRange(String asBlock) {
         try {
