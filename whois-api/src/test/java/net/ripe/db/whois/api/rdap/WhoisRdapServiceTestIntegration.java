@@ -1187,20 +1187,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_entity_multiple_result_throw_error() {
-
+    public void lookup_for_primary_key_for_entity() {
         databaseHelper.addObject("" +
-                "person:        MNTNER_PERSON\n" +
-                "address:       Singel 258\n" +
-                "phone:         +31-1234567890\n" +
-                "e-mail:        noreply@ripe.net\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "nic-hdl:       TP2-MULTI\n" +
-                "remarks:       remark\n" +
-                "source:        TEST");
-
-        databaseHelper.addObject("" +
-                "mntner:        TP2-MULTI\n" +
+                "mntner:        AZRT\n" +
                 "descr:         Owner Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
@@ -1209,16 +1198,31 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "referral-by:   OWNER-MNT\n" +
                 "source:        TEST");
 
-        try {
-          createResource("entity/TP2-MULTI")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Entity.class);
+        databaseHelper.addObject("" +
+                "role:          AZRT ABUSE\n" +
+                "address:       Singel\n" +
+                "e-mail:        dbtest@ripe.net\n" +
+                "admin-c:       PP1-TEST\n" +
+                "tech-c:        PP1-TEST\n" +
+                "nic-hdl:       FR2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
 
-          fail();                                                                       // TODO: multiple matches will be fixed separately
-        } catch (InternalServerErrorException e) {
-            final Entity entity = e.getResponse().readEntity(Entity.class);
-            assertThat(entity.getErrorTitle(), is("Unexpected result size: 2"));
-        }
+        databaseHelper.addObject("" +
+                "role:          AZRT OPS\n" +
+                "address:       Singel\n" +
+                "e-mail:        dbtest@ripe.net\n" +
+                "admin-c:       PP1-TEST\n" +
+                "tech-c:        PP1-TEST\n" +
+                "nic-hdl:       FR3-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        Entity entity = createResource("entity/AZRT")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+
+        assertThat(entity.getHandle(), equalTo("AZRT"));
     }
 
     @Test

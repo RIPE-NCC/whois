@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.domain.ReservedAutnum;
 import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,10 @@ public class RdapRequestValidator {
     }
 
     public void validateDomain(final String key) {
+        if (isEmpty(key)) {
+            throw rdapExceptionMapper.badRequest("empty lookup term");
+        }
+
         try {
             Domain.parse(key);
         } catch (AttributeParseException e) {
