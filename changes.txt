@@ -1,5 +1,21 @@
 # next
 
+# 1.94.1
+
+[update] Character Substitutions (#536)
+[update] Do not write UTF8 into Index Tables (#547)
+[rdap] Support multiple country codes in RDAP response, always return first. (#538)
+[rdap] Don't return start/end address in RDAP response in cidr notation. (#539)
+[rdap] Return as-block in case autnum is not found (#542)
+[rdap] RDAP mntner entity query (#543)
+[rdap] Support multiple languages (#544)
+[rdap] RDAP help response (#549)
+[rdap] jCard adr text correction (#550)
+[rdap] Include abuse mailbox (#551)
+[query] Reaching ACL limit in Fulltext search will return 429 Too Many Requests.
+[api] Return "500 internal server error" from the REST API on unexpected error.
+[rpsl] Leave the specification of an actual logging-impl to the user. (#545)
+
 # 1.94
 [api] Full text search acl (#529)
 [all] Suspect abuse-c validation (#530)
