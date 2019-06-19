@@ -111,33 +111,31 @@ public class WhoisRdapService {
     @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
     @Path("/{objectType}/{key:.*}")
     public Response lookup(@Context final HttpServletRequest request,
-                           @PathParam("objectType") final String objectType,
+                           @PathParam("objectType") RdapRequestType requestType,
                            @PathParam("key") final String key) {
 
         LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
-
-        RdapRequestType requestType = getRequestType(objectType);
         Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);
 
         switch (requestType) {
-            case AUTNUM: {
+            case autnum: {
                 String autnumKey = String.format("AS%s", key);
                 rdapRequestValidator.validateAutnum(autnumKey);
                 return lookupForAutNum(request, autnumKey);
             }
-            case DOMAIN: {
+            case domain: {
                 rdapRequestValidator.validateDomain(key);
                 return lookupObject(request, whoisObjectTypes, key);
             }
-            case IP: {
+            case ip: {
                 rdapRequestValidator.validateIp(request.getRequestURI(), key);
                 return lookupWithRedirectUrl(request, whoisObjectTypes, key);
             }
-            case ENTITY: {
+            case entity: {
                 rdapRequestValidator.validateEntity(key);
                 return lookupObject(request, whoisObjectTypes, key);
             }
-            case NAMESERVER: {
+            case nameserver: {
                 throw rdapExceptionMapper.notFound("nameserver not found");
             }
             default: {
@@ -392,14 +390,5 @@ public class WhoisRdapService {
             tok = new LowerCaseFilter(tok);
             return new TokenStreamComponents(tokenizer, tok);
         }
-    }
-
-    private RdapRequestType getRequestType(String objectType) {
-        RdapRequestType type =  Enums.getIfPresent(RdapRequestType.class, objectType.toUpperCase()).orNull();
-        if(type == null) {
-            throw rdapExceptionMapper.badRequest("unknown type");
-        }
-
-        return type;
     }
 }
