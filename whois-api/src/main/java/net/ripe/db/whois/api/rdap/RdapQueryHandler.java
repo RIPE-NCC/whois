@@ -62,7 +62,7 @@ public class RdapQueryHandler {
                     }
                 }
 
-                private void addIfPrimaryObject(RpslObject responseObject) {
+                private void addIfPrimaryObject(final RpslObject responseObject) {
                     final String primaryKey = responseObject.getKey().toString();
                     if(primaryKey.equals(query.getSearchValue())) {
                         result.add(responseObject);
@@ -113,7 +113,7 @@ public class RdapQueryHandler {
         }
     }
 
-    private List<RpslObject> handleQueryException(QueryException e) {
+    private List<RpslObject> handleQueryException(final QueryException e) {
         if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
             throw tooManyRequests();
         } else {
