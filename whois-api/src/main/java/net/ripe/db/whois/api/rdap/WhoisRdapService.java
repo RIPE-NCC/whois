@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rdap;
 
-import com.google.common.base.Enums;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
@@ -35,7 +34,6 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,18 +201,14 @@ public class WhoisRdapService {
     }
 
     private Response lookupWithRedirectUrl(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
-        final Query query = getQueryObject(objectTypes, key);
-
-        if (!delegatedStatsService.isMaintainedInRirSpace(source.getName(), objectTypes.iterator().next(), CIString.ciString(key))) {
-            return redirect(getRequestPath(request), query);
+        if (isRedirect(objectTypes.iterator().next(), key)) {
+            return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
         }
-
-        List<RpslObject> result =  rdapQueryHandler.handleQuery(query, request);
-        return getResponse(request, result);
+        return lookupObject(request, objectTypes, key);
     }
 
     private Response lookupForAutNum(final HttpServletRequest request, final String key) {
-        if (!delegatedStatsService.isMaintainedInRirSpace(source.getName(), AUT_NUM, CIString.ciString(key)) && !rdapRequestValidator.isReservedAsNumber(key)) {
+        if (isRedirect(AUT_NUM, key) && !rdapRequestValidator.isReservedAsNumber(key)) {
             return redirect(getRequestPath(request), getQueryObject(ImmutableSet.of(AUT_NUM), key));
         }
 
@@ -225,18 +219,11 @@ public class WhoisRdapService {
         return getResponse(request, result);
     }
 
-    private Response createErrorResponse(final Response.Status status, final String errorTitle) {
-        return Response.status(status)
-                .entity(rdapObjectMapper.mapError(status.getStatusCode(), errorTitle, emptyList()))
-                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
-                .build();
+    private Boolean isRedirect(ObjectType objectType, final String key) {
+        return !delegatedStatsService.isMaintainedInRirSpace(source.getName(), objectType, CIString.ciString(key));
     }
 
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
-        if (StringUtils.isEmpty(key)) {
-            throw rdapExceptionMapper.badRequest("empty lookup term");
-        }
-
         List<RpslObject> result =  rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key), request);
         return getResponse(request, result);
     }
