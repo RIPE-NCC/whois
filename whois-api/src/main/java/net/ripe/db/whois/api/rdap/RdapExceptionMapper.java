@@ -47,7 +47,7 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
         }
 
-        if (exception instanceof ParamException) {
+        if (exception instanceof ParamException && ((ParamException) exception).getParameterName().equals("objectType")) {
             return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, "unknown type")).build();
         }
 
