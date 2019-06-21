@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
@@ -201,7 +202,7 @@ public class WhoisRdapService {
     }
 
     private Response lookupWithRedirectUrl(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
-        if (isRedirect(objectTypes.iterator().next(), key)) {
+        if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
             return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
         }
         return lookupObject(request, objectTypes, key);
