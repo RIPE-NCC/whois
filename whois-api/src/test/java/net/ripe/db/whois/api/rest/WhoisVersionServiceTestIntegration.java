@@ -248,7 +248,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void version_returns_xml() throws IOException {
+    public void version_returns_xml() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -268,15 +268,23 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getType(), is("aut-num"));
         assertThat(object.getVersion(), is(1));
+
         final List<Attribute> attributes = object.getAttributes();
-        final List<RpslAttribute> originalAttributes = autnum.getAttributes();
+        final List<RpslAttribute> originalAttributes =  RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n")
+                .getAttributes();
+
         for (int i = 0; i < originalAttributes.size(); i++) {
             assertThat(originalAttributes.get(i).getCleanValue().toString(), is(attributes.get(i).getValue()));
         }
     }
 
     @Test
-    public void version_returns_json() throws IOException {
+    public void version_returns_json() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -298,7 +306,15 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(object.getVersion(), is(1));
 
         final List<Attribute> attributes = object.getAttributes();
-        final List<RpslAttribute> originalAttributes = autnum.getAttributes();
+
+        final List<RpslAttribute> originalAttributes = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n")
+                .getAttributes();
+
         for (int i = 0; i < originalAttributes.size(); i++) {
             assertThat(originalAttributes.get(i).getCleanValue().toString(), is(attributes.get(i).getValue()));
         }
