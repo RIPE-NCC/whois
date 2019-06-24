@@ -11,15 +11,18 @@ import javax.inject.Named;
 
 @ThreadSafe
 @Named
-public class FilterNicHandleFunction implements Function<RpslObject, RpslObject>  {
+public class FilterPersonalDataFunction implements Function<RpslObject, RpslObject>  {
 
     @Override
     public RpslObject apply(@Nullable RpslObject rpslObject) {
         return new RpslObjectBuilder(rpslObject)
+                .removeAttributeType(AttributeType.ADDRESS)
                 .removeAttributeType(AttributeType.ADMIN_C)
-                .removeAttributeType(AttributeType.TECH_C)
                 .removeAttributeType(AttributeType.AUTHOR)
+                .removeAttributeType(AttributeType.E_MAIL)
+                .removeAttributeType(AttributeType.NOTIFY)
                 .removeAttributeType(AttributeType.PING_HDL)
+                .removeAttributeType(AttributeType.TECH_C)
                 .removeAttributeType(AttributeType.ZONE_C)
                 .get();
     }
