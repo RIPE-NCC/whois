@@ -1011,15 +1011,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
-        assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("ORG-TO2-TEST"));
-        assertThat(autnum.getEntitySearchResults().get(0).getRoles(), contains(Role.REGISTRANT));
-        assertThat(autnum.getEntitySearchResults().get(1).getHandle(), is("OWNER-MNT"));
-        assertThat(autnum.getEntitySearchResults().get(2).getHandle(), is("TP1-TEST"));
-        assertThat(autnum.getEntitySearchResults().get(3).getHandle(), is("AB-TEST"));
-        assertThat(autnum.getEntitySearchResults().get(3).getRoles(), contains(Role.ABUSE));
-        assertThat(autnum.getEntitySearchResults().get(3).getVCardArray(), hasSize(2));
-        assertThat(autnum.getEntitySearchResults().get(3).getVCardArray().get(0).toString(), is("vcard"));
-        assertThat(autnum.getEntitySearchResults().get(3).getVCardArray().get(1).toString(), is("" +
+        final List<Entity> entities = autnum.getEntitySearchResults();
+        assertThat(entities, hasSize(4));
+
+        assertThat(entities.get(0).getHandle(), is("ORG-TO2-TEST"));
+        assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(1).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(2).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(2).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
+        assertThat(entities.get(3).getHandle(), is("AB-TEST"));
+        assertThat(entities.get(3).getRoles(), contains(Role.ABUSE));
+        assertThat(entities.get(3).getVCardArray(), hasSize(2));
+        assertThat(entities.get(3).getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(entities.get(3).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
@@ -1058,15 +1063,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
-        assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("ORG-TEST1-TEST"));
-        assertThat(autnum.getEntitySearchResults().get(0).getRoles(), contains(Role.REGISTRANT));
-        assertThat(autnum.getEntitySearchResults().get(1).getHandle(), is("OWNER-MNT"));
-        assertThat(autnum.getEntitySearchResults().get(2).getHandle(), is("TP1-TEST"));
-        assertThat(autnum.getEntitySearchResults().get(3).getHandle(), is("AB-TEST"));
-        assertThat(autnum.getEntitySearchResults().get(3).getRoles(), contains(Role.ABUSE));
-        assertThat(autnum.getEntitySearchResults().get(3).getVCardArray(), hasSize(2));
-        assertThat(autnum.getEntitySearchResults().get(3).getVCardArray().get(0).toString(), is("vcard"));
-        assertThat(autnum.getEntitySearchResults().get(3).getVCardArray().get(1).toString(), is("" +
+        final List<Entity> entities = autnum.getEntitySearchResults();
+        assertThat(entities, hasSize(4));
+
+        assertThat(entities.get(0).getHandle(), is("ORG-TEST1-TEST"));
+        assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(2).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(3).getHandle(), is("AB-TEST"));
+        assertThat(entities.get(3).getRoles(), contains(Role.ABUSE));
+        assertThat(entities.get(3).getVCardArray(), hasSize(2));
+        assertThat(entities.get(3).getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(entities.get(3).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
