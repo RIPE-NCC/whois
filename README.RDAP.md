@@ -35,17 +35,14 @@ Example:
 * Request:
  * Response:
 
-Multiple organisation e-mail attributes are returned, but not with preferences
+Multiple organisation e-mail and phone attributes are returned, but not with preferences
 ------------------------------------------------------------------------------
-Currently, e-mail attribute values are returned as follows:
-
-    [ "email", { }, "text", "org@test.com" ], [ "email", { }, "text", "org2@test.com" ]
-
-Preferences are not assigned to multiple email elements.
+Preferences are not assigned to multiple e-mail or phone elements.
 
 Example:
-* Request:
+* Request: https://rdap.db.ripe.net/entity/ORG-EA40-RIPE
  * Response:
+ [ "email", { }, "text", "noc@sovintel.ru" ], [ "email", { }, "text", "registry@eltel.net" ]
 
 Multiple address attributes are concatenated into one value
 -----------------------------------------------------------
@@ -85,6 +82,11 @@ For zone-c attributes in domain objects, a custom "ZONE" role is used, which is 
 
 Ref. https://wiki.tools.ietf.org/html/rfc7483 section 10.2.4.
 
+Organisation role "registrant" is ambiguous
+-------------------------------------------
+The role "registrant" is used to identify organisation entities, however this is ambiguous as it's also used for mntner entities.
+
+
 Entity Primary Key can match multiple objects
 ---------------------------------------------
 If an entity primary key matches more than one object, a 500 Internal Server Error is returned.
@@ -103,9 +105,15 @@ By contrast, ARIN returns the org reference as a "registrant" entity.
 
 Related Contact information is Filtered
 ---------------------------------------
-Any related contact entities ("technical","administrative","abuse" etc) have filtered contact information, i.e. "e-mail" and "notify" values are not included. This was done to avoid blocking clients for inadvertently querying excessively for personal data.
+Any related contact entities ("technical","administrative","abuse" etc.) have filtered contact information, i.e. "e-mail" and "notify" values are not included. This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
 A workaround is to query for each entity separately using the contact's nic-hdl, and the unfiltered information is returned (although a limit for personal data does apply).
+
+
+Related Contact Information is not Returned for Resources
+---------------------------------------------------------
+Related contact entities ("technical","administrative","abuse" etc.) are not returned for resources (ip, autnum), but should be.
+
 
 
 CIDR ranges for IP networks include prefix length
@@ -174,6 +182,4 @@ Example:
 Nameserver queries always return Not Found
 -------------------------------------------
 The RIPE database doesn't contain any forward domain objects, consequently a nameserver query will always return Not Found.
-
-
 
