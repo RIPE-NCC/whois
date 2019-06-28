@@ -39,10 +39,6 @@ Multiple organisation e-mail and phone attributes are returned, but not with pre
 ------------------------------------------------------------------------------
 Preferences are not assigned to multiple e-mail or phone elements.
 
-Example:
-* Request: https://rdap.db.ripe.net/entity/ORG-EA40-RIPE
- * Response:
- [ "email", { }, "text", "noc@sovintel.ru" ], [ "email", { }, "text", "registry@eltel.net" ]
 
 Multiple address attributes are concatenated into one value
 -----------------------------------------------------------
