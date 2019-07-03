@@ -13,6 +13,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -64,6 +65,7 @@ public class BatchUpdatesService {
                        @PathParam("source") final String sourceParam,
                        @QueryParam("override") final String override,
                        @QueryParam("dry-run") final String dryRun,
+                       @QueryParam("delete-reason") final String reason,
                        @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
         try {
@@ -81,7 +83,8 @@ public class BatchUpdatesService {
 
             final List<Update> updates = Lists.newArrayList();
             for (final ActionRequest actionRequest : actionRequests) {
-                final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? DELETE_REASON : null;
+                final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ?
+                        StringUtils.isBlank(reason)? DELETE_REASON : reason : null;
 
                 ssoTranslator.populateCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
                 final RpslObject rpslObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
