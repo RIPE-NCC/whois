@@ -223,7 +223,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getType(), is("OTHER"));
         assertThat(ip.getObjectClassName(), is("ip network"));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
 
         assertCommon(ip);
 
@@ -274,7 +274,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getEndAddress(), is("192.255.255.255"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getLang(), is(nullValue()));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
     }
 
     @Test
@@ -302,7 +302,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getEndAddress(), is("192.255.255.255"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getLang(), is(nullValue()));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
 
         final List<Notice> notices = ip.getNotices();
         assertThat(notices, hasSize(4));
@@ -340,7 +340,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getStartAddress(), is("192.0.0.0"));
         assertThat(ip.getEndAddress(), is("192.255.255.255"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
 
         final List<Notice> notices = ip.getNotices();
         assertThat(notices, hasSize(4));
@@ -427,7 +427,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getEndAddress(), is("192.132.77.255"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getLang(), is(nullValue()));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
     }
 
     @Test
@@ -495,7 +495,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getName(), is("RIPE-NCC"));
         assertThat(ip.getType(), is("ASSIGNED PA"));
         assertThat(ip.getObjectClassName(), is("ip network"));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("::/0"));
 
         assertCommon(ip);
 
@@ -542,7 +542,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getStartAddress(), is("2001:2002:2003::"));
         assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff"));
         assertThat(ip.getName(), is("RIPE-NCC"));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("::/0"));
     }
 
     @Test
@@ -569,7 +569,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getStartAddress(), is("2001:2002:2003::"));
         assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff"));
         assertThat(ip.getName(), is("RIPE-NCC"));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("::/0"));
     }
 
     @Test

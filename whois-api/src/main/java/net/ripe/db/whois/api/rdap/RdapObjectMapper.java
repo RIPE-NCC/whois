@@ -251,12 +251,11 @@ class RdapObjectMapper {
             throw new IllegalStateException("Couldn't get parent for " + ipInterval.toString());
         }
 
-        final CIString netname = parentRpslObject.getValueOrNullForAttribute(AttributeType.NETNAME);
-        if (netname == null) {
+        if (parentRpslObject == null) {
             throw new IllegalStateException("No parentHandle for " + ipInterval.toString());
         }
 
-        return netname.toString();
+        return parentRpslObject.getKey().toString();
     }
 
     private IpEntry lookupParentIpEntry(final IpInterval ipInterval) {

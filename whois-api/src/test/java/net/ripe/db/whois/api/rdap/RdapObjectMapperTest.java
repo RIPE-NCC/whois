@@ -103,7 +103,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getType(), is("OTHER"));
         assertThat(result.getCountry(), is("NL"));
         assertThat(result.getLang(), is("EN"));
-        assertThat(result.getParentHandle(), is("ROOT-NET"));
+        assertThat(result.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
         assertThat(result.getPort43(), is("whois.ripe.net"));
 
         final List<Entity> entities = result.getEntitySearchResults();
