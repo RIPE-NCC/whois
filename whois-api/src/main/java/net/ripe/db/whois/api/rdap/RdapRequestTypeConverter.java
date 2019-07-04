@@ -21,13 +21,13 @@ public class RdapRequestTypeConverter implements ParamConverterProvider {
 
         return (ParamConverter<T>) new ParamConverter<RdapRequestType>() {
                 @Override
-                public RdapRequestType fromString(String type){
-                    return RdapRequestType.valueOf(type.toUpperCase());
+                public RdapRequestType fromString(String rdapType){
+                    return RdapRequestType.valueOf(rdapType.toUpperCase());
                 }
 
                 @Override
-                public String toString(RdapRequestType type){
-                    return type.toString();
+                public String toString(RdapRequestType rdapType){
+                    return rdapType.toString();
                 }
             };
     }
