@@ -98,6 +98,7 @@ class RdapObjectMapper {
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(TECH_C, Role.TECHNICAL);
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(MNT_BY, Role.REGISTRANT);
         CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ZONE_C, Role.ZONE);
+        CONTACT_ATTRIBUTE_TO_ROLE_NAME.put(ORG, Role.REGISTRANT); // TODO: [MA] both mnt_by and org have same role
     }
 
     private final NoticeFactory noticeFactory;
@@ -226,6 +227,8 @@ class RdapObjectMapper {
 
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
+
+        ip.getEntitySearchResults().addAll(createContactEntities(rpslObject));
 
         return ip;
     }
