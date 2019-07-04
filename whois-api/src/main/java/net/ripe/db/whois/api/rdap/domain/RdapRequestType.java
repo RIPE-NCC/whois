@@ -15,31 +15,31 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 
 public enum RdapRequestType {
 
-    autnum {
+    AUTNUM {
         public Set<ObjectType> getWhoisObjectTypes(String key) {
             return ImmutableSet.of(AUT_NUM, AS_BLOCK);
         }
     },
 
-    domain {
+    DOMAIN {
         public Set<ObjectType> getWhoisObjectTypes(String key) {
             return ImmutableSet.of(ObjectType.DOMAIN);
         }
     },
 
-    ip {
+    IP {
         public Set<ObjectType> getWhoisObjectTypes(String key) {
             return key.contains(":") ? ImmutableSet.of(INET6NUM) : ImmutableSet.of(INETNUM);
         }
     },
 
-    entity {
+    ENTITY {
         public Set<ObjectType> getWhoisObjectTypes(String key) {
             return key.startsWith("ORG-") ? ImmutableSet.of(ORGANISATION) : ImmutableSet.of(PERSON, ROLE, MNTNER);
         }
     },
 
-    nameserver {
+    NAMESERVER {
         public Set<ObjectType> getWhoisObjectTypes(String key) {
             throw new IllegalStateException("Nameserver is not supported");
         }

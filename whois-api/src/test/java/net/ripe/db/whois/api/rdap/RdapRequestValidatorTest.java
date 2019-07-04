@@ -16,9 +16,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 @RunWith(MockitoJUnitRunner.class)
 public class RdapRequestValidatorTest {
 
-    @Mock
-    private RdapExceptionMapper rdapExceptionMapper;
-
     @InjectMocks
     private RdapRequestValidator validator;
 
@@ -27,9 +24,6 @@ public class RdapRequestValidatorTest {
 
     @Test
     public void shouldThrowExceptionForInvalidOrganisation() {
-        when(rdapExceptionMapper.badRequest("Invalid syntax."))
-                .thenReturn(new BadRequestException("Invalid syntax."));
-
         expectedEx.expect(BadRequestException.class);
         expectedEx.expectMessage("Invalid syntax");
 
@@ -43,29 +37,21 @@ public class RdapRequestValidatorTest {
 
     @Test(expected = BadRequestException.class)
     public void shouldThrowExceptionForInvalidAutnum() {
-        when(rdapExceptionMapper.badRequest("Invalid syntax."))
-                .thenReturn(new BadRequestException("Invalid syntax."));
-
         validator.validateAutnum("TEST");
     }
 
     @Test(expected = BadRequestException.class)
     public void shouldThrowExceptionForInvalidIP() {
-        when(rdapExceptionMapper.badRequest("Invalid syntax."))
-                .thenReturn(new BadRequestException("Invalid syntax."));
-
         validator.validateIp("", "invalid");
     }
 
     @Test
     public void shouldNotThrowExceptionForValidIP() {
         validator.validateIp("", "192.0.0.0");
-        verifyZeroInteractions(rdapExceptionMapper);
     }
 
     @Test
     public void shouldNotThrowAExceptionForValidAutnum() {
         validator.validateAutnum("AS102");
-        verifyZeroInteractions(rdapExceptionMapper);
     }
 }
