@@ -19,13 +19,13 @@ import org.bouncycastle.openpgp.PGPSignatureSubpacketVector;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.Provider;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -176,7 +176,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         final long validSeconds = masterKey.getValidSeconds();
         if (validSeconds > 0) {
             final int days = Long.valueOf(Long.divideUnsigned(validSeconds, SECONDS_IN_ONE_DAY)).intValue();
-            final LocalDateTime expired = (new LocalDateTime(masterKey.getCreationTime())).plusDays(days);
+            final LocalDateTime expired = (DateTimeProvider.fromDate(masterKey.getCreationTime())).plusDays(days);
             return expired.isBefore(dateTimeProvider.getCurrentDateTime());
         }
 

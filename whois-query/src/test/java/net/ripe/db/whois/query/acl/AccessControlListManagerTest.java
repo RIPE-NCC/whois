@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDate;
 
 import static net.ripe.db.whois.query.acl.AccessControlListManager.mask;
 import static org.hamcrest.Matchers.is;
@@ -62,7 +62,7 @@ public class AccessControlListManagerTest {
     private static final int PERSONAL_DATA_NO_LIMIT = -1;
     private static final int PERSONAL_DATA_LIMIT_UNKNOWN = 0;
 
-    private final LocalDate now = new LocalDate();
+    private final LocalDate now = LocalDate.now();
 
     @Before
     public void setup() throws UnknownHostException {

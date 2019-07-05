@@ -23,7 +23,7 @@ import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
 import org.junit.Test;
 

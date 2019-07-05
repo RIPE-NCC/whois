@@ -11,8 +11,6 @@ import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +19,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,20 +27,22 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 public class AuthoritativeResourceData {
-    private final static Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceData.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceData.class);
+
     private static final Splitter PROPERTY_LIST_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
-    private final static int REFRESH_DELAY_EVERY_HOUR = 60 * 60 * 1000;
-    private final static int REFRESH_DELAY_EVERY_MINUTE = 60 * 1000;
+
+    private static final int REFRESH_DELAY_EVERY_HOUR = 60 * 60 * 1000;
+    private static final int REFRESH_DELAY_EVERY_MINUTE = 60 * 1000;
 
     private final ResourceDataDao resourceDataDao;
     private final DailySchedulerDao dailySchedulerDao;
     private final DateTimeProvider dateTimeProvider;
-    private long lastRefresh = Integer.MIN_VALUE;
-    private ResourceDataDao.State state = null;
-
     private final Set<String> sourceNames;
     private final String source;
     private final Map<String, AuthoritativeResource> authoritativeResourceCache = Maps.newHashMap();
+
+    private ResourceDataDao.State state = null;
+    private long lastRefresh = Integer.MIN_VALUE;
 
     @Autowired
     public AuthoritativeResourceData(@Value("${grs.sources}") final String grsSourceNames,
@@ -77,7 +78,7 @@ public class AuthoritativeResourceData {
         }
 
         if (lastImportTime > lastRefresh) {
-            LOGGER.info("Authoritative resource data import detected, finished at {} (previous run: {})", new LocalDateTime(lastImportTime), new LocalDateTime(lastRefresh));
+            LOGGER.info("Authoritative resource data import detected, finished at {} (previous run: {})", DateTimeProvider.fromEpochMilli(lastImportTime), DateTimeProvider.fromEpochMilli(lastRefresh));
             lastRefresh = lastImportTime;
             for (final String sourceName : sourceNames) {
                 try {

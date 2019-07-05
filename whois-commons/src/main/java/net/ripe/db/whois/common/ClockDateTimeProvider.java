@@ -1,12 +1,13 @@
 package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.profiles.DeployedProfile;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 @DeployedProfile
 @Primary
@@ -14,17 +15,17 @@ import org.springframework.stereotype.Component;
 public class ClockDateTimeProvider implements DateTimeProvider {
     @Override
     public LocalDate getCurrentDate() {
-        return new LocalDate();
+        return LocalDate.now();
     }
 
     @Override
     public LocalDateTime getCurrentDateTime() {
-        return new LocalDateTime();
+        return LocalDateTime.now();
     }
 
     @Override
-    public DateTime getCurrentDateTimeUtc() {
-        return DateTime.now(DateTimeZone.UTC);
+    public ZonedDateTime getCurrentDateTimeUtc() {
+        return ZonedDateTime.now(ZoneOffset.UTC);
     }
 
     @Override

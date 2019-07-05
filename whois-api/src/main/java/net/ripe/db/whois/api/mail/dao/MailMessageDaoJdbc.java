@@ -40,7 +40,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
                 "where status is null " +
                 "limit 1 ",
                 DequeueStatus.CLAIMED.name(),
-                dateTimeProvider.getCurrentDateTime().toDate().getTime() / 1000,
+                DateTimeProvider.toDate(dateTimeProvider.getCurrentDateTime()).getTime() / 1000,
                 Hosts.getLocalHostName(),
                 uuid);
 

@@ -19,8 +19,6 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -137,7 +135,7 @@ public class InternalUpdatePerformerTest {
     @Test
     public void create_origin() {
         when(requestMock.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(new LocalDateTime(5556667777888l, DateTimeZone.UTC));
+        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(DateTimeProvider.fromEpochMilli(5556667777888L));
 
         final Origin origin = subject.createOrigin(requestMock);
 

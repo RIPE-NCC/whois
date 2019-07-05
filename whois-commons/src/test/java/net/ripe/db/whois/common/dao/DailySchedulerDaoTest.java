@@ -1,19 +1,22 @@
 package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.support.AbstractDaoTest;
-import org.joda.time.LocalDate;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
+
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class DailySchedulerDaoTest extends AbstractDaoTest {
     @Autowired DailySchedulerDao subject;
 
     @Test
     public void test_acquire_does_not_allocate_twice() {
-        LocalDate date = new LocalDate();
+        LocalDate date = LocalDate.now();
         assertTrue(subject.acquireDailyTask(date, getClass(), "localhost"));
         assertFalse(subject.acquireDailyTask(date, getClass(), "localhost"));
         assertTrue(subject.acquireDailyTask(date.plusDays(1), getClass(), "localhost"));
@@ -22,7 +25,7 @@ public class DailySchedulerDaoTest extends AbstractDaoTest {
 
     @Test
     public void test_marks_as_done() {
-        LocalDate date = new LocalDate();
+        LocalDate date = LocalDate.now();
         assertTrue(subject.acquireDailyTask(date, getClass(), "localhost"));
 
         final long when = System.currentTimeMillis();
@@ -36,7 +39,7 @@ public class DailySchedulerDaoTest extends AbstractDaoTest {
 
     @Test
     public void remove_tasks() {
-        LocalDate date = new LocalDate();
+        LocalDate date = LocalDate.now();
         assertTrue(subject.acquireDailyTask(date, getClass(), "localhost"));
         subject.removeFinishedScheduledTasks();
         assertTrue(subject.acquireDailyTask(date, getClass(), "localhost"));
