@@ -108,8 +108,9 @@ public class FullTextIndex extends RebuildableIndex {
     @Autowired FullTextIndex(
             @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
             @Value("${whois.source}") final String source,
-            @Value("${dir.fulltext.index:}") final String indexDir) {
-        super(LOGGER, indexDir);
+            @Value("${dir.fulltext.index:}") final String indexDir,
+            @Value("${fulltext.search.max.concurrent:10}") final int maxConcurrentSearches) {
+        super(LOGGER, indexDir, maxConcurrentSearches);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
         this.facetsConfig = new FacetsConfig();
@@ -283,6 +284,7 @@ public class FullTextIndex extends RebuildableIndex {
     }
 
     private static String sanitise(final String value) {
+        // TODO: [ES] also strips newlines, attribute cannot be re-constructed later
         return CharMatcher.javaIsoControl().removeFrom(value);
     }
 

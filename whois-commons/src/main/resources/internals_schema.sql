@@ -78,6 +78,7 @@ CREATE TABLE `abuse_email` (
   `comment` varchar(256),
   `created_at` datetime NOT NULL,
   `status` varchar(7) NOT NULL,
+  `link_sent_at` datetime,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

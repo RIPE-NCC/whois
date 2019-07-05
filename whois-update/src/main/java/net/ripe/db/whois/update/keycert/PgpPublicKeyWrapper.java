@@ -1,11 +1,10 @@
 package net.ripe.db.whois.update.keycert;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.Latin1Conversion;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.bcpg.ArmoredInputStream;
@@ -40,6 +39,8 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
     private static final String PGP_FOOTER = "-----END PGP PUBLIC KEY BLOCK-----";
     private static final String METHOD = "PGP";
 
+    private static final Long SECONDS_IN_ONE_DAY = 60L * 60L * 24L;
+
     private static final Provider PROVIDER = new BouncyCastleProvider();
 
     private final PGPPublicKey masterKey;
@@ -71,20 +72,12 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
                     final PGPPublicKey key = keyIterator.next();
                     if (key.isMasterKey()) {
                         if (masterKey == null) {
-                            if (key.hasRevocation()) {
-                                throw new IllegalArgumentException("The supplied key is revoked");
-                            }
-
                             masterKey = key;
                         } else {
                             throw new IllegalArgumentException("The supplied object has multiple keys");
                         }
                     } else {
                         if (masterKey == null) {
-                            continue;
-                        }
-
-                        if (key.hasRevocation()) {
                             continue;
                         }
 
@@ -159,13 +152,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
 
     @Override
     public List<String> getOwners() {
-        return Lists.newArrayList(Iterators.<String, String>transform(masterKey.getUserIDs(),
-                new Function<String, String>() {
-                    @Override
-                    public String apply(final String input) {
-                        return CharacterSetConversion.convertToLatin1(input);
-                    }
-                }));
+        return Lists.newArrayList(Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString));
     }
 
     @Override
@@ -186,13 +173,18 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
     }
 
     public boolean isExpired(final DateTimeProvider dateTimeProvider) {
-        final int validDays = masterKey.getValidDays();
-        if (validDays > 0) {
-            final LocalDateTime expired = (new LocalDateTime(masterKey.getCreationTime())).plusDays(validDays);
+        final long validSeconds = masterKey.getValidSeconds();
+        if (validSeconds > 0) {
+            final int days = Long.valueOf(Long.divideUnsigned(validSeconds, SECONDS_IN_ONE_DAY)).intValue();
+            final LocalDateTime expired = (new LocalDateTime(masterKey.getCreationTime())).plusDays(days);
             return expired.isBefore(dateTimeProvider.getCurrentDateTime());
         }
 
         return false;
+    }
+
+    public boolean isRevoked() {
+        return masterKey.hasRevocation();
     }
 
     @Override

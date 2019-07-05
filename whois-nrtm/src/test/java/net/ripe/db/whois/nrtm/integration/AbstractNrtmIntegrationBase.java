@@ -25,7 +25,7 @@ public abstract class AbstractNrtmIntegrationBase extends AbstractDatabaseHelper
     @Autowired protected SourceContext sourceContext;
 
     @Before
-    public void beforeAbstractNrtmIntegrationBase() throws Exception {
+    public void beforeAbstractNrtmIntegrationBase() {
         databaseHelper.insertAclMirror("127.0.0.1/32");
         databaseHelper.insertAclMirror("0:0:0:0:0:0:0:1");
         accessControlList.reload();
@@ -34,7 +34,7 @@ public abstract class AbstractNrtmIntegrationBase extends AbstractDatabaseHelper
     protected void objectExists(final ObjectType type, final String key, final boolean exists) {
         Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(new Callable<Boolean>() {
             @Override
-            public Boolean call() throws Exception {
+            public Boolean call() {
                 try {
                     sourceContext.setCurrent(Source.master("1-GRS"));
                     databaseHelper.lookupObject(type, key);

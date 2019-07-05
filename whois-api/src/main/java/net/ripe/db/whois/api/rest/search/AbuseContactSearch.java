@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest.search;
 
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.planner.AbuseCFinder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +23,8 @@ public class AbuseContactSearch {
      */
     @Nullable
     public AbuseContact findAbuseContact(final RpslObject rpslObject) {
-        final RpslObject role = abuseCFinder.getAbuseContactRole(rpslObject);
-        if (role == null) {
-            return null;
-        }
-
-        return new AbuseContact(role.getKey(), role.getValueOrNullForAttribute(AttributeType.ABUSE_MAILBOX));
+        return abuseCFinder.getAbuseContact(rpslObject)
+            .map(abuseContact -> new AbuseContact(abuseContact.getNicHandle(), abuseContact.getAbuseMailbox(), abuseContact.isSuspect(), abuseContact.getOrgId()))
+            .orElse(null);
     }
 }

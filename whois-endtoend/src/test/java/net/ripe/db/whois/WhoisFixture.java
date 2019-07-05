@@ -8,10 +8,10 @@ import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
-import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceDao;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.TestDateTimeProvider;
+import net.ripe.db.whois.common.dao.AuthoritativeResourceDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -97,6 +97,7 @@ public class WhoisFixture {
         System.setProperty("nrtm.enabled", "false");
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("feature.toggle.changed.attr.available", "true");
+        System.setProperty("ipranges.bogons", "192.0.2.0/24,2001:2::/48");
     }
 
     public void start() throws Exception {

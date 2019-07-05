@@ -214,15 +214,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("***Info:    Dry-run performed, no changes to the database have been made"));
     }
 
-    /*
-     * TODO: [ES] Replace non-break spaces with regular spaces.
-     * The non-break space character is unicode \u00A0, consisting of bytes 0xC2 0xA0.
-     * These bytes are (incorrectly) transformed into latin-1 character 0xA0, which doesn't display properly.
-     * Instead, non-break spaces should be converted to a regular space.
-     */
-    @Ignore
     @Test
-    public void non_break_spaces_not_filtered() {
+    public void non_break_spaces_are_substituted_with_regular_space() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject("" +
                 "mntner:        SSO-MNT\n" +
@@ -235,7 +228,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         final String person = "" +
                 "person:    Test\u00a0Person\n" +
-                "address:   \u00a0Amsterdam\n" +
+                "address:   Amsterdam\n" +
                 "phone:     +31-6-123456\n" +
                 "nic-hdl:   TP2-TEST\n" +
                 "mnt-by:    SSO-MNT\n" +
@@ -628,7 +621,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void post_url_encoded_data_with_latin1_charset() {
+    public void post_url_encoded_data_with_latin1_charset_error() {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
@@ -647,6 +640,50 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
         assertThat(response, containsString("address:        Flughafenstraße 109/a"));
+    }
+
+    @Test
+    public void post_url_encoded_data_with_latin1_charset() {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                                "person:     Test Person\n" +
+                                "address:    Flughafenstraße 109/a\n" +
+                                "phone:      +49 282 411141\n" +
+                                "fax-no:     +49 282 411140\n" +
+                                "nic-hdl:    TP1-TEST\n" +
+                                "mnt-by:     mntner\n" +
+                                "source:     TEST\n" +
+                                "password:   emptypassword", "ISO-8859-1"),
+                        MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
+
+        assertThat(response, containsString("Modify SUCCEEDED: [person] TP1-TEST"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST").toString(),
+                containsString("address:        Flughafenstraße 109/a"));
+    }
+
+    @Test
+    public void post_url_encoded_data_with_non_latin1_address_error() {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
+                    "person:    Test Person again\n" +
+                    "address:   Тверская улица,москва\n" +
+                    "phone:     +31-6-123456\n" +
+                    "nic-hdl:   TP2-TEST\n" +
+                    "mnt-by:    mntner\n" +
+                    "source:    INVALID\n" +
+                    "password:  emptypassword"),
+                  MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
+
+        assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
+        assertThat(response, containsString("address:        ???????? ?????,??????"));
     }
 
     @Test
@@ -671,6 +708,27 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void post_url_encoded_data_with_control_characters_address() {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
+                    "person:    Test Person again\n" +
+                    "address:   Test\u000B\u000c\u007F\u008F Address\n" +
+                    "phone:     +31-6-123456\n" +
+                    "nic-hdl:   TP2-TEST\n" +
+                    "mnt-by:    mntner\n" +
+                    "source:    TEST\n" +
+                    "password:  emptypassword"),
+                  MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        Test???? Address"));
+    }
+
+    @Test
     public void post_multipart_data_with_non_latin1_address() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
@@ -692,6 +750,30 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
                 containsString("address:        ???????? ?????,??????"));
     }
+
+    @Test
+    public void post_multipart_data_with_control_characters_address() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                        "address:        Test\u000b\u000c\u007F\u008f Address\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "source:         TEST\n" +
+                        "password: emptypassword")
+                .field("NEW", "yes");
+        RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        Test???? Address"));
+    }
+
 
     @Test
     public void post_multipart_data_with_latin1_non_ascii_address() {

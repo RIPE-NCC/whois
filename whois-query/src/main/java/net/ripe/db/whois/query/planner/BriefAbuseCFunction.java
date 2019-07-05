@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.planner;
 
 import com.google.common.base.Function;
-
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -12,6 +11,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
     private static final EnumSet<AttributeType> BRIEF_ATTRIBUTES = EnumSet.of(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.AUT_NUM, AttributeType.ABUSE_MAILBOX);
@@ -31,11 +31,11 @@ class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
 
         // related IRT object could still be in the resultset with -b
         if (Query.ABUSE_CONTACT_OBJECT_TYPES.contains(rpslObject.getType())) {
-            final String abuseContact = abuseCFinder.getAbuseContact(rpslObject);
-            if (abuseContact != null) {
+            final Optional<AbuseContact> abuseContact = abuseCFinder.getAbuseContact(rpslObject);
+            if (abuseContact.isPresent()) {
                 final List<RpslAttribute> abuseCAttributes = new ArrayList<>(2);
                 abuseCAttributes.add(rpslObject.getTypeAttribute());
-                abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContact));
+                abuseCAttributes.add(new RpslAttribute(AttributeType.ABUSE_MAILBOX, abuseContact.get().getAbuseMailbox()));
                 return new RpslAttributes(abuseCAttributes);
             }
         }
