@@ -27,8 +27,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -138,7 +138,7 @@ public class InternalUpdatePerformerTest {
     @Test
     public void create_origin() {
         when(requestMock.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(dateTimeProviderMock.getCurrentDateTimeUtc()).thenReturn(ZonedDateTime.ofInstant(Instant.ofEpochMilli(5556667777888L), ZoneOffset.UTC));
+        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(LocalDateTime.ofInstant(Instant.ofEpochMilli(5556667777888L), ZoneOffset.UTC));
 
         final Origin origin = subject.createOrigin(requestMock);
 
