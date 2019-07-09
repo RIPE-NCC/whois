@@ -38,11 +38,11 @@ public class TestDateTimeProvider implements DateTimeProvider, Stub {
         return DateTimeProvider.toEpochMilli(localDateTime);
     }
 
-    public void setTime(LocalDateTime dateTime) {
+    public void setTime(final LocalDateTime dateTime) {
         localDateTime = dateTime;
     }
 
-    public void setNanoTime(long nanoTime) {
+    public void setNanoTime(final long nanoTime) {
         localDateTime = DateTimeProvider.fromEpochMilli(nanoTime);
     }
 }
