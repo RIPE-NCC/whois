@@ -239,7 +239,6 @@ public class WhoisRdapService {
 
     private Response getResponse(HttpServletRequest request, List<RpslObject> result) {
         if (result.isEmpty()) {
-            //throw rdapExceptionMapper.notFound("not found");
             throw new NotFoundException("not found");
         }
 

@@ -47,8 +47,9 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
         }
 
-        if (exception instanceof ParamException && ((ParamException) exception).getParameterName().equals("objectType")) {
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, "unknown type")).build();
+        if (exception instanceof ParamException) {
+            String parameterName = ((ParamException) exception).getParameterName();
+            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, "unknown " + parameterName)).build();
         }
 
         if (exception instanceof NotFoundException) {
@@ -60,7 +61,8 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         if (exception instanceof WebApplicationException) {
-            return ((WebApplicationException) exception).getResponse();     // TODO
+            LOGGER.warn("unexpected error " + exception.getMessage());
+            return ((WebApplicationException) exception).getResponse();
         }
 
         if (exception instanceof JsonProcessingException) {

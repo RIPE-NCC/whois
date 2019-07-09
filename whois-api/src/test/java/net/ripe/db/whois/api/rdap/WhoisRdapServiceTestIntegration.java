@@ -825,7 +825,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "unknown type");
+            assertErrorTitle(e, "unknown objectType");
         }
     }
 
@@ -1028,7 +1028,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             final Entity response = e.getResponse().readEntity(Entity.class);
-            assertThat(response.getErrorTitle(), is("unknown type"));
+            assertThat(response.getErrorTitle(), is("unknown objectType"));
         }
     }
 
