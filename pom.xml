@@ -828,13 +828,13 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>com.nickwongdev</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <!-- TODO: [ES] still depends on obsolete tools.jar, need to wait for 1.11.1 release -->
-                <version>1.11</version>
+                <version>1.12.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <complianceLevel>${java.version}</complianceLevel>
                     <!-- [TP] This is a bit ugly part.
                         aspectjweaver, spring-context, spring-tx libs were removed from whois-rpsl/pom.xml, because they
                         pull many deps, and no aspects are/should be present in this module. By removing the libs, a lot of
@@ -869,7 +869,6 @@
                         <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>
                     </excludes>
 
-                    <complianceLevel>${java.version}</complianceLevel>
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>
                     <forceAjcCompile>true</forceAjcCompile>
