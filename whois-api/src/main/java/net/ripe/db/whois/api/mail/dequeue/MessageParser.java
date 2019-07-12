@@ -59,7 +59,7 @@ public class MessageParser {
         this.loggerContext = loggerContext;
     }
 
-    public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException, IOException {
+    public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException {
         final MailMessageBuilder messageBuilder = new MailMessageBuilder();
         messageBuilder.id(message.getMessageID());
 
