@@ -23,19 +23,26 @@ public class SourceAttributeFilter implements AttributeFilter {
         }
 
         return new IterableTransformer<ResponseObject>(responseObjects) {
-
             @Override
-            public void apply(ResponseObject input, Deque<ResponseObject> result) {
+            public void apply(final ResponseObject input, final Deque<ResponseObject> result) {
                 if (input instanceof RpslObject) {
-                    final RpslObject rpslObject = (RpslObject)input;
-                    final CIString source = rpslObject.getValueOrNullForAttribute(AttributeType.SOURCE);
+                    final CIString source =  ((RpslObject)input).getValueOrNullForAttribute(AttributeType.SOURCE);
                     if (source != null) {
-                        if (!filterValues.contains(source.toString())) {
+                        if (!contains(filterValues, source)) {
                             return; // filter this object
                         }
                     }
                 }
                 result.add(input);
+            }
+
+            private boolean contains(final Collection<String> values, final CIString match) {
+                for (String value : values) {
+                    if (match.equals(value)) {
+                        return true;
+                    }
+                }
+                return false;
             }
         };
     }

@@ -61,6 +61,13 @@ public class Ipv6ResourceTest {
         assertThat(subject.end(), is(new BigInteger("42540488161975842778997100499009798143")));
     }
 
+    @Test
+    public void leading_zero() {
+        subject = Ipv6Resource.parse("2a00:0f78::/48");
+
+        assertThat(subject.toString(), is("2a00:f78::/48"));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void parseIpv6MappedIpv4Fails() {
         subject = Ipv6Resource.parse("::ffff:192.0.2.128");

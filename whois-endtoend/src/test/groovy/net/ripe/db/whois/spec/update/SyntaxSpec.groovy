@@ -529,6 +529,40 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         queryObject("-rBT person FP1-TEST", "person", "First Person")
     }
 
+    def "create person with control character"() {
+        expect:
+        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  First Person
+                address: St James\u0008Street
+                +#eol comment
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+
+        queryObject("-rBT person FP1-TEST", "person", "First Person")
+    }
+
     def "modify person, make dummification style changes"() {
         given:
         dbfixture(getTransient("PN"))

@@ -37,20 +37,24 @@ public final class X509CertificateWrapper implements KeyWrapper {
 
         try {
             final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(Charsets.ISO_8859_1);
-
-            X509CertParser parser = new X509CertParser();
-            parser.engineInit(new ByteArrayInputStream(bytes));
-            X509Certificate result = (X509Certificate) parser.engineRead();
-
-            if (result == null) {
-                throw new IllegalArgumentException("Invalid X509 Certificate");
-            }
-
-            return new X509CertificateWrapper(result);
-
+            return parse(bytes);
         } catch (StreamParsingException e) {
             throw new IllegalArgumentException("Error parsing X509 certificate from key-cert object", e);
         }
+    }
+
+    static X509CertificateWrapper parse(final String certificate) throws StreamParsingException {
+        return parse(certificate.getBytes());
+    }
+
+    static X509CertificateWrapper parse(final byte[] certificate) throws StreamParsingException {
+        final X509CertParser parser = new X509CertParser();
+        parser.engineInit(new ByteArrayInputStream(certificate));
+        final X509Certificate result = (X509Certificate) parser.engineRead();
+        if (result == null) {
+            throw new IllegalArgumentException("Invalid X509 Certificate");
+        }
+        return new X509CertificateWrapper(result);
     }
 
     static boolean looksLikeX509Key(final RpslObject rpslObject) {

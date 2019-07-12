@@ -131,6 +131,13 @@ public class Ipv4ResourceTest {
     }
 
     @Test
+    public void leading_zeroes() {
+        subject = Ipv4Resource.parse("162.219.043.072/32");
+        assertThat(subject.begin(), eq(2732272456L));
+        assertThat(subject.end(), eq(2732272456L));
+    }
+
+    @Test
     public void zero_slash_zero_with_prefix_zero() {
         subject = Ipv4Resource.parse("0/0\r\n");
         assertThat(subject.begin(), eq(0L));

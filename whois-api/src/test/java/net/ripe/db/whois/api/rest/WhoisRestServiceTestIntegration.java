@@ -350,6 +350,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_person_lowercase_source() {
+        databaseHelper.addObject(RpslObject.parse("person: Test Person\nnic-hdl: TP2-TEST\nmnt-by: OWNER-MNT\nsource: test"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("source:         test"));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes().get(whoisObject.getAttributes().size() - 1).getValue(), is("test"));
+    }
+
+    @Test
     public void lookup_person_unfiltered() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
@@ -1759,7 +1772,44 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_succeeds_non_latin1_chars_substituted_in_response() {
+    public void create_succeeds_utf8_abuse_mailbox_stored_as_latin1() {
+        final byte[] request =
+                ("<whois-resources>\n" +
+                "    <objects>\n" +
+                "        <object type=\"role\">\n" +
+                "            <source id=\"TEST\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"role\" value=\"Zurich Role\"/>\n" +
+                "                <attribute name=\"address\" value=\"Z\u00FCrich\"/>\n" +           // unicode encoded u-umlaut, will be encoded as UTF-8 (bytes 0xc3bc in byte[]).
+                "                <attribute name=\"e-mail\" value=\"info@Z\u00FCrich.city\"/>\n" +
+                "                <attribute name=\"abuse-mailbox\" value=\"abuse@Z\u00FCrich.city\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"ZR1-TEST\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "</whois-resources>").getBytes(Charsets.UTF_8);
+
+        final String response = RestTest.target(getPort(), "whois/test/role?password=test")
+            .request()
+            .post(Entity.entity(request, MediaType.APPLICATION_XML_TYPE.withCharset("UTF-8")), String.class);
+
+        // u-umlaut returned correctly
+        assertThat(response, containsString("<attribute name=\"abuse-mailbox\" value=\"abuse@Zürich.city\"/>"));
+
+        // expect u-umlaut in Zürich to be stored in the index table as latin1 byte 0xFC, not as UTF8 bytes 0xC3BC
+        assertThat(whoisTemplate.queryForObject("SELECT hex(abuse_mailbox) FROM abuse_mailbox WHERE abuse_mailbox like '%city'", String.class), containsString("5AFC72696368"));
+
+        // lookup object
+        assertThat(queryTelnet("-Br ZR1-TEST"), containsString("abuse-mailbox:  abuse@Zürich.city"));
+
+        // inverse lookup with u-umlaut
+        assertThat(queryTelnet("-r -i abuse-mailbox abuse@zürich.city"), containsString("abuse-mailbox:  abuse@Zürich.city"));
+    }
+
+    @Test
+    public void create_succeeds_non_latin1_characters_substituted_in_response() {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
             .post(Entity.entity(
@@ -1780,21 +1830,66 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
-        assertThat(response, not(containsString("<attribute name=\"remarks\" value=\"ελληνικά\"/>")));
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"????????\"/>"));
-        assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Attribute &quot;%s&quot; value changed due to conversion into the ISO-8859-1 (Latin-1) character set\">"));
+        assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Value changed due to conversion into the ISO-8859-1 (Latin-1) character set\"/>"));
     }
 
-    /*
-     * TODO: [ES] Replace non-break spaces with regular spaces.
-     * The non-break space character is unicode \u00A0, consisting of bytes 0xC2 0xA0.
-     * These bytes are (incorrectly) transformed into latin-1 character 0xA0, which doesn't display properly.
-     * Instead, non-break spaces should be converted to a regular space.
-     */
-    @Ignore
     @Test
-    public void create_succeeds_non_break_space_substituted() {
-        RestTest.target(getPort(), "whois/test/person?password=test")
+    public void create_succeeds_control_characters_are_substituted() {
+        final String response = RestTest.target(getPort(), "whois/test/person?password=test")
+            .request()
+            .post(Entity.entity(
+                "<whois-resources>\n" +
+                "    <objects>\n" +
+                "        <object type=\"person\">\n" +
+                "            <source id=\"TEST\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"person\" value=\"New Person\"/>\n" +
+                "                <attribute name=\"address\" value=\"Test\u007F\u008f Address\"/>\n" +      // attribute value contains control characters
+                "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+
+        assertThat(response, containsString("<attribute name=\"address\" value=\"Test?? Address\"/>"));
+        assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Invalid character(s) were substituted in attribute &quot;%s&quot; value\">"));
+        assertThat(response, containsString("<attribute name=\"address\" value=\"        Test?? Address\"/>")); // TODO: [ES] attribute value not trimmed
+        assertThat(response, containsString("<args value=\"address\"/>"));
+        assertThat(response, containsString("</errormessage>"));
+    }
+
+    @Test
+    public void create_succeeds_extended_ascii_latin1_characters_are_preserved() {
+        final String response = RestTest.target(getPort(), "whois/test/person?password=test")
+            .request()
+            .post(Entity.entity(
+                "<whois-resources>\n" +
+                "    <objects>\n" +
+                "        <object type=\"person\">\n" +
+                "            <source id=\"TEST\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"person\" value=\"New Person\"/>\n" +
+                "                <attribute name=\"remarks\" value=\"ÖÜëñ\"/>\n" +      // extended ASCII latin-1 characters
+                "                <attribute name=\"address\" value=\"Amsterdam\"/>\n" +
+                "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+
+        assertThat(response, containsString("<attribute name=\"remarks\" value=\"ÖÜëñ\"/>"));
+    }
+
+    @Test
+    public void create_succeeds_non_break_space_substituted_with_regular_space() {
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
             .post(Entity.entity(
                 "<whois-resources>\n" +
@@ -1812,7 +1907,50 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
-                "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+                "</whois-resources>", MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(response.getErrorMessages(), hasSize(1));
+        assertThat(response.getErrorMessages().get(0).getText(), is("Invalid character(s) were substituted in attribute \"%s\" value"));
+        assertThat(response.getErrorMessages().get(0).getArgs(), hasSize(1));
+        assertThat(response.getErrorMessages().get(0).getArgs().get(0).getValue(), is("person"));
+        assertThat(response.getWhoisObjects(), hasSize(1));
+        assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getValue(), is("New Person"));
+    }
+
+    @Test
+    public void modify_succeeds_non_break_space_substituted_with_regular_space_noop() {
+        databaseHelper.addObject(
+            "person:    New Person\n" +
+            "remarks:   Test\n" +
+            "address:   Amsterdam\n" +
+            "phone:     +31-1234567890\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   NP1-TEST\n" +
+            "source:    TEST");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/NP1-TEST?password=test")
+            .request()
+            .put(Entity.entity(
+                "<whois-resources>\n" +
+                "    <objects>\n" +
+                "        <object type=\"person\">\n" +
+                "            <source id=\"TEST\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"person\" value=\"New\u00a0Person\"/>\n" +    // non-break space
+                "                <attribute name=\"remarks\" value=\"Test\"/>\n" +
+                "                <attribute name=\"address\" value=\"Amsterdam\"/>\n" +
+                "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"NP1-TEST\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "</whois-resources>", MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertWarningCount(response, 2);
+        RestTest.assertErrorMessage(response, 0, "Warning", "Submitted object identical to database object");
+        RestTest.assertErrorMessage(response, 1, "Warning", "Invalid character(s) were substituted in attribute \"%s\" value", "person");
     }
 
     @Test
@@ -2443,12 +2581,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "}", getPort())));
     }
 
-    // TODO: [ES] no warning on conversion of \u03A3 to ? in latin-1 charset
     @Test
-    public void create_utf8_character_encoding() {
+    public void create_non_latin1_characters_are_substituted() {
         final RpslObject person = RpslObject.parse("" +
                 "person:    Pauleth Palthen\n" +
-                "address:   test \u03A3 and \u00DF characters\n" +
+                "address:   Тверская улица,москва\n" +
                 "phone:     +31-1234567890\n" +
                 "e-mail:    noreply@ripe.net\n" +
                 "mnt-by:    OWNER-MNT\n" +
@@ -2460,9 +2597,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        // UTF-8 characters are mapped to latin1. Characters outside the latin1 charset are substituted by '?'
         final WhoisObject responseObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(responseObject.getAttributes().get(1).getValue(), is("test ? and \u00DF characters"));
+        assertThat(responseObject.getAttributes().get(1).getValue(), is("???????? ?????,??????"));
     }
 
     @Test
@@ -2657,23 +2793,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_person_with_non_latin_chars() {
+    public void update_person_non_latin1_characters_are_substituted() {
         {
             final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
                     .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
-                            new RpslAttribute(AttributeType.ADDRESS, "address: Тверская улица,москва")).sort().get();
+                            new RpslAttribute(AttributeType.ADDRESS, "Тверская улица,москва")).sort().get();
 
             final WhoisResources response =
                     RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
                             .request()
-                            .put(Entity.entity(map(update), MediaType.APPLICATION_XML),
+                            .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
                                     WhoisResources.class);
 
             RestTest.assertWarningCount(response, 1);
-            RestTest.assertErrorMessage(response, 0, "Warning", "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", "address");
+            RestTest.assertErrorMessage(response, 0, "Warning", "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
 
             final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
-            assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        address: ???????? ?????,??????"));
+            assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        ???????? ?????,??????"));
         }
         {
             final WhoisResources response =
@@ -2681,7 +2817,38 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             .request()
                             .get(WhoisResources.class);
 
-            assertThat(response.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("address", "address: ???????? ?????,??????")));
+            assertThat(response.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("address", "???????? ?????,??????")));
+        }
+    }
+
+    @Test
+    public void create_invalid_control_character() {
+        try {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(
+                    "<whois-resources>\n" +
+                    "    <objects>\n" +
+                    "        <object type=\"person\">\n" +
+                    "            <source id=\"TEST\"/>\n" +
+                    "            <attributes>\n" +
+                    "                <attribute name=\"person\" value=\"New Person\"/>\n" +
+                    "                <attribute name=\"address\" value=\"Test\u000cAddress\"/>\n" +
+                    "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                    "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                    "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
+                    "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                    "            </attributes>\n" +
+                    "        </object>\n" +
+                    "    </objects>\n" +
+                    "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(response, 1);
+            RestTest.assertErrorMessage(response, 0, "Error",
+                "XML processing exception: %s (line: %s, column: %s)",
+                "An invalid XML character (Unicode: 0xc) was found in the value of attribute \"value\" and element is \"attribute\".", "7", "54");
         }
     }
 
@@ -3283,6 +3450,29 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void update_lower_case_source() {
+        databaseHelper.addObject(RpslObject.parse("person: Test Person\nnic-hdl: TP2-TEST\nmnt-by: OWNER-MNT\nsource: test"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("source:         test"));
+        final RpslObject updatedObject = RpslObject.parse(
+                "person: Test Person\n" +
+                "nic-hdl: TP2-TEST\n" +
+                "address: Amsterdam\n" +
+                "phone: +31-6-12345678\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: test");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertInfoCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Info", "Value %s converted to %s", "test", "TEST");
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getAttributes().get(object.getAttributes().size() - 1).getValue(), is("TEST"));
     }
 
     @Test

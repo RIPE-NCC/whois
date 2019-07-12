@@ -31,7 +31,7 @@ public class NrtmClientNotAuthorisedTestIntegration extends AbstractNrtmIntegrat
     }
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         nrtmServer.start();
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");

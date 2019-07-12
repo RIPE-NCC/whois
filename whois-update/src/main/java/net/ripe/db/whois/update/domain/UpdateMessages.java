@@ -478,15 +478,19 @@ public final class UpdateMessages {
     }
 
     public static Message certificateNotYetValid(final CharSequence name) {
-        return new Message(Type.WARNING, "Certificate in keycert %s is not yet valid", name);
+        return new Message(Type.ERROR, "Certificate in keycert %s is not yet valid", name);
     }
 
     public static Message certificateHasExpired(final CharSequence name) {
-        return new Message(Type.WARNING, "Certificate in keycert %s has expired", name);
+        return new Message(Type.ERROR, "Certificate in keycert %s has expired", name);
     }
 
     public static Message publicKeyHasExpired(final CharSequence name) {
-        return new Message(Type.WARNING, "Public key in keycert %s has expired", name);
+        return new Message(Type.ERROR, "Public key in keycert %s has expired", name);
+    }
+
+    public static Message publicKeyIsRevoked(final CharSequence name) {
+        return new Message(Type.ERROR, "Public key in keycert %s is revoked", name);
     }
 
     public static Message cannotCreateOutOfRegionObject(final ObjectType objectType) {
@@ -505,8 +509,8 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Specified origin AS number %d is allocated to the RIPE region but doesn't exist in the RIPE database", asNumber);
     }
 
-    public static Message messageSignedMoreThanOneWeekAgo() {
-        return new Message(Type.WARNING, "Message was signed more than one week ago");
+    public static Message messageSignedMoreThanOneHourAgo() {
+        return new Message(Type.ERROR, "Message was signed more than one hour ago");
     }
 
     public static Message eitherSimpleOrComplex(final ObjectType objectType, final CharSequence simple, final CharSequence complex) {
@@ -533,13 +537,8 @@ public final class UpdateMessages {
                         + "This must reference a ROLE object with an \"abuse-mailbox:\"");
     }
 
-    public static Message abuseMailboxReferenced(final CharSequence role) {
-        return new Message(Type.ERROR, "There is an organisation referencing role %s's abuse-mailbox", role);
-    }
-
-    public static Message abuseMailboxCantBeAdded() {
-        return new Message(Type.ERROR, "\"abuse-mailbox:\" can only be added to ROLE objects intended to be " +
-                "referenced through the \"abuse-c:\" attribute in ORGANISATION, INET(6)NUM and AUT-NUM objects.");
+    public static Message abuseMailboxReferenced(final CharSequence role, final ObjectType objectType) {
+        return new Message(Type.ERROR, "There is an %s referencing role %s's abuse-mailbox", objectType.getName(), role);
     }
 
     public static Message keyNotFound(final String keyId) {
@@ -554,6 +553,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\"");
     }
 
+    public static Message duplicateAbuseC(final CharSequence abuseC, final CharSequence organisation) {
+        return new Message(Type.WARNING, "Duplicate abuse-c \"%s\" also found in referenced organisation \"%s\".", abuseC, organisation);
+    }
+
     public static Message abuseContactNotRemovable() {
         return new Message(Type.ERROR, "\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object");
     }
@@ -564,22 +567,6 @@ public final class UpdateMessages {
 
     public static Message commentInSourceNotAllowed() {
         return new Message(Type.ERROR, "End of line comments not allowed on \"source:\" attribute");
-    }
-
-    public static Message updatePendingAuthentication() {
-        return new Message(Type.WARNING, "This update has only passed one of the two required hierarchical authorisations");
-    }
-
-    public static Message updatePendingAuthenticationSaved(final RpslObject rpslObject) {
-        return new Message(Type.INFO, "The %s object %s will be saved for one week pending the second authorisation", rpslObject.getType().getName(), rpslObject.getKey());
-    }
-
-    public static Message updateAlreadyPendingAuthentication() {
-        return new Message(Type.ERROR, "There is already an identical update pending authentication");
-    }
-
-    public static Message updateConcludesPendingUpdate(final RpslObject rpslObject) {
-        return new Message(Type.INFO, "This update concludes a pending update on %s %s", rpslObject.getType().getName(), rpslObject.getKey());
     }
 
     public static Message dryRunNotice() {
@@ -622,12 +609,12 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
     }
 
-    public static Message valueChangedDueToLatin1Conversion(final String attributeName) {
-        return new Message(Type.WARNING, "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", attributeName);
+    public static Message valueChangedDueToLatin1Conversion() {
+        return new Message(Type.WARNING, "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
     }
 
-    public static Message replacedNonBreakSpaces() {
-        return new Message(Type.WARNING, "Non-break spaces were replaced with regular spaces");
+    public static Message valueChangedDueToLatin1Conversion(final String attributeName) {
+        return new Message(Type.WARNING, "Invalid character(s) were substituted in attribute \"%s\" value", attributeName);
     }
 
     public static Message oldPasswordsRemoved() {
@@ -664,5 +651,9 @@ public final class UpdateMessages {
 
     public static Message shortFormatAttributeReplaced() {
         return new Message(Type.WARNING, "Short format attribute name(s) have been replaced.");
+    }
+
+    public static Message bogonPrefixNotAllowed(final String prefix) {
+        return new Message(Type.ERROR, "Bogon prefix %s is not allowed.", prefix);
     }
 }

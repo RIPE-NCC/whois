@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rdap.domain.vcard;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -9,17 +10,17 @@ public class VCardProperty {
 
     protected List<Object> values = Lists.newArrayList();
 
-    public VCardProperty(final String name, final Map parameters, final String type, final String value) {
-        this.values.add(name);
+    public VCardProperty(final VCardName name, final Map parameters, final VCardType type, final String value) {
+        this.values.add(name.getValue());
         this.values.add(parameters);
-        this.values.add(type);
+        this.values.add(type.getValue());
         this.values.add(value);
     }
 
-    public VCardProperty(final String name, final Map parameters, final String type, final List<Object> values) {
-        this.values.add(name);
+    public VCardProperty(final VCardName name, final Map parameters, final VCardType type, final List<Object> values) {
+        this.values.add(name.getValue());
         this.values.add(parameters);
-        this.values.add(type);
+        this.values.add(type.getValue());
         this.values.add(values);
     }
 
