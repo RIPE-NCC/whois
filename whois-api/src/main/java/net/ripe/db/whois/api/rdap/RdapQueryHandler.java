@@ -39,7 +39,6 @@ public class RdapQueryHandler {
     public List<RpslObject> handleQuery(final Query query, final HttpServletRequest request) {
 
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-
         final List<RpslObject> result = Lists.newArrayList();
 
         try {
@@ -47,19 +46,33 @@ public class RdapQueryHandler {
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {
-                        result.add((RpslObject) responseObject);
+                        ObjectType objectType = ((RpslObject) responseObject).getType();
+
+                        switch (objectType) {
+                            case PERSON:
+                            case MNTNER:
+                            case ROLE: {
+                                addIfPrimaryObject((RpslObject) responseObject);
+                                break;
+                            }
+                            default: {
+                                result.add((RpslObject) responseObject);
+                            }
+                        }
+                    }
+                }
+
+                private void addIfPrimaryObject(final RpslObject responseObject) {
+                    final String primaryKey = responseObject.getKey().toString();
+                    if(primaryKey.equals(query.getSearchValue())) {
+                        result.add(responseObject);
                     }
                 }
             });
 
             return result;
         } catch (final QueryException e) {
-            if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                throw tooManyRequests();
-            } else {
-                LOGGER.error(e.getMessage(), e);
-                throw new IllegalStateException("query error");
-            }
+            return handleQueryException(e);
         }
     }
 
@@ -96,12 +109,16 @@ public class RdapQueryHandler {
             return resultAutNum.isEmpty() ? resultAsBlock : resultAutNum;
 
         } catch (final QueryException e) {
-            if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                throw tooManyRequests();
-            } else {
-                LOGGER.error(e.getMessage(), e);
-                throw new IllegalStateException("query error");
-            }
+            return handleQueryException(e);
+        }
+    }
+
+    private List<RpslObject> handleQueryException(final QueryException e) {
+        if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+            throw tooManyRequests();
+        } else {
+            LOGGER.error(e.getMessage(), e);
+            throw new IllegalStateException("query error");
         }
     }
 
