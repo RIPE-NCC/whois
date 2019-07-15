@@ -17,11 +17,13 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
 
     private final WhoisRdapService whoisRDAPService;
     private final RdapExceptionMapper rdapExceptionMapper;
+    private final RdapRequestTypeConverter rdapRequestTypeConverter;
 
     @Autowired
-    public WhoisRdapServletDeployer(final WhoisRdapService whoisRDAPService, final RdapExceptionMapper rdapExceptionMapper) {
+    public WhoisRdapServletDeployer(final WhoisRdapService whoisRDAPService, final RdapExceptionMapper rdapExceptionMapper, final RdapRequestTypeConverter rdapRequestTypeConverter) {
         this.whoisRDAPService = whoisRDAPService;
         this.rdapExceptionMapper = rdapExceptionMapper;
+        this.rdapRequestTypeConverter = rdapRequestTypeConverter;
     }
 
     @Override
@@ -35,6 +37,7 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
 
         final ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.register(whoisRDAPService);
+        resourceConfig.register(rdapRequestTypeConverter);
         resourceConfig.register(rdapExceptionMapper);
         resourceConfig.register(rdapJsonProvider);
         context.addServlet(new ServletHolder("Whois RDAP REST API", new ServletContainer(resourceConfig)), "/rdap/*");
