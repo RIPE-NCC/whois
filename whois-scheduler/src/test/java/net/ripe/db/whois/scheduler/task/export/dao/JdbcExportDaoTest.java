@@ -13,8 +13,8 @@ import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.springframework.test.util.MatcherAssertionErrors.assertThat;
 
 public class JdbcExportDaoTest extends AbstractSchedulerIntegrationTest {
     @Autowired ExportDao subject;
