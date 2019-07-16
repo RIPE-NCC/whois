@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.grs;
 
+import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import org.junit.Before;
@@ -46,7 +47,7 @@ public class AuthoritativeResourceImportTaskTest {
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getRoot().getAbsolutePath());
+        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getRoot().getAbsolutePath(), new TestDateTimeProvider());
         subject.setEmbeddedValueResolver(valueResolver);
     }
 

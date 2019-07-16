@@ -4,10 +4,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Set;
 
 @Component
@@ -31,13 +34,15 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
     private StringValueResolver valueResolver;
     private final Downloader downloader;
     private final String downloadDir;
+    private final DateTimeProvider dateTimeProvider;
     private final Set<String> sourceNames;
 
     @Autowired
     public AuthoritativeResourceImportTask(@Value("${grs.sources}") final String grsSourceNames,
                                            final ResourceDataDao resourceDataDao,
                                            final Downloader downloader,
-                                           @Value("${dir.grs.import.download:}") final String downloadDir)
+                                           @Value("${dir.grs.import.download:}") final String downloadDir,
+                                           final DateTimeProvider dateTimeProvider)
     {
         this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), new Function<String, String>() {
             @Override
@@ -48,6 +53,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
         this.resourceDataDao = resourceDataDao;
         this.downloader = downloader;
         this.downloadDir = downloadDir;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     @Override
@@ -57,12 +63,35 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
 
     @Override
     public void run() {
+
+        waitUntilQuarterPast(); // make sure new files are available
+
         for (final String sourceName : sourceNames) {
             try {
                 final AuthoritativeResource authoritativeResource = downloadAuthoritativeResource(sourceName);
                 resourceDataDao.store(sourceName, authoritativeResource);
             } catch (Exception e) {
                 logger.warn("Exception processing " + sourceName, e);
+            }
+        }
+    }
+
+    /**
+     * Temporary hack to make this job wait until 00.15 so we're sure the new authoritative resource data files
+     * are present. Will be replaced by standard scheduler functionality to run at 00.15 when we've replaced
+     * the DailyScheduler.
+     */
+    private void waitUntilQuarterPast() {
+        LocalDateTime currentDateTime = dateTimeProvider.getCurrentDateTime();
+        if (currentDateTime.getHourOfDay() == 0) {
+            int minutesUntilQuarterPast = 15 - currentDateTime.getMinuteOfHour();
+            if (minutesUntilQuarterPast > 0) {
+                logger.info("Waiting {} minutes until authoritative resource data is available", minutesUntilQuarterPast);
+                try {
+                    Thread.sleep(Duration.ofMinutes(minutesUntilQuarterPast).toMillis());
+                } catch (InterruptedException e) {
+                    // shouldn't happen, ignore it
+                }
             }
         }
     }
