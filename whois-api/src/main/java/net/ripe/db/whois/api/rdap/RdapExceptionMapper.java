@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.query.domain.QueryException;
+import org.glassfish.jersey.server.ParamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +47,22 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
         }
 
+        if (exception instanceof ParamException) {
+            String parameterName = ((ParamException) exception).getParameterName();
+            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, "unknown " + parameterName)).build();
+        }
+
+        if (exception instanceof NotFoundException) {
+            return createErrorResponse(Response.Status.NOT_FOUND, exception.getMessage());
+        }
+
+        if (exception instanceof BadRequestException) {
+            return createErrorResponse(Response.Status.BAD_REQUEST, exception.getMessage());
+        }
+
         if (exception instanceof WebApplicationException) {
-            return ((WebApplicationException) exception).getResponse();     // TODO
+            LOGGER.warn("unexpected error " + exception.getMessage());
+            return ((WebApplicationException) exception).getResponse();
         }
 
         if (exception instanceof JsonProcessingException) {
@@ -74,18 +89,10 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
         return rdapObjectMapper.mapError(errorCode, errorTitle, Lists.newArrayList(errorTexts));
     }
 
-    public NotFoundException notFound(final String errorTitle) {
-        return new NotFoundException(createErrorResponse(Response.Status.NOT_FOUND, errorTitle));
-    }
-
     private Response createErrorResponse(final Response.Status status, final String errorTitle) {
         return Response.status(status)
                 .entity(createErrorEntity(status.getStatusCode(), errorTitle))
                 .header("Content-Type", "application/rdap+json")
                 .build();
-    }
-
-    public BadRequestException badRequest(final String errorTitle) {
-        return new BadRequestException(createErrorResponse(Response.Status.BAD_REQUEST, errorTitle));
     }
 }
