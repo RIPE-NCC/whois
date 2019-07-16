@@ -10,8 +10,8 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class SyntaxFilterFunctionTest {
     private final SyntaxFilterFunction validSyntaxFilterFunction = new SyntaxFilterFunction(true);
