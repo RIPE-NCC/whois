@@ -77,7 +77,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
     }
 
     /**
-     * Temporary hack to make this job wait until 00.15 so we're sure the new authoritative resource data files
+     * TODO Temporary hack to make this job wait until 00.15 so we're sure the new authoritative resource data files
      * are present. Will be replaced by standard scheduler functionality to run at 00.15 when we've replaced
      * the DailyScheduler.
      */
