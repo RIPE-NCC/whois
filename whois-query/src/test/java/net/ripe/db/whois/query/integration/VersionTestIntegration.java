@@ -22,9 +22,9 @@ import org.junit.experimental.categories.Category;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static net.ripe.db.whois.query.integration.VersionTestIntegration.VersionMatcher.containsFilteredVersion;
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 public class VersionTestIntegration extends AbstractQueryIntegrationTest {
