@@ -28,6 +28,7 @@ import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1927,7 +1928,16 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertTrue(hasSourceTest);
     }
 
-    // helping method
+    @Ignore("TODO: [ES] exception thrown as query string not normalised")
+    @Test
+    public void query_string_not_normalised() {
+        RestTest.target(getPort(), "whois/search?query-string=%E2%80%8E2019%2011:35%5D%20ok")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+    }
+
+    // helper methods
+
     private boolean hasObjectWithSpecifiedSource(List<WhoisObject> whoisObjects, String source) {
         return whoisObjects
                 .stream()
