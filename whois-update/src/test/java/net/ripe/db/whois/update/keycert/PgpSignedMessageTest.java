@@ -1,19 +1,29 @@
 package net.ripe.db.whois.update.keycert;
 
 import com.google.common.base.Charsets;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PgpSignedMessageTest {
+
+    @Mock
+    private DateTimeProvider dateTimeProvider;
 
     @Test
     public void isEquals() {
@@ -170,6 +180,12 @@ public class PgpSignedMessageTest {
         final boolean result = pgpSignedMessage.verify(getPublicKey_5763950D());
 
         assertThat(result, is(true));
+
+        // signing time was 2015-11-19T13:35:52.000
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2015-11-19T14:34:52.000"));
+        assertThat(pgpSignedMessage.verifySigningTime(dateTimeProvider), is(true));
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2015-11-19T14:36:52.000"));
+        assertThat(pgpSignedMessage.verifySigningTime(dateTimeProvider), is(false));
     }
 
     @Test
