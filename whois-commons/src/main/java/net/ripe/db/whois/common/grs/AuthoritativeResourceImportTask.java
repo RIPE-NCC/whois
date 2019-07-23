@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EmbeddedValueResolverAware;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 
@@ -56,6 +58,8 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
     }
 
     @Override
+    @Scheduled(cron = "0 0 0 * * *")
+    @SchedulerLock(name = "AuthoritativeResourceImport")
     public void run() {
         for (final String sourceName : sourceNames) {
             try {

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -80,6 +82,8 @@ public class Bootstrap implements DailyScheduledTask {
     }
 
     @Override
+    @Scheduled(cron = "0 0 0 * * *")
+    @SchedulerLock(name = "Bootstrap")
     public void run() {
         try {
             final String bootstrap = bootstrap();
