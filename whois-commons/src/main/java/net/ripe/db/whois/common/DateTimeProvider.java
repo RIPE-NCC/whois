@@ -4,7 +4,6 @@ package net.ripe.db.whois.common;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -26,17 +25,17 @@ public interface DateTimeProvider {
     }
 
     static Date toDate(final LocalDateTime localDateTime) {
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault())
+        return Date.from(localDateTime.atZone(ZoneOffset.systemDefault())
                     .toInstant());
     }
 
     static Date toDate(final LocalDate localDate) {
-        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        return Date.from(localDate.atStartOfDay(ZoneOffset.systemDefault()).toInstant());
     }
 
     static LocalDateTime fromDate(final Date date) {
         return Instant.ofEpochMilli(date.getTime())
-                        .atZone(ZoneId.systemDefault())
+                        .atZone(ZoneOffset.systemDefault())
                         .toLocalDateTime();
     }
 
