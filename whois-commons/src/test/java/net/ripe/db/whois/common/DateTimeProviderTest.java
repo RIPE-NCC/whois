@@ -2,7 +2,9 @@ package net.ripe.db.whois.common;
 
 import org.junit.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import static org.hamcrest.Matchers.is;
@@ -10,26 +12,39 @@ import static org.junit.Assert.assertThat;
 
 public class DateTimeProviderTest {
 
+    private static final Long EPOCH_TIMESTAMP = 0L;
+    private static final Long RECENT_TIMESTAMP = 1388617200000L;
+
+    private static final LocalDateTime EPOCH_LOCAL_DATE_TIME = localDateTime(EPOCH_TIMESTAMP);
+    private static final LocalDateTime RECENT_LOCAL_DATE_TIME = localDateTime(RECENT_TIMESTAMP);
+
     @Test
     public void fromEpochMilli() {
-        assertThat(DateTimeProvider.fromEpochMilli(0L), is(LocalDateTime.parse("1970-01-01T01:00")));
-        assertThat(DateTimeProvider.fromEpochMilli(1388617200000L), is(LocalDateTime.parse("2014-01-02T00:00")));
+        assertThat(DateTimeProvider.fromEpochMilli(EPOCH_TIMESTAMP), is(EPOCH_LOCAL_DATE_TIME));
+        assertThat(DateTimeProvider.fromEpochMilli(RECENT_TIMESTAMP), is(RECENT_LOCAL_DATE_TIME));
     }
 
     @Test
     public void toEpochMilli() {
-        assertThat(DateTimeProvider.toEpochMilli(LocalDateTime.parse("1970-01-01T01:00")), is(0L));
-        assertThat(DateTimeProvider.toEpochMilli(LocalDateTime.parse("2014-01-02T00:00")), is(1388617200000L));
+        assertThat(DateTimeProvider.toEpochMilli(EPOCH_LOCAL_DATE_TIME), is(EPOCH_TIMESTAMP));
+        assertThat(DateTimeProvider.toEpochMilli(RECENT_LOCAL_DATE_TIME), is(RECENT_TIMESTAMP));
     }
 
     @Test
     public void fromDate() {
-        assertThat(DateTimeProvider.fromDate(new Date(0L)), is(LocalDateTime.parse("1970-01-01T01:00")));
+        assertThat(DateTimeProvider.fromDate(new Date(EPOCH_TIMESTAMP)), is(EPOCH_LOCAL_DATE_TIME));
+        assertThat(DateTimeProvider.fromDate(new Date(RECENT_TIMESTAMP)), is(RECENT_LOCAL_DATE_TIME));
     }
 
     @Test
     public void toDate() {
-        assertThat(DateTimeProvider.toDate(LocalDateTime.parse("1970-01-01T01:00")), is(new Date(0L)));
-        assertThat(DateTimeProvider.toDate(LocalDateTime.parse("2014-01-02T00:00")), is(new Date(1388617200000L)));
+        assertThat(DateTimeProvider.toDate(EPOCH_LOCAL_DATE_TIME), is(new Date(EPOCH_TIMESTAMP)));
+        assertThat(DateTimeProvider.toDate(RECENT_LOCAL_DATE_TIME), is(new Date(RECENT_TIMESTAMP)));
+    }
+
+    // helper methods
+
+    private static LocalDateTime localDateTime(final long value) {
+        return Instant.ofEpochMilli(value).atZone(ZoneOffset.systemDefault()).toLocalDateTime();
     }
 }
