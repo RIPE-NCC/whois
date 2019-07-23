@@ -16,6 +16,7 @@ public interface DateTimeProvider {
     /** returns System.nanoTime(), the high-res timer that counts 0 from JVM startup */
     long getNanoTime();
 
+    /** specify the local timezone when creating a LocalDateTime from a timestamp */
     static LocalDateTime fromEpochMilli(final long timestamp) {
         return LocalDateTime.from(Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.systemDefault()));
     }
