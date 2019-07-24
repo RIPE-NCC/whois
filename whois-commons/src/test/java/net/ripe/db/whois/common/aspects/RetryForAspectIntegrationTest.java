@@ -1,8 +1,10 @@
 package net.ripe.db.whois.common.aspects;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileNotFoundException;
@@ -13,6 +15,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+@Category(IntegrationTest.class)
 public class RetryForAspectIntegrationTest extends AbstractDaoIntegrationTest {
     static final int ATTEMPTS = 5;
 
