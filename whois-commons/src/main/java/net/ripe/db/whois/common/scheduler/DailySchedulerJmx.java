@@ -1,19 +1,25 @@
 package net.ripe.db.whois.common.scheduler;
 
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
@@ -21,27 +27,41 @@ import java.util.stream.Collectors;
 @Component
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "DailyScheduler", description = "Whois daily scheduler")
 public class DailySchedulerJmx extends JmxBase {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DailySchedulerJmx.class);
 
     private final TaskScheduler taskScheduler;
-    private final List<DailyScheduledTask> scheduledTasks;
+    private Map<String, ScheduledMethodRunnable> scheduledTasks;
     private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    public DailySchedulerJmx(final TaskScheduler taskScheduler,
-                             final List<DailyScheduledTask> scheduledTasks,
-                             final DateTimeProvider dateTimeProvider) {
+    public DailySchedulerJmx(@Qualifier("scheduler") final TaskScheduler taskScheduler,
+                             final DateTimeProvider dateTimeProvider,
+                             final List<DailyScheduledTask> scheduledTasks) {
         super(LOGGER);
         this.taskScheduler = taskScheduler;
-        this.scheduledTasks = scheduledTasks;
         this.dateTimeProvider = dateTimeProvider;
+        this.scheduledTasks = createScheduledMethodRunnables(scheduledTasks);
+    }
+
+    private Map<String, ScheduledMethodRunnable> createScheduledMethodRunnables(final List<DailyScheduledTask> scheduledTasks) {
+        final Map<String, ScheduledMethodRunnable> scheduled = Maps.newHashMap();
+        for (DailyScheduledTask scheduledTask : scheduledTasks) {
+            Class<?> clazz = AopUtils.getTargetClass(scheduledTask);
+            for (Method method : clazz.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(Scheduled.class)) {
+                    scheduled.put(scheduledTask.getClass().getSimpleName(), new ScheduledMethodRunnable(scheduledTask, method));
+                }
+            }
+        }
+        return scheduled;
     }
 
     @ManagedOperation(description = "Run all scheduled tasks")
     public String runDailyScheduledTasks() {
         return invokeOperation("runMaintenance", "", () -> {
-            scheduledTasks.stream()
-                    .map(task -> taskScheduler.schedule(task::run, dateTimeProvider.getCurrentDateTime().toDate()))
+            scheduledTasks.values().stream()
+                    .map(task -> taskScheduler.schedule(task, dateTimeProvider.getCurrentDateTime().toDate()))
                     .collect(Collectors.toList())
                     .forEach(this::runSilently);
             return "Daily scheduled tasks executed";
@@ -62,16 +82,15 @@ public class DailySchedulerJmx extends JmxBase {
     })
     public String runDailyScheduledTask(final String className) {
         return invokeOperation("runMaintenance", "", () -> {
-            Optional<DailyScheduledTask> scheduledTask = scheduledTasks.stream()
-                    .filter(task -> task.getClass().getSimpleName().equals(className))
-                    .findFirst();
+            ScheduledMethodRunnable scheduledTask = scheduledTasks.get(className);
 
-            if (scheduledTask.isPresent()) {
-                runSilently(taskScheduler.schedule(() -> scheduledTask.get().run(), dateTimeProvider.getCurrentDateTime().toDate()));
+            if (scheduledTask != null) {
+                runSilently(taskScheduler.schedule(scheduledTask, dateTimeProvider.getCurrentDateTime().toDate()));
                 return "Daily scheduled tasks executed";
             } else {
                 return "Class " + className +" not found";
             }
         });
     }
+
 }

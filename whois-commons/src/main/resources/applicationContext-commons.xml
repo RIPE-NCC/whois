@@ -66,23 +66,4 @@
         <property name="password" value="${whois.db.slave.password}"/>
     </bean>
 
-    <bean id="scheduler" class="net.javacrumbs.shedlock.spring.SpringLockableTaskSchedulerFactoryBean">
-        <constructor-arg>
-            <bean class="net.ripe.db.whois.common.scheduler.MaintenanceModeAwareTaskScheduler">
-                <constructor-arg><task:scheduler id="sch" pool-size="10"/></constructor-arg>
-                <constructor-arg ref="maintenanceMode"/>
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean class="net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider">
-                <constructor-arg ref="internalsDataSource"/>
-            </bean>
-        </constructor-arg>
-        <constructor-arg name="defaultLockAtMostFor">
-            <bean class="java.time.Duration" factory-method="ofHours">
-                <constructor-arg value="23"/>
-            </bean>
-        </constructor-arg>
-    </bean>
-
 </beans>

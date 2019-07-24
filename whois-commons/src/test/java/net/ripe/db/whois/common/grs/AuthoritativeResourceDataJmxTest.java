@@ -32,7 +32,7 @@ public class AuthoritativeResourceDataJmxTest {
         final String msg = subject.refreshCache("comment");
         assertThat(msg, is("Refreshed caches"));
 
-        verify(authoritativeResourceData).refreshAuthoritativeResourceCache();
+        verify(authoritativeResourceData).refreshAllSources();
     }
 
     @Test

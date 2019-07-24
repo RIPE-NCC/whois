@@ -26,7 +26,10 @@ import java.util.Set;
 
 @Component
 public class AuthoritativeResourceImportTask implements DailyScheduledTask, EmbeddedValueResolverAware {
+
     private static final Logger logger = LoggerFactory.getLogger(AuthoritativeResourceImportTask.class);
+
+    public final static String TASK_NAME = "AuthoritativeResourceImport";
     private static final Splitter PROPERTY_LIST_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     private final ResourceDataDao resourceDataDao;
@@ -58,8 +61,8 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
-    @SchedulerLock(name = "AuthoritativeResourceImport")
+    @Scheduled(cron = "15 0 0 * * *")
+    @SchedulerLock(name = TASK_NAME)
     public void run() {
         for (final String sourceName : sourceNames) {
             try {

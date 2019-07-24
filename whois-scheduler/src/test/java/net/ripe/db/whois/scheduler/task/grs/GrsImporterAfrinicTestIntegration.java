@@ -3,7 +3,6 @@ package net.ripe.db.whois.scheduler.task.grs;
 import com.google.common.io.Files;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
@@ -40,7 +39,6 @@ public class GrsImporterAfrinicTestIntegration extends AbstractSchedulerIntegrat
 
     @Autowired AuthoritativeResourceImportTask authoritativeResourceImportTask;
     @Autowired AuthoritativeResourceData authoritativeResourceData;
-    @Autowired DailySchedulerDao dailySchedulerDao;
     @Autowired DateTimeProvider dateTimeProvider;
 
     private static final File tempDirectory = Files.createTempDir();
@@ -116,10 +114,8 @@ public class GrsImporterAfrinicTestIntegration extends AbstractSchedulerIntegrat
     @Before
     public void setUp() throws Exception {
         // initialize authoritativeresource
-        dailySchedulerDao.acquireDailyTask(dateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class, "localhost");
         authoritativeResourceImportTask.run();
-        dailySchedulerDao.markTaskDone(System.currentTimeMillis(), dateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class);
-        authoritativeResourceData.refreshAuthoritativeResourceCache();
+        authoritativeResourceData.refreshAllSources();
 
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();
