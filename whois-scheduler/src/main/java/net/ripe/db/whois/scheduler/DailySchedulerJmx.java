@@ -1,8 +1,9 @@
-package net.ripe.db.whois.common.scheduler;
+package net.ripe.db.whois.scheduler;
 
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.jmx.JmxBase;
+import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;

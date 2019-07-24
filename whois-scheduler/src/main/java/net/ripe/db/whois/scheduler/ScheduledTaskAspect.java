@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.scheduler;
+package net.ripe.db.whois.scheduler;
 
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.MaintenanceMode;
@@ -20,7 +20,7 @@ public class ScheduledTaskAspect {
 
     private MaintenanceMode maintenanceMode;
 
-    @Around("this(DailyScheduledTask) && @annotation(org.springframework.scheduling.annotation.Scheduled)")
+    @Around("this(net.ripe.db.whois.common.scheduler.DailyScheduledTask) && @annotation(org.springframework.scheduling.annotation.Scheduled)")
     public void logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         Object target = joinPoint.getTarget();
 
@@ -28,7 +28,7 @@ public class ScheduledTaskAspect {
 
         LOGGER.info("Starting scheduled task: {}", target);
 
-        if (!maintenanceMode.allowUpdate()) {
+        if (maintenanceMode != null && !maintenanceMode.allowUpdate()) {
             LOGGER.info("Scheduled tasks not allowed due to maintenance-mode");
         } else {
             joinPoint.proceed();
