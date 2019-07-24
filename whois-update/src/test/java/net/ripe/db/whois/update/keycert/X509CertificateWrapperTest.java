@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.keycert;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
@@ -28,7 +28,7 @@ public class X509CertificateWrapperTest {
 
     @Before
     public void setup() throws IOException {
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2014-01-02"));
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2014-01-02T00:00:00"));
         x509Keycert = RpslObject.parse(getResource("keycerts/X509-3465.TXT"));
         anotherX509Keycert = RpslObject.parse(getResource("keycerts/X509-1.TXT"));
         pgpKeycert = RpslObject.parse(getResource("keycerts/PGPKEY-28F6CD6C.TXT"));

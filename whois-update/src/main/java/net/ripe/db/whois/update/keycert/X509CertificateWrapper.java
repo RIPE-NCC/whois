@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.jce.provider.X509CertParser;
 import org.bouncycastle.x509.util.StreamParsingException;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 import java.io.ByteArrayInputStream;
 import java.security.MessageDigest;
@@ -131,12 +131,12 @@ public final class X509CertificateWrapper implements KeyWrapper {
     }
 
     public boolean isNotYetValid(final DateTimeProvider dateTimeProvider) {
-        final LocalDateTime notBefore = new LocalDateTime(certificate.getNotBefore());
+        final LocalDateTime notBefore = DateTimeProvider.fromDate(certificate.getNotBefore());
         return notBefore.isAfter(dateTimeProvider.getCurrentDateTime());
     }
 
     public boolean isExpired(final DateTimeProvider dateTimeProvider) {
-        final LocalDateTime notAfter = new LocalDateTime(certificate.getNotAfter());
+        final LocalDateTime notAfter = DateTimeProvider.fromDate(certificate.getNotAfter());
         return notAfter.isBefore(dateTimeProvider.getCurrentDateTime());
     }
 }

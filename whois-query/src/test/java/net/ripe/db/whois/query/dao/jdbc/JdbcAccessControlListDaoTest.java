@@ -7,13 +7,14 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +39,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
 
     @Test
     public void save_acl_event() {
-        final LocalDate blockTime = new LocalDate();
+        final LocalDate blockTime = LocalDate.now();
         final int limit = 10;
 
         subject.saveAclEvent(Ipv4Resource.parse("128.0.0.1/32"), blockTime, limit, BlockEvent.Type.BLOCK_TEMPORARY);
@@ -48,15 +49,15 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
 
         final Map<String, Object> entry = aclEvents.get(0);
         assertThat(entry.get("prefix"), is("128.0.0.1/32"));
-        assertThat(new LocalDate(entry.get("event_time")), is(blockTime));
+        assertThat(((Timestamp)entry.get("event_time")).toLocalDateTime().toLocalDate(), is(blockTime));
         assertThat(entry.get("daily_limit"), is(limit));
         assertThat(entry.get("event_type"), is(BlockEvent.Type.BLOCK_TEMPORARY.name()));
     }
 
 
     @Test
-    public void save_acl_event_ipv6_canonical() throws Exception {
-        final LocalDate blockTime = new LocalDate();
+    public void save_acl_event_ipv6_canonical() {
+        final LocalDate blockTime = LocalDate.now();
         final int limit = 10;
 
         subject.saveAclEvent(Ipv6Resource.parse("2a03:f480:1:c:0:0:0:0/64"), blockTime, limit, BlockEvent.Type.BLOCK_TEMPORARY);
@@ -66,7 +67,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
 
         final Map<String, Object> entry = aclEvents.get(0);
         assertThat(entry.get("prefix"), is("2a03:f480:1:c::/64"));
-        assertThat(new LocalDate(entry.get("event_time")), is(blockTime));
+        assertThat(((Timestamp)entry.get("event_time")).toLocalDateTime().toLocalDate(), is(blockTime));
         assertThat(entry.get("daily_limit"), is(limit));
         assertThat(entry.get("event_type"), is(BlockEvent.Type.BLOCK_TEMPORARY.name()));
 
@@ -75,7 +76,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
 
     @Test
     public void save_acl_event_twice() {
-        final LocalDate blockTime = new LocalDate();
+        final LocalDate blockTime = LocalDate.now();
         final int limit = 10;
 
         subject.saveAclEvent(Ipv4Resource.parse("128.0.0.1/32"), blockTime, limit, BlockEvent.Type.BLOCK_TEMPORARY);
@@ -87,7 +88,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
 
     @Test
     public void get_acl_events_empty() {
-        final List<BlockEvents> temporaryBlocks = subject.getTemporaryBlocks(new LocalDate());
+        final List<BlockEvents> temporaryBlocks = subject.getTemporaryBlocks(LocalDate.now());
 
         assertThat(temporaryBlocks, is(empty()));
     }
@@ -167,7 +168,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
     }
 
     private LocalDate saveAclEvent(InetAddress inetAddress, int day, BlockEvent.Type type) {
-        final LocalDate blockTime = new LocalDate().minusYears(1).plusDays(day);
+        final LocalDate blockTime = LocalDate.now().minusYears(1).plusDays(day);
         subject.saveAclEvent(IpInterval.asIpInterval(inetAddress), blockTime, 1, type);
         return blockTime;
     }
@@ -202,12 +203,12 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
 
         assertThat(denied, hasSize(1));
 
-        subject.removePermanentBlocksBefore(new LocalDate());
+        subject.removePermanentBlocksBefore(LocalDate.now());
         denied = subject.loadIpDenied();
 
         assertThat(denied, hasSize(1));
 
-        subject.removePermanentBlocksBefore(new LocalDate().plusDays(1));
+        subject.removePermanentBlocksBefore(LocalDate.now().plusDays(1));
         denied = subject.loadIpDenied();
 
         assertThat(denied, is(empty()));
@@ -215,10 +216,10 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
 
     @Test
     public void removeAclEventsBefore() {
-        subject.saveAclEvent(Ipv4Resource.parse("10.0.0.0/8"), new LocalDate().minusDays(1), 100, BlockEvent.Type.BLOCK_TEMPORARY);
+        subject.saveAclEvent(Ipv4Resource.parse("10.0.0.0/8"), LocalDate.now().minusDays(1), 100, BlockEvent.Type.BLOCK_TEMPORARY);
         assertThat(databaseHelper.listAclEvents(), hasSize(1));
 
-        subject.removeBlockEventsBefore(new LocalDate());
+        subject.removeBlockEventsBefore(LocalDate.now());
         assertThat(databaseHelper.listAclEvents(), is(empty()));
     }
 
@@ -285,7 +286,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
 
     @Test
     public void save_permanent_block() {
-        final LocalDate blockTime = new LocalDate();
+        final LocalDate blockTime = LocalDate.now();
         final int limit = 10;
 
         subject.savePermanentBlock(Ipv4Resource.parse("128.0.0.1/32"), blockTime, limit, "permanent block");
@@ -301,14 +302,14 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
 
         final Map<String, Object> aclEvent = aclEvents.get(0);
         assertThat(aclEvent.get("prefix"), is("128.0.0.1/32"));
-        assertThat(new LocalDate(aclEvent.get("event_time")), is(blockTime));
+        assertThat(((Timestamp)aclEvent.get("event_time")).toLocalDateTime().toLocalDate(), is(blockTime));
         assertThat(aclEvent.get("daily_limit"), is(limit));
         assertThat(aclEvent.get("event_type"), is(BlockEvent.Type.BLOCK_PERMANENTLY.name()));
     }
 
     @Test
     public void save_permanent_block_ipv6_canonical() {
-        final LocalDate blockTime = new LocalDate();
+        final LocalDate blockTime = LocalDate.now();
         final int limit = 10;
 
         subject.savePermanentBlock(Ipv6Resource.parse("2a03:f480:1:c:0:0:0:0/64"), blockTime, limit, "permanent block");
@@ -324,7 +325,7 @@ public class JdbcAccessControlListDaoTest extends AbstractQueryDaoTest {
 
         final Map<String, Object> aclEvent = aclEvents.get(0);
         assertThat(aclEvent.get("prefix"), is("2a03:f480:1:c::/64"));
-        assertThat(new LocalDate(aclEvent.get("event_time")), is(blockTime));
+        assertThat(((Timestamp)aclEvent.get("event_time")).toLocalDateTime().toLocalDate(), is(blockTime));
         assertThat(aclEvent.get("daily_limit"), is(limit));
         assertThat(aclEvent.get("event_type"), is(BlockEvent.Type.BLOCK_PERMANENTLY.name()));
     }

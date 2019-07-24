@@ -10,7 +10,6 @@ import org.bouncycastle.openpgp.PGPSignatureList;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
-import org.joda.time.LocalDateTime;
 import org.springframework.util.FileCopyUtils;
 
 import javax.annotation.concurrent.Immutable;
@@ -20,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -176,7 +176,7 @@ public final class PgpSignedMessage {
 
     // The signing time must be within an hour of the current time.
     public boolean verifySigningTime(final DateTimeProvider dateTimeProvider) {
-        final LocalDateTime signingTime = new LocalDateTime(getPgpSignature().getCreationTime());
+        final LocalDateTime signingTime = DateTimeProvider.fromDate(getPgpSignature().getCreationTime());
         final LocalDateTime currentTime = dateTimeProvider.getCurrentDateTime();
         return (signingTime.isAfter(currentTime.minusHours(1)) && signingTime.isBefore(currentTime.plusHours(1)));
     }

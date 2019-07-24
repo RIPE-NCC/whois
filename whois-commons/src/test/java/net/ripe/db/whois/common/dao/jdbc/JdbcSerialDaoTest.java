@@ -6,20 +6,22 @@ import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.AbstractDaoTest;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.Duration;
-import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.LocalDateTime;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class JdbcSerialDaoTest extends AbstractDaoTest {
+
+    private static final int SECONDS_PER_DAY = 60 * 60 * 24;
+
     @Autowired JdbcSerialDao subject;
     @Value("${whois.source}") protected String source;
 
@@ -166,17 +168,19 @@ public class JdbcSerialDaoTest extends AbstractDaoTest {
 
         testDateTimeProvider.setTime(queryTime);
 
-        final int expectedAge1 = Long.valueOf(new Duration(event1.toDateTime(), queryTime.toDateTime()).getStandardDays()).intValue();
-        final int expectedAge2 = Long.valueOf(new Duration(event2.toDateTime(), queryTime.toDateTime()).getStandardDays()).intValue();
-        final int expectedAge3 = Long.valueOf(new Duration(event3.toDateTime(), queryTime.toDateTime()).getStandardDays()).intValue();
-        final int expectedAge4 = Long.valueOf(new Duration(event4.toDateTime(), queryTime.toDateTime()).getStandardDays()).intValue();
-        final int expectedAge5 = Long.valueOf(new Duration(event5.toDateTime(), queryTime.toDateTime()).getStandardDays()).intValue();
 
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(1) / DateTimeConstants.SECONDS_PER_DAY, is(expectedAge1));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(2) / DateTimeConstants.SECONDS_PER_DAY, is(expectedAge2));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(3) / DateTimeConstants.SECONDS_PER_DAY, is(expectedAge3));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(4) / DateTimeConstants.SECONDS_PER_DAY, is(expectedAge4));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(5) / DateTimeConstants.SECONDS_PER_DAY, is(expectedAge5));
+
+        final int expectedAge1 = Long.valueOf(java.time.Duration.between(event1, queryTime).toDays()).intValue();
+        final int expectedAge2 = Long.valueOf(java.time.Duration.between(event2, queryTime).toDays()).intValue();
+        final int expectedAge3 = Long.valueOf(java.time.Duration.between(event3, queryTime).toDays()).intValue();
+        final int expectedAge4 = Long.valueOf(java.time.Duration.between(event4, queryTime).toDays()).intValue();
+        final int expectedAge5 = Long.valueOf(java.time.Duration.between(event5, queryTime).toDays()).intValue();
+
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(1) / SECONDS_PER_DAY, is(expectedAge1));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(2) / SECONDS_PER_DAY, is(expectedAge2));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(3) / SECONDS_PER_DAY, is(expectedAge3));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(4) / SECONDS_PER_DAY, is(expectedAge4));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(5) / SECONDS_PER_DAY, is(expectedAge5));
     }
 
     @Test
@@ -201,12 +205,12 @@ public class JdbcSerialDaoTest extends AbstractDaoTest {
         databaseHelper.getWhoisTemplate().update("delete from serials where serial_id = ?", 2);
 
 
-        final int expectedAge1 = Long.valueOf(new Duration(event1.toDateTime(), queryTime.toDateTime()).getStandardDays()).intValue();
-        final int expectedAge3 = Long.valueOf(new Duration(event3.toDateTime(), queryTime.toDateTime()).getStandardDays()).intValue();
+        final int expectedAge1 = Long.valueOf(java.time.Duration.between(event1, queryTime).toDays()).intValue();
+        final int expectedAge3 = Long.valueOf(java.time.Duration.between(event3, queryTime).toDays()).intValue();
 
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(1)/ DateTimeConstants.SECONDS_PER_DAY, is(expectedAge1));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(2)/ DateTimeConstants.SECONDS_PER_DAY, is(expectedAge3));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(3)/ DateTimeConstants.SECONDS_PER_DAY, is(expectedAge3));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(1)/ SECONDS_PER_DAY, is(expectedAge1));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(2)/ SECONDS_PER_DAY, is(expectedAge3));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(3)/ SECONDS_PER_DAY, is(expectedAge3));
         assertThat(subject.getAgeOfExactOrNextExistingSerial(10), is(nullValue()));
     }
 

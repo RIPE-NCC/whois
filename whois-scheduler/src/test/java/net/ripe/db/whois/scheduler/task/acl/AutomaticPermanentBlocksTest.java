@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.scheduler.DailyScheduler;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +50,7 @@ public class AutomaticPermanentBlocksTest {
 
     @Before
     public void setUp() throws Exception {
-        now = new LocalDate();
+        now = LocalDate.now();
         when(dateTimeProvider.getCurrentDate()).thenReturn(now);
         when(ipResourceConfiguration.getLimit(any(InetAddress.class))).thenReturn(QUERY_LIMIT);
     }

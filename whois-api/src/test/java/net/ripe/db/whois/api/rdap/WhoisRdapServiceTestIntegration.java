@@ -22,7 +22,7 @@ import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

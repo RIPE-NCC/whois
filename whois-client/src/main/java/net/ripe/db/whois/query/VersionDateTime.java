@@ -1,28 +1,34 @@
 package net.ripe.db.whois.query;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class VersionDateTime implements Comparable<VersionDateTime> {
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     private final LocalDateTime timestamp;
 
-    public static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 
     public VersionDateTime(final LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 
     public VersionDateTime(final Long timestamp) {
-        this(new LocalDateTime(timestamp * 1000L));
+        this(fromEpochMilli(timestamp * 1000L));
+    }
+
+    // TODO: [ES] copied from DateTimeProvider
+    private static LocalDateTime fromEpochMilli(final long timestamp) {
+        return LocalDateTime.from(Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.systemDefault()));
     }
 
     @Override
     public String toString() {
-        return formatter.print(timestamp);
+        return DATE_TIME_FORMATTER.format(timestamp);
     }
 
     @Override
