@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseEndToEndSpec
-import org.joda.time.LocalDateTime
+import java.time.LocalDateTime
 
 abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
 

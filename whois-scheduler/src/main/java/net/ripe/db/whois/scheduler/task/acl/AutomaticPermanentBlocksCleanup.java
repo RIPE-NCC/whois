@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.acl;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

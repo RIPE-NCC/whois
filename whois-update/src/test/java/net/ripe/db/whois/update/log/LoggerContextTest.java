@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,7 +18,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -46,7 +51,7 @@ public class LoggerContextTest {
 
         subject.init(folder.getRoot());
 
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime());
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         when(update.getUpdate()).thenReturn(update);
     }
 

@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.Changed;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -47,7 +47,7 @@ public class ChangedTest {
 
         assertThat(subject.getEmail(), is("a@a.a"));
         assertThat(subject.getDateString(), is("20010101"));
-        assertThat(subject.getDate(), is(new LocalDate(2001, 1, 1)));
+        assertThat(subject.getDate(), is(LocalDate.of(2001, 1, 1)));
         assertThat(subject.toString(), is("a@a.a 20010101"));
     }
 

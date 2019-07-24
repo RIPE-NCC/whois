@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.scheduler;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

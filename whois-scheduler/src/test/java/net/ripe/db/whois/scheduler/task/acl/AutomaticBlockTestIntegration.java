@@ -8,7 +8,6 @@ import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.PersonalObjectAccounting;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +15,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
+import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -58,7 +58,7 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     public void test_ban_and_unban() throws Exception {
         int currentDay = 0;
         for (int day = 1; day <= NR_DAYS_BEFORE_PERMANENT_BAN; day++) {
-            testDateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
+            testDateTimeProvider.setTime(LocalDateTime.now().plusDays(currentDay++));
             queryAndCheckNotBanned(personQuery, "person:         test person");
 
             // Caught by ACL manager
@@ -69,16 +69,16 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
             dailyMaintenance();
         }
 
-        testDateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
+        testDateTimeProvider.setTime(LocalDateTime.now().plusDays(currentDay++));
         dailyMaintenance();
         queryAndCheckBanned(QueryMessages.accessDeniedPermanently(localHost));
 
-        testDateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
+        testDateTimeProvider.setTime(LocalDateTime.now().plusDays(currentDay++));
         databaseHelper.unban("127.0.0.1/32");
 
         dailyMaintenance();
 
-        testDateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
+        testDateTimeProvider.setTime(LocalDateTime.now().plusDays(currentDay++));
         queryAndCheckNotBanned(personQuery, "person:         test person");
     }
 

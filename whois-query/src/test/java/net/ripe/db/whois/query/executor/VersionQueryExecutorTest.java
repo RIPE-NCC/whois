@@ -16,8 +16,6 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.query.Query;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +23,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -43,7 +44,6 @@ public class VersionQueryExecutorTest {
     @Mock VersionInfo versionInfo1;
     @Mock VersionInfo versionInfo2;
     @Mock VersionInfo versionInfo3;
-    @Mock VersionInfo versionInfo4;
     @Mock SourceContext sourceContext;
 
     @Mock VersionDao versionDao;
@@ -224,7 +224,7 @@ public class VersionQueryExecutorTest {
     private void setupVersionMock(VersionInfo mock, int objectId, long timestamp) {
         when(mock.getObjectId()).thenReturn(objectId);
         when(mock.getOperation()).thenReturn(Operation.UPDATE);
-        when(mock.getTimestamp()).thenReturn(new VersionDateTime(new LocalDateTime(timestamp * 1000L, DateTimeZone.UTC)));
+        when(mock.getTimestamp()).thenReturn(new VersionDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp * 1000L), ZoneOffset.UTC)));
         when(mock.getSequenceId()).thenReturn(objectId - 1);
     }
 }
