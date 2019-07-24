@@ -267,6 +267,7 @@ public class NrtmQueryHandlerTest {
         verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
     }
 
+    // TODO: [ES] slow unit test (takes ~10s)
     @Test
     public void retryForAnnotation() {
         when(serialDaoMock.getByIdForNrtm(any(Integer.class))).thenThrow(CannotGetJdbcConnectionException.class);

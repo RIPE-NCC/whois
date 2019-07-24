@@ -30,6 +30,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
+// TODO: [ES] slow unit tests (takes ~30s)
 @RunWith(MockitoJUnitRunner.class)
 public class ZonemasterDnsGatewayTest {
 
