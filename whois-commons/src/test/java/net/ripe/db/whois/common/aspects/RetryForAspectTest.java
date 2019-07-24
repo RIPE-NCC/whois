@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.aspects;
 
-import net.ripe.db.whois.common.support.AbstractDaoTest;
+import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class RetryForAspectTest extends AbstractDaoTest {
+public class RetryForAspectTest extends AbstractDaoIntegrationTest {
     static final int ATTEMPTS = 5;
 
     AtomicInteger attemptCounter;

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.db;
 
 import net.ripe.db.whois.common.aspects.RetryFor;
-import net.ripe.db.whois.common.support.AbstractDaoTest;
+import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
  * This test also fails running in your IDE if AspectJ is not configured correctly.
  */
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
-public class RetryForAspectTest extends AbstractDaoTest {
+public class RetryForAspectTest extends AbstractDaoIntegrationTest {
     static final int ATTEMPTS = 5;
 
     AtomicInteger attemptCounter;
