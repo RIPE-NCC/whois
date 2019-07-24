@@ -1,9 +1,11 @@
-package net.ripe.db.whois.common.aspects;
+package net.ripe.db.whois.db;
 
+import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -13,13 +15,18 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class RetryForAspectTest extends AbstractDaoIntegrationTest {
+/**
+ * Test to ensure that the Retry aspect is properly applied from whois-commons onto whois sub-modules.
+ * <p/>
+ * This test also fails running in your IDE if AspectJ is not configured correctly.
+ */
+@ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
+public class RetryForAspectIntegrationTest extends AbstractDaoIntegrationTest {
     static final int ATTEMPTS = 5;
 
     AtomicInteger attemptCounter;
 
-    @Autowired RetryForAspectMethod retryForAspectMethod;
-    @Autowired RetryForAspectType retryForAspectType;
+    @Autowired RetryForAspectOnClass retryForAspectOnClass;
 
     @Before
     public void setUp() throws Exception {
@@ -43,7 +50,7 @@ public class RetryForAspectTest extends AbstractDaoIntegrationTest {
 
     private void retryForAnnotatedMethod(final Exception e, final int expectedAttempts) throws Exception {
         try {
-            retryForAspectMethod.incrementAndThrowException(attemptCounter, e);
+            retryForAspectOnClass.incrementAndThrowException(attemptCounter, e);
             fail("Expected exception");
         } catch (Exception exc) {
             assertThat(e, is(exc));
@@ -69,12 +76,18 @@ public class RetryForAspectTest extends AbstractDaoIntegrationTest {
 
     private void retryForAnnotatedType(final Exception e, final int expectedAttempts) throws Exception {
         try {
-            retryForAspectType.incrementAndThrowException(attemptCounter, e);
+            incrementAndThrowException(attemptCounter, e);
             fail("Expected exception");
         } catch (Exception exc) {
             assertThat(e, is(exc));
         }
 
         assertThat(attemptCounter.get(), is(expectedAttempts));
+    }
+
+    @RetryFor(value = IOException.class, attempts = RetryForAspectIntegrationTest.ATTEMPTS, intervalMs = 0)
+    public void incrementAndThrowException(final AtomicInteger counter, final Exception e) throws Exception {
+        counter.incrementAndGet();
+        throw e;
     }
 }
