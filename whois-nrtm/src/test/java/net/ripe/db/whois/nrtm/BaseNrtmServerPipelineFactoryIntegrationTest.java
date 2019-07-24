@@ -1,9 +1,11 @@
 package net.ripe.db.whois.nrtm;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.nrtm.integration.AbstractNrtmIntegrationBase;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
@@ -15,8 +17,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+@Category(IntegrationTest.class)
 public class BaseNrtmServerPipelineFactoryIntegrationTest extends AbstractNrtmIntegrationBase {
     @Autowired private BaseNrtmServerPipelineFactory nrtmServerPipelineFactory;
     @Autowired private List<ChannelHandler> channelHandlers;

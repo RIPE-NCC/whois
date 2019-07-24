@@ -3,9 +3,11 @@ package net.ripe.db.whois.api.mail.dao;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileCopyUtils;
 
@@ -17,8 +19,11 @@ import java.util.Map;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
+@Category(IntegrationTest.class)
 public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
     private MailMessageDao subject;
     @Autowired private MessageDequeue messageDequeue;

@@ -2,9 +2,11 @@ package net.ripe.db.whois.scheduler.task.export.dao;
 
 import com.google.common.collect.Sets;
 import com.jayway.awaitility.Awaitility;
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
@@ -16,6 +18,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+@Category(IntegrationTest.class)
 public class JdbcExportDaoIntegrationTest extends AbstractSchedulerIntegrationTest {
     @Autowired ExportDao subject;
 

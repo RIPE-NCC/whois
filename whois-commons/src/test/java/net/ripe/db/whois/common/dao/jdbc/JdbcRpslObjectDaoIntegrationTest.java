@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
@@ -10,6 +11,7 @@ import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -26,6 +28,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
+@Category(IntegrationTest.class)
 public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired RpslObjectDao subject;
     @Value("${whois.source}") protected String source;

@@ -1,17 +1,22 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+@Category(IntegrationTest.class)
 public class JdbcUserDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired UserDao subject;
 

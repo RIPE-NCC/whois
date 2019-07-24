@@ -1,7 +1,9 @@
 package net.ripe.db.whois.common.dao;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
@@ -11,6 +13,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+@Category(IntegrationTest.class)
 public class DailySchedulerDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired DailySchedulerDao subject;
 

@@ -1,10 +1,12 @@
 package net.ripe.db.whois.common.dao.jdbc.index;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.List;
 
@@ -12,6 +14,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+@Category(IntegrationTest.class)
 public class IndexWithAsBlockIntegrationTest extends IndexIntegrationTestBase {
     private IndexWithAsBlock subject;
 

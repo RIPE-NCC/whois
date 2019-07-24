@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.dao.jdbc;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
@@ -9,6 +10,7 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
@@ -24,6 +26,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+@Category(IntegrationTest.class)
 public class JdbcAccessControlListDaoIntegrationTest extends AbstractQueryDaoIntegrationTest {
 
     @Autowired AccessControlListDao subject;

@@ -1,8 +1,10 @@
 package net.ripe.db.whois.nrtm;
 
 import com.google.common.net.InetAddresses;
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.nrtm.integration.AbstractNrtmIntegrationBase;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,6 +14,7 @@ import javax.sql.DataSource;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+@Category(IntegrationTest.class)
 public class AccessControlListIntegrationTest extends AbstractNrtmIntegrationBase {
     @Autowired @Qualifier("aclDataSource") DataSource aclDataSource;
     @Autowired AccessControlList subject;

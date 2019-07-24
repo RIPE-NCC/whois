@@ -1,10 +1,12 @@
 package net.ripe.db.whois.query.dao.jdbc;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import net.ripe.db.whois.query.dao.Inet6numDao;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.UnknownHostException;
@@ -14,6 +16,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+@Category(IntegrationTest.class)
 public class JdbcInet6numDaoIntegrationTest extends AbstractQueryDaoIntegrationTest {
 
     @Autowired Inet6numDao subject;

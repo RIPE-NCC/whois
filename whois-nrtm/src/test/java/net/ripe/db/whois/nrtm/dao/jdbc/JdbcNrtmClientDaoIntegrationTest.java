@@ -1,5 +1,6 @@
 package net.ripe.db.whois.nrtm.dao.jdbc;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -7,15 +8,17 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import net.ripe.db.whois.nrtm.dao.NrtmClientDao;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
 
+@Category(IntegrationTest.class)
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm-test.xml"})
 public class JdbcNrtmClientDaoIntegrationTest extends AbstractDaoIntegrationTest {
 

@@ -1,19 +1,21 @@
 package net.ripe.db.whois.query.dao.jdbc;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.query.dao.InetnumDao;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.net.UnknownHostException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+@Category(IntegrationTest.class)
 public class JdbcInetnumDaoIntegrationTest extends AbstractQueryDaoIntegrationTest {
 
     @Autowired InetnumDao subject;
@@ -21,7 +23,7 @@ public class JdbcInetnumDaoIntegrationTest extends AbstractQueryDaoIntegrationTe
     private Ipv4Resource ipv4Resource2;
 
     @Before
-    public void setup() throws UnknownHostException {
+    public void setup() {
         ipv4Resource1 = Ipv4Resource.parse("81.80.117.237/32");
         ipv4Resource2 = Ipv4Resource.parse("194.206.65.37/32");
     }

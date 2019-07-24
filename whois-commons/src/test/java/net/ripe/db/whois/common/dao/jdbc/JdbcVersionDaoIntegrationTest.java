@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
@@ -12,6 +13,7 @@ import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import net.ripe.db.whois.query.VersionDateTime;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -25,6 +27,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+@Category(IntegrationTest.class)
 public class JdbcVersionDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired VersionDao subject;
 

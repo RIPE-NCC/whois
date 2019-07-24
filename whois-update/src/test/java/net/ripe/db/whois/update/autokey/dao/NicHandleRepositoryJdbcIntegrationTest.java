@@ -1,17 +1,25 @@
 package net.ripe.db.whois.update.autokey.dao;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
 import net.ripe.db.whois.update.domain.NicHandle;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
+@Category(IntegrationTest.class)
 @Transactional
 public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired NicHandleRepository subject;

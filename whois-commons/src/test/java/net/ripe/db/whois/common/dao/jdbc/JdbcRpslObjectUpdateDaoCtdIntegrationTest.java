@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
 
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -12,6 +13,7 @@ import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
@@ -23,6 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+@Category(IntegrationTest.class)
 public class JdbcRpslObjectUpdateDaoCtdIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired RpslObjectUpdateDao subject;
 
