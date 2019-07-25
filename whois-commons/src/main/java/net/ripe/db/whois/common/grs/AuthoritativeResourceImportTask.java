@@ -61,7 +61,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
     }
 
     @Override
-    @Scheduled(cron = "15 0 0 * * *")
+    @Scheduled(cron = "0 15 0 * * *")
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         for (final String sourceName : sourceNames) {

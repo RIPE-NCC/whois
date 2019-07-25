@@ -2,6 +2,7 @@ package net.ripe.db.whois.scheduler;
 
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.MaintenanceMode;
+import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -24,17 +25,19 @@ public class ScheduledTaskAspect {
     public void logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         Object target = joinPoint.getTarget();
 
-        final Stopwatch stopwatch = Stopwatch.createStarted();
+        if (target instanceof DailyScheduledTask) {
+            final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        LOGGER.info("Starting scheduled task: {}", target);
+            LOGGER.info("Starting scheduled task: {}", target);
 
-        if (maintenanceMode != null && !maintenanceMode.allowUpdate()) {
-            LOGGER.info("Scheduled tasks not allowed due to maintenance-mode");
-        } else {
-            joinPoint.proceed();
+            if (maintenanceMode != null && !maintenanceMode.allowUpdate()) {
+                LOGGER.info("Scheduled tasks not allowed due to maintenance-mode");
+            } else {
+                joinPoint.proceed();
+            }
+
+            LOGGER.info("Scheduled task: {} took {}", target, stopwatch.stop());
         }
-
-        LOGGER.info("Scheduled task: {} took {}", target, stopwatch.stop());
     }
 
     @Autowired
