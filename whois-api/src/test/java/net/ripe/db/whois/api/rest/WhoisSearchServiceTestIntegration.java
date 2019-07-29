@@ -1928,10 +1928,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void query_string_not_normalised() {
-        RestTest.target(getPort(), "whois/search?query-string=%E2%80%8E2019%2011:35%5D%20ok")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+    public void query_string_normalised() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=%E2%80%8E2019%2011:35%5D%20ok")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (NotFoundException e) {
+            // ensure no stack trace in response
+            assertThat(e.getResponse().readEntity(String.class), not(containsString("Caused by:")));
+        }
+
     }
 
     // helper methods

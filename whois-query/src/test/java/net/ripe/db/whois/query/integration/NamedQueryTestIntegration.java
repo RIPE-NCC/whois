@@ -101,9 +101,8 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
-    public void queryStringNotNormalised() {
+    public void queryStringNormalised() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "\u200E2019 11:35] ok");
-
-        assertThat(response, containsString("test"));
+        assertThat(response, containsString("% This query was converted into the ISO-8859-1 (Latin-1) character set."));
     }
 }

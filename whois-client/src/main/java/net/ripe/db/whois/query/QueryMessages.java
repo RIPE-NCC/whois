@@ -362,7 +362,7 @@ public final class QueryMessages {
     }
 
     public static Message valueChangedDueToLatin1Conversion() {
-        return new Message(Type.WARNING, "Query value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
+        return new QueryMessage(Type.INFO, "This query was converted into the ISO-8859-1 (Latin-1) character set.");
     }
 
 }

@@ -125,7 +125,7 @@ public class Query {
         return trusted;
     }
 
-    public boolean hasCharacterSubstitutions() {
+    public boolean hasSubstitutions() {
         return queryParser.hasSubstitutions();
     }
 
