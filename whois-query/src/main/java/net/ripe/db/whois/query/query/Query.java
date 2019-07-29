@@ -125,6 +125,10 @@ public class Query {
         return trusted;
     }
 
+    public boolean hasCharacterSubstitutions() {
+        return queryParser.hasSubstitutions();
+    }
+
     public boolean via(Origin origin) {
         return this.origin == origin;
     }

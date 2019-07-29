@@ -94,6 +94,10 @@ class RpslObjectSearcher {
     public Iterable<? extends ResponseObject> search(final Query query, final SourceContext sourceContext) {
         Iterable<? extends ResponseObject> result = Collections.emptyList();
 
+        if (query.hasCharacterSubstitutions()) {
+            result = Iterables.concat(result, Collections.singleton(new MessageObject(QueryMessages.valueChangedDueToLatin1Conversion())));
+        }
+
         if (query.isInverse()) {
             result = indexLookupReverse(query);
         } else if (query.isMatchPrimaryKeyOnly()) {
