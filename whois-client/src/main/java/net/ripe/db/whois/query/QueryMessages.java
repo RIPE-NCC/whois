@@ -360,4 +360,9 @@ public final class QueryMessages {
     public static Message inverseSearchNotAllowed() {
         return new QueryMessage(Type.ERROR, "Inverse search on 'auth' attribute is limited to 'key-cert' objects only");
     }
+
+    public static Message valueChangedDueToLatin1Conversion() {
+        return new QueryMessage(Type.INFO, "This query was converted into the ISO-8859-1 (Latin-1) character set.");
+    }
+
 }

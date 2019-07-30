@@ -7,7 +7,6 @@ import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -101,11 +100,9 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(response, containsString("%ERROR:101: no entries found"));
     }
 
-    @Ignore("TODO: [ES] exception thrown as query string not normalised")
     @Test
-    public void queryStringNotNormalised() {
+    public void queryStringNormalised() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "\u200E2019 11:35] ok");
-
-        assertThat(response, containsString("test"));
+        assertThat(response, containsString("% This query was converted into the ISO-8859-1 (Latin-1) character set."));
     }
 }

@@ -26,9 +26,7 @@ import net.ripe.db.whois.query.QueryFlag;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
-import java.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +38,7 @@ import javax.ws.rs.core.Response;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -1928,12 +1927,18 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertTrue(hasSourceTest);
     }
 
-    @Ignore("TODO: [ES] exception thrown as query string not normalised")
     @Test
-    public void query_string_not_normalised() {
-        RestTest.target(getPort(), "whois/search?query-string=%E2%80%8E2019%2011:35%5D%20ok")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+    public void query_string_normalised() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=%E2%80%8E2019%2011:35%5D%20ok")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (NotFoundException e) {
+            // ensure no stack trace in response
+            assertThat(e.getResponse().readEntity(String.class), not(containsString("Caused by:")));
+        }
+
     }
 
     // helper methods
