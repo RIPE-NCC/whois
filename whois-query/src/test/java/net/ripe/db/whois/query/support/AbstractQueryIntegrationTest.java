@@ -1,6 +1,6 @@
 package net.ripe.db.whois.query.support;
 
-import net.ripe.db.whois.common.support.AbstractDaoTest;
+import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
-public abstract class AbstractQueryIntegrationTest extends AbstractDaoTest {
+public abstract class AbstractQueryIntegrationTest extends AbstractDaoIntegrationTest {
     public static final String HOST = "localhost";
 
     @Autowired protected QueryServer queryServer;
