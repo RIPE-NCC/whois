@@ -334,6 +334,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "\"assignment-size:\" value must not be greater than the maximum prefix size %s", prefixLength);
     }
 
+    public static Message prefixTooSmall(final int minimumPrefixLength) {
+        return new Message(Type.ERROR, "Minimum prefix size is %s", minimumPrefixLength);
+    }
+
     public static Message tooManyAggregatedByLirInHierarchy() {
         return new Message(Type.ERROR, "Only two levels of hierarchy allowed with status AGGREGATED-BY-LIR");
     }
