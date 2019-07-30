@@ -25,6 +25,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.common.DateTimeProvider.toDate;
+
 @Component
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "DailyScheduler", description = "Whois daily scheduler")
 public class DailySchedulerJmx extends JmxBase {
@@ -68,7 +70,7 @@ public class DailySchedulerJmx extends JmxBase {
     public String runDailyScheduledTasks() {
         return invokeOperation("runMaintenance", "", () -> {
             scheduledTasks.values().stream()
-                    .map(task -> taskScheduler.schedule(task, dateTimeProvider.getCurrentDateTime().toDate()))
+                    .map(task -> taskScheduler.schedule(task, toDate(dateTimeProvider.getCurrentDateTime())))
                     .collect(Collectors.toList())
                     .forEach(this::runSilently);
             return "Daily scheduled tasks executed";
@@ -92,7 +94,7 @@ public class DailySchedulerJmx extends JmxBase {
             ScheduledMethodRunnable scheduledTask = scheduledTasks.get(className);
 
             if (scheduledTask != null) {
-                runSilently(taskScheduler.schedule(scheduledTask, dateTimeProvider.getCurrentDateTime().toDate()));
+                runSilently(taskScheduler.schedule(scheduledTask, toDate(dateTimeProvider.getCurrentDateTime())));
                 return "Daily scheduled tasks executed";
             } else {
                 return "Class " + className +" not found";

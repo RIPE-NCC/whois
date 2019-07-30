@@ -2,13 +2,16 @@ package net.ripe.db.whois.common.grs;
 
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import static net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask.TASK_NAME;
 
@@ -50,7 +53,9 @@ public class AuthoritativeResourceRefreshTask {
         }
 
         if (lastImportTime > lastRefresh) {
-            LOGGER.info("Authoritative resource data import detected, finished at {} (previous run: {})", new LocalDateTime(lastImportTime), new LocalDateTime(lastRefresh));
+            LOGGER.info("Authoritative resource data import detected, finished at {} (previous run: {})",
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(lastImportTime), ZoneId.systemDefault()),
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(lastRefresh), ZoneId.systemDefault()));
             lastRefresh = lastImportTime;
             authoritativeResourceData.refreshAllSources();
             state = resourceDataDao.getState(source);
