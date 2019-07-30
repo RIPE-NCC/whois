@@ -2,7 +2,7 @@ package net.ripe.db.whois.nrtm.integration;
 
 import com.jayway.awaitility.Awaitility;
 import com.jayway.awaitility.Duration;
-import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperTest;
+import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -19,7 +19,7 @@ import java.util.concurrent.Callable;
 import static org.hamcrest.Matchers.is;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm-test.xml"})
-public abstract class AbstractNrtmIntegrationBase extends AbstractDatabaseHelperTest {
+public abstract class AbstractNrtmIntegrationBase extends AbstractDatabaseHelperIntegrationTest {
     @Autowired protected NrtmServer nrtmServer;
     @Autowired protected AccessControlList accessControlList;
     @Autowired protected SourceContext sourceContext;
