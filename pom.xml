@@ -61,7 +61,6 @@
 
         <jaxb.version>2.2.11</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
-        <jodatime.version>2.9.2</jodatime.version>
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.12</junit.version>
@@ -353,11 +352,6 @@
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
                 <version>${hazelcast.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${jodatime.version}</version>
             </dependency>
 
             <!-- bouncy castle -->
@@ -786,6 +780,9 @@
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
+                    <excludes>
+                        <exclude>${test.files.integration}</exclude>
+                    </excludes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
                     <reuseForks>true</reuseForks>
@@ -922,7 +919,7 @@
                 <test.groups>None</test.groups>
                 <test.forkCount.integration>3</test.forkCount.integration>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>None</test.files.integration>
+                <test.files.integration>**/*Integration*.class</test.files.integration>
             </properties>
         </profile>
         <profile>

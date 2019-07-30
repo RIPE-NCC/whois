@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 import java.util.Objects;
 

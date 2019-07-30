@@ -1,10 +1,14 @@
 package net.ripe.db.whois.common.sso;
 
 import com.google.common.base.MoreObjects;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.ISODateTimeFormat;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class UserSession {
+
+    private static final DateTimeFormatter ISO_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+
     final private String username;
     final private String displayName;
     final private boolean isActive;
@@ -15,7 +19,7 @@ public class UserSession {
         this.username = username;
         this.displayName = displayName;
         this.isActive = isActive;
-        this.expiryDate = expiryDate == null ? LocalDateTime.now().plusHours(1) : LocalDateTime.parse(expiryDate, ISODateTimeFormat.dateTimeParser());
+        this.expiryDate = expiryDate == null ? LocalDateTime.now().plusHours(1) : LocalDateTime.parse(expiryDate, ISO_DATE_TIME_FORMATTER);
     }
 
     public String getDisplayName() {

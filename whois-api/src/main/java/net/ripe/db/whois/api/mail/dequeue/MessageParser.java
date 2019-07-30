@@ -15,9 +15,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +38,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -51,7 +50,7 @@ import java.util.List;
 public class MessageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageParser.class);
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss z yyyy");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
 
     private final LoggerContext loggerContext;
 
@@ -60,7 +59,7 @@ public class MessageParser {
         this.loggerContext = loggerContext;
     }
 
-    public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException, IOException {
+    public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException {
         final MailMessageBuilder messageBuilder = new MailMessageBuilder();
         messageBuilder.id(message.getMessageID());
 
@@ -70,7 +69,7 @@ public class MessageParser {
         if (deliveryDate != null && deliveryDate.length > 0 && deliveryDate[0].length() > 0) {
             messageBuilder.date(deliveryDate[0]);
         } else {
-            messageBuilder.date(DATE_FORMAT.print(new DateTime()));
+            messageBuilder.date(DATE_FORMAT.format(ZonedDateTime.now()));
         }
 
         parseReplyTo(messageBuilder, message);

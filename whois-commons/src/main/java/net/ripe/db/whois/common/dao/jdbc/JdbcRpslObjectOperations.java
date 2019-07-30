@@ -319,7 +319,7 @@ public class JdbcRpslObjectOperations {
     }
 
     public static int now(final DateTimeProvider dateTimeProvider) {
-        return (int) (dateTimeProvider.getCurrentDateTime().toDate().getTime() / 1000L);
+        return (int) (dateTimeProvider.getNanoTime() / 1000L);
     }
 
     public static void truncateTables(final JdbcTemplate... jdbcTemplates) {

@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 import java.util.List;
 
