@@ -60,6 +60,9 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
         this.valueResolver = valueResolver;
     }
 
+    /**
+     * Run at 00.15 so we don't miss the the delegated stats file which is normally published around midnight.
+     */
     @Override
     @Scheduled(cron = "0 15 0 * * *")
     @SchedulerLock(name = TASK_NAME)

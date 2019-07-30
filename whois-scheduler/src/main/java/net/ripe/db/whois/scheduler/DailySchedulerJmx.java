@@ -45,6 +45,12 @@ public class DailySchedulerJmx extends JmxBase {
         this.scheduledTasks = createScheduledMethodRunnables(scheduledTasks);
     }
 
+    /**
+     * Need to wrap all our {@DailyScheduledTask}s in {@link ScheduledMethodRunnable}
+     * as these are expected by Spring's task scheduler's AOP proxies.
+     * @param scheduledTasks list of {@link DailyScheduledTask}s to wrap
+     * @return a map with wrapped ScheduledMethodRunnables indexed by job name
+     */
     private Map<String, ScheduledMethodRunnable> createScheduledMethodRunnables(final List<DailyScheduledTask> scheduledTasks) {
         final Map<String, ScheduledMethodRunnable> scheduled = Maps.newHashMap();
         for (DailyScheduledTask scheduledTask : scheduledTasks) {

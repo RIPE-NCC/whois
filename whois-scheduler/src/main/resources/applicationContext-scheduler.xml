@@ -20,6 +20,7 @@
                 <constructor-arg ref="internalsDataSource"/>
             </bean>
         </constructor-arg>
+        <!-- when a node dies unexpectedly the job lock is held for at most 23h -->
         <constructor-arg name="defaultLockAtMostFor">
             <bean class="java.time.Duration" factory-method="ofHours">
                 <constructor-arg value="23"/>
