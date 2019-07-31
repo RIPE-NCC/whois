@@ -1,5 +1,6 @@
 package net.ripe.db.whois.scheduler.task.acl;
 
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.BlockEvents;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
@@ -34,6 +36,8 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
     }
 
     @Override
+    @Scheduled(cron = "0 0 0 * * *")
+    @SchedulerLock(name = "AutomaticPermanentBlocks")
     public void run() {
         final LocalDate now = dateTimeProvider.getCurrentDate();
         final LocalDate checkTemporaryBlockTime = now.minusDays(30);

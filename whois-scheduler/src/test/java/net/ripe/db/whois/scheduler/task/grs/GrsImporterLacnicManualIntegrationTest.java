@@ -3,12 +3,11 @@ package net.ripe.db.whois.scheduler.task.grs;
 import com.google.common.io.Files;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.ManualTest;
-import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.FileHelper;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.AfterClass;
@@ -39,7 +38,6 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
 
     @Autowired AuthoritativeResourceImportTask authoritativeResourceImportTask;
     @Autowired AuthoritativeResourceData authoritativeResourceData;
-    @Autowired DailySchedulerDao dailySchedulerDao;
     @Autowired DateTimeProvider dateTimeProvider;
 
     private static final File tempDirectory = Files.createTempDir();
@@ -63,10 +61,8 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
 
     @Before
     public void setUp() throws Exception {
-        dailySchedulerDao.acquireDailyTask(dateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class, "localhost");
         authoritativeResourceImportTask.run();
-        dailySchedulerDao.markTaskDone(System.currentTimeMillis(), dateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class);
-        authoritativeResourceData.refreshAuthoritativeResourceCache();
+        authoritativeResourceData.refreshAllSources();
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();
     }

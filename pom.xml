@@ -87,6 +87,7 @@
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>0.7-groovy-1.8</spock.version>
+        <shedlock.version>2.5.0</shedlock.version>
 
         <velocity.version>2.0</velocity.version>
 
@@ -558,6 +559,18 @@
                 <version>${solrj.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-jdbc-template</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

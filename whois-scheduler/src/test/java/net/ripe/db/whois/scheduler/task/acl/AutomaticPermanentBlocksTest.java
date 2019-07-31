@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.scheduler.DailyScheduler;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import java.time.LocalDate;
@@ -43,7 +42,6 @@ public class AutomaticPermanentBlocksTest {
     @Mock DateTimeProvider dateTimeProvider;
     @Mock AccessControlListDao accessControlListDao;
     @Mock IpResourceConfiguration ipResourceConfiguration;
-    @Mock DailyScheduler dailyScheduler;
     @InjectMocks AutomaticPermanentBlocks subject;
 
     LocalDate now;

@@ -15,20 +15,19 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 
 @Component
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "AuthoritativeResources", description = "Whois authoritative resource data")
 public class AuthoritativeResourceDataJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceDataJmx.class);
 
-    private final AuthoritativeResourceData authoritativeResourceData;
+    private final AuthoritativeResourceRefreshTask authoritativeResourceRefreshTask;
     private final AuthoritativeResourceDataValidator authoritativeResourceDataValidator;
 
     @Autowired
-    public AuthoritativeResourceDataJmx(final AuthoritativeResourceData authoritativeResourceData, final AuthoritativeResourceDataValidator authoritativeResourceDataValidator) {
+    public AuthoritativeResourceDataJmx(final AuthoritativeResourceRefreshTask authoritativeResourceRefreshTask, final AuthoritativeResourceDataValidator authoritativeResourceDataValidator) {
         super(LOGGER);
-        this.authoritativeResourceData = authoritativeResourceData;
+        this.authoritativeResourceRefreshTask = authoritativeResourceRefreshTask;
         this.authoritativeResourceDataValidator = authoritativeResourceDataValidator;
     }
 
@@ -37,12 +36,9 @@ public class AuthoritativeResourceDataJmx extends JmxBase {
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
     })
     public String refreshCache(final String comment) {
-        return invokeOperation("Refresh authoritative resource cache", comment, new Callable<String>() {
-            @Override
-            public String call() {
-                authoritativeResourceData.refreshAuthoritativeResourceCache();
-                return "Refreshed caches";
-            }
+        return invokeOperation("Refresh authoritative resource cache", comment, () -> {
+            authoritativeResourceRefreshTask.refreshAuthoritativeResourceCache();
+            return "Refreshed caches";
         });
     }
 
@@ -52,30 +48,27 @@ public class AuthoritativeResourceDataJmx extends JmxBase {
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
     })
     public String checkOverlaps(final String outputFile, final String comment) {
-        return invokeOperation(String.format("Writing overlaps to %s", outputFile), comment, new Callable<String>() {
-            @Override
-            public String call() {
-                final File output = new File(outputFile);
-                final String absolutePath = output.getAbsolutePath();
+        return invokeOperation(String.format("Writing overlaps to %s", outputFile), comment, () -> {
+            final File output = new File(outputFile);
+            final String absolutePath = output.getAbsolutePath();
 
 
-                BufferedWriter writer = null;
-                try {
-                    if (!output.createNewFile()) {
-                        return String.format("Abort, file already exists: %s", absolutePath);
-                    }
-
-                    writer = new BufferedWriter(new FileWriter(output));
-                    authoritativeResourceDataValidator.checkOverlaps(writer);
-                } catch (IOException e) {
-                    LOGGER.error("Checking overlaps", e);
-                    return String.format("Failed writing to: %s, %s", absolutePath, e.getMessage());
-                } finally {
-                    IOUtils.closeQuietly(writer);
+            BufferedWriter writer = null;
+            try {
+                if (!output.createNewFile()) {
+                    return String.format("Abort, file already exists: %s", absolutePath);
                 }
 
-                return String.format("Overlaps written to: %s", absolutePath);
+                writer = new BufferedWriter(new FileWriter(output));
+                authoritativeResourceDataValidator.checkOverlaps(writer);
+            } catch (IOException e) {
+                LOGGER.error("Checking overlaps", e);
+                return String.format("Failed writing to: %s, %s", absolutePath, e.getMessage());
+            } finally {
+                IOUtils.closeQuietly(writer);
             }
+
+            return String.format("Overlaps written to: %s", absolutePath);
         });
     }
 }
