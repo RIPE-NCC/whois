@@ -94,7 +94,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
             """,
             "INET6NUM-2001":"""\
-                inet6num:    2001::
+                inet6num:    2001::/64
                 netname:     RIPE-NCC
                 descr:       some descr
                 country:     DK

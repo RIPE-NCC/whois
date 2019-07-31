@@ -326,7 +326,7 @@ public class WhoisFixture {
     }
 
     public void refreshAuthoritativeResourceData() {
-        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+        authoritativeResourceData.refreshActiveSource();
     }
 
     public SourceContext getSourceContext() {
