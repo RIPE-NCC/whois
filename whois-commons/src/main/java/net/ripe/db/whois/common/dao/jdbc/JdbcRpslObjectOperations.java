@@ -42,6 +42,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.DateTimeProvider.toEpochMilli;
+
 @Component
 public class JdbcRpslObjectOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRpslObjectOperations.class);
@@ -319,7 +321,7 @@ public class JdbcRpslObjectOperations {
     }
 
     public static int now(final DateTimeProvider dateTimeProvider) {
-        return (int) (dateTimeProvider.getNanoTime() / 1000L);
+        return (int) toEpochMilli(dateTimeProvider.getCurrentDateTime());
     }
 
     public static void truncateTables(final JdbcTemplate... jdbcTemplates) {
