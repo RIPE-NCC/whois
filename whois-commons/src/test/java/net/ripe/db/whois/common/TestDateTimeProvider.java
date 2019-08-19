@@ -35,7 +35,7 @@ public class TestDateTimeProvider implements DateTimeProvider, Stub {
     }
 
     public long getElapsedTime() {
-        return DateTimeProvider.toEpochMilli(localDateTime);
+        return 100L;    // return a predicatable non-zero value that's testable
     }
 
     public void setTime(final LocalDateTime dateTime) {
