@@ -629,6 +629,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "You cannot create a RIPE NCC maintainer");
     }
 
+    public static Message updatingRipeMaintainerSSOForbidden() {
+        return new Message(Type.ERROR, "You cannot update sso attributes as maintainer is synchronized in LIR portal");
+    }
+
     public static Message netnameCannotBeChanged() {
         return new Message(Type.ERROR, "The \"netname\" attribute can only be changed by the RIPE NCC");
     }

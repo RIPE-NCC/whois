@@ -67,10 +67,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -3815,6 +3817,44 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void update_maintainer_sso_with_sync_enabled_should_fail() {
+        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, true);
+        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO test@ripe.net")).get();
+
+        try {
+            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", "valid-token")
+                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update sso attributes as maintainer is synchronized in LIR portal");
+        }
+    }
+
+    @Test
+    public void update_maintainer_with_crowd_token_succeeds_syn_enabled_no_sso() {
+        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, true);
+        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.REMARKS, "updated")).get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "valid-token")
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("remarks", "updated")));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null)));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
+        assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER-MNT").findAttributes(AttributeType.AUTH),
+                containsInAnyOrder(
+                        new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test"),
+                        new RpslAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124"))
+        );
+    }
+
+    @Test
     public void update_maintainer_with_invalid_sso_username_fails() {
         final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).replaceAttribute(
                 new RpslAttribute(AttributeType.AUTH, "SSO person@net.net"),
@@ -5109,6 +5149,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     // helper methods
+
+
+    private void insertSyncHistory(final String org, final String mntnr,  final long when, final Boolean syncState) {
+
+        final String email = UUID.randomUUID() + "@ripe.net";
+        final Timestamp timestamp = new Timestamp(when);
+
+        databaseHelper.getInternalsTemplate().update(
+                "INSERT INTO organisation_sync_history (org, mntner, timestamp, email, is_synchronize) VALUES (?, ?, ?, ?, ?)",
+                org, mntnr, timestamp, email, syncState);
+    }
 
     private String encode(final String input) {
         // do not interpret template parameters
