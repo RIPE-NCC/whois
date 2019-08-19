@@ -314,7 +314,7 @@ public class SyncUpdatesService {
     }
 
     private String getRequestId(final String remoteAddress) {
-        return "syncupdate_" + remoteAddress + "_" + dateTimeProvider.getNanoTime();
+        return "syncupdate_" + remoteAddress + "_" + dateTimeProvider.getElapsedTime();
     }
 
     private boolean sourceMatchesContext(final String source) {

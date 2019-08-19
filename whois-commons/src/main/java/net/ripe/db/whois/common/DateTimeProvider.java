@@ -13,8 +13,8 @@ public interface DateTimeProvider {
     LocalDateTime getCurrentDateTime();
     ZonedDateTime getCurrentDateTimeUtc();
 
-    /** returns System.nanoTime(), the high-res timer that counts 0 from JVM startup */
-    long getNanoTime();
+    /** returns elapsed time. N.B. not related to system time */
+    long getElapsedTime();
 
     /** specify the local timezone when creating a LocalDateTime from a timestamp */
     static LocalDateTime fromEpochMilli(final long timestamp) {
