@@ -321,7 +321,7 @@ public class JdbcRpslObjectOperations {
     }
 
     public static int now(final DateTimeProvider dateTimeProvider) {
-        return (int) toEpochMilli(dateTimeProvider.getCurrentDateTime());
+        return (int) (toEpochMilli(dateTimeProvider.getCurrentDateTime()) / 1000L);
     }
 
     public static void truncateTables(final JdbcTemplate... jdbcTemplates) {
