@@ -13,7 +13,7 @@ public interface DateTimeProvider {
     LocalDateTime getCurrentDateTime();
     ZonedDateTime getCurrentDateTimeUtc();
 
-    /** returns elapsed time. N.B. not related to system time */
+    /** returns elapsed time (with nanosecond precision). N.B. not related to system time */
     long getElapsedTime();
 
     /** Convert from Java timestamp (with millisecond precision) into Java time object.
