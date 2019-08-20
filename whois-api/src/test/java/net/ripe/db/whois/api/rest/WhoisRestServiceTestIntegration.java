@@ -3821,7 +3821,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_maintainer_sso_with_sync_enabled_should_fail() {
+    public void update_maintainer_add_sso_with_sync_enabled_should_fail() {
         insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
         insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
 
@@ -3839,7 +3839,25 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_maintainer_with_crowd_token_succeeds_syn_enabled_no_sso() {
+    public void update_maintainer_remove_sso_with_sync_enabled_should_fail() {
+        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
+        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get();
+
+        try {
+            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie("crowd.token_key", "valid-token")
+                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update sso attributes as maintainer is synchronized in LIR portal");
+        }
+    }
+
+    @Test
+    public void update_maintainer_succeeds_syn_enabled_no_sso() {
         insertSyncHistory("ORG-TEST","OWNER-MNT-SYNC", 1000, true);
 
         RpslObject MNT_SYNC = RpslObject.parse("" +
