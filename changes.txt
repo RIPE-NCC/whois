@@ -1,5 +1,20 @@
 # next
 
+[update] Don't allow inet6nums smaller than a /64 to be created. (#562)
+[query] Normalise query input. (#565)
+[all] Separate integration from unit tests (#564)
+[scheduler] Removed custom DailyScheduler, use standard Spring scheduler and ShedLock (#563)
+
+# 1.94.2
+
+[query] Filter personal data (address, email and notify attributes) from historical object versions (#556)
+[update] Support custom delete reason in Batch API. (#558)
+[rdap] Return IP parent handle as pkey (#554)
+[rdap] Return org contact (#557)
+[rdap] Return correct entity (muliple objects of different type have same pkey) (#552)
+[all] Upgrade to Spring 5 (#560)
+[all] Replace Joda Time with Java Time (#559)
+
 # 1.94.1
 
 [update] Character Substitutions (#536)
