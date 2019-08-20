@@ -180,7 +180,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     @Override
     public LocalDateTime getLastUpdated(int objectId) {
         final long timestamp = jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", new Object[]{objectId}, Long.class);
-        return DateTimeProvider.fromEpochMilli(timestamp * 1000L);
+        return DateTimeProvider.fromEpochMilli(DateTimeProvider.fromTimestamp(timestamp));
     }
 
     @Override
