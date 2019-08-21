@@ -104,8 +104,8 @@ CREATE TABLE `abuse_ticket` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
-DROP TABLE IF EXISTS `organisation_sync_history`;
-CREATE TABLE `organisation_sync_history` (
+DROP TABLE IF EXISTS `default_maintainer_sync_history`;
+CREATE TABLE `default_maintainer_sync_history` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `org` varchar(256) NOT NULL,
     `mntner` varchar(256) NOT NULL,
