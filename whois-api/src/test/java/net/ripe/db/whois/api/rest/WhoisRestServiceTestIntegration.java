@@ -3870,7 +3870,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update sso attributes as maintainer is synchronized in LIR portal");
+            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
         }
     }
 
