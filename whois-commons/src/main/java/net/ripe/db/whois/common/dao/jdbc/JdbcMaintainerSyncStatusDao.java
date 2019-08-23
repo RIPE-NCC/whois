@@ -28,7 +28,7 @@ public class JdbcMaintainerSyncStatusDao implements MaintainerSyncStatusDao {
     public boolean isSyncEnabled(CIString mntner) {
            try {
                return internalsTemplate.queryForObject(
-                       "SELECT is_synchronize FROM default_maintainer_sync_history " +
+                       "SELECT is_synchronised FROM default_maintainer_sync_history " +
                                "WHERE mntner = ? ORDER BY timestamp DESC LIMIT 1",
                        new Object[]{mntner},
                        (final ResultSet resultSet, final int rowNum) -> resultSet.getBoolean(1));

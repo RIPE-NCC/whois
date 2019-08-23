@@ -3834,7 +3834,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update sso attributes as maintainer is synchronized in LIR portal");
+            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
         }
     }
 
@@ -3852,7 +3852,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update sso attributes as maintainer is synchronized in LIR portal");
+            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
         }
     }
 
@@ -5209,7 +5209,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final Timestamp timestamp = new Timestamp(when);
 
         databaseHelper.getInternalsTemplate().update(
-                "INSERT INTO default_maintainer_sync_history (org, mntner, timestamp, email, is_synchronize) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO default_maintainer_sync_history (org, mntner, timestamp, email, is_synchronised) VALUES (?, ?, ?, ?, ?)",
                 org, mntnr, timestamp, email, syncState);
     }
 

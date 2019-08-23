@@ -110,7 +110,8 @@ CREATE TABLE `default_maintainer_sync_history` (
     `org` varchar(256) NOT NULL,
     `mntner` varchar(256) NOT NULL,
     `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    `email` varchar(256) NOT NULL,`is_synchronize` tinyint(1) DEFAULT 0,PRIMARY KEY (`id`)
+    `email` varchar(256) NOT NULL,
+    `is_synchronised` tinyint(1) DEFAULT 0,PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE INDEX abuse_ticket_org_id_i ON abuse_ticket(org_id);

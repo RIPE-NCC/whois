@@ -630,7 +630,7 @@ public final class UpdateMessages {
     }
 
     public static Message updatingRipeMaintainerSSOForbidden() {
-        return new Message(Type.ERROR, "You cannot update sso attributes as maintainer is synchronized in LIR portal");
+        return new Message(Type.ERROR, "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
     }
 
     public static Message netnameCannotBeChanged() {
