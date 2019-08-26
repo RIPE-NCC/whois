@@ -212,7 +212,7 @@ public class MessageDequeue implements ApplicationService {
             LOGGER.debug("Unable to parse Message-Id: {}", headers[0]);
         }
 
-        return "No-Message-Id." + dateTimeProvider.getNanoTime();
+        return "No-Message-Id." + dateTimeProvider.getElapsedTime();
     }
 
     private void handleMessageInContext(final String messageId, final MimeMessage message) throws MessagingException, IOException {

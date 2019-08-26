@@ -28,8 +28,11 @@ public class ClockDateTimeProvider implements DateTimeProvider {
         return ZonedDateTime.now(ZoneOffset.UTC);
     }
 
+    /** Returns System.nanoTime(), the high-res timer that counts 0 from JVM startup.
+     *  N.B. "This method can only be used to measure elapsed time and is not related to any other notion of system or wall-clock time."
+     */
     @Override
-    public long getNanoTime() {
+    public long getElapsedTime() {
         return System.nanoTime();
     }
 }
