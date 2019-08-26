@@ -34,15 +34,11 @@ public class TestDateTimeProvider implements DateTimeProvider, Stub {
         return getCurrentDateTime().atZone(ZoneOffset.UTC);
     }
 
-    public long getNanoTime() {
-        return DateTimeProvider.toEpochMilli(localDateTime);
+    public long getElapsedTime() {
+        return 100L;    // return a predictable non-zero value that's testable
     }
 
     public void setTime(final LocalDateTime dateTime) {
         localDateTime = dateTime;
-    }
-
-    public void setNanoTime(final long nanoTime) {
-        localDateTime = DateTimeProvider.fromEpochMilli(nanoTime);
     }
 }

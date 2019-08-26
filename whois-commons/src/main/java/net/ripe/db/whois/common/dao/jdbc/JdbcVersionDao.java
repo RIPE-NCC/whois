@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
@@ -106,7 +107,7 @@ public class JdbcVersionDao implements VersionDao {
      @Override
      public List<VersionInfo> getVersionsForTimestamp(final ObjectType type, final String searchKey, final long timestampInMilliseconds) {
         final List<Integer> objectIds = getObjectIds(type, searchKey);
-        final long timestamp = timestampInMilliseconds / 1000L;
+        final long timestamp = DateTimeProvider.toTimestamp(timestampInMilliseconds);
 
         if (objectIds.isEmpty()) {
             return null;
