@@ -1,6 +1,7 @@
 package net.ripe.db.whois.nrtm.integration;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
@@ -162,8 +163,8 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     private void loadSerials(int min, int max) {
         loadScripts(whoisTemplate, "nrtm_sample.sql");
         whoisTemplate.update("DELETE FROM serials WHERE serial_id < ? OR serial_id > ?", min, max);
-        whoisTemplate.update("UPDATE last SET timestamp = ?", System.currentTimeMillis() / 1000);
-        whoisTemplate.update("UPDATE history SET timestamp = ?", System.currentTimeMillis() / 1000);
+        whoisTemplate.update("UPDATE last SET timestamp = ?", DateTimeProvider.toTimestamp(System.currentTimeMillis()));
+        whoisTemplate.update("UPDATE history SET timestamp = ?", DateTimeProvider.toTimestamp(System.currentTimeMillis()));
     }
 
     private void truncateTables() {

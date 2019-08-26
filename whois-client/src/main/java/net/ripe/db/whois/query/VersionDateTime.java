@@ -18,12 +18,19 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
     }
 
     public VersionDateTime(final Long timestamp) {
-        this(fromEpochMilli(timestamp * 1000L));
+        this(fromEpochMilli(fromTimestamp(timestamp)));
     }
 
     // TODO: [ES] copied from DateTimeProvider
+
+    // Convert from Java timestamp (with millisecond precision) into Java time object.
     private static LocalDateTime fromEpochMilli(final long timestamp) {
         return LocalDateTime.from(Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.systemDefault()));
+    }
+
+    // Convert from DB timestamp (with second precision) to Java time (has millisecond precision)
+    private static long fromTimestamp(final long value) {
+        return value * 1000L;
     }
 
     @Override
@@ -54,4 +61,5 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
+
 }
