@@ -2,7 +2,6 @@ package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.query.VersionDateTime;
 
 import java.util.Objects;
 
