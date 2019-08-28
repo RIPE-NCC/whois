@@ -52,14 +52,4 @@ public interface DateTimeProvider {
                         .toLocalDateTime();
     }
 
-    /** Convert from DB timestamp (with second precision) to Java time (has millisecond precision) */
-    static long fromTimestamp(final long value) {
-        return value * 1000L;
-    }
-
-    /** Convert from Java time (with millisecond precision) to DB timestamp (has second precision) */
-    static long toTimestamp(final long value) {
-        return value / 1000L;
-    }
-
 }
