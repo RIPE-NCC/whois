@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.query.Query;
 import org.junit.Before;
@@ -23,9 +23,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -89,9 +86,9 @@ public class VersionQueryExecutorTest {
 
         assertThat(result.next().toString(), matchesPattern("rev#\\s+Date\\s+Op.*"));
 
-        assertThat(result.next().toString(), matchesPattern("1\\s+2011-08-01 14:56\\s+ADD/UPD"));
-        assertThat(result.next().toString(), matchesPattern("2\\s+2012-04-10 13:58\\s+ADD/UPD"));
-        assertThat(result.next().toString(), matchesPattern("3\\s+2012-04-25 06:55\\s+ADD/UPD"));
+        assertThat(result.next().toString(), matchesPattern("1\\s+2011-08-01 16:56\\s+ADD/UPD"));
+        assertThat(result.next().toString(), matchesPattern("2\\s+2012-04-10 15:58\\s+ADD/UPD"));
+        assertThat(result.next().toString(), matchesPattern("3\\s+2012-04-25 08:55\\s+ADD/UPD"));
 
         assertThat(result.next().toString(), is(""));
         assertThat(result.hasNext(), is(false));
@@ -113,7 +110,7 @@ public class VersionQueryExecutorTest {
 
         final List<ResponseObject> responseObjects = responseHandler.getResponseObjects();
         assertThat(new String(responseObjects.get(0).toByteArray()), is(QueryMessages.versionListStart(ObjectType.AUT_NUM.getName().toUpperCase(), "AS2050").toString()));
-        assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-25 06:55").toString()));
+        assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-25 08:55").toString()));
     }
 
     @Test
@@ -132,7 +129,7 @@ public class VersionQueryExecutorTest {
 
         final List<ResponseObject> responseObjects = responseHandler.getResponseObjects();
         assertThat(new String(responseObjects.get(0).toByteArray()), is(QueryMessages.versionListStart(ObjectType.AUT_NUM.getName().toUpperCase(), "AS2050").toString()));
-        assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-10 13:58").toString()));
+        assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-10 15:58").toString()));
     }
 
     @Test
@@ -224,7 +221,7 @@ public class VersionQueryExecutorTest {
     private void setupVersionMock(VersionInfo mock, int objectId, long timestamp) {
         when(mock.getObjectId()).thenReturn(objectId);
         when(mock.getOperation()).thenReturn(Operation.UPDATE);
-        when(mock.getTimestamp()).thenReturn(new VersionDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp * 1000L), ZoneOffset.UTC)));    // TODO: replace 1000L
+        when(mock.getTimestamp()).thenReturn(new VersionDateTime(timestamp));
         when(mock.getSequenceId()).thenReturn(objectId - 1);
     }
 }
