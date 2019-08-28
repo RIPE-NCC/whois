@@ -19,18 +19,6 @@ public class DateTimeProviderTest {
     private static final LocalDateTime RECENT_LOCAL_DATE_TIME = localDateTime(RECENT_TIMESTAMP);
 
     @Test
-    public void fromEpochMilli() {
-        assertThat(DateTimeProvider.fromEpochMilli(EPOCH_TIMESTAMP), is(EPOCH_LOCAL_DATE_TIME));
-        assertThat(DateTimeProvider.fromEpochMilli(RECENT_TIMESTAMP), is(RECENT_LOCAL_DATE_TIME));
-    }
-
-    @Test
-    public void toEpochMilli() {
-        assertThat(DateTimeProvider.toEpochMilli(EPOCH_LOCAL_DATE_TIME), is(EPOCH_TIMESTAMP));
-        assertThat(DateTimeProvider.toEpochMilli(RECENT_LOCAL_DATE_TIME), is(RECENT_TIMESTAMP));
-    }
-
-    @Test
     public void fromDate() {
         assertThat(DateTimeProvider.fromDate(new Date(EPOCH_TIMESTAMP)), is(EPOCH_LOCAL_DATE_TIME));
         assertThat(DateTimeProvider.fromDate(new Date(RECENT_TIMESTAMP)), is(RECENT_LOCAL_DATE_TIME));

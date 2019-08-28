@@ -26,17 +26,15 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Collections;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -138,7 +136,7 @@ public class InternalUpdatePerformerTest {
     @Test
     public void create_origin() {
         when(requestMock.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(LocalDateTime.ofInstant(Instant.ofEpochMilli(5556667777888L), ZoneOffset.UTC));
+        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2146-01-31T06:49:37.888"));
 
         final Origin origin = subject.createOrigin(requestMock);
 

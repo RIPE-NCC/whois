@@ -16,18 +16,6 @@ public interface DateTimeProvider {
     /** returns elapsed time (with nanosecond precision). N.B. not related to system time */
     long getElapsedTime();
 
-    /** Convert from Java timestamp (with millisecond precision) into Java time object.
-     * Specify the local timezone (not UTC).
-     */
-    static LocalDateTime fromEpochMilli(final long timestamp) {
-        return LocalDateTime.from(Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.systemDefault()));
-    }
-
-    /** Convert time to timestamp (with millsecond precision) */
-    static long toEpochMilli(final LocalDateTime localDateTime) {
-        return Instant.from(localDateTime.atZone(ZoneOffset.systemDefault())).toEpochMilli();
-    }
-
     /** Convert from Java date time to a Date object.
      * Specify the local timezone (not UTC).
      */
