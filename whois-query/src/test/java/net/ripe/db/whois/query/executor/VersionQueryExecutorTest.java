@@ -224,7 +224,7 @@ public class VersionQueryExecutorTest {
     private void setupVersionMock(VersionInfo mock, int objectId, long timestamp) {
         when(mock.getObjectId()).thenReturn(objectId);
         when(mock.getOperation()).thenReturn(Operation.UPDATE);
-        when(mock.getTimestamp()).thenReturn(new VersionDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp * 1000L), ZoneOffset.UTC)));
+        when(mock.getTimestamp()).thenReturn(new VersionDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp * 1000L), ZoneOffset.UTC)));    // TODO: replace 1000L
         when(mock.getSequenceId()).thenReturn(objectId - 1);
     }
 }
