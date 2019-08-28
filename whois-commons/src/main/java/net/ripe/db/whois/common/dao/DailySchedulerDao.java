@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.domain.Timestamp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -11,7 +12,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.sql.Timestamp;
+import java.util.Optional;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
@@ -25,15 +26,15 @@ public class DailySchedulerDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public long getDailyTaskFinishTime(final String taskName) {
+    public Optional<Timestamp> getDailyTaskFinishTime(final String taskName) {
         try {
-            return jdbcTemplate.queryForObject(
+            return Optional.of(new Timestamp(jdbcTemplate.queryForObject(
                     "SELECT lock_until FROM shedlock WHERE name = ?",
                     new Object[] { taskName },
-                    Timestamp.class
-            ).getTime();
+                    java.sql.Timestamp.class
+            )));
         } catch (EmptyResultDataAccessException erdae) {
-            return -1;
+            return Optional.empty();
         }
     }
 

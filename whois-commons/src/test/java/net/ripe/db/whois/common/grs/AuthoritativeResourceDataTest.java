@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.grs;
 
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -11,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.LocalDate;
+import java.util.Optional;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.isA;
@@ -39,7 +40,7 @@ public class AuthoritativeResourceDataTest {
 
     @Test
     public void refresh() {
-        when(dailySchedulerDao.getDailyTaskFinishTime(any(String.class))).thenReturn(10l);
+        when(dailySchedulerDao.getDailyTaskFinishTime(any(String.class))).thenReturn(Optional.of(new Timestamp(10L)));
         when(resourceDataDao.load(any(String.class))).thenReturn(AuthoritativeResource.unknown());
 
         authoritativeResourceData.init();
