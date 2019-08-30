@@ -26,7 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.contains;
@@ -136,7 +136,7 @@ public class InternalUpdatePerformerTest {
     @Test
     public void create_origin() {
         when(requestMock.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2146-01-31T06:49:37.888"));
+        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(ZonedDateTime.parse("2146-01-31T06:49:37.888+00:00").toLocalDateTime());
 
         final Origin origin = subject.createOrigin(requestMock);
 
