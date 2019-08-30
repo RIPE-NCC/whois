@@ -28,7 +28,7 @@ public class DailySchedulerDao {
 
     public Optional<Timestamp> getDailyTaskFinishTime(final String taskName) {
         try {
-            return Optional.of(new Timestamp(jdbcTemplate.queryForObject(
+            return Optional.of(Timestamp.from(jdbcTemplate.queryForObject(
                     "SELECT lock_until FROM shedlock WHERE name = ?",
                     new Object[] { taskName },
                     java.sql.Timestamp.class

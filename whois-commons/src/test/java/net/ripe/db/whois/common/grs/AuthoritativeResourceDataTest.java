@@ -40,7 +40,7 @@ public class AuthoritativeResourceDataTest {
 
     @Test
     public void refresh() {
-        when(dailySchedulerDao.getDailyTaskFinishTime(any(String.class))).thenReturn(Optional.of(new Timestamp(10L)));
+        when(dailySchedulerDao.getDailyTaskFinishTime(any(String.class))).thenReturn(Optional.of(Timestamp.fromSeconds(10L)));
         when(resourceDataDao.load(any(String.class))).thenReturn(AuthoritativeResource.unknown());
 
         authoritativeResourceData.init();

@@ -12,11 +12,7 @@ public class Timestamp {
     // database timestamp value (in seconds since unix epoch)
     private final long value;
 
-    /**
-     * Create a new timestamp
-     * @param value database timestamp (e.g. from INT(10) column) (with second precision)
-     */
-    public Timestamp(final long value) {
+    private Timestamp(final long value) {
         this.value = value;
     }
 
@@ -24,20 +20,38 @@ public class Timestamp {
      * Create a new timestamp
      * @param localDateTime java time (with milliseconds precision)
      */
-    public Timestamp(final LocalDateTime localDateTime) {
-        this.value = toSeconds(Instant.from(localDateTime.atZone(ZoneOffset.systemDefault())).toEpochMilli());
+    public static Timestamp from(final LocalDateTime localDateTime) {
+        return new Timestamp(toSeconds(Instant.from(localDateTime.atZone(ZoneOffset.systemDefault())).toEpochMilli()));
     }
 
     /**
      * Create a new timestamp
      * @param timestamp sql timestamp (with milliseconds precision)
      */
-    public Timestamp(final java.sql.Timestamp timestamp) {
-        this.value = toSeconds(timestamp.getTime());
+    public static Timestamp from(final java.sql.Timestamp timestamp) {
+        return new Timestamp(toSeconds(timestamp.getTime()));
     }
 
     /**
-     * @return database timestamp as a long (with second precision)
+     * Create a new timestamp
+     * @param value timestamp value in seconds since unix epoch
+     * @return
+     */
+    public static Timestamp fromSeconds(final long value) {
+        return new Timestamp(value);
+    }
+
+    /**
+     * Create a new timestamp
+     * @param value timestamp value in milliseconds since unix epoch
+     * @return
+     */
+    public static Timestamp fromMilliseconds(final long value) {
+        return new Timestamp(toSeconds(value));
+    }
+
+    /**
+     * @return database timestamp (in seconds since unix epoch)
      */
     public long getValue() {
         return value;
@@ -52,7 +66,7 @@ public class Timestamp {
     }
 
     /**
-     * Convert from database timestamp (with seconds precision) to java time (with milliseconds precision).
+     * Convert value with second precision to millisecond precision
      * @return
      */
     private static long toMilliseconds(final long value) {
@@ -60,7 +74,7 @@ public class Timestamp {
     }
 
     /**
-     * Convert from java time (with milliseconds precision) to database timestamp (with seconds precision)
+     * Convert value with millisecond precision to seconds precision
      * @return
      */
     private static long toSeconds(final long value) {

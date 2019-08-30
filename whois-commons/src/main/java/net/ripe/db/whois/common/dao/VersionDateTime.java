@@ -18,7 +18,7 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
     }
 
     public VersionDateTime(final long timestamp) {
-        this((new Timestamp(timestamp)).toLocalDateTime());
+        this((Timestamp.fromSeconds(timestamp)).toLocalDateTime());
     }
 
     @Override

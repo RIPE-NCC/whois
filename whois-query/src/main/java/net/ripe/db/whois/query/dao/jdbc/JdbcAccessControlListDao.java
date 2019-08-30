@@ -67,7 +67,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
             final Map<String, List<BlockEvent>> blockEventsMap = new HashMap<>();
             while (rs.next()) {
                 final String prefix = rs.getString("prefix");
-                final LocalDateTime time = new Timestamp(rs.getTimestamp("event_time")).toLocalDateTime();
+                final LocalDateTime time = Timestamp.from(rs.getTimestamp("event_time")).toLocalDateTime();
                 final int limit = rs.getInt("daily_limit");
                 final BlockEvent.Type type = BlockEvent.Type.valueOf(rs.getString("event_type"));
 

@@ -184,7 +184,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             final Matcher dbMatcher = dbPattern.matcher(db);
             if (dbMatcher.matches()) {
                 final String creationTimeString = dbMatcher.group(1);
-                final LocalDateTime creationTime = new Timestamp(Long.parseLong(creationTimeString) / 1000L).toLocalDateTime();
+                final LocalDateTime creationTime = Timestamp.fromMilliseconds(Long.parseLong(creationTimeString)).toLocalDateTime();
                 if (creationTime.isBefore(LocalDateTime.now().minusHours(1))) {
                     jdbcTemplate.execute("DROP DATABASE IF EXISTS " + db);
                 }

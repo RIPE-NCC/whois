@@ -115,7 +115,7 @@ public class JdbcVersionDao implements VersionDao {
 
         final MapSqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("objectIds", objectIds)
-                .addValue("cutoffTime", new Timestamp(timestamp.getTimestamp()).getValue());
+                .addValue("cutoffTime", Timestamp.from(timestamp.getTimestamp()).getValue());
 
         // need named jdbc template to correctly resolve objectids in the IN sql part.
         final NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
