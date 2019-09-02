@@ -34,6 +34,15 @@ public class Timestamp {
 
     /**
      * Create a new timestamp
+     * @param text text string containing valid local date-time
+     * @return
+     */
+    public static Timestamp from(final CharSequence text) {
+        return new Timestamp(LocalDateTime.parse(text).atZone(ZoneOffset.systemDefault()).toEpochSecond());
+    }
+
+    /**
+     * Create a new timestamp
      * @param value timestamp value in seconds since unix epoch
      * @return
      */
