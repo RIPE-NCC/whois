@@ -1,16 +1,15 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.collect.Iterables;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import net.ripe.db.whois.query.VersionDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -109,9 +108,9 @@ public class JdbcVersionDaoIntegrationTest extends AbstractDaoIntegrationTest {
         databaseHelper.updateObject("domain:test.sk\ndescr:description3\nsource:RIPE\n");
 
         final VersionLookupResult legacyVersions = subject.findByKey(ObjectType.DOMAIN, "test.sk");
-        long millies = DateTimeProvider.toEpochMilli(Iterables.getLast(legacyVersions.getAllVersions()).getTimestamp().getTimestamp());
+        final VersionDateTime timestamp = Iterables.getLast(legacyVersions.getAllVersions()).getTimestamp();
 
-        final List<VersionInfo> versions = subject.getVersionsForTimestamp(ObjectType.DOMAIN, "test.sk", millies);
+        final List<VersionInfo> versions = subject.getVersionsForTimestamp(ObjectType.DOMAIN, "test.sk", timestamp);
         assertThat(versions.size(), greaterThanOrEqualTo(1));
         assertThat(versions.size(), lessThanOrEqualTo(3));
     }

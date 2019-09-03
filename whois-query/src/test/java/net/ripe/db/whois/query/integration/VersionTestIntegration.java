@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.query.VersionDateTime;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
