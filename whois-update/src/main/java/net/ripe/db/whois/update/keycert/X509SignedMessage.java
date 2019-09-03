@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.keycert;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.cms.Attribute;
@@ -140,7 +141,7 @@ public class X509SignedMessage {
             if (signingTimeAttributes.size() == 1) {
                 final ASN1Set attributeValues = ((Attribute) signingTimeAttributes.get(0)).getAttrValues();
                 if (attributeValues.size() == 1) {
-                    return DateTimeProvider.fromDate(Time.getInstance(attributeValues.getObjectAt(0).toASN1Primitive()).getDate());
+                    return DateUtil.fromDate(Time.getInstance(attributeValues.getObjectAt(0).toASN1Primitive()).getDate());
                 }
             }
         }

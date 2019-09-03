@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.Latin1Conversion;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
@@ -176,7 +177,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         final long validSeconds = masterKey.getValidSeconds();
         if (validSeconds > 0) {
             final int days = Long.valueOf(Long.divideUnsigned(validSeconds, SECONDS_IN_ONE_DAY)).intValue();
-            final LocalDateTime expired = (DateTimeProvider.fromDate(masterKey.getCreationTime())).plusDays(days);
+            final LocalDateTime expired = (DateUtil.fromDate(masterKey.getCreationTime())).plusDays(days);
             return expired.isBefore(dateTimeProvider.getCurrentDateTime());
         }
 

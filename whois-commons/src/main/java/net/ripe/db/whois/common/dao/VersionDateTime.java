@@ -1,8 +1,8 @@
-package net.ripe.db.whois.query;
+package net.ripe.db.whois.common.dao;
 
-import java.time.Instant;
+import net.ripe.db.whois.common.domain.Timestamp;
+
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
@@ -17,20 +17,8 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
         this.timestamp = timestamp;
     }
 
-    public VersionDateTime(final Long timestamp) {
-        this(fromEpochMilli(fromTimestamp(timestamp)));
-    }
-
-    // TODO: [ES] copied from DateTimeProvider
-
-    // Convert from Java timestamp (with millisecond precision) into Java time object.
-    private static LocalDateTime fromEpochMilli(final long timestamp) {
-        return LocalDateTime.from(Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.systemDefault()));
-    }
-
-    // Convert from DB timestamp (with second precision) to Java time (has millisecond precision)
-    private static long fromTimestamp(final long value) {
-        return value * 1000L;
+    public VersionDateTime(final long timestamp) {
+        this((Timestamp.fromSeconds(timestamp)).toLocalDateTime());
     }
 
     @Override
