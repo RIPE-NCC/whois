@@ -91,7 +91,7 @@ public final class QueryMessages {
                 type, key, QueryFlag.SHOW_VERSION);
     }
 
-    public static Message versionInformation(final int version, final boolean isCurrentVersion, final CIString key, final String operation, final VersionDateTime timestamp) {
+    public static Message versionInformation(final int version, final boolean isCurrentVersion, final CIString key, final String operation, final String timestamp) {
         return new QueryMessage(Type.INFO, ""
                 + "Version %d %sof object \"%s\"\n"
                 + "This version was a %s operation on %s\n"

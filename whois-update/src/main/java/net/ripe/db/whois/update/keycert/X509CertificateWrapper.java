@@ -4,6 +4,7 @@ package net.ripe.db.whois.update.keycert;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.jce.provider.X509CertParser;
@@ -131,12 +132,12 @@ public final class X509CertificateWrapper implements KeyWrapper {
     }
 
     public boolean isNotYetValid(final DateTimeProvider dateTimeProvider) {
-        final LocalDateTime notBefore = DateTimeProvider.fromDate(certificate.getNotBefore());
+        final LocalDateTime notBefore = DateUtil.fromDate(certificate.getNotBefore());
         return notBefore.isAfter(dateTimeProvider.getCurrentDateTime());
     }
 
     public boolean isExpired(final DateTimeProvider dateTimeProvider) {
-        final LocalDateTime notAfter = DateTimeProvider.fromDate(certificate.getNotAfter());
+        final LocalDateTime notAfter = DateUtil.fromDate(certificate.getNotAfter());
         return notAfter.isBefore(dateTimeProvider.getCurrentDateTime());
     }
 }
