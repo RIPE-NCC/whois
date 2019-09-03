@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.common.DateTimeProvider.toDate;
+import static net.ripe.db.whois.common.DateUtil.toDate;
 
 @Component
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "DailyScheduler", description = "Whois daily scheduler")

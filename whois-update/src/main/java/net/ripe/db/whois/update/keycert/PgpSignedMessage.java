@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.keycert;
 
 import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.openpgp.PGPObjectFactory;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -176,7 +177,7 @@ public final class PgpSignedMessage {
 
     // The signing time must be within an hour of the current time.
     public boolean verifySigningTime(final DateTimeProvider dateTimeProvider) {
-        final LocalDateTime signingTime = DateTimeProvider.fromDate(getPgpSignature().getCreationTime());
+        final LocalDateTime signingTime = DateUtil.fromDate(getPgpSignature().getCreationTime());
         final LocalDateTime currentTime = dateTimeProvider.getCurrentDateTime();
         return (signingTime.isAfter(currentTime.minusHours(1)) && signingTime.isBefore(currentTime.plusHours(1)));
     }
