@@ -445,6 +445,25 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
         assertNotNull(databaseHelper.lookupObject(ObjectType.INETNUM, "19.0.0.0 - 19.1.255.255"));
     }
 
+    @Test
+    public void batch_update_create_self_referencing_mntner_using_sso_credential() {
+        final WhoisResources whoisResources = mapRpslObjects(RpslObject.parse(
+            "mntner:    SSO-MNT\n" +
+            "descr:     Maintainer\n" +
+            "admin-c:   TP1-TEST\n" +
+            "upd-to:    person@net.net\n" +
+            "auth:      SSO person@net.net\n" +
+            "mnt-by:    SSO-MNT\n" +
+            "source:    TEST"));
+
+        RestTest.target(getPort(), "whois/batch/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        assertNotNull(databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT"));
+    }
+
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
