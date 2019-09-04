@@ -11,6 +11,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,6 +132,19 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("invalid arguments"));
         }
+    }
+
+    // TODO: [ES] Unexpected error in log: "Caught Cannot parse '81.26.54.100 \- *': '*' or '?' not allowed as first character in WildcardQuery on 81.26.54.100 -"
+    //            Causes empty response (no match).
+    @Ignore
+    @Test
+    public void wildcard_not_allowed_as_first_character() {
+        databaseHelper.addObject("inetnum: 0.0.0.0 - 255.255.255.255\nsource: TEST");
+        databaseHelper.addObject("inetnum: 81.26.54.100 - 81.26.54.107\nsource: TEST");
+        rebuildIndex();
+
+        RestTest.target(getPort(), "whois/autocomplete?field=inetnum&query=81.26.54.100+-+").request().get(String.class);
+        fail();     // TODO: expect match
     }
 
     @Test
@@ -381,7 +395,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void plaintext_response_on_errors() throws Exception {
+    public void plaintext_response_on_errors() {
         try {
             queryRaw("test", "invalid");
             fail();
@@ -394,7 +408,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void plaintext_request_not_acceptable() throws Exception {
+    public void plaintext_request_not_acceptable() {
         try {
             RestTest
                 .target(getPort(), String.format("whois/autocomplete?query=%s&field=%s", "query", "nic-hdl"))
@@ -404,6 +418,39 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         } catch (NotAcceptableException e) {
             // expected
         }
+    }
+
+    @Test
+    public void filter_comment_first_line() {
+        databaseHelper.addObject("organisation: ORG-AA1-TEST\norg-name: Any Address # comment\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(getValues(query("AA1", "organisation", "org-name"), "org-name"), contains("Any Address"));
+    }
+
+    @Test
+    public void filter_comment_second_line() {
+        databaseHelper.addObject("organisation: ORG-AA1-TEST\norg-name: Any\n+Address # comment\nsource: TEST");
+        rebuildIndex();
+
+        // TODO: [ES] attribute value is stored in index without newline separator(s), hence '+' continuation character is included
+        assertThat(getValues(query("AA1", "organisation", "org-name"), "org-name"), contains("Any+               Address"));
+    }
+
+    @Test
+    public void filter_comment_multiline_value() {
+        databaseHelper.addObject("organisation: ORG-AA1-TEST\norg-name: Any # comment\n+Address # comment\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(getValues(query("AA1", "organisation", "org-name"), "org-name"), contains("Any"));
+    }
+
+    @Test
+    public void filter_comment_multiple_values() {
+        databaseHelper.addObject("route-set: AS34086:RS-OTC\nmembers: 46.29.103.32/27\nmembers: 46.29.96.0/24\nmnt-ref:AA1-MNT, # first\n+AA2-MNT,    # second\n\tAA3-MNT\t#third\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(getValues(query("AS34086:RS-OTC", "route-set", "mnt-ref"), "mnt-ref"), contains("AA1-MNT,"));
     }
 
     // complex lookups (specify attributes)
@@ -641,6 +688,17 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                             "193.0.0.0 - 193.255.255.255"),
                             "key"),
                 contains("193.0.0.0 - 193.255.255.255"));
+    }
+
+    @Test
+    public void select_filter_comment() {
+        databaseHelper.addObject("organisation: ORG-AA1-TEST\norg-name: Any Address # comment\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(
+            getValues(
+                query(Lists.newArrayList(AttributeType.ORG_NAME), Lists.newArrayList(ObjectType.ORGANISATION), Lists.newArrayList(AttributeType.ORG_NAME), "any"), "org-name"),
+            contains("Any Address"));
     }
 
     // helper methods

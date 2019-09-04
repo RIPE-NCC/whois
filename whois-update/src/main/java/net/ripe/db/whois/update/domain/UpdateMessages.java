@@ -170,12 +170,20 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Reserved name used");
     }
 
+    public static Message reservedNameUsed(final CharSequence name) {
+        return new Message(Type.ERROR, "Reserved name '%s' used", name);
+    }
+
+    public static Message reservedPrefixUsed(final CharSequence prefix, final ObjectType type) {
+        return new Message(Type.ERROR, "Names starting with '%s' are reserved for '%s'.", prefix, type.getName());
+    }
+
     // NOTE: this errormessage is being used by webupdates.
     public static Message newKeywordAndObjectExists() {
         return new Message(Type.ERROR, "Enforced new keyword specified, but the object already exists in the database");
     }
 
-    public static Message invalidMaintainerForOrganisationType(CharSequence orgType) {
+    public static Message invalidMaintainerForOrganisationType(final CharSequence orgType) {
         return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
     }
 
@@ -253,6 +261,13 @@ public final class UpdateMessages {
                 "Please contact \"ncc@ripe.net\" to change it.", attributeType.getName());
     }
 
+    public static Message canOnlyBeChangedinLirPortal(final AttributeType attributeType) {
+        return new Message(Type.ERROR,
+            "Attribute \"%s:\" can only be changed via the LIR portal.\n" +
+            "Please login to https://lirportal.ripe.net and select\n" +
+            "\"LIR Account Details\" under \"My LIR\" to change it.", attributeType.getName());
+    }
+
     public static Message orgAttributeMissing() {
         return new Message(Type.ERROR, "Missing required \"org:\" attribute");
     }
@@ -319,6 +334,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "\"assignment-size:\" value must not be greater than the maximum prefix size %s", prefixLength);
     }
 
+    public static Message prefixTooSmall(final int minimumPrefixLength) {
+        return new Message(Type.ERROR, "Minimum prefix size is %s", minimumPrefixLength);
+    }
+
     public static Message tooManyAggregatedByLirInHierarchy() {
         return new Message(Type.ERROR, "Only two levels of hierarchy allowed with status AGGREGATED-BY-LIR");
     }
@@ -355,8 +374,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Error parsing response while performing DNS check");
     }
 
-    public static Message dnsCheckError(final CharSequence s) {
-        return new Message(Type.ERROR, "Error from DNS check: %s", s);
+    public static Message dnsCheckError() {
+        return new Message(Type.ERROR, "Error from DNS check");
     }
 
     // NOTE: this errormessage is being used by webupdates.
@@ -463,19 +482,39 @@ public final class UpdateMessages {
     }
 
     public static Message certificateNotYetValid(final CharSequence name) {
-        return new Message(Type.WARNING, "Certificate in keycert %s is not yet valid", name);
+        return new Message(Type.ERROR, "Certificate in keycert %s is not yet valid", name);
     }
 
     public static Message certificateHasExpired(final CharSequence name) {
-        return new Message(Type.WARNING, "Certificate in keycert %s has expired", name);
+        return new Message(Type.ERROR, "Certificate in keycert %s has expired", name);
     }
 
     public static Message publicKeyHasExpired(final CharSequence name) {
-        return new Message(Type.WARNING, "Public key in keycert %s has expired", name);
+        return new Message(Type.ERROR, "Public key in keycert %s has expired", name);
     }
 
-    public static Message messageSignedMoreThanOneWeekAgo() {
-        return new Message(Type.WARNING, "Message was signed more than one week ago");
+    public static Message publicKeyIsRevoked(final CharSequence name) {
+        return new Message(Type.ERROR, "Public key in keycert %s is revoked", name);
+    }
+
+    public static Message cannotCreateOutOfRegionObject(final ObjectType objectType) {
+        return new Message(Type.ERROR, "Cannot create out of region %s objects", objectType.getName());
+    }
+
+    public static Message sourceNotAllowed(final ObjectType objectType, final CharSequence source) {
+        return new Message(Type.ERROR, "Source %s is not allowed for %s objects", source, objectType.getName());
+    }
+
+    public static Message cannotUseReservedAsNumber(final Long asNumber) {
+        return new Message(Type.ERROR, "Cannot use reserved AS number %d", asNumber);
+    }
+
+    public static Message autnumNotFoundInDatabase(final Long asNumber) {
+        return new Message(Type.WARNING, "Specified origin AS number %d is allocated to the RIPE region but doesn't exist in the RIPE database", asNumber);
+    }
+
+    public static Message messageSignedMoreThanOneHourAgo() {
+        return new Message(Type.ERROR, "Message was signed more than one hour ago");
     }
 
     public static Message eitherSimpleOrComplex(final ObjectType objectType, final CharSequence simple, final CharSequence complex) {
@@ -490,10 +529,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "The DIFF keyword is not supported.");
     }
 
-    public static Message abuseMailboxRequired(final CharSequence key) {
+    public static Message abuseMailboxRequired(final CharSequence key, final ObjectType objectType) {
         return new Message(Type.ERROR,
                 "The \"abuse-c\" ROLE object '%s' has no \"abuse-mailbox:\"\n"
-                        + "Add \"abuse-mailbox:\" to the ROLE object, then update the ORGANISATION object", key);
+                        + "Add \"abuse-mailbox:\" to the ROLE object, then update the %s object", key, objectType.getName().toUpperCase());
     }
 
     public static Message abuseCPersonReference() {
@@ -502,8 +541,8 @@ public final class UpdateMessages {
                         + "This must reference a ROLE object with an \"abuse-mailbox:\"");
     }
 
-    public static Message abuseMailboxReferenced(final CharSequence role) {
-        return new Message(Type.ERROR, "There is an organisation referencing role %s's abuse-mailbox", role);
+    public static Message abuseMailboxReferenced(final CharSequence role, final ObjectType objectType) {
+        return new Message(Type.ERROR, "There is an %s referencing role %s's abuse-mailbox", objectType.getName(), role);
     }
 
     public static Message keyNotFound(final String keyId) {
@@ -518,6 +557,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\"");
     }
 
+    public static Message duplicateAbuseC(final CharSequence abuseC, final CharSequence organisation) {
+        return new Message(Type.WARNING, "Duplicate abuse-c \"%s\" also found in referenced organisation \"%s\".", abuseC, organisation);
+    }
+
     public static Message abuseContactNotRemovable() {
         return new Message(Type.ERROR, "\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object");
     }
@@ -528,26 +571,6 @@ public final class UpdateMessages {
 
     public static Message commentInSourceNotAllowed() {
         return new Message(Type.ERROR, "End of line comments not allowed on \"source:\" attribute");
-    }
-
-    public static Message updatePendingAuthentication() {
-        return new Message(Type.WARNING, "This update has only passed one of the two required hierarchical authorisations");
-    }
-
-    public static Message updatePendingAuthenticationSaved(final RpslObject rpslObject) {
-        return new Message(Type.INFO, "The %s object %s will be saved for one week pending the second authorisation", rpslObject.getType().getName(), rpslObject.getKey());
-    }
-
-    public static Message updateAlreadyPendingAuthentication() {
-        return new Message(Type.ERROR, "There is already an identical update pending authentication");
-    }
-
-    public static Message updateConcludesPendingUpdate(final RpslObject rpslObject) {
-        return new Message(Type.INFO, "This update concludes a pending update on %s %s", rpslObject.getType().getName(), rpslObject.getKey());
-    }
-
-    public static Message dryRunOnlySupportedOnSingleUpdate() {
-        return new Message(Type.ERROR, "Dry-run is only supported when a single update is specified");
     }
 
     public static Message dryRunNotice() {
@@ -590,35 +613,55 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
     }
 
+    public static Message valueChangedDueToLatin1Conversion() {
+        return new Message(Type.WARNING, "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
+    }
+
     public static Message valueChangedDueToLatin1Conversion(final String attributeName) {
-        return new Message(Type.WARNING, "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", attributeName);
+        return new Message(Type.WARNING, "Invalid character(s) were substituted in attribute \"%s\" value", attributeName);
     }
 
     public static Message oldPasswordsRemoved() {
         return new Message(Type.WARNING, "MD5 passwords older than November 2011 were removed for one or more maintainers of this object, see: https://www.ripe.net/removed2011pw");
     }
 
-    public static Message rpslMntbyForbidden() {
-        return new Message(Type.ERROR, "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
+    public static Message creatingRipeMaintainerForbidden() {
+        return new Message(Type.ERROR, "You cannot create a RIPE NCC maintainer");
+    }
+
+    public static Message updatingRipeMaintainerSSOForbidden() {
+        return new Message(Type.ERROR, "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
     }
 
     public static Message netnameCannotBeChanged() {
         return new Message(Type.ERROR, "The \"netname\" attribute can only be changed by the RIPE NCC");
     }
 
-    public static Message descrCannotBeAdded() {
-        return new Message(Type.ERROR, "The first \"descr\" attribute can only be added by the RIPE NCC");
-    }
-
-    public static Message descrCannotBeChanged() {
-        return new Message(Type.ERROR, "The first \"descr\" attribute can only be changed by the RIPE NCC");
-    }
-
-    public static Message descrCannotBeRemoved() {
-        return new Message(Type.ERROR, "The first \"descr\" attribute can only be removed by the RIPE NCC");
-    }
-
     public static Message multipleUserMntBy(final Collection<CIString> userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
+    }
+
+    public static Message changedAttributeRemoved() {
+        return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
+    }
+
+    public static Message mntRoutesAttributeRemoved() {
+        return new Message(Messages.Type.WARNING, "Deprecated attribute \"mnt-routes\". This attribute has been removed.");
+    }
+
+    public static Message emailAddressCannotBeUsed(final CIString value) {
+        return new Message(Type.ERROR, "The email address \"%s\" cannot be used.", value);
+    }
+
+    public static Message inconsistentOrgNameFormatting() {
+        return new Message(Type.ERROR, "Tab characters, multiple lines, or multiple whitespaces are not allowed in the \"org-name:\" value.");
+    }
+
+    public static Message shortFormatAttributeReplaced() {
+        return new Message(Type.WARNING, "Short format attribute name(s) have been replaced.");
+    }
+
+    public static Message bogonPrefixNotAllowed(final String prefix) {
+        return new Message(Type.ERROR, "Bogon prefix %s is not allowed.", prefix);
     }
 }

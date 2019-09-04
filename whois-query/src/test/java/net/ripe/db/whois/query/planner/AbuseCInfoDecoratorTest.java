@@ -13,9 +13,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Optional;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -42,7 +43,7 @@ public class AbuseCInfoDecoratorTest {
     @Test
     public void inet6num_with_abuse_contact() {
         final RpslObject object = RpslObject.parse("inet6num: ffc::0/64\norg: ORG-TEST");
-        when(abuseCFinder.getAbuseContact(object)).thenReturn("abuse@ripe.net");
+        when(abuseCFinder.getAbuseContact(object)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
         when(sourceContext.isMain()).thenReturn(true);
 
         final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("AS3333"), Collections.singletonList(object)).iterator();
@@ -58,7 +59,7 @@ public class AbuseCInfoDecoratorTest {
     @Test
     public void autnum_without_abuse_contact() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS333\nas-name: TEST-NAME\norg: ORG-TOL1-TEST");
-        when(abuseCFinder.getAbuseContact(autnum)).thenReturn(null);
+        when(abuseCFinder.getAbuseContact(autnum)).thenReturn(Optional.empty());
         when(sourceContext.isMain()).thenReturn(true);
 
         final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("AS3333"), Collections.singletonList(autnum)).iterator();

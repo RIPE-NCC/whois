@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -20,8 +19,8 @@ import javax.ws.rs.RedirectionException;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -196,19 +195,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     }
 
     private void refreshResourceData() {
-        updateScheduledTaskCompletion();
-        authoritativeResourceData.refreshAuthoritativeResourceCache();
+        authoritativeResourceData.refreshAllSources();
     }
 
-    private void updateScheduledTaskCompletion() {
-        final long finish = dailySchedulerDao.getDailyTaskFinishTime(testDateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class);
-        if (finish == -1) {
-            // initialise
-            dailySchedulerDao.acquireDailyTask(testDateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class, "localhost");
-            dailySchedulerDao.markTaskDone(testDateTimeProvider.getNanoTime(), testDateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class);
-        } else {
-            // update
-            dailySchedulerDao.markTaskDone((finish + 1000L), testDateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class);
-        }
-    }
 }

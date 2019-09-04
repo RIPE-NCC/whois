@@ -1,6 +1,7 @@
 package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
@@ -535,7 +536,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 mnt-nfy: mntnfy_cre@ripe.net
                 admin-c: TP1-TEST
                 mnt-by: CRE-MNT, owner-mnt
-                abuse-mailbox: nfy_cre@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 upd-to: updto_cre@ripe.net
@@ -638,4 +638,73 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
         queryObjectNotFound("-rGBT mntner NEW-MNT", "mntner", "NEW-MNT")
     }
+
+    def "not create ripe-ncc-rpsl-mntner maintainer object"() {
+        expect:
+        queryNothing("-rGBT mntner RIPE-NCC-RPSL-MNT")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                mntner: RIPE-NCC-RPSL-MNT
+                descr: description
+                admin-c: TP1-TEST
+                mnt-by: RIPE-NCC-RPSL-MNT
+                upd-to: updto_cre@ripe.net
+                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                source: TEST
+
+                password: update
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.errors
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.errors.any {it.operation == "Create" && it.key == "[mntner] RIPE-NCC-RPSL-MNT"}
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errorMessagesFor("Create", "[mntner] RIPE-NCC-RPSL-MNT") ==
+                ["Authentication by RIPE NCC maintainers only allowed from within the RIPE NCC network","You cannot create a RIPE NCC maintainer"]
+
+        queryObjectNotFound("-rGBT mntner RIPE-NCC-RPSL-MNT", "mntner", "RIPE-NCC-RPSL-MNT")
+    }
+
+    def "create ripe-ncc-rpsl-mntner maintainer object using override"() {
+        expect:
+        queryObjectNotFound("-r -T mntner RIPE-NCC-RPSL-MNT", "mntner", "RIPE-NCC-RPSL-MNT")
+
+        when:
+        def message = syncUpdate("""\
+                mntner: RIPE-NCC-RPSL-MNT
+                descr: description
+                admin-c: TP1-TEST
+                mnt-by: RIPE-NCC-RPSL-MNT
+                upd-to: updto_cre@ripe.net
+                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                source: TEST
+                override:       denis,override1
+
+                password: update
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[mntner] RIPE-NCC-RPSL-MNT"}
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        queryObject("-rGBT mntner RIPE-NCC-RPSL-MNT", "mntner", "RIPE-NCC-RPSL-MNT")
+    }
+
 }

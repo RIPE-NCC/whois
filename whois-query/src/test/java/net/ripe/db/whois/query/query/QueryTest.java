@@ -499,15 +499,17 @@ public class QueryTest {
     @Test
     public void attributes_person() {
         final Query query = Query.parse("-i person name");
-
-        assertThat(query.getAttributeTypes(), contains(AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
+        assertThat(query.getAttributeTypes(), contains(AttributeType.ABUSE_C, AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
+        final Query queryPn = Query.parse("-i pn name");
+        assertThat(queryPn.getAttributeTypes(), contains(AttributeType.ABUSE_C, AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
     }
 
     @Test
     public void attributes_person_and_others() {
         final Query query = Query.parse("-i mb,person,ml name");
-
-        assertThat(query.getAttributeTypes(), contains(AttributeType.MNT_BY, AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL, AttributeType.MNT_LOWER));
+        assertThat(query.getAttributeTypes(), contains(AttributeType.MNT_BY, AttributeType.ABUSE_C, AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL, AttributeType.MNT_LOWER));
+        final Query queryPn = Query.parse("-i mb,pn,ml name");
+        assertThat(queryPn.getAttributeTypes(), contains(AttributeType.MNT_BY, AttributeType.ABUSE_C, AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL, AttributeType.MNT_LOWER));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.search;
 
+import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;

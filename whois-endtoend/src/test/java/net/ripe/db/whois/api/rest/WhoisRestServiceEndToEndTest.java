@@ -20,9 +20,7 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.support.TestUpdateLog;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +34,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Deque;
 import java.util.List;
 
@@ -46,6 +45,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -510,6 +510,35 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void remove_attribute_changed_while_creating_assignment() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1),
+                makeMntner("LIR2", "auth: SSO " + USER2),
+                makeMntner("LIR3", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT", "changed: john.smith@example.com 20171114");
+        final String token = crowdClient.login(USER2, PASSWORD2);
+
+        try {
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=owner")
+                    .request(mediaType)
+                    .cookie("crowd.token_key", token)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
+
+            final ErrorMessage errorMessage = Lists.reverse(whoisResources.getErrorMessages()).get(0);
+            assertThat(errorMessage.getText(), is("Deprecated attribute \"changed\". This attribute has been removed."));
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
+            assertFalse(whoisResources.getWhoisObjects().get(0).getAttributes().contains(AttributeType.CHANGED));
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER2);
+        }
+    }
+
+    @Test
     public void modify_assignment__mntby_SSO_and_pw__logged_in_no_pw_supplied() {
         databaseHelper.addObjects(
                 makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
@@ -528,6 +557,34 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
             assertThat(whoisResources.getErrorMessages(), emptyIterable());
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        } finally {
+            crowdClient.logout(USER1);
+        }
+    }
+
+    @Test
+    public void remove_attribute_changed_while_modifying_assignment() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"),
+                makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT"));
+
+        final RpslObject updatedAssignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "remarks: updated", "changed: john.smith@example.com 20171114");
+        final String token = crowdClient.login(USER1, PASSWORD1);
+
+        try {
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0 - 10.0.255.255")
+                    .request(mediaType)
+                    .cookie("crowd.token_key", token)
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedAssignment), mediaType), WhoisResources.class);
+
+            final ErrorMessage errorMessage = Lists.reverse(whoisResources.getErrorMessages()).get(0);
+            assertThat(errorMessage.getText(), is("Deprecated attribute \"changed\". This attribute has been removed."));
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
+            assertFalse(whoisResources.getWhoisObjects().get(0).getAttributes().contains(AttributeType.CHANGED));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         } finally {
@@ -653,7 +710,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
             crowdClient.logout(USER1);
         }
 
-        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_981475200000/000.audit.xml.gz"));
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_100/000.audit.xml.gz"));
         final Iterable<String> linesContainingPassword = new IterableTransformer<String>(Splitter.on('\n').split(audit)) {
             @Override
             public void apply(String input, Deque<String> result) {

@@ -38,6 +38,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -89,6 +90,7 @@ public class SyncUpdatesService {
 
     @GET
     @Path("/{source}")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response doGet(
             @Context final HttpServletRequest httpServletRequest,
             @PathParam(SOURCE) final String source,
@@ -115,6 +117,7 @@ public class SyncUpdatesService {
     @POST
     @Path("/{source}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response doUrlEncodedPost(
             @Context final HttpServletRequest httpServletRequest,
             @PathParam(SOURCE) final String source,
@@ -141,6 +144,7 @@ public class SyncUpdatesService {
     @POST
     @Path("/{source}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response doMultipartPost(
             @Context final HttpServletRequest httpServletRequest,
             @PathParam(SOURCE) final String source,
@@ -230,8 +234,6 @@ public class SyncUpdatesService {
 
         return Response
                 .ok()
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN)
-                .header(HttpHeaders.CONTENT_LENGTH, updateResponse.getResponse().length())
                 .entity(updateResponse.getResponse())
                 .build();
     }
@@ -276,7 +278,9 @@ public class SyncUpdatesService {
                 }
             }
         }
-        return Charsets.ISO_8859_1;
+
+        // application/x-www-form-urlencoded is UTF-8 by default
+        return Charsets.UTF_8;
     }
 
     @Nullable
@@ -310,7 +314,7 @@ public class SyncUpdatesService {
     }
 
     private String getRequestId(final String remoteAddress) {
-        return "syncupdate_" + remoteAddress + "_" + dateTimeProvider.getNanoTime();
+        return "syncupdate_" + remoteAddress + "_" + dateTimeProvider.getElapsedTime();
     }
 
     private boolean sourceMatchesContext(final String source) {

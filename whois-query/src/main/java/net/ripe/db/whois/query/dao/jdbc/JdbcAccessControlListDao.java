@@ -1,20 +1,20 @@
 package net.ripe.db.whois.query.dao.jdbc;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -24,6 +24,8 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,11 +51,11 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
             jdbcTemplate.update(
                     "INSERT INTO acl_event (prefix, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
                     prefix,
-                    date.toDate(),
+                    DateUtil.toDate(date),
                     limit,
                     type.name()
             );
-        } catch (DuplicateKeyException e) {
+        } catch (DataIntegrityViolationException e) {
             LOGGER.debug("Attempt to create temporary block twice: prefix {}, date {}", prefix, date);
         }
     }
@@ -65,7 +67,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
             final Map<String, List<BlockEvent>> blockEventsMap = new HashMap<>();
             while (rs.next()) {
                 final String prefix = rs.getString("prefix");
-                final LocalDateTime time = new LocalDateTime(rs.getTimestamp("event_time"));
+                final LocalDateTime time = Timestamp.from(rs.getTimestamp("event_time")).toLocalDateTime();
                 final int limit = rs.getInt("daily_limit");
                 final BlockEvent.Type type = BlockEvent.Type.valueOf(rs.getString("event_type"));
 
@@ -91,7 +93,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
         return jdbcTemplate.query(
                 "SELECT prefix, event_time, daily_limit, event_type FROM acl_event WHERE event_time >= ? ORDER BY prefix, event_time ASC",
                 new BlockEventsExtractor(),
-                blockTime.toDate()
+                DateUtil.toDate(blockTime)
         );
     }
 
@@ -103,17 +105,17 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
 
         jdbcTemplate.update(
                 "INSERT INTO acl_denied (prefix, comment, denied_date) VALUES (?, ?, ?)",
-                prefix, comment, date.toDate());
+                prefix, comment, DateUtil.toDate(date));
     }
 
     @Override
     public void removeBlockEventsBefore(final LocalDate date) {
-        jdbcTemplate.update("DELETE FROM acl_event WHERE event_time < ?", date.toDate());
+        jdbcTemplate.update("DELETE FROM acl_event WHERE event_time < ?", DateUtil.toDate(date));
     }
 
     @Override
     public void removePermanentBlocksBefore(final LocalDate date) {
-        jdbcTemplate.update("DELETE FROM acl_denied WHERE denied_date < ?", date.toDate());
+        jdbcTemplate.update("DELETE FROM acl_denied WHERE denied_date < ?", DateUtil.toDate(date));
     }
 
     @Override

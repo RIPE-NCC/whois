@@ -375,8 +375,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T organisation ORG-XA1-TEST", "organisation", "ORG-XA1-TEST")
     }
 
-    // FIXME: [AH] the character 'Ő' was converted to a ? in the acknowledgement message
-    def "create organisation with auto-1 and weird (invalid) chars in name, missing auth"() {
+    def "create organisation with auto-1 and latin-1 Supplement and non-latin-1 chars in name, missing auth"() {
         expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
 
@@ -386,7 +385,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 body: """\
                 organisation:    auto-1
                 org-type:        other
-                org-name:        Hö öns mö åäö ŐÚ
+                org-name:        Hö öns mö åäöÚ Ő
                 address:         RIPE NCC
                                  Singel 258
                                  1016 AB Amsterdam
@@ -407,9 +406,10 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == ["Syntax error in Hö öns mö åäö ?Ú"]
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errorMessagesFor("Create", "[organisation] auto-1") == ["Syntax error in Hö öns mö åäöÚ ?"]
+        ack.warningMessagesFor("Create", "[organisation] auto-1") == [
+                "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
 
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
     }
@@ -1335,11 +1335,11 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 admin-c:TP2-TEST
                 geoloc:      10.568 158.552
                 tech-c: TP2-TEST
+                abuse-c: AH1-TEST
                 phone:
                 ++44282411141 ext. 0
                 e-mail:          dbtest@ripe.net
                 notify:          nfy-dbtest@ripe.net
-                abuse-mailbox:   abuse-dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 phone:+44282411141
                 fax-no:                                     +44282411141
@@ -1351,7 +1351,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         ref-nfy2-dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 notify:          nfy-dbtest@ripe.net
-                abuse-mailbox:   abuse2-dbtest@ripe.net
 
                 password: owner2
                 password: owner3
@@ -1967,7 +1966,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
                 ["Authorisation for [organisation] ORG-LIR2-TEST failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",
-                "Attribute \"org-name:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",]
+                "Attribute \"org-name:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",]
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
     }
@@ -2841,6 +2840,205 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
 
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "create organisation with abuse-mailbox"() {
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    auto-1
+                org-type:        other
+                org-name:        First Org
+                abuse-mailbox:   abuse@ripe.net
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-1" }
+        ack.errorMessagesFor("Create", "[organisation] auto-1") ==
+                [ "\"abuse-mailbox\" is not valid for this object type"]
+    }
+
+    def "update organisation, add abuse-mailbox"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                        "org-type:        other\n" +
+                        "org-name:        First Org\n" +
+                        "address:         RIPE NCC" +
+                        "                 Singel 258" +
+                        "                 1016 AB Amsterdam" +
+                        "                 Netherlands\n" +
+                        "e-mail:          dbtest@ripe.net\n" +
+                        "mnt-ref:         owner3-mnt\n" +
+                        "mnt-by:          owner2-mnt\n" +
+                        "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                abuse-mailbox:   abuse2@ripe.net
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
+                [ "\"abuse-mailbox\" is not valid for this object type"]
+    }
+
+    def "update organisation, remove abuse-mailbox"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                        "org-type:        other\n" +
+                        "org-name:        First Org\n" +
+                        "abuse-mailbox:   abuse@ripe.net\n" +
+                        "address:         RIPE NCC" +
+                        "                 Singel 258" +
+                        "                 1016 AB Amsterdam" +
+                        "                 Netherlands\n" +
+                        "e-mail:          dbtest@ripe.net\n" +
+                        "mnt-ref:         owner3-mnt\n" +
+                        "mnt-by:          owner2-mnt\n" +
+                        "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
+    }
+
+    def "update organisation with abuse-mailbox, add abuse-mailbox"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                        "org-type:        other\n" +
+                        "org-name:        First Org\n" +
+                        "abuse-mailbox:   abuse@ripe.net\n" +
+                        "address:         RIPE NCC" +
+                        "                 Singel 258" +
+                        "                 1016 AB Amsterdam" +
+                        "                 Netherlands\n" +
+                        "e-mail:          dbtest@ripe.net\n" +
+                        "mnt-ref:         owner3-mnt\n" +
+                        "mnt-by:          owner2-mnt\n" +
+                        "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                abuse-mailbox:   abuse@ripe.net
+                abuse-mailbox:   abuse2@ripe.net
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+
+                password: owner2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+        ack.failed
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
+                [ "\"abuse-mailbox\" is not valid for this object type",
+                  "\"abuse-mailbox\" is not valid for this object type"]
     }
 
 }

@@ -13,7 +13,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
-import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Origin;
@@ -61,7 +60,6 @@ public class AuthenticatorPrincipalTest {
     @Mock AuthenticationStrategy authenticationStrategy2;
     @Mock Maintainers maintainers;
     @Mock LoggerContext loggerContext;
-    @Mock PendingUpdateDao pendingUpdateDao;
 
     Authenticator subject;
     ArgumentCaptor<Subject> subjectCapture;
@@ -79,7 +77,7 @@ public class AuthenticatorPrincipalTest {
         when(update.getCredentials()).thenReturn(new Credentials());
 
         subjectCapture = ArgumentCaptor.forClass(Subject.class);
-        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2}, pendingUpdateDao);
+        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2});
     }
 
     @Test
@@ -115,8 +113,7 @@ public class AuthenticatorPrincipalTest {
         verifySubject(updateContext, new Subject(
                 Sets.newHashSet(excpectedPrincipals),
                 Collections.singleton(authenticationStrategy1.getName()),
-                Collections.<String>emptySet(),
-                Collections.<String, Collection<RpslObject>>emptyMap()
+                Collections.<String>emptySet()
         ));
     }
 
@@ -147,8 +144,7 @@ public class AuthenticatorPrincipalTest {
         verifySubject(updateContext, new Subject(
                 Collections.<Principal>emptySet(),
                 Collections.<String>emptySet(),
-                Collections.singleton(authenticationStrategy2.getName()),
-                Collections.<String, Collection<RpslObject>>emptyMap()
+                Collections.singleton(authenticationStrategy2.getName())
         ));
     }
 
@@ -319,8 +315,6 @@ public class AuthenticatorPrincipalTest {
 
         subject.authenticate(origin, update, updateContext);
         verifySubject(updateContext, new Subject(Principal.OVERRIDE_MAINTAINER));
-        verify(authenticationStrategy1).getTypesWithPendingAuthenticationSupport();
-        verify(authenticationStrategy2).getTypesWithPendingAuthenticationSupport();
         verify(update).getUpdate();
         verifyNoMoreInteractions(userDao, update, updateContext);
     }

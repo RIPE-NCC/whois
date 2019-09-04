@@ -22,7 +22,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     private int updateInterval;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         updateInterval = Integer.valueOf(updateIntervalString);
         nrtmServer.start();
     }
@@ -33,35 +33,36 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void versionQuery() throws Exception {
+    public void versionQuery() {
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q version");
 
         assertThat(response, containsString("% nrtm-server"));
     }
 
     @Test
-    public void sourcesQuery() throws Exception {
+    public void sourcesQuery() {
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
 
         assertThat(response, containsString("TEST:3:X:0-0"));
+        assertThat(response, containsString("TEST-NONAUTH:3:X:0-0"));
     }
 
     @Test
-    public void emptyQuery() throws Exception {
+    public void emptyQuery() {
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "\n");
 
         assertThat(response, containsString("no flags passed"));
     }
 
     @Test
-    public void queryKeepaliveNoPreExistingObjects() throws Exception {
+    public void queryKeepaliveNoPreExistingObjects() {
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-2 -k", (updateInterval + 1) * 1000);
 
         assertThat(response, containsString("%ERROR:401: invalid range"));
     }
 
     @Test
-    public void queryKeepAliveNoPreExistingObjectsOneNewObject() throws Exception {
+    public void queryKeepAliveNoPreExistingObjectsOneNewObject() {
         databaseHelper.addObject(RpslObject.parse("mntner:test\nsource:TEST"));
         AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST:3:1-1 -k", (updateInterval + 1));
 
@@ -73,7 +74,19 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void queryKeepAliveOnePreExistingObjectsOneNewObject() throws Exception {
+    public void queryKeepAliveNoPreExistingObjectsOneNewObject2() {
+        databaseHelper.addObject(RpslObject.parse("mntner:test\nsource:TEST-NONAUTH"));
+        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-1 -k", (updateInterval + 1));
+
+        client.start();
+        databaseHelper.addObject(RpslObject.parse("mntner:keepalive\nsource:TEST-NONAUTH"));
+        String response = client.end();
+
+        assertThat(response, containsString("mntner:         keepalive"));
+    }
+
+    @Test
+    public void queryKeepAliveOnePreExistingObjectsOneNewObject() {
         databaseHelper.addObject(RpslObject.parse("mntner:testmntner\nmnt-by:testmntner\nsource:TEST"));
         AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST:3:1-LAST -k", (updateInterval + 1));
 
@@ -86,7 +99,20 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void mirrorQueryOneSerialEntry() throws Exception {
+    public void queryKeepAliveOnePreExistingObjectDifferentSource() {
+        databaseHelper.addObject(RpslObject.parse("mntner:testmntner\nmnt-by:testmntner\nsource:TEST"));
+        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-LAST -k", (updateInterval + 1));
+
+        client.start();
+        //super.databaseHelper.addObject(RpslObject.parse("aut-num:AS4294967207\nsource:TEST-NONAUTH"));
+        String response = client.end();
+
+        assertThat(response, not(containsString("testmntner")));
+        //assertThat(response, not(containsString("AS4294967207")));
+    }
+
+    @Test
+    public void mirrorQueryOneSerialEntry() {
         databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST");
 
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-1");
@@ -95,7 +121,16 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void mirrorQueryMultipleSerialEntry() throws Exception {
+    public void mirrorQueryOneSerialEntryNonAuth() {
+        databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST-NONAUTH");
+
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-1");
+
+        assertThat(response, containsString("aut-num:        AS4294967207"));
+    }
+
+    @Test
+    public void mirrorQueryMultipleSerialEntry() {
         databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST");
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE");
         databaseHelper.addObject("mntner:DEV-MNT\nsource:TEST");
@@ -111,7 +146,63 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void mirrorQueryOutofRange() throws Exception {
+    public void mirrorQueryMultipleSerialEntryMixedSourceTypeAuth() {
+        databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST");
+        databaseHelper.addObject("aut-num:AS5294967207\nsource:TEST-NONAUTH");
+        databaseHelper.addObject("aut-num:AS6294967207\nsource:TEST");
+        databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE\nsource:TEST");
+        databaseHelper.addObject("mntner:DEV-MNT\nsource:TEST");
+
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-3");
+
+        assertThat(response, containsString("ADD 1"));
+        assertThat(response, containsString("AS4294967207"));
+        assertThat(response, containsString("ADD 3"));
+        assertThat(response, containsString("AS6294967207"));
+        assertThat(response, containsString("%END TEST"));
+        assertThat(response, not(containsString("DW-RIPE")));
+        assertThat(response, not(containsString("TEST-NONAUTH")));
+    }
+
+    @Test
+    public void mirrorQueryMultipleSerialEntryMixedSourceTypeNonAuth() {
+        databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST");
+        databaseHelper.addObject("aut-num:AS5294967207\nsource:TEST-NONAUTH");
+        databaseHelper.addObject("aut-num:AS6294967207\nsource:TEST-NONAUTH");
+        databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE\nsource:TEST");
+
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-3");
+
+        assertThat(response, containsString("ADD 2"));
+        assertThat(response, containsString("AS5294967207"));
+        assertThat(response, containsString("ADD 3"));
+        assertThat(response, containsString("AS6294967207"));
+        assertThat(response, containsString("%END TEST-NONAUTH"));
+        assertThat(response, not(containsString("DW-RIPE")));
+    }
+
+
+    @Test
+    public void queryKeepAliveMultipleSerialEntryMixedSource() {
+        databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST-NONAUTH");
+        databaseHelper.addObject("aut-num:AS5294967207\nsource:TEST");
+        databaseHelper.addObject("aut-num:AS6294967207\nsource:TEST-NONAUTH");
+        databaseHelper.addObject("aut-num:AS7294967207\nsource:TEST-NONAUTH");
+
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-LAST");
+
+        assertThat(response, containsString("ADD 1"));
+        assertThat(response, containsString("AS4294967207"));
+        assertThat(response, containsString("ADD 3"));
+        assertThat(response, containsString("AS6294967207"));
+        assertThat(response, containsString("ADD 4"));
+        assertThat(response, containsString("AS7294967207"));
+        assertThat(response, containsString("source:         TEST-NONAUTH"));
+        assertThat(response, containsString("%END TEST-NONAUTH"));
+    }
+
+    @Test
+    public void mirrorQueryOutofRange() {
         databaseHelper.addObject("aut-num:AS4294967207");
 
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:2-4");
@@ -120,7 +211,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void mirrorQueryWithLastKeyword() throws Exception {
+    public void mirrorQueryWithLastKeyword() {
         databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST");
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE");
         databaseHelper.addObject("mntner:DEV-MNT\nsource:TEST");
@@ -136,7 +227,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void mirror_query_abuse_contact() throws Exception {
+    public void mirror_query_abuse_contact() {
         databaseHelper.addObject("" +
                 "role:          Denis Walker\n" +
                 "nic-hdl:       DW-RIPE\n" +
@@ -159,7 +250,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void nrtm_keeps_timestamp_attributes() throws Exception {
+    public void nrtm_keeps_timestamp_attributes() {
         databaseHelper.addObject("" +
                 "role:          Denis Walker\n" +
                 "nic-hdl:       DW-RIPE\n" +
@@ -181,4 +272,19 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
                 "source:         TEST"));
         assertThat(response, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
     }
+
+    @Test
+    public void should_not_have_blank_lines_between_sources() {
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
+
+        assertThat(response, containsString(
+                "% The RIPE Database is subject to Terms and Conditions.\n" +
+                        "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                        "\n" +
+                        "TEST:3:X:0-0\n" +
+                        "TEST-NONAUTH:3:X:0-0\n" +
+                        "\n"
+        ));
+    }
+
 }

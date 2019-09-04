@@ -16,12 +16,15 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {
-    "type",
-    "link",
-    "source",
-    "primaryKey",
-    "attributes",
-    "tags"
+        "type",
+        "link",
+        "source",
+        "primaryKey",
+        "attributes",
+        "tags",
+        "resourceHolder",
+        "abuseContact",
+        "managed",
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "object")
@@ -39,8 +42,17 @@ public class WhoisObject {
     @XmlElement(name = "attributes", required = true)
     private Attributes attributes;
 
-    @XmlElement(name = "tags")
+    @XmlElement
     private WhoisTags tags;
+
+    @XmlElement(name = "resource-holder")
+    private ResourceHolder resourceHolder;
+
+    @XmlElement(name = "abuse-contact")
+    private AbuseContact abuseContact;
+
+    @XmlElement(name = "managed")
+    private Boolean managed;
 
     @XmlAttribute(required = true)
     private String type;
@@ -48,23 +60,132 @@ public class WhoisObject {
     @XmlAttribute
     private Action action;
 
-    @XmlAttribute(name = "version")
+    @XmlAttribute
     private Integer version;
 
-    // factory
+    public WhoisObject() {
+        // required no-arg constructor
+    }
 
-    public static WhoisObject create(final Source source,
-                                     final String type,
-                                     final List<Attribute> attributes,
-                                     final List<Attribute> primaryKey,
-                                     final Link link) {
-        final WhoisObject whoisObject = new WhoisObject();
-        whoisObject.setSource(source);
-        whoisObject.setType(type);
-        whoisObject.setLink(link);
-        whoisObject.setAttributes(attributes);
-        whoisObject.setPrimaryKey(primaryKey);
-        return whoisObject;
+    private WhoisObject(
+            final Link link,
+            final Source source,
+            final PrimaryKey primaryKey,
+            final Attributes attributes,
+            final WhoisTags tags,
+            final String type,
+            final Action action,
+            final Integer version,
+            final ResourceHolder resourceHolder,
+            final AbuseContact abuseContact,
+            final Boolean managed) {
+        this.link = link;
+        this.source = source;
+        this.primaryKey = primaryKey;
+        this.attributes = attributes;
+        this.tags = tags;
+        this.type = type;
+        this.action = action;
+        this.version = version;
+        this.resourceHolder = resourceHolder;
+        this.abuseContact = abuseContact;
+        this.managed = managed;
+    }
+
+    // builder
+
+    public static class Builder {
+        private Link link;
+        private Source source;
+        private PrimaryKey primaryKey;
+        private Attributes attributes;
+        private WhoisTags tags;
+        private String type;
+        private Action action;
+        private Integer version;
+        private ResourceHolder resourceHolder;
+        private AbuseContact abuseContact;
+        private Boolean managed;
+
+        public Builder link(final Link link) {
+            this.link = link;
+            return this;
+        }
+
+        public Builder source(final Source source) {
+            this.source = source;
+            return this;
+        }
+
+        public Builder primaryKey(final PrimaryKey primaryKey) {
+            this.primaryKey = primaryKey;
+            return this;
+        }
+
+        public Builder primaryKey(final List<Attribute> attributes) {
+            this.primaryKey = new PrimaryKey(attributes);
+            return this;
+        }
+
+        public Builder attributes(final Attributes attributes) {
+            this.attributes = attributes;
+            return this;
+        }
+
+        public Builder attributes(final List<Attribute> attributes) {
+            this.attributes = new Attributes(attributes);
+            return this;
+        }
+
+        public Builder tags(final WhoisTags tags) {
+            this.tags = tags;
+            return this;
+        }
+
+        public Builder type(final String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder action(final Action action) {
+            this.action = action;
+            return this;
+        }
+
+        public Builder version(final Integer version) {
+            this.version = version;
+            return this;
+        }
+
+        public Builder resourceHolder(final ResourceHolder resourceHolder) {
+            this.resourceHolder = resourceHolder;
+            return this;
+        }
+
+        public Builder abuseContact(final AbuseContact abuseContact) {
+            this.abuseContact = abuseContact;
+            return this;
+        }
+
+        public Builder managed(final Boolean managed) {
+            this.managed = managed;
+            return this;
+        }
+
+        public WhoisObject build() {
+            return new WhoisObject(
+                    link,
+                    source,
+                    primaryKey,
+                    attributes,
+                    tags,
+                    type,
+                    action,
+                    version,
+                    resourceHolder,
+                    abuseContact,
+                    managed);
+        }
     }
 
     // getters & setters
@@ -73,7 +194,7 @@ public class WhoisObject {
         return link;
     }
 
-    public void setLink(Link value) {
+    public void setLink(final Link value) {
         this.link = value;
     }
 
@@ -81,7 +202,7 @@ public class WhoisObject {
         return source;
     }
 
-    public void setSource(Source value) {
+    public void setSource(final Source value) {
         this.source = value;
     }
 
@@ -105,7 +226,7 @@ public class WhoisObject {
         return type;
     }
 
-    public void setType(String value) {
+    public void setType(final String value) {
         this.type = value;
     }
 
@@ -113,7 +234,7 @@ public class WhoisObject {
         return action;
     }
 
-    public void setAction(Action action) {
+    public void setAction(final Action action) {
         this.action = action;
     }
 
@@ -131,6 +252,30 @@ public class WhoisObject {
 
     public void setTags(final List<WhoisTag> tags) {
         this.tags = new WhoisTags(tags);
+    }
+
+    public ResourceHolder getResourceHolder() {
+        return resourceHolder;
+    }
+
+    public void setResourceHolder(final ResourceHolder resourceHolder) {
+        this.resourceHolder = resourceHolder;
+    }
+
+    public AbuseContact getAbuseContact() {
+        return abuseContact;
+    }
+
+    public void setAbuseContact(final AbuseContact abuseContact) {
+        this.abuseContact = abuseContact;
+    }
+
+    public Boolean isManaged() {
+        return managed;
+    }
+
+    public void setManaged(final Boolean managed) {
+        this.managed = managed;
     }
 
     public String toString() {

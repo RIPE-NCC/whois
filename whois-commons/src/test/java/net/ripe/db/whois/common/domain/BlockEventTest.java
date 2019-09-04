@@ -1,16 +1,19 @@
 package net.ripe.db.whois.common.domain;
 
-import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
+
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 
 public class BlockEventTest {
 
     @Test
     public void test_accessors() throws Exception {
-        final LocalDateTime time = new LocalDateTime();
+        final LocalDateTime time = LocalDateTime.now();
         final int limit = 100;
         final BlockEvent.Type type = BlockEvent.Type.BLOCK_TEMPORARY;
 
@@ -23,10 +26,10 @@ public class BlockEventTest {
 
     @Test
     public void equals() {
-        final BlockEvent subject = new BlockEvent(new LocalDateTime(2012, 2, 16, 12, 0), 1, BlockEvent.Type.BLOCK_TEMPORARY);
-        final BlockEvent clone = new BlockEvent(new LocalDateTime(2012, 2, 16, 12, 0), 1, BlockEvent.Type.BLOCK_TEMPORARY);
-        final BlockEvent newDate = new BlockEvent(new LocalDateTime(2011, 2, 16, 12, 0), 1, BlockEvent.Type.BLOCK_TEMPORARY);
-        final BlockEvent newType = new BlockEvent(new LocalDateTime(2012, 2, 16, 12, 0), 1, BlockEvent.Type.UNBLOCK);
+        final BlockEvent subject = new BlockEvent(LocalDateTime.of(2012, 2, 16, 12, 0), 1, BlockEvent.Type.BLOCK_TEMPORARY);
+        final BlockEvent clone = new BlockEvent(LocalDateTime.of(2012, 2, 16, 12, 0), 1, BlockEvent.Type.BLOCK_TEMPORARY);
+        final BlockEvent newDate = new BlockEvent(LocalDateTime.of(2011, 2, 16, 12, 0), 1, BlockEvent.Type.BLOCK_TEMPORARY);
+        final BlockEvent newType = new BlockEvent(LocalDateTime.of(2012, 2, 16, 12, 0), 1, BlockEvent.Type.UNBLOCK);
 
         assertEquals("same", subject, subject);
         assertEquals("equal", subject, clone);

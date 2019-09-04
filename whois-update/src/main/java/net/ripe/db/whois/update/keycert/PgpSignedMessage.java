@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.keycert;
 
 import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.openpgp.PGPObjectFactory;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -10,7 +11,6 @@ import org.bouncycastle.openpgp.PGPSignatureList;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
-import org.joda.time.LocalDateTime;
 import org.springframework.util.FileCopyUtils;
 
 import javax.annotation.concurrent.Immutable;
@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -174,10 +175,11 @@ public final class PgpSignedMessage {
         }
     }
 
+    // The signing time must be within an hour of the current time.
     public boolean verifySigningTime(final DateTimeProvider dateTimeProvider) {
-        final LocalDateTime signingTime = new LocalDateTime(getPgpSignature().getCreationTime());
-        final LocalDateTime oneWeekAgo = dateTimeProvider.getCurrentDateTime().minusDays(7);
-        return !signingTime.isBefore(oneWeekAgo);
+        final LocalDateTime signingTime = DateUtil.fromDate(getPgpSignature().getCreationTime());
+        final LocalDateTime currentTime = dateTimeProvider.getCurrentDateTime();
+        return (signingTime.isAfter(currentTime.minusHours(1)) && signingTime.isBefore(currentTime.plusHours(1)));
     }
 
     public String getKeyId() {

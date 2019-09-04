@@ -1,4 +1,5 @@
 package net.ripe.db.whois.spec.query
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
@@ -193,7 +194,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 """,
-                "ROLE":"""\
+                "ABUSE-ROLE":"""\
                 role:    Abuse Me
                 address: St James Street
                 address: Burnley
@@ -205,6 +206,24 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 abuse-mailbox: abuse@test.net
                 mnt-by:  TST-MNT2
                 source:  TEST
+                """,
+                "ANOTHER-ABUSE-ROLE": """\
+                role:           Another Abuse Contact
+                address:        Amsterdam
+                e-mail:         dbtest@ripe.net
+                nic-hdl:        AAC1-TEST
+                abuse-mailbox:  more_abuse@test.net
+                mnt-by:         TST-MNT2
+                source:         TEST
+                """,
+                "YET-ANOTHER-ABUSE-ROLE": """\
+                role:           Yet Another Abuse Contact
+                address:        Amsterdam
+                e-mail:         dbtest@ripe.net
+                nic-hdl:        YAHC1-TEST
+                abuse-mailbox:  yet_more_abuse@test.net
+                mnt-by:         TST-MNT2
+                source:         TEST
                 """,
                 "ORG-W-ABUSE_C": """\
                 organisation:    ORG-FO1-TEST
@@ -850,7 +869,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
     def "query -b aut-num with abuse-c"() {
         given:
-            databaseHelper.addObject(getTransient("ROLE"))
+            databaseHelper.addObject(getTransient("ABUSE-ROLE"))
             databaseHelper.addObject(getTransient("ORG-W-ABUSE_C"))
             databaseHelper.addObject(getTransient("AUTNUM"))
 
@@ -879,4 +898,199 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
             queryObject("--abuse-contact AS200", "aut-num", "AS200")
             queryObjectNotFound("--abuse-contact AS200", "abuse-mailbox", "abuse@test.net")
     }
+
+    def "query -b aut-num with abuse-c on resource"() {
+        given:
+        databaseHelper.addObject("" +
+                "role:           Another Abuse Contact\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST")
+        databaseHelper.addObject("" +
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST")
+
+        expect:
+        queryObject("--abuse-contact AS200", "aut-num", "AS200")
+        queryObject("--abuse-contact AS200", "abuse-mailbox", "more_abuse@test.net")
+    }
+
+    def "inverse query for organisation using person"() {
+        given:
+        databaseHelper.addObject(getTransient("ABUSE-ROLE"))
+        databaseHelper.addObject(getTransient("ORG-W-ABUSE_C"))
+
+        expect:
+        queryObject("-i pn AB-TEST", "organisation", "ORG-FO1-TEST")
+    }
+
+    def "inverse query for aut-num using person"() {
+        given:
+        databaseHelper.addObject("" +
+                "role:           Another Abuse Contact\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST")
+        databaseHelper.addObject("" +
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST")
+
+        expect:
+        queryObject("-i pn AH2-TEST", "aut-num", "AS200")
+    }
+
+    def "assignments with different abuse-c overrides org reference"() {
+      given:
+            databaseHelper.addObject(getTransient("ANOTHER-ABUSE-ROLE"))
+            databaseHelper.addObject(getTransient("YET-ANOTHER-ABUSE-ROLE"))
+            databaseHelper.addObject(getTransient("ALLOC-PA-A"))
+            databaseHelper.addObject("" +
+                "inetnum:      192.168.100.0 - 192.168.100.255\n" +
+                "netname:      RIPE-NET1\n" +
+                "descr:        /24 assigned\n" +
+                "country:      NL\n" +
+                "org:          ORG-LIRA-TEST\n" +
+                "abuse-c:      AAC1-TEST\n" +
+                "admin-c:      TP1-TEST\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ASSIGNED PA\n" +
+                "mnt-by:       LIR2-MNT\n" +
+                "source:       TEST\n")
+            databaseHelper.addObject("" +
+                "inetnum:      192.168.200.0 - 192.168.200.255\n" +
+                "netname:      RIPE-NET2\n" +
+                "descr:        /24 assigned\n" +
+                "country:      NL\n" +
+                "org:          ORG-LIRA-TEST\n" +
+                "abuse-c:      YAHC1-TEST\n" +
+                "admin-c:      TP1-TEST\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ASSIGNED PA\n" +
+                "mnt-by:       LIR2-MNT\n" +
+                "source:       TEST\n")
+      expect:
+        // Allocation
+        queryLineMatches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
+        // All more specific - Allocation
+        queryLineMatches("-r -M -T inetnum 192.168.0.0 - 192.171.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
+        // All more specific - First Assignment
+        queryLineMatches("-r -M -T inetnum 192.168.0.0 - 192.171.255.255", "% Abuse contact for '192.168.100.0 - 192.168.100.255' is 'more_abuse@test.net'")
+        // All more specific - Second Assignment
+        queryLineMatches("-r -M -T inetnum 192.168.0.0 - 192.171.255.255", "% Abuse contact for '192.168.200.0 - 192.168.200.255' is 'yet_more_abuse@test.net'")
+    }
+
+    def "query aut-num with suspect abuse-c without responsible org"() {
+        given:
+        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
+        databaseHelper.addObject("" +
+                "role:           Another Abuse Contact\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST")
+        databaseHelper.addObject("" +
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST")
+
+        expect:
+        !queryLineMatches("AS200", "% Abuse-mailbox validation failed.")
+
+        cleanup:
+        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+    }
+
+    def "query aut-num with suspect abuse-c with responsible org"() {
+        given:
+        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
+        databaseHelper.addObject("" +
+                "role:           Another Abuse Contact\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST")
+        databaseHelper.addObject("" +
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "org:            ORG-LIR2-TEST\n" +
+                "source:         TEST")
+
+        expect:
+        queryLineMatches("AS200", "% Abuse-mailbox validation failed. Please refer to ORG-LIR2-TEST for further information.")
+
+        cleanup:
+        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+    }
+
+    def "query aut-num with suspect abuse-c with sponsoring org"() {
+        given:
+        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
+        databaseHelper.addObject("" +
+                "role:           Another Abuse Contact\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST")
+        databaseHelper.addObject("" +
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "sponsoring-org: ORG-LIR2-TEST\n" +
+                "source:         TEST")
+
+        expect:
+        queryLineMatches("AS200", "% Abuse-mailbox validation failed. Please refer to ORG-LIR2-TEST for further information.")
+
+        cleanup:
+        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+    }
+
 }

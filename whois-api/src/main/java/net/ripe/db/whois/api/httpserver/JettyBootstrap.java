@@ -2,8 +2,6 @@ package net.ripe.db.whois.api.httpserver;
 
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
-import org.apache.commons.lang.StringUtils;
-import org.eclipse.jetty.jmx.ConnectorServer;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Server;
@@ -18,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.management.remote.JMXServiceURL;
 import javax.servlet.DispatcherType;
-import java.rmi.registry.LocateRegistry;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -91,9 +87,6 @@ public class JettyBootstrap implements ApplicationService {
     @RetryFor(attempts = 5, value = Exception.class)
     private Server createAndStartServer(int port, HandlerList handlers) throws Exception {
         final Server server = new Server(port);
-
-        startRemoteJMXSupport();
-
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
         server.start();
@@ -104,16 +97,13 @@ public class JettyBootstrap implements ApplicationService {
 
     @Override
     public void stop(final boolean force) {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    server.stop();
-                } catch (Exception e) {
-                    LOGGER.error("Stopping server", e);
-                }
+        new Thread(() -> {
+            try {
+                server.stop();
+            } catch (Exception e) {
+                LOGGER.error("Stopping server", e);
             }
-        }.start();
+        }).start();
 
         try {
             server.join();
@@ -121,31 +111,4 @@ public class JettyBootstrap implements ApplicationService {
             LOGGER.error("Stopping server", e);
         }
     }
-
-    private void startRemoteJMXSupport() {
-
-        final String jmxPortStr = System.getProperty("jetty.jmxrmiport");
-        //TODO [TP]: jmx port can be supplied via the whois.properties files and not via the whois init script
-        if (StringUtils.isBlank(jmxPortStr)){
-            LOGGER.info("jetty.jmxrmiport is not provided. Skipping JMX support.");
-            return;
-        }
-
-        try {
-            final int port = Integer.valueOf(jmxPortStr);
-
-            LocateRegistry.createRegistry(port);
-            Thread.sleep(1000);
-            LOGGER.info("Created registry and bound it to supplied JMX port");
-
-            final JMXServiceURL jmxUrl = new JMXServiceURL("rmi", "localhost", port,
-                    String.format("/jndi/rmi://localhost:%s/jmxrmi", port));
-            final ConnectorServer connectorServer = new ConnectorServer(jmxUrl, "org.eclipse.jetty.jmx:name=rmiconnectorserver");
-            connectorServer.start();
-            LOGGER.info("Started JMX Connector server");
-        } catch (Exception e) {
-            LOGGER.error(String.format("cannot start JMX connector server on port: %s", jmxPortStr), e);
-        }
-    }
-
 }

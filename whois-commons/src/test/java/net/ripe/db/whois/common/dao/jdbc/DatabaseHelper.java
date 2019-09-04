@@ -10,7 +10,9 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.BlockEvent;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.jdbc.driver.LoggingDriver;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -27,7 +29,6 @@ import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import org.apache.commons.lang.Validate;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -72,7 +74,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
 
     private DataSource mailupdatesDataSource;
-    private DataSource dnsCheckDataSource;
 
     private JdbcTemplate aclTemplate;
     private JdbcTemplate mailupdatesTemplate;
@@ -82,6 +83,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     @Autowired ApplicationContext applicationContext;
     @Autowired AttributeSanitizer attributeSanitizer;
     @Autowired SourceContext sourceContext;
+    @Autowired AuthoritativeResourceData authoritativeResourceData;
+
 
     RpslObjectDao rpslObjectDao;
     RpslObjectUpdateDao rpslObjectUpdateDao;
@@ -103,12 +106,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public void setMailupdatesDataSource(DataSource mailupdatesDataSource) {
         this.mailupdatesDataSource = mailupdatesDataSource;
         mailupdatesTemplate = new JdbcTemplate(mailupdatesDataSource);
-    }
-
-    @Autowired(required = false)
-    @Qualifier("dnscheckDataSource")
-    public void setDnsCheckDataSource(DataSource dnsCheckDataSource) {
-        this.dnsCheckDataSource = dnsCheckDataSource;
     }
 
     @Autowired(required = false)
@@ -164,7 +161,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         dbBaseName = "test_" + System.currentTimeMillis() + "_" + uniqueForkId;
 
         setupDatabase(jdbcTemplate, "acl.database", "ACL", "acl_schema.sql");
-        setupDatabase(jdbcTemplate, "dnscheck.database", "DNSCHECK", "dnscheck_schema.sql");
         setupDatabase(jdbcTemplate, "mailupdates.database", "MAILUPDATES", "mailupdates_schema.sql");
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
@@ -188,9 +184,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             final Matcher dbMatcher = dbPattern.matcher(db);
             if (dbMatcher.matches()) {
                 final String creationTimeString = dbMatcher.group(1);
-
-                final LocalDateTime creationTime = new LocalDateTime(Long.parseLong(creationTimeString));
-                if (creationTime.isBefore(new LocalDateTime().minusHours(1))) {
+                final LocalDateTime creationTime = Timestamp.fromMilliseconds(Long.parseLong(creationTimeString)).toLocalDateTime();
+                if (creationTime.isBefore(LocalDateTime.now().minusHours(1))) {
                     jdbcTemplate.execute("DROP DATABASE IF EXISTS " + db);
                 }
             }
@@ -216,7 +211,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     static void setupDatabase(final JdbcTemplate jdbcTemplate, final String propertyBase, final String name, final String... sql) {
         final String dbName = dbBaseName + "_" + name;
-        jdbcTemplate.execute("CREATE DATABASE " + dbName);
+        jdbcTemplate.execute("CREATE DATABASE " + dbName + " CHARACTER SET latin1 COLLATE latin1_swedish_ci");
 
         loadScripts(new JdbcTemplate(createDataSource(dbName)), sql);
 
@@ -304,10 +299,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public JdbcTemplate getMailupdatesTemplate() {
         return mailupdatesTemplate;
-    }
-
-    public DataSource getDnsCheckDataSource() {
-        return dnsCheckDataSource;
     }
 
     public JdbcTemplate getInternalsTemplate() {
@@ -433,7 +424,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public void unban(final String prefix) throws InterruptedException {
         aclTemplate.update("INSERT INTO acl_event (prefix, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
                 prefix,
-                new LocalDateTime().toDate(),
+                new Date(),
                 0,
                 BlockEvent.Type.UNBLOCK.name());
 
@@ -530,4 +521,16 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             }
         });
     }
+
+    public void deleteAuthoritativeResource(final String source, final String resource) {
+        internalsTemplate.execute("delete from authoritative_resource where source ='"+source+"' and resource = '"+resource+"'");
+        authoritativeResourceData.refreshActiveSource();
+    }
+
+
+    public void addAuthoritativeResource(final String source, final String resource) {
+        internalsTemplate.execute("insert into authoritative_resource (source, resource) values ('"+source+"', '"+resource+"')");
+        authoritativeResourceData.refreshActiveSource();
+    }
+
 }

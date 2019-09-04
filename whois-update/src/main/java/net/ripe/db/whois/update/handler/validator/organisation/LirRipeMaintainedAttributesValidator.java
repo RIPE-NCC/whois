@@ -14,6 +14,7 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,16 +27,10 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
     private static final CIString LIR = CIString.ciString("LIR");
-    private static final ImmutableList<AttributeType> ATTRIBUTES = ImmutableList.of(
-            AttributeType.ADDRESS,
-            AttributeType.PHONE,
-            AttributeType.FAX_NO,
-            AttributeType.E_MAIL,
+    private static final List<AttributeType> RIPE_NCC_MANAGED_ATTRIBUTES = ImmutableList.of(
             AttributeType.MNT_BY,
-            AttributeType.ORG_NAME,
             AttributeType.ORG,
-            AttributeType.ORG_TYPE,
-            AttributeType.ABUSE_MAILBOX);
+            AttributeType.ORG_TYPE);
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -50,7 +45,7 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
-        ATTRIBUTES.forEach(attributeType -> {
+        RIPE_NCC_MANAGED_ATTRIBUTES.forEach(attributeType -> {
             if (haveAttributesChanged(originalObject, updatedObject, attributeType)) {
                 updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(attributeType));
             }

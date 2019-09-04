@@ -32,7 +32,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FOP1-TEST
                 remarks: test person
                 notify:  dbtest-nfy@ripe.net
-                abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
                 source:  TEST
             """,
@@ -604,7 +603,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FOP1-TEST
                 remarks: test person
                 notify:  dbtest-nfy@ripe.net
-                abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
                 source:  TEST # some comment not allowed
 

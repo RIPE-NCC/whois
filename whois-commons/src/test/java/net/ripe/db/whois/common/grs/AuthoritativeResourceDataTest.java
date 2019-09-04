@@ -1,10 +1,9 @@
 package net.ripe.db.whois.common.grs;
 
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.source.IllegalSourceException;
-import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,7 +11,8 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
+
+import java.util.Optional;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.isA;
@@ -29,24 +29,24 @@ public class AuthoritativeResourceDataTest {
 
     @Mock DailySchedulerDao dailySchedulerDao;
     @Mock ResourceDataDao resourceDataDao;
-    @Mock Logger logger;
-    @Mock DateTimeProvider dateTimeProvider;
-    AuthoritativeResourceData subject;
+    AuthoritativeResourceRefreshTask subject;
+    AuthoritativeResourceData authoritativeResourceData;
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceData("test", "test", resourceDataDao, dailySchedulerDao, dateTimeProvider);
+        authoritativeResourceData = new AuthoritativeResourceData("test", "test", resourceDataDao);
+        subject = new AuthoritativeResourceRefreshTask(dailySchedulerDao, authoritativeResourceData, resourceDataDao, "test");
     }
 
     @Test
     public void refresh() {
-        when(dailySchedulerDao.getDailyTaskFinishTime(any(LocalDate.class), any(Class.class))).thenReturn(10l);
+        when(dailySchedulerDao.getDailyTaskFinishTime(any(String.class))).thenReturn(Optional.of(Timestamp.fromSeconds(10L)));
         when(resourceDataDao.load(any(String.class))).thenReturn(AuthoritativeResource.unknown());
 
-        subject.init();
+        authoritativeResourceData.init();
 
         verify(resourceDataDao).load(eq("test"));
-        assertThat(subject.getAuthoritativeResource(ciString("test")), isA(AuthoritativeResource.class));
+        assertThat(authoritativeResourceData.getAuthoritativeResource(ciString("test")), isA(AuthoritativeResource.class));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class AuthoritativeResourceDataTest {
 
     @Test(expected = IllegalSourceException.class)
     public void nonexistant_source_throws_exception() {
-        subject.getAuthoritativeResource(ciString("BLAH"));
+        authoritativeResourceData.getAuthoritativeResource(ciString("BLAH"));
     }
 
 }

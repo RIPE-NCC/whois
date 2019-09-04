@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.keycert;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.cms.Attribute;
@@ -8,20 +9,26 @@ import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.Time;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cms.*;
+import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSProcessable;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.CMSSignerDigestMismatchException;
+import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -96,18 +103,18 @@ public class X509SignedMessage {
         return builder.toString();
     }
 
+    // The signing time must be within an hour of the current time.
     public boolean verifySigningTime(final DateTimeProvider dateTimeProvider) {
         final LocalDateTime signingTime = getSigningTime();
-        if (signingTime != null) {
-            final LocalDateTime oneWeekAgo = dateTimeProvider.getCurrentDateTime().minusDays(7);
-            if (signingTime.isBefore(oneWeekAgo)) {
-                return false;
-            }
+        if (signingTime == null) {
+            return true;
         }
 
-        return true;
+        final LocalDateTime currentTime = dateTimeProvider.getCurrentDateTime();
+        return (signingTime.isAfter(currentTime.minusHours(1)) && signingTime.isBefore(currentTime.plusHours(1)));
     }
 
+    @Nullable
     private LocalDateTime getSigningTime() {
         try {
             CMSProcessable cmsProcessable = new CMSProcessableByteArray(signedData.getBytes());
@@ -126,6 +133,7 @@ public class X509SignedMessage {
         return null;
     }
 
+    @Nullable
     private LocalDateTime getSigningTime(final SignerInformation signerInformation) {
         final AttributeTable signedAttributes = signerInformation.getSignedAttributes();
         if (signedAttributes != null) {
@@ -133,7 +141,7 @@ public class X509SignedMessage {
             if (signingTimeAttributes.size() == 1) {
                 final ASN1Set attributeValues = ((Attribute) signingTimeAttributes.get(0)).getAttrValues();
                 if (attributeValues.size() == 1) {
-                    return new LocalDateTime(Time.getInstance(attributeValues.getObjectAt(0).toASN1Primitive()).getDate());
+                    return DateUtil.fromDate(Time.getInstance(attributeValues.getObjectAt(0).toASN1Primitive()).getDate());
                 }
             }
         }
