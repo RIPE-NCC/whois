@@ -52,7 +52,7 @@ import java.util.Set;
 @Component
 public class ReservedWordValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.copyOf(ObjectType.values());
 
     private static final Set<CIString> RESERVED_WORDS = CIString.ciImmutableSet(

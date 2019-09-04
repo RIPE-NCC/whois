@@ -951,7 +951,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[route6\] 2000::\/12AS123/
     }
 
-    def "create route6, without pending authentication"() {
+    def "create route6"() {
         given:
         def response = syncUpdate(new SyncUpdate(data: """\
                 route6: 5353::0/24
@@ -1036,4 +1036,24 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
 
         noMoreMessages()
     }
+
+    def "create route6 with bogon prefix"() {
+        when:
+        def create = new SyncUpdate(data: """\
+                route6:          2001:2::/48
+                descr:           ROUTE6 TEST
+                origin:          AS123
+                mnt-by:          TEST-MNT
+                source:          TEST
+                password:        update
+                """.stripIndent())
+
+        then:
+        def response = syncUpdate create
+
+        then:
+        response =~ /FAIL/
+        response.contains("***Error:   Bogon prefix 2001:2::/48 is not allowed.")
+    }
+
 }

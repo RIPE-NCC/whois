@@ -1001,4 +1001,96 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-r -M -T inetnum 192.168.0.0 - 192.171.255.255", "% Abuse contact for '192.168.200.0 - 192.168.200.255' is 'yet_more_abuse@test.net'")
     }
 
+    def "query aut-num with suspect abuse-c without responsible org"() {
+        given:
+        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
+        databaseHelper.addObject("" +
+                "role:           Another Abuse Contact\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST")
+        databaseHelper.addObject("" +
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST")
+
+        expect:
+        !queryLineMatches("AS200", "% Abuse-mailbox validation failed.")
+
+        cleanup:
+        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+    }
+
+    def "query aut-num with suspect abuse-c with responsible org"() {
+        given:
+        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
+        databaseHelper.addObject("" +
+                "role:           Another Abuse Contact\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST")
+        databaseHelper.addObject("" +
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "org:            ORG-LIR2-TEST\n" +
+                "source:         TEST")
+
+        expect:
+        queryLineMatches("AS200", "% Abuse-mailbox validation failed. Please refer to ORG-LIR2-TEST for further information.")
+
+        cleanup:
+        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+    }
+
+    def "query aut-num with suspect abuse-c with sponsoring org"() {
+        given:
+        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
+        databaseHelper.addObject("" +
+                "role:           Another Abuse Contact\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST")
+        databaseHelper.addObject("" +
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "sponsoring-org: ORG-LIR2-TEST\n" +
+                "source:         TEST")
+
+        expect:
+        queryLineMatches("AS200", "% Abuse-mailbox validation failed. Please refer to ORG-LIR2-TEST for further information.")
+
+        cleanup:
+        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+    }
+
 }

@@ -2,7 +2,6 @@ package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.query.VersionDateTime;
 
 import java.util.Objects;
 
@@ -13,7 +12,7 @@ public class VersionInfo implements Identifiable, Comparable<VersionInfo> {
     private final VersionDateTime timestamp;
     private final Operation operation;
 
-    public VersionInfo(final boolean inLast, final Integer objectId, final Integer sequenceId, final Long timestamp, final Operation operation) {
+    public VersionInfo(final boolean inLast, final int objectId, final int sequenceId, final long timestamp, final Operation operation) {
         this.inLast = inLast;
         this.objectId = objectId;
         this.sequenceId = sequenceId;

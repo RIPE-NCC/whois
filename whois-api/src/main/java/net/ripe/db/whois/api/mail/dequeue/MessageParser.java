@@ -15,9 +15,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +38,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -51,7 +50,7 @@ import java.util.List;
 public class MessageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageParser.class);
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss z yyyy");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
 
     private final LoggerContext loggerContext;
 
@@ -70,13 +69,13 @@ public class MessageParser {
         if (deliveryDate != null && deliveryDate.length > 0 && deliveryDate[0].length() > 0) {
             messageBuilder.date(deliveryDate[0]);
         } else {
-            messageBuilder.date(DATE_FORMAT.print(new DateTime()));
+            messageBuilder.date(DATE_FORMAT.format(ZonedDateTime.now()));
         }
 
         parseReplyTo(messageBuilder, message);
 
         try {
-            parseContents(updateContext, messageBuilder, message);
+            parseContents(messageBuilder, message);
 
             final MailMessage mailMessage = messageBuilder.build();
             if (!mailMessage.getKeyword().isContentExpected() || !mailMessage.getContentWithCredentials().isEmpty()) {
@@ -135,13 +134,10 @@ public class MessageParser {
         }
     }
 
-    private void parseContents(
-            @Nonnull final UpdateContext updateContext,
-            @Nonnull final MailMessageBuilder messageBuilder,
-            @Nonnull final MimeMessage message) throws MessagingException, IOException {
+    private void parseContents(@Nonnull final MailMessageBuilder messageBuilder, @Nonnull final MimeMessage message) throws MessagingException, IOException {
         final MessageParts messageParts = new MessageParts();
 
-        parseContents(updateContext, messageParts, message, null);
+        parseContents(messageParts, message, null);
 
         for (final MessagePart messagePart : messageParts.parts) {
             final List<Credential> credentials = messagePart.credentials;
@@ -155,11 +151,7 @@ public class MessageParser {
         }
     }
 
-    private void parseContents(
-            @Nonnull final UpdateContext updateContext,
-            @Nonnull final MessageParts messageParts,
-            @Nonnull final Part part,
-            @Nullable final Part parentPart) throws MessagingException, IOException {
+    private void parseContents(@Nonnull final MessageParts messageParts, @Nonnull final Part part, @Nullable final Part parentPart) throws MessagingException, IOException {
         final ContentType contentType = new ContentType(part.getContentType());
         final Object content = getContent(part, contentType);
         final Charset charset = getCharset(contentType);
@@ -174,12 +166,7 @@ public class MessageParser {
                 throw new ParseException("Unexpected content: " + content);
             }
 
-            final String updatedText = replaceNonBreakSpaces(text);
-            if (!text.equals(updatedText)) {
-                updateContext.addGlobalMessage(UpdateMessages.replacedNonBreakSpaces());
-            }
-
-            messageParts.add(new MessagePart(updatedText, getSignedPart(part, parentPart)));
+            messageParts.add(new MessagePart(text, getSignedPart(part, parentPart)));
         } else if (content instanceof MimeMultipart) {
             final MimeMultipart multipart = (MimeMultipart) content;
             for (int count = 0; count < multipart.getCount(); count++) {
@@ -207,7 +194,7 @@ public class MessageParser {
                     final String signature = getRawContent(bodyPart);
                     last.addCredential(X509Credential.createOfferedCredential(signedData, signature));
                 } else {
-                    parseContents(updateContext, messageParts, bodyPart, part);
+                    parseContents(messageParts, bodyPart, part);
                 }
             }
         }
@@ -300,14 +287,6 @@ public class MessageParser {
         return ((headers != null) &&
                 (headers.length > 0) &&
                 ("base64".equals(headers[0])));
-    }
-
-    /*
-        Replace non-break spaces with regular spaces.
-        The non-break space character is unicode \u00A0, consisting of bytes 0xC2 0xA0, which is MIME encoded as =C2=A0.
-     */
-    String replaceNonBreakSpaces(final String text) {
-        return text.replace('\u00a0', '\u0020');
     }
 
     private static class MessageParts {

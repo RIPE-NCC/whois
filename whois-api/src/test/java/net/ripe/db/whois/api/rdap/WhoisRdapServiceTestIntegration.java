@@ -14,17 +14,18 @@ import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
+import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +34,16 @@ import org.springframework.test.annotation.DirtiesContext;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -50,6 +51,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -58,9 +61,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     FullTextIndex fullTextIndex;
+    @Autowired
+    TestWhoisLog queryLog;
 
     @BeforeClass
-    public static void rdapSetProperties() throws Exception {
+    public static void rdapSetProperties() {
         System.setProperty("rdap.sources", "TEST-GRS");
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
@@ -70,7 +75,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @AfterClass
-    public static void rdapClearProperties() throws Exception {
+    public static void rdapClearProperties() {
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.test");
         System.clearProperty("rdap.public.baseUrl");
@@ -78,7 +83,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         databaseHelper.addObject("" +
                 "person:        Test Person\n" +
                 "nic-hdl:       TP1-TEST");
@@ -192,7 +197,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     // Ref. draft-ietf-weirds-json-response, section 5.9 "An Example"
     @Test
-    public void lookup_inetnum_range() throws Exception {
+    public void lookup_inetnum_range() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.2.0 - 192.0.2.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -213,17 +218,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getIpVersion(), is("v4"));
         assertThat(ip.getLang(), is("en"));
         assertThat(ip.getCountry(), is("NL"));
-        assertThat(ip.getStartAddress(), is("192.0.2.0/32"));
-        assertThat(ip.getEndAddress(), is("192.0.2.255/32"));
+        assertThat(ip.getStartAddress(), is("192.0.2.0"));
+        assertThat(ip.getEndAddress(), is("192.0.2.255"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getType(), is("OTHER"));
-        assertThat(ip.getPort43(), is("whois.ripe.net"));
         assertThat(ip.getObjectClassName(), is("ip network"));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
 
-        final List<String> rdapConformance = ip.getRdapConformance();
-        assertThat(rdapConformance, hasSize(1));
-        assertThat(rdapConformance, contains("rdap_level_0"));
+        assertCommon(ip);
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -243,21 +245,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(1).getDescription(), contains("Objects returned came from source", "TEST"));
         assertThat(notices.get(1).getLinks(), hasSize(0));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
-        assertThat(notices.get(2).getLinks(), hasSize(1));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/192.0.2.0/24"));
-        assertThat(notices.get(2).getLinks().get(0).getRel(), is("terms-of-service"));
-        assertThat(notices.get(2).getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
-        assertThat(notices.get(2).getLinks().get(0).getType(), is("application/pdf"));
 
-        assertThat(ip.getLinks(), hasSize(2));
-        assertThat(ip.getLinks().get(0).getRel(), is("self"));
-        assertThat(ip.getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/192.0.2.0/24"));
-        assertThat(ip.getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/ip/192.0.2.0/24"));
-        assertThat(ip.getLinks().get(1).getRel(), is("copyright"));
-        assertThat(ip.getLinks().get(1).getValue(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(ip.getLinks().get(1).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
+        assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/192.0.2.0/24");
     }
 
     @Test
@@ -280,11 +270,123 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
         assertThat(ip.getIpVersion(), is("v4"));
         assertThat(ip.getCountry(), is("NL"));
-        assertThat(ip.getStartAddress(), is("192.0.0.0/32"));
-        assertThat(ip.getEndAddress(), is("192.255.255.255/32"));
+        assertThat(ip.getStartAddress(), is("192.0.0.0"));
+        assertThat(ip.getEndAddress(), is("192.255.255.255"));
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getLang(), is(nullValue()));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
+    }
+
+    @Test
+    public void lookup_inetnum_multiple_country_codes() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "country:      DE\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.0.255")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(ip.getIpVersion(), is("v4"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getStartAddress(), is("192.0.0.0"));
+        assertThat(ip.getEndAddress(), is("192.255.255.255"));
+        assertThat(ip.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getLang(), is(nullValue()));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
+
+        final List<Notice> notices = ip.getNotices();
+        assertThat(notices, hasSize(4));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Multiple country attributes found"));
+        assertThat(notices.get(1).getDescription().get(0), is("There are multiple country attributes NL, DE in 192.0.0.0 - 192.255.255.255, but only the first country NL was returned."));
+        assertThat(notices.get(2).getTitle(), is("Source"));
+        assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
+    }
+
+    @Test
+    public void lookup_inetnum_multiple_language_codes() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     EN\n" +
+                "language:     DK\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.0.255")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(ip.getIpVersion(), is("v4"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getLang(), is("EN"));
+        assertThat(ip.getStartAddress(), is("192.0.0.0"));
+        assertThat(ip.getEndAddress(), is("192.255.255.255"));
+        assertThat(ip.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
+
+        final List<Notice> notices = ip.getNotices();
+        assertThat(notices, hasSize(4));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Multiple language attributes found"));
+        assertThat(notices.get(1).getDescription().get(0), is("There are multiple language attributes EN, DK in 192.0.0.0 - 192.255.255.255, but only the first language EN was returned."));
+        assertThat(notices.get(2).getTitle(), is("Source"));
+        assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
+
+    }
+
+    @Test
+    public void lookup_org_multiple_language_codes() {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-LANG-TEST\n" +
+                "org-name:      Organisation One\n" +
+                "org-type:      LIR\n" +
+                "language:      DK\n" +
+                "language:      EN\n" +
+                "descr:         Test organisation\n" +
+                "address:       One Org Street\n" +
+                "e-mail:        test@ripe.net\n" +
+                "admin-c:       TP2-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "tech-c:        TP2-TEST\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final Entity entity = createResource("entity/ORG-LANG-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getHandle(), equalTo("ORG-LANG-TEST"));
+        assertThat(entity.getLang(), is("DK"));
+
+        final List<Notice> notices = entity.getNotices();
+        assertThat(notices, hasSize(4));
+        Collections.sort(notices);
+        assertThat(notices.get(0).getTitle(), is("Filtered"));
+        assertThat(notices.get(1).getTitle(), is("Multiple language attributes found"));
+        assertThat(notices.get(1).getDescription().get(0), is("There are multiple language attributes DK, EN in ORG-LANG-TEST, but only the first language DK was returned."));
+        assertThat(notices.get(2).getTitle(), is("Source"));
+        assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
+
     }
 
     @Test
@@ -298,6 +400,34 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             // expected
             assertErrorTitle(e, "not found");
         }
+    }
+
+    @Test
+    public void lookup_inetnum() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.132.74.0 - 192.132.77.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        Ip ip = createResource("ip/192.132.75.165")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.132.74.0 - 192.132.77.255"));
+        assertThat(ip.getIpVersion(), is("v4"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getStartAddress(), is("192.132.74.0"));
+        assertThat(ip.getEndAddress(), is("192.132.77.255"));
+        assertThat(ip.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getLang(), is(nullValue()));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
     }
 
     @Test
@@ -338,7 +468,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     // inet6num
 
     @Test
-    public void lookup_inet6num_with_prefix_length() throws Exception {
+    public void lookup_inet6num_with_prefix_length() {
         databaseHelper.addObject("" +
                 "inet6num:       2001:2002:2003::/48\n" +
                 "netname:        RIPE-NCC\n" +
@@ -360,16 +490,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getIpVersion(), is("v6"));
         assertThat(ip.getCountry(), is("NL"));
         assertThat(ip.getLang(), is("EN"));
-        assertThat(ip.getStartAddress(), is("2001:2002:2003::/128"));
-        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
+        assertThat(ip.getStartAddress(), is("2001:2002:2003::"));
+        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff"));
         assertThat(ip.getName(), is("RIPE-NCC"));
         assertThat(ip.getType(), is("ASSIGNED PA"));
         assertThat(ip.getObjectClassName(), is("ip network"));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("::/0"));
 
-        final List<String> rdapConformance = ip.getRdapConformance();
-        assertThat(rdapConformance, hasSize(1));
-        assertThat(rdapConformance, contains("rdap_level_0"));
+        assertCommon(ip);
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -385,20 +513,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/2001:2002:2003::/48"));
 
-        assertThat(ip.getLinks(), hasSize(2));
-        assertThat(ip.getLinks().get(0).getRel(), is("self"));
-        assertThat(ip.getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/2001:2002:2003::/48"));
-        assertThat(ip.getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/ip/2001:2002:2003::/48"));
-        assertThat(ip.getLinks().get(1).getRel(), is("copyright"));
-        assertThat(ip.getLinks().get(1).getValue(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(ip.getLinks().get(1).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
+        assertCopyrightLink(ip.getLinks(), "https://rdap.db.ripe.net/ip/2001:2002:2003::/48");
     }
 
     @Test
-    public void lookup_inet6num_less_specific() throws Exception {
+    public void lookup_inet6num_less_specific() {
         databaseHelper.addObject("" +
                 "inet6num:       2001:2002:2003::/48\n" +
                 "netname:        RIPE-NCC\n" +
@@ -418,10 +539,37 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
         assertThat(ip.getIpVersion(), is("v6"));
         assertThat(ip.getCountry(), is("NL"));
-        assertThat(ip.getStartAddress(), is("2001:2002:2003::/128"));
-        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
+        assertThat(ip.getStartAddress(), is("2001:2002:2003::"));
+        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff"));
         assertThat(ip.getName(), is("RIPE-NCC"));
-        assertThat(ip.getParentHandle(), is("IANA-BLK"));
+        assertThat(ip.getParentHandle(), is("::/0"));
+    }
+
+    @Test
+    public void lookup_inet6num_single_country_code() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        FR\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/2001:2002:2003:2004::")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:2002:2003::/48"));
+        assertThat(ip.getIpVersion(), is("v6"));
+        assertThat(ip.getCountry(), is("FR"));
+        assertThat(ip.getStartAddress(), is("2001:2002:2003::"));
+        assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff"));
+        assertThat(ip.getName(), is("RIPE-NCC"));
+        assertThat(ip.getParentHandle(), is("::/0"));
     }
 
     @Test
@@ -439,14 +587,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     // person entity
 
     @Test
-    public void lookup_person_entity() throws Exception {
+    public void lookup_person_entity() {
         final Entity entity = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
+        assertCommon(entity);
         assertThat(entity.getHandle(), equalTo("PP1-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
-        assertThat(entity.getPort43(), is("whois.ripe.net"));
         assertThat(entity.getEntitySearchResults(), hasSize(1));
         assertThat(entity.getVCardArray().size(), is(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
@@ -454,11 +602,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Pauleth Palthen], " +
                 "[kind, {}, text, individual], " +
-                "[adr, {label=Singel 258}, text, null], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31-1234567890], " +
-                "[email, {}, text, noreply@ripe.net]]"));
-        assertThat(entity.getRdapConformance(), hasSize(1));
-        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
+                "[email, {type=email}, text, noreply@ripe.net]]"));
+
         assertThat(entity.getObjectClassName(), is("entity"));
 
         assertThat(entity.getRemarks(), hasSize(0));
@@ -473,12 +620,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/PP1-TEST"));
+
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/PP1-TEST");
     }
 
     @Test
-    public void lookup_entity_not_found() throws Exception {
+    public void lookup_entity_not_found() {
         try {
             createResource("entity/ORG-BAD1-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -491,7 +638,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_entity_invalid_syntax() throws Exception {
+    public void lookup_entity_invalid_syntax() {
         try {
             createResource("entity/12345")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -510,38 +657,45 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .get(Entity.class);
 
-        assertThat(entity.getHandle(), equalTo("PP1-TEST"));
-        assertThat(entity.getRdapConformance(), hasSize(1));
-        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(entity.getHandle(), equalTo("PP1-TEST"));assertCommon(entity);
+    }
+
+    @Test
+    public void lookup_entity_logged_in_query_log() {
+        createResource("entity/PP1-TEST")
+                        .request()
+                        .get(Entity.class);
+
+        assertThat(queryLog.getMessages(), hasSize(1));
+        assertThat(queryLog.getMessage(0), containsString(" PW-API-INFO <1+0+0> "));
+        assertThat(queryLog.getMessage(0), containsString(" PP1-TEST"));
     }
 
     // role entity
 
     @Test
-    public void lookup_role_entity() throws Exception {
+    public void lookup_role_entity() {
         final Entity entity = createResource("entity/FR1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
+        assertCommon(entity);
         assertThat(entity.getHandle(), equalTo("FR1-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
-        assertThat(entity.getPort43(), is("whois.ripe.net"));
         assertThat(entity.getVCardArray().size(), is(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entity.getVCardArray().get(1).toString(), equalTo("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, First Role], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, null], " +
-                "[email, {}, text, dbtest@ripe.net]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, dbtest@ripe.net]]"));
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
         assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
         assertThat(entity.getEntitySearchResults().get(0).getRoles(), contains(Role.REGISTRANT));
         assertThat(entity.getEntitySearchResults().get(1).getHandle(), is("PP1-TEST"));
         assertThat(entity.getEntitySearchResults().get(1).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
-        assertThat(entity.getRdapConformance(), hasSize(1));
-        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(1));
@@ -555,23 +709,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/FR1-TEST"));
+
+        assertTnCNotice(notices.get(2),"https://rdap.db.ripe.net/entity/FR1-TEST");
     }
 
     // domain
 
     @Test
-    public void lookup_domain_object() throws Exception {
+    public void lookup_domain_object() {
         final Domain domain = createResource("domain/31.12.202.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
+        assertCommon(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(domain.getRdapConformance(), hasSize(1));
-        assertThat(domain.getRdapConformance().get(0), equalTo("rdap_level_0"));
-        assertThat(domain.getPort43(), is("whois.ripe.net"));
         assertThat(domain.getObjectClassName(), is("domain"));
 
         assertThat(domain.getNameservers(), hasSize(2));
@@ -610,18 +762,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa"));
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
-        final List<Link> links = domain.getLinks();
-        assertThat(links, hasSize(2));
-        Collections.sort(links);
-        assertThat(links.get(0).getRel(), equalTo("copyright"));
-        assertThat(links.get(1).getRel(), equalTo("self"));
+        assertCopyrightLink(domain.getLinks(), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
     }
 
     @Test
-    public void domain_not_found() throws Exception {
+    public void domain_not_found() {
         try {
             createResource("domain/10.in-addr.arpa")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -647,7 +794,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     // autnum
 
     @Test
-    public void lookup_autnum_not_found() throws Exception {
+    public void lookup_autnum_not_found() {
         try {
             createResource("autnum/1")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -659,7 +806,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_autnum_invalid_syntax() throws Exception {
+    public void lookup_autnum_invalid_syntax() {
         try {
             createResource("autnum/XYZ")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -667,6 +814,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             assertErrorTitle(e, "Invalid syntax.");
+        }
+    }
+
+    @Test
+    public void lookup_asBlock_bad_request() {
+        try {
+            createResource("as-block/XYZ")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertErrorTitle(e, "unknown objectType");
         }
     }
 
@@ -685,7 +844,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_single_autnum() throws Exception {
+    public void lookup_single_autnum() {
         final Autnum autnum = createResource("autnum/102")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
@@ -709,21 +868,72 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
         assertThat(entities.get(1).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
 
-        final List<Link> links = autnum.getLinks();
-        assertThat(links, hasSize(2));
-        assertThat(links.get(0).getRel(), equalTo("self"));
-        assertThat(links.get(1).getRel(), equalTo("copyright"));
+        assertCopyrightLink(autnum.getLinks(), "https://rdap.db.ripe.net/autnum/102");
 
         final List<Notice> notices = autnum.getNotices();
         assertThat(notices, hasSize(3));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/autnum/102");
 
         final List<Remark> remarks = autnum.getRemarks();
         assertThat(remarks, hasSize(1));
         assertThat(remarks.get(0).getDescription().get(0), is("A single ASN"));
+    }
+
+    @Test
+    public void lookup_as_block_when_no_autnum_found() {
+        final Autnum autnum = createResource("autnum/103")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getHandle(), equalTo("AS100"));
+        assertThat(autnum.getStartAutnum(), equalTo(100L));
+        assertThat(autnum.getEndAutnum(), equalTo(200L));
+        assertThat(autnum.getName(), equalTo("AS100-AS200"));
+        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
+        assertThat(autnum.getObjectClassName(), is("autnum"));
+
+        assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("ORG-TEST1-TEST"));
+        assertThat(autnum.getEntitySearchResults().get(0).getRoles(), contains(Role.REGISTRANT));
+    }
+
+    @Test
+    public void lookup_as_block_for_reserved_autnum() {
+        databaseHelper.addObject("" +
+                "as-block:       AS0 - AS6\n" +
+                "descr:          RIPE NCC block\n" +
+                "org:            ORG-TEST1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST");
+
+        final Autnum autnum = createResource("autnum/0")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getHandle(), equalTo("AS0"));
+        assertThat(autnum.getStartAutnum(), equalTo(0L));
+        assertThat(autnum.getEndAutnum(), equalTo(6L));
+        assertThat(autnum.getName(), equalTo("AS0-AS6"));
+        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
+        assertThat(autnum.getObjectClassName(), is("autnum"));
+
+        assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("ORG-TEST1-TEST"));
+        assertThat(autnum.getEntitySearchResults().get(0).getRoles(), contains(Role.REGISTRANT));
+    }
+
+    @Test
+    public void lookup_asblock_with_rdap_json_content_type() {
+        final Response response = createResource("autnum/103")
+                .request("application/rdap+json")
+                .get();
+
+        assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
+        final String entity = response.readEntity(String.class);
+        assertThat(entity, containsString("\"handle\" : \"AS100\""));
+        assertThat(entity, containsString("\"startAutnum\" : 100"));
+        assertThat(entity, containsString("\"endAutnum\" : 200"));
     }
 
     @Test
@@ -751,7 +961,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_autnum_within_block() throws Exception {
+    public void lookup_autnum_within_block() {
         try {
             createResource("autnum/1500")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -763,12 +973,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_autnum_has_abuse_contact() {
+    public void lookup_autnum_abuse_contact_from_org() {
         databaseHelper.addObject("" +
                 "role:          Abuse Contact\n" +
                 "address:       Singel 358\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       AB-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
@@ -799,18 +1011,78 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Autnum.class);
 
-        assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
-        assertThat(autnum.getEntitySearchResults().get(1).getHandle(), is("TP1-TEST"));
-        assertThat(autnum.getEntitySearchResults().get(2).getHandle(), is("AB-TEST"));
-        assertThat(autnum.getEntitySearchResults().get(2).getRoles(), contains(Role.ABUSE));
-        assertThat(autnum.getEntitySearchResults().get(2).getVCardArray(), hasSize(2));
-        assertThat(autnum.getEntitySearchResults().get(2).getVCardArray().get(0).toString(), is("vcard"));
-        assertThat(autnum.getEntitySearchResults().get(2).getVCardArray().get(1).toString(), is("" +
+        final List<Entity> entities = autnum.getEntitySearchResults();
+        assertThat(entities, hasSize(4));
+
+        assertThat(entities.get(0).getHandle(), is("ORG-TO2-TEST"));
+        assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(1).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(2).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(2).getRoles(), containsInAnyOrder(Role.ADMINISTRATIVE, Role.TECHNICAL));
+        assertThat(entities.get(3).getHandle(), is("AB-TEST"));
+        assertThat(entities.get(3).getRoles(), contains(Role.ABUSE));
+        assertThat(entities.get(3).getVCardArray(), hasSize(2));
+        assertThat(entities.get(3).getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(entities.get(3).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 358}, text, null], " +
-                "[tel, {type=voice}, text, +31 6 12345678]]"));
+                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678], " +
+                "[email, {type=email}, text, work@test.com], " +
+                "[email, {type=email}, text, personal@test.com], " +
+                "[email, {type=abuse}, text, abuse@test.net]]"));
+    }
+
+    @Test
+    public void lookup_autnum_has_abuse_contact_object() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 358\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.updateObject("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "abuse-c:       AB-TEST\n" +
+                "source:        TEST");
+
+        final Autnum autnum = createResource("autnum/102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        final List<Entity> entities = autnum.getEntitySearchResults();
+        assertThat(entities, hasSize(4));
+
+        assertThat(entities.get(0).getHandle(), is("ORG-TEST1-TEST"));
+        assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(2).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(3).getHandle(), is("AB-TEST"));
+        assertThat(entities.get(3).getRoles(), contains(Role.ABUSE));
+        assertThat(entities.get(3).getVCardArray(), hasSize(2));
+        assertThat(entities.get(3).getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(entities.get(3).getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, Abuse Contact], " +
+                "[kind, {}, text, group], " +
+                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678], " +
+                "[email, {type=email}, text, work@test.com], " +
+                "[email, {type=email}, text, personal@test.com], " +
+                "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
     // general
@@ -824,12 +1096,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             final Entity response = e.getResponse().readEntity(Entity.class);
-            assertThat(response.getErrorTitle(), is("unknown type"));
+            assertThat(response.getErrorTitle(), is("unknown objectType"));
         }
     }
 
     @Test
-    public void multiple_modification_gives_correct_events() throws Exception {
+    public void multiple_modification_gives_correct_events() {
         final String response = syncupdate(
                         "aut-num:   AS102\n" +
                         "as-name:   AS-TEST\n" +
@@ -884,37 +1156,42 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
                 "source:       TEST");
-        databaseHelper.addObject("" +
-                "inetnum:      192.0.0.0 - 192.0.0.255\n" +
-                "netname:      TEST-NET-NAME\n" +
-                "descr:        TEST network\n" +
-                "country:      NL\n" +
-                "tech-c:       TP1-TEST\n" +
-                "status:       OTHER\n" +
-                "mnt-by:       OWNER-MNT\n" +
-                "source:       TEST");
+
         ipTreeUpdater.rebuild();
 
         final Ip ip = createResource("ip/192.0.0.128")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        assertThat(ip.getEntitySearchResults().get(0).getHandle(), is("AB-TEST"));
-        assertThat(ip.getEntitySearchResults().get(0).getRoles(), contains(Role.ABUSE));
-        assertThat(ip.getEntitySearchResults().get(0).getVCardArray(), hasSize(2));
-        assertThat(ip.getEntitySearchResults().get(0).getVCardArray().get(0).toString(), is("vcard"));
-        assertThat(ip.getEntitySearchResults().get(0).getVCardArray().get(1).toString(), is("" +
+        final List<Entity> entities = ip.getEntitySearchResults();
+        assertThat(entities, hasSize(4));
+
+        assertThat(entities.get(0).getHandle(), is("ORG-TO2-TEST"));
+        assertThat(entities.get(0).getRoles().get(0), is(Role.REGISTRANT));
+
+        assertThat(entities.get(2).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(2).getRoles(), contains(Role.TECHNICAL));
+
+        assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(1).getRoles().get(0), is(Role.REGISTRANT));
+
+        assertThat(entities.get(3).getHandle(), is("AB-TEST"));
+        assertThat(entities.get(3).getRoles(), contains(Role.ABUSE));
+        assertThat(entities.get(3).getVCardArray(), hasSize(2));
+        assertThat(entities.get(3).getVCardArray().get(0).toString(), is("vcard"));
+        assertThat(entities.get(3).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, null], " +                         // TODO: [ES] no value?
-                "[tel, {type=voice}, text, +31 6 12345678]]"));
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678], " +
+                "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
     // organisation entity
 
     @Test
-    public void lookup_org_entity_handle() throws Exception {
+    public void lookup_org_entity_handle() {
         final Entity response = createResource("entity/ORG-TEST1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
@@ -923,7 +1200,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_org_not_found() throws Exception {
+    public void lookup_org_not_found() {
         try {
             createResource("entity/ORG-NONE-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -935,7 +1212,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_org_invalid_syntax() throws Exception {
+    public void lookup_org_invalid_syntax() {
         try {
             createResource("entity/ORG-INVALID")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -946,7 +1223,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("[ES] Lookup mntner entity not supported")
     @Test
     public void lookup_mntner_entity() {
         final Entity entity = createResource("entity/OWNER-MNT")
@@ -954,10 +1230,76 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("OWNER-MNT"));
+
+        assertThat(entity.getHandle(), is("OWNER-MNT"));
+        final List<Object> vCardArray = entity.getVCardArray();
+        assertThat(vCardArray.get(0).toString(), is("vcard"));
+        assertThat(vCardArray.get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], " +
+                "[fn, {}, text, OWNER-MNT], " +
+                "[kind, {}, text, individual]]"));
+
+        final List<Entity> entities = entity.getEntitySearchResults();
+        assertThat(entities, hasSize(2));
+        assertThat(entities.get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
+        assertThat(entities.get(0).getVCardArray(), is(nullValue()));
+
+        assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
+        assertThat(entities.get(1).getRoles(), contains(Role.ADMINISTRATIVE));
+        assertThat(entities.get(1).getVCardArray(), is(nullValue()));
+
+        assertThat(entity.getLinks(), hasSize(2));
+        assertThat(entity.getLinks().get(0).getRel(), is("self"));
+        assertThat(entity.getLinks().get(1).getRel(), is("copyright"));
+
+        assertThat(entity.getEvents(), hasSize(1));
+        assertThat(entity.getEvents().get(0).getEventAction(), is(Action.LAST_CHANGED));
+
+        assertThat(entity.getPort43(), is("whois.ripe.net"));
     }
 
     @Test
-    public void lookup_org_entity() throws Exception {
+    public void lookup_for_primary_key_for_entity() {
+        databaseHelper.addObject("" +
+                "mntner:        AZRT\n" +
+                "descr:         Owner Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "referral-by:   OWNER-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "role:          AZRT ABUSE\n" +
+                "address:       Singel\n" +
+                "e-mail:        dbtest@ripe.net\n" +
+                "admin-c:       PP1-TEST\n" +
+                "tech-c:        PP1-TEST\n" +
+                "nic-hdl:       FR2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "role:          AZRT OPS\n" +
+                "address:       Singel\n" +
+                "e-mail:        dbtest@ripe.net\n" +
+                "admin-c:       PP1-TEST\n" +
+                "tech-c:        PP1-TEST\n" +
+                "nic-hdl:       FR3-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        Entity entity = createResource("entity/AZRT")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+
+        assertThat(entity.getHandle(), equalTo("AZRT"));
+    }
+
+    @Test
+    public void lookup_org_entity() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-ONE-TEST\n" +
                 "org-name:      Organisation One\n" +
@@ -977,11 +1319,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
+        assertCommon(entity);
         assertThat(entity.getHandle(), equalTo("ORG-ONE-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
-        assertThat(entity.getPort43(), is("whois.ripe.net"));
-        assertThat(entity.getRdapConformance(), hasSize(1));
-        assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
         assertThat(entity.getLang(), is("EN"));
         assertThat(entity.getObjectClassName(), is("entity"));
 
@@ -1007,18 +1347,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Organisation One], " +
                 "[kind, {}, text, org], " +
-                "[adr, {label=One Org Street}, text, null], " +
-                "[email, {}, text, test@ripe.net]]"));
+                "[adr, {label=One Org Street}, text, [, , , , , , ]], " +
+                "[email, {type=email}, text, test@ripe.net]]"));
 
-        final List<Link> links = entity.getLinks();
-        assertThat(links, hasSize(2));
-        Collections.sort(links);
-        assertThat(links.get(0).getRel(), equalTo("copyright"));
-        assertThat(links.get(0).getValue(), equalTo("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(links.get(0).getHref(), equalTo("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(links.get(1).getRel(), equalTo("self"));
-        assertThat(links.get(1).getValue(), equalTo("https://rdap.db.ripe.net/entity/ORG-ONE-TEST"));
-        assertThat(links.get(1).getHref(), equalTo("https://rdap.db.ripe.net/entity/ORG-ONE-TEST"));
+        assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
 
         assertThat(entity.getRemarks(), hasSize(1));
         assertThat(entity.getRemarks().get(0).getDescription(), contains("Test organisation"));
@@ -1028,8 +1360,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
-        assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
-        assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/entity/ORG-ONE-TEST"));
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
     }
 
     // search
@@ -1037,7 +1368,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     // search - domain
 
     @Test
-    public void search_domain_not_found() throws Exception {
+    public void search_domain_not_found() {
         try {
             fullTextIndex.rebuild();
             createResource("domains?name=ripe.net")
@@ -1050,7 +1381,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_domain_exact_match() throws Exception {
+    public void search_domain_exact_match() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("domains?name=31.12.202.in-addr.arpa")
@@ -1061,7 +1392,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_domain_with_wildcard() throws Exception {
+    public void search_domain_with_wildcard() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("domains?name=*.in-addr.arpa")
@@ -1074,7 +1405,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     // search - nameservers
 
     @Test
-    public void search_nameservers_not_found() throws Exception {
+    public void search_nameservers_not_found() {
         try {
             fullTextIndex.rebuild();
             createResource("nameservers?name=ns1.ripe.net")
@@ -1087,7 +1418,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_nameservers_empty_name() throws Exception {
+    public void search_nameservers_empty_name() {
         try {
             fullTextIndex.rebuild();
             createResource("nameservers?name=")
@@ -1112,9 +1443,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             assertThat(response.getLinks().get(0).getRel(), is("copyright"));
             assertThat(response.getLinks().get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
             assertThat(response.getNotices(), hasSize(1));
-            assertThat(response.getNotices().get(0).getLinks(), hasSize(1));
-            assertThat(response.getNotices().get(0).getLinks().get(0).getRel(), is("terms-of-service"));
-            assertThat(response.getNotices().get(0).getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+            assertTnCNotice(response.getNotices().get(0),null);
         }
     }
 
@@ -1123,7 +1452,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     // search - entities - person
 
     @Test
-    public void search_entity_person_by_name() throws Exception {
+    public void search_entity_person_by_name() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=Test%20Person")
@@ -1134,7 +1463,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_person_by_name_lowercase() throws Exception {
+    public void search_entity_person_by_name_lowercase() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=test%20person")
@@ -1145,7 +1474,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_person_umlaut() throws Exception {
+    public void search_entity_person_umlaut() {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
         fullTextIndex.rebuild();
 
@@ -1157,7 +1486,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_person_umlaut_latin1_encoded() throws Exception {
+    public void search_entity_person_umlaut_latin1_encoded() {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
         fullTextIndex.rebuild();
 
@@ -1165,13 +1494,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             createResource("entities?fn=T%EBst%20Person3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
+            fail();
         } catch (NotFoundException e) {
             // expected - Jetty uses UTF-8 when decoding characters, not latin1
         }
     }
 
     @Test
-    public void search_entity_person_umlaut_utf8_encoded() throws Exception {
+    public void search_entity_person_umlaut_utf8_encoded() {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
         fullTextIndex.rebuild();
 
@@ -1183,7 +1513,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_person_umlaut_substitution() throws Exception {
+    public void search_entity_person_umlaut_substitution() {
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
         fullTextIndex.rebuild();
 
@@ -1198,7 +1528,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_person_by_name_not_found() throws Exception {
+    public void search_entity_person_by_name_not_found() {
         try {
             fullTextIndex.rebuild();
             createResource("entities?fn=Santa%20Claus")
@@ -1211,7 +1541,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_person_by_handle() throws Exception {
+    public void search_entity_person_by_handle() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=TP2-TEST")
@@ -1222,7 +1552,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_person_by_handle_not_found() throws Exception {
+    public void search_entity_person_by_handle_not_found() {
         try {
             fullTextIndex.rebuild();
             createResource("entities?handle=XYZ-TEST")
@@ -1237,7 +1567,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     // search - entities - role
 
     @Test
-    public void search_entity_role_by_name() throws Exception {
+    public void search_entity_role_by_name() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=FR*-TEST")
@@ -1248,7 +1578,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_role_by_handle() throws Exception {
+    public void search_entity_role_by_handle() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=F*st%20Role")
@@ -1261,7 +1591,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     // search - entities - organisation
 
     @Test
-    public void search_entity_organisation_by_name() throws Exception {
+    public void search_entity_organisation_by_name() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=organisation")
@@ -1272,7 +1602,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_organisation_by_name_mixed_case() throws Exception {
+    public void search_entity_organisation_by_name_mixed_case() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=ORGanisAtioN")
@@ -1283,7 +1613,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_organisation_by_name_with_wildcard() throws Exception {
+    public void search_entity_organisation_by_name_with_wildcard() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=organis*tion")
@@ -1294,7 +1624,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_organisation_by_handle() throws Exception {
+    public void search_entity_organisation_by_handle() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=ORG-TEST1-TEST")
@@ -1305,7 +1635,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_organisation_by_handle_with_wildcard_prefix() throws Exception {
+    public void search_entity_organisation_by_handle_with_wildcard_prefix() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=*TEST1-TEST")
@@ -1316,7 +1646,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_organisation_by_handle_with_wildcard_middle() throws Exception {
+    public void search_entity_organisation_by_handle_with_wildcard_middle() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=ORG*TEST")
@@ -1327,7 +1657,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_organisation_by_handle_with_wildcard_suffix() throws Exception {
+    public void search_entity_organisation_by_handle_with_wildcard_suffix() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=ORG*")
@@ -1338,7 +1668,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_organisation_by_handle_with_wildcard_prefix_middle_and_suffix() throws Exception {
+    public void search_entity_organisation_by_handle_with_wildcard_prefix_middle_and_suffix() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=*ORG*TEST*")
@@ -1349,7 +1679,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_without_query_params() throws Exception {
+    public void search_entity_without_query_params() {
         try {
             createResource("entities")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1361,7 +1691,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_both_fn_and_handle_query_params() throws Exception {
+    public void search_entity_both_fn_and_handle_query_params() {
         try {
             createResource("entities?fn=XXXX&handle=YYYY")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1373,7 +1703,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_empty_name() throws Exception {
+    public void search_entity_empty_name() {
         try {
             createResource("entities?fn=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1385,7 +1715,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_empty_handle() throws Exception {
+    public void search_entity_empty_handle() {
         try {
             createResource("entities?handle=")
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1407,16 +1737,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(
             result.getEntitySearchResults()
                 .stream()
-                .map(entity -> entity.getHandle())
+                .map(Entity::getHandle)
                 .collect(Collectors.toList()),
             containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
         assertThat(
             result.getEntitySearchResults()
                 .stream()
                 .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
-                .map(entity -> entity.getNotices())
-                .flatMap(notices -> notices.stream())
-                .map(notice -> notice.getTitle())
+                .map(RdapObject::getNotices)
+                .flatMap(Collection::stream)
+                .map(Notice::getTitle)
                 .collect(Collectors.toList()),
             containsInAnyOrder("Source", "Filtered"));
         assertThat(result.getNotices(), hasSize(1));
@@ -1426,7 +1756,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     // Cross-origin requests
 
     @Test
-    public void cross_origin_preflight_request_from_apps_db_ripe_net_is_allowed() throws Exception {
+    public void cross_origin_preflight_request_from_apps_db_ripe_net_is_allowed() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
@@ -1438,7 +1768,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_preflight_request_from_outside_ripe_net_is_allowed() throws Exception {
+    public void cross_origin_preflight_request_from_outside_ripe_net_is_allowed() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "http://www.foo.net")
@@ -1450,7 +1780,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_allowed() throws Exception {
+    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_allowed() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "http://www.foo.net")
@@ -1463,7 +1793,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_get_request_from_apps_db_ripe_net_is_allowed() throws Exception {
+    public void cross_origin_get_request_from_apps_db_ripe_net_is_allowed() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
@@ -1476,7 +1806,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_get_request_from_outside_ripe_net_is_allowed() throws Exception {
+    public void cross_origin_get_request_from_outside_ripe_net_is_allowed() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "https://www.foo.net")
@@ -1490,7 +1820,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_preflight_request_malformed_origin() throws Exception {
+    public void cross_origin_preflight_request_malformed_origin() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "?invalid?")
@@ -1501,7 +1831,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_get_request_malformed_origin() throws Exception {
+    public void cross_origin_get_request_malformed_origin() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "?invalid?")
@@ -1513,7 +1843,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void cross_origin_get_request_host_and_port() throws Exception {
+    public void cross_origin_get_request_host_and_port() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "https://www.foo.net:8443")
@@ -1524,9 +1854,54 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
+    @Test
+    public void get_help_response() {
+        final RdapObject help = createResource("help")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(RdapObject.class);
+
+        assertCommon(help);
+
+        final List<Notice> notices = help.getNotices();
+        assertThat(notices, hasSize(1));
+        assertTnCNotice(notices.get(0), "https://rdap.db.ripe.net/help");
+
+        assertCopyrightLink(help.getLinks(), "https://rdap.db.ripe.net/help");
+    }
+
+    private void assertCommon(RdapObject object) {
+        assertThat(object.getPort43(), is("whois.ripe.net"));
+        assertThat(object.getRdapConformance(), hasSize(1));
+        assertThat(object.getRdapConformance().get(0), equalTo("rdap_level_0"));
+    }
+
+    private void assertCopyrightLink(final List<Link> links, final String value) {
+        assertThat(links, hasSize(2));
+        Collections.sort(links);
+
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+
+        assertThat(links.get(1).getRel(), is("self"));
+        assertThat(links.get(1).getValue(), is(value));
+        assertThat(links.get(1).getHref(), is(value));
+    }
+
+    private void assertTnCNotice(final Notice notice, final String value) {
+        assertThat(notice.getTitle(), is("Terms and Conditions"));
+        assertThat(notice.getDescription(), contains("This is the RIPE Database query service. The objects are in RDAP format."));
+        assertThat(notice.getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+
+        assertThat(notice.getLinks().get(0).getRel(), is("terms-of-service"));
+        assertThat(notice.getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        assertThat(notice.getLinks().get(0).getType(), is("application/pdf"));
+        assertThat(notice.getLinks().get(0).getValue(), is(value));
+    }
+
     // helper methods
 
-    protected WebTarget createResource(final String path) {
+    private WebTarget createResource(final String path) {
         return RestTest.target(getPort(), String.format("rdap/%s", path));
     }
 

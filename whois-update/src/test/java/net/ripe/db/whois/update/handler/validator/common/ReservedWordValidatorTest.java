@@ -29,7 +29,7 @@ public class ReservedWordValidatorTest {
 
     @Test
     public void getActions() {
-        assertThat(subject.getActions(), containsInAnyOrder(Action.CREATE, Action.MODIFY));
+        assertThat(subject.getActions(), containsInAnyOrder(Action.CREATE));
     }
 
     @Test

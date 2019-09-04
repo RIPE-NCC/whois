@@ -23,8 +23,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class AuthoritativeResourceDataJmxTest {
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-    @Mock AuthoritativeResourceData authoritativeResourceData;
     @Mock AuthoritativeResourceDataValidator authoritativeResourceDataValidator;
+    @Mock AuthoritativeResourceRefreshTask authoritativeResourceRefreshTask;
     @InjectMocks AuthoritativeResourceDataJmx subject;
 
     @Test
@@ -32,7 +32,7 @@ public class AuthoritativeResourceDataJmxTest {
         final String msg = subject.refreshCache("comment");
         assertThat(msg, is("Refreshed caches"));
 
-        verify(authoritativeResourceData).refreshAuthoritativeResourceCache();
+        verify(authoritativeResourceRefreshTask).refreshAuthoritativeResourceCache();
     }
 
     @Test

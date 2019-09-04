@@ -19,8 +19,6 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateResult;
 import net.ripe.db.whois.update.domain.UpdateStatus;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +27,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
@@ -104,7 +105,7 @@ public class ResponseFactoryTest {
         updateResults = Lists.newArrayList();
         ignoredParagraphs = Lists.newArrayList();
 
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime(0, DateTimeZone.UTC));
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC));
         when(updateContext.printGlobalMessages()).thenReturn("");
         when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 

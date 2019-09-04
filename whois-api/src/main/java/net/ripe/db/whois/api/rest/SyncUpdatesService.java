@@ -278,7 +278,9 @@ public class SyncUpdatesService {
                 }
             }
         }
-        return Charsets.ISO_8859_1;
+
+        // application/x-www-form-urlencoded is UTF-8 by default
+        return Charsets.UTF_8;
     }
 
     @Nullable
@@ -312,7 +314,7 @@ public class SyncUpdatesService {
     }
 
     private String getRequestId(final String remoteAddress) {
-        return "syncupdate_" + remoteAddress + "_" + dateTimeProvider.getNanoTime();
+        return "syncupdate_" + remoteAddress + "_" + dateTimeProvider.getElapsedTime();
     }
 
     private boolean sourceMatchesContext(final String source) {

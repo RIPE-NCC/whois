@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.authentication.Subject;
-import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -57,9 +56,6 @@ public class AuthenticatorPrincipalPowerMaintainerTest {
     @Mock
     private LoggerContext loggerContext;
 
-    @Mock
-    private PendingUpdateDao pendingUpdateDao;
-
     Authenticator subject;
     ArgumentCaptor<Subject> subjectCapture;
 
@@ -75,7 +71,7 @@ public class AuthenticatorPrincipalPowerMaintainerTest {
         when(update.getCredentials()).thenReturn(new Credentials());
 
         subjectCapture = ArgumentCaptor.forClass(Subject.class);
-        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2}, pendingUpdateDao);
+        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2});
     }
 
 

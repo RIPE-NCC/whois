@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.rdap.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

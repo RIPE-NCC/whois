@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.containsString;
@@ -24,6 +25,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 @Category(IntegrationTest.class)
@@ -234,6 +237,9 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     }
 
     private SearchResponse query(final String queryStr) {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+
         return fullTextSearch.search(
                 new SearchRequest.SearchRequestBuilder()
                     .setQuery(queryStr)
@@ -241,6 +247,6 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
                     .setFormat("xml")
                     .setHighlightPre("<b>")
                     .setHighlightPost("</b>")
-                    .build());
+                    .build(), request);
     }
 }

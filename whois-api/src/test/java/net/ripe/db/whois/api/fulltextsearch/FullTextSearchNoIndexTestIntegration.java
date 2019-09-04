@@ -20,7 +20,7 @@ public class FullTextSearchNoIndexTestIntegration extends AbstractIntegrationTes
     }
 
     @Test
-    public void search() throws Exception {
+    public void search() {
         try {
             query("q=test");
             fail();

@@ -11,8 +11,6 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +23,8 @@ import javax.mail.internet.ContentType;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -99,9 +99,9 @@ public class MessageParserTest {
         final MailMessage message = subject.parse(mimeMessage, updateContext);
 
         assertThat(message.getDate().length(), not(is(0)));
-        final String timezone = DateTimeFormat.forPattern("zzz").print(new DateTime());
+        final String timezone = DateTimeFormatter.ofPattern("zzz").format(ZonedDateTime.now());
         assertThat(message.getDate(), containsString(timezone));
-        final String year = DateTimeFormat.forPattern("yyyy").print(new DateTime());
+        final String year = DateTimeFormatter.ofPattern("yyyy").format(ZonedDateTime.now());
         assertThat(message.getDate(), containsString(year));
     }
 
@@ -805,26 +805,6 @@ public class MessageParserTest {
         assertThat(message.getContentWithCredentials(), hasSize(1));
         final ContentWithCredentials contentWithCredentials = message.getContentWithCredentials().get(0);
         assertThat(contentWithCredentials.getCredentials(), hasSize(0));
-    }
-
-    @Test
-    public void parse_non_break_space() throws Exception {
-        final MailMessage message = subject.parse(
-                getMessage(
-                            "To: auto-dbm@ripe.net\n" +
-                            "From: No Reply <noreply@ripe.net>\n" +
-                            "Date: Thu, 30 Mar 2017 09:00:00 +0100\n" +
-                            "MIME-Version: 1.0\n" +
-                            "Content-Type: text/plain; charset=\"utf-8\"; format=flowed\n" +
-                            "Content-Language: en-GB\n" +
-                            "Content-Transfer-Encoding: 8bit\n" +
-                            "\n" +
-                            "\nperson:  Test\u00A0Person\n" +
-                            "\nsource: TEST\n" +
-                            "\n"),
-                updateContext);
-
-        assertThat(message.getUpdateMessage(), containsString("person:  Test Person"));
     }
 
     private MimeMessage getMessage(final String message) throws MessagingException, IOException {

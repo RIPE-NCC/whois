@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -56,7 +56,7 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
     }
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         databaseHelper.addObject(MNTNER);
         databaseHelper.updateObject(MNTNER_UPDATED);
 
@@ -73,7 +73,7 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
     }
 
     @After
-    public void after() throws Exception {
+    public void after() {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);
     }

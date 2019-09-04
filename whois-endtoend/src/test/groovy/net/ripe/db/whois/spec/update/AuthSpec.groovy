@@ -4,6 +4,7 @@ import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import java.time.LocalDateTime
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class AuthSpec extends BaseQueryUpdateSpec {
@@ -69,6 +70,10 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 """
     ]}
+
+    def setupSpec() {
+        resetTime()
+    }
 
     def "create person 2 mnt-by 1 correct password"() {
       expect:
@@ -814,6 +819,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
     def "create person using pgp signed message"() {
       given:
+        setTime(LocalDateTime.parse("2015-05-21T15:48:04")) // current time must be within 1 hour of signing time
         syncUpdate(
                 "key-cert:       PGPKEY-AAAAAAAA\n" +       // primary key doesn't match public key id
                 "method:         PGP\n" +
@@ -900,16 +906,15 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Message was signed more than one week ago"]
 
         queryObject("-r -T person FP1-TEST", "person", "First Person")
     }
 
     def "create person using pgp signed message and maintainer has multiple pgpkeys"() {
       given:
+        setTime(LocalDateTime.parse("2015-05-21T15:48:04")) // current time must be within 1 hour of signing time
         syncUpdate(
                 "key-cert:       PGPKEY-AAAAAAAA\n" +       // primary key doesn't match public key id
                 "method:         PGP\n" +
@@ -1042,15 +1047,16 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Message was signed more than one week ago"]
 
         queryObject("-r -T person FP1-TEST", "person", "First Person")
     }
 
     def "modify person, PGP RSA signed message, no blank line after obj"() {
+      given:
+        setTime(LocalDateTime.parse("2015-05-21T15:48:04")) // current time must be within 1 hour of signing time
+
       expect:
         queryObject("-r -T person TP1-TEST", "person", "Test Person")
 
@@ -1096,17 +1102,19 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
-        ack.warningSuccessMessagesFor("Modify", "[person] TP1-TEST   Test Person") == [
-                "Message was signed more than one week ago"]
 
         queryObject("-rBT person TP1-TEST", "person", "Test Person")
     }
 
     def "modify person, PGP RSA signed message, with blank line after obj"() {
+      given:
+        setTime(LocalDateTime.parse("2015-05-21T16:48:05")) // current time must be within 1 hour of signing time
+
       expect:
         queryObject("-r -T person TP1-TEST", "person", "Test Person")
+
       when:
         syncUpdate new SyncUpdate(data:
                 oneBasicFixture("TEST-PN").stripIndent().
@@ -1150,15 +1158,16 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
-        ack.warningSuccessMessagesFor("Modify", "[person] TP1-TEST   Test Person") == [
-                "Message was signed more than one week ago"]
 
         queryObject("-rBT person TP1-TEST", "person", "Test Person")
     }
 
     def "modify person, PGP RSA signed message, with 3 blank lines after obj"() {
+      given:
+        setTime(LocalDateTime.parse("2015-05-21T16:50:18")) // current time must be within 1 hour of signing time
+
       expect:
         queryObject("-r -T person TP1-TEST", "person", "Test Person")
 
@@ -1207,10 +1216,8 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
-        ack.warningSuccessMessagesFor("Modify", "[person] TP1-TEST   Test Person") == [
-                "Message was signed more than one week ago"]
 
         queryObject("-rBT person TP1-TEST", "person", "Test Person")
     }
@@ -1421,6 +1428,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
     def "No warning if auth lines removed but update succeeds with PGP signed update"() {
       given:
+        setTime(LocalDateTime.parse("2015-07-15T16:51:41"))
         databaseHelper.updateObject(
                 "mntner:      PGP-MNT\n" +
                 "descr:       used for testing PGP signed messages\n" +
@@ -1468,7 +1476,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
     }
 
     def "No warning if auth lines removed but multiple maintainers and auth succeeds"() {
@@ -1508,6 +1516,5 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 0, 0)
     }
-
 
 }

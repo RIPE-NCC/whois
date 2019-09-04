@@ -132,11 +132,6 @@ public class UpdateNotifier {
                 add(notifications, updateContext, update, Notification.Type.FAILED_AUTHENTICATION, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.UPD_TO);
                 break;
 
-            case PENDING_AUTHENTICATION:
-                final Iterable<RpslObject> pendingAuthenticationCandidates = Iterables.filter(updateContext.getSubject(update).getPendingAuthenticationCandidates(), input -> !maintainers.getRsMaintainers().contains(input.getKey()));
-                add(notifications, updateContext, update, Notification.Type.PENDING_UPDATE, pendingAuthenticationCandidates, AttributeType.UPD_TO);
-                break;
-
             default:
                 break;
 
