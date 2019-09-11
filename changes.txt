@@ -1,5 +1,10 @@
 # next
 
+# 1.95.1
+[update] Don't perform SSO auth translation in Batch API
+[all] Use a Timestamp class (#569)
+
+
 # 1.95
 
 [update] Don't allow inet6nums smaller than a /64 to be created. (#562)
