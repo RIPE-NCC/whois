@@ -570,7 +570,7 @@ public enum AttributeType implements Documented {
 
     ROLE(new Builder("role", "ro")
             .doc("Specifies the full name of a role entity, e.g. RIPE DBM.")
-            .syntax(ORG_NAME_SYNTAX)),
+            .syntax(ORG_NAME_SYNTAX)),  // TODO: [ES] refactor confusing use of org name syntax
 
     ROUTE(new Builder("route", "rt")
             .doc("Specifies the prefix of the interAS route. Together with the \"origin:\" attribute, " +
