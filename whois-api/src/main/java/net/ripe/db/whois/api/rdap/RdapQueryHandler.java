@@ -21,14 +21,14 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.util.List;
-import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
-import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
 
 @Component
 public class RdapQueryHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapQueryHandler.class);
 
+    @Deprecated // [ES] update jaxrs which includes 429 status instead
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
+
     private final QueryHandler queryHandler;
 
     @Autowired
