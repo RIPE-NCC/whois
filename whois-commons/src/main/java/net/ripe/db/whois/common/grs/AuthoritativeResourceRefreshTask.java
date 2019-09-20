@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.grs;
 
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
+import net.ripe.db.whois.common.domain.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.Optional;
 
 import static net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask.TASK_NAME;
 
@@ -29,7 +29,7 @@ public class AuthoritativeResourceRefreshTask {
     private final String source;
 
     private ResourceDataDao.State state = null;
-    private long lastRefresh = Integer.MIN_VALUE;
+    private LocalDateTime lastRefresh = null;
 
     @Autowired
     public AuthoritativeResourceRefreshTask(final DailySchedulerDao dailySchedulerDao,
@@ -44,18 +44,22 @@ public class AuthoritativeResourceRefreshTask {
 
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_HOUR)
     synchronized public void refreshAuthoritativeResourceCache() {
-        final long lastImportTime;
+        final LocalDateTime lastImportTime;
         try {
-            lastImportTime = dailySchedulerDao.getDailyTaskFinishTime(TASK_NAME);
+            final Optional<Timestamp> optional = dailySchedulerDao.getDailyTaskFinishTime(TASK_NAME);
+            if (!optional.isPresent()) {
+                return;
+            }
+            lastImportTime = optional.get().toLocalDateTime();
         } catch (RuntimeException e) {
             LOGGER.warn("Refreshing failed on get finish time due to {}: {}", e.getClass().getName(), e.getMessage());
             return;
         }
 
-        if (lastImportTime > lastRefresh) {
+        if (lastRefresh == null || (lastImportTime.isAfter(lastRefresh))) {
             LOGGER.info("Authoritative resource data import detected, finished at {} (previous run: {})",
-                    LocalDateTime.ofInstant(Instant.ofEpochMilli(lastImportTime), ZoneId.systemDefault()),
-                    LocalDateTime.ofInstant(Instant.ofEpochMilli(lastRefresh), ZoneId.systemDefault()));
+                    lastImportTime.toString(),
+                    (lastRefresh != null) ? lastRefresh.toString() : "NONE");
             lastRefresh = lastImportTime;
             authoritativeResourceData.refreshAllSources();
             state = resourceDataDao.getState(source);

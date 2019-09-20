@@ -18,7 +18,7 @@ import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterPersonalDataFunction;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.VersionDateTime;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
@@ -180,7 +180,7 @@ public class VersionQueryExecutor implements QueryExecutor {
                         (version == versionInfos.size()),
                         rpslObject.getKey(),
                         info.getOperation() == Operation.UPDATE ? "UPDATE" : "DELETE",
-                        info.getTimestamp())),
+                        info.getTimestamp().toString())),
                 rpslObject
         );
     }

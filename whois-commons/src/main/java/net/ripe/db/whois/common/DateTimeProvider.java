@@ -1,43 +1,21 @@
 package net.ripe.db.whois.common;
 
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 public interface DateTimeProvider {
+
+    /** Return the current date */
     LocalDate getCurrentDate();
+
+    /** Return the current date time (in current system timezone) */
     LocalDateTime getCurrentDateTime();
+
+    /** Return the current date time in UTC */
     ZonedDateTime getCurrentDateTimeUtc();
 
-    /** returns System.nanoTime(), the high-res timer that counts 0 from JVM startup */
-    long getNanoTime();
-
-    /** specify the local timezone when creating a LocalDateTime from a timestamp */
-    static LocalDateTime fromEpochMilli(final long timestamp) {
-        return LocalDateTime.from(Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.systemDefault()));
-    }
-
-    static long toEpochMilli(final LocalDateTime localDateTime) {
-        return Instant.from(localDateTime.atZone(ZoneOffset.systemDefault())).toEpochMilli();
-    }
-
-    static Date toDate(final LocalDateTime localDateTime) {
-        return Date.from(localDateTime.atZone(ZoneOffset.systemDefault())
-                    .toInstant());
-    }
-
-    static Date toDate(final LocalDate localDate) {
-        return Date.from(localDate.atStartOfDay(ZoneOffset.systemDefault()).toInstant());
-    }
-
-    static LocalDateTime fromDate(final Date date) {
-        return Instant.ofEpochMilli(date.getTime())
-                        .atZone(ZoneOffset.systemDefault())
-                        .toLocalDateTime();
-    }
-
+    /** returns elapsed time (with nanosecond precision). N.B. not related to system time */
+    long getElapsedTime();
 }

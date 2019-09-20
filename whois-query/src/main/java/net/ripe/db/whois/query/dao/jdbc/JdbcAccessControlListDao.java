@@ -1,11 +1,12 @@
 package net.ripe.db.whois.query.dao.jdbc;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
             jdbcTemplate.update(
                     "INSERT INTO acl_event (prefix, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
                     prefix,
-                    DateTimeProvider.toDate(date),
+                    DateUtil.toDate(date),
                     limit,
                     type.name()
             );
@@ -66,7 +67,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
             final Map<String, List<BlockEvent>> blockEventsMap = new HashMap<>();
             while (rs.next()) {
                 final String prefix = rs.getString("prefix");
-                final LocalDateTime time = DateTimeProvider.fromEpochMilli(rs.getTimestamp("event_time").getTime() * 1000L);
+                final LocalDateTime time = Timestamp.from(rs.getTimestamp("event_time")).toLocalDateTime();
                 final int limit = rs.getInt("daily_limit");
                 final BlockEvent.Type type = BlockEvent.Type.valueOf(rs.getString("event_type"));
 
@@ -92,7 +93,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
         return jdbcTemplate.query(
                 "SELECT prefix, event_time, daily_limit, event_type FROM acl_event WHERE event_time >= ? ORDER BY prefix, event_time ASC",
                 new BlockEventsExtractor(),
-                DateTimeProvider.toDate(blockTime)
+                DateUtil.toDate(blockTime)
         );
     }
 
@@ -104,17 +105,17 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
 
         jdbcTemplate.update(
                 "INSERT INTO acl_denied (prefix, comment, denied_date) VALUES (?, ?, ?)",
-                prefix, comment, DateTimeProvider.toDate(date));
+                prefix, comment, DateUtil.toDate(date));
     }
 
     @Override
     public void removeBlockEventsBefore(final LocalDate date) {
-        jdbcTemplate.update("DELETE FROM acl_event WHERE event_time < ?", DateTimeProvider.toDate(date));
+        jdbcTemplate.update("DELETE FROM acl_event WHERE event_time < ?", DateUtil.toDate(date));
     }
 
     @Override
     public void removePermanentBlocksBefore(final LocalDate date) {
-        jdbcTemplate.update("DELETE FROM acl_denied WHERE denied_date < ?", DateTimeProvider.toDate(date));
+        jdbcTemplate.update("DELETE FROM acl_denied WHERE denied_date < ?", DateUtil.toDate(date));
     }
 
     @Override

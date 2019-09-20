@@ -6,13 +6,11 @@ import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
-import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -42,17 +40,14 @@ public class BatchUpdatesService {
 
     private final LoggerContext loggerContext;
     private final InternalUpdatePerformer updatePerformer;
-    private final SsoTranslator ssoTranslator;
     private final WhoisObjectMapper whoisObjectMapper;
 
     @Autowired
     public BatchUpdatesService(final InternalUpdatePerformer updatePerformer,
-                               final SsoTranslator ssoTranslator,
                                final LoggerContext loggerContext,
                                final WhoisObjectMapper whoisObjectMapper) {
         this.loggerContext = loggerContext;
         this.updatePerformer = updatePerformer;
-        this.ssoTranslator = ssoTranslator;
         this.whoisObjectMapper = whoisObjectMapper;
     }
 
@@ -85,10 +80,7 @@ public class BatchUpdatesService {
             for (final ActionRequest actionRequest : actionRequests) {
                 final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ?
                         StringUtils.isBlank(reason)? DELETE_REASON : reason : null;
-
-                ssoTranslator.populateCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
-                final RpslObject rpslObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
-                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, Collections.emptyList() /* passwords */, deleteReason, override));
+                updates.add(updatePerformer.createUpdate(updateContext, actionRequest.getRpslObject(), Collections.emptyList() /* passwords */, deleteReason, override));
             }
 
             final WhoisResources updatedWhoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
