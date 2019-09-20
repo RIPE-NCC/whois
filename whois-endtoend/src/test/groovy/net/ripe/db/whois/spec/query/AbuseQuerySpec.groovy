@@ -869,7 +869,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
     def "query -b aut-num with abuse-c"() {
         given:
-            databaseHelper.addObject(getTransient("ABUSE-ROLE"))
+            databaseHelper.addObject(getTransient("ABUSE-ROLE"))        // TODO: [ES] use syncupdates to insert objects
             databaseHelper.addObject(getTransient("ORG-W-ABUSE_C"))
             databaseHelper.addObject(getTransient("AUTNUM"))
 
@@ -1003,7 +1003,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
     def "query aut-num with suspect abuse-c without responsible org"() {
         given:
-        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
+        insertAbusec("more_abuse@test.net", "SUSPECT")
         databaseHelper.addObject("" +
                 "role:           Another Abuse Contact\n" +
                 "nic-hdl:        AH2-TEST\n" +
@@ -1028,12 +1028,12 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         !queryLineMatches("AS200", "% Abuse-mailbox validation failed.")
 
         cleanup:
-        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+            clearAbusec()
     }
 
     def "query aut-num with suspect abuse-c with responsible org"() {
         given:
-        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
+        insertAbusec("more_abuse@test.net", "SUSPECT")
         databaseHelper.addObject("" +
                 "role:           Another Abuse Contact\n" +
                 "nic-hdl:        AH2-TEST\n" +
@@ -1059,12 +1059,12 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("AS200", "% Abuse-mailbox validation failed. Please refer to ORG-LIR2-TEST for further information.")
 
         cleanup:
-        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+            clearAbusec()
     }
 
     def "query aut-num with suspect abuse-c with sponsoring org"() {
         given:
-        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
+        insertAbusec("more_abuse@test.net", "SUSPECT")
         databaseHelper.addObject("" +
                 "role:           Another Abuse Contact\n" +
                 "nic-hdl:        AH2-TEST\n" +
@@ -1090,7 +1090,36 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("AS200", "% Abuse-mailbox validation failed. Please refer to ORG-LIR2-TEST for further information.")
 
         cleanup:
-        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+            clearAbusec()
     }
+
+    // TODO: [ES] Abuse-c validation comment must refer to the LIR organisation
+    def "query assignment with suspect abuse-c"() {
+        given:
+            syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
+            syncUpdate(getTransient("ASS-END-A") + "password: lir\npassword: end\npassword: owner3")
+            insertAbusec("my_abuse@lir.net", "SUSPECT")     // end user abuse-c is suspect
+        expect:
+            // Allocation
+            queryLineMatches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
+            // Assignment
+            queryLineMatches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "% Abuse contact for '192.168.200.0 - 192.168.200.255' is 'my_abuse@lir.net'")
+            // Comment must refer to LIR not the End User org
+            queryLineMatches("192.168.200.0 - 192.168.200.255", "% Abuse-mailbox validation failed. Please refer to ORG-LIRA-TEST for further information.")
+        cleanup:
+            clearAbusec()
+    }
+
+    // helper methods
+
+    private void insertAbusec(final String address, final String status) {
+        databaseHelper.getInternalsTemplate().update("INSERT INTO abuse_email (address, status, created_at) VALUES ('" + address + "', '" + status + "', now())")
+    }
+
+    private void clearAbusec() {
+        databaseHelper.getInternalsTemplate().update("DELETE FROM abuse_email")
+    }
+
+
 
 }
