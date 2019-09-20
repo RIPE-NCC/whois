@@ -22,7 +22,6 @@ import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
-import java.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,11 +33,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -1901,7 +1900,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     // helper methods
 
-    private WebTarget createResource(final String path) {
+    protected WebTarget createResource(final String path) {
         return RestTest.target(getPort(), String.format("rdap/%s", path));
     }
 
@@ -1914,12 +1913,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     }
 
-    private void assertErrorTitle(final ClientErrorException exception, final String title) {
+    protected void assertErrorTitle(final ClientErrorException exception, final String title) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorTitle(), is(title));
     }
 
-    private void assertErrorStatus(final ClientErrorException exception, final int status) {
+    protected void assertErrorTitleContains(final ClientErrorException exception, final String title) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getErrorTitle(), containsString(title));
+    }
+
+    protected void assertErrorStatus(final ClientErrorException exception, final int status) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorCode(), is(status));
     }
