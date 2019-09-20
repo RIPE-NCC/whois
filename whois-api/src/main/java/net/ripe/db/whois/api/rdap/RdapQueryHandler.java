@@ -115,14 +115,14 @@ public class RdapQueryHandler {
 
     private List<RpslObject> handleQueryException(final QueryException e) {
         if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-            throw tooManyRequests();
+            throw tooManyRequests(e.getMessage());
         } else {
             LOGGER.error(e.getMessage(), e);
-            throw new IllegalStateException("query error");
+            throw new IllegalStateException(e.getMessage());
         }
     }
 
-    public WebApplicationException tooManyRequests() {
-        return new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
+    private WebApplicationException tooManyRequests(final String message) {
+        return new WebApplicationException(message, Response.status(STATUS_TOO_MANY_REQUESTS).build());
     }
 }
