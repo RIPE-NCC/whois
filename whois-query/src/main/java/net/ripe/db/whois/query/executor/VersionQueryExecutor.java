@@ -59,7 +59,7 @@ public class VersionQueryExecutor implements QueryExecutor {
 
     @Override
     public boolean isAclSupported() {
-        return false;
+        return true;
     }
 
     @Override
