@@ -21,14 +21,14 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.util.List;
-import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
-import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
 
 @Component
 public class RdapQueryHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapQueryHandler.class);
 
+    @Deprecated // [ES] update jaxrs which includes 429 status instead
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
+
     private final QueryHandler queryHandler;
 
     @Autowired
@@ -115,14 +115,14 @@ public class RdapQueryHandler {
 
     private List<RpslObject> handleQueryException(final QueryException e) {
         if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-            throw tooManyRequests();
+            throw tooManyRequests(e.getMessage());
         } else {
             LOGGER.error(e.getMessage(), e);
-            throw new IllegalStateException("query error");
+            throw new IllegalStateException(e.getMessage());
         }
     }
 
-    public WebApplicationException tooManyRequests() {
-        return new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
+    private WebApplicationException tooManyRequests(final String message) {
+        return new WebApplicationException(message, Response.status(STATUS_TOO_MANY_REQUESTS).build());
     }
 }
