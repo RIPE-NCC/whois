@@ -20,8 +20,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import static java.util.Collections.emptyList;
-
 @Provider
 @Component
 public class RdapExceptionMapper implements ExceptionMapper<Exception> {
@@ -61,8 +59,7 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         if (exception instanceof WebApplicationException) {
-            LOGGER.warn("unexpected error " + exception.getMessage());
-            return ((WebApplicationException) exception).getResponse();
+            return createErrorResponse(((WebApplicationException) exception).getResponse().getStatus(), exception.getMessage());
         }
 
         if (exception instanceof JsonProcessingException) {
@@ -90,8 +87,12 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
     }
 
     private Response createErrorResponse(final Response.Status status, final String errorTitle) {
+        return createErrorResponse(status.getStatusCode(), errorTitle);
+    }
+
+    private Response createErrorResponse(final int status, final String errorTitle) {
         return Response.status(status)
-                .entity(createErrorEntity(status.getStatusCode(), errorTitle))
+                .entity(createErrorEntity(status, errorTitle))
                 .header("Content-Type", "application/rdap+json")
                 .build();
     }

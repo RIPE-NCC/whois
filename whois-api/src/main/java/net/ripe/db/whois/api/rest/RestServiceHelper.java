@@ -36,6 +36,8 @@ public class RestServiceHelper {
 
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings();
     private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
+
+    @Deprecated // [ES] update jaxrs which includes 429 status instead
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
     private static final Set<Class> SKIP_STACK_TRACE = Sets.newHashSet(
