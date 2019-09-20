@@ -17,7 +17,7 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class WhoisRdapServiceAclTestIntegration extends WhoisRdapServiceTestIntegration {
+public class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
 
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
 

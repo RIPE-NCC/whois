@@ -2,8 +2,6 @@ package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
@@ -18,7 +16,6 @@ import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
-import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
@@ -31,10 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
@@ -56,30 +51,12 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
+public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired
     FullTextIndex fullTextIndex;
     @Autowired
     TestWhoisLog queryLog;
-
-    @BeforeClass
-    public static void rdapSetProperties() {
-        System.setProperty("rdap.sources", "TEST-GRS");
-        System.setProperty("rdap.redirect.test", "https://rdap.test.net");
-        System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
-
-        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
-    }
-
-    @AfterClass
-    public static void rdapClearProperties() {
-        System.clearProperty("rdap.sources");
-        System.clearProperty("rdap.redirect.test");
-        System.clearProperty("rdap.public.baseUrl");
-        System.clearProperty("dir.fulltext.index");
-    }
 
     @Before
     public void setup() {
@@ -1898,33 +1875,4 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
 
-    // helper methods
-
-    protected WebTarget createResource(final String path) {
-        return RestTest.target(getPort(), String.format("rdap/%s", path));
-    }
-
-    private String syncupdate(String data) {
-        WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
-        return resource.request()
-                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
-                        MediaType.APPLICATION_FORM_URLENCODED),
-                        String.class);
-
-    }
-
-    protected void assertErrorTitle(final ClientErrorException exception, final String title) {
-        final Entity entity = exception.getResponse().readEntity(Entity.class);
-        assertThat(entity.getErrorTitle(), is(title));
-    }
-
-    protected void assertErrorTitleContains(final ClientErrorException exception, final String title) {
-        final Entity entity = exception.getResponse().readEntity(Entity.class);
-        assertThat(entity.getErrorTitle(), containsString(title));
-    }
-
-    protected void assertErrorStatus(final ClientErrorException exception, final int status) {
-        final Entity entity = exception.getResponse().readEntity(Entity.class);
-        assertThat(entity.getErrorCode(), is(status));
-    }
 }
