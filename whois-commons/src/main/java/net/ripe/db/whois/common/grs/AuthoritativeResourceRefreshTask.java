@@ -42,6 +42,7 @@ public class AuthoritativeResourceRefreshTask {
         this.source = source;
     }
 
+    // TODO: [ES] This refresh depends on AuthoritativeResourceImportTask completing, but can take up to an hour to detect it.
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_HOUR)
     synchronized public void refreshAuthoritativeResourceCache() {
         final LocalDateTime lastImportTime;
