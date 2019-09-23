@@ -1094,7 +1094,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
     }
 
     // TODO: [ES] Abuse-c validation comment must refer to the LIR organisation
-    def "query assignment with suspect abuse-c"() {
+    def "query assignment with suspect end user abuse-c"() {
         given:
             syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
             syncUpdate(getTransient("ASS-END-A") + "password: lir\npassword: end\npassword: owner3")
@@ -1106,6 +1106,19 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
             queryLineMatches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "% Abuse contact for '192.168.200.0 - 192.168.200.255' is 'my_abuse@lir.net'")
             // Comment must refer to LIR not the End User org
             queryLineMatches("192.168.200.0 - 192.168.200.255", "% Abuse-mailbox validation failed. Please refer to ORG-LIRA-TEST for further information.")
+        cleanup:
+            clearAbusec()
+    }
+
+    def "query assignment with suspect LIR abuse-c"() {
+        given:
+            syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
+            insertAbusec("abuse@lir.net", "SUSPECT")     // LIR abuse-c is suspect
+        expect:
+            // Allocation
+            queryLineMatches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
+            // Comment must refer to LIR
+            queryLineMatches("192.168.0.0 - 192.169.255.255", "% Abuse-mailbox validation failed. Please refer to ORG-LIRA-TEST for further information.")
         cleanup:
             clearAbusec()
     }
