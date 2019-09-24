@@ -37,7 +37,7 @@ public class AuthoritativeResourceDataJmx extends JmxBase {
     })
     public String refreshCache(final String comment) {
         return invokeOperation("Refresh authoritative resource cache", comment, () -> {
-            authoritativeResourceRefreshTask.refreshAuthoritativeResourceCache();
+            authoritativeResourceRefreshTask.refreshGrsAuthoritativeResourceCaches();
             return "Refreshed caches";
         });
     }

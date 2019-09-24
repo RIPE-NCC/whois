@@ -62,7 +62,7 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
     @Before
     public void setUp() throws Exception {
         authoritativeResourceImportTask.run();
-        authoritativeResourceData.refreshAllSources();
+        authoritativeResourceData.refreshGrsSources();
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();
     }

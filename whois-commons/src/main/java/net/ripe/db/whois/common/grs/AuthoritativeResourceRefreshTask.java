@@ -44,7 +44,7 @@ public class AuthoritativeResourceRefreshTask {
 
     // TODO: [ES] This refresh depends on AuthoritativeResourceImportTask completing, but can take up to an hour to detect it.
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_HOUR)
-    synchronized public void refreshAuthoritativeResourceCache() {
+    synchronized public void refreshGrsAuthoritativeResourceCaches() {
         final LocalDateTime lastImportTime;
         try {
             final Optional<Timestamp> optional = dailySchedulerDao.getDailyTaskFinishTime(TASK_NAME);
@@ -62,13 +62,13 @@ public class AuthoritativeResourceRefreshTask {
                     lastImportTime.toString(),
                     (lastRefresh != null) ? lastRefresh.toString() : "NONE");
             lastRefresh = lastImportTime;
-            authoritativeResourceData.refreshAllSources();
+            authoritativeResourceData.refreshGrsSources();
             state = resourceDataDao.getState(source);
         }
     }
 
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_MINUTE)
-    synchronized public void refreshAuthoritativeResourceCacheOnChange() {
+    synchronized public void refreshMainAuthoritativeResourceCache() {
         final ResourceDataDao.State latestState;
         try {
             latestState = resourceDataDao.getState(source);
