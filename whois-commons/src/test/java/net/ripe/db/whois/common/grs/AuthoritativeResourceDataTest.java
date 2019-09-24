@@ -45,7 +45,7 @@ public class AuthoritativeResourceDataTest {
 
         authoritativeResourceData.init();
 
-        verify(resourceDataDao).load(eq("test"));
+        verify(resourceDataDao, times(2)).load(eq("test"));
         assertThat(authoritativeResourceData.getAuthoritativeResource(ciString("test")), isA(AuthoritativeResource.class));
     }
 
