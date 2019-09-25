@@ -19,9 +19,11 @@ public enum OrgType {
 
     private static final Map<CIString, OrgType> ORG_TYPE_MAP;
     private final String info;
+    private final CIString name;
 
     private OrgType(final String info) {
         this.info = info;
+        this.name = CIString.ciString(this.name());
     }
 
     public String getInfo() {
@@ -34,6 +36,10 @@ public enum OrgType {
         for (final OrgType orgType : OrgType.values()) {
             ORG_TYPE_MAP.put(ciString(orgType.name()), orgType);
         }
+    }
+
+    public CIString getName() {
+        return name;
     }
 
     @Nullable

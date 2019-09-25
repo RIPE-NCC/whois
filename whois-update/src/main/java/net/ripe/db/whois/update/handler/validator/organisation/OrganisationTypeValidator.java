@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -15,15 +16,11 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
-
 @Component
 public class OrganisationTypeValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
-
-    private static final CIString OTHER = ciString("OTHER");
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -36,7 +33,7 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
         final RpslAttribute attribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
         final CIString orgType = attribute.getCleanValue();
 
-        if (!OTHER.equals(orgType) && orgTypeHasChanged(update, orgType) && !subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
+        if (! OrgType.OTHER.getName().equals(orgType) && orgTypeHasChanged(update, orgType) && !subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
             updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(orgType));
         }
     }

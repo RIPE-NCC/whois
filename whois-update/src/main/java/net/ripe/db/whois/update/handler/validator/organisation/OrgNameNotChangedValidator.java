@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -30,7 +31,6 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
-    private static final CIString LIR = CIString.ciString("LIR");
     private static final Set<ObjectType> RESOURCE_OBJECT_TYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM);
 
     private final RpslObjectUpdateDao objectUpdateDao;
@@ -49,7 +49,7 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
         final RpslObject originalObject = update.getReferenceObject();
         final RpslObject updatedObject = update.getUpdatedObject();
 
-        if (LIR.equals(originalObject.getValueForAttribute(AttributeType.ORG_TYPE))) {
+        if (OrgType.LIR.getName().equals(originalObject.getValueForAttribute(AttributeType.ORG_TYPE))) {
             // See: LirRipeMaintainedAttributesValidator
             return;
         }
