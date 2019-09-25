@@ -82,6 +82,22 @@ public class AbuseCFinderTest {
     }
 
     @Test
+    public void inetnum_with_lir_org_reference_with_suspect_abusec() {
+        when(abuseValidationStatusDao.isSuspect(any(CIString.class))).thenReturn(true);
+        final RpslObject root = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\norg: ORG-TEST1\nmnt-by:RS1-MNT");
+        final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1");
+
+        final Ipv4Resource ipv4Resource = Ipv4Resource.parse(inetnum.getKey());
+        when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
+        when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG-TEST1"))).thenReturn(RpslObject.parse("organisation: ORG-TEST1\norg-type: LIR\nabuse-c: ABU-TEST"));
+        when(objectDao.getByKey(ObjectType.ROLE, ciString("ABU-TEST"))).thenReturn(RpslObject.parse("role: abuse role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: ABU-TEST"));
+
+        assertThat(subject.getAbuseContact(inetnum).get().getAbuseMailbox(), is("abuse@ripe.net"));
+
+        verifyZeroInteractions(maintainers);
+    }
+
+    @Test
     public void inetnum_with_abusec_and_org_reference_with_abusec() {
         final RpslObject root = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\norg: ORG-TEST1\nmnt-by:RS1-MNT");
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1\nabuse-c: AH1-TEST\n");
