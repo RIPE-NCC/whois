@@ -4,7 +4,9 @@ import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
+import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.Slf4jRequestLog;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -89,6 +91,7 @@ public class JettyBootstrap implements ApplicationService {
         final Server server = new Server(port);
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
+        server.setRequestLog(createRequestLog());
         server.start();
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
         LOGGER.info("Jetty started on port {}", this.port);
@@ -110,5 +113,14 @@ public class JettyBootstrap implements ApplicationService {
         } catch (InterruptedException e) {
             LOGGER.error("Stopping server", e);
         }
+    }
+
+    // Log requests to org.eclipse.jetty.server.RequestLog
+    private RequestLog createRequestLog() {
+        final Slf4jRequestLog requestLog = new Slf4jRequestLog();
+        requestLog.setExtended(true);
+        requestLog.setLogTimeZone("GMT");
+        requestLog.setLogLatency(true);
+        return requestLog;
     }
 }
