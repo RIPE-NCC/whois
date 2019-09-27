@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.DispatcherType;
+import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -119,7 +120,7 @@ public class JettyBootstrap implements ApplicationService {
     private RequestLog createRequestLog() {
         final Slf4jRequestLog requestLog = new Slf4jRequestLog();
         requestLog.setExtended(true);
-        requestLog.setLogTimeZone("GMT");
+        requestLog.setLogTimeZone(ZoneId.systemDefault().getId());
         requestLog.setLogLatency(true);
         return requestLog;
     }
