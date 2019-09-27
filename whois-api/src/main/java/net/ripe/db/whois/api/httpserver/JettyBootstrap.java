@@ -34,17 +34,6 @@ public class JettyBootstrap implements ApplicationService {
 
     private int port = 0;
 
-    @Value("${port.api}")
-    public void setPort(final int port) {
-        if (port > 0) {
-            this.port = port;
-        }
-    }
-
-    public int getPort() {
-        return port;
-    }
-
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
@@ -59,14 +48,29 @@ public class JettyBootstrap implements ApplicationService {
         server = createAndStartServer(port);
     }
 
+    @Value("${port.api}")
+    public void setPort(final int port) {
+        if (port > 0) {
+            this.port = port;
+        }
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public Server getServer() {
+        return server;
+    }
+
     // handler to serve static resources directly from jetty
-    ResourceHandler getStaticResourceHandler(String resourceBase) {
+    private ResourceHandler getStaticResourceHandler(String resourceBase) {
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setBaseResource(Resource.newClassPathResource(resourceBase));
         return resourceHandler;
     }
 
-    Server createAndStartServer(final int port) {
+    private Server createAndStartServer(final int port) {
         final WebAppContext context = new WebAppContext();
         context.setContextPath("/");
         context.setResourceBase("src/main/webapp");
