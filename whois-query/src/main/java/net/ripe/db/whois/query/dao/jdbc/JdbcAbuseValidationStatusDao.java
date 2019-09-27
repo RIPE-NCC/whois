@@ -9,7 +9,6 @@ import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
 @Repository
@@ -24,8 +23,8 @@ public class JdbcAbuseValidationStatusDao implements AbuseValidationStatusDao {
     }
 
     @Override
-    public boolean isSuspect(@Nullable final CIString address) {
-        return (address != null) && internalsTemplate.queryForObject(
+    public boolean isSuspect(final CIString address) {
+        return internalsTemplate.queryForObject(
                 "SELECT count(*) FROM abuse_email WHERE address = ? AND status = ?",
                 new Object[] { address.toString(), "SUSPECT" },
                 Integer.class) > 0;
