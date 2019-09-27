@@ -116,8 +116,7 @@ public class AbuseCFinder {
     }
 
     private boolean isLir(final RpslObject rpslObject) {
-        return (ObjectType.ORGANISATION.equals(rpslObject.getType()) &&
-            OrgType.LIR.getName().equals(rpslObject.getValueOrNullForAttribute(AttributeType.ORG_TYPE)));
+        return OrgType.getFor(rpslObject.getValueOrNullForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR;
     }
 
     @CheckForNull

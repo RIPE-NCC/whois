@@ -30,20 +30,23 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
             return;
         }
 
-        final RpslAttribute attribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
-        final CIString orgType = attribute.getCleanValue();
+        final RpslAttribute orgTypeAttribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
+        final CIString orgType = orgTypeAttribute.getCleanValue();
 
-        if (! OrgType.OTHER.getName().equals(orgType) && orgTypeHasChanged(update, orgType) && !subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
-            updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(orgType));
+        if ((OrgType.OTHER != OrgType.getFor(orgType)) &&
+                orgTypeHasChanged(update) &&
+                !subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
+            updateContext.addMessage(update, orgTypeAttribute, UpdateMessages.invalidMaintainerForOrganisationType(orgType));
         }
     }
 
-    private boolean orgTypeHasChanged(final PreparedUpdate update, final CIString orgTypeUpdatedObject) {
+    private boolean orgTypeHasChanged(final PreparedUpdate update) {
         if (update.getAction() == Action.CREATE) {
             return true;
         }
 
-        return !update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE).equals(orgTypeUpdatedObject);
+        return !update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE)
+            .equals(update.getUpdatedObject().getValueForAttribute(AttributeType.ORG_TYPE));
     }
 
     @Override

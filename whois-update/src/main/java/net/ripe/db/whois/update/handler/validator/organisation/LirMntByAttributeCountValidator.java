@@ -36,7 +36,7 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject originalObject = update.getReferenceObject();
-        if (! OrgType.LIR.getName().equals(originalObject.getValueForAttribute(AttributeType.ORG_TYPE))) {
+        if (!isLir(originalObject)) {
             return;
         }
 
@@ -52,6 +52,10 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
                 .stream()
                 .filter(mntby -> !maintainers.isRsMaintainer(mntby))
                 .collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    private boolean isLir(final RpslObject organisation) {
+        return OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR;
     }
 
     @Override

@@ -49,7 +49,7 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
         final RpslObject originalObject = update.getReferenceObject();
         final RpslObject updatedObject = update.getUpdatedObject();
 
-        if (OrgType.LIR.getName().equals(originalObject.getValueForAttribute(AttributeType.ORG_TYPE))) {
+        if (isLir(originalObject)) {
             // See: LirRipeMaintainedAttributesValidator
             return;
         }
@@ -67,6 +67,10 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
             final RpslAttribute orgNameAttribute = updatedObject.findAttribute(AttributeType.ORG_NAME);
             updateContext.addMessage(update, orgNameAttribute, UpdateMessages.cantChangeOrgName());
         }
+    }
+
+    private boolean isLir(final RpslObject organisation) {
+        return OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR;
     }
 
     private boolean isReferencedByRsMaintainedResource(final RpslObject rpslObject) {
