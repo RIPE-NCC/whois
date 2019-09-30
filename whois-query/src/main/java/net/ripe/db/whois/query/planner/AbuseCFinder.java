@@ -21,7 +21,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
@@ -115,8 +114,8 @@ public class AbuseCFinder {
         return parent != null ? findResponsibleLirOrgReference(parent) : null;
     }
 
-    private boolean isLir(final RpslObject rpslObject) {
-        return OrgType.getFor(rpslObject.getValueOrNullForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR;
+    private boolean isLir(@Nullable final RpslObject rpslObject) {
+        return (rpslObject != null) && OrgType.getFor(rpslObject.getValueOrNullForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR;
     }
 
     @CheckForNull
@@ -174,10 +173,10 @@ public class AbuseCFinder {
     }
 
     @Nullable
-    private RpslObject getAbuseC(final RpslObject rpslObject) {
-        if (rpslObject.containsAttribute(AttributeType.ABUSE_C)) {
+    private RpslObject getAbuseC(@Nullable final RpslObject rpslObject) {
+        if ((rpslObject != null) && rpslObject.containsAttribute(AttributeType.ABUSE_C)) {
             final RpslObject abuseCRole = getByKey(ObjectType.ROLE, rpslObject.getValueForAttribute(AttributeType.ABUSE_C));
-            if (abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
+            if ((abuseCRole != null) && abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
                 return abuseCRole;
             }
         }
@@ -208,21 +207,23 @@ public class AbuseCFinder {
         return (ipEntry != null) ? getById(ipEntry.getObjectId()) : null;
     }
 
-    @Nonnull
+    @Nullable
     private RpslObject getById(final int objectId) {
         try {
             return objectDao.getById(objectId);
         } catch (EmptyResultDataAccessException e) {
-            throw new IllegalStateException("Object does not exist: " + objectId);
+            LOGGER.warn("Object does not exist: {}", objectId);
+            return null;
         }
     }
 
-    @Nonnull
+    @Nullable
     private RpslObject getByKey(final ObjectType objectType, final CIString key) {
         try {
             return objectDao.getByKey(objectType, key);
         } catch (EmptyResultDataAccessException e) {
-            throw new IllegalStateException(objectType.getName() + " object does not exist: " + key);
+            LOGGER.warn("{} object does not exist: {}", objectType.getName(), key);
+            return null;
         }
     }
 }
