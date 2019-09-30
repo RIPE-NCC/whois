@@ -1,5 +1,13 @@
 # next
 
+# 1.95.3
+[api] Jetty request log
+[all] Support optional milliseconds in Crowd response. (#571)
+
+# 1.95.2
+[all] Refactored refreshing main and grs sources. (#574)
+[api] Apply ACL for version queries (#572)
+
 # 1.95.1
 [update] Don't perform SSO auth translation in Batch API
 [all] Use a Timestamp class (#569)
