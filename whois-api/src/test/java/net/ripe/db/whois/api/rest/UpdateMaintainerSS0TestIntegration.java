@@ -1,91 +1,42 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.io.ByteStreams;
+
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.api.rest.domain.ErrorMessage;
-import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.Source;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
-import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.IpRanges;
-import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
-import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.eclipse.jetty.http.HttpStatus;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.filter.EncodingFilter;
-import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Variant;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.zip.GZIPInputStream;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
-import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
-import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
-// FIXME: make this into a suite that runs twice: once with XML, once with JSON
 @Category(IntegrationTest.class)
 public class UpdateMaintainerSS0TestIntegration extends AbstractIntegrationTest {
 
