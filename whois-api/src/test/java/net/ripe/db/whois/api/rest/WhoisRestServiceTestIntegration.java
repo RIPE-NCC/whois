@@ -20,6 +20,7 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -3793,117 +3794,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("remarks", "updated")));
-    }
-
-    @Test
-    public void update_maintainer_with_crowd_token_succeeds() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 3000, false);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.REMARKS, "updated")).get();
-
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "valid-token")
-                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("remarks", "updated")));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null)));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
-        assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER-MNT").findAttributes(AttributeType.AUTH),
-                containsInAnyOrder(
-                        new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test"),
-                        new RpslAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124"))
-        );
-    }
-
-    @Test
-    public void update_maintainer_add_sso_with_sync_enabled_should_fail() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO test@ripe.net")).get();
-
-        try {
-            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "valid-token")
-                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
-        }
-    }
-
-    @Test
-    public void update_maintainer_remove_sso_with_sync_enabled_should_fail() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get();
-
-        try {
-            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "valid-token")
-                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
-        }
-    }
-
-    @Test
-    public void update_maintainer_update_sso_with_sync_enabled_should_fail() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get();
-
-        try {
-            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "valid-token")
-                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
-        }
-    }
-
-    @Test
-    public void update_maintainer_succeeds_syn_enabled_no_sso() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT-SYNC", 1000, true);
-
-        RpslObject MNT_SYNC = RpslObject.parse("" +
-                "mntner:      OWNER-MNT-SYNC\n" +
-                "descr:       Owner Maintainer\n" +
-                "admin-c:     TP1-TEST\n" +
-                "upd-to:      noreply@ripe.net\n" +
-                "auth:        SSO person@net.net\n" +
-                "mnt-by:      OWNER-MNT-SYNC\n" +
-                "source:      TEST");
-        databaseHelper.addObject(MNT_SYNC);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(MNT_SYNC).append(new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/")).get();
-
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT-SYNC")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "valid-token")
-                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/")));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
-        assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER-MNT-SYNC").findAttributes(AttributeType.AUTH),
-                containsInAnyOrder(
-                        new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test"),
-                        new RpslAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124"))
-        );
     }
 
     @Test
