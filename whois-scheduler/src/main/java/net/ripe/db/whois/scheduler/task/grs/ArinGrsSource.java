@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -32,6 +31,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -187,46 +187,35 @@ class ArinGrsSource extends GrsSource {
                 {"NetType", AttributeType.STATUS},
                 {"Source", AttributeType.SOURCE},
         }) {
-            addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-                @Override
-                public RpslAttribute apply(final RpslAttribute input) {
-                    return new RpslAttribute((AttributeType) mapped[1], input.getValue());
-                }
-            }, (String) mapped[0]);
+            addTransformFunction(input -> new RpslAttribute((AttributeType) mapped[1], input.getValue()), (String) mapped[0]);
         }
 
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
+        addTransformFunction(input -> {
                 return new RpslAttribute(AttributeType.ADDRESS, String.format("%s # %s", input.getValue(), input.getKey()));
-            }
         }, "City", "Country", "PostalCode", "Street", "State/Prov");
 
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                final String value = input.getCleanValue().toString();
+        addTransformFunction(input -> {
+            final String value = input.getCleanValue().toString();
 
-                // Fix IPv6 syntax
-                if (value.contains(":")) {
-                    final Matcher matcher = IPV6_SPLIT_PATTERN.matcher(value);
-                    if (matcher.find()) {
-                        final Ipv6Resource beginResource = Ipv6Resource.parse(matcher.group(1));
-                        final Ipv6Resource endResource = Ipv6Resource.parse(matcher.group(2));
-                        final Ipv6Resource ipv6Resource = new Ipv6Resource(beginResource.begin(), endResource.end());
+            // Fix IPv6 syntax
+            if (value.contains(":")) {
+                final Matcher matcher = IPV6_SPLIT_PATTERN.matcher(value);
+                if (matcher.find()) {
+                    final Ipv6Resource beginResource = Ipv6Resource.parse(matcher.group(1));
+                    final Ipv6Resource endResource = Ipv6Resource.parse(matcher.group(2));
+                    final Ipv6Resource ipv6Resource = new Ipv6Resource(beginResource.begin(), endResource.end());
 
-                        return new RpslAttribute(AttributeType.INET6NUM, ipv6Resource.toString());
-                    }
+                    return new RpslAttribute(AttributeType.INET6NUM, ipv6Resource.toString());
                 }
+            }
 
-                final IpInterval<?> ipInterval = IpInterval.parse(value);
-                if (ipInterval instanceof Ipv4Resource) {
-                    return new RpslAttribute(AttributeType.INETNUM, input.getValue());
-                } else if (ipInterval instanceof Ipv6Resource) {
-                    return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
-                } else {
-                    throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
-                }
+            final IpInterval<?> ipInterval = IpInterval.parse(value);
+            if (ipInterval instanceof Ipv4Resource) {
+                return new RpslAttribute(AttributeType.INETNUM, input.getValue());
+            } else if (ipInterval instanceof Ipv6Resource) {
+                return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
+            } else {
+                throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
             }
         }, "NetRange");
     }

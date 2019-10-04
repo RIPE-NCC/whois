@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.support;
 
-import com.google.common.base.Function;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public class TelnetWhoisClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TelnetWhoisClient.class);

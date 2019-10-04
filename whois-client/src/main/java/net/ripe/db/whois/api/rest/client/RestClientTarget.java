@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest.client;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -457,12 +456,7 @@ public class RestClientTarget {
     }
 
     private String printParams() {
-        return Joiner.on('&').join(Iterables.transform(params.keySet(), new Function<String, String>() {
-            @Override
-            public String apply(final String input) {
-                return String.format("%s=%s", input, params.get(input));
-            }
-        }));
+        return Joiner.on('&').join(Iterables.transform(params.keySet(), input -> String.format("%s=%s", input, params.get(input))));
     }
 
     private void setCookies(final Invocation.Builder request) {

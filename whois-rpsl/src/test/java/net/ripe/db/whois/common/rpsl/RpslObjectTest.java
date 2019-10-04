@@ -1,13 +1,11 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -775,16 +773,6 @@ public class RpslObjectTest {
     // helper methods
 
     private static Iterable<String> convertToString(final Iterable<CIString> c) {
-        return Iterables.transform(c, new Function<CIString, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable final CIString input) {
-                if (input == null) {
-                    return null;
-                }
-
-                return input.toString();
-            }
-        });
+        return Iterables.transform(c, input -> (input == null) ? null : input.toString());
     }
 }
