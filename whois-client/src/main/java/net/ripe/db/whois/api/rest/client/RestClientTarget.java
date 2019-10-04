@@ -5,7 +5,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rest.domain.*;
+import net.ripe.db.whois.api.rest.domain.AbuseContact;
+import net.ripe.db.whois.api.rest.domain.AbuseResources;
+import net.ripe.db.whois.api.rest.domain.ActionRequest;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -33,7 +38,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class RestClientTarget {
 
