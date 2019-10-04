@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.planner;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.IterableTransformer;
@@ -31,6 +30,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 // TODO [AK] Wrap related response objects (messages + rpsl) in a single response object
@@ -205,7 +205,7 @@ public class RpslResponseDecorator {
         }
 
         if (query.isBriefAbuseContact()) {
-            return Iterables.filter(Iterables.transform(objects, briefAbuseCFunction), Predicates.notNull());
+            return Iterables.filter(Iterables.transform(objects, briefAbuseCFunction), Objects::nonNull);
         }
 
         if (query.isKeysOnly()) {
