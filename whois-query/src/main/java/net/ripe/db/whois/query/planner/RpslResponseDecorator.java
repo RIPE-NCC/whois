@@ -168,7 +168,7 @@ public class RpslResponseDecorator {
 
         return Iterables.transform(objects, input -> {
             if (input instanceof RpslObject) {
-                filterAuthFunction.apply((RpslObject) input);
+                return filterAuthFunction.apply((RpslObject) input);
             }
 
             return input;
