@@ -2,12 +2,12 @@ package net.ripe.db.whois.common.support;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class TelnetWhoisClient {
@@ -67,8 +68,9 @@ public class TelnetWhoisClient {
      * @param timeoutMs timeout in milliseconds. 0 means never time out. Specify -1 to use system timeout.
      * @return
      */
+    @Nullable
     public String sendQuery(final String query, final Charset charset, final int timeoutMs) {
-        return sendQuery(query, passThroughFunction, charset, timeoutMs).orNull();
+        return sendQuery(query, passThroughFunction, charset, timeoutMs).orElse(null);
     }
 
     private final Function<BufferedReader, Optional<String>> passThroughFunction = new Function<BufferedReader, Optional<String>>() {
