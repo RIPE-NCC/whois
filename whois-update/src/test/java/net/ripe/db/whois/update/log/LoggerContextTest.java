@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.log;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
@@ -24,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -84,7 +84,7 @@ public class LoggerContextTest {
         });
 
         final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "001.test.txt.gz"))));
-        final String contents = new String(FileCopyUtils.copyToByteArray(is), Charsets.UTF_8);
+        final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
         assertThat(file.getName(), is("001.test.txt.gz"));
         assertThat(contents, is("test"));
@@ -115,7 +115,7 @@ public class LoggerContextTest {
         subject.remove();
 
         final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "000.audit.xml.gz"))));
-        final String contents = new String(FileCopyUtils.copyToByteArray(is), Charsets.UTF_8);
+        final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
         assertThat(contents, containsString("" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
@@ -156,7 +156,7 @@ public class LoggerContextTest {
         subject.remove();
 
         final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "000.audit.xml.gz"))));
-        final String contents = new String(FileCopyUtils.copyToByteArray(is), Charsets.UTF_8);
+        final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
         assertThat(contents, containsString("" +
                 "            <exception>\n" +

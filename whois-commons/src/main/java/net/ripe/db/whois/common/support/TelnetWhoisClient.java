@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.support;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.slf4j.Logger;
@@ -15,6 +14,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +23,7 @@ public class TelnetWhoisClient {
 
     public static final int DEFAULT_PORT = 43;
     public static final String DEFAULT_HOST = "localhost";
-    public static final Charset DEFAULT_CHARSET = Charsets.ISO_8859_1;
+    public static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
     private static final int DEFAULT_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(5);
 
     private final String host;

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
@@ -9,9 +8,15 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -179,7 +184,7 @@ public class RpslObjectTest {
     }
 
     private byte[] bytesFrom(String input) {
-        return input.getBytes(Charsets.ISO_8859_1);
+        return input.getBytes(StandardCharsets.ISO_8859_1);
     }
 
     private void parseAndAssign(String input) {

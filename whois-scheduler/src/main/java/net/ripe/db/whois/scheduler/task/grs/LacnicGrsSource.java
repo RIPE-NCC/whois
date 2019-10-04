@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -36,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -121,7 +121,7 @@ class LacnicGrsSource extends GrsSource {
         try {
             is = new FileInputStream(file);
 
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             handleLines(reader, new LineHandler() {
                 @Override
                 public void handleLines(final List<String> lines) {

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -28,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +80,7 @@ class ArinGrsSource extends GrsSource {
                 return;
             }
 
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntry), Charsets.UTF_8));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntry), StandardCharsets.UTF_8));
             handleLines(reader, new LineHandler() {
                 @Override
                 public void handleLines(final List<String> lines) {
