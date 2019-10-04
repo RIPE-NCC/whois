@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -26,6 +25,7 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.MNTNER);
+    public static final String REST_API = "rest api";
 
     private final MaintainerSyncStatusDao maintainerSyncStatusDao;
     private final IpRanges ipranges;
@@ -43,7 +43,7 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
             updateContext.addMessage(update, UpdateMessages.originIsMissing());
         }
 
-        if (ipranges.isTrusted(IpInterval.parse(origin.getFrom()))) {
+        if(!isSsoUpdateRequest(update)) {
             return;
         }
 
@@ -52,9 +52,15 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
             return;
         }
 
-        if(update.getDifferences(AttributeType.AUTH).stream().anyMatch(auth -> Pattern.compile("SSO\\s+(.*\\S)").matcher(auth.toString()).matches())) {
-            updateContext.addMessage(update, UpdateMessages.updatingRipeMaintainerSSOForbidden());
+        if(REST_API.equals(origin.getName()) && ipranges.isTrusted(IpInterval.parse(origin.getFrom()))) {
+            return;
         }
+
+        updateContext.addMessage(update, UpdateMessages.updatingRipeMaintainerSSOForbidden());
+    }
+
+    private boolean isSsoUpdateRequest(PreparedUpdate update) {
+        return update.getDifferences(AttributeType.AUTH).stream().anyMatch(auth -> Pattern.compile("SSO\\s+(.*\\S)").matcher(auth.toString()).matches());
     }
 
     @Override
