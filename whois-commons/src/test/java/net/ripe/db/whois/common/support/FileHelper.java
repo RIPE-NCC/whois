@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.support;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -18,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPOutputStream;
 
 public class FileHelper {
@@ -56,7 +56,7 @@ public class FileHelper {
 
         final FileOutputStream fileOutputStream = new FileOutputStream(gzipFile);
         try {
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), Charsets.ISO_8859_1));
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), StandardCharsets.ISO_8859_1));
             writer.write(content);
             writer.flush();
             writer.close();

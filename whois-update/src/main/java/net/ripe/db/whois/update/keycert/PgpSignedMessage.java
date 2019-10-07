@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.keycert;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.DateUtil;
 import org.bouncycastle.bcpg.ArmoredInputStream;
@@ -20,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
@@ -55,7 +55,7 @@ public final class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String signedContent, final String signature) {
-        return parse(signedContent, signature, Charsets.ISO_8859_1);
+        return parse(signedContent, signature, StandardCharsets.ISO_8859_1);
     }
 
     public static PgpSignedMessage parse(final String signedContent, final String signature, final Charset charset) {
@@ -80,7 +80,7 @@ public final class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String clearText) {
-        return parse(clearText, Charsets.ISO_8859_1);
+        return parse(clearText, StandardCharsets.ISO_8859_1);
     }
 
     public static PgpSignedMessage parse(final String clearText, final Charset charset) {

@@ -1,11 +1,11 @@
 package net.ripe.db.whois.common.domain;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.springframework.util.DigestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Set;
 
@@ -47,6 +47,6 @@ public final class User {
     }
 
     private static String getHash(final String text) {
-        return DigestUtils.md5DigestAsHex(text.getBytes(Charsets.UTF_8));
+        return DigestUtils.md5DigestAsHex(text.getBytes(StandardCharsets.UTF_8));
     }
 }
