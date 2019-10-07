@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.pipeline;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -21,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,7 +38,7 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
 
     private final ReadTimeoutHandler readTimeoutHandler = new ReadTimeoutHandler(TIMER, TIMEOUT_SECONDS, TimeUnit.SECONDS);
     private final WriteTimeoutHandler writeTimeoutHandler = new WriteTimeoutHandler(TIMER, TIMEOUT_SECONDS, TimeUnit.SECONDS);
-    private final StringDecoder stringDecoder = new StringDecoder(Charsets.UTF_8);
+    private final StringDecoder stringDecoder = new StringDecoder(StandardCharsets.UTF_8);
 
     private final ExecutionHandler executionHandler = new ExecutionHandler(new OrderedMemoryAwareThreadPoolExecutor(
             POOL_SIZE, MEMORY_SIZE_UNLIMITED, MEMORY_SIZE_UNLIMITED, 30, TimeUnit.SECONDS, new ThreadFactory() {

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.iptree;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -113,12 +112,7 @@ public class IpTreeUpdater {
     }
 
     public void rebuild(final String source) {
-        for (SourceConfiguration sourceConfiguration : Iterables.filter(sourceConfigurationsForRebuild, new Predicate<SourceConfiguration>() {
-            @Override
-            public boolean apply(final SourceConfiguration input) {
-                return input.getSource().getName().contains(source);
-            }
-        })) {
+        for (SourceConfiguration sourceConfiguration : Iterables.filter(sourceConfigurationsForRebuild, input -> input.getSource().getName().contains(source))) {
             LOGGER.info("Rebuilding IP trees for {}", sourceConfiguration);
             final Stopwatch stopwatch = Stopwatch.createStarted();
             ipTreeCacheManager.rebuild(sourceConfiguration);

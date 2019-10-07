@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -50,6 +49,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Iterator;
 import java.util.Map;
@@ -280,7 +280,7 @@ public class SyncUpdatesService {
         }
 
         // application/x-www-form-urlencoded is UTF-8 by default
-        return Charsets.UTF_8;
+        return StandardCharsets.UTF_8;
     }
 
     @Nullable
