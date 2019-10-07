@@ -53,6 +53,7 @@ public class AbuseCFinder {
             return Optional.empty();
         }
 
+        // if the abuse-c address is suspect, then contact the LIR instead
         final boolean suspect = abuseValidationStatusDao.isSuspect(role.getValueForAttribute(AttributeType.ABUSE_MAILBOX));
 
         return Optional.of(new AbuseContact(
@@ -66,52 +67,35 @@ public class AbuseCFinder {
     @Nullable
     private CIString getOrgToContact(final RpslObject rpslObject, final boolean suspect) {
         if (suspect) {
-            final CIString lir = findResponsibleLirOrgReference(rpslObject);
+            final CIString lir = findResponsibleOrgReference(rpslObject, true);
             if (lir != null) {
                 return lir;
             }
         }
 
-        return findResponsibleOrgReference(rpslObject);
+        return findResponsibleOrgReference(rpslObject, false);
     }
 
     @Nullable
-    private CIString findResponsibleOrgReference(final RpslObject rpslObject) {
-        if (rpslObject.containsAttribute(AttributeType.SPONSORING_ORG)) {
-            return rpslObject.getValueForAttribute(AttributeType.SPONSORING_ORG);
-        }
-
-        if (rpslObject.containsAttribute(AttributeType.ORG)) {
-            return rpslObject.getValueForAttribute(AttributeType.ORG);
-        }
-
-        if (rpslObject.getType() != ObjectType.INETNUM && rpslObject.getType() != ObjectType.INET6NUM) {
-            return null;
-        }
-
-        final RpslObject parent = getParentObject(rpslObject);
-        return parent != null ? findResponsibleOrgReference(parent) : null;
-    }
-
-    @Nullable
-    private CIString findResponsibleLirOrgReference(final RpslObject rpslObject) {
+    private CIString findResponsibleOrgReference(final RpslObject rpslObject, final boolean findLir) {
         if (rpslObject.containsAttribute(AttributeType.SPONSORING_ORG)) {
             return rpslObject.getValueForAttribute(AttributeType.SPONSORING_ORG);
         }
 
         final CIString org = rpslObject.getValueOrNullForAttribute(AttributeType.ORG);
-        if (org != null) {
-            if (isLir(getByKey(ObjectType.ORGANISATION, org))) {
-                return org;
-            }
+        if ((org != null) &&
+            (!findLir || isLir(getByKey(ObjectType.ORGANISATION, org)))) {
+            return org;
         }
 
-        if (rpslObject.getType() != ObjectType.INETNUM && rpslObject.getType() != ObjectType.INET6NUM) {
-            return null;
+        switch (rpslObject.getType()) {
+            case INETNUM:
+            case INET6NUM:
+                final RpslObject parent = getParentObject(rpslObject);
+                return parent != null ? findResponsibleOrgReference(parent, findLir) : null;
+            default:
+                return null;
         }
-
-        final RpslObject parent = getParentObject(rpslObject);
-        return parent != null ? findResponsibleLirOrgReference(parent) : null;
     }
 
     private boolean isLir(@Nullable final RpslObject rpslObject) {
@@ -164,8 +148,8 @@ public class AbuseCFinder {
     }
 
     @Nullable
-    private RpslObject getOrgAbuseC(final RpslObject rpslObject) {
-        if (rpslObject.containsAttribute(AttributeType.ORG)) {
+    private RpslObject getOrgAbuseC(@Nullable final RpslObject rpslObject) {
+        if ((rpslObject != null) && rpslObject.containsAttribute(AttributeType.ORG)) {
             final RpslObject organisation = getByKey(ObjectType.ORGANISATION, rpslObject.getValueForAttribute(AttributeType.ORG));
             return getAbuseC(organisation);
         }
