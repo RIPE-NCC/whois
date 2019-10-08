@@ -39,7 +39,6 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
