@@ -1,19 +1,27 @@
 package net.ripe.db.whois.update.keycert;
 
-import com.google.common.base.Charsets;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PgpSignedMessageTest {
+
+    @Mock
+    private DateTimeProvider dateTimeProvider;
 
     @Test
     public void isEquals() {
@@ -170,6 +178,13 @@ public class PgpSignedMessageTest {
         final boolean result = pgpSignedMessage.verify(getPublicKey_5763950D());
 
         assertThat(result, is(true));
+
+// TODO: [ES] fragile tests fails in different timezone
+//        // signing time was 2015-11-19T13:35:52.000
+//        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2015-11-19T14:34:52.000"));
+//        assertThat(pgpSignedMessage.verifySigningTime(dateTimeProvider), is(true));
+//        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2015-11-19T14:36:52.000"));
+//        assertThat(pgpSignedMessage.verifySigningTime(dateTimeProvider), is(false));
     }
 
     @Test
@@ -403,7 +418,7 @@ public class PgpSignedMessageTest {
                 "1rHkHnYy6gEcaO37/M9GsbKP7xoGJfzabw9xoU/hVoEXvBl+NSbDgVbfol4hkVQb\n" +
                 "/uMu1kyTSjDpuQX8iOsorW7w+cAFGN3pS6mUo+5qIJI5SjnU8XZLl6SRe5FDnuc=\n" +
                 "=Cqk0\n" +
-                "-----END PGP SIGNATURE-----", Charsets.ISO_8859_1);
+                "-----END PGP SIGNATURE-----", StandardCharsets.ISO_8859_1);
 
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
     }
@@ -461,7 +476,7 @@ public class PgpSignedMessageTest {
                 "QuSCFQpkwx56H3B4emnILLWp0l/19AFkQXdbFJNfB9xndBwzhgfOobz9RpuF5pBI\n" +
                 "DBXkWzwkb/+qHTcixxaQQrjC5EH6hJKFF0YBuF4pfCC2bU81zSEXHIaEwBf7CQA=\n" +
                 "=/8Rc\n" +
-                "-----END PGP SIGNATURE-----", Charsets.UTF_8);
+                "-----END PGP SIGNATURE-----", StandardCharsets.UTF_8);
 
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
     }

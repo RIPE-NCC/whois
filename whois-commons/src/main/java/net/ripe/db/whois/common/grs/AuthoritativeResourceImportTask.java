@@ -1,9 +1,9 @@
 package net.ripe.db.whois.common.grs;
 
-import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EmbeddedValueResolverAware;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 
@@ -24,7 +25,10 @@ import java.util.Set;
 
 @Component
 public class AuthoritativeResourceImportTask implements DailyScheduledTask, EmbeddedValueResolverAware {
+
     private static final Logger logger = LoggerFactory.getLogger(AuthoritativeResourceImportTask.class);
+
+    protected static final String TASK_NAME = "AuthoritativeResourceImport";
     private static final Splitter PROPERTY_LIST_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     private final ResourceDataDao resourceDataDao;
@@ -39,12 +43,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
                                            final Downloader downloader,
                                            @Value("${dir.grs.import.download:}") final String downloadDir)
     {
-        this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), new Function<String, String>() {
-            @Override
-            public String apply(final String input) {
-                return input.toLowerCase().replace("-grs", "");
-            }
-        }));
+        this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), input -> input.toLowerCase().replace("-grs", "")));
         this.resourceDataDao = resourceDataDao;
         this.downloader = downloader;
         this.downloadDir = downloadDir;
@@ -55,7 +54,12 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
         this.valueResolver = valueResolver;
     }
 
+    /**
+     * Run at 00.15 so we don't miss the the delegated stats file which is normally published around midnight.
+     */
     @Override
+    @Scheduled(cron = "0 15 0 * * *")
+    @SchedulerLock(name = TASK_NAME)
     public void run() {
         for (final String sourceName : sourceNames) {
             try {

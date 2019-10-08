@@ -210,7 +210,7 @@ public class InternalUpdatePerformer {
     }
 
     private String getRequestId(final String remoteAddress) {
-        return String.format("rest_%s_%s", remoteAddress, dateTimeProvider.getNanoTime());
+        return String.format("rest_%s_%s", remoteAddress, dateTimeProvider.getElapsedTime());
     }
 
     public void setSsoSessionToContext(final UpdateContext updateContext, final String ssoToken) {

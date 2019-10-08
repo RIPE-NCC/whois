@@ -13,6 +13,21 @@
     <import resource="applicationContext-api.xml"/>
     <context:component-scan base-package="net.ripe.db.whois.scheduler"/>
 
-    <task:scheduler id="taskExecutor" pool-size="10"/>
-    <task:annotation-driven scheduler="taskExecutor"/>
+    <bean id="scheduler" class="net.javacrumbs.shedlock.spring.SpringLockableTaskSchedulerFactoryBean">
+        <constructor-arg><task:scheduler id="sch" pool-size="10"/></constructor-arg>
+        <constructor-arg>
+            <bean class="net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider">
+                <constructor-arg ref="internalsDataSource"/>
+            </bean>
+        </constructor-arg>
+        <!-- when a node dies unexpectedly the job lock is held for at most 23h -->
+        <constructor-arg name="defaultLockAtMostFor">
+            <bean class="java.time.Duration" factory-method="ofHours">
+                <constructor-arg value="23"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <task:annotation-driven scheduler="scheduler"/>
+
 </beans>

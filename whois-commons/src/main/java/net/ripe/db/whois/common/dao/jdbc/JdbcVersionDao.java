@@ -2,11 +2,13 @@ package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.dao.jdbc.domain.VersionInfoRowMapper;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,9 +106,8 @@ public class JdbcVersionDao implements VersionDao {
 
      @Nullable
      @Override
-     public List<VersionInfo> getVersionsForTimestamp(final ObjectType type, final String searchKey, final long timestampInMilliseconds) {
+     public List<VersionInfo> getVersionsForTimestamp(final ObjectType type, final String searchKey, final VersionDateTime timestamp) {
         final List<Integer> objectIds = getObjectIds(type, searchKey);
-        final long timestamp = timestampInMilliseconds / 1000L;
 
         if (objectIds.isEmpty()) {
             return null;
@@ -114,7 +115,7 @@ public class JdbcVersionDao implements VersionDao {
 
         final MapSqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("objectIds", objectIds)
-                .addValue("cutofTime", timestamp);
+                .addValue("cutoffTime", Timestamp.from(timestamp.getTimestamp()).getValue());
 
         // need named jdbc template to correctly resolve objectids in the IN sql part.
         final NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
@@ -140,7 +141,7 @@ public class JdbcVersionDao implements VersionDao {
                 "    WHERE serials.object_id IN (:objectIds) " +
                 "    ORDER BY timestamp DESC, serials.object_id DESC, serials.sequence_id DESC " +
                 "  ) AS temp " +
-                "WHERE temp.timestamp=:cutofTime ", parameters, new VersionInfoRowMapper()));
+                "WHERE temp.timestamp=:cutoffTime ", parameters, new VersionInfoRowMapper()));
         return versionInfos;
     }
 }

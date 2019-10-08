@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import org.hamcrest.Matchers;
@@ -16,6 +15,7 @@ import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
@@ -89,13 +89,13 @@ public class ExportFileWriterFactoryTest {
         final File currentSerialFile = new File(folder.getRoot(), "dbase/RIPE.CURRENTSERIAL");
         assertThat(currentSerialFile.exists(), Matchers.is(true));
 
-        final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), Charsets.ISO_8859_1);
+        final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);
         assertThat(savedSerial, Matchers.is(String.valueOf(LAST_SERIAL)));
 
         final File newSerialFile = new File(folder.getRoot(), "dbase_new/RIPE.CURRENTSERIAL");
         assertThat(newSerialFile.exists(), Matchers.is(true));
 
-        final String newSavedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), Charsets.ISO_8859_1);
+        final String newSavedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);
         assertThat(newSavedSerial, Matchers.is(String.valueOf(LAST_SERIAL)));
     }
 }

@@ -1,14 +1,23 @@
 package net.ripe.db.whois.update.keycert;
 
+import net.ripe.db.whois.common.DateTimeProvider;
 import org.bouncycastle.x509.util.StreamParsingException;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.security.cert.X509Certificate;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+@RunWith(MockitoJUnitRunner.class)
 public class X509SignedMessageTest {
+
+    @Mock
+    private DateTimeProvider dateTimeProvider;
+
 
     @Test
     public void verify_smime_plaintext() throws Exception {
@@ -85,6 +94,13 @@ public class X509SignedMessageTest {
         final X509SignedMessage subject = new X509SignedMessage(signedData, signature);
 
         assertThat(subject.verify(certificate), is(true));
+
+// TODO: [ES] fragile tests fails in different timezone
+//        // signing time was 2013-01-03T09:33:44.000
+//        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2013-01-03T10:32:44.000"));
+//        assertThat(subject.verifySigningTime(dateTimeProvider), is(true));
+//        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2013-01-03T10:34:44.000"));
+//        assertThat(subject.verifySigningTime(dateTimeProvider), is(false));
     }
 
     @Test

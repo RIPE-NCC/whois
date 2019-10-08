@@ -1,6 +1,5 @@
 package net.ripe.db.whois.nrtm;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -13,6 +12,7 @@ import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,8 +26,8 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
     private static final long TIMEOUT_SECONDS = 60L;
     private static final int POOL_SIZE = 32;
 
-    private final StringDecoder stringDecoder = new StringDecoder(Charsets.UTF_8);
-    private final StringEncoder stringEncoder = new StringEncoder(Charsets.UTF_8);
+    private final StringDecoder stringDecoder = new StringDecoder(StandardCharsets.UTF_8);
+    private final StringEncoder stringEncoder = new StringEncoder(StandardCharsets.UTF_8);
 
     protected final ExecutionHandler executionHandler = new ExecutionHandler(
         new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, MEMORY_SIZE_UNLIMITED, MEMORY_SIZE_UNLIMITED, TIMEOUT_SECONDS, TimeUnit.SECONDS, new ThreadFactory() {

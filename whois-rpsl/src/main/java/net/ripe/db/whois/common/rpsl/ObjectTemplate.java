@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -10,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -591,13 +589,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         this.orderPosition = orderPosition;
 
         this.attributeTemplates = ImmutableList.copyOf(attributeTemplates);
-        this.allAttributeTypes = Collections.unmodifiableSet(Sets.newLinkedHashSet(Iterables.transform(this.attributeTemplates, new Function<AttributeTemplate, AttributeType>() {
-            @Nullable
-            @Override
-            public AttributeType apply(final AttributeTemplate input) {
-                return input.getAttributeType();
-            }
-        })));
+        this.allAttributeTypes = Collections.unmodifiableSet(Sets.newLinkedHashSet(Iterables.transform(this.attributeTemplates, input -> input.getAttributeType())));
 
         this.attributeTemplateMap = Maps.newEnumMap(AttributeType.class);
         for (final AttributeTemplate attributeTemplate : attributeTemplates) {

@@ -2,8 +2,6 @@ package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
@@ -18,11 +16,9 @@ import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
-import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
-import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -32,19 +28,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -52,35 +45,18 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
+public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired
     FullTextIndex fullTextIndex;
     @Autowired
     TestWhoisLog queryLog;
-
-    @BeforeClass
-    public static void rdapSetProperties() {
-        System.setProperty("rdap.sources", "TEST-GRS");
-        System.setProperty("rdap.redirect.test", "https://rdap.test.net");
-        System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
-
-        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
-    }
-
-    @AfterClass
-    public static void rdapClearProperties() {
-        System.clearProperty("rdap.sources");
-        System.clearProperty("rdap.redirect.test");
-        System.clearProperty("rdap.public.baseUrl");
-        System.clearProperty("dir.fulltext.index");
-    }
 
     @Before
     public void setup() {
@@ -825,7 +801,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "unknown type");
+            assertErrorTitle(e, "unknown objectType");
         }
     }
 
@@ -1096,7 +1072,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             final Entity response = e.getResponse().readEntity(Entity.class);
-            assertThat(response.getErrorTitle(), is("unknown type"));
+            assertThat(response.getErrorTitle(), is("unknown objectType"));
         }
     }
 
@@ -1260,20 +1236,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_entity_multiple_result_throw_error() {
-
+    public void lookup_for_primary_key_for_entity() {
         databaseHelper.addObject("" +
-                "person:        MNTNER_PERSON\n" +
-                "address:       Singel 258\n" +
-                "phone:         +31-1234567890\n" +
-                "e-mail:        noreply@ripe.net\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "nic-hdl:       TP2-MULTI\n" +
-                "remarks:       remark\n" +
-                "source:        TEST");
-
-        databaseHelper.addObject("" +
-                "mntner:        TP2-MULTI\n" +
+                "mntner:        AZRT\n" +
                 "descr:         Owner Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
@@ -1282,16 +1247,31 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "referral-by:   OWNER-MNT\n" +
                 "source:        TEST");
 
-        try {
-          createResource("entity/TP2-MULTI")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Entity.class);
+        databaseHelper.addObject("" +
+                "role:          AZRT ABUSE\n" +
+                "address:       Singel\n" +
+                "e-mail:        dbtest@ripe.net\n" +
+                "admin-c:       PP1-TEST\n" +
+                "tech-c:        PP1-TEST\n" +
+                "nic-hdl:       FR2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
 
-          fail();                                                                       // TODO: multiple matches will be fixed separately
-        } catch (InternalServerErrorException e) {
-            final Entity entity = e.getResponse().readEntity(Entity.class);
-            assertThat(entity.getErrorTitle(), is("Unexpected result size: 2"));
-        }
+        databaseHelper.addObject("" +
+                "role:          AZRT OPS\n" +
+                "address:       Singel\n" +
+                "e-mail:        dbtest@ripe.net\n" +
+                "admin-c:       PP1-TEST\n" +
+                "tech-c:        PP1-TEST\n" +
+                "nic-hdl:       FR3-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        Entity entity = createResource("entity/AZRT")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+
+        assertThat(entity.getHandle(), equalTo("AZRT"));
     }
 
     @Test
@@ -1895,28 +1875,4 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
 
-    // helper methods
-
-    private WebTarget createResource(final String path) {
-        return RestTest.target(getPort(), String.format("rdap/%s", path));
-    }
-
-    private String syncupdate(String data) {
-        WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
-        return resource.request()
-                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
-                        MediaType.APPLICATION_FORM_URLENCODED),
-                        String.class);
-
-    }
-
-    private void assertErrorTitle(final ClientErrorException exception, final String title) {
-        final Entity entity = exception.getResponse().readEntity(Entity.class);
-        assertThat(entity.getErrorTitle(), is(title));
-    }
-
-    private void assertErrorStatus(final ClientErrorException exception, final int status) {
-        final Entity entity = exception.getResponse().readEntity(Entity.class);
-        assertThat(entity.getErrorCode(), is(status));
-    }
 }

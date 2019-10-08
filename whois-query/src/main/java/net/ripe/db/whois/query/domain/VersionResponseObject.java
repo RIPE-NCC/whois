@@ -3,7 +3,7 @@ package net.ripe.db.whois.query.domain;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.query.VersionDateTime;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 
 import java.io.IOException;
 import java.io.OutputStream;

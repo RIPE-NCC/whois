@@ -8,7 +8,10 @@ import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.domain.ReservedAutnum;
 import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import org.springframework.stereotype.Component;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
@@ -16,20 +19,22 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 @Component
 public class RdapRequestValidator {
 
-    private final RdapExceptionMapper rdapExceptionMapper;
     private final ReservedAutnum reservedAutnum;
 
     @Autowired
-    public RdapRequestValidator(final RdapExceptionMapper rdapExceptionMapper, final ReservedAutnum reservedAutnum) {
-        this.rdapExceptionMapper = rdapExceptionMapper;
+    public RdapRequestValidator(final ReservedAutnum reservedAutnum) {
         this.reservedAutnum = reservedAutnum;
     }
 
     public void validateDomain(final String key) {
+        if (isEmpty(key)) {
+            throw new BadRequestException("empty lookup term");
+        }
+
         try {
             Domain.parse(key);
         } catch (AttributeParseException e) {
-            throw rdapExceptionMapper.notFound("RIPE NCC does not support forward domain queries.");
+            throw new NotFoundException("RIPE NCC does not support forward domain queries.");
         }
     }
 
@@ -37,11 +42,11 @@ public class RdapRequestValidator {
         try {
             IpInterval.parse(key);
         } catch (IllegalArgumentException e) {
-            throw rdapExceptionMapper.badRequest("Invalid syntax.");
+            throw new BadRequestException("Invalid syntax.");
         }
 
         if (rawUri.contains("//")) {
-            throw rdapExceptionMapper.badRequest("Invalid syntax.");
+            throw new BadRequestException("Invalid syntax.");
         }
     }
 
@@ -49,18 +54,18 @@ public class RdapRequestValidator {
         try {
             AutNum.parse(key);
         } catch (AttributeParseException e) {
-            throw rdapExceptionMapper.badRequest("Invalid syntax.");
+            throw new BadRequestException("Invalid syntax.");
         }
     }
 
     public void validateEntity(final String key) {
         if (key.toUpperCase().startsWith("ORG-")) {
             if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
-                throw rdapExceptionMapper.badRequest("Invalid syntax.");
+                throw new BadRequestException("Invalid syntax.");
             }
         } else {
             if (!AttributeType.MNTNER.isValidValue(MNTNER, key)) {
-                throw rdapExceptionMapper.badRequest("Invalid syntax.");
+                throw new BadRequestException("Invalid syntax.");
             }
         }
     }

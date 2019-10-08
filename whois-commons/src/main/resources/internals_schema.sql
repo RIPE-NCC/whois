@@ -1,12 +1,3 @@
-DROP TABLE IF EXISTS `scheduler`;
-CREATE TABLE `scheduler` (
-  `date` date NOT NULL,
-  `task` varchar(256) NOT NULL,
-  `host` varchar(50) NOT NULL,
-  `done` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`date`, `task`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 -- TODO: the id columns is only there because of a mysql bug (see http://bugs.mysql.com/bug.php?id=58481http://bugs.mysql.com/bug.php?id=58481)
 -- TODO: it should be dropped once we manage to upgrade
 DROP TABLE IF EXISTS `authoritative_resource`;
@@ -70,6 +61,16 @@ CREATE TABLE `default_maintainer_history` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+DROP TABLE IF EXISTS `default_maintainer_sync_history`;
+CREATE TABLE `default_maintainer_sync_history` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `org` varchar(256) NOT NULL,
+    `mntner` varchar(256) NOT NULL,
+    `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `email` varchar(256) NOT NULL,
+    `is_synchronised` tinyint(1) DEFAULT 0,PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 DROP TABLE IF EXISTS `abuse_email`;
 CREATE TABLE `abuse_email` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -115,3 +116,11 @@ CREATE TABLE `abuse_ticket` (
 CREATE INDEX abuse_ticket_org_id_i ON abuse_ticket(org_id);
 CREATE UNIQUE INDEX abuse_ticket_ticket_id_i on abuse_ticket(ticket_id);
 
+DROP TABLE IF EXISTS `shedlock`;
+CREATE TABLE `shedlock` (
+    `name` VARCHAR(64),
+    `lock_until` TIMESTAMP(3) NULL,
+    `locked_at` TIMESTAMP(3) NULL,
+    `locked_by`  VARCHAR(255),
+    PRIMARY KEY (`name`)
+)  ENGINE=InnoDB DEFAULT CHARSET=latin1;

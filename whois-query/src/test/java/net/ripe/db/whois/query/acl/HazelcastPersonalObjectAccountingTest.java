@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import org.joda.time.LocalDate;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -13,6 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.time.LocalDate;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -41,7 +41,7 @@ public class HazelcastPersonalObjectAccountingTest {
         subject.resetAccounting();
 
         ipv4Address = Inet4Address.getLocalHost();
-        when(dateTimeProvider.getCurrentDate()).thenReturn(new LocalDate());
+        when(dateTimeProvider.getCurrentDate()).thenReturn(LocalDate.now());
     }
 
     @Test

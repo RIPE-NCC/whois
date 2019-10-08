@@ -1,11 +1,10 @@
 package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.Lists;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +18,7 @@ public class BlockEventsTest {
 
     @Test
     public void test_events_empty() {
-        final BlockEvents blockEvents = new BlockEvents(prefix, Collections.<BlockEvent>emptyList());
+        final BlockEvents blockEvents = new BlockEvents(prefix, Collections.emptyList());
         assertThat(blockEvents.getPrefix(), is(prefix));
         assertThat(blockEvents.getTemporaryBlockCount(), is(0));
     }
@@ -65,21 +64,21 @@ public class BlockEventsTest {
     }
 
     @Test
-    public void test_permanent_block_limit_reached_9() throws Exception {
+    public void test_permanent_block_limit_reached_9() {
         final BlockEvents blockEvents = createBlockEvents(prefix, 9);
 
         assertThat(blockEvents.isPermanentBlockRequired(), is(false));
     }
 
     @Test
-    public void test_permanent_block_limit_reached_10() throws Exception {
+    public void test_permanent_block_limit_reached_10() {
         final BlockEvents blockEvents = createBlockEvents(prefix, 10);
 
         assertThat(blockEvents.isPermanentBlockRequired(), is(true));
     }
 
     @Test
-    public void test_permanent_block_limit_reached_50() throws Exception {
+    public void test_permanent_block_limit_reached_50() {
         final BlockEvents blockEvents = createBlockEvents(prefix, 50);
 
         assertThat(blockEvents.isPermanentBlockRequired(), is(true));
@@ -95,7 +94,9 @@ public class BlockEventsTest {
     }
 
     private static BlockEvent createBlockEvent(final int minute, final BlockEvent.Type type) {
-        final LocalDateTime time = new LocalDate().toLocalDateTime(new LocalTime(0, minute));
+        final LocalDateTime time = LocalDateTime.now()
+                                        .with(ChronoField.HOUR_OF_DAY, 0L)
+                                        .with(ChronoField.MINUTE_OF_HOUR, minute);
         return new BlockEvent(time, 5000, type);
     }
 

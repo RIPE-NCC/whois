@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.Message;
@@ -125,12 +124,7 @@ public final class UpdateMessages {
     // NOTE: this errormessage is being used by webupdates.
     public static Message authenticationFailed(final RpslObject object, final AttributeType attributeType, final Iterable<RpslObject> candidates) {
         final CharSequence joined = LIST_JOINED.join(
-                Iterables.transform(candidates, new Function<RpslObject, CharSequence>() {
-                    @Override
-                    public CharSequence apply(final RpslObject input) {
-                        return input == null ? "" : input.getKey();
-                    }
-                }));
+                Iterables.transform(candidates,input -> input == null ? "" : input.getKey()));
 
         return new Message(Type.ERROR, "" +
                 "Authorisation for [%s] %s failed\n" +
@@ -147,12 +141,7 @@ public final class UpdateMessages {
     // NOTE: this errormessage is being used by webupdates.
     public static Message parentAuthenticationFailed(final RpslObject object, final AttributeType attributeType, final Iterable<RpslObject> candidates) {
         final CharSequence joined = LIST_JOINED.join(
-                Iterables.transform(candidates, new Function<RpslObject, CharSequence>() {
-                    @Override
-                    public CharSequence apply(final RpslObject input) {
-                        return input == null ? "" : input.getKey();
-                    }
-                }));
+                Iterables.transform(candidates, input -> input == null ? "" : input.getKey()));
 
         return new Message(Type.ERROR, "" +
                 "Authorisation for parent [%s] %s failed\n" +
@@ -332,6 +321,10 @@ public final class UpdateMessages {
 
     public static Message assignmentSizeTooLarge(final int prefixLength) {
         return new Message(Type.ERROR, "\"assignment-size:\" value must not be greater than the maximum prefix size %s", prefixLength);
+    }
+
+    public static Message prefixTooSmall(final int minimumPrefixLength) {
+        return new Message(Type.ERROR, "Minimum prefix size is %s", minimumPrefixLength);
     }
 
     public static Message tooManyAggregatedByLirInHierarchy() {
@@ -623,6 +616,10 @@ public final class UpdateMessages {
 
     public static Message creatingRipeMaintainerForbidden() {
         return new Message(Type.ERROR, "You cannot create a RIPE NCC maintainer");
+    }
+
+    public static Message updatingRipeMaintainerSSOForbidden() {
+        return new Message(Type.ERROR, "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
     }
 
     public static Message netnameCannotBeChanged() {

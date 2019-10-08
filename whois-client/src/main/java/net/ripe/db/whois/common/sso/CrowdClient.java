@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.sso;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -169,12 +168,7 @@ public class CrowdClient {
         }
 
         public String getUUID() {
-            final CrowdAttribute uuid = Iterables.find(attributes, new Predicate<CrowdAttribute>() {
-                @Override
-                public boolean apply(final CrowdAttribute input) {
-                    return input.getName().equals("uuid");
-                }
-            });
+            final CrowdAttribute uuid = Iterables.find(attributes, input -> input.getName().equals("uuid"));
 
             return uuid.getValues().get(0).getValue();
         }

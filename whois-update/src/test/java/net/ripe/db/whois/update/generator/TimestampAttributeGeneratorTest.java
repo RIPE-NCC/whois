@@ -11,10 +11,6 @@ import net.ripe.db.whois.update.domain.OverrideOptions;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,14 +18,17 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TimestampAttributeGeneratorTest {
     //TODO [TP]: remove defensive code checks wher we check whether timestamp attributes are in original object.
-    final private static DateTimeFormatter ISO_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
+    final private static DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     private static final String TIMESTAMP_STRING_PAST = "2014-01-26T11:44:59Z";
     private static final String TIMESTAMP_STRING_ACTION = "2015-02-27T12:45:00Z";
@@ -528,6 +527,6 @@ public class TimestampAttributeGeneratorTest {
     // End of section skip-last-modified is true
 
     private LocalDateTime actionTime() {
-        return ISO_FORMATTER.parseDateTime(TIMESTAMP_STRING_ACTION).withZone(DateTimeZone.UTC).toLocalDateTime();
+        return LocalDateTime.from(ISO_FORMATTER.parse(TIMESTAMP_STRING_ACTION));
     }
 }
