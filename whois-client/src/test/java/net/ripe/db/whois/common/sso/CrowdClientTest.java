@@ -46,6 +46,7 @@ public class CrowdClientTest {
         when(client.target(anyString())).thenReturn(webTarget);
         when(webTarget.path(anyString())).thenReturn(webTarget);
         when(webTarget.queryParam(anyString(), anyVararg())).thenReturn(webTarget);
+        when(webTarget.request(any(String.class))).thenReturn(builder);
         when(webTarget.request()).thenReturn(builder);
 
         subject = new CrowdClient("http://testurl", "crowduser", "crowdpassword");

@@ -483,6 +483,11 @@
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+             <dependency>
+                 <groupId>com.fasterxml.jackson.core</groupId>
+                 <artifactId>jackson-annotations</artifactId>
+                 <version>${jackson.version}</version>
+             </dependency>
 
             <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
