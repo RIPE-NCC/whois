@@ -2,12 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/tx
                            http://www.springframework.org/schema/tx/spring-tx.xsd
                            http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd">
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <!-- TODO: this is loaded many many times on context init, which slows down startup process -->
     <!-- @Transactional CAN be used on private methods with mode="aspectj". However, annotations on interfaces will NOT work! -->
@@ -29,6 +31,7 @@
         <property name="maxIdleTime" value="7200"/>
         <property name="preferredTestQuery" value="SELECT 1"/>
         <property name="idleConnectionTestPeriod" value="15"/>
+    	<property name="connectionCustomizerClassName" value="net.ripe.db.whois.common.jdbc.WhoisConnectorCustomizer"/>
     </bean>
 
     <bean id="aclDataSource" parent="abstractDataSource">
@@ -62,4 +65,5 @@
         <property name="user" value="${whois.db.slave.username}"/>
         <property name="password" value="${whois.db.slave.password}"/>
     </bean>
+
 </beans>

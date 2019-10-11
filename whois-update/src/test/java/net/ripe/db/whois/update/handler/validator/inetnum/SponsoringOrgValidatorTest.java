@@ -10,7 +10,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 import static net.ripe.db.whois.update.domain.Action.CREATE;
 import static net.ripe.db.whois.update.domain.Action.MODIFY;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 

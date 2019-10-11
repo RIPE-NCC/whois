@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.util.stream.Collectors;
@@ -83,6 +84,16 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "source:      TEST");
 
         databaseHelper.addObject(
+    "mntner:      OWNER4-MNT\n" +
+            "admin-c:     TP1-TEST\n" +
+            "upd-to:      updto_owner3@ripe.net\n" +
+            "upd-to:      updto2_owner3@ripe.net\n" +
+            "notify:      notify_owner3@ripe.net\n" +
+            "auth:        SSO person@net.net # 906635c2-0405-429a-800b-0602bd716124\n" +
+            "mnt-by:      OWNER4-MNT\n" +
+            "source:      TEST");
+
+        databaseHelper.addObject(
         "organisation:    ORG-LIR1-TEST\n" +
             "org-type:        LIR\n" +
             "org-name:        Local Internet Registry\n" +
@@ -91,6 +102,16 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "ref-nfy:         dbtest-org@ripe.net\n" +
             "mnt-ref:         owner3-mnt\n" +
             "mnt-by:          owner2-mnt\n" +
+            "source:  TEST");
+
+        databaseHelper.addObject(
+    "organisation:    ORG-LIR2-TEST\n" +
+            "org-type:        LIR\n" +
+            "org-name:        Local Internet Registry\n" +
+            "address:         RIPE NCC\n" +
+            "e-mail:          dbtest@ripe.net\n" +
+            "ref-nfy:         dbtest-org@ripe.net\n" +
+            "mnt-by:          owner4-mnt\n" +
             "source:  TEST");
 
         databaseHelper.addObject(
@@ -142,6 +163,19 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "status:       ALLOCATED UNSPECIFIED\n" +
             "mnt-by:       RIPE-NCC-HM-MNT\n" +
             "mnt-lower:    LIR-mnt\n" +
+            "source:       TEST");
+
+        databaseHelper.addObject(
+    "inetnum:      19.0.0.0 - 19.255.255.255\n" +
+            "netname:      TEST-NET-NAME\n" +
+            "descr:        TEST network\n" +
+            "country:      NL\n" +
+            "org:          ORG-LIR2-TEST\n" +
+            "admin-c:      TP1-TEST\n" +
+            "tech-c:       TP1-TEST\n" +
+            "status:       ALLOCATED UNSPECIFIED\n" +
+            "mnt-by:       RIPE-NCC-HM-MNT\n" +
+            "mnt-by:       OWNER4-MNT\n" +
             "source:       TEST");
     }
 
@@ -362,6 +396,72 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
         RpslObject inetnum = databaseHelper.lookupObject(ObjectType.INETNUM, "192.0.0.0 - 192.255.255.255");
         assertNotNull(inetnum);
         assertEquals(ciString("BE"), inetnum.getValueForAttribute(AttributeType.COUNTRY));
+    }
+
+    @Test(expected = NotAuthorizedException.class)
+    public void batch_update_no_valid_authentication() {
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                        RpslObject.parse(
+                                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                                        "netname:      TEST-NET-NAME\n" +
+                                        "descr:        TEST network\n" +
+                                        "country:      BE\n" +
+                                        "org:          ORG-LIR1-TEST\n" +
+                                        "admin-c:      TP1-TEST\n" +
+                                        "tech-c:       TP1-TEST\n" +
+                                        "status:       ALLOCATED UNSPECIFIED\n" +
+                                        "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                                        "mnt-lower:    LIR-mnt\n" +
+                                        "source:       TEST")
+                );
+
+        RestTest.target(getPort(), "whois/batch/TEST")
+                .request()
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+    }
+
+    @Test
+    public void batch_update_using_sso_credential() {
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                        RpslObject.parse(
+                                "inetnum:      19.0.0.0 - 19.1.255.255\n" +
+                                "netname:      TEST-NET-NAME\n" +
+                                "descr:        TEST network\n" +
+                                "country:      BE\n" +
+                                "admin-c:      TP1-TEST\n" +
+                                "tech-c:       TP1-TEST\n" +
+                                "status:       ASSIGNED PA\n" +
+                                "mnt-by:       OWNER4-MNT\n" +
+                                "source:       TEST")
+                );
+
+        RestTest.target(getPort(), "whois/batch/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        assertNotNull(databaseHelper.lookupObject(ObjectType.INETNUM, "19.0.0.0 - 19.1.255.255"));
+    }
+
+    @Test
+    public void batch_update_create_self_referencing_mntner_using_sso_credential() {
+        final WhoisResources whoisResources = mapRpslObjects(RpslObject.parse(
+            "mntner:    SSO-MNT\n" +
+            "descr:     Maintainer\n" +
+            "admin-c:   TP1-TEST\n" +
+            "upd-to:    person@net.net\n" +
+            "auth:      SSO person@net.net\n" +
+            "mnt-by:    SSO-MNT\n" +
+            "source:    TEST"));
+
+        RestTest.target(getPort(), "whois/batch/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        assertNotNull(databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT"));
     }
 
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {

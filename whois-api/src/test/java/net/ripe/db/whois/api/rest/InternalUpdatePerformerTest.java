@@ -19,8 +19,6 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -28,14 +26,15 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -137,7 +136,7 @@ public class InternalUpdatePerformerTest {
     @Test
     public void create_origin() {
         when(requestMock.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(new LocalDateTime(5556667777888l, DateTimeZone.UTC));
+        when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(ZonedDateTime.parse("2146-01-31T06:49:37.888+00:00").toLocalDateTime());
 
         final Origin origin = subject.createOrigin(requestMock);
 

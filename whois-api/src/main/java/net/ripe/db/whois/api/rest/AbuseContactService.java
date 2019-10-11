@@ -32,9 +32,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Path("/abuse-contact")
@@ -76,15 +75,16 @@ public class AbuseContactService {
                 if (responseObject instanceof RpslObject) {
                     final RpslObject rpslObject = (RpslObject)responseObject;
 
-                    final String abuseContact = abuseCFinder.getAbuseContact(rpslObject);
-                    final RpslObject abuseRole = abuseCFinder.getAbuseContactRole(rpslObject);
+                    final Optional<net.ripe.db.whois.query.planner.AbuseContact> optionalAbuseContact = abuseCFinder.getAbuseContact(rpslObject);
 
                     abuseResources.add(
                         new AbuseResources(
                             "abuse-contact",
                             Link.create(String.format("http://rest.db.ripe.net/abuse-contact/%s", key)),
                             new Parameters.Builder().primaryKey(new AbusePKey(rpslObject.getKey().toString())).build(),
-                            new AbuseContact(abuseRole != null ? abuseRole.getKey().toString() : "", abuseContact != null ? abuseContact : ""),
+                            optionalAbuseContact
+                                    .map(abuseContact -> new AbuseContact(abuseContact.getNicHandle(), abuseContact.getAbuseMailbox(), abuseContact.isSuspect(), abuseContact.getOrgId()))
+                                    .orElseGet(() -> new AbuseContact("", "", false, "")),
                             Link.create(WhoisResources.TERMS_AND_CONDITIONS)));
                 }
             }
@@ -105,12 +105,7 @@ public class AbuseContactService {
                     .build());
         }
 
-        return Response.ok(new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                StreamingHelper.getStreamingMarshal(request, output).singleton(result);
-            }
-        }).build();
+        return Response.ok((StreamingOutput) output -> StreamingHelper.getStreamingMarshal(request, output).singleton(result)).build();
     }
 
     private boolean isTrusted(final HttpServletRequest request) {

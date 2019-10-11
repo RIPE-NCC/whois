@@ -1,11 +1,11 @@
 package net.ripe.db.whois.query.domain;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.ResponseObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class MessageObject implements ResponseObject {
@@ -33,7 +33,7 @@ public class MessageObject implements ResponseObject {
 
     @Override
     public byte[] toByteArray() {
-        return formattedText.getBytes(Charsets.UTF_8);
+        return formattedText.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override

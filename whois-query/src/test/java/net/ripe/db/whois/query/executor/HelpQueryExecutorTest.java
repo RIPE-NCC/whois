@@ -1,12 +1,14 @@
 package net.ripe.db.whois.query.executor;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.query.Query;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 public class HelpQueryExecutorTest {

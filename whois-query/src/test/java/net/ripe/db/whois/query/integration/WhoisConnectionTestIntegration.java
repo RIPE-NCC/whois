@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.integration;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
@@ -42,6 +41,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.net.InetAddress;
 import java.nio.channels.ClosedChannelException;
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
@@ -72,7 +72,7 @@ public class WhoisConnectionTestIntegration extends AbstractQueryIntegrationTest
         ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("open-channels", queryChannelsRegistry);
         pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(1024, true, ChannelBuffers.wrappedBuffer(new byte[]{'\n'})));
-        pipeline.addLast("string-decoder", new StringDecoder(Charsets.UTF_8));
+        pipeline.addLast("string-decoder", new StringDecoder(StandardCharsets.UTF_8));
         pipeline.addLast("whois-encoder", applicationContext.getBean(WhoisEncoder.class));
         pipeline.addLast("exception", new ExceptionHandler());
         pipeline.addLast("query-decoder", applicationContext.getBean(QueryDecoder.class));

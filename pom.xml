@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.94-SNAPSHOT</version>
+    <version>1.96-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -15,7 +15,7 @@
     <licenses>
         <license>
             <name>BSD</name>
-            <url>https://raw.github.com/RIPE-NCC/whois/master/LICENSE.txt</url>
+            <url>https://raw.github.com/RIPE-NCC/whois/master/LICENSE.md</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -34,8 +34,8 @@
 
         <bouncycastle.version>1.60</bouncycastle.version>
 
-        <c3po.version>0.9.5.1</c3po.version>
-        <commons-compress.version>1.18</commons-compress.version>
+        <c3po.version>0.9.5.4</c3po.version>
+        <commons-compress.version>1.19</commons-compress.version>
         <commons-net.version>3.4</commons-net.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.11</commons-codec.version>
@@ -61,7 +61,6 @@
 
         <jaxb.version>2.2.11</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
-        <jodatime.version>2.9.2</jodatime.version>
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.12</junit.version>
@@ -75,7 +74,7 @@
         <lucene.version>7.7.1</lucene.version>
 
         <mail.version>1.6.2</mail.version>
-        <mariadb-java-client.version>1.2.0</mariadb-java-client.version>
+        <mariadb-java-client.version>1.8.0</mariadb-java-client.version>
         <mockito.version>1.9.5</mockito.version>
 
         <netty.version>3.10.6.Final</netty.version>
@@ -83,11 +82,12 @@
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.18</slf4j.version>
-        <spring.version>4.3.20.RELEASE</spring.version>
+        <spring.version>5.1.8.RELEASE</spring.version>
         <springockito.version>1.0.5</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>0.7-groovy-1.8</spock.version>
+        <shedlock.version>2.5.0</shedlock.version>
 
         <velocity.version>2.0</velocity.version>
 
@@ -353,11 +353,6 @@
                 <artifactId>hazelcast</artifactId>
                 <version>${hazelcast.version}</version>
             </dependency>
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${jodatime.version}</version>
-            </dependency>
 
             <!-- bouncy castle -->
             <dependency>
@@ -564,6 +559,18 @@
                 <version>${solrj.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-jdbc-template</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -773,6 +780,9 @@
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
+                    <excludes>
+                        <exclude>${test.files.integration}</exclude>
+                    </excludes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
                     <reuseForks>true</reuseForks>
@@ -835,20 +845,14 @@
                         <exclude>**/net/ripe/db/whois/common/rpsl/**</exclude>
                         <exclude>**/net/ripe/db/whois/common/domain/**</exclude>
                         <exclude>**/net/ripe/db/whois/common/ip/**</exclude>
-
                         <exclude>**/net/ripe/db/whois/common/io/ByteArrayInput.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/io/ByteArrayOutput.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/io/RpslObjectFileReader.java</exclude>
-
-                        <!--<exclude>**/net/ripe/db/whois/common/CharacterSetConversion.java</exclude>-->
-
                         <exclude>**/net/ripe/db/whois/common/io/ByteArrayInputTest.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/io/ByteArrayOutputTest.java</exclude>
-
                         <exclude>**/net/ripe/db/whois/common/IllegalArgumentExceptionMessage.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
-                        <!--<exclude>**/net/ripe/db/whois/common/CharacterSetConversionTest.java</exclude>-->
                         <exclude>**/net/ripe/db/whois/common/EndToEndTest.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/IntegrationTest.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>
@@ -915,7 +919,7 @@
                 <test.groups>None</test.groups>
                 <test.forkCount.integration>3</test.forkCount.integration>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>None</test.files.integration>
+                <test.files.integration>**/*Integration*.class</test.files.integration>
             </properties>
         </profile>
         <profile>

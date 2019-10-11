@@ -11,7 +11,7 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
 import java.util.List;
 
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
@@ -69,7 +68,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void versions_returns_xml() throws IOException {
+    public void versions_returns_xml() {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -93,7 +92,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void versions_deleted() throws IOException {
+    public void versions_deleted() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -138,7 +137,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void versions_deleted_versions_json() throws IOException {
+    public void versions_deleted_versions_json() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -183,7 +182,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void versions_last_version_deleted() throws IOException {
+    public void versions_last_version_deleted() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -209,14 +208,14 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test(expected = NotFoundException.class)
-    public void versions_no_versions_found() throws IOException {
+    public void versions_no_versions_found() {
         RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
                 .request(MediaType.APPLICATION_XML)
                 .get(String.class);
     }
 
     @Test(expected = NotFoundException.class)
-    public void version_nonexistant_version() throws IOException {
+    public void version_nonexistant_version() {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -232,7 +231,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test(expected = NotFoundException.class)
-    public void version_wrong_object_type() throws IOException {
+    public void version_wrong_object_type() {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -248,7 +247,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void version_returns_xml() throws IOException {
+    public void version_returns_xml() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -268,22 +267,32 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getType(), is("aut-num"));
         assertThat(object.getVersion(), is(1));
+
         final List<Attribute> attributes = object.getAttributes();
-        final List<RpslAttribute> originalAttributes = autnum.getAttributes();
+        final List<RpslAttribute> originalAttributes =  RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n")
+                .getAttributes();
+
         for (int i = 0; i < originalAttributes.size(); i++) {
             assertThat(originalAttributes.get(i).getCleanValue().toString(), is(attributes.get(i).getValue()));
         }
     }
 
     @Test
-    public void version_returns_json() throws IOException {
+    public void version_returns_json() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
                 "descr:          description\n" +
+                "e-mail:          test@test.nl\n" +
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
+                "notify:         notify@me.nl\n" +
                 "source:         TEST\n");
         databaseHelper.addObject(autnum);
 
@@ -298,14 +307,22 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(object.getVersion(), is(1));
 
         final List<Attribute> attributes = object.getAttributes();
-        final List<RpslAttribute> originalAttributes = autnum.getAttributes();
+
+        final List<RpslAttribute> originalAttributes = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n")
+                .getAttributes();
+
         for (int i = 0; i < originalAttributes.size(); i++) {
             assertThat(originalAttributes.get(i).getCleanValue().toString(), is(attributes.get(i).getValue()));
         }
     }
 
     @Test(expected = NotFoundException.class)
-    public void version_not_showing_deleted_version() throws IOException {
+    public void version_not_showing_deleted_version() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -323,7 +340,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void lookup_non_streaming_puts_xlink_into_root_element_and_nowhere_else() throws Exception {
+    public void lookup_non_streaming_puts_xlink_into_root_element_and_nowhere_else() {
         databaseHelper.addObject("aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
                 "descr:          description\n" +

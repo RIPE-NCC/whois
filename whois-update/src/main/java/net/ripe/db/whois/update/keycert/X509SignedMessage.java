@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.keycert;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.cms.Attribute;
@@ -8,13 +9,17 @@ import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.Time;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cms.*;
+import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSProcessable;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.CMSSignerDigestMismatchException;
+import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +28,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -135,7 +141,7 @@ public class X509SignedMessage {
             if (signingTimeAttributes.size() == 1) {
                 final ASN1Set attributeValues = ((Attribute) signingTimeAttributes.get(0)).getAttrValues();
                 if (attributeValues.size() == 1) {
-                    return new LocalDateTime(Time.getInstance(attributeValues.getObjectAt(0).toASN1Primitive()).getDate());
+                    return DateUtil.fromDate(Time.getInstance(attributeValues.getObjectAt(0).toASN1Primitive()).getDate());
                 }
             }
         }

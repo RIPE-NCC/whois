@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.Message
 import net.ripe.db.whois.common.Messages
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.RpslObject
-import org.joda.time.LocalDateTime
+import java.time.LocalDateTime
 
 import java.util.function.Consumer
 

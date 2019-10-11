@@ -1,6 +1,11 @@
 package net.ripe.db.whois.common.collect;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * helper to provide a simple way of mapping an Iterable<T> to Iterable<T> without any extra hoop
