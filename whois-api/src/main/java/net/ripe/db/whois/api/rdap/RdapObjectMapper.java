@@ -50,6 +50,7 @@ import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
@@ -110,7 +111,7 @@ class RdapObjectMapper {
     @Autowired
     public RdapObjectMapper(
             final NoticeFactory noticeFactory,
-            final RpslObjectDao rpslObjectDao,
+            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
             @Value("${rdap.port43:}") final String port43) {
@@ -121,13 +122,15 @@ class RdapObjectMapper {
         this.port43 = port43;
     }
 
-    public Object map(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, @Nullable final RpslObject abuseContact) {
+    public Object map(final String requestUrl, final RpslObject rpslObject, @Nullable final RpslObject abuseContact) {
+        final LocalDateTime lastChangedTimestamp = rpslObjectDao.getLastUpdated(rpslObject.getObjectId());
         return mapCommons(getRdapObject(requestUrl, rpslObject, lastChangedTimestamp, abuseContact), requestUrl);
     }
 
-    public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final Iterable<LocalDateTime> localDateTimes) {
+    public Object mapSearch(final String requestUrl, final List<RpslObject> objects) {
         final SearchResult searchResult = new SearchResult();
-        final Iterator<LocalDateTime> iterator = localDateTimes.iterator();
+        final Iterable<LocalDateTime> lastUpdateds = objects.stream().map(input -> rpslObjectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
+        final Iterator<LocalDateTime> iterator = lastUpdateds.iterator();
 
         for (final RpslObject object : objects) {
             if (object.getType() == DOMAIN) {

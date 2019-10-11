@@ -70,7 +70,6 @@ public class WhoisRdapService {
     private static final int SEARCH_MAX_RESULTS = 100;
 
     private final RdapQueryHandler rdapQueryHandler;
-    private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
     private final RdapObjectMapper rdapObjectMapper;
     private final DelegatedStatsService delegatedStatsService;
@@ -82,7 +81,6 @@ public class WhoisRdapService {
 
     @Autowired
     public WhoisRdapService(final RdapQueryHandler rdapQueryHandler,
-                            final RpslObjectDao objectDao,
                             final AbuseCFinder abuseCFinder,
                             final RdapObjectMapper rdapObjectMapper,
                             final DelegatedStatsService delegatedStatsService,
@@ -92,7 +90,6 @@ public class WhoisRdapService {
                             final AccessControlListManager accessControlListManager,
                             final RdapRequestValidator rdapRequestValidator) {
         this.rdapQueryHandler = rdapQueryHandler;
-        this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
         this.rdapObjectMapper = rdapObjectMapper;
         this.delegatedStatsService = delegatedStatsService;
@@ -259,7 +256,6 @@ public class WhoisRdapService {
                 rdapObjectMapper.map(
                         getRequestUrl(request),
                         resultObject,
-                        objectDao.getLastUpdated(resultObject.getObjectId()),
                         abuseCFinder.getAbuseContactRole(resultObject)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
@@ -349,12 +345,9 @@ public class WhoisRdapService {
                 throw new NotFoundException("not found");
             }
 
-            final Iterable<LocalDateTime> lastUpdateds = objects.stream().map(input -> objectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
-
             return Response.ok(rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
-                    objects,
-                    lastUpdateds))
+                    objects))
                     .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
         }

@@ -598,11 +598,11 @@ public class RdapObjectMapperTest {
     }
 
     private Object map(final RpslObject rpslObject, final RpslObject abuseContact) {
-        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, abuseContact);
+        return mapper.map(REQUEST_URL, rpslObject, abuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
-        return mapper.mapSearch(REQUEST_URL, objects, lastUpdateds);
+        return mapper.mapSearch(REQUEST_URL, objects);
     }
 
     private Notice getTnCNotice() {
