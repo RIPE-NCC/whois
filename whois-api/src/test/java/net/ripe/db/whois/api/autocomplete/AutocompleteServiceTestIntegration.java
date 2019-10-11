@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+// TODO: [ES] failing tests (need to fix lucene index)
 @Category(IntegrationTest.class)
 public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired FullTextIndex fullTextIndex;
