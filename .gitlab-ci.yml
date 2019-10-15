@@ -1,0 +1,69 @@
+#image: whois-build:1
+image: maven:3.6-jdk-8
+
+services:
+  - mariadb:10.2
+
+variables:
+#  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  MYSQL_ROOT_PASSWORD: root
+
+stages:
+  - build
+  - test
+  - deploy
+
+cache:
+  paths:
+    - .m2/repository
+    - target/
+    - whois-api/target
+    - whois-client/target
+    - whois-commons/target
+    - whois-db/target
+    - whois-endtoend/target
+    - whois-nrtm/target
+    - whois-query/target
+    - whois-rpsl/target
+    - whois-scheduler/target
+    - whois-update/target
+
+build:
+  stage: build
+  before_script:
+    - apt-get update
+    - apt-get -y install mysql-client make gcc
+  script:
+    - mvn $MAVEN_OPTS clean install -U -Prelease
+  artifacts:
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+        - target/failsafe-reports/TEST-*.xml
+
+integration-test:
+  stage: test
+  before_script:
+    - apt-get update
+    - apt-get -y install mysql-client make gcc
+    - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
+    - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
+  script:
+    - mvn -Ddb.host=mariadb $MAVEN_OPTS clean install -Pintegration
+  artifacts:
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+        - target/failsafe-reports/TEST-*.xml
+
+deploy-dev:
+  stage: deploy
+  script:
+    - git clone http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/sbuskens/db-operational.git
+    - cp backend/target/backend-$CI_COMMIT_SHA.jar db-operational/deployment/db-web-ui-spring-$CI_COMMIT_SHA.jar
+    - cd db-operational/deployment
+    - ./stage.sh -p db-web-ui -e dev db-web-ui-spring-$CI_COMMIT_SHA.jar
+    - ./sync.sh -p db-web-ui -e dev
+    - bash ./deploy.sh -p db-web-ui -e dev
+  when: manual
