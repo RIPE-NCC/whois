@@ -6,7 +6,7 @@ services:
 
 variables:
 #  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
-  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  MAVEN_OPTS: -Dmaven.repo.local=/cache/maven.repository
   MYSQL_ROOT_PASSWORD: root
 
 stages:
@@ -16,9 +16,9 @@ stages:
 
 cache:
   paths:
-    - .m2/repository
+    #- .m2/repository
     - target/
-    - "*/target"
+    - "*/target/"
 
 build:
   stage: build
