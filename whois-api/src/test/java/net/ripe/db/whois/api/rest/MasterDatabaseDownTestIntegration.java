@@ -73,7 +73,7 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
             proxy = new Proxy(dbHost, 3306);
             proxy.start();
 
-            System.setProperty("whois.db.master.url", url.replace(dbHost, String.format("localhost:%d", proxy.getPort())));
+            System.setProperty("whois.db.master.url", url.replace("/" + dbHost + "/", "/" + String.format("localhost:%d", proxy.getPort()) + "/"));
         }
     }
 
