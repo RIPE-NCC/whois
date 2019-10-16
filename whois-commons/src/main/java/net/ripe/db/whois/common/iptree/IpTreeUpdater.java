@@ -37,8 +37,7 @@ public class IpTreeUpdater {
     private final IpTreeCacheManager ipTreeCacheManager;
 
     private SourceContext sourceContext;
-    private Set<SourceConfiguration> sourceConfigurationsForRebuild;
-    private Set<SourceConfiguration> sourceConfigurationsForUpdate;
+    private Set<SourceConfiguration> sourceConfigurationForSlave;
 
     private ExecutorService executorService;
 
@@ -51,11 +50,8 @@ public class IpTreeUpdater {
     void setSourceContext(final SourceContext sourceContext) {
         this.sourceContext = sourceContext;
 
-        sourceConfigurationsForRebuild = getSourceConfigurationsWithTypePreference(sourceContext, Source.Type.SLAVE);
-        LOGGER.info("Rebuild IpTrees using sources: {}", sourceConfigurationsForRebuild);
-
-        sourceConfigurationsForUpdate = getSourceConfigurationsWithTypePreference(sourceContext, Source.Type.MASTER);
-        LOGGER.info("Update IpTrees using sources: {}", sourceConfigurationsForUpdate);
+        sourceConfigurationForSlave = getSourceConfigurationsWithTypePreference(sourceContext, Source.Type.SLAVE);
+        LOGGER.info("Rebuild IpTress and scheduled update using sources: {}", sourceConfigurationForSlave);
     }
 
     private Set<SourceConfiguration> getSourceConfigurationsWithTypePreference(final SourceContext sourceContext, final Source.Type preferredType) {
@@ -78,7 +74,7 @@ public class IpTreeUpdater {
 
     @PostConstruct
     public void init() {
-        final int nrThreads = sourceConfigurationsForRebuild.size();
+        final int nrThreads = sourceConfigurationForSlave.size();
         LOGGER.info("Initializing thread pool with {} threads", nrThreads);
         executorService = Executors.newFixedThreadPool(nrThreads, new ThreadFactory() {
             final ThreadGroup threadGroup = new ThreadGroup(Thread.currentThread().getThreadGroup(), "IpTreeUpdater");
@@ -102,7 +98,7 @@ public class IpTreeUpdater {
         LOGGER.info("Building IP trees");
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        invokeAll(sourceConfigurationsForRebuild, new OperationCallback() {
+        invokeAll(sourceConfigurationForSlave, new OperationCallback() {
             @Override
             public void execute(final SourceConfiguration sourceConfiguration) {
                 ipTreeCacheManager.rebuild(sourceConfiguration);
@@ -113,7 +109,7 @@ public class IpTreeUpdater {
     }
 
     public void rebuild(final String source) {
-        for (SourceConfiguration sourceConfiguration : Iterables.filter(sourceConfigurationsForRebuild, new Predicate<SourceConfiguration>() {
+        for (SourceConfiguration sourceConfiguration : Iterables.filter(sourceConfigurationForSlave, new Predicate<SourceConfiguration>() {
             @Override
             public boolean apply(final SourceConfiguration input) {
                 return input.getSource().getName().contains(source);
@@ -128,7 +124,7 @@ public class IpTreeUpdater {
 
     @Scheduled(fixedDelay = TREE_UPDATE_IN_SECONDS * 1000)
     public void update() {
-        invokeAll(sourceConfigurationsForUpdate, new OperationCallback() {
+        invokeAll(sourceConfigurationForSlave, new OperationCallback() {
             @Override
             public void execute(final SourceConfiguration sourceConfiguration) {
                 ipTreeCacheManager.update(sourceConfiguration);
