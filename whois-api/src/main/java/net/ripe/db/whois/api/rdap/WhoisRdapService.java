@@ -39,6 +39,7 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -70,6 +71,7 @@ public class WhoisRdapService {
     private static final int SEARCH_MAX_RESULTS = 100;
 
     private final RdapQueryHandler rdapQueryHandler;
+    private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
     private final RdapObjectMapper rdapObjectMapper;
     private final DelegatedStatsService delegatedStatsService;
@@ -81,6 +83,7 @@ public class WhoisRdapService {
 
     @Autowired
     public WhoisRdapService(final RdapQueryHandler rdapQueryHandler,
+                            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
                             final AbuseCFinder abuseCFinder,
                             final RdapObjectMapper rdapObjectMapper,
                             final DelegatedStatsService delegatedStatsService,
@@ -90,6 +93,7 @@ public class WhoisRdapService {
                             final AccessControlListManager accessControlListManager,
                             final RdapRequestValidator rdapRequestValidator) {
         this.rdapQueryHandler = rdapQueryHandler;
+        this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
         this.rdapObjectMapper = rdapObjectMapper;
         this.delegatedStatsService = delegatedStatsService;
@@ -256,6 +260,7 @@ public class WhoisRdapService {
                 rdapObjectMapper.map(
                         getRequestUrl(request),
                         resultObject,
+                        objectDao.getLastUpdated(resultObject.getObjectId()),
                         abuseCFinder.getAbuseContactRole(resultObject)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
@@ -311,43 +316,46 @@ public class WhoisRdapService {
             final List<RpslObject> objects = fullTextIndex.search(
                     new IndexTemplate.AccountingSearchCallback<List<RpslObject>>(accessControlListManager, request.getRemoteAddr(), source) {
 
-                @Override
-                protected List<RpslObject> doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
-                    final Stopwatch stopWatch = Stopwatch.createStarted();
+                        @Override
+                        protected List<RpslObject> doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
+                            final Stopwatch stopWatch = Stopwatch.createStarted();
 
-                    final List<RpslObject> results = Lists.newArrayList();
-                    final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
-                    try {
-                        final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
-                        queryParser.setAllowLeadingWildcard(true);
-                        queryParser.setDefaultOperator(QueryParser.Operator.AND);
-                        final org.apache.lucene.search.Query query = queryParser.parse(term);
-                        final TopDocs topDocs = indexSearcher.search(query, maxResults);
-                        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-                            final Document document = indexSearcher.doc(scoreDoc.doc);
+                            final List<RpslObject> results = Lists.newArrayList();
+                            final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
+                            try {
+                                final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
+                                queryParser.setAllowLeadingWildcard(true);
+                                queryParser.setDefaultOperator(QueryParser.Operator.AND);
+                                final org.apache.lucene.search.Query query = queryParser.parse(term);
+                                final TopDocs topDocs = indexSearcher.search(query, maxResults);
+                                for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+                                    final Document document = indexSearcher.doc(scoreDoc.doc);
 
-                            final RpslObject rpslObject = convertToRpslObject(document);
-                            account(rpslObject);
-                            results.add(rpslObject);
+                                    final RpslObject rpslObject = convertToRpslObject(document);
+                                    account(rpslObject);
+                                    results.add(rpslObject);
+                                }
+
+                                LOGGER.info("Found {} objects in {}", results.size(), stopWatch.stop());
+                                return results;
+
+                            } catch (ParseException e) {
+                                LOGGER.error("handleSearch", e);
+                                throw new BadRequestException("cannot parse query " + term);
+                            }
                         }
-
-                        LOGGER.info("Found {} objects in {}", results.size(), stopWatch.stop());
-                        return results;
-
-                    } catch (ParseException e) {
-                        LOGGER.error("handleSearch", e);
-                        throw new BadRequestException("cannot parse query " + term);
-                    }
-                }
-            });
+                    });
 
             if (objects.isEmpty()) {
                 throw new NotFoundException("not found");
             }
 
+            final Iterable<LocalDateTime> lastUpdateds = objects.stream().map(input -> objectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
+
             return Response.ok(rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
-                    objects))
+                    objects,
+                    lastUpdateds))
                     .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
         }

@@ -122,15 +122,13 @@ class RdapObjectMapper {
         this.port43 = port43;
     }
 
-    public Object map(final String requestUrl, final RpslObject rpslObject, @Nullable final RpslObject abuseContact) {
-        final LocalDateTime lastChangedTimestamp = rpslObjectDao.getLastUpdated(rpslObject.getObjectId());
+    public Object map(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, @Nullable final RpslObject abuseContact) {
         return mapCommons(getRdapObject(requestUrl, rpslObject, lastChangedTimestamp, abuseContact), requestUrl);
     }
 
-    public Object mapSearch(final String requestUrl, final List<RpslObject> objects) {
+    public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final Iterable<LocalDateTime> localDateTimes) {
         final SearchResult searchResult = new SearchResult();
-        final Iterable<LocalDateTime> lastUpdateds = objects.stream().map(input -> rpslObjectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
-        final Iterator<LocalDateTime> iterator = lastUpdateds.iterator();
+        final Iterator<LocalDateTime> iterator = localDateTimes.iterator();
 
         for (final RpslObject object : objects) {
             if (object.getType() == DOMAIN) {
