@@ -776,7 +776,7 @@
                 <version>2.18.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} -Ddb.host=${db.host}</argLine>
+                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
@@ -803,7 +803,7 @@
                 <version>2.18.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} -Ddb.host=${db.host}</argLine>
+                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
