@@ -1,13 +1,13 @@
 #image: whois-build:1
 image: maven:3.6-jdk-8
 
-services:
-  - mariadb:10.2
+#services:
+#  - mariadb:10.2
 
 variables:
 #  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
   MAVEN_OPTS: -Dmaven.repo.local=/cache/maven.repository
-  MYSQL_ROOT_PASSWORD: root
+#  MYSQL_ROOT_PASSWORD: root
 
 stages:
   - build
@@ -15,6 +15,7 @@ stages:
   - deploy
 
 cache:
+  key: ${CI_JOB_NAME}
   paths:
     #- .m2/repository
     - target/
@@ -33,35 +34,77 @@ build:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
-integration-test:
+.it_template: &it_env
+  services:
+    - mariadb:10.2
+  variables:
+    MYSQL_ROOT_PASSWORD: root
   stage: test
   before_script:
     - apt-get update
     - apt-get -y install mysql-client make gcc
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
-  script:
-    - mvn -Ddb.host=mariadb $MAVEN_OPTS install -Pintegration
   artifacts:
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
+whois-api-test:
+  <<: *it_env
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-api -am
+
+whois-client-test:
+  <<: *it_env
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-client -am
+
+whois-commons-test:
+  <<: *it_env
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-commons -am
+
+whois-db-test:
+  <<: *it_env
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-db -am
+
+whois-end-to-end-test:
+  <<: *it_env
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-end-to-end -am
+
+whois-nrtm-test:
+  <<: *it_env
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-nrtm -am
+
+whois-query-test:
+  <<: *it_env
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-query -am
+
+whois-rpsl-test:
+  <<: *it_env
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-rpsl -am
+
+whois-scheduler-test:
+  <<: *it_env
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-scheduler -am
+
+whois-update-test:
+  <<: *it_env
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-update -am
+
 end-to-end-test:
-  stage: test
-  before_script:
-    - apt-get update
-    - apt-get -y install mysql-client make gcc
-    - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
-    - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
+  <<: *it_env
   script:
     - mvn -Ddb.host=mariadb $MAVEN_OPTS install -Pendtoend
-  artifacts:
-    reports:
-      junit:
-        - "*/target/surefire-reports/TEST-*.xml"
-        - "*/target/failsafe-reports/TEST-*.xml"
 
 deploy-dev:
   stage: deploy
