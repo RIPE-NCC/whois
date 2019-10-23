@@ -60,7 +60,7 @@ public class X509CertificateWrapperTest {
     public void getOwner() {
         X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
-        assertThat(subject.getOwners(), containsInAnyOrder("/C=NL/ST=Some-State/O=BOGUS"));
+        assertThat(subject.getOwners(), containsInAnyOrder("/O=BOGUS, ST=Some-State, C=NL"));
     }
 
     @Test
