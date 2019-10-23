@@ -69,7 +69,7 @@ public class KeycertAttributeGeneratorTest {
 
         validateAttributeType(updatedObject, AttributeType.METHOD, "X509");
         validateAttributeType(updatedObject, AttributeType.FINGERPR, "E7:0F:3B:D4:2F:DD:F5:84:3F:4C:D2:98:78:F3:10:3D");
-        validateAttributeType(updatedObject, AttributeType.OWNER, "/C=NL/O=RIPE NCC/OU=Members/CN=zz.example.denis/EMAILADDRESS=denis@ripe.net");
+        validateAttributeType(updatedObject, AttributeType.OWNER, "/EMAILADDRESS=denis@ripe.net, CN=zz.example.denis, OU=Members, O=RIPE NCC, C=NL");
         validateMessages();
     }
 
