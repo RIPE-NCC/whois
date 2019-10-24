@@ -74,7 +74,7 @@ whois-db-test:
 whois-end-to-end-test:
   <<: *it_env
   script:
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-end-to-end -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-endtoend -am
 
 whois-nrtm-test:
   <<: *it_env
