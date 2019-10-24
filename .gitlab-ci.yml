@@ -51,54 +51,22 @@ build:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
-whois-api-test:
+whois-it-suite1:
   <<: *it_env
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-api -am
-
-whois-client-test:
-  <<: *it_env
-  script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-client -am
-
-whois-commons-test:
-  <<: *it_env
-  script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-commons -am
-
-whois-db-test:
-  <<: *it_env
-  script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-db -am
-
-whois-end-to-end-test:
-  <<: *it_env
-  script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-endtoend -am
 
-whois-nrtm-test:
+whois-it-suite2:
   <<: *it_env
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-nrtm -am
-
-whois-query-test:
-  <<: *it_env
-  script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-query -am
-
-whois-rpsl-test:
-  <<: *it_env
-  script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-rpsl -am
-
-whois-scheduler-test:
-  <<: *it_env
-  script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-scheduler -am
-
-whois-update-test:
-  <<: *it_env
-  script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-update -am
 
 end-to-end-test:
