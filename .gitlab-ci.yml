@@ -29,6 +29,8 @@ build:
   script:
     - mvn $MAVEN_OPTS clean install -U -Prelease
   artifacts:
+    paths:
+      - whois-db/target/whois-db-*-SNAPSHOT.jar
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
@@ -91,11 +93,11 @@ end-to-end-test:
     - echo "$DBASE_SSH_KEY" | tr -d '\r' | ssh-add -
   script:
     - git clone http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/sbuskens/db-operational.git
-    - cp backend/target/backend-$CI_COMMIT_SHA.jar db-operational/deployment/db-web-ui-spring-$CI_COMMIT_SHA.jar
+    - cp whois-db/target/whois-db-*-SNAPSHOT.jar db-operational/deployment/whois-db-$CI_COMMIT_SHA.jar
     - cd db-operational/deployment
-    - ./stage.sh -p db-web-ui -e $CI_ENVIRONMENT_NAME db-web-ui-spring-$CI_COMMIT_SHA.jar
-    - ./sync.sh -p db-web-ui -e $CI_ENVIRONMENT_NAME
-    - bash ./deploy.sh -p db-web-ui -e $CI_ENVIRONMENT_NAME
+    - ./stage.sh -p whois -e $CI_ENVIRONMENT_NAME whois-db-$CI_COMMIT_SHA.jar
+    - ./sync.sh -p whois -e $CI_ENVIRONMENT_NAME
+    - bash ./deploy.sh -p whois -e $CI_ENVIRONMENT_NAME
 
 deploy_dev:
   <<: *deploy_env
