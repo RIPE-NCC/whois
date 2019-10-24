@@ -59,6 +59,7 @@ whois-it-suite1:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-commons -am
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-db -am
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-endtoend -am
+  when: manual
 
 whois-it-suite2:
   <<: *it_env
@@ -68,19 +69,42 @@ whois-it-suite2:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-rpsl -am
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-scheduler -am
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-update -am
+  when: manual
 
 end-to-end-test:
   <<: *it_env
   script:
     - mvn -Ddb.host=mariadb $MAVEN_OPTS install -Pendtoend
+  when: manual
 
-deploy-dev:
+.deploy_template: &deploy_env
   stage: deploy
+  before_script:
+    - apt-get update
+    - apt-get -y install dnsutils
+    - mkdir -p /root/.ssh
+    - touch /root/.ssh/known_hosts
+    - ssh-keyscan hanwoo.ripe.net 2>&1 >>/root/.ssh/known_hosts
+    - echo "search ripe.net">>/etc/resolv.conf
+    - eval $(ssh-agent -s)
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\nAddressFamily inet\n\n" > ~/.ssh/config
+    - echo "$DBASE_SSH_KEY" | tr -d '\r' | ssh-add -
   script:
     - git clone http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/sbuskens/db-operational.git
     - cp backend/target/backend-$CI_COMMIT_SHA.jar db-operational/deployment/db-web-ui-spring-$CI_COMMIT_SHA.jar
     - cd db-operational/deployment
-    - ./stage.sh -p db-web-ui -e dev db-web-ui-spring-$CI_COMMIT_SHA.jar
-    - ./sync.sh -p db-web-ui -e dev
-    - bash ./deploy.sh -p db-web-ui -e dev
+    - ./stage.sh -p db-web-ui -e $CI_ENVIRONMENT_NAME db-web-ui-spring-$CI_COMMIT_SHA.jar
+    - ./sync.sh -p db-web-ui -e $CI_ENVIRONMENT_NAME
+    - bash ./deploy.sh -p db-web-ui -e $CI_ENVIRONMENT_NAME
+
+deploy_dev:
+  <<: *deploy_env
+  environment:
+    name: dev
+  when: manual
+
+deploy_prepdev:
+  <<: *deploy_env
+  environment:
+    name: prepdev
   when: manual
