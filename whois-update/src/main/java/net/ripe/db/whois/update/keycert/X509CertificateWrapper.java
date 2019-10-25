@@ -37,8 +37,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
         }
 
         try {
-        final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(StandardCharsets.ISO_8859_1);
-        return parse(bytes);
+            return parse(RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(StandardCharsets.ISO_8859_1));
         } catch (StreamParsingException e) {
             throw new IllegalArgumentException("Error parsing X509 certificate from key-cert object", e);
         }
