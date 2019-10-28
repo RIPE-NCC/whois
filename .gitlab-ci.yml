@@ -58,16 +58,16 @@ build:
 whois-it-suite1:
   <<: *it_env
   script:
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-api -am
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-client -am
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-commons -am
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-db -am
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-endtoend -am
   when: manual
 
 whois-it-suite2:
   <<: *it_env
   script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-api -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-client -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-commons -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-db -am
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-nrtm -am
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-query -am
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-rpsl -am
