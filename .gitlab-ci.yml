@@ -47,6 +47,8 @@ build:
     - apt-get -y install mysql-client make gcc
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
+    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
+    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
   artifacts:
     reports:
       junit:
