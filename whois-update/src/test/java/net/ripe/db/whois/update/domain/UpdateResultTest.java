@@ -1,6 +1,10 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

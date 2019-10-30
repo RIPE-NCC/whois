@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.Message;
@@ -125,12 +124,7 @@ public final class UpdateMessages {
     // NOTE: this errormessage is being used by webupdates.
     public static Message authenticationFailed(final RpslObject object, final AttributeType attributeType, final Iterable<RpslObject> candidates) {
         final CharSequence joined = LIST_JOINED.join(
-                Iterables.transform(candidates, new Function<RpslObject, CharSequence>() {
-                    @Override
-                    public CharSequence apply(final RpslObject input) {
-                        return input == null ? "" : input.getKey();
-                    }
-                }));
+                Iterables.transform(candidates,input -> input == null ? "" : input.getKey()));
 
         return new Message(Type.ERROR, "" +
                 "Authorisation for [%s] %s failed\n" +
@@ -147,12 +141,7 @@ public final class UpdateMessages {
     // NOTE: this errormessage is being used by webupdates.
     public static Message parentAuthenticationFailed(final RpslObject object, final AttributeType attributeType, final Iterable<RpslObject> candidates) {
         final CharSequence joined = LIST_JOINED.join(
-                Iterables.transform(candidates, new Function<RpslObject, CharSequence>() {
-                    @Override
-                    public CharSequence apply(final RpslObject input) {
-                        return input == null ? "" : input.getKey();
-                    }
-                }));
+                Iterables.transform(candidates, input -> input == null ? "" : input.getKey()));
 
         return new Message(Type.ERROR, "" +
                 "Authorisation for parent [%s] %s failed\n" +

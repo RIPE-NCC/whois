@@ -1,18 +1,24 @@
 package net.ripe.db.whois.common.support;
 
-import com.google.common.base.Charsets;
 import com.google.common.net.InetAddresses;
 import com.jayway.awaitility.Awaitility;
 import org.hamcrest.Matcher;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -90,7 +96,7 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
 
     public String getResponse() {
         synchronized (response) {
-            return response.toString(Charsets.UTF_8);
+            return response.toString(StandardCharsets.UTF_8);
         }
     }
 

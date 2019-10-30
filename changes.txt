@@ -25,6 +25,7 @@
 # 1.94.2
 
 [query] Filter personal data (address, email and notify attributes) from historical object versions (#556)
+[query] Filter personal data from historic versions (#553)
 [update] Support custom delete reason in Batch API. (#558)
 [rdap] Return IP parent handle as pkey (#554)
 [rdap] Return org contact (#557)

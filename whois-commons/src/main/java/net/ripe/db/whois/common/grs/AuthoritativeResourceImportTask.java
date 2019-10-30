@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.grs;
 
-import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -29,7 +28,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
 
     private static final Logger logger = LoggerFactory.getLogger(AuthoritativeResourceImportTask.class);
 
-    public final static String TASK_NAME = "AuthoritativeResourceImport";
+    protected static final String TASK_NAME = "AuthoritativeResourceImport";
     private static final Splitter PROPERTY_LIST_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     private final ResourceDataDao resourceDataDao;
@@ -44,12 +43,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
                                            final Downloader downloader,
                                            @Value("${dir.grs.import.download:}") final String downloadDir)
     {
-        this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), new Function<String, String>() {
-            @Override
-            public String apply(final String input) {
-                return input.toLowerCase().replace("-grs", "");
-            }
-        }));
+        this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), input -> input.toLowerCase().replace("-grs", "")));
         this.resourceDataDao = resourceDataDao;
         this.downloader = downloader;
         this.downloadDir = downloadDir;

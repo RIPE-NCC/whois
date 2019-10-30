@@ -1,7 +1,5 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -36,9 +34,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
@@ -121,28 +121,25 @@ class LacnicGrsSource extends GrsSource {
         try {
             is = new FileInputStream(file);
 
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
-            handleLines(reader, new LineHandler() {
-                @Override
-                public void handleLines(final List<String> lines) {
-                    final String rpslObjectString = Joiner.on("").join(lines);
-                    final RpslObject rpslObjectBase = RpslObject.parse(rpslObjectString);
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            handleLines(reader, lines -> {
+                final String rpslObjectString = Joiner.on("").join(lines);
+                final RpslObject rpslObjectBase = RpslObject.parse(rpslObjectString);
 
-                    final List<RpslAttribute> newAttributes = Lists.newArrayList();
-                    for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
+                final List<RpslAttribute> newAttributes = Lists.newArrayList();
+                for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
 
-                        final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
-                        if (transformFunction != null) {
-                            attribute = transformFunction.apply(attribute);
-                        }
-
-                        if (attribute.getType() != null) {
-                            newAttributes.add(attribute);
-                        }
+                    final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
+                    if (transformFunction != null) {
+                        attribute = transformFunction.apply(attribute);
                     }
 
-                    handler.handle(FILTER_CHANGED_FUNCTION.apply(new RpslObject(newAttributes)));
+                    if (attribute.getType() != null) {
+                        newAttributes.add(attribute);
+                    }
                 }
+
+                handler.handle(FILTER_CHANGED_FUNCTION.apply(new RpslObject(newAttributes)));
             });
         } finally {
             IOUtils.closeQuietly(is);
@@ -158,41 +155,25 @@ class LacnicGrsSource extends GrsSource {
     }
 
     static {
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                return new RpslAttribute(AttributeType.AUT_NUM, "AS" + input.getCleanValue());
-            }
-        }, "aut-num");
+        addTransformFunction(input -> new RpslAttribute(AttributeType.AUT_NUM, "AS" + input.getCleanValue()), "aut-num");
 
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                final String date = input.getCleanValue().toString().replaceAll("-", "");
-                final String value = String.format("%s", date);
-                return new RpslAttribute(AttributeType.CREATED, value);
-            }
+        addTransformFunction(input -> {
+            final String date = input.getCleanValue().toString().replaceAll("-", "");
+            final String value = String.format("%s", date);
+            return new RpslAttribute(AttributeType.CREATED, value);
         }, "created");
 
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                final IpInterval<?> ipInterval = IpInterval.parse(input.getCleanValue());
-                if (ipInterval instanceof Ipv4Resource) {
-                    return new RpslAttribute(AttributeType.INETNUM, input.getValue());
-                } else if (ipInterval instanceof Ipv6Resource) {
-                    return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
-                } else {
-                    throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
-                }
+        addTransformFunction(input -> {
+            final IpInterval<?> ipInterval = IpInterval.parse(input.getCleanValue());
+            if (ipInterval instanceof Ipv4Resource) {
+                return new RpslAttribute(AttributeType.INETNUM, input.getValue());
+            } else if (ipInterval instanceof Ipv6Resource) {
+                return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
+            } else {
+                throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
             }
         }, "inetnum");
 
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                return new RpslAttribute(AttributeType.DESCR, input.getValue());
-            }
-        }, "owner");
+        addTransformFunction(input -> new RpslAttribute(AttributeType.DESCR, input.getValue()), "owner");
     }
 }
