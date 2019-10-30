@@ -50,6 +50,7 @@ import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
@@ -110,7 +111,7 @@ class RdapObjectMapper {
     @Autowired
     public RdapObjectMapper(
             final NoticeFactory noticeFactory,
-            final RpslObjectDao rpslObjectDao,
+            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
             @Value("${rdap.port43:}") final String port43) {
