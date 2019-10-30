@@ -39,16 +39,6 @@ public class IndexWithValueAndTypeStatusIntegrationTest extends IndexIntegration
             "mnt-by:    OWNER-MNT\n" +
             "source:    TEST\n");
 
-    private static final RpslObject TEST_ROLE = RpslObject.parse("" +
-            "role:      Test Role\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31 6 12345678\n" +
-            "nic-hdl:   TR1-TEST\n" +
-            "admin-c:   TR1-TEST\n" +
-            "abuse-mailbox: abuse@test.net\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
-
     private static final RpslObject TEST_OTHER_ORGANISATION = RpslObject.parse("" +
             "organisation:   ORG-TO1-TEST\n" +
             "org-name:       Test Organisation\n" +
@@ -62,14 +52,13 @@ public class IndexWithValueAndTypeStatusIntegrationTest extends IndexIntegration
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
-        databaseHelper.updateObject(TEST_ROLE);
         databaseHelper.addObject(TEST_OTHER_ORGANISATION);
 
         subject = IndexStrategies.get(AttributeType.STATUS);
     }
 
     @Test
-    public void findAutnumBYStatusIndex() {
+    public void findAutnumByStatusIndex() {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
                 "org:            ORG-TO1-TEST\n" +
