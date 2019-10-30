@@ -514,9 +514,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         notify:         noreply@ripe.net
-                        mnt-lower:      _UPD-MNT-MNT-MNT
                         mnt-routes:     UPD-MNT
-                        mnt-by:         UPD-MNT
+                        mnt-by:         _UPD-MNT-MNT-MNT
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -1345,7 +1344,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         response =~ /Delete SUCCEEDED: \[aut-num] AS101/
-        response !~ /Deprecated attribute "mnt-lower". This attribute has been removed./
+        !response.contains("Deprecated attribute \"mnt-lower\". This attribute has been removed.")
     }
 
 }
