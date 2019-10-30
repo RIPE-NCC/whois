@@ -128,18 +128,14 @@ public class IndexWithValueAndTypeStatusIntegrationTest extends IndexIntegration
                         "mnt-by:    OWNER-MNT\n" +
                         "source:    TEST\n");
 
-        List<RpslObjectInfo> result = subject.findInIndex(whoisTemplate, "ASSIGNED PA");
+        List<RpslObjectInfo> assignedPa = subject.findInIndex(whoisTemplate, "ASSIGNED PA");
+        assertThat(assignedPa, hasSize(1));
+        assertThat(assignedPa.get(0).getObjectType(), is(ObjectType.INET6NUM));
+        assertThat(assignedPa.get(0).getKey(), is("2001:2002:2003::/48"));
 
-        assertThat(result, hasSize(1));
-        RpslObjectInfo rpslObject = result.get(0);
-
-        assertThat(rpslObject.getObjectType(), is(ObjectType.INET6NUM));
-        assertThat(rpslObject.getKey(), is("2001:2002:2003::/48"));
-
-        List<RpslObjectInfo> result2 = subject.findInIndex(whoisTemplate, "ALLOCATED PA");
-        assertThat(result2, hasSize(2));
-
-        assertThat(result2.stream().map( inetnum -> inetnum.getKey()).collect(Collectors.toSet()), containsInAnyOrder("10.0.0.0 - 10.0.0.255", "10.0.0.0 - 10.255.255.255"));
+        List<RpslObjectInfo> allocatedPas = subject.findInIndex(whoisTemplate, "ALLOCATED PA");
+        assertThat(allocatedPas, hasSize(2));
+        assertThat(allocatedPas.stream().map( allocatedPa -> allocatedPa.getKey()).collect(Collectors.toSet()), containsInAnyOrder("10.0.0.0 - 10.0.0.255", "10.0.0.0 - 10.255.255.255"));
     }
 
     @Test
