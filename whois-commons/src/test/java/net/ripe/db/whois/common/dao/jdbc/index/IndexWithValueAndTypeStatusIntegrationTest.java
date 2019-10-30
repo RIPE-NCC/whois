@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class IndexWithNameAndTypeRoleIntegrationTest extends IndexIntegrationTestBase {
+public class IndexWithValueAndTypeStatusIntegrationTest extends IndexIntegrationTestBase {
     private IndexStrategy subject;
 
     @Before
