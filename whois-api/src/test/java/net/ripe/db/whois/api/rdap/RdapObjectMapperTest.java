@@ -69,30 +69,30 @@ public class RdapObjectMapperTest {
         final Ip result = (Ip) map(
                 RpslObject.parse(
                         "inetnum:        10.0.0.0 - 10.255.255.255\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          some descr\n" +
-                        "country:        NL\n" +
-                        "admin-c:        TP1-TEST\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         OTHER\n" +
-                        "language:       EN\n" +
-                        "language:       DK\n" +
-                        "mnt-by:         TST-MNT\n" +
-                        "mnt-lower:      TST-MNT\n" +
-                        "mnt-domains:    TST-MNT\n" +
-                        "mnt-routes:     TST-MNT\n" +
-                        "mnt-irt:        irt-IRT1\n" +
-                        "notify:         notify@test.net\n" +
-                        "org:            ORG-TOL1-TEST\n" +
-                        "source:         TEST"),
+                                "netname:        RIPE-NCC\n" +
+                                "descr:          some descr\n" +
+                                "country:        NL\n" +
+                                "admin-c:        TP1-TEST\n" +
+                                "tech-c:         TP1-TEST\n" +
+                                "status:         OTHER\n" +
+                                "language:       EN\n" +
+                                "language:       DK\n" +
+                                "mnt-by:         TST-MNT\n" +
+                                "mnt-lower:      TST-MNT\n" +
+                                "mnt-domains:    TST-MNT\n" +
+                                "mnt-routes:     TST-MNT\n" +
+                                "mnt-irt:        irt-IRT1\n" +
+                                "notify:         notify@test.net\n" +
+                                "org:            ORG-TOL1-TEST\n" +
+                                "source:         TEST"),
                 RpslObject.parse(
                         "role:           Abuse Contact\n" +
-                        "nic-hdl:        AB-TEST\n" +
-                        "mnt-by:         TEST-MNT\n" +
-                        "admin-c:        TP1-TEST\n" +
-                        "tech-c:         TP2-TEST\n" +
-                        "phone:          +31 12345678\n" +
-                        "source:         TEST"
+                                "nic-hdl:        AB-TEST\n" +
+                                "mnt-by:         TEST-MNT\n" +
+                                "admin-c:        TP1-TEST\n" +
+                                "tech-c:         TP2-TEST\n" +
+                                "phone:          +31 12345678\n" +
+                                "source:         TEST"
                 ));
 
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
@@ -344,25 +344,25 @@ public class RdapObjectMapperTest {
 
         assertThat(result.getNameservers(), hasSize(3));
         assertThat(result.getNameservers(), containsInAnyOrder(
-            new Nameserver(null, "ns1.test.com.au", null, new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), Lists.newArrayList("2001:10::1/128"))),
-            new Nameserver(null, "ns2.test.com.au", null, new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.2/32"), Lists.newArrayList("2001:10::2/128"))),
-            new Nameserver(null, "ns3.test.com.au", null, null)
+                new Nameserver(null, "ns1.test.com.au", null, new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), Lists.newArrayList("2001:10::1/128"))),
+                new Nameserver(null, "ns2.test.com.au", null, new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.2/32"), Lists.newArrayList("2001:10::2/128"))),
+                new Nameserver(null, "ns3.test.com.au", null, null)
         ));
 
         final Domain.SecureDNS secureDNS = result.getSecureDNS();
         assertThat(secureDNS.isDelegationSigned(), is(true));
         assertThat(secureDNS.getDsData(), hasSize(3));
         assertThat(secureDNS.getDsData(), containsInAnyOrder(
-            new Domain.SecureDNS.DsData(52151L, 1, "13ee60f7499a70e5aadaf05828e7fc59e8e70bc1", 1, null),
-            new Domain.SecureDNS.DsData(17881L, 5, "2e58131e5fe28ec965a7b8e4efb52d0a028d7a78", 1, null),
-            new Domain.SecureDNS.DsData(17881L, 5, "8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e", 2, null)
+                new Domain.SecureDNS.DsData(52151L, 1, "13ee60f7499a70e5aadaf05828e7fc59e8e70bc1", 1, null),
+                new Domain.SecureDNS.DsData(17881L, 5, "2e58131e5fe28ec965a7b8e4efb52d0a028d7a78", 1, null),
+                new Domain.SecureDNS.DsData(17881L, 5, "8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e", 2, null)
         ));
 
         final List<Entity> entities = result.getEntitySearchResults();
         assertThat(entities, hasSize(2));
         assertThat(entities, containsInAnyOrder(
-            new Entity("OWNER-MNT", null, Lists.newArrayList(Role.REGISTRANT), null),
-            new Entity("TP1-TEST", null, Lists.newArrayList(Role.TECHNICAL, Role.ADMINISTRATIVE, Role.ZONE), null)
+                new Entity("OWNER-MNT", null, Lists.newArrayList(Role.REGISTRANT), null),
+                new Entity("TP1-TEST", null, Lists.newArrayList(Role.TECHNICAL, Role.ADMINISTRATIVE, Role.ZONE), null)
         ));
 
         assertThat(result.getPort43(), is("whois.ripe.net"));

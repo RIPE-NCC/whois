@@ -2,11 +2,16 @@ package net.ripe.db.whois.query.pipeline;
 
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.handler.WhoisLog;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

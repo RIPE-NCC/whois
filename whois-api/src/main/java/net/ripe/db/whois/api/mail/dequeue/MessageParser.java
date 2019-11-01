@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import net.ripe.db.whois.api.mail.MailMessage;
@@ -37,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -246,7 +246,7 @@ public class MessageParser {
             }
         }
 
-        return Charsets.ISO_8859_1;
+        return StandardCharsets.ISO_8859_1;
     }
 
     String getHeaders(final Part part) throws MessagingException {

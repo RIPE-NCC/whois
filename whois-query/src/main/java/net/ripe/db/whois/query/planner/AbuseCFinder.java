@@ -16,6 +16,7 @@ import net.ripe.db.whois.query.dao.AbuseValidationStatusDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +35,7 @@ public class AbuseCFinder {
     private final AbuseValidationStatusDao abuseValidationStatusDao;
 
     @Autowired
-    public AbuseCFinder(final RpslObjectDao objectDao,
+    public AbuseCFinder(@Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
                         final Ipv4Tree ipv4Tree,
                         final Ipv6Tree ipv6Tree,
                         final Maintainers maintainers,

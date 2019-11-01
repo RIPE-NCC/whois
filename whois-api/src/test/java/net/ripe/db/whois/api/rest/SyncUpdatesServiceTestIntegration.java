@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
@@ -27,6 +26,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -815,7 +815,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .field("NEW", "yes");
         RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", Charsets.ISO_8859_1.displayName())), String.class);
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", StandardCharsets.ISO_8859_1.displayName())), String.class);
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ÅçÅç"));
     }
@@ -919,7 +919,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", Charsets.ISO_8859_1.displayName())), String.class);
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", StandardCharsets.ISO_8859_1.displayName())), String.class);
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ÅçÅç"));
         assertThat(response, containsString("Create SUCCEEDED"));

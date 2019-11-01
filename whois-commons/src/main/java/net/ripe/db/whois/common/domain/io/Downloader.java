@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.domain.io;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -16,6 +15,7 @@ import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -31,7 +31,7 @@ public class Downloader {
     private static final int READ_TIMEOUT = 60_000;
 
     void checkMD5(final InputStream resourceDataStream, final InputStream md5Stream) throws IOException {
-        final String md5Line = FileCopyUtils.copyToString(new InputStreamReader(md5Stream, Charsets.UTF_8)).trim();
+        final String md5Line = FileCopyUtils.copyToString(new InputStreamReader(md5Stream, StandardCharsets.UTF_8)).trim();
         final Matcher matcher = MD5_CAPTURE_PATTERN.matcher(md5Line);
         if (!matcher.find()) {
             throw new IllegalArgumentException(String.format("Unexpected md5 hash: %s", md5Line));

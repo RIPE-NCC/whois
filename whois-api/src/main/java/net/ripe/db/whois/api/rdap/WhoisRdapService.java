@@ -35,30 +35,37 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
-import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
-import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 
 @Component
 @Path("/")
@@ -82,7 +89,7 @@ public class WhoisRdapService {
 
     @Autowired
     public WhoisRdapService(final RdapQueryHandler rdapQueryHandler,
-                            final RpslObjectDao objectDao,
+                            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
                             final AbuseCFinder abuseCFinder,
                             final RdapObjectMapper rdapObjectMapper,
                             final DelegatedStatsService delegatedStatsService,
@@ -315,35 +322,35 @@ public class WhoisRdapService {
             final List<RpslObject> objects = fullTextIndex.search(
                     new IndexTemplate.AccountingSearchCallback<List<RpslObject>>(accessControlListManager, request.getRemoteAddr(), source) {
 
-                @Override
-                protected List<RpslObject> doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
-                    final Stopwatch stopWatch = Stopwatch.createStarted();
+                        @Override
+                        protected List<RpslObject> doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
+                            final Stopwatch stopWatch = Stopwatch.createStarted();
 
-                    final List<RpslObject> results = Lists.newArrayList();
-                    final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
-                    try {
-                        final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
-                        queryParser.setAllowLeadingWildcard(true);
-                        queryParser.setDefaultOperator(QueryParser.Operator.AND);
-                        final org.apache.lucene.search.Query query = queryParser.parse(term);
-                        final TopDocs topDocs = indexSearcher.search(query, maxResults);
-                        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-                            final Document document = indexSearcher.doc(scoreDoc.doc);
+                            final List<RpslObject> results = Lists.newArrayList();
+                            final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
+                            try {
+                                final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
+                                queryParser.setAllowLeadingWildcard(true);
+                                queryParser.setDefaultOperator(QueryParser.Operator.AND);
+                                final org.apache.lucene.search.Query query = queryParser.parse(term);
+                                final TopDocs topDocs = indexSearcher.search(query, maxResults);
+                                for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+                                    final Document document = indexSearcher.doc(scoreDoc.doc);
 
-                            final RpslObject rpslObject = convertToRpslObject(document);
-                            account(rpslObject);
-                            results.add(rpslObject);
+                                    final RpslObject rpslObject = convertToRpslObject(document);
+                                    account(rpslObject);
+                                    results.add(rpslObject);
+                                }
+
+                                LOGGER.info("Found {} objects in {}", results.size(), stopWatch.stop());
+                                return results;
+
+                            } catch (ParseException e) {
+                                LOGGER.error("handleSearch", e);
+                                throw new BadRequestException("cannot parse query " + term);
+                            }
                         }
-
-                        LOGGER.info("Found {} objects in {}", results.size(), stopWatch.stop());
-                        return results;
-
-                    } catch (ParseException e) {
-                        LOGGER.error("handleSearch", e);
-                        throw new BadRequestException("cannot parse query " + term);
-                    }
-                }
-            });
+                    });
 
             if (objects.isEmpty()) {
                 throw new NotFoundException("not found");
