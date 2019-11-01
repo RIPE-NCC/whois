@@ -12,7 +12,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 

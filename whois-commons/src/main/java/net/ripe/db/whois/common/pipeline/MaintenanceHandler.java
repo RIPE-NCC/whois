@@ -2,7 +2,11 @@ package net.ripe.db.whois.common.pipeline;
 
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.ip.IpInterval;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

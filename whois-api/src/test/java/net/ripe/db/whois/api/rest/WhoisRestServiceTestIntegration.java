@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
@@ -65,6 +64,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Timestamp;
@@ -1791,7 +1791,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
-                "</whois-resources>").getBytes(Charsets.UTF_8);
+                "</whois-resources>").getBytes(StandardCharsets.UTF_8);
 
         final String response = RestTest.target(getPort(), "whois/test/role?password=test")
             .request()
@@ -2698,7 +2698,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "        ] }\n" +
                         "    }] \n" +
-                        "}}", new MediaType("application", "json", Charsets.UTF_8.displayName())), String.class), containsString("Flughafenstraße 109/a"));
+                        "}}", new MediaType("application", "json", StandardCharsets.UTF_8.displayName())), String.class), containsString("Flughafenstraße 109/a"));
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
@@ -2750,7 +2750,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "        ] }\n" +
                         "    }] \n" +
-                        "}}", new MediaType("application", "json", Charsets.ISO_8859_1.displayName())), String.class);
+                        "}}", new MediaType("application", "json", StandardCharsets.ISO_8859_1.displayName())), String.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);

@@ -1,7 +1,5 @@
 package net.ripe.db.whois.query.planner;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.IterableTransformer;
@@ -27,10 +25,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 // TODO [AK] Wrap related response objects (messages + rpsl) in a single response object
@@ -60,6 +58,8 @@ public class RpslResponseDecorator {
     private final Set<PrimaryObjectDecorator> decorators;
     private final SsoTokenTranslator ssoTokenTranslator;
     private final CrowdClient crowdClient;
+    private final ToShorthandFunction toShorthandFunction;
+    private final ToKeysFunction toKeysFunction;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -86,6 +86,8 @@ public class RpslResponseDecorator {
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
         this.briefAbuseCFunction = new BriefAbuseCFunction(abuseCFinder);
         this.decorators = Sets.newHashSet(decorators);
+        this.toShorthandFunction = new ToShorthandFunction();
+        this.toKeysFunction = new ToKeysFunction();
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -109,10 +111,10 @@ public class RpslResponseDecorator {
 
     private Iterable<? extends ResponseObject> applySyntaxFilter(final Query query, final Iterable<? extends ResponseObject> result) {
         if (query.isValidSyntax()) {
-            return Iterables.concat(Iterables.transform(result, validSyntaxFilterFunction));
+            return Iterables.concat(Iterables.transform(result, validSyntaxFilterFunction::apply));
         }
         if (query.isNoValidSyntax()) {
-            return Iterables.concat(Iterables.transform(result, invalidSyntaxFilterFunction));
+            return Iterables.concat(Iterables.transform(result, invalidSyntaxFilterFunction::apply));
         }
 
         return result;
@@ -124,7 +126,7 @@ public class RpslResponseDecorator {
             return primaryObjects;
         }
 
-        final Iterable<ResponseObject> groupInline = Iterables.concat(Iterables.transform(primaryObjects, groupFunction));
+        final Iterable<ResponseObject> groupInline = Iterables.concat(Iterables.transform(primaryObjects, groupFunction::apply));
 
         return Iterables.concat(
                 groupInline,
@@ -146,17 +148,13 @@ public class RpslResponseDecorator {
 
     private Iterable<? extends ResponseObject> filterChanged(final Iterable<? extends ResponseObject> objects) {
 
-        return Iterables.transform(objects, new Function<ResponseObject, ResponseObject>() {
-            @Nullable
-            @Override
-            public ResponseObject apply(final ResponseObject input) {
+        return Iterables.transform(objects, input -> {
                 if (input instanceof RpslObject) {
                     return FILTER_CHANGED_FUNCTION.apply((RpslObject) input);
                 }
 
                 return input;
-            }
-        });
+            });
     }
 
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
@@ -168,16 +166,12 @@ public class RpslResponseDecorator {
                         FILTER_AUTH_FUNCTION :
                         new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, crowdClient, rpslObjectDao);
 
-        return Iterables.transform(objects, new Function<ResponseObject, ResponseObject>() {
-            @Nullable
-            @Override
-            public ResponseObject apply(final ResponseObject input) {
-                if (input instanceof RpslObject) {
-                    return filterAuthFunction.apply((RpslObject) input);
-                }
-
-                return input;
+        return Iterables.transform(objects, input -> {
+            if (input instanceof RpslObject) {
+                return filterAuthFunction.apply((RpslObject) input);
             }
+
+            return input;
         });
     }
 
@@ -201,17 +195,17 @@ public class RpslResponseDecorator {
 
     private Iterable<? extends ResponseObject> applyOutputFilters(final Query query, final Iterable<? extends ResponseObject> objects) {
         if (query.isShortHand()) {
-            return Iterables.transform(objects, new ToShorthandFunction());
+            return Iterables.transform(objects, toShorthandFunction::apply);
         }
 
         if (query.isBriefAbuseContact()) {
-            return Iterables.filter(Iterables.transform(objects, briefAbuseCFunction), Predicates.notNull());
+            return Iterables.filter(Iterables.transform(objects, briefAbuseCFunction::apply), Objects::nonNull);
         }
 
         if (query.isKeysOnly()) {
             return Iterables.concat(
                     Collections.singletonList(new MessageObject(QueryMessages.primaryKeysOnlyNotice())),
-                    Iterables.transform(objects, new ToKeysFunction()));
+                    Iterables.transform(objects, toKeysFunction::apply));
         }
 
         return objects;

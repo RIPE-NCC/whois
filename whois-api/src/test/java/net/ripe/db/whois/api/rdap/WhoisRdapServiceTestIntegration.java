@@ -19,9 +19,7 @@ import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -243,6 +241,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
+
         assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
         assertThat(ip.getIpVersion(), is("v4"));
         assertThat(ip.getCountry(), is("NL"));
@@ -252,6 +251,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getLang(), is(nullValue()));
         assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
     }
+
 
     @Test
     public void lookup_inetnum_multiple_country_codes() {

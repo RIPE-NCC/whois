@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -14,6 +13,7 @@ import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
@@ -61,10 +61,10 @@ class ExportFileWriterFactory {
         initDirs(fullDirNew, fullDir, splitDirNew, splitDir, internalDir);
 
         try {
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDirNew, CURRENTSERIAL_FILENAME));
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_FILENAME));
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDirNew, CURRENTSERIAL_NONAUTH_FILENAME));
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(Charsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_NONAUTH_FILENAME));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDirNew, CURRENTSERIAL_FILENAME));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_FILENAME));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDirNew, CURRENTSERIAL_NONAUTH_FILENAME));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDir, CURRENTSERIAL_NONAUTH_FILENAME));
         } catch (IOException e) {
             throw new RuntimeException("Writing current serial", e);
         }
