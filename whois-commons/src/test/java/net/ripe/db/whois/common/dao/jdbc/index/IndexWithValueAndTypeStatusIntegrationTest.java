@@ -83,18 +83,6 @@ public class IndexWithValueAndTypeStatusIntegrationTest extends IndexIntegration
     public void findInetnumByStatusIndex() {
 
         databaseHelper.addObject(
-                "inet6num:       2001:2002:2003::/48\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST"
-        );
-
-        databaseHelper.addObject(
                 "inetnum:   10.0.0.0 - 10.255.255.255\n" +
                         "netname:   TEST-NET\n" +
                         "descr:     description\n" +
@@ -117,14 +105,30 @@ public class IndexWithValueAndTypeStatusIntegrationTest extends IndexIntegration
                         "mnt-by:    OWNER-MNT\n" +
                         "source:    TEST\n");
 
+        List<RpslObjectInfo> allocatedPas = subject.findInIndex(whoisTemplate, "ALLOCATED PA");
+        assertThat(allocatedPas, hasSize(2));
+        assertThat(allocatedPas.stream().map( allocatedPa -> allocatedPa.getKey()).collect(Collectors.toSet()), containsInAnyOrder("10.0.0.0 - 10.0.0.255", "10.0.0.0 - 10.255.255.255"));
+    }
+
+    @Test
+    public void findInet6numByStatusIndex() {
+
+        databaseHelper.addObject(
+                "inet6num:       2001:2002:2003::/48\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST"
+        );
+
         List<RpslObjectInfo> assignedPa = subject.findInIndex(whoisTemplate, "ASSIGNED PA");
         assertThat(assignedPa, hasSize(1));
         assertThat(assignedPa.get(0).getObjectType(), is(ObjectType.INET6NUM));
         assertThat(assignedPa.get(0).getKey(), is("2001:2002:2003::/48"));
-
-        List<RpslObjectInfo> allocatedPas = subject.findInIndex(whoisTemplate, "ALLOCATED PA");
-        assertThat(allocatedPas, hasSize(2));
-        assertThat(allocatedPas.stream().map( allocatedPa -> allocatedPa.getKey()).collect(Collectors.toSet()), containsInAnyOrder("10.0.0.0 - 10.0.0.255", "10.0.0.0 - 10.255.255.255"));
     }
 
     @Test
