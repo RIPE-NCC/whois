@@ -125,7 +125,7 @@ public class IndexWithValueAndTypeStatusIntegrationTest extends IndexIntegration
                         "source:         TEST"
         );
 
-        List<RpslObjectInfo> assignedPa = subject.findInIndex(whoisTemplate, "ASSIGNED PA");
+        List<RpslObjectInfo> assignedPa = subject.findInIndex(whoisTemplate, "ASSIGNED PA", ObjectType.INET6NUM);
         assertThat(assignedPa, hasSize(1));
         assertThat(assignedPa.get(0).getObjectType(), is(ObjectType.INET6NUM));
         assertThat(assignedPa.get(0).getKey(), is("2001:2002:2003::/48"));
