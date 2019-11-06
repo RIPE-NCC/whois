@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
-
+//TODO: [MA] differentiate between different trusted addresses. Currently,  we treat an internal user on the VPN the same as Controlroom or the LIR Portal
 @Component
 public class MaintainerLirSyncValidator implements BusinessRuleValidator {
 
@@ -43,7 +43,7 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
             updateContext.addMessage(update, UpdateMessages.originIsMissing());
         }
 
-        if(!isSsoUpdateRequest(update)) {
+        if(!isChangingSSOAttribute(update)) {
             return;
         }
 
@@ -52,6 +52,8 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
             return;
         }
 
+        //origin check to allow only rest api (validation fail for sync updates and mail updates)
+        //trusted Ip check to allow change of sso attribute through ripe portal/controlroom via Whois-internal
         if(REST_API.equals(origin.getName()) && ipranges.isTrusted(IpInterval.parse(origin.getFrom()))) {
             return;
         }
@@ -59,7 +61,7 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
         updateContext.addMessage(update, UpdateMessages.updatingRipeMaintainerSSOForbidden());
     }
 
-    private boolean isSsoUpdateRequest(PreparedUpdate update) {
+    private boolean isChangingSSOAttribute(PreparedUpdate update) {
         return update.getDifferences(AttributeType.AUTH).stream().anyMatch(auth -> Pattern.compile("SSO\\s+(.*\\S)").matcher(auth.toString()).matches());
     }
 
