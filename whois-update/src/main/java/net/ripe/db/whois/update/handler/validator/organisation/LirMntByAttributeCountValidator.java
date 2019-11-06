@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -25,8 +26,6 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
-    private static final CIString LIR = CIString.ciString("LIR");
-
     private final Maintainers maintainers;
 
     @Autowired
@@ -37,7 +36,7 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject originalObject = update.getReferenceObject();
-        if (!LIR.equals(originalObject.getValueForAttribute(AttributeType.ORG_TYPE))) {
+        if (!isLir(originalObject)) {
             return;
         }
 
@@ -53,6 +52,10 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
                 .stream()
                 .filter(mntby -> !maintainers.isRsMaintainer(mntby))
                 .collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    private boolean isLir(final RpslObject organisation) {
+        return OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR;
     }
 
     @Override
