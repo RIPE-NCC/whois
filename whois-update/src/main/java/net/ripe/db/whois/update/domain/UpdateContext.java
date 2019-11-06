@@ -122,6 +122,15 @@ public class UpdateContext {
     public Action getAction(final UpdateContainer updateContainer) {
         return getOrCreateContext(updateContainer).action;
     }
+
+    public void setOrigin(final UpdateContainer updateContainer, final Origin origin) {
+        getOrCreateContext(updateContainer).origin = origin;
+    }
+
+    public Origin getOrigin(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).origin;
+    }
+
     public PreparedUpdate getPreparedUpdate(final UpdateContainer updateContainer) {
         return getOrCreateContext(updateContainer).preparedUpdate;
     }
@@ -316,5 +325,6 @@ public class UpdateContext {
         private int retryCount;
         private RpslObjectUpdateInfo updateInfo;
         private int versionId = -1;
+        private Origin origin;
     }
 }
