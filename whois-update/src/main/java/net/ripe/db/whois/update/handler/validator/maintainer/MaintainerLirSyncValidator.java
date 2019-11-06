@@ -46,7 +46,7 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
             updateContext.addMessage(update, UpdateMessages.originIsMissing());
         }
 
-        if(!isChangingSSOAttribute(update)) {
+        if(!isChangingSsoAuthAttribute(update)) {
             return;
         }
 
