@@ -96,7 +96,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
-        <tag>HEAD</tag>
+       <tag>HEAD</tag>
   </scm>
 
     <distributionManagement>
