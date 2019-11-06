@@ -23,10 +23,10 @@ public class JdbcAbuseValidationStatusDao implements AbuseValidationStatusDao {
     }
 
     @Override
-    public boolean isSuspect(CIString email) {
+    public boolean isSuspect(final CIString address) {
         return internalsTemplate.queryForObject(
-                "select count(*) from abuse_email where address = ? and status = ?",
-                new String[] { email.toLowerCase(), "SUSPECT" },
+                "SELECT count(*) FROM abuse_email WHERE address = ? AND status = ?",
+                new Object[] { address.toString(), "SUSPECT" },
                 Integer.class) > 0;
     }
 }
