@@ -1,5 +1,27 @@
 # next
 
+[all] Refactor SSO auth pattern matching (#588)
+
+# 1.95.6
+
+[all] Deprecate mnt-lower in autnum (#585)
+[query] Abuse-c validation comment must refer to the LIR organisation (#573)
+[query] Don't allow more than maximum result rows in fulltextsearch request (#580)
+[update] Use trusted ip instead of override for changing mntner sso attribute (#576)
+
+[all] Update Mariadb JDBC dependency to latest. (#583)
+[all] Update Jetty Dependency to Latest (#579)
+[all] Update Jackson Dependency to Latest (#578)
+[all] Gitlab (#582)
+
+# 1.95.5
+
+# 1.95.4
+[all] Updated commons-compress to 1.19 to mitigate CVE-2019-12402.
+[all] Replace Guava methods with (built-in) Java 8 Alternatives (#577)
+[query] Use slave datasource for query (#581)
+[all] Create status index (#586)
+
 # 1.95.3
 [api] Jetty request log
 [all] Support optional milliseconds in Crowd response. (#571)
@@ -11,7 +33,6 @@
 # 1.95.1
 [update] Don't perform SSO auth translation in Batch API
 [all] Use a Timestamp class (#569)
-
 
 # 1.95
 
