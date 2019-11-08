@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.maintainer;
 
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.dao.MaintainerSyncStatusDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -25,7 +26,9 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.MNTNER);
-    public static final String REST_API = "rest api";
+
+    private static final Pattern SSO_AUTH_PATTERN = Pattern.compile("SSO\\s+(.*\\S)");
+    private static final String REST_API_ORIGIN = "rest api";
 
     private final MaintainerSyncStatusDao maintainerSyncStatusDao;
     private final IpRanges ipranges;
@@ -43,7 +46,7 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
             updateContext.addMessage(update, UpdateMessages.originIsMissing());
         }
 
-        if(!isChangingSSOAttribute(update)) {
+        if(!isChangingSsoAuthAttribute(update)) {
             return;
         }
 
@@ -54,15 +57,19 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
 
         //origin check to allow only rest api (validation fail for sync updates and mail updates)
         //trusted Ip check to allow change of sso attribute through ripe portal/controlroom via Whois-internal
-        if(REST_API.equals(origin.getName()) && ipranges.isTrusted(IpInterval.parse(origin.getFrom()))) {
+        if(REST_API_ORIGIN.equals(origin.getName()) && ipranges.isTrusted(IpInterval.parse(origin.getFrom()))) {
             return;
         }
 
         updateContext.addMessage(update, UpdateMessages.updatingRipeMaintainerSSOForbidden());
     }
 
-    private boolean isChangingSSOAttribute(PreparedUpdate update) {
-        return update.getDifferences(AttributeType.AUTH).stream().anyMatch(auth -> Pattern.compile("SSO\\s+(.*\\S)").matcher(auth.toString()).matches());
+    private boolean isChangingSsoAuthAttribute(final PreparedUpdate update) {
+        return update.getDifferences(AttributeType.AUTH).stream().anyMatch(this::isSsoAuthAttribute);
+    }
+
+    private boolean isSsoAuthAttribute(final CIString value) {
+        return SSO_AUTH_PATTERN.matcher(value).matches();
     }
 
     @Override
