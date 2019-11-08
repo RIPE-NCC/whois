@@ -24,10 +24,10 @@ import java.util.regex.Pattern;
 @Component
 public class MaintainerLirSyncValidator implements BusinessRuleValidator {
 
-    private static final Pattern SSO_PATTERN = Pattern.compile("SSO\\s+(.*\\S)");
-
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.MNTNER);
+
+    private static final Pattern SSO_AUTH_PATTERN = Pattern.compile("SSO\\s+(.*\\S)");
     private static final String REST_API_ORIGIN = "rest api";
 
     private final MaintainerSyncStatusDao maintainerSyncStatusDao;
@@ -69,7 +69,7 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
     }
 
     private boolean isSsoAuthAttribute(final CIString value) {
-        return SSO_PATTERN.matcher(value).matches();
+        return SSO_AUTH_PATTERN.matcher(value).matches();
     }
 
     @Override
