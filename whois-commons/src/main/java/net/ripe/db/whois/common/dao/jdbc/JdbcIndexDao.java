@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,6 @@ public class JdbcIndexDao implements IndexDao {
     private final UpdateLockDao updateLockDao;
     private final AttributeSanitizer attributeSanitizer;
     private final ConcurrentState state;
-
     private enum Phase {KEYS, OTHER}
 
     @Autowired
@@ -124,9 +124,7 @@ public class JdbcIndexDao implements IndexDao {
 
                 final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
                 final Set<AttributeType> keyAttributes = objectTemplate.getKeyAttributes();
-                final Set<AttributeType> otherAttributes = Sets.newHashSet();
-                otherAttributes.addAll(objectTemplate.getInverseLookupAttributes());
-                otherAttributes.addAll(objectTemplate.getLookupAttributes());
+                final Set<AttributeType> otherAttributes = getIndexedAttributes(objectTemplate);
                 otherAttributes.removeAll(keyAttributes);
 
                 final Set<AttributeType> updateAttributes = Phase.KEYS.equals(phase) ? keyAttributes : otherAttributes;
@@ -207,5 +205,22 @@ public class JdbcIndexDao implements IndexDao {
         } catch (RuntimeException e) {
             LOGGER.error("Remove {} indexes for missing objects", attributeType, e);
         }
+    }
+
+    private Set<AttributeType> getIndexedAttributes(ObjectTemplate objectTemplate) {
+       Set<AttributeType> indexedAttributes = new HashSet<>();
+
+       indexedAttributes.addAll(objectTemplate.getInverseLookupAttributes());
+       indexedAttributes.addAll(objectTemplate.getLookupAttributes());
+
+       if(objectTemplate.hasAttribute(AttributeType.STATUS)) {
+           indexedAttributes.add(AttributeType.STATUS);
+       }
+
+        if(objectTemplate.hasAttribute(AttributeType.SPONSORING_ORG)) {
+            indexedAttributes.add(AttributeType.SPONSORING_ORG);
+        }
+
+        return indexedAttributes;
     }
 }
