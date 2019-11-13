@@ -10,12 +10,14 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public abstract class RebuildableIndex {
+
+    private static final long SEARCH_LOCK_TIMEOUT = 10L;
+
     private final Logger logger;
-
     private final Semaphore updateLock = new Semaphore(1);
-
     private final Semaphore searchLock;
 
     protected final String indexDir;
@@ -102,10 +104,15 @@ public abstract class RebuildableIndex {
         }
 
         try {
-            searchLock.acquire();
+            if (!searchLock.tryAcquire(SEARCH_LOCK_TIMEOUT, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("Unable to acquire search lock");
+            }
+        } catch (InterruptedException e) {
+            throw new IllegalStateException("Unable to acquire search lock");
+        }
+
+        try {
             return index.search(searchCallback);
-        } catch (InterruptedException ie) {
-            throw new IllegalStateException(ie);
         } finally {
             searchLock.release();
         }
