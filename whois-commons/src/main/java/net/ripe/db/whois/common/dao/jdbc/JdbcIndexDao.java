@@ -213,6 +213,7 @@ public class JdbcIndexDao implements IndexDao {
        indexedAttributes.addAll(objectTemplate.getInverseLookupAttributes());
        indexedAttributes.addAll(objectTemplate.getLookupAttributes());
 
+       //TODO [MA] find a better way to rebuild for non lookup and inverse key attributes
        if(objectTemplate.hasAttribute(AttributeType.STATUS)) {
            indexedAttributes.add(AttributeType.STATUS);
        }
