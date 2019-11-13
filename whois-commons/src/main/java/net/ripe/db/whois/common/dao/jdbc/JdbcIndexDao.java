@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -207,8 +206,8 @@ public class JdbcIndexDao implements IndexDao {
         }
     }
 
-    private Set<AttributeType> getIndexedAttributes(ObjectTemplate objectTemplate) {
-       Set<AttributeType> indexedAttributes = new HashSet<>();
+    private Set<AttributeType> getIndexedAttributes(final ObjectTemplate objectTemplate) {
+       Set<AttributeType> indexedAttributes =  Sets.newHashSet();
 
        indexedAttributes.addAll(objectTemplate.getInverseLookupAttributes());
        indexedAttributes.addAll(objectTemplate.getLookupAttributes());
