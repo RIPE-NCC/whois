@@ -63,8 +63,7 @@ public class IndexTemplate implements Closeable {
 
     public IndexTemplate(
                 final String directory,
-                final IndexWriterConfig config,
-                final int maxConcurrentSearches) throws IOException {
+                final IndexWriterConfig config) throws IOException {
         if (StringUtils.isEmpty(directory)) {
             LOGGER.warn("Using RAM directory for index");
             taxonomy = new RAMDirectory();
@@ -79,7 +78,7 @@ public class IndexTemplate implements Closeable {
 
         this.updateLock.acquireUninterruptibly();
 
-        this.executorService = createExecutorService(maxConcurrentSearches);
+        this.executorService = createExecutorService();
 
         try {
             createNewWriters();
@@ -88,10 +87,12 @@ public class IndexTemplate implements Closeable {
         }
     }
 
-    private ExecutorService createExecutorService(final int poolSize) {
+    private ExecutorService createExecutorService() {
         // sadly Executors don't offer a bounded/blocking submit() implementation
-        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(poolSize * 64);
-        return new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+        final int processors = Runtime.getRuntime().availableProcessors();
+        final int numThreads = Math.max(Math.floorDiv(processors, 8), 1);
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+        return new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     @Override

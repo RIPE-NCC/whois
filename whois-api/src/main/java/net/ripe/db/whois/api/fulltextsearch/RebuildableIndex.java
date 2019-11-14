@@ -19,12 +19,9 @@ public abstract class RebuildableIndex {
     protected final String indexDir;
     protected IndexTemplate index;
 
-    private final int maxConcurrentSearches;
-
-    protected RebuildableIndex(final Logger logger, final String indexDir, final int maxConcurrentSearches) {
+    protected RebuildableIndex(final Logger logger, final String indexDir) {
         this.logger = logger;
         this.indexDir = indexDir;
-        this.maxConcurrentSearches = maxConcurrentSearches;
     }
 
     protected void init(final IndexWriterConfig config, final IndexTemplate.WriteCallback initializer) {
@@ -33,7 +30,7 @@ public abstract class RebuildableIndex {
         }
 
         try {
-            index = new IndexTemplate(indexDir, config, maxConcurrentSearches);
+            index = new IndexTemplate(indexDir, config);
             index.write(initializer);
         } catch (IOException e) {
             throw new IllegalStateException(String.format("Initializing index in %s", indexDir), e);
