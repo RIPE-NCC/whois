@@ -47,7 +47,7 @@ public class IndexTemplateTest {
 
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_4, analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
-        subject = new IndexTemplate(folder.getRoot().getAbsolutePath(), config);
+        subject = new IndexTemplate(folder.getRoot().getAbsolutePath(), config, 1);
     }
 
     @After

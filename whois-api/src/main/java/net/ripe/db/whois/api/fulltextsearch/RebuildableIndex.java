@@ -10,23 +10,21 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 public abstract class RebuildableIndex {
 
-    private static final long SEARCH_LOCK_TIMEOUT = 10L;
-
     private final Logger logger;
     private final Semaphore updateLock = new Semaphore(1);
-    private final Semaphore searchLock;
 
     protected final String indexDir;
     protected IndexTemplate index;
 
+    private final int maxConcurrentSearches;
+
     protected RebuildableIndex(final Logger logger, final String indexDir, final int maxConcurrentSearches) {
         this.logger = logger;
         this.indexDir = indexDir;
-        this.searchLock = new Semaphore(maxConcurrentSearches, true);
+        this.maxConcurrentSearches = maxConcurrentSearches;
     }
 
     protected void init(final IndexWriterConfig config, final IndexTemplate.WriteCallback initializer) {
@@ -35,7 +33,7 @@ public abstract class RebuildableIndex {
         }
 
         try {
-            index = new IndexTemplate(indexDir, config);
+            index = new IndexTemplate(indexDir, config, maxConcurrentSearches);
             index.write(initializer);
         } catch (IOException e) {
             throw new IllegalStateException(String.format("Initializing index in %s", indexDir), e);
@@ -103,19 +101,7 @@ public abstract class RebuildableIndex {
             throw new IllegalStateException("Index not found.");
         }
 
-        try {
-            if (!searchLock.tryAcquire(SEARCH_LOCK_TIMEOUT, TimeUnit.SECONDS)) {
-                throw new IllegalStateException("Unable to acquire search lock");
-            }
-        } catch (InterruptedException e) {
-            throw new IllegalStateException("Unable to acquire search lock");
-        }
-
-        try {
-            return index.search(searchCallback);
-        } finally {
-            searchLock.release();
-        }
+        return index.search(searchCallback);
     }
 
     protected abstract void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException;

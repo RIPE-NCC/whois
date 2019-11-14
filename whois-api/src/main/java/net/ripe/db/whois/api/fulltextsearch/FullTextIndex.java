@@ -164,11 +164,7 @@ public class FullTextIndex extends RebuildableIndex {
         indexWriter.deleteAll();
         final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
 
-        // sadly Executors don't offer a bounded/blocking submit() implementation
-        int numThreads = Runtime.getRuntime().availableProcessors();
-        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
-        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
-                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+        final ExecutorService executorService = createExecutorService();
 
         JdbcStreamingHelper.executeStreaming(jdbcTemplate, "" +
                         "SELECT object_id, object " +
@@ -302,6 +298,13 @@ public class FullTextIndex extends RebuildableIndex {
         }
 
         return value;
+    }
+
+    private ExecutorService createExecutorService() {
+        // sadly Executors don't offer a bounded/blocking submit() implementation
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+        return new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     final class DatabaseObjectProcessor implements Runnable {

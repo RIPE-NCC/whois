@@ -39,7 +39,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.lucene.util.IOUtils.closeWhileHandlingException;
 
@@ -50,12 +54,17 @@ public class IndexTemplate implements Closeable {
     private final Directory index;
     private final Semaphore updateLock = new Semaphore(1);
 
+    private final ExecutorService executorService;
+
     private IndexWriter indexWriter;
     private ReaderManager readerManager;
     private DirectoryTaxonomyWriter taxonomyWriter;
     private IndexWriterConfig config;
 
-    public IndexTemplate(final String directory, final IndexWriterConfig config) throws IOException {
+    public IndexTemplate(
+                final String directory,
+                final IndexWriterConfig config,
+                final int maxConcurrentSearches) throws IOException {
         if (StringUtils.isEmpty(directory)) {
             LOGGER.warn("Using RAM directory for index");
             taxonomy = new RAMDirectory();
@@ -68,17 +77,25 @@ public class IndexTemplate implements Closeable {
 
         this.config = config;
 
-        updateLock.acquireUninterruptibly();
+        this.updateLock.acquireUninterruptibly();
+
+        this.executorService = createExecutorService(maxConcurrentSearches);
 
         try {
             createNewWriters();
         } finally {
-            updateLock.release();
+            this.updateLock.release();
         }
     }
 
+    private ExecutorService createExecutorService(final int poolSize) {
+        // sadly Executors don't offer a bounded/blocking submit() implementation
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(poolSize * 64);
+        return new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+    }
+
     @Override
-    public void close() throws IOException {
+    public void close() {
         updateLock.acquireUninterruptibly();
 
         try {
@@ -160,7 +177,7 @@ public class IndexTemplate implements Closeable {
 
     public <T> T search(final SearchCallback<T> searchCallback) throws IOException {
         return read((final IndexReader indexReader, final TaxonomyReader taxonomyReader) -> {
-            final IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+            final IndexSearcher indexSearcher = new IndexSearcher(indexReader, executorService);
             return searchCallback.search(indexReader, taxonomyReader, indexSearcher);
         });
     }
