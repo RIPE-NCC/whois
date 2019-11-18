@@ -33,10 +33,6 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
     private final long endMsb;
     private final long endLsb;
 
-    private Ipv6Resource(final BigInteger begin, final int len) {
-        this(msb(begin), lsb(begin), len);
-    }
-
     public static long lsb(final BigInteger begin) {
         return begin.and(MASK).longValue();
     }
@@ -46,8 +42,7 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
     }
 
     public static Ipv6Resource parseFromStrings(final String msb, final String lsb, final int len) {
-        final BigInteger begin = new BigInteger(msb).shiftLeft(LONG_BITCOUNT).add(new BigInteger(lsb));
-        return new Ipv6Resource(begin, len);
+        return new Ipv6Resource(Long.parseLong(msb), Long.parseLong(lsb), len);
     }
 
     private Ipv6Resource(final long msb, final long lsb, final int prefixLength) {

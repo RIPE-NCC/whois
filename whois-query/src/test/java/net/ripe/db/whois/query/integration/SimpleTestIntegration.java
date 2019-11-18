@@ -636,6 +636,17 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
+    public void find124() {
+        databaseHelper.addObject("inet6num: 2a02:27d0:116:fffe:fffe:fffe:1671::/124");
+        databaseHelper.addObject("inet6num: 2a02:27d0::/32");
+
+        ipTreeUpdater.rebuild();
+        final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "2a02:27d0:116:fffe:fffe:fffe:1671::/124");
+
+        assertThat(query, containsString("inet6num:       2a02:27d0:116:fffe:fffe:fffe:1671::/124"));
+    }
+
+    @Test
     public void autnum_status_description() {
         final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v aut-num");
 
