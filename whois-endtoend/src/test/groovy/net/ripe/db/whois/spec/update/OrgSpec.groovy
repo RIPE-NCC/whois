@@ -3628,4 +3628,54 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
     }
 
+    def "update organisation, add non existent country, override"() {
+        given:
+        dbfixture(
+            "organisation:    ORG-SO1-TEST\n" +
+            "org-type:        other\n" +
+            "org-name:        First Org\n" +
+            "address:         RIPE NCC" +
+            "                 Singel 258" +
+            "                 1016 AB Amsterdam" +
+            "                 Netherlands\n" +
+            "e-mail:          dbtest@ripe.net\n" +
+            "mnt-ref:         owner3-mnt\n" +
+            "mnt-by:          owner2-mnt\n" +
+            "source:          TEST\n"
+        )
+
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                organisation:    ORG-SO1-TEST
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                country:         FF                 
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+                override:        denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.failed
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
+                [ "Country not recognised: FF" ]
+    }
+
 }
