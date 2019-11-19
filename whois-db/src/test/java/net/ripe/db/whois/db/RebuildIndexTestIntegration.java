@@ -562,6 +562,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-routes:     TST-MNT\n" +
                 "mnt-irt:        irt-IRT1\n" +
                 "notify:         notify@test.net\n" +
+                "status:         ASSIGNED PI\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "source:         TEST\n"));
     }
