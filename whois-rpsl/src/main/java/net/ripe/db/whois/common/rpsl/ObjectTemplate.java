@@ -354,6 +354,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ADDRESS, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(COUNTRY, OPTIONAL, SINGLE),
                         new AttributeTemplate(PHONE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(FAX_NO, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(E_MAIL, MANDATORY, MULTIPLE, LOOKUP_KEY),
