@@ -27,8 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @ChannelHandler.Sharable
 public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionPerIpLimitHandler.class);
-    private static final Integer INTEGER_ONE = Integer.valueOf(1);
 
     private final IpResourceConfiguration ipResourceConfiguration;
     private final WhoisLog whoisLog;
@@ -93,7 +93,7 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
     private Integer incrementOrCreate(InetAddress remoteAddress) {
         Integer count;
         do {
-            count = connections.putIfAbsent(remoteAddress, INTEGER_ONE);
+            count = connections.putIfAbsent(remoteAddress, 1);
         } while (count != null && !connections.replace(remoteAddress, count, count + 1));
         return count;
     }
@@ -102,15 +102,16 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
         Integer count;
         for (; ; ) {
             count = connections.get(remoteAddress);
-
-            if (count == INTEGER_ONE) {
-                if (connections.remove(remoteAddress, INTEGER_ONE)) {
+            if (count == null) {
+                break;
+            } else {
+                if (count == 1) {
+                    if (connections.remove(remoteAddress, 1)) {
+                        break;
+                    }
+                } else if (connections.replace(remoteAddress, count, count - 1)) {
                     break;
                 }
-            } else if (count == null) {
-                break;
-            } else if (connections.replace(remoteAddress, count, count - 1)) {
-                break;
             }
         }
     }
