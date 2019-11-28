@@ -30,11 +30,11 @@ public class AccessControlList {
     private IpResourceTree<Boolean> mirror;
 
     @Autowired
-    public AccessControlList(@Qualifier("aclDataSource") DataSource dataSource) {
+    public AccessControlList(@Qualifier("aclDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public boolean isMirror(InetAddress address) {
+    public boolean isMirror(final InetAddress address) {
         return Boolean.TRUE.equals(mirror.getValue(IpInterval.asIpInterval(address)));
     }
 
@@ -64,7 +64,7 @@ public class AccessControlList {
 
     private static class BooleanEntryMapper implements RowMapper<IpResourceEntry<Boolean>> {
         @Override
-        public IpResourceEntry<Boolean> mapRow(ResultSet rs, int rowNum) throws SQLException {
+        public IpResourceEntry<Boolean> mapRow(final ResultSet rs, final int rowNum) throws SQLException {
             return new IpResourceEntry<>(IpInterval.parse(rs.getString(1)), Boolean.TRUE);
         }
     }

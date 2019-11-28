@@ -53,10 +53,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
     private volatile ScheduledFuture<?> scheduledFuture;
 
-    static final String TERMS_AND_CONDITIONS = "" +
-            "% The RIPE Database is subject to Terms and Conditions.\n" +
-            "% See http://www.ripe.net/db/support/db-terms-conditions.pdf";
-
     public NrtmQueryHandler(
             @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
             @Qualifier("dummifierNrtm") final Dummifier dummifier,
@@ -118,7 +114,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             ));
 
             if (version < NrtmServer.NRTM_VERSION) {
-                writeMessage(channel, String.format("%%WARNING: NRTM version %d is deprecated, please consider migrating to version %d!", version, NrtmServer.NRTM_VERSION));
+                writeMessage(channel, NrtmMessages.deprecatedVersion(version));
             }
 
             if (query.isKeepalive()) {
@@ -187,7 +183,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             }
         }
 
-        writeMessage(channel, String.format("%%END %s", query.getSource()));
+        writeMessage(channel, NrtmMessages.end(query.getSource()));
     }
 
     private int writeSerials(final int begin, final int end, final Query query, final Channel channel) {
@@ -224,7 +220,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         }
 
         if (written && query.isKeepalive() && keepaliveEndOfStream) {
-            writeMessage(channel, String.format("%%END %d - %d", begin, end));
+            writeMessage(channel, NrtmMessages.end(begin, end));
         }
 
         return serial;
@@ -261,14 +257,14 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     private void handleVersionQuery(final Channel channel) {
-        writeMessage(channel, "% nrtm-server-" + applicationVersion);
+        writeMessage(channel, NrtmMessages.version(applicationVersion));
     }
 
     @Override
     public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         PendingWrites.add(ctx.getChannel());
 
-        writeMessage(ctx.getChannel(), TERMS_AND_CONDITIONS);
+        writeMessage(ctx.getChannel(),  NrtmMessages.termsAndConditions());
 
         super.channelConnected(ctx, e);
     }
@@ -284,7 +280,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         super.channelDisconnected(ctx, e);
     }
 
-    private void writeMessage(final Channel channel, final String message) {
+    private void writeMessage(final Channel channel, final Object message) {
         if (!channel.isOpen()) {
             throw new ChannelException();
         }

@@ -6,8 +6,6 @@ import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +15,6 @@ import java.net.InetAddress;
 @ChannelHandler.Sharable
 public class AccessControlHandler extends SimpleChannelUpstreamHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlHandler.class);
-
     private final AccessControlList acl;
 
     @Autowired
@@ -27,11 +23,11 @@ public class AccessControlHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void channelBound(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+    public void channelBound(final ChannelHandlerContext ctx, final ChannelStateEvent e) {
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(ctx.getChannel());
 
         if (!acl.isMirror(remoteAddress)) {
-            ctx.getChannel().write("%ERROR:402: not authorised to mirror the database from IP address " + remoteAddress.getHostAddress()+"\n").addListener(ChannelFutureListener.CLOSE);
+            ctx.getChannel().write(NrtmMessages.notAuthorised(remoteAddress.getHostAddress())).addListener(ChannelFutureListener.CLOSE);
             return;
         }
 
