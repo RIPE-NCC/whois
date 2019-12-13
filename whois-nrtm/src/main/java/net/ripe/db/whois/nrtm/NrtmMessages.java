@@ -11,12 +11,12 @@ public class NrtmMessages {
 
     public static Message termsAndConditions() {
         return new Message(Messages.Type.INFO,
-            "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf");
+            "%% The RIPE Database is subject to Terms and Conditions.\n" +
+                "%% See http://www.ripe.net/db/support/db-terms-conditions.pdf");
     }
 
     public static Message version(final String applicationVersion) {
-        return new Message(Messages.Type.INFO, "% nrtm-server-%s", applicationVersion);
+        return new Message(Messages.Type.INFO, "%% nrtm-server-%s", applicationVersion);
     }
 
     public static Message end(final String source) {
@@ -32,7 +32,7 @@ public class NrtmMessages {
     }
 
     public static Message notAuthorised(final String remoteAddress) {
-        return new Message(Messages.Type.ERROR, "%ERROR:402: not authorised to mirror the database from IP address %s\n", remoteAddress);
+        return new Message(Messages.Type.ERROR, "%%ERROR:402: not authorised to mirror the database from IP address %s\n", remoteAddress);
     }
 
     public static Message connectionsExceeded(final int connectionLimit) {
