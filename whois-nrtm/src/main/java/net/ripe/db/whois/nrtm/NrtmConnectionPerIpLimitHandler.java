@@ -1,11 +1,7 @@
-package net.ripe.db.whois.query.pipeline;
+package net.ripe.db.whois.nrtm;
 
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.pipeline.ConnectionCounter;
-import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import net.ripe.db.whois.query.handler.WhoisLog;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandler;
@@ -25,26 +21,20 @@ import java.net.InetAddress;
  */
 @Component
 @ChannelHandler.Sharable
-public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
+public class NrtmConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionPerIpLimitHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmConnectionPerIpLimitHandler.class);
 
-    private final IpResourceConfiguration ipResourceConfiguration;
-    private final WhoisLog whoisLog;
     private final ConnectionCounter connectionCounter;
     private final int maxConnectionsPerIp;
-    private final String version;
+    private final NrtmLog nrtmLog;
 
     @Autowired
-    public ConnectionPerIpLimitHandler(
-            final IpResourceConfiguration ipResourceConfiguration,
-            final WhoisLog whoisLog,
+    public NrtmConnectionPerIpLimitHandler(
             @Value("${whois.limit.connectionsPerIp:3}") final int maxConnectionsPerIp,
-            @Value("${application.version}") final String version) {
-        this.ipResourceConfiguration = ipResourceConfiguration;
-        this.whoisLog = whoisLog;
+            final NrtmLog nrtmLog) {
         this.maxConnectionsPerIp = maxConnectionsPerIp;
-        this.version = version;
+        this.nrtmLog = nrtmLog;
         this.connectionCounter = new ConnectionCounter();
     }
 
@@ -54,10 +44,8 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
         if (limitConnections(remoteAddress) && connectionsExceeded(remoteAddress)) {
-            whoisLog.logQueryResult("QRY", 0, 0, QueryCompletionInfo.REJECTED, 0, remoteAddress, channel.getId(), "");
-            channel.write(QueryMessages.termsAndConditions());
-            channel.write(QueryMessages.connectionsExceeded(maxConnectionsPerIp));
-            channel.write(QueryMessages.servedByNotice(version)).addListener(ChannelFutureListener.CLOSE);
+            nrtmLog.log(remoteAddress, "REJECTED");
+            channel.write(NrtmMessages.connectionsExceeded(maxConnectionsPerIp)).addListener(ChannelFutureListener.CLOSE);
             return;
         }
 
@@ -74,21 +62,12 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
     }
 
     private boolean limitConnections(final InetAddress remoteAddress) {
-        if (ipResourceConfiguration.isUnlimitedConnections(remoteAddress)) {
-            LOGGER.debug("Unlimited connections allowed for {}", remoteAddress);
-            return false;
-        }
-
-        if (ipResourceConfiguration.isProxy(remoteAddress)) {
-            LOGGER.debug("Unlimited connections allowed for client with proxy {}", remoteAddress);
-            return false;
-        }
-
+        // unlike query port, no exceptions made for internal addresses
         return maxConnectionsPerIp > 0;
     }
 
-    private boolean connectionsExceeded(final InetAddress remoteAddress) {
-        final Integer count = connectionCounter.incrementOrCreate(remoteAddress);
-        return (count != null && count >= maxConnectionsPerIp);
+    private boolean connectionsExceeded(final InetAddress remoteAddresss) {
+        final Integer count = connectionCounter.incrementOrCreate(remoteAddresss);
+        return (count != null && count > maxConnectionsPerIp);
     }
 }
