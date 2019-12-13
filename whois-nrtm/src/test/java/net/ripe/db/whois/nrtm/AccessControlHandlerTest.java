@@ -14,7 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import static org.hamcrest.Matchers.containsString;
+import static net.ripe.db.whois.common.support.ContainsMessage.containsMessage;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -44,7 +44,7 @@ public class AccessControlHandlerTest {
 
         subject.channelBound(channelHandlerContextMock, channelStateEventMock);
 
-        verify(channelMock, times(1)).write(argThat(containsString("ERROR:402")));
+        verify(channelMock, times(1)).write(argThat(containsMessage("%ERROR:402")));
         verify(channelHandlerContextMock, times(0)).sendUpstream(channelStateEventMock);
     }
 
