@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +44,9 @@ import static org.junit.Assert.assertThat;
 public class RdapResponseJsonTest {
 
     private static final String DATE_TIME_UTC = "2013-06-26T02:48:44Z";
-    private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse("2013-06-26T04:48:44");
+    private static final LocalDateTime LOCAL_DATE_TIME =
+        ZonedDateTime.of(2013, 6, 26, 4, 48, 44, 0, ZoneId.of("Europe/Amsterdam"))
+                .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
 
     @Test
     public void entity() throws Exception {
