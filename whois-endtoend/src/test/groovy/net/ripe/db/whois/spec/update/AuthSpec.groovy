@@ -4,7 +4,7 @@ import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import org.joda.time.LocalDateTime
+import java.time.LocalDateTime
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class AuthSpec extends BaseQueryUpdateSpec {

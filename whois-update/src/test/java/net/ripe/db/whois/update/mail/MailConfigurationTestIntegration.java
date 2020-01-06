@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.mail;
 
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.update.dao.AbstractUpdateDaoTest;
+import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.Assert.assertNotNull;
 
 @Category(IntegrationTest.class)
-public class MailConfigurationTestIntegration extends AbstractUpdateDaoTest {
+public class MailConfigurationTestIntegration extends AbstractUpdateDaoIntegrationTest {
     @Autowired private MailConfiguration subject;
 
     @Test

@@ -20,7 +20,6 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.support.TestUpdateLog;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -35,6 +34,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Deque;
 import java.util.List;
 
@@ -710,7 +710,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
             crowdClient.logout(USER1);
         }
 
-        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_981475200000/000.audit.xml.gz"));
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_100/000.audit.xml.gz"));
         final Iterable<String> linesContainingPassword = new IterableTransformer<String>(Splitter.on('\n').split(audit)) {
             @Override
             public void apply(String input, Deque<String> result) {

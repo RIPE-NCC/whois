@@ -4,12 +4,14 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -82,6 +84,8 @@ public class GrsImporter implements DailyScheduledTask {
     }
 
     @Override
+    @Scheduled(cron = "0 0 0 * * *")
+    @SchedulerLock(name = "GrsImporter")
     public void run() {
         if (!grsImportEnabled) {
             LOGGER.info("GRS import is not enabled");

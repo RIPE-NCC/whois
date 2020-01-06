@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
@@ -38,8 +37,6 @@ import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -67,10 +64,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -1789,7 +1791,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
-                "</whois-resources>").getBytes(Charsets.UTF_8);
+                "</whois-resources>").getBytes(StandardCharsets.UTF_8);
 
         final String response = RestTest.target(getPort(), "whois/test/role?password=test")
             .request()
@@ -2696,7 +2698,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "        ] }\n" +
                         "    }] \n" +
-                        "}}", new MediaType("application", "json", Charsets.UTF_8.displayName())), String.class), containsString("Flughafenstraße 109/a"));
+                        "}}", new MediaType("application", "json", StandardCharsets.UTF_8.displayName())), String.class), containsString("Flughafenstraße 109/a"));
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
@@ -2748,7 +2750,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "        ] }\n" +
                         "    }] \n" +
-                        "}}", new MediaType("application", "json", Charsets.ISO_8859_1.displayName())), String.class);
+                        "}}", new MediaType("application", "json", StandardCharsets.ISO_8859_1.displayName())), String.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
@@ -3794,27 +3796,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_maintainer_with_crowd_token_succeeds() {
-        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.REMARKS, "updated")).get();
-
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "valid-token")
-                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("remarks", "updated")));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null)));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
-        assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER-MNT").findAttributes(AttributeType.AUTH),
-                containsInAnyOrder(
-                        new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test"),
-                        new RpslAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124"))
-        );
-    }
-
-    @Test
     public void update_maintainer_with_invalid_sso_username_fails() {
         final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).replaceAttribute(
                 new RpslAttribute(AttributeType.AUTH, "SSO person@net.net"),
@@ -4211,8 +4192,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void use_override_to_skip_updating_last_modified() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
 
-        final DateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
-        final DateTime newDateTime = oldDateTime.plusDays(10);
+        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final ZonedDateTime newDateTime = oldDateTime.plusDays(10);
         testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 
         final WhoisResources initialObject = RestTest.target(getPort(), "whois/test/person?password=test")
@@ -4242,8 +4223,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void use_override_explicit_not_skip_updating_last_modified() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
 
-        final DateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
-        final DateTime newDateTime = oldDateTime.plusDays(10);
+        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final ZonedDateTime newDateTime = oldDateTime.plusDays(10);
         testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 
         final WhoisResources initialObject = RestTest.target(getPort(), "whois/test/person?password=test")
@@ -5109,6 +5090,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     // helper methods
+
+
+    private void insertSyncHistory(final String org, final String mntnr,  final long when, final Boolean syncState) {
+
+        final String email = UUID.randomUUID() + "@ripe.net";
+        final Timestamp timestamp = new Timestamp(when);
+
+        databaseHelper.getInternalsTemplate().update(
+                "INSERT INTO default_maintainer_sync_history (org, mntner, timestamp, email, is_synchronised) VALUES (?, ?, ?, ?, ?)",
+                org, mntnr, timestamp, email, syncState);
+    }
 
     private String encode(final String input) {
         // do not interpret template parameters

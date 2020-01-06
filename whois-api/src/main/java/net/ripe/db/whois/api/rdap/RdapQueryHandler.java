@@ -21,14 +21,14 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.util.List;
-import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
-import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
 
 @Component
 public class RdapQueryHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapQueryHandler.class);
 
+    @Deprecated // [ES] update jaxrs which includes 429 status instead
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
+
     private final QueryHandler queryHandler;
 
     @Autowired
@@ -39,7 +39,6 @@ public class RdapQueryHandler {
     public List<RpslObject> handleQuery(final Query query, final HttpServletRequest request) {
 
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-
         final List<RpslObject> result = Lists.newArrayList();
 
         try {
@@ -47,19 +46,33 @@ public class RdapQueryHandler {
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {
-                        result.add((RpslObject) responseObject);
+                        ObjectType objectType = ((RpslObject) responseObject).getType();
+
+                        switch (objectType) {
+                            case PERSON:
+                            case MNTNER:
+                            case ROLE: {
+                                addIfPrimaryObject((RpslObject) responseObject);
+                                break;
+                            }
+                            default: {
+                                result.add((RpslObject) responseObject);
+                            }
+                        }
+                    }
+                }
+
+                private void addIfPrimaryObject(final RpslObject responseObject) {
+                    final String primaryKey = responseObject.getKey().toString();
+                    if(primaryKey.equals(query.getSearchValue())) {
+                        result.add(responseObject);
                     }
                 }
             });
 
             return result;
         } catch (final QueryException e) {
-            if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                throw tooManyRequests();
-            } else {
-                LOGGER.error(e.getMessage(), e);
-                throw new IllegalStateException("query error");
-            }
+            return handleQueryException(e);
         }
     }
 
@@ -96,16 +109,20 @@ public class RdapQueryHandler {
             return resultAutNum.isEmpty() ? resultAsBlock : resultAutNum;
 
         } catch (final QueryException e) {
-            if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                throw tooManyRequests();
-            } else {
-                LOGGER.error(e.getMessage(), e);
-                throw new IllegalStateException("query error");
-            }
+            return handleQueryException(e);
         }
     }
 
-    public WebApplicationException tooManyRequests() {
-        return new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
+    private List<RpslObject> handleQueryException(final QueryException e) {
+        if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+            throw tooManyRequests(e.getMessage());
+        } else {
+            LOGGER.error(e.getMessage(), e);
+            throw new IllegalStateException(e.getMessage());
+        }
+    }
+
+    private WebApplicationException tooManyRequests(final String message) {
+        return new WebApplicationException(message, Response.status(STATUS_TOO_MANY_REQUESTS).build());
     }
 }

@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
@@ -192,7 +193,7 @@ public class JdbcRpslObjectOperations {
         }
     }
 
-    private static void deleteFromLast(DateTimeProvider dateTimeProvider, JdbcTemplate jdbcTemplate, RpslObjectUpdateInfo rpslObjectInfo) {
+    private static void deleteFromLast(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final RpslObjectUpdateInfo rpslObjectInfo) {
         int rows = jdbcTemplate.update("" +
                         "UPDATE last SET object = '', timestamp = ?, sequence_id = 0 " +
                         "WHERE object_id = ? AND sequence_id > 0",
@@ -231,7 +232,7 @@ public class JdbcRpslObjectOperations {
         return newSequenceId;
     }
 
-    private static int updateLast(DateTimeProvider dateTimeProvider, JdbcTemplate jdbcTemplate, RpslObjectUpdateInfo rpslObjectInfo, RpslObject object) {
+    private static int updateLast(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final RpslObjectUpdateInfo rpslObjectInfo, final RpslObject object) {
         final int newSequenceId = rpslObjectInfo.getSequenceId() + 1;
         int rows = jdbcTemplate.update("" +
                         "UPDATE last " +
@@ -279,7 +280,7 @@ public class JdbcRpslObjectOperations {
         return new RpslObjectUpdateInfo(objectId, 1, object.getType(), pkey);
     }
 
-    private static int insertIntoLast(final DateTimeProvider dateTimeProvider, JdbcTemplate jdbcTemplate, final RpslObject object, final Integer objectTypeId, final String pkey) {
+    private static int insertIntoLast(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final RpslObject object, final Integer objectTypeId, final String pkey) {
         // FIXME: [AH] put a unique index on (`pkey`, `object_type`) on last (and history) instead of this extra lookup
         // TODO: [ES] this query is very time consuming (>100ms) if there is a large version history for this object_type & pkey
         final int count = jdbcTemplate.queryForObject(
@@ -319,7 +320,7 @@ public class JdbcRpslObjectOperations {
     }
 
     public static int now(final DateTimeProvider dateTimeProvider) {
-        return (int) (dateTimeProvider.getCurrentDateTime().toDate().getTime() / 1000L);
+        return (int) Timestamp.from(dateTimeProvider.getCurrentDateTime()).getValue();
     }
 
     public static void truncateTables(final JdbcTemplate... jdbcTemplates) {

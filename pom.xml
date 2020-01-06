@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.95-SNAPSHOT</version>
+    <version>1.97-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -36,7 +36,7 @@
         <bouncycastle.version>1.60</bouncycastle.version>
 
         <c3po.version>0.9.5.4</c3po.version>
-        <commons-compress.version>1.18</commons-compress.version>
+        <commons-compress.version>1.19</commons-compress.version>
         <commons-net.version>3.4</commons-net.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.11</commons-codec.version>
@@ -62,21 +62,20 @@
 
         <jaxb.version>2.4.0-b180830.0438</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
-        <jodatime.version>2.9.2</jodatime.version>
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.12</junit.version>
-        <jetty.version>9.4.11.v20180605</jetty.version>
+        <jetty.version>9.4.24.v20191120</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.12</jersey.version>
-        <jackson.version>2.9.5</jackson.version>
+        <jackson.version>2.9.10</jackson.version>
 
         <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
         <log4j.version>1.2.17</log4j.version>
         <lucene.version>4.10.4</lucene.version>
 
         <mail.version>1.6.2</mail.version>
-        <mariadb-java-client.version>1.8.0</mariadb-java-client.version>
+        <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
         <mockito.version>2.21.0</mockito.version>
 
         <netty.version>3.10.6.Final</netty.version>
@@ -84,11 +83,12 @@
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.18</slf4j.version>
-        <spring.version>4.3.20.RELEASE</spring.version>
+        <spring.version>5.1.8.RELEASE</spring.version>
         <springockito.version>1.0.5</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>0.7-groovy-1.8</spock.version>
+        <shedlock.version>2.5.0</shedlock.version>
 
         <velocity.version>2.0</velocity.version>
 
@@ -354,11 +354,6 @@
                 <artifactId>hazelcast</artifactId>
                 <version>${hazelcast.version}</version>
             </dependency>
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${jodatime.version}</version>
-            </dependency>
 
             <!-- bouncy castle -->
             <dependency>
@@ -489,6 +484,11 @@
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+             <dependency>
+                 <groupId>com.fasterxml.jackson.core</groupId>
+                 <artifactId>jackson-annotations</artifactId>
+                 <version>${jackson.version}</version>
+             </dependency>
 
             <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
@@ -560,6 +560,18 @@
                 <version>${solrj.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-jdbc-template</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -776,6 +788,9 @@
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
+                    <excludes>
+                        <exclude>${test.files.integration}</exclude>
+                    </excludes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
                     <reuseForks>true</reuseForks>
@@ -919,7 +934,7 @@
                 <test.groups>None</test.groups>
                 <test.forkCount.integration>3</test.forkCount.integration>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>None</test.files.integration>
+                <test.files.integration>**/*Integration*.class</test.files.integration>
             </properties>
         </profile>
         <profile>

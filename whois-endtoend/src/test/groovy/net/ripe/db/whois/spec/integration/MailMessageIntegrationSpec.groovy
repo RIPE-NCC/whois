@@ -2,6 +2,7 @@ package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.Message
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
@@ -27,6 +28,15 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:      OWNER-MNT
                 upd-to:      dbtest@ripe.net
                 source:      TEST
+                """,
+                "SSO-MNT": """\
+                mntner:    SSO-MNT
+                admin-c:   TP1-TEST
+                upd-to:    person@net.net
+                auth:      SSO 906635c2-0405-429a-800b-0602bd716124 # person@net.net
+                mnt-by:    SSO-MNT
+                mnt-by:    OWNER-MNT
+                source:    TEST
                 """
         ]
     }
@@ -348,6 +358,39 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+    }
+
+    @Ignore // TODO fix delete functionality then enable test
+    def "delete mntner with sso auth is handled"() {
+        when:
+        def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: \n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                "mntner:    SSO-MNT\n" +
+                "admin-c:   TP1-TEST\n" +
+                "upd-to:    person@net.net\n" +
+                "auth:      SSO person@net.net\n" +
+                "mnt-by:    SSO-MNT\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n" +
+                "password: owner\n" +
+                "delete: test\n\n"
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[mntner] SSO-MNT" }
     }
 
     def "text/html is not handled"() {

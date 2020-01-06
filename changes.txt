@@ -1,5 +1,59 @@
 # next
 
+[all] Refactor SSO auth pattern matching (#588)
+
+# 1.95.6
+
+[all] Deprecate mnt-lower in autnum (#585)
+[query] Abuse-c validation comment must refer to the LIR organisation (#573)
+[query] Don't allow more than maximum result rows in fulltextsearch request (#580)
+[update] Use trusted ip instead of override for changing mntner sso attribute (#576)
+
+[all] Update Mariadb JDBC dependency to latest. (#583)
+[all] Update Jetty Dependency to Latest (#579)
+[all] Update Jackson Dependency to Latest (#578)
+[all] Gitlab (#582)
+
+# 1.95.5
+
+# 1.95.4
+[all] Updated commons-compress to 1.19 to mitigate CVE-2019-12402.
+[all] Replace Guava methods with (built-in) Java 8 Alternatives (#577)
+[query] Use slave datasource for query (#581)
+[all] Create status index (#586)
+
+# 1.95.3
+[api] Jetty request log
+[all] Support optional milliseconds in Crowd response. (#571)
+
+# 1.95.2
+[all] Refactored refreshing main and grs sources. (#574)
+[api] Apply ACL for version queries (#572)
+
+# 1.95.1
+[update] Don't perform SSO auth translation in Batch API
+[all] Use a Timestamp class (#569)
+
+# 1.95
+
+[update] Don't allow inet6nums smaller than a /64 to be created. (#562)
+[query] Normalise query input. (#565)
+[all] Separate integration from unit tests (#564)
+[scheduler] Removed custom DailyScheduler, use standard Spring scheduler and ShedLock (#563)
+[update] NWI-8: don't allow SSO credentials to be updated by the user, if the maintainer is synchronised with the LIR Portal (#568)
+[all] Replaced Joda Time with Java Time (#566)
+
+# 1.94.2
+
+[query] Filter personal data (address, email and notify attributes) from historical object versions (#556)
+[query] Filter personal data from historic versions (#553)
+[update] Support custom delete reason in Batch API. (#558)
+[rdap] Return IP parent handle as pkey (#554)
+[rdap] Return org contact (#557)
+[rdap] Return correct entity (muliple objects of different type have same pkey) (#552)
+[all] Upgrade to Spring 5 (#560)
+[all] Replace Joda Time with Java Time (#559)
+
 # 1.94.1
 
 [update] Character Substitutions (#536)

@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

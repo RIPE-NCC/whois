@@ -47,7 +47,7 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
         assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS105"), is(false));
 
         insert("AS105-AS105");
-        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+        authoritativeResourceData.refreshActiveSource();
 
         assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS105"), is(true));
     }
@@ -57,7 +57,7 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
         assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS102"), is(true));
 
         delete("AS102");
-        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+        authoritativeResourceData.refreshActiveSource();
 
         assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS102"), is(false));
     }
@@ -66,7 +66,7 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
     public void incremental_insert_and_remove_inetnum() throws Exception {
         delete("0.0.0.0/0");
         insert("193.0.0.0/8");
-        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+        authoritativeResourceData.refreshActiveSource();
 
         assertThat(isMaintainedInRirSpace(ObjectType.INETNUM, "193.0.0.1"), is(true));
         assertThat(isMaintainedInRirSpace(ObjectType.INETNUM, "10.0.0.1"), is(false));

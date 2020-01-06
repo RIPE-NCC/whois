@@ -37,7 +37,7 @@ import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -326,7 +326,7 @@ public class WhoisFixture {
     }
 
     public void refreshAuthoritativeResourceData() {
-        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+        authoritativeResourceData.refreshActiveSource();
     }
 
     public SourceContext getSourceContext() {
