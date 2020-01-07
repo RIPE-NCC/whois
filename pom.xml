@@ -76,7 +76,9 @@
 
         <mail.version>1.6.2</mail.version>
         <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
-        <mockito.version>2.21.0</mockito.version>
+
+        <!-- TODO: [ES] update mockito to 2.21.0 (need to fix mocks in tests) -->
+        <mockito.version>1.9.5</mockito.version>
 
         <netty.version>3.10.6.Final</netty.version>
 
