@@ -59,7 +59,7 @@
             <artifactId>jersey-client</artifactId>
         </dependency>
 
-        <!-- Jackson -->
+        <!-- Jackson Jax-RS provider for JSON content type -->
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-base</artifactId>
@@ -72,6 +72,16 @@
              <groupId>com.fasterxml.jackson.core</groupId>
              <artifactId>jackson-annotations</artifactId>
          </dependency>
+
+         <!-- Glassfish JAXB implementation -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
 
         <!-- AspectJ -->
         <dependency>

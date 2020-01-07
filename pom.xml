@@ -60,7 +60,7 @@
         <hamcrest.version>1.3</hamcrest.version>
         <httpclient.version>4.5.2</httpclient.version>
 
-        <jaxb.version>2.4.0-b180830.0438</jaxb.version>
+        <jaxb.version>2.3.1</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
@@ -503,6 +503,12 @@
                 </exclusions>
             </dependency>
 
+            <!-- JAXB -->
+            <dependency>
+              <groupId>javax.xml.bind</groupId>
+              <artifactId>jaxb-api</artifactId>
+              <version>${jaxb.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
