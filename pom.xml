@@ -25,7 +25,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- JAVA version -->
-        <java.version>11</java.version>
+        <java.version>1.9</java.version>
 
         <!-- dependencies -->
 
@@ -847,6 +847,8 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <complianceLevel>${java.version}</complianceLevel>
+                    <!-- TODO: no sources in root project causes an error, continue anyway -->
+                    <proceedOnError>true</proceedOnError>
                     <!-- [TP] This is a bit ugly part.
                         aspectjweaver, spring-context, spring-tx libs were removed from whois-rpsl/pom.xml, because they
                         pull many deps, and no aspects are/should be present in this module. By removing the libs, a lot of
