@@ -22,12 +22,6 @@ public abstract class AbstractNrtmIntegrationBase extends AbstractDatabaseHelper
     @Autowired protected NrtmServer nrtmServer;
     @Autowired protected SourceContext sourceContext;
 
-    @Before
-    public void beforeAbstractNrtmIntegrationBase() {
-        databaseHelper.insertAclMirror("127.0.0.1/32");
-        databaseHelper.insertAclMirror("0:0:0:0:0:0:0:1");
-    }
-
     protected void objectExists(final ObjectType type, final String key, final boolean exists) {
         Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(new Callable<Boolean>() {
             @Override
