@@ -112,7 +112,7 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>com.nickwongdev</groupId>
+                <groupId>io.starter</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
                 <configuration>
                     <aspectLibraries>
