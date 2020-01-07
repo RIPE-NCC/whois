@@ -702,7 +702,7 @@
                         <arg>-Xlint:-rawtypes</arg>
                         <arg>-Xlint:-serial</arg>
                         <arg>-Xlint:-fallthrough</arg>
-                    	<arg>--add-modules</arg><arg>java.sql</arg>
+                    	<arg>--add-modules</arg><arg>java.sql,java.xml</arg>
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
@@ -828,7 +828,7 @@
                 <version>2.22.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql</argLine>
+                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
