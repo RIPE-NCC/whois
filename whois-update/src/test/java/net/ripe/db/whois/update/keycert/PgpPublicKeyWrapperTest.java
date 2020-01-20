@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.keycert;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
-import java.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -186,7 +186,7 @@ public class PgpPublicKeyWrapperTest {
     public void secp256k1() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
-                "key-cert:        PGPKEY-2424420B\n" +
+                "key-cert:        PGPKEY-B9FD9E0E\n" +
                 "method:          PGP\n" +
                 "owner:           Test User <noreply@ripe.net>\n" +
                 "fingerpr:        33A3 9E9F 3515 31CE 6990  4F66 BAA5 1A80 B9FD 9E0E\n" +
@@ -216,7 +216,7 @@ public class PgpPublicKeyWrapperTest {
     public void brainpoolP512r1() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
-                "key-cert:        PGPKEY-2424420B\n" +
+                "key-cert:        PGPKEY-34A607E5\n" +
                 "method:          PGP\n" +
                 "owner:           Test User <noreply@ripe.net>\n" +
                 "fingerpr:        5F36 A717 5CE1 76D3 2564  A822 2FF6 9819 34A6 07E5\n" +
@@ -249,7 +249,7 @@ public class PgpPublicKeyWrapperTest {
     public void nistp521() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
-                "key-cert:        PGPKEY-2424420B\n" +
+                "key-cert:        PGPKEY-725D9FA9\n" +
                 "method:          PGP\n" +
                 "owner:           Test User <noreply@ripe.net>\n" +
                 "fingerpr:        75B5 6A59 4D66 C09D E50A  183B 0862 8883 725D 9FA9\n" +
