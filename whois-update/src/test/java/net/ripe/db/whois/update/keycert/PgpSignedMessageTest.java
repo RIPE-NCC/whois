@@ -481,6 +481,64 @@ public class PgpSignedMessageTest {
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
     }
 
+    @Ignore("TODO: [ES] cannot verify message signed with ed25519 key")
+    @Test
+    public void verify_signed_message_with_ed25519_key() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA256\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iHUEARYIAB0WIQRiNGNQyuJDPiQAHXKU+mLDZIGuNAUCXiWfSQAKCRCU+mLDZIGu\n" +
+                "NIiqAQD+sksm61T9mYmoLRPhV+D3jSg2IE19id3WyjaH0vCwXQEA6v5xpZQ7AXQe\n" +
+                "vbSHvSrRBNBSAUuJfIYQLsAf6l80MAI=\n" +
+                "=pQ32\n" +
+                "-----END PGP SIGNATURE-----");
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_81CCF97D()), is(true));
+    }
+
+    @Ignore("TODO: [ES] headers in signature block should not be required")
+    @Test
+    public void headers_in_signature_are_mandatory() {
+    final PgpSignedMessage signedMessage = PgpSignedMessage.parse(
+            "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+            "Hash: SHA1\n" +
+            "\n" +
+            "person:  First Person\n" +
+            "address: St James Street\n" +
+            "address: Burnley\n" +
+            "address: UK\n" +
+            "phone:   +44 282 420469\n" +
+            "nic-hdl: FP1-TEST\n" +
+            "mnt-by:  OWNER-MNT\n" +
+            "source:  TEST\n" +
+            "-----BEGIN PGP SIGNATURE-----\n" +
+//                "Version: GnuPG v1.4.12 (Darwin)\n" +             // TODO: if no headers found, parsing fails,
+//                "Comment: GPGTools - http://gpgtools.org\n" +     // TODO: as ArmoredInputStream hasHeaders = true by default
+//                "\n" +
+            "iQEcBAEBAgAGBQJWTcPDAAoJELvMuy1XY5UNd50IAKLecIhQCMaUu8hVUW68uXGO\n" +
+            "uWqnkI3/C3CzgNai438xlKqtYNmyhgzCh3LbJSiNkJqRg6QK9G+egcpf9wtlLJJl\n" +
+            "1N72OBV1IS+yWSmkscNuihJNZBwlYrkG7SXAite5wjaY++nVjkNqqCVkHPwD6dr8\n" +
+            "AcPN0lxdhFbnvVlcFJVZPWrEXKEZbRxBr2BosF48IiKDskfu/2wiUWiBwF5QkuTB\n" +
+            "GX/pLJwQ40J79jVhRkiVbJ0YvAcHKbE/ftgw3ZBwjUJk2X2Ck1pv+HOTurhgXRvh\n" +
+            "gr8cbqpXlg1D0FNl3jWe/RTQ/U465ZZiMyUodI93LMZQNPtR7xh3+T8r1gVORMI=\n" +
+            "=D3U7\n" +
+            "-----END PGP SIGNATURE-----");
+
+        assertThat(signedMessage.getKeyId(), is("5763950D"));
+    }
+
     // helper methods
 
     private PGPPublicKey getPublicKey_28F6CD6C() {
@@ -592,33 +650,18 @@ public class PgpSignedMessageTest {
                         "owner:          Unknown <unread@ripe.net>\n" +
                         "fingerpr:       EDDF 375A B830 D1BB 26E5  ED3B 76CA 91EF 81CC F97D\n" +
                         "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                        "certif:         Comment: GPGTools - http://gpgtools.org\n" +
                         "certif:\n" +
-                        "certif:         mQENBFC0yfkBCAC/zYZw2vDpNF2Q7bfoTeTmhEPERzUX3y1y0jJhGEdbp3re4v0i\n" +
-                        "certif:         XWDth4lp9Rr8RimoqQFN2JNFuUWvohiDAT91J+vAG/A67xuTWXACyAPhRtRIFhxS\n" +
-                        "certif:         tBu8h/qEv8yhudhjYfVHu8rUbm59BXzO80KQA4UP5fQeDVwGFbvB+73nF1Pwbg3n\n" +
-                        "certif:         RzgLvKZlxdgV2RdU+DvxabkHgiN0ybcJx3nntL3Do2uZEdkkDDKkN6hkUJY0cFbQ\n" +
-                        "certif:         Oge3AK84huZKnIFq8+NA/vsE3dg3XhbCYUlS4yMe0cvnZrH23lnu4Ubp1KBILHVW\n" +
-                        "certif:         K4vWnMEXcx/T2k4/vpXogZNUH6E3OjtlyjX5ABEBAAG0GVVua25vd24gPHVucmVh\n" +
-                        "certif:         ZEByaXBlLm5ldD6JATgEEwECACIFAlC0yfkCGwMGCwkIBwMCBhUIAgkKCwQWAgMB\n" +
-                        "certif:         Ah4BAheAAAoJEHbKke+BzPl9UasH/1Tc2YZiJHw3yaKvZ8jSXDmZKmO69C7YvgsX\n" +
-                        "certif:         B72w4K6d92vy8dLLreqEpzXKtWB1+K6bLZv6MEdNbvQReG3rw1i2Io7kdsKFn9QC\n" +
-                        "certif:         OeY4OwpzBMZIJGWWXxOLz9Auo9a43xU+wL92/oCqFJrLuuppgOIVkL0pBWRDQYqp\n" +
-                        "certif:         3MqyHdsUOEdd7pwUlGJlfLqa7wmO+r04EG1OBRLBg5p4gVARqDrVMA3ym9KF750T\n" +
-                        "certif:         78Il1eWrceLglI5F0h4RYEmQ3amF/ukbPyzf26+J6MnWeDSO3Q8P/aDO3L7ccNoC\n" +
-                        "certif:         VwyHxUumWgfQVEnt6IaKLSjxVPhhAFO0wLd2tgaUH1y/ug1RgJe5AQ0EULTJ+QEI\n" +
-                        "certif:         APgAjb0YCTRvIdlYFfKQfLCcIbifwFkBjaH9fN8A9ZbeXSWtO7RXEvWF70/ZX69s\n" +
-                        "certif:         1SfQyL4cnIUN7hEd7/Qgx63IXUfNijolbXOUkh+S41tht+4IgJ7iZsELuugvbDEb\n" +
-                        "certif:         VynMXFEtqCXm1zLfd0g2AsWPFRczkj7hWE0gNs7iKvEiGrjFy0eSd/q07oWLxJfq\n" +
-                        "certif:         n4GBBPMGkfKxWhy5AXAkPZp1mc7mlYuNP9xrn76bl69T0E69kDPS3JetSaVWj0Uh\n" +
-                        "certif:         NSJSjP1Zc8g+rvkeum3HKLoW0svRo2XsldjNMlSuWb/oxeaTdGZV6SxTJ+T1oHAi\n" +
-                        "certif:         tovyQHusvGu3D9dfvTcW3QsAEQEAAYkBHwQYAQIACQUCULTJ+QIbDAAKCRB2ypHv\n" +
-                        "certif:         gcz5fe7cB/9PrDR7ybLLmNAuoafsVQRevKG8DfVzDrgThgJz0jJhb1t74qy5xXn+\n" +
-                        "certif:         zW8d/f/JZ8jr7roWA64HKvdvo8ZXuGEf6H20p1+HbjYpT52zteNU/8ljaqIzJBes\n" +
-                        "certif:         tl8ecFB7qg3qUSDQseNaA1uHkZdxGybzgI69QlOyh8fRfOCh/ln9vAiL0tW+Kzjg\n" +
-                        "certif:         8VMY0N3HzBcAPSB7U8wDf1qMzS5Lb1yNunD0Ut5qxCq3fxcdLBk/ZagHmtXoelhH\n" +
-                        "certif:         Bng8TRND/cDUWWH7Rhv64NxUiaKsrM/EmrHFOpJlXuMRRx4FtRPZeXTOln7zTmIL\n" +
-                        "certif:         qqHWqaQHNMKDq0pf24NFrIMLc2iXCSh+\n" +
-                        "certif:         =FPEl\n" +
+                        "certif:         mDMEXiWeSRYJKwYBBAHaRw8BAQdAEo+4wi/WI0xtbQF+PoIGxaDFJw23d+3w/ov+\n" +
+                        "certif:         go85qdi0GVRlc3QgVXNlciA8dGVzdEByaXBlLm5ldD6IkAQTFggAOBYhBGI0Y1DK\n" +
+                        "certif:         4kM+JAAdcpT6YsNkga40BQJeJZ5JAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheA\n" +
+                        "certif:         AAoJEJT6YsNkga40WLEBAKGMQaC1zKbmuD5Pav0ssuhxaznoMbuZqJ45VNiGKzLE\n" +
+                        "certif:         AQCGFbH+9pAvcEuorOa180+GLDZOpVYgQy40KsGaQgC5Drg4BF4lnkkSCisGAQQB\n" +
+                        "certif:         l1UBBQEBB0DFLFEhV9RSM92t1LwC/ClmND/Yw9P0a3paC2XGzTNTAwMBCAeIeAQY\n" +
+                        "certif:         FggAIBYhBGI0Y1DK4kM+JAAdcpT6YsNkga40BQJeJZ5JAhsMAAoJEJT6YsNkga40\n" +
+                        "certif:         LbQBALZ5BaNX5OxdS++mzwdWAVLZXAPRDFr6Q2otdxbnR0FTAP4ok4PiOpe1BfdF\n" +
+                        "certif:         itv84V9zda3NL6zJLhR3kewd30UDCA==\n" +
+                        "certif:         =Dxc9\n" +
                         "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                         "notify:         unread@ripe.net\n" +
                         "mnt-by:         ADMIN-MNT\n" +
@@ -626,36 +669,7 @@ public class PgpSignedMessageTest {
         return wrapper.getPublicKey();
     }
 
-    @Ignore("TODO: [ES] headers in signature block should not be required")
-    @Test
-    public void headers_in_signature_are_mandatory() {
-    final PgpSignedMessage signedMessage = PgpSignedMessage.parse(
-            "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-            "Hash: SHA1\n" +
-            "\n" +
-            "person:  First Person\n" +
-            "address: St James Street\n" +
-            "address: Burnley\n" +
-            "address: UK\n" +
-            "phone:   +44 282 420469\n" +
-            "nic-hdl: FP1-TEST\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "source:  TEST\n" +
-            "-----BEGIN PGP SIGNATURE-----\n" +
-//                "Version: GnuPG v1.4.12 (Darwin)\n" +             // TODO: if no headers found, parsing fails,
-//                "Comment: GPGTools - http://gpgtools.org\n" +     // TODO: as ArmoredInputStream hasHeaders = true by default
-//                "\n" +
-            "iQEcBAEBAgAGBQJWTcPDAAoJELvMuy1XY5UNd50IAKLecIhQCMaUu8hVUW68uXGO\n" +
-            "uWqnkI3/C3CzgNai438xlKqtYNmyhgzCh3LbJSiNkJqRg6QK9G+egcpf9wtlLJJl\n" +
-            "1N72OBV1IS+yWSmkscNuihJNZBwlYrkG7SXAite5wjaY++nVjkNqqCVkHPwD6dr8\n" +
-            "AcPN0lxdhFbnvVlcFJVZPWrEXKEZbRxBr2BosF48IiKDskfu/2wiUWiBwF5QkuTB\n" +
-            "GX/pLJwQ40J79jVhRkiVbJ0YvAcHKbE/ftgw3ZBwjUJk2X2Ck1pv+HOTurhgXRvh\n" +
-            "gr8cbqpXlg1D0FNl3jWe/RTQ/U465ZZiMyUodI93LMZQNPtR7xh3+T8r1gVORMI=\n" +
-            "=D3U7\n" +
-            "-----END PGP SIGNATURE-----");
 
-        assertThat(signedMessage.getKeyId(), is("5763950D"));
-    }
 }
 
 
