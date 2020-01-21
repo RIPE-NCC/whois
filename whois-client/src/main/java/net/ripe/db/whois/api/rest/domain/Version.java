@@ -23,8 +23,8 @@ public class Version {
     @XmlAttribute
     @JsonProperty
     private String timestamp;
-    @XmlAttribute
-    @JsonProperty
+    @XmlAttribute(name = "commit-id")
+    @JsonProperty(value = "commit-id")
     private String commitId;
 
     public Version(final String version, final String timestamp, final String commitId) {
