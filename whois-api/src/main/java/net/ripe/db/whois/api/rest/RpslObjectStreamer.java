@@ -165,8 +165,6 @@ public class RpslObjectStreamer {
             private void startStreaming() {
                 streamingMarshal.open();
 
-                streamingMarshal.write("version", version);
-
                 if (service != null) {
                     streamingMarshal.write("service", service);
 
@@ -229,6 +227,7 @@ public class RpslObjectStreamer {
                 }
 
                 streamingMarshal.write("terms-and-conditions", Link.create(WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.write("version", version);
                 streamingMarshal.end("whois-resources");
                 streamingMarshal.close();
                 return errors;
