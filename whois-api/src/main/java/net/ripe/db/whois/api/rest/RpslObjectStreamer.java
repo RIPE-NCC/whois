@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.rest.client.StreamingException;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.Service;
+import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
@@ -21,6 +22,7 @@ import net.ripe.db.whois.query.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -42,13 +44,18 @@ public class RpslObjectStreamer {
 
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
+    private final Version version;
 
     @Autowired
     public RpslObjectStreamer(
             final QueryHandler queryHandler,
-            final WhoisObjectServerMapper whoisObjectServerMapper) {
+            final WhoisObjectServerMapper whoisObjectServerMapper,
+            @Value("${application.version}") final String version,
+            @Value("${application.build.timestamp}") final String timestamp,
+            @Value("${application.build.commit.id}") final String commitId) {
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
+        this.version = new Version(version, timestamp, commitId);
     }
 
     public Response handleQueryAndStreamResponse(final Query query,
@@ -157,6 +164,8 @@ public class RpslObjectStreamer {
 
             private void startStreaming() {
                 streamingMarshal.open();
+
+                streamingMarshal.write("version", version);
 
                 if (service != null) {
                     streamingMarshal.write("service", service);

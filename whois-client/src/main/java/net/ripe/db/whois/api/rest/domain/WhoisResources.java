@@ -34,6 +34,8 @@ public class WhoisResources {
     private Parameters parameters;
 
     @XmlElement
+    private Version version;
+    @XmlElement
     private Service service;
     @XmlElement(name = "objects", required = true)
     @JsonProperty(value = "objects", required = true)
