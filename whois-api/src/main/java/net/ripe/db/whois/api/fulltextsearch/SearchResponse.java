@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import net.ripe.db.whois.api.rest.domain.Version;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -23,6 +24,13 @@ public class SearchResponse {
 
     @XmlElements({@XmlElement(name = "lst", type = Lst.class)})
     private List<Lst> lsts;
+
+    @XmlElement
+    private Version version;
+
+    public void setVersion(final Version version) {
+        this.version = version;
+    }
 
     public Result getResult() {
         return result;

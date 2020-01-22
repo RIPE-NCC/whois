@@ -3,6 +3,8 @@ package net.ripe.db.whois.api.fulltextsearch;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
+import net.ripe.db.whois.api.rest.domain.Version;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -64,14 +66,20 @@ public class FullTextSearch {
     private final FullTextIndex fullTextIndex;
     private final AccessControlListManager accessControlListManager;
     private final Source source;
+    private final Version version;
 
     @Autowired
     public FullTextSearch(final FullTextIndex fullTextIndex,
                           final AccessControlListManager accessControlListManager,
-                          final SourceContext sourceContext) {
+                          final SourceContext sourceContext,
+                          final ApplicationVersion applicationVersion) {
         this.fullTextIndex = fullTextIndex;
         this.accessControlListManager = accessControlListManager;
         this.source = sourceContext.getCurrentSource();
+        this.version = new Version(
+            applicationVersion.getVersion(),
+            applicationVersion.getTimestamp(),
+            applicationVersion.getCommitId());
     }
 
     @GET
@@ -180,6 +188,7 @@ public class FullTextSearch {
                     }
 
                     final SearchResponse searchResponse = new SearchResponse();
+                    searchResponse.setVersion(version);
                     searchResponse.setResult(createResult(searchRequest, documents, topDocs.totalHits));
                     searchResponse.setLsts(responseLstList);
 

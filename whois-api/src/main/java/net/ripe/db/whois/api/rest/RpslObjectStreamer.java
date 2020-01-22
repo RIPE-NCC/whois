@@ -9,6 +9,7 @@ import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -22,7 +23,6 @@ import net.ripe.db.whois.query.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -50,12 +50,13 @@ public class RpslObjectStreamer {
     public RpslObjectStreamer(
             final QueryHandler queryHandler,
             final WhoisObjectServerMapper whoisObjectServerMapper,
-            @Value("${application.version}") final String version,
-            @Value("${application.build.timestamp}") final String timestamp,
-            @Value("${application.build.commit.id}") final String commitId) {
+            final ApplicationVersion applicationVersion) {
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
-        this.version = new Version(version, timestamp, commitId);
+        this.version = new Version(
+            applicationVersion.getVersion(),
+            applicationVersion.getTimestamp(),
+            applicationVersion.getCommitId());
     }
 
     public Response handleQueryAndStreamResponse(final Query query,
