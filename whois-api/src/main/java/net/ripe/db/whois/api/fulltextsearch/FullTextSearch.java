@@ -187,8 +187,9 @@ public class FullTextSearch {
                         responseLstList.add(getFacet(facets));
                     }
 
+                    responseLstList.add(createVersion());
+
                     final SearchResponse searchResponse = new SearchResponse();
-                    searchResponse.setVersion(version);
                     searchResponse.setResult(createResult(searchRequest, documents, topDocs.totalHits));
                     searchResponse.setLsts(responseLstList);
 
@@ -283,6 +284,17 @@ public class FullTextSearch {
 
         highlight.setLsts(highlightDocs);
         return highlight;
+    }
+
+    private SearchResponse.Lst createVersion() {
+        final SearchResponse.Lst result = new SearchResponse.Lst("version");
+
+        result.setStrs(Lists.newArrayList(
+            new SearchResponse.Str("version", version.getVersion()),
+            new SearchResponse.Str("timestamp", version.getTimestamp()),
+            new SearchResponse.Str("commit_id", version.getCommitId())));
+
+        return result;
     }
 
     private SearchResponse.Lst getFacet(final Facets facets) throws IOException {
