@@ -64,7 +64,7 @@
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.12</junit.version>
-        <jetty.version>9.4.22.v20191022</jetty.version>
+        <jetty.version>9.4.24.v20191120</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.12</jersey.version>
         <jackson.version>2.9.10</jackson.version>
@@ -96,7 +96,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>whois-1.96.1</tag>
   </scm>
 
     <distributionManagement>
