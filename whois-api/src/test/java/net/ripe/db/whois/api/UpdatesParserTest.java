@@ -14,6 +14,7 @@ import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -32,6 +33,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -430,6 +432,18 @@ public class UpdatesParserTest {
         assertThat(paragraph.getContent(), is("mntner: DEV1-MNT"));
 
         verify(updateContext).dryRun();
+    }
+
+    @Test
+    public void maximum_object_size_exceeded() {
+        final StringBuilder sb = new StringBuilder();
+        while (sb.length() < 29_000_000) {
+            sb.append("mntner: DEV1-MNT\n");
+        }
+
+        subject.parse(updateContext, Lists.newArrayList(new ContentWithCredentials(sb.toString())));
+
+        verify(updateContext).addGlobalMessage(eq(UpdateMessages.maximumObjectSizeExceeded(sb.length() - 1, 5_000_000)));
     }
 
     @Test

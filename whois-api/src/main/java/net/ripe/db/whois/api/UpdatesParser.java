@@ -15,6 +15,7 @@ import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,8 @@ import static net.ripe.db.whois.api.UpdateCreator.createUpdate;
 
 @Component
 public class UpdatesParser {
+
+    private final long MAXIMUM_OBJECT_SIZE = 5_000_000;
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("(?im)^password:(.*)(?:\\n|$)");
     private static final Pattern OVERRIDE_PATTERN = Pattern.compile("(?im)^override:(.*)(?:\\n|$)");
@@ -179,7 +182,12 @@ public class UpdatesParser {
             }
 
             try {
-                updates.add(createUpdate(paragraph, operation, deleteReasons, content, updateContext));
+                if (content.length() > MAXIMUM_OBJECT_SIZE) {
+                    updateContext.ignore(paragraph);
+                    updateContext.addGlobalMessage(UpdateMessages.maximumObjectSizeExceeded(content.length(), MAXIMUM_OBJECT_SIZE));
+                } else {
+                    updates.add(createUpdate(paragraph, operation, deleteReasons, content, updateContext));
+                }
             } catch (IllegalArgumentException e) {
                 updateContext.ignore(paragraph);
             }
