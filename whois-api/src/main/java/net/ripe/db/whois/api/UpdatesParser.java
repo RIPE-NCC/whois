@@ -18,6 +18,8 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
@@ -31,7 +33,7 @@ import static net.ripe.db.whois.api.UpdateCreator.createUpdate;
 @Component
 public class UpdatesParser {
 
-    private final long MAXIMUM_OBJECT_SIZE = 5_000_000;
+    private final long maximumObjectSize;
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("(?im)^password:(.*)(?:\\n|$)");
     private static final Pattern OVERRIDE_PATTERN = Pattern.compile("(?im)^override:(.*)(?:\\n|$)");
@@ -39,6 +41,11 @@ public class UpdatesParser {
     private static final Pattern DELETE_PATTERN = Pattern.compile("(?im)^delete:(.*)(?:\\n|$)");
 
     private static final Splitter CONTENT_SPLITTER = Splitter.on(Pattern.compile("(?m)^$")).trimResults().omitEmptyStrings();
+
+    @Autowired
+    public UpdatesParser(@Value("${whois.max.object.size:5000000}") final long maximumObjectSize) {
+        this.maximumObjectSize = maximumObjectSize;
+    }
 
     public List<Paragraph> createParagraphs(final ContentWithCredentials contentWithCredentials, final UpdateContext updateContext) {
         String content = StringUtils.remove(contentWithCredentials.getContent(), '\r');
@@ -181,9 +188,9 @@ public class UpdatesParser {
                 content = matcher.reset().replaceAll("");
             }
 
-            if (content.length() > MAXIMUM_OBJECT_SIZE) {
+            if (content.length() > maximumObjectSize) {
                 updateContext.ignore(paragraph);
-                updateContext.addGlobalMessage(UpdateMessages.maximumObjectSizeExceeded(content.length(), MAXIMUM_OBJECT_SIZE));
+                updateContext.addGlobalMessage(UpdateMessages.maximumObjectSizeExceeded(content.length(), maximumObjectSize));
                 continue;
             }
 

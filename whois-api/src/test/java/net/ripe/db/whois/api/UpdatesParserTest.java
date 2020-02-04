@@ -1,13 +1,10 @@
 package net.ripe.db.whois.api;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Credential;
-import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Operation;
-import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.OverrideCredential;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PasswordCredential;
@@ -15,7 +12,6 @@ import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,17 +39,13 @@ public class UpdatesParserTest {
     private static final String SOURCE = "RIPE";
     private static final String MNTNER_DEV_MNT = "mntner: DEV-MNT\nsource: " + SOURCE;
 
-    @Mock Origin origin;
-    @Mock Credentials credentials;
     @Mock UpdateContext updateContext;
-    @Mock RpslObjectDao rpslObjectDao;
-    @Mock LoggerContext loggerContext;
 
-    @InjectMocks UpdatesParser subject;
+    @InjectMocks UpdatesParser subject = new UpdatesParser(1000000);
 
     @Test
-    public void no_paragraphs() throws Exception {
-        final List<Update> updates = subject.parse(updateContext, Lists.<ContentWithCredentials>newArrayList());
+    public void no_paragraphs() {
+        final List<Update> updates = subject.parse(updateContext, Lists.newArrayList());
         assertThat(updates, hasSize(0));
     }
 
@@ -96,7 +88,7 @@ public class UpdatesParserTest {
 
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
-        assertThat(update.getDeleteReasons(), contains(new String[]{"reason"}));
+        assertThat(update.getDeleteReasons(), contains("reason"));
         assertFalse(update.isOverride());
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
 
@@ -113,7 +105,7 @@ public class UpdatesParserTest {
 
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
-        assertThat(update.getDeleteReasons(), contains(new String[]{"reason"}));
+        assertThat(update.getDeleteReasons(), contains("reason"));
         assertFalse(update.isOverride());
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
 
@@ -138,7 +130,7 @@ public class UpdatesParserTest {
         assertThat(updates, hasSize(1));
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
-        assertThat(update.getDeleteReasons(), contains(new String[]{"reason"}));
+        assertThat(update.getDeleteReasons(), contains("reason"));
         assertFalse(update.isOverride());
         assertThat(update.getSubmittedObject(), is(RpslObject.parse("" +
                 "mntner: UPD-MNT\n" +
@@ -216,8 +208,8 @@ public class UpdatesParserTest {
     }
 
     public static final String OBJECT = "mntner: DEV-MNT";
-    public static final String INPUT = OBJECT + "\npassword: pass";
-    public static final String SIGNATURE = "" +
+    private static final String INPUT = OBJECT + "\npassword: pass";
+    private static final String SIGNATURE = "" +
             "-----BEGIN PGP SIGNATURE-----\n" +
             "Version: GnuPG v1.4.9 (SunOS)\n" +
             "\n" +
@@ -317,7 +309,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void override() throws Exception {
+    public void override() {
         final String content = "" +
                 "mntner: DEV-MNT\n" +
                 "override: some override";
@@ -328,7 +320,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void override_with_dryRun() throws Exception {
+    public void override_with_dryRun() {
         final String content = "" +
                 "mntner: DEV-MNT\n" +
                 "dry-run: some\n" +
@@ -338,13 +330,13 @@ public class UpdatesParserTest {
         assertThat(paragraphs, hasSize(1));
         final Paragraph paragraph = paragraphs.get(0);
         assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
-        assertThat(paragraph.getCredentials().all(), containsInAnyOrder((Credential) OverrideCredential.parse("some override")));
+        assertThat(paragraph.getCredentials().all(), containsInAnyOrder(OverrideCredential.parse("some override")));
 
         verify(updateContext).dryRun();
     }
 
     @Test
-    public void dryRun() throws Exception {
+    public void dryRun() {
         final String content = "" +
                 "mntner: DEV-MNT\n" +
                 "dry-run: some dry run";
@@ -358,7 +350,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void dryRun_detached() throws Exception {
+    public void dryRun_detached() {
         final String content = "" +
                 "mntner: DEV-MNT\n" +
                 "\n" +
@@ -381,7 +373,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void dryRun_specified_multiple_times() throws Exception {
+    public void dryRun_specified_multiple_times() {
         final String content = "" +
                 "mntner: DEV-MNT\n" +
                 "dry-run: some dry run\n" +
@@ -397,7 +389,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void dryRun_multiple_objects() throws Exception {
+    public void dryRun_multiple_objects() {
         final String content = "" +
                 "mntner: DEV1-MNT\n" +
                 "dry-run: some dry run\n" +
@@ -437,13 +429,13 @@ public class UpdatesParserTest {
     @Test
     public void maximum_object_size_exceeded() {
         final StringBuilder sb = new StringBuilder();
-        while (sb.length() < 6_000_000) {
+        while (sb.length() < 2_000_000) {
             sb.append("mntner: DEV1-MNT\n");
         }
 
         subject.parse(updateContext, Lists.newArrayList(new ContentWithCredentials(sb.toString())));
 
-        verify(updateContext).addGlobalMessage(eq(UpdateMessages.maximumObjectSizeExceeded(sb.length() - 1, 5_000_000)));
+        verify(updateContext).addGlobalMessage(eq(UpdateMessages.maximumObjectSizeExceeded(sb.length() - 1, 1_000_000)));
     }
 
     @Test
@@ -467,7 +459,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void password_with_whitespace() throws Exception {
+    public void password_with_whitespace() {
         final String content = "" +
                 "mntner: DEV-MNT\n" +
                 "password:    \t     123 and something   \t \r\n";
@@ -530,7 +522,7 @@ public class UpdatesParserTest {
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT"));
-        assertThat(paragraphs.get(0).getCredentials().all(), contains((Credential) OverrideCredential.parse("override")));
+        assertThat(paragraphs.get(0).getCredentials().all(), contains(OverrideCredential.parse("override")));
         assertThat(paragraphs.get(1).getCredentials().all(), hasSize(0));
     }
 
@@ -544,7 +536,7 @@ public class UpdatesParserTest {
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT"));
-        assertThat(paragraphs.get(0).getCredentials().all(), contains((Credential) OverrideCredential.parse("override")));
+        assertThat(paragraphs.get(0).getCredentials().all(), contains(OverrideCredential.parse("override")));
         assertThat(paragraphs.get(1).getCredentials().all(), hasSize(0));
     }
 
@@ -560,7 +552,7 @@ public class UpdatesParserTest {
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT"));
-        assertThat(paragraphs.get(0).getCredentials().all(), contains((Credential) OverrideCredential.parse("denis,override1"), OverrideCredential.parse("override2")));
+        assertThat(paragraphs.get(0).getCredentials().all(), contains(OverrideCredential.parse("denis,override1"), OverrideCredential.parse("override2")));
         assertThat(paragraphs.get(1).getCredentials().all(), hasSize(0));
     }
 
@@ -577,8 +569,8 @@ public class UpdatesParserTest {
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT1"));
-        assertThat(paragraphs.get(0).getCredentials().all(), contains((Credential) OverrideCredential.parse("denis,override1"), OverrideCredential.parse("override2")));
-        assertThat(paragraphs.get(1).getCredentials().all(), contains((Credential) OverrideCredential.parse("override3")));
+        assertThat(paragraphs.get(0).getCredentials().all(), contains(OverrideCredential.parse("denis,override1"), OverrideCredential.parse("override2")));
+        assertThat(paragraphs.get(1).getCredentials().all(), contains(OverrideCredential.parse("override3")));
     }
 
     @Test(timeout = 2000)
@@ -597,7 +589,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void multiple_paragraphs_password_attribute_removed_completely() throws Exception {
+    public void multiple_paragraphs_password_attribute_removed_completely() {
         final String content = "" +
                 "mntner:one\n" +
                 "password: one\n" +
@@ -624,7 +616,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void multiple_paragraphs_password_attribute_removed_completely_windows_lineending() throws Exception {
+    public void multiple_paragraphs_password_attribute_removed_completely_windows_lineending() {
         final String content = "" +
                 "mntner:one\r\n" +
                 "password: one\r\n" +
@@ -651,7 +643,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void multiple_paragraphs_override_attribute_removed_completely() throws Exception {
+    public void multiple_paragraphs_override_attribute_removed_completely() {
         final String content = "" +
                 "mntner:one\n" +
                 "override: one\n" +
@@ -676,7 +668,7 @@ public class UpdatesParserTest {
     }
 
     @Test
-    public void signed_message() throws Exception {
+    public void signed_message() {
         final String content = "" +
                 "\n" +
                 "\n" +
@@ -721,7 +713,7 @@ public class UpdatesParserTest {
 
         assertThat(paragraphs.get(0).getCredentials().all(), hasSize(1));
         assertThat(paragraphs.get(0).getCredentials().all(),
-                containsInAnyOrder((Credential) PgpCredential.createOfferedCredential(content)));
+                containsInAnyOrder(PgpCredential.createOfferedCredential(content)));
     }
 
     @Test
