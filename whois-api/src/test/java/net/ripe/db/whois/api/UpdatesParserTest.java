@@ -437,7 +437,7 @@ public class UpdatesParserTest {
     @Test
     public void maximum_object_size_exceeded() {
         final StringBuilder sb = new StringBuilder();
-        while (sb.length() < 29_000_000) {
+        while (sb.length() < 6_000_000) {
             sb.append("mntner: DEV1-MNT\n");
         }
 

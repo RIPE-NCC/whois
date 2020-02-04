@@ -181,13 +181,14 @@ public class UpdatesParser {
                 content = matcher.reset().replaceAll("");
             }
 
+            if (content.length() > MAXIMUM_OBJECT_SIZE) {
+                updateContext.ignore(paragraph);
+                updateContext.addGlobalMessage(UpdateMessages.maximumObjectSizeExceeded(content.length(), MAXIMUM_OBJECT_SIZE));
+                continue;
+            }
+
             try {
-                if (content.length() > MAXIMUM_OBJECT_SIZE) {
-                    updateContext.ignore(paragraph);
-                    updateContext.addGlobalMessage(UpdateMessages.maximumObjectSizeExceeded(content.length(), MAXIMUM_OBJECT_SIZE));
-                } else {
-                    updates.add(createUpdate(paragraph, operation, deleteReasons, content, updateContext));
-                }
+                updates.add(createUpdate(paragraph, operation, deleteReasons, content, updateContext));
             } catch (IllegalArgumentException e) {
                 updateContext.ignore(paragraph);
             }
