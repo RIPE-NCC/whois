@@ -175,6 +175,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         System.setProperty("whois.db.slave.url", slaveUrl);
         System.setProperty("whois.db.driver", JDBC_DRIVER);
 
+        final String internalsSlaveUrl = String.format("jdbc:mariadb://%s/%s_INTERNALS", DB_HOST, dbBaseName);
+        System.setProperty("internals.slave.database.url", internalsSlaveUrl);
+
         final String grsSlaveUrl = String.format("jdbc:mariadb://%s/%s", DB_HOST, dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
         System.setProperty("whois.db.grs.master.baseurl", grsSlaveUrl);
