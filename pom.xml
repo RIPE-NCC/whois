@@ -815,13 +815,13 @@
                     <!--
                         Test one fork per core, one thread per core.
                     -->
-                    <groups>${test.groups}</groups>
                     <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <perCoreThreadCount>true</perCoreThreadCount>
                     <parallel>classes</parallel>
 
+                    <groups>${test.groups}</groups>
                     <runOrder>random</runOrder>
                     <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
                 </configuration>
@@ -938,7 +938,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/*Spec*.class</test.files.integration>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
         <profile>
@@ -961,7 +961,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.EndToEndTest</test.groups>
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/*Spec*.class</test.files.integration>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
         <profile>
@@ -971,7 +971,7 @@
                 <test.groups>net.ripe.db.whois.common.EndToEndTest,net.ripe.db.whois.common.IntegrationTest
                 </test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Spec*.class</test.files.integration>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
         <profile>
@@ -981,7 +981,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Spec*.class</test.files.integration>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
         <profile>
