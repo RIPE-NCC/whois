@@ -938,7 +938,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.files.integration>**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
         <profile>
@@ -961,7 +961,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.EndToEndTest</test.groups>
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.files.integration>**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
         <profile>
@@ -971,7 +971,7 @@
                 <test.groups>net.ripe.db.whois.common.EndToEndTest,net.ripe.db.whois.common.IntegrationTest
                 </test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.files.integration>**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
         <profile>
@@ -981,7 +981,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.files.integration>**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
         <profile>
