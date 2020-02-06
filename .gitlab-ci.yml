@@ -77,6 +77,8 @@ whois-it-suite2:
 
 end-to-end-test:
   <<: *it_env
+  tags:
+    - whois
   script:
     - mvn -Ddb.host=mariadb $MAVEN_OPTS install -Pendtoend
   when: manual
