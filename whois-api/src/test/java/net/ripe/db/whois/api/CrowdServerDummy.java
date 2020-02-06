@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-@Profile({WhoisProfile.TEST})
+@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
 @Component
 public class CrowdServerDummy implements Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrowdServerDummy.class);
@@ -55,6 +55,12 @@ public class CrowdServerDummy implements Stub {
             usermap.put("017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", "random@ripe.net");
             usermap.put("8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "test@ripe.net");
             usermap.put("906635c2-0405-429a-800b-0602bd716124", "person@net.net");
+
+            // for e2e integration test
+            usermap.put("aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef", "db_e2e_1@ripe.net");
+            usermap.put("db_e2e_1@ripe.net", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef");
+            usermap.put("e74ccc29-75f9-4ce1-aee0-690345a56c96", "db_e2e_2@ripe.net");
+            usermap.put("db_e2e_2@ripe.net", "e74ccc29-75f9-4ce1-aee0-690345a56c96");
         }
 
         final Map<String, UserSession> crowdSessionMap;
@@ -62,6 +68,9 @@ public class CrowdServerDummy implements Stub {
             crowdSessionMap = Maps.newHashMap();
             crowdSessionMap.put("valid-token", new UserSession("person@net.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
             crowdSessionMap.put("invalid-token", null);
+            // for e2e integration test
+            crowdSessionMap.put("db_e2e_1", new UserSession("db_e2e_1@ripe.net", "DB E2E_1", true, "2033-01-30T16:38:27.369+11:00"));
+            crowdSessionMap.put("db_e2e_2", new UserSession("db_e2e_2@ripe.net", "DB E2E_2", true, "2033-01-30T16:38:27.369+11:00"));
         }
 
         @Override
