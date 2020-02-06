@@ -63,6 +63,8 @@ whois-it-suite1:
 
 whois-it-suite2:
   <<: *it_env
+  tags:
+    - whois
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-api -am
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-client -am
