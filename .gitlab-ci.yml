@@ -57,6 +57,8 @@ build:
 
 whois-it-suite1:
   <<: *it_env
+  tags:
+    - whois
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-endtoend -am
   when: manual
