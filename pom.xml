@@ -813,9 +813,10 @@
                         <include>${test.files.integration}</include>
                     </includes>
                     <!--
-                        Test one fork per core, one thread per core.
+                        Test 8 forks, one thread per core.
                     -->
-                    <forkCount>1C</forkCount>
+<!--                    <forkCount>1C</forkCount>-->
+                    <forkCount>8</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <perCoreThreadCount>true</perCoreThreadCount>
