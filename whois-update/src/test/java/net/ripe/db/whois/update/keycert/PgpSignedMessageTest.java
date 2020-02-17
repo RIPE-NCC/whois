@@ -508,7 +508,31 @@ public class PgpSignedMessageTest {
         assertThat(pgpSignedMessage.verify(getPublicKey_6481AE34()), is(true));
     }
 
-    // TODO: test secp256k1
+    @Test
+    public void verify_signed_message_with_secp256k1_key() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA256\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iHUEARMIAB0WIQQ7RfTn72Mdc2l9Aav3GMatIVqZBwUCXkqQdQAKCRD3GMatIVqZ\n" +
+                "B4ShAP41vMvnEFhIUJvN0y2BHsx6LB4ylYFlFzSsLdkelkFVFQEAkczm6p0qspbA\n" +
+                "cko6u8eVYQmLAAVynDrQWn4dyA0FEvQ=\n" +
+                "=EvW6\n" +
+                "-----END PGP SIGNATURE-----");
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_215A9907()), is(true));
+    }
 
     // TODO: test brainpoolP512r1
 
@@ -673,6 +697,31 @@ public class PgpSignedMessageTest {
                         "mnt-by:         ADMIN-MNT\n" +
                         "source:         TEST"));
         return wrapper.getPublicKey();
+    }
+
+    private PGPPublicKey getPublicKey_215A9907() {
+        PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+                RpslObject.parse(
+                        "key-cert:       PGPKEY-6481AE34\n" +
+                        "method:         PGP\n" +
+                        "owner:          Test User <test@ripe.net>\n" +
+                        "fingerpr:       3B45 F4E7 EF63 1D73 697D 01AB  F718 C6AD 215A 9907\n" +
+                        "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                        "certif:         Comment: GPGTools - http://gpgtools.org\n" +
+                        "certif:         \n" +
+                        "certif:         mE8EXkqPvhMFK4EEAAoCAwQQaiqFZJZGmjNyB/JJsGUzo7F9OZz+IvT+nAJ3+vwS\n" +
+                        "certif:         ekKY3fQZH+vvjAacDufoEmOp6s5toJaOdzqgTJPhqesTtBlUZXN0IFVzZXIgPHRl\n" +
+                        "certif:         c3RAcmlwZS5uZXQ+iJAEExMIADgWIQQ7RfTn72Mdc2l9Aav3GMatIVqZBwUCXkqP\n" +
+                        "certif:         vgIbAwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgAAKCRD3GMatIVqZBx0rAQD9JT7t\n" +
+                        "certif:         aIb5Svu9O4I5ul48gLv066uMAkgpDjhzh0I66gEA1H+i90jn/FiSbeWIJn0txrMF\n" +
+                        "certif:         UYrkRLbRLTvSr+FegKQ=\n" +
+                        "certif:         =8JQz\n" +
+                        "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
+                        "notify:         unread@ripe.net\n" +
+                        "mnt-by:         ADMIN-MNT\n" +
+                        "source:         TEST"));
+        return wrapper.getPublicKey();
+
     }
 
 
