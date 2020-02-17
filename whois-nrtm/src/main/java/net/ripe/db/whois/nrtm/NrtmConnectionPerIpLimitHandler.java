@@ -56,7 +56,7 @@ public class NrtmConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandle
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         final Channel channel = ctx.getChannel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
-        connectionCounter.decrementOrDrop(remoteAddress);
+        connectionCounter.decrement(remoteAddress);
 
         super.channelClosed(ctx, e);
     }
@@ -67,7 +67,7 @@ public class NrtmConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandle
     }
 
     private boolean connectionsExceeded(final InetAddress remoteAddresss) {
-        final Integer count = connectionCounter.incrementOrCreate(remoteAddresss);
+        final Integer count = connectionCounter.increment(remoteAddresss);
         return (count != null && count > maxConnectionsPerIp);
     }
 }

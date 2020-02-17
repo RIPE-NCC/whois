@@ -12,7 +12,7 @@ public class ConnectionCounter {
     private final ConcurrentHashMap<InetAddress, Integer> connections = new ConcurrentHashMap<>();
 
     @Nullable
-    public Integer incrementOrCreate(final InetAddress remoteAddress) {
+    public Integer increment(final InetAddress remoteAddress) {
         Integer count;
         do {
             count = connections.putIfAbsent(remoteAddress, 1);
@@ -20,7 +20,7 @@ public class ConnectionCounter {
         return count;
     }
 
-    public void decrementOrDrop(final InetAddress remoteAddress) {
+    public void decrement(final InetAddress remoteAddress) {
         Integer count;
         for (; ; ) {
             count = connections.get(remoteAddress);

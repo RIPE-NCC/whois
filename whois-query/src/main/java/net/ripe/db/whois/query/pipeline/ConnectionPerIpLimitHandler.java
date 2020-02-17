@@ -68,7 +68,7 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         final Channel channel = ctx.getChannel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
-        connectionCounter.decrementOrDrop(remoteAddress);
+        connectionCounter.decrement(remoteAddress);
 
         super.channelClosed(ctx, e);
     }
@@ -88,7 +88,7 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
     }
 
     private boolean connectionsExceeded(final InetAddress remoteAddress) {
-        final Integer count = connectionCounter.incrementOrCreate(remoteAddress);
+        final Integer count = connectionCounter.increment(remoteAddress);
         return (count != null && count >= maxConnectionsPerIp);
     }
 }
