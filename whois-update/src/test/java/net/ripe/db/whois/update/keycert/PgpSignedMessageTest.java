@@ -508,6 +508,12 @@ public class PgpSignedMessageTest {
         assertThat(pgpSignedMessage.verify(getPublicKey_81CCF97D()), is(true));
     }
 
+    // TODO: test secp256k1
+
+    // TODO: test brainpoolP512r1
+
+    // TODO: test nistp521
+
     @Ignore("TODO: [ES] headers in signature block should not be required")
     @Test
     public void headers_in_signature_are_mandatory() {
