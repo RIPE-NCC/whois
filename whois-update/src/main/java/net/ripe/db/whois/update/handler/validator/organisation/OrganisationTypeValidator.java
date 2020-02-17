@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -15,15 +16,11 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
-
 @Component
 public class OrganisationTypeValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
-
-    private static final CIString OTHER = ciString("OTHER");
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -33,20 +30,23 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
             return;
         }
 
-        final RpslAttribute attribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
-        final CIString orgType = attribute.getCleanValue();
+        final RpslAttribute orgTypeAttribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
+        final CIString orgType = orgTypeAttribute.getCleanValue();
 
-        if (!OTHER.equals(orgType) && orgTypeHasChanged(update, orgType) && !subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
-            updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(orgType));
+        if ((OrgType.OTHER != OrgType.getFor(orgType)) &&
+                orgTypeHasChanged(update) &&
+                !subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
+            updateContext.addMessage(update, orgTypeAttribute, UpdateMessages.invalidMaintainerForOrganisationType(orgType));
         }
     }
 
-    private boolean orgTypeHasChanged(final PreparedUpdate update, final CIString orgTypeUpdatedObject) {
+    private boolean orgTypeHasChanged(final PreparedUpdate update) {
         if (update.getAction() == Action.CREATE) {
             return true;
         }
 
-        return !update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE).equals(orgTypeUpdatedObject);
+        return !update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE)
+            .equals(update.getUpdatedObject().getValueForAttribute(AttributeType.ORG_TYPE));
     }
 
     @Override

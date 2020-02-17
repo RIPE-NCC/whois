@@ -124,6 +124,10 @@ public class FullTextSearch {
     public SearchResponse search(final SearchRequest searchRequest, final HttpServletRequest request) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
+        if (searchRequest.getRows() > MAX_RESULTS) {
+            throw new IllegalArgumentException("Too many rows");
+        }
+
         final QueryParser queryParser = new MultiFieldQueryParser(FullTextIndex.FIELD_NAMES, FullTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
 

@@ -1,8 +1,11 @@
 package net.ripe.db.whois.common.sso;
 
+import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
 import com.google.common.collect.Iterables;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,6 +26,9 @@ import java.util.NoSuchElementException;
 
 @Component
 public class CrowdClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrowdClient.class);
+
     private static final String CROWD_SESSION_PATH = "rest/usermanagement/1/session";
     private static final String CROWD_USER_ATTRIBUTE_PATH = "rest/usermanagement/1/user/attribute";
     private static final String CROWD_UUID_SEARCH_PATH = "rest/usermanagement/latest/search";
@@ -38,11 +44,12 @@ public class CrowdClient {
                        @Value("${crowd.rest.user}") final String crowdAuthUser,
                        @Value("${crowd.rest.password}") final String crowdAuthPassword) {
         this.restUrl = translatorUrl;
-        client = ClientBuilder.newBuilder()
+        this.client = ClientBuilder.newBuilder()
                 .register(HttpAuthenticationFeature.basic(crowdAuthUser, crowdAuthPassword))
+                .register(JacksonFeatures.class)
+                .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
+                .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
                 .build();
-        client.property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT);
-        client.property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT);
     }
 
     public String login(final String username, final String password) throws CrowdClientException {
@@ -51,7 +58,7 @@ public class CrowdClient {
         try {
             final CrowdSession session = client.target(restUrl)
                     .path(CROWD_SESSION_PATH)
-                    .request()
+                    .request(MediaType.APPLICATION_XML)
                     .post(Entity.entity(crowdAuth, MediaType.APPLICATION_XML), CrowdSession.class);
             return session.getToken();
         } catch (WebApplicationException | ProcessingException e) {
@@ -64,7 +71,7 @@ public class CrowdClient {
             client.target(restUrl)
                     .path(CROWD_SESSION_PATH)
                     .queryParam("username", username)
-                    .request()
+                    .request(MediaType.APPLICATION_XML)
                     .delete();
         } catch (WebApplicationException | ProcessingException e) {
             throw new CrowdClientException(e);
@@ -76,7 +83,7 @@ public class CrowdClient {
             client.target(restUrl)
                     .path(CROWD_SESSION_PATH)
                     .path(token)
-                    .request()
+                    .request(MediaType.APPLICATION_XML)
                     .delete();
         } catch (WebApplicationException | ProcessingException e) {
             throw new CrowdClientException(e);
@@ -88,7 +95,7 @@ public class CrowdClient {
             return client.target(restUrl)
                     .path(CROWD_USER_ATTRIBUTE_PATH)
                     .queryParam("username", username)
-                    .request()
+                    .request(MediaType.APPLICATION_XML)
                     .get(CrowdResponse.class)
                     .getUUID();
         } catch (NoSuchElementException e) {
@@ -107,7 +114,7 @@ public class CrowdClient {
                     .queryParam("restriction", "uuid=" + uuid)
                     .queryParam("entity-type", "user")
                     .queryParam("expand", "user")
-                    .request()
+                    .request(MediaType.APPLICATION_XML)
                     .get(CrowdUsers.class).getUsers();
             if(users == null || users.isEmpty()) {
                 throw new CrowdClientException("Unknown RIPE NCC Access uuid: " + uuid);
@@ -127,7 +134,7 @@ public class CrowdClient {
                     .path(token)
                     .queryParam("validate-password", "false")
                     .queryParam("expand", "user")
-                    .request()
+                    .request(MediaType.APPLICATION_XML)
                     .post(Entity.xml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><validation-factors/>"), CrowdSession.class);
             final CrowdUser user = crowdSession.getUser();
             return new UserSession(user.getName(), user.getDisplayName(), user.getActive(), crowdSession.getExpiryDate());
@@ -135,6 +142,9 @@ public class CrowdClient {
             throw new CrowdClientException("Unknown RIPE NCC Access token: " + token);
         } catch (WebApplicationException | ProcessingException e) {
             throw new CrowdClientException(e);
+        } catch (Exception e) {
+             LOGGER.error(e.getMessage(), e);
+             throw new CrowdClientException(e);
         }
     }
 

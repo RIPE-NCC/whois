@@ -28,6 +28,7 @@ import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +73,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
     private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
+    private static final String DB_HOST = StringUtils.isNotBlank(System.getProperty("db.host"))? System.getProperty("db.host") : "localhost";
 
     private DataSource mailupdatesDataSource;
 
@@ -165,15 +167,18 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
 
-        final String masterUrl = String.format("jdbc:log:mariadb://localhost/%s_WHOIS;driver=%s", dbBaseName, JDBC_DRIVER);
+        final String masterUrl = String.format("jdbc:log:mariadb://%s/%s_WHOIS;driver=%s", DB_HOST, dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
 
-        final String slaveUrl = String.format("jdbc:mariadb://localhost/%s_WHOIS", dbBaseName);
+        final String slaveUrl = String.format("jdbc:mariadb://%s/%s_WHOIS", DB_HOST, dbBaseName);
         System.setProperty("whois.db.slave.url", slaveUrl);
         System.setProperty("whois.db.driver", JDBC_DRIVER);
 
-        final String grsSlaveUrl = String.format("jdbc:mariadb://localhost/%s", dbBaseName);
+        final String internalsSlaveUrl = String.format("jdbc:mariadb://%s/%s_INTERNALS", DB_HOST, dbBaseName);
+        System.setProperty("internals.slave.database.url", internalsSlaveUrl);
+
+        final String grsSlaveUrl = String.format("jdbc:mariadb://%s/%s", DB_HOST, dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
         System.setProperty("whois.db.grs.master.baseurl", grsSlaveUrl);
     }
@@ -215,7 +220,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
         loadScripts(new JdbcTemplate(createDataSource(dbName)), sql);
 
-        System.setProperty(propertyBase + ".url", "jdbc:mariadb://localhost/" + dbName);
+        System.setProperty(propertyBase + ".url", String.format("jdbc:mariadb://%s/%s", DB_HOST, dbName));
         System.setProperty(propertyBase + ".username", "dbint");
         System.setProperty(propertyBase + ".password", "");
     }
@@ -224,14 +229,14 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return new JdbcTemplate(createDataSource(""));  // database name can be empty for mysql
     }
 
-    private static DataSource createDataSource(final String databaseName) {
+    private static DataSource createDataSource( final String databaseName) {
         try {
             @SuppressWarnings("unchecked")
             final Class<? extends java.sql.Driver> driverClass = (Class<? extends java.sql.Driver>) Class.forName(JDBC_DRIVER);
 
             final SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
             dataSource.setDriverClass(driverClass);
-            dataSource.setUrl("jdbc:mariadb://localhost/" + databaseName);
+            dataSource.setUrl(String.format("jdbc:mariadb://%s/%s", DB_HOST, databaseName));
             dataSource.setUsername("dbint");
 
             return dataSource;
@@ -248,7 +253,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 final String url = metaData.getURL();
                 final String username = metaData.getUserName();
 
-                return url.contains("localhost") || url.contains("127.0.0.1") || username.startsWith("rdonly");
+                return url.contains("localhost")
+                        || url.contains("mariadb")
+                        || url.contains("127.0.0.1")
+                        || username.startsWith("rdonly");
             }
         });
 

@@ -238,7 +238,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:        NAB-NIC\n" +
                 "tech-c:         NAB-NIC\n" +
                 "notify:         noreply@ripe.net\n" +
-                "mnt-lower:      TST-MNT\n" +
                 "mnt-by:         TST-MNT2\n" +
                 "source:         TEST\n")
 
@@ -250,7 +249,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-i org ORG-TOL1-TEST", "aut-num", "AS101")
         queryObject("-i notify noreply@ripe.net", "aut-num", "AS101")
         queryObject("-i mnt-by TST-MNT2", "aut-num", "AS101")
-        queryObject("-i mnt-lower TST-MNT", "aut-num", "AS101")
         queryObject("-i admin-c NAB-NIC", "aut-num", "AS101")
         queryObject("-i tech-c NAB-NIC", "aut-num", "AS101")
     }

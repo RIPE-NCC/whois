@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.96-SNAPSHOT</version>
+    <version>1.97-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -64,17 +64,17 @@
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.12</junit.version>
-        <jetty.version>9.4.11.v20180605</jetty.version>
+        <jetty.version>9.4.24.v20191120</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.12</jersey.version>
-        <jackson.version>2.9.5</jackson.version>
+        <jackson.version>2.9.10</jackson.version>
 
         <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
         <log4j.version>1.2.17</log4j.version>
         <lucene.version>4.10.4</lucene.version>
 
         <mail.version>1.6.2</mail.version>
-        <mariadb-java-client.version>1.8.0</mariadb-java-client.version>
+        <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
         <mockito.version>1.9.5</mockito.version>
 
         <netty.version>3.10.6.Final</netty.version>
@@ -96,17 +96,17 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>whois-1.96.1</tag>
   </scm>
 
     <distributionManagement>
         <repository>
             <id>ripe-releases</id>
-            <url>http://nexus.ripe.net/nexus/content/repositories/releases</url>
+            <url>https://nexus.ripe.net/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>ripe-snapshots</id>
-            <url>http://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+            <url>https://nexus.ripe.net/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -483,6 +483,11 @@
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+             <dependency>
+                 <groupId>com.fasterxml.jackson.core</groupId>
+                 <artifactId>jackson-annotations</artifactId>
+                 <version>${jackson.version}</version>
+             </dependency>
 
             <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
