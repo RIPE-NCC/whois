@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.keycert;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
+import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,10 +25,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PgpPublicKeyWrapperTest {
-
-    // copied from GnuPG source ./common/openpgpdefs.h
-    private static final int PUBKEY_ALGO_ECDSA = 19;
-    private static final int PUBKEY_ALGO_EDDSA = 22;
 
     @Mock DateTimeProvider dateTimeProvider;
 
@@ -150,7 +147,94 @@ public class PgpPublicKeyWrapperTest {
     }
 
     @Test
-    public void curve_25519() {
+    public void rsaPublicKey() {
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
+            RpslObject.parse(
+                "key-cert:        PGPKEY-28F6CD6C\n" +
+                "method:          PGP\n" +
+                "owner:           Ed Shryane <eshryane@ripe.net>\n" +
+                "fingerpr:        1C40 500A 1DC4 A8D8 D3EA  ABF9 EE99 1EE2 28F6 CD6C\n" +
+                "certif:          -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                "certif:          Comment: GPGTools - http://gpgtools.org\n" +
+                "certif:          \n" +
+                "certif:          mQENBE841dMBCAC80IDqJpJC7ch16NEaWvLDM8CslkhiqYk9fgXgUdMNuBsJJ/KV\n" +
+                "certif:          4oUwzrX+3lNvMPSoW7yRfiokFQ48IhYVZuGlH7DzwsyfS3MniXmw6/vT6JaYPuIF\n" +
+                "certif:          7TmMHIIxQbzJe+SUrauzJ2J0xQbnKhcfuLkmNO7jiOoKGJWIrO5wUZfd0/4nOoaz\n" +
+                "certif:          RMokk0Paj6r52ZMni44vV4R0QnuUJRNIIesPDYDkOZGXX1lD9fprTc2DJe8tjAu0\n" +
+                "certif:          VJz5PpCHwvS9ge22CRTUBSgmf2NBHJwDF+dnvijLuoDFyTuOrSkq0nAt0B9kTUxt\n" +
+                "certif:          Bsb7mNxlARduo5419hBp08P07LJb4upuVsMPABEBAAG0HkVkIFNocnlhbmUgPGVz\n" +
+                "certif:          aHJ5YW5lQHJpcGUubmV0PokBTwQTAQIAOQIbAwYLCQgHAwIGFQgCCQoLBBYCAwEC\n" +
+                "certif:          HgECF4AWIQQcQFAKHcSo2NPqq/numR7iKPbNbAUCWjpsQAAKCRDumR7iKPbNbEA9\n" +
+                "certif:          B/9+hT6e65papyTu4IH3aTlB5jcG7p6ZP3PtF41Pg7tixcAokyKGnyczv1kHIg18\n" +
+                "certif:          zre8e7ngDLvjmbzYeQkNNG6q8tcbWBkU790+cBllyIFgi7D1z4ZLwk1MJLcTvX2N\n" +
+                "certif:          BY55AF8W3fC+8p3u/g3kfjF/0BXLBAZb4j0MQ201LdLjucI/BPbxaGbkvxMqJqQ1\n" +
+                "certif:          FSlEt/6W/4x052fNzR0aPcDGuVPudQ+hNNhVZMFvH/qC4qkfg3e1QumiR5U6+xdZ\n" +
+                "certif:          bnkydo7f/OAACpw9ZGM4UQPVLTrbwa0oJJW0MOU/jEM8hnJfDijCtGoGF2qMi0+D\n" +
+                "certif:          ITDALfI+HR2n65jfemFexPVBuQENBFCuU2YBCADdwFtShuaKGR4fTqg38jOVcYUr\n" +
+                "certif:          3Mfmaoj1Ml+GzFxDUheT0L5XMkiccfihVo9z2vMTGcANx6TybX7Pb/pgPKYfs8mI\n" +
+                "certif:          dVtHKrAvawDstt+i3b2YtZyMP5APK4DicXHzBKZmCJEpHxYPhoExO2AjLUcb1iX6\n" +
+                "certif:          2UtDNcE61YThoA944CVuZ/pSmdBPAMx4TanVfmdnbcjQ0M5zU++tPRVc18qYd8yJ\n" +
+                "certif:          gvwx994quiEmc8u8x3j3Rci1clXgfK7vwXo5Mw3fC/rII8ZHhKRr/3K1/fG0RPXC\n" +
+                "certif:          Gyaf8/Ff1RHW4IVyO/cA3KWfVl9X7wYSu3ylag8ysPc+NR3FOmnAvZkMDAunABEB\n" +
+                "certif:          AAGJAR8EGAECAAkFAlCuU2YCGwwACgkQ7pke4ij2zWxHjggAuzXC6jVMSApDDteF\n" +
+                "certif:          ZWrNNzdv2kaqiCVqlzr+Cy7Du2DqTw4WmZbWWjFDNu+adHyEfA1LOsHuzGk75V3a\n" +
+                "certif:          WlmOqCsDrh+E1+A2a0TIXwdZZMIOt1hITMWP0SimdBD5us7QpANPoJ9QBEzrVn3x\n" +
+                "certif:          5hm407XBb0UIYBw0edAfyAzdnXjN2tkA4xQEM7p68KCa6WcdDEfvJlheKu4y3H2O\n" +
+                "certif:          WLhNbDYpVyWsnng9Z6DNfvQc/CqFz7AiEA5mrUS27/wwxobghqVQkLQBDG855qzu\n" +
+                "certif:          2ofoWxvqUbBfyix2Gn2EUsxZwPn0dVWe54YnpgZNow65THg0nfts1eMawbIMqFyB\n" +
+                "certif:          wf0XpbkDLgRRK3t2EQgAvhJehC8EmYEMyAydlgQFQIarzf1Kw1044e87DFMJI6qZ\n" +
+                "certif:          DE3IqNH+g1FbCjkrVV09uHbE3RvyS9aLGgXTc8hFzWNvLvRTUk23lzhPfialdwEb\n" +
+                "certif:          kBQjbO5YqZvc91VDLyff5Zgtk0/RIY7cvAOZWSkxytaQ1EnqSNzkXtewZQ9pWrpD\n" +
+                "certif:          EoZExbTCkPtiLWDKzf4IEG7vARNbgx5iuDmWVKyQ1V1TVobazaL4qrzRYUzEUOb+\n" +
+                "certif:          884CubqL8aPs8DoVdXuWxD3CX0RdBdN2zcMEsC22mmDMAKb7ep2qyxMkhOjADV5s\n" +
+                "certif:          xydQsFLirwkMJqvZxIdHtLXg/s0WzuVXeKg3otr0UwEAi/jgXQ6f8cGpjl3uOkrh\n" +
+                "certif:          odUXKxJP0EB+oig09RaXQTEH/3GX0Vd2c+fA/9Rsa6NtQXt7qNjDTr0UW9o4F4SM\n" +
+                "certif:          vGh784yGzIwlzBW7lZDtlCHiGJvKcGhJhD/kLchYrmwMR3BJK6rrQmnbzYBUE3+n\n" +
+                "certif:          A6kmzCzzs7s23IwsOCqkQynzP/vzamiAUWX+BI+X6vQoUkKC7Xf6Bv3oh07D3roH\n" +
+                "certif:          aPLntcFgX+mpIja5qnBoyLyvm++nlrFNzj6hUfjHMi5fkxKn8zv4wYLHSR18xK6f\n" +
+                "certif:          i7eCu/xvKRNFZdwPVGYN0gAOktueLOg6OTNmPE0lUg8ntAP3JZ4/109u+IuF0vPm\n" +
+                "certif:          HET7xW01lEiybqlI2FUgmzTvylOlJ6PDdaNCKMDCoShU344H/iXgnAfydjXFwHhG\n" +
+                "certif:          pQlZFgbKIMkhXiXKgy3OWvbe8rvqI0PfQU6tklH8KqtMchaYkMA5ZYbrAuszekxe\n" +
+                "certif:          oOukUafPmrgoFxfhe60x/IZgDbAaSU4menxnPg8TRM3SEeb7hcxOdxZFSUjWNlzA\n" +
+                "certif:          WJ2+9fRtHu0TrRW5BEyy6CBzmPaG0XycijVan+c8/psD/3hK9BCwR/1k15aEBeL5\n" +
+                "certif:          NUYBdv8aWX8873rFxQVpY+vtCyCglYwns4lhtpH4ECE+wb+Mu67mw61ll74/z/nh\n" +
+                "certif:          lYU/+TDtrSC4wGryoTKH4fWfZb4GR4Uvq75OhNpbfpCl4o7ErTEj/hykpfjofiVJ\n" +
+                "certif:          KDscsCWJAX8EGAECAAkFAlEre3YCGwIAagkQ7pke4ij2zWxfIAQZEQgABgUCUSt7\n" +
+                "certif:          dgAKCRBW3fHlgCdDMLELAP44MaK64F0Sbdj5Rugkjmmz91z4LmysI39bIJH0NuME\n" +
+                "certif:          0QD/cT/5tNNSpBQfhqu4Ud4CrGwg48GnMJkXDOp8qJtPu77/3wgAskacKCJLLQ5G\n" +
+                "certif:          wy+dIEshEmwSiIFMCmiDZSom4hEjVZYcNfjpUhgxNkqBRB5ALzhb/4Iqqvb1rlg/\n" +
+                "certif:          bDEcMOgmf4reQcNyvkmxSUmMOlT4q7fwzY4wYwjyKTGWYrEfseyHGmzySuyOh25V\n" +
+                "certif:          x8v+AXV/j8i5k4Guksh3/jkj4DoNImXvAFH+tnz/o/70UjAM/rz3Ee3P1UgFDvOO\n" +
+                "certif:          szlpRhwDO2yVnJD6cExUYWwzpEyKUhOHsOwNT8Ahep7l1mF+UjcAZWaWE1Liw3MG\n" +
+                "certif:          twpr/cWEgje3FBR4XmFPPrd5PoT+Kw5YTbTCKaasPH1GL+5MPzRLsmrkhlfGQ/13\n" +
+                "certif:          mnoC8fiEarkBDQRPONXTAQgA16kMTcjxOtkU8v3sLAIpr2xWwG91BdB2fLV0aUga\n" +
+                "certif:          ZWfexKMnWDu8xpm1qY+viF+/emdXBc/C7QbFUmhmXCslX5kfD10hkYFTIqc1Axk5\n" +
+                "certif:          Ya8FZtwHFpo0TVTlsGodZ2gy8334rT9yMH+bZNSlZ+07Fxa7maC1ycxPPL/68+LS\n" +
+                "certif:          By6wWlAFCwwr7XwNLGnrBbELgvoi04yMu1EpqAvxZLH1TBgzrFcWzXJjj1JKIB1R\n" +
+                "certif:          GapoDc3m7dvHa3+e27aQosQnNVNWrHiS67zqWoC963aNuHZBY174yfKPRaN6s5Gp\n" +
+                "certif:          pC2hMPYGnJV07yahP0mwRcp4e3AaJIg2SP9CUQJKGPY+mQARAQABiQE2BBgBAgAg\n" +
+                "certif:          AhsMFiEEHEBQCh3EqNjT6qv57pke4ij2zWwFAlo6bI0ACgkQ7pke4ij2zWz9QQf+\n" +
+                "certif:          LUItAe7WcdpHYiFUhKzCgRFd1k+deEBzLxcRK7sRQKMMwapVRNVJfi+/b3pz70bt\n" +
+                "certif:          K2K8LPw4SZSl0UjmuJvMnQJa1pSJBXLz0xB3UPI6pELmgSq08CxWUrWo1OV7nmD8\n" +
+                "certif:          jRhYFnoNVYwBR4AGuTdwNqzayUZFDg2pUyryqNz+iMvVurOHPCu+qgamGDmG86ue\n" +
+                "certif:          C0NIULSZVf7mDCYpk8D1vWeKTDcu7QXLrXASNaIQSEMWHKAt63rYS7POMcee/kz5\n" +
+                "certif:          lYO+3gsvZWUVLQwcZiuXEOcLdNMb6zqFtv999S7WR+PN3+R+fadBJO0rIjK3SRYo\n" +
+                "certif:          Cb+QO1GXlG668YnqONKddw==\n" +
+                "certif:          =T08n\n" +
+                "certif:          -----END PGP PUBLIC KEY BLOCK-----\n" +
+                "admin-c:         AA1-RIPE\n" +
+                "tech-c:          AA1-RIPE\n" +
+                "mnt-by:          UPD-MNT\n" +
+                "source:          TEST"));
+
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.RSA_GENERAL));
+        assertThat(subject.getFingerprint(), is("1C40 500A 1DC4 A8D8 D3EA  ABF9 EE99 1EE2 28F6 CD6C"));
+        assertThat(subject.getMethod(), is("PGP"));
+        assertThat(subject.getOwners(), contains("Ed Shryane <eshryane@ripe.net>"));
+    }
+
+    @Test
+    public void curve25519PublicKey() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
                 "key-cert:        PGPKEY-2424420B\n" +
@@ -176,14 +260,14 @@ public class PgpPublicKeyWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST"));
 
-        assertThat(subject.getPublicKey().getAlgorithm(), is(PUBKEY_ALGO_EDDSA));
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.EDDSA));
         assertThat(subject.getFingerprint(), is("3F0D 878A 9352 5F7C 4BED  F475 A72E FF2A 2424 420B"));
         assertThat(subject.getMethod(), is("PGP"));
         assertThat(subject.getOwners(), contains("Test User <noreply@ripe.net>"));
     }
 
     @Test
-    public void secp256k1() {
+    public void secp256k1PublicKey() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
                 "key-cert:        PGPKEY-B9FD9E0E\n" +
@@ -206,14 +290,14 @@ public class PgpPublicKeyWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST"));
 
-        assertThat(subject.getPublicKey().getAlgorithm(), is(PUBKEY_ALGO_ECDSA));
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.ECDSA));
         assertThat(subject.getFingerprint(), is("33A3 9E9F 3515 31CE 6990  4F66 BAA5 1A80 B9FD 9E0E"));
         assertThat(subject.getMethod(), is("PGP"));
         assertThat(subject.getOwners(), contains("Test User <noreply@ripe.net>"));
     }
 
     @Test
-    public void brainpoolP512r1() {
+    public void brainpoolP512r1PublicKey() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
                 "key-cert:        PGPKEY-34A607E5\n" +
@@ -239,14 +323,14 @@ public class PgpPublicKeyWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST"));
 
-        assertThat(subject.getPublicKey().getAlgorithm(), is(PUBKEY_ALGO_ECDSA));
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.ECDSA));
         assertThat(subject.getFingerprint(), is("5F36 A717 5CE1 76D3 2564  A822 2FF6 9819 34A6 07E5"));
         assertThat(subject.getMethod(), is("PGP"));
         assertThat(subject.getOwners(), contains("Test User <noreply@ripe.net>"));
     }
 
     @Test
-    public void nistp521() {
+    public void nistp521PublicKey() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
                 "key-cert:        PGPKEY-725D9FA9\n" +
@@ -272,14 +356,14 @@ public class PgpPublicKeyWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST"));
 
-        assertThat(subject.getPublicKey().getAlgorithm(), is(PUBKEY_ALGO_ECDSA));
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.ECDSA));
         assertThat(subject.getFingerprint(), is("75B5 6A59 4D66 C09D E50A  183B 0862 8883 725D 9FA9"));
         assertThat(subject.getMethod(), is("PGP"));
         assertThat(subject.getOwners(), contains("Test User <noreply@ripe.net>"));
     }
 
     @Test
-    public void unreadable_keyring() {
+    public void unreadableKeyring() {
         try {
             PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
@@ -347,6 +431,8 @@ public class PgpPublicKeyWrapperTest {
                             "source:         TEST"));
         assertThat(subject.isRevoked(), is(true));
     }
+
+    // helper methods
 
     private String getResource(final String resourceName) throws IOException {
         return IOUtils.toString(new ClassPathResource(resourceName).getInputStream());
