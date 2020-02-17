@@ -752,7 +752,7 @@ public class PgpSignedMessageTest {
     private PGPPublicKey getPublicKey_215A9907() {
         PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
-                        "key-cert:       PGPKEY-6481AE34\n" +
+                        "key-cert:       PGPKEY-215A9907\n" +
                         "method:         PGP\n" +
                         "owner:          Test User <test@ripe.net>\n" +
                         "fingerpr:       3B45 F4E7 EF63 1D73 697D 01AB  F718 C6AD 215A 9907\n" +
@@ -776,7 +776,7 @@ public class PgpSignedMessageTest {
     private PGPPublicKey getPublicKey_001E82AA() {
         PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
-                        "key-cert:       PGPKEY-6481AE34\n" +
+                        "key-cert:       PGPKEY-001E82AA\n" +
                         "method:         PGP\n" +
                         "owner:          Test User <test@ripe.net>\n" +
                         "fingerpr:       B7D0 621F E20F 2C9C BB60  76D7 77AE 9191 001E 82AA\n" +
