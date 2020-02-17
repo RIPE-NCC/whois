@@ -18,8 +18,8 @@ public class JdbcAbuseValidationStatusDao implements AbuseValidationStatusDao {
     private final JdbcTemplate internalsTemplate;
 
     @Autowired
-    public JdbcAbuseValidationStatusDao(@Qualifier("internalsDataSource") final DataSource dataSource) {
-        this.internalsTemplate = new JdbcTemplate(dataSource);
+    public JdbcAbuseValidationStatusDao(@Qualifier("internalsSlaveDataSource") final DataSource internalsDataSource) {
+        this.internalsTemplate = new JdbcTemplate(internalsDataSource);
     }
 
     @Override
