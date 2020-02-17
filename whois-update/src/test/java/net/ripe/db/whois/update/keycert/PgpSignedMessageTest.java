@@ -80,7 +80,7 @@ public class PgpSignedMessageTest {
     }
 
     @Test
-    public void multiple_dashes_in_signed_message() throws Exception {
+    public void multiple_dashes_in_signed_message() {
         final String signedMessage =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
@@ -339,7 +339,7 @@ public class PgpSignedMessageTest {
     }
 
     @Test
-    public void verify_multipart_plain_text_message() throws Exception {
+    public void verify_multipart_plain_text_message() {
         final String signedData =
                 "Content-Transfer-Encoding: 7bit\n" +
                 "Content-Type: text/plain;\n" +
@@ -359,7 +359,7 @@ public class PgpSignedMessageTest {
     }
 
     @Test
-    public void verify_multipart_alternative_message() throws Exception {
+    public void verify_multipart_alternative_message() {
         final String signedData =
                 "Content-Type: multipart/alternative;\n" +
                 "\tboundary=\"Apple-Mail=_CA96AAFD-E7AD-465B-804B-ADE6C5D1A1B3\"\n" +
@@ -505,7 +505,7 @@ public class PgpSignedMessageTest {
                 "=pQ32\n" +
                 "-----END PGP SIGNATURE-----");
 
-        assertThat(pgpSignedMessage.verify(getPublicKey_81CCF97D()), is(true));
+        assertThat(pgpSignedMessage.verify(getPublicKey_6481AE34()), is(true));
     }
 
     // TODO: test secp256k1
@@ -609,7 +609,7 @@ public class PgpSignedMessageTest {
                 RpslObject.parse(
                         "key-cert:       PGPKEY-5763950D\n" +
                         "method:         PGP\n" +
-                        "owner:          No Reply <noreply@ripe.net>\n" +
+                        "owner:          noreply@ripe.net <noreply@ripe.net>\n" +
                         "fingerpr:       884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D\n" +
                         "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
                         "certif:         Version: GnuPG v1.4.12 (Darwin)\n" +
@@ -648,13 +648,13 @@ public class PgpSignedMessageTest {
         return wrapper.getPublicKey();
     }
 
-    private PGPPublicKey getPublicKey_81CCF97D() {
+    private PGPPublicKey getPublicKey_6481AE34() {
         PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
-                        "key-cert:       PGPKEY-81CCF97D\n" +
+                        "key-cert:       PGPKEY-6481AE34\n" +
                         "method:         PGP\n" +
-                        "owner:          Unknown <unread@ripe.net>\n" +
-                        "fingerpr:       EDDF 375A B830 D1BB 26E5  ED3B 76CA 91EF 81CC F97D\n" +
+                        "owner:          Test User <test@ripe.net>\n" +
+                        "fingerpr:       6234 6350 CAE2 433E 2400  1D72 94FA 62C3 6481 AE34\n" +
                         "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
                         "certif:         Comment: GPGTools - http://gpgtools.org\n" +
                         "certif:\n" +
