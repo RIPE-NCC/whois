@@ -96,17 +96,17 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>whois-1.96.1</tag>
   </scm>
 
     <distributionManagement>
         <repository>
             <id>ripe-releases</id>
-            <url>http://nexus.ripe.net/nexus/content/repositories/releases</url>
+            <url>https://nexus.ripe.net/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>ripe-snapshots</id>
-            <url>http://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+            <url>https://nexus.ripe.net/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
