@@ -1,13 +1,14 @@
-#image: whois-build:1
-image: maven:3.6-jdk-8
-
-services:
-  - mariadb:10.2
+image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:chrome80-jdk8-maven36-node10
 
 variables:
-#  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
-  MAVEN_OPTS: -Dmaven.repo.local=/cache/maven.repository
-  MYSQL_ROOT_PASSWORD: root
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  TZ: Europe/Amsterdam
+  WHITESOURCE_PRODUCT: "database-team"
+  WHITESOURCE_PROJECT: "whois"
+
+include:
+  - project: 'swe/gitlab-ci'
+    file: '/templates/whitesource-scanning.yml'
 
 stages:
   - build
@@ -15,61 +16,124 @@ stages:
   - deploy
 
 cache:
+  key: ${CI_JOB_NAME}
   paths:
-    #- .m2/repository
+    - .m2/repository
     - target/
     - "*/target/"
 
 build:
   stage: build
-  before_script:
-    - apt-get update
-    - apt-get -y install make gcc
   script:
     - mvn $MAVEN_OPTS clean install -U -Prelease
   artifacts:
+    paths:
+      - whois-db/target/whois-db-*-SNAPSHOT.jar
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
-integration-test:
+.it_template: &it_env
+  services:
+    - mariadb:10.2
+  variables:
+    MYSQL_ROOT_PASSWORD: root
+    TZ: Europe/Amsterdam
   stage: test
   before_script:
-    - apt-get update
-    - apt-get -y install mysql-client make gcc
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
-  script:
-    - mvn -Ddb.host=mariadb $MAVEN_OPTS install -Pintegration
+    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
+    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
   artifacts:
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
+
+whois-it-suite1:
+  <<: *it_env
+  tags:
+    - whois
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-endtoend -am
+  when: manual
+
+whois-it-suite2:
+  <<: *it_env
+  tags:
+    - whois
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-api -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-client -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-commons -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-db -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-nrtm -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-query -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-rpsl -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-scheduler -am
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb integration-test -Pintegration -pl whois-update -am
+  when: manual
 
 end-to-end-test:
-  stage: test
-  before_script:
-    - apt-get update
-    - apt-get -y install mysql-client make gcc
-    - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
-    - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
+  <<: *it_env
+  tags:
+    - whois
   script:
     - mvn -Ddb.host=mariadb $MAVEN_OPTS install -Pendtoend
-  artifacts:
-    reports:
-      junit:
-        - "*/target/surefire-reports/TEST-*.xml"
-        - "*/target/failsafe-reports/TEST-*.xml"
+  when: manual
 
-deploy-dev:
+.deploy_template: &deploy_env
   stage: deploy
+  before_script:
+    - mkdir -p /root/.ssh
+    - touch /root/.ssh/known_hosts
+    - ssh-keyscan hanwoo.ripe.net 2>&1 >>/root/.ssh/known_hosts
+    - echo "search ripe.net">>/etc/resolv.conf
+    - eval $(ssh-agent -s)
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\nAddressFamily inet\n\n" > ~/.ssh/config
+    - echo "$DBASE_SSH_KEY" | tr -d '\r' | ssh-add -
   script:
-    - git clone http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/sbuskens/db-operational.git
-    - cp backend/target/backend-$CI_COMMIT_SHA.jar db-operational/deployment/db-web-ui-spring-$CI_COMMIT_SHA.jar
+    - git clone http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/swe-database-team/db-operational.git
+    - find whois-db/target -name whois-db-*-SNAPSHOT.jar -exec cp {} db-operational/deployment/whois-db-$CI_COMMIT_SHA.jar \;
     - cd db-operational/deployment
-    - ./stage.sh -p db-web-ui -e dev db-web-ui-spring-$CI_COMMIT_SHA.jar
-    - ./sync.sh -p db-web-ui -e dev
-    - bash ./deploy.sh -p db-web-ui -e dev
+    - ./stage.sh -p whois -e $CI_ENVIRONMENT_NAME whois-db-$CI_COMMIT_SHA.jar
+    - ./sync.sh -p whois -e $CI_ENVIRONMENT_NAME
+    - bash ./deploy.sh -p whois -e $CI_ENVIRONMENT_NAME
+
+deploy_dev:
+  <<: *deploy_env
+  environment:
+    name: dev
+  when: manual
+
+deploy_prepdev:
+  <<: *deploy_env
+  environment:
+    name: prepdev
+  when: manual
+
+deploy_rc:
+  <<: *deploy_env
+  environment:
+    name: rc
+  when: manual
+
+deploy_training:
+  <<: *deploy_env
+  environment:
+    name: training
+  when: manual
+
+deploy_test:
+  <<: *deploy_env
+  environment:
+    name: test
+  when: manual
+
+deploy_prod:
+  <<: *deploy_env
+  environment:
+    name: prod
   when: manual
