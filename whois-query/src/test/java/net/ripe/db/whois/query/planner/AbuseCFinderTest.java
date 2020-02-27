@@ -46,7 +46,7 @@ public class AbuseCFinderTest {
 
     @Before
     public void setup() {
-        ReflectionTestUtils.setField(subject, "ripeSources", ImmutableSet.of(CIString.ciString("RIPE")));
+        ReflectionTestUtils.setField(subject, "mainSources", ImmutableSet.of(CIString.ciString("RIPE")));
         when(maintainers.isRsMaintainer(ciSet())).thenReturn(false);
         when(maintainers.isRsMaintainer(ciSet("RS2-MNT"))).thenReturn(true);
         when(abuseValidationStatusDao.isSuspect(any(CIString.class))).thenReturn(false);

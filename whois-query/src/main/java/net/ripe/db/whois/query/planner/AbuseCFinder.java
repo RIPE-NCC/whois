@@ -61,7 +61,9 @@ public class AbuseCFinder {
     private Set<CIString> getMainSources(final String mainSource, final String nonAuthSource, final String grsSource) {
         ImmutableSet.Builder<CIString> sourceBuilder  = new ImmutableSet.Builder<>();
 
-        sourceBuilder.add(CIString.ciString(mainSource));
+        if(StringUtils.isNotEmpty(mainSource)) {
+          sourceBuilder.add(CIString.ciString(mainSource));
+        }
 
         if(StringUtils.isNotEmpty(nonAuthSource)) {
             sourceBuilder.add(CIString.ciString(nonAuthSource));
