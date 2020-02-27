@@ -247,7 +247,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
                 "org:           ORG-TEST-1\n" +
                 "netname:       NN\n" +
                 "status:        OTHER\n" +
-                "source:        RIPE"));
+                "source:        NON-TEST"));
 
         final String responseNoAbuseC = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
         assertFalse(responseNoAbuseC.contains("Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));

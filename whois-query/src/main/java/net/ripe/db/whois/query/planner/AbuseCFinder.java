@@ -28,6 +28,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 public class AbuseCFinder {
@@ -38,7 +39,7 @@ public class AbuseCFinder {
     private final Ipv6Tree ipv6Tree;
     private final Maintainers maintainers;
     private final AbuseValidationStatusDao abuseValidationStatusDao;
-    private final ImmutableSet<CIString> ripeSources;
+    private final Set<CIString> mainSources;
 
     @Autowired
     public AbuseCFinder(@Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
@@ -54,15 +55,13 @@ public class AbuseCFinder {
         this.ipv6Tree = ipv6Tree;
         this.maintainers = maintainers;
         this.abuseValidationStatusDao = abuseValidationStatusDao;
-        this.ripeSources = getRipeSources(mainSource, nonAuthSource, grsSource);
+        this.mainSources = getMainSources(mainSource, nonAuthSource, grsSource);
     }
 
-    private ImmutableSet<CIString> getRipeSources(final String mainSource, final String nonAuthSource, final String grsSource) {
+    private Set<CIString> getMainSources(final String mainSource, final String nonAuthSource, final String grsSource) {
         ImmutableSet.Builder<CIString> sourceBuilder  = new ImmutableSet.Builder<>();
 
-        if(StringUtils.isNotEmpty(mainSource)) {
-            sourceBuilder.add(CIString.ciString(mainSource));
-        }
+        sourceBuilder.add(CIString.ciString(mainSource));
 
         if(StringUtils.isNotEmpty(nonAuthSource)) {
             sourceBuilder.add(CIString.ciString(nonAuthSource));
@@ -134,7 +133,7 @@ public class AbuseCFinder {
     @CheckForNull
     @Nullable
     public RpslObject getAbuseContactRole(final RpslObject rpslObject) {
-        if(!ripeSources.contains(rpslObject.getValueForAttribute(AttributeType.SOURCE))) {
+        if(!mainSources.contains(rpslObject.getValueForAttribute(AttributeType.SOURCE))) {
             return null;
         }
 
