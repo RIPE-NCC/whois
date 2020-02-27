@@ -33,11 +33,11 @@ public enum QueryFlag {
 
     NO_IRT(new Builder("C", "no-irt")
             .withSearchKey("<ip-lookup>")
-            .describedAs("Turns off default option '-c' or '--irt'.")),
+            .describedAs("Turns off '-c' or '--irt' flag. Related irt objects are not returned by default.")),
 
     IRT(new Builder("c", "irt")
             .withSearchKey("<ip-lookup>")
-            .describedAs("Requests first level less specific inetnum or inet6num objects with the \"mnt-irt:\" attribute (enabled by default).")),
+            .describedAs("Requests first level less specific inetnum or inet6num objects with the \"mnt-irt:\" attribute. Related irt objects are not returned by default.")),
 
     ABUSE_CONTACT(new Builder("b", "abuse-contact")
             .withSearchKey("<ip-lookup>")
