@@ -1243,4 +1243,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
     }
+
+    // TODO: [ES] test org-name with inconsistent not allowed on create AND modify
+    
 }
