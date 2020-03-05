@@ -46,6 +46,13 @@ build:
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
+  after_script:
+    - echo "on branch $CI_COMMIT_BRANCH"
+    - >
+      if [ "$CI_COMMIT_BRANCH" != "master" ]; then
+        mvn sonar:sonar -Dsonar.host.url=http://sonar.ripe.net -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.projectName=whois
+      fi
+
   artifacts:
     reports:
       junit:
