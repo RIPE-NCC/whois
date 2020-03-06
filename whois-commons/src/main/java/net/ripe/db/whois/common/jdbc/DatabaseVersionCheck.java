@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -32,8 +31,6 @@ public class DatabaseVersionCheck {
     static final Splitter VERSION_SPLITTER = Splitter.on(CharMatcher.anyOf(".-")).omitEmptyStrings();
 
     private final ApplicationContext applicationContext;
-    @Value("${application.version}")
-    private String applicationVersion;
 
     @Autowired
     public DatabaseVersionCheck(ApplicationContext applicationContext) {
