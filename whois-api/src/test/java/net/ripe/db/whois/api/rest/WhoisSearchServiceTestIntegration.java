@@ -16,6 +16,7 @@ import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
@@ -112,6 +113,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
+    @Autowired private ApplicationVersion applicationVersion;
 
     @Before
     public void setup() {
@@ -1098,6 +1100,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "\"terms-and-conditions\" : {\n" +
                 "  \"type\" : \"locator\",\n" +
                 "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "},\n" +
+                "\"version\" : {\n" +
+                "  \"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
+                "  \"timestamp\" : \"" + applicationVersion.getTimestamp() + "\",\n" +
+                "  \"commit-id\" : \"" + applicationVersion.getCommitId() + "\"\n" +
                 "}\n" +
                 "}"
         ));
@@ -1175,6 +1182,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
                 "</whois-resources>\n"));
     }
 
