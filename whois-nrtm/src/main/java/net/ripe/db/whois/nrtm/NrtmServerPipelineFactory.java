@@ -12,10 +12,9 @@ public class NrtmServerPipelineFactory extends BaseNrtmServerPipelineFactory {
     @Autowired
     public NrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
                                      final NrtmExceptionHandler exceptionHandler,
-                                     final AccessControlHandler aclHandler,
                                      final MaintenanceHandler maintenanceHandler,
                                      final NrtmQueryHandlerFactory nrtmQueryHandlerFactory) {
-        super(nrtmChannelsRegistry, exceptionHandler, aclHandler, maintenanceHandler, nrtmQueryHandlerFactory);
+        super(nrtmChannelsRegistry, exceptionHandler, maintenanceHandler, nrtmQueryHandlerFactory);
     }
 
     @PreDestroy
