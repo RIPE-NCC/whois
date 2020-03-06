@@ -812,10 +812,12 @@
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
-                    <groups>${test.groups}</groups>
-                    <forkCount>${test.forkCount.integration}</forkCount>
+                    <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
+                    <parallel>classes</parallel>
+                    <groups>${test.groups}</groups>
                     <runOrder>random</runOrder>
                     <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
                 </configuration>
@@ -938,7 +940,6 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>None</test.groups>
-                <test.forkCount.integration>3</test.forkCount.integration>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Integration*.class</test.files.integration>
             </properties>
@@ -950,7 +951,6 @@
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
@@ -974,7 +974,6 @@
                 <test.groups>net.ripe.db.whois.common.EndToEndTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
@@ -985,7 +984,6 @@
                 </test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
@@ -996,7 +994,6 @@
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
