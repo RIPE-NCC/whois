@@ -661,4 +661,9 @@ public final class UpdateMessages {
     public static Message bogonPrefixNotAllowed(final String prefix) {
         return new Message(Type.ERROR, "Bogon prefix %s is not allowed.", prefix);
     }
+
+    public static Message maximumObjectSizeExceeded(final long size, final long maximumSize) {
+        return new Message(Type.ERROR, "Ignored object with size %d, exceeds maximum object size %d.", size, maximumSize);
+    }
+
 }
