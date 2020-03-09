@@ -25,7 +25,6 @@ public final class QueryServer implements ApplicationService {
     public static int port;
 
     @Value("${port.query}") private int queryPort;
-    @Value("${application.version}") private String version;
     @Value("${loadbalancer.query.timeout:5000}") private int markNodeFailedTimeout;
 
     private Channel serverChannel;
