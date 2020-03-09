@@ -67,6 +67,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
     public void run() {
         if (!enabled) {
             LOGGER.info("Authoritative resource import task is disabled");
+            return;
         }
 
         for (final String sourceName : sourceNames) {
