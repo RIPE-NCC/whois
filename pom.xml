@@ -819,7 +819,6 @@
                     <parallel>classes</parallel>
                     <groups>${test.groups}</groups>
                     <runOrder>random</runOrder>
-                    <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
                 </configuration>
                 <executions>
                     <execution>
@@ -957,7 +956,6 @@
             <id>comparison</id>
             <properties>
                 <test.redirectOutput>false</test.redirectOutput>
-                <test.ignoreFailure>false</test.ignoreFailure>
                 <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>
