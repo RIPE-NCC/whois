@@ -958,7 +958,7 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.files.unit>None</test.files.unit>
+                <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
