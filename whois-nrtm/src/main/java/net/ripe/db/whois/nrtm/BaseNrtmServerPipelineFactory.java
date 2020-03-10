@@ -44,15 +44,18 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
     private final NrtmExceptionHandler exceptionHandler;
     private final MaintenanceHandler maintenanceHandler;
     private final NrtmQueryHandlerFactory nrtmQueryHandlerFactory;
+    private final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler;
 
     protected BaseNrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
                                             final NrtmExceptionHandler exceptionHandler,
                                             final MaintenanceHandler maintenanceHandler,
-                                            final NrtmQueryHandlerFactory nrtmQueryHandlerFactory) {
+                                            final NrtmQueryHandlerFactory nrtmQueryHandlerFactory,
+                                            final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.exceptionHandler = exceptionHandler;
         this.maintenanceHandler = maintenanceHandler;
         this.nrtmQueryHandlerFactory = nrtmQueryHandlerFactory;
+        this.nrtmConnectionPerIpLimitHandler = nrtmConnectionPerIpLimitHandler;
     }
 
     @Override
@@ -60,6 +63,8 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
         ChannelPipeline pipeline = Channels.pipeline();
 
         pipeline.addLast("U-maintenanceHandler", maintenanceHandler);
+        pipeline.addLast("connectionPerIpLimit", nrtmConnectionPerIpLimitHandler);
+
         pipeline.addLast("U-channels", nrtmChannelsRegistry);
 
         pipeline.addLast("U-delimiter", new DelimiterBasedFrameDecoder(128, true, LINE_DELIMITER));
