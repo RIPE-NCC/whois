@@ -52,6 +52,8 @@ build:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
+  when: manual
+  allow_failure: false
 
 whois-it-suite1:
   <<: *it_env
@@ -62,7 +64,6 @@ whois-it-suite1:
     - find . -name *.exec
     - cp whois-endtoend/target/jacoco.exec whois-endtoend/target/jacoco_whois-endtoend.exec
     - cp whois-endtoend/target/jacoco-it.exec whois-endtoend/target/jacoco-it_whois-endtoend.exec
-  when: manual
 
 whois-it-suite2:
   <<: *it_env
@@ -105,7 +106,6 @@ whois-it-suite2:
     - find . -name *.exec
     - cp whois-update/target/jacoco.exec whois-update/target/jacoco_whois-update.exec
     - cp whois-update/target/jacoco-it.exec whois-update/target/jacoco-it_whois-update.exec
-  when: manual
 
 sonar:
   stage: code_quality
