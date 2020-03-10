@@ -60,6 +60,7 @@ whois-it-suite1:
   tags:
     - whois
   script:
+    - mvn -DskipTests install
     - cd whois-endtoend && mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall
     - find . -name *.exec
     #- cp whois-endtoend/target/jacoco.exec whois-endtoend/target/jacoco_whois-endtoend.exec
@@ -70,6 +71,7 @@ whois-it-suite2:
   tags:
     - whois
   script:
+    - mvn -DskipTests install
     - cd whois-api && mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration
     - find . -name *.exec
     #- cp whois-api/target/jacoco.exec whois-api/target/jacoco_whois-api.exec
