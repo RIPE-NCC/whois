@@ -13,8 +13,9 @@ public class NrtmServerPipelineFactory extends BaseNrtmServerPipelineFactory {
     public NrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
                                      final NrtmExceptionHandler exceptionHandler,
                                      final MaintenanceHandler maintenanceHandler,
-                                     final NrtmQueryHandlerFactory nrtmQueryHandlerFactory) {
-        super(nrtmChannelsRegistry, exceptionHandler, maintenanceHandler, nrtmQueryHandlerFactory);
+                                     final NrtmQueryHandlerFactory nrtmQueryHandlerFactory,
+                                     final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler) {
+        super(nrtmChannelsRegistry, exceptionHandler, maintenanceHandler, nrtmQueryHandlerFactory, nrtmConnectionPerIpLimitHandler);
     }
 
     @PreDestroy
