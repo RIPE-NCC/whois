@@ -20,7 +20,7 @@ cache:
   paths:
     - .m2/repository
     - target/
-    - "*/target/"
+    - "*/target/*"
 
 build:
   stage: build
