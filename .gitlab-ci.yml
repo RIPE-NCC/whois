@@ -30,6 +30,7 @@ build:
   artifacts:
     paths:
       - whois-db/target/whois-db-*-SNAPSHOT.jar
+      - "*/target/*.exec"
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
@@ -49,6 +50,8 @@ build:
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
   artifacts:
+    paths:
+      - "*/target/*.exec"
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
