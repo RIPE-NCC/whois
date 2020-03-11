@@ -85,6 +85,8 @@ sonar:
   stage: code_quality
   only:
     - schedules
+  tags:
+    - whois
   script:
     - mvn $MAVEN_OPTS clean install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall
