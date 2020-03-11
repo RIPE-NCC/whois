@@ -82,11 +82,7 @@ whois-integration-test:
   when: manual
 
 sonar:
-  services:
-    - mariadb:10.2
-  variables:
-    MYSQL_ROOT_PASSWORD: root
-    TZ: Europe/Amsterdam
+  <<: *it_env
   stage: code_quality
   only:
     - schedules
