@@ -3,6 +3,8 @@ package net.ripe.db.whois.api.fulltextsearch;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
+import net.ripe.db.whois.api.rest.domain.Version;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -64,14 +66,20 @@ public class FullTextSearch {
     private final FullTextIndex fullTextIndex;
     private final AccessControlListManager accessControlListManager;
     private final Source source;
+    private final Version version;
 
     @Autowired
     public FullTextSearch(final FullTextIndex fullTextIndex,
                           final AccessControlListManager accessControlListManager,
-                          final SourceContext sourceContext) {
+                          final SourceContext sourceContext,
+                          final ApplicationVersion applicationVersion) {
         this.fullTextIndex = fullTextIndex;
         this.accessControlListManager = accessControlListManager;
         this.source = sourceContext.getCurrentSource();
+        this.version = new Version(
+            applicationVersion.getVersion(),
+            applicationVersion.getTimestamp(),
+            applicationVersion.getCommitId());
     }
 
     @GET
@@ -179,6 +187,8 @@ public class FullTextSearch {
                         responseLstList.add(getFacet(facets));
                     }
 
+                    responseLstList.add(createVersion());
+
                     final SearchResponse searchResponse = new SearchResponse();
                     searchResponse.setResult(createResult(searchRequest, documents, topDocs.totalHits));
                     searchResponse.setLsts(responseLstList);
@@ -274,6 +284,17 @@ public class FullTextSearch {
 
         highlight.setLsts(highlightDocs);
         return highlight;
+    }
+
+    private SearchResponse.Lst createVersion() {
+        final SearchResponse.Lst result = new SearchResponse.Lst("version");
+
+        result.setStrs(Lists.newArrayList(
+            new SearchResponse.Str("version", version.getVersion()),
+            new SearchResponse.Str("timestamp", version.getTimestamp()),
+            new SearchResponse.Str("commit_id", version.getCommitId())));
+
+        return result;
     }
 
     private SearchResponse.Lst getFacet(final Facets facets) throws IOException {

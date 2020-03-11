@@ -251,7 +251,7 @@ public class NrtmQueryHandlerTest {
     public void channelConnected() throws Exception {
         subject.channelConnected(contextMock, channelStateEventMock);
 
-        verify(channelMock).write(NrtmQueryHandler.TERMS_AND_CONDITIONS + "\n\n");
+        verify(channelMock).write(NrtmMessages.termsAndConditions() + "\n\n");
     }
 
     @Test

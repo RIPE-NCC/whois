@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.pipeline;
 
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -16,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -36,23 +34,25 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionPerIpLimitHandlerTest {
-    public static final int MAX_CONNECTIONS_PER_IP = 2;
+    private static final int MAX_CONNECTIONS_PER_IP = 2;
+    private static final String VERSION = "1.0";
+
     @Mock private ChannelHandlerContext ctx;
     @Mock private Channel channel;
     @Mock private ChannelFuture channelFuture;
     @Mock private IpResourceConfiguration ipResourceConfiguration;
     @Mock private WhoisLog whoisLog;
 
-    @InjectMocks private ConnectionPerIpLimitHandler subject;
+    private ConnectionPerIpLimitHandler subject;
 
     @Before
     public void setUp() {
-        subject.setMaxConnectionsPerIp(MAX_CONNECTIONS_PER_IP);
+        this.subject = new ConnectionPerIpLimitHandler(ipResourceConfiguration, whoisLog, MAX_CONNECTIONS_PER_IP, VERSION);
 
         when(ctx.getChannel()).thenReturn(channel);
 
-        when(ipResourceConfiguration.isUnlimitedConnections(any(IpInterval.class))).thenReturn(false);
-        when(ipResourceConfiguration.isProxy(any(IpInterval.class))).thenReturn(false);
+        when(ipResourceConfiguration.isUnlimitedConnections(any(InetAddress.class))).thenReturn(false);
+        when(ipResourceConfiguration.isProxy(any(InetAddress.class))).thenReturn(false);
         when(channel.write(anyObject())).thenReturn(channelFuture);
     }
 
@@ -95,7 +95,7 @@ public class ConnectionPerIpLimitHandlerTest {
 
     @Test
     public void multiple_connected_limit_disabled() throws Exception {
-        subject.setMaxConnectionsPerIp(0);
+        this.subject = new ConnectionPerIpLimitHandler(ipResourceConfiguration, whoisLog, 0, VERSION);
 
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
         when(channel.getRemoteAddress()).thenReturn(remoteAddress);
@@ -121,7 +121,7 @@ public class ConnectionPerIpLimitHandlerTest {
     public void multiple_connected_unlimited_allowed() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
 
-        when(ipResourceConfiguration.isUnlimitedConnections(any(IpInterval.class))).thenReturn(true);
+        when(ipResourceConfiguration.isUnlimitedConnections(any(InetAddress.class))).thenReturn(true);
         when(channel.getRemoteAddress()).thenReturn(remoteAddress);
 
         final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
@@ -139,7 +139,7 @@ public class ConnectionPerIpLimitHandlerTest {
     public void multiple_connected_proxy_allowed() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
 
-        when(ipResourceConfiguration.isProxy(any(IpInterval.class))).thenReturn(true);
+        when(ipResourceConfiguration.isProxy(any(InetAddress.class))).thenReturn(true);
         when(channel.getRemoteAddress()).thenReturn(remoteAddress);
 
         final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);

@@ -13,7 +13,6 @@ include:
 stages:
   - build
   - test
-  - code_quality
   - deploy
 
 cache:
@@ -21,12 +20,13 @@ cache:
   paths:
     - .m2/repository
     - target/
-    - "*/target/*"
+    - "*/target/"
 
 build:
   stage: build
   script:
-    - mvn $MAVEN_OPTS clean install -U -Prelease
+    - mvn $MAVEN_OPTS clean install
+    - mvn $MAVEN_OPTS install -U -Prelease
   artifacts:
     paths:
       - whois-db/target/whois-db-*-SNAPSHOT.jar
@@ -47,93 +47,42 @@ build:
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
+    - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
   artifacts:
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
-  when: manual
-  allow_failure: false
 
-whois-it-suite1:
+whois-end-to-end-test:
   <<: *it_env
   tags:
     - whois
   script:
-    - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -pl whois-endtoend
     - find . -name *.exec
-    #- cp whois-endtoend/target/jacoco.exec whois-endtoend/target/jacoco_whois-endtoend.exec
-    #- cp whois-endtoend/target/jacoco-it.exec whois-endtoend/target/jacoco-it_whois-endtoend.exec
+    - mvn -DskipTests install
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Dit.test=OrgSpec -Pall -pl whois-endtoend
+    - find . -name *.exec
+  when: manual
 
-whois-it-suite2:
+whois-integration-test:
   <<: *it_env
   tags:
     - whois
   script:
+    - find . -name *.exec
     - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
+    #- mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-client
+    #- mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-commons
+    #- mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-db
+    #- mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-nrtm
+    #- mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-query
+    #- mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-rpsl
+    #- mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-scheduler
+    #- mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-update
     - find . -name *.exec
-    #- cp whois-api/target/jacoco.exec whois-api/target/jacoco_whois-api.exec
-    #- cp whois-api/target/jacoco-it.exec whois-api/target/jacoco-it_whois-api.exec
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-client
-    #- find . -name *.exec
-    #- cp whois-client/target/jacoco.exec whois-client/target/jacoco_whois-client.exec
-    #- cp whois-client/target/jacoco-it.exec whois-client/target/jacoco-it_whois-client.exec
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-commons
-    - find . -name *.exec
-    #- cp whois-commons/target/jacoco.exec whois-commons/target/jacoco_whois-commons.exec
-    #- cp whois-commons/target/jacoco-it.exec whois-commons/target/jacoco-it_whois-commons.exec
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-db
-    - find . -name *.exec
-    #- cp whois-db/target/jacoco.exec whois-db/target/jacoco_whois-db.exec
-    #- cp whois-db/target/jacoco-it.exec whois-db/target/jacoco-it_whois-db.exec
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-nrtm
-    - find . -name *.exec
-    #- cp whois-nrtm/target/jacoco.exec whois-nrtm/target/jacoco_whois-nrtm.exec
-    #- cp whois-nrtm/target/jacoco-it.exec whois-nrtm/target/jacoco-it_whois-nrtm.exec
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-query
-    - find . -name *.exec
-    #- cp whois-query/target/jacoco.exec whois-query/target/jacoco_whois-query.exec
-    #- cp whois-query/target/jacoco-it.exec whois-query/target/jacoco-it_whois-query.exec
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-rpsl
-    - find . -name *.exec
-    #- cp whois-rpsl/target/jacoco.exec whois-rpsl/target/jacoco_whois-rpsl.exec
-    #- cp whois-rpsl/target/jacoco-it.exec whois-rpsl/target/jacoco-it_whois-rpsl.exec
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-scheduler
-    - find . -name *.exec
-    #- cp whois-scheduler/target/jacoco.exec whois-scheduler/target/jacoco_whois-scheduler.exec
-    #- cp whois-scheduler/target/jacoco-it.exec whois-scheduler/target/jacoco-it_whois-scheduler.exec
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-update
-    - find . -name *.exec
-    #- cp whois-update/target/jacoco.exec whois-update/target/jacoco_whois-update.exec
-    #- cp whois-update/target/jacoco-it.exec whois-update/target/jacoco-it_whois-update.exec
-
-sonar:
-  stage: code_quality
-  script:
-    - find . -name *.exec
-    - cp whois-endtoend/target/jacoco_whois-endtoend.exec whois-scheduler/target/jacoco.exec
-    - cp whois-endtoend/target/jacoco-it_whois-endtoend.exec whois-scheduler/target/jacoco-it.exec
-    - cp whois-api/target/jacoco_whois-api.exec whois-api/target/jacoco.exec
-    - cp whois-api/target/jacoco-it_whois-api.exec whois-api/target/jacoco-it.exec
-    - cp whois-client/target/jacoco_whois-client.exec whois-client/target/jacoco.exec
-    - cp whois-client/target/jacoco-it_whois-client.exec whois-client/target/jacoco-it.exec
-    - cp whois-commons/target/jacoco_whois-commons.exec whois-commons/target/jacoco.exec
-    - cp whois-commons/target/jacoco-it_whois-commons.exec whois-commons/target/jacoco-it.exec
-    - cp whois-db/target/jacoco_whois-db.exec whois-db/target/jacoco.exec
-    - cp whois-db/target/jacoco-it_whois-db.exec whois-db/target/jacoco-it.exec
-    - cp whois-nrtm/target/jacoco_whois-nrtm.exec whois-nrtm/target/jacoco.exec
-    - cp whois-nrtm/target/jacoco-it_whois-nrtm.exec whois-nrtm/target/jacoco-it.exec
-    - cp whois-query/target/jacoco_whois-query.exec whois-query/target/jacoco.exec
-    - cp whois-query/target/jacoco-it_whois-query.exec whois-query/target/jacoco-it.exec
-    - cp whois-rpsl/target/jacoco_whois-rpsl.exec whois-rpsl/target/jacoco.exec
-    - cp whois-rpsl/target/jacoco-it_whois-rpsl.exec whois-rpsl/target/jacoco-it.exec
-    - cp whois-scheduler/target/jacoco_whois-scheduler.exec whois-scheduler/target/jacoco.exec
-    - cp whois-scheduler/target/jacoco-it_whois-scheduler.exec whois-scheduler/target/jacoco-it.exec
-    - cp whois-update/target/jacoco_whois-update.exec whois-scheduler/target/jacoco.exec
-    - cp whois-update/target/jacoco-it_whois-update.exec whois-scheduler/target/jacoco-it.exec
-    - mvn sonar:sonar -Dsonar.host.url=http://sonar.ripe.net -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.projectName=whois
+  when: manual
 
 .deploy_template: &deploy_env
   stage: deploy
