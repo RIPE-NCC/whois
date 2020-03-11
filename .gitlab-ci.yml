@@ -89,7 +89,7 @@ sonar:
   tags:
     - whois
   script:
-    - mvn -DskipTests install
+    - mvn install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -pl whois-endtoend
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-client
