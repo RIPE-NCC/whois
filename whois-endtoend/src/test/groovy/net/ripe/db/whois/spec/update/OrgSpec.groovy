@@ -899,15 +899,16 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         then:
         def ack = ackFor message
-        ack.success
+        ack.failed
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
+                "Tab characters, multiple lines, or multiple whitespaces are not allowed in the \"org-name:\" value."]
     }
 
     def "create organisation with name having 30 words each of 64 chars"() {
@@ -920,36 +921,37 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 body: """\
                 organisation:    auto-1
                 org-type:        other
-                org-name:        1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 aordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 bordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 cordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 dordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 eordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 fordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 gordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 hordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 iordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 jordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 kordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 lordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 mordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 nordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 oordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 pordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 rordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 sordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
-                                 tordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                org-name:        \
+ 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ aordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ bordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ cordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ dordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ eordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ fordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ gordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ hordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ iordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ jordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ kordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ lordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ mordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ nordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ oordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ pordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ rordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ sordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword\
+ tordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
                 address:         RIPE NCC
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
@@ -983,7 +985,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 body: """\
                 organisation:    auto-1
                 org-type:        other
-                org-name:        ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+/-
+                org-name:        ABZ 0123456789 . _ " * (qwerty) @, & :!'`+/-
                 address:         RIPE NCC
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
@@ -1005,11 +1007,11 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
 
         def qry = query("-r -T organisation ORG-AA1-TEST")
-        qry.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+        qry.contains(/org-name:       ABZ 0123456789 . _ " * (qwerty) @, & :!'`+\/-/)
         def qry5 = query("-Torganisation ABZ")
-        qry5.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+        qry5.contains(/org-name:       ABZ 0123456789 . _ " * (qwerty) @, & :!'`+\/-/)
         def qry2 = query("-Torganisation (qwerty)")
-        qry2.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+        qry2.contains(/org-name:       ABZ 0123456789 . _ " * (qwerty) @, & :!'`+\/-/)
 
 // TODO: [ES] these queries currently don't work, as -Torganisation expects an organisation id (and not part of the organisation name)
 //        def qry3 = query("-Torganisation @")
