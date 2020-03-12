@@ -91,7 +91,7 @@ sonar:
   script:
     - mvn install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -fn # ignore failing (non deterministic) tests, we want QA output regardless
-    - mvn sonar:sonar -Dsonar.host.url=http://sonar.ripe.net -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.projectName=whois
+    - mvn sonar:sonar -Dsonar.host.url=http://sonar.ripe.net -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.projectName=whois -Dsonar.java.binaries=/whois/whois-api/target/classes,/whois/whois-client/target/classes,/whois/whois-commons/target/classes,/whois/whois-db/target/classes,/whois/whois-nrtm/target/classes,/whois/whois-query/target/classes,/whois/whois-rpsl/target/classes,/whois/whois-scheduler/target/classes,/whois/whois-update/target/classes
 
 .deploy_template: &deploy_env
   stage: deploy
