@@ -90,16 +90,7 @@ sonar:
     - whois
   script:
     - mvn install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -pl whois-endtoend
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-client
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-commons
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-db
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-nrtm
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-query
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-rpsl
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-scheduler
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-update
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -fn # ignore failing (non deterministic) tests, we want QA output regardless
     - mvn sonar:sonar -Dsonar.host.url=http://sonar.ripe.net -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.projectName=whois
 
 .deploy_template: &deploy_env
