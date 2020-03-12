@@ -1,6 +1,22 @@
 # next
 
+# 1.96.3
+
+[all] Also use grs.import.enabled to disable authoritative resource downloading. (#597)
+[query] Increase maximum pool size per datasource, to allow for spikes in long-running queries.
+
+# 1.96.2
+
+[rdap] Rdap fixes to output UTC time and to support additional roles.
+
+# 1.96.1
+
+# 1.96
+
 [all] Refactor SSO auth pattern matching (#588)
+[all] Rebuild index status sponsoring org (#590)
+[all] Added country code to organisation. (#589)
+[all] Fixed bug in Ipv6Resource.parseFromStrings() (#593)
 
 # 1.95.6
 

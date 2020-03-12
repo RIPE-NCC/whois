@@ -42,13 +42,15 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     private CountDownLatch countDownLatch;
 
     @BeforeClass
-    public static void setInterval() {
+    public static void setNrtmProperties() {
+        System.setProperty("whois.limit.connectionsPerIp", "100");
         System.setProperty("nrtm.update.interval", "1");
     }
 
     @AfterClass
-    public static void resetInterval() {
+    public static void clearNrtmProperties() {
         System.clearProperty("nrtm.update.interval");
+        System.clearProperty("whois.limit.connectionsPerIp");
     }
 
     @Before
