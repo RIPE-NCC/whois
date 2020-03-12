@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.httpserver;
 
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
+import org.eclipse.jetty.jmx.ObjectMBean;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
@@ -17,9 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jmx.JmxException;
 import org.springframework.stereotype.Component;
 
+import javax.management.JMException;
+import javax.management.ObjectName;
 import javax.servlet.DispatcherType;
+import java.lang.management.ManagementFactory;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.List;
@@ -37,13 +42,17 @@ public class JettyBootstrap implements ApplicationService {
 
     private int port = 0;
 
+    private final String trustedIpRanges;
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
-                          final List<ServletDeployer> servletDeployers) {
+                          final List<ServletDeployer> servletDeployers,
+                          @Value("${ipranges.trusted}") final String trustedIpRanges) {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
+        this.trustedIpRanges = trustedIpRanges;
     }
 
     @Override
@@ -80,6 +89,12 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
 
+        try {
+            context.addFilter(createDosFilter(), "/*", EnumSet.allOf(DispatcherType.class));
+        } catch (JmxException | JMException je) {
+            throw new RuntimeException(je);
+        }
+
         final HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[]{context});
 
@@ -94,12 +109,29 @@ public class JettyBootstrap implements ApplicationService {
         }
     }
 
+    private FilterHolder createDosFilter() throws JmxException, JMException {
+        WhoisDoSFilter dosFilter = new WhoisDoSFilter();
+        FilterHolder holder = new FilterHolder(dosFilter);
+        holder.setName("DoSFilter");
+        holder.setInitParameter("maxRequestsPerSec", "20");
+        holder.setInitParameter("delayMs", "-1"); // reject requests over threshold
+        holder.setInitParameter("remotePort", "false");
+        holder.setInitParameter("trackSessions", "false");
+        holder.setInitParameter("insertHeaders", "false");
+        holder.setInitParameter("ipWhitelist", trustedIpRanges);
+
+        ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(dosFilter), ObjectName.getInstance("net.ripe.db.whois:name=DosFilter"));
+
+        return holder;
+    }
+
     @RetryFor(attempts = 5, value = Exception.class)
     private Server createAndStartServer(int port, HandlerList handlers) throws Exception {
         final Server server = new Server(port);
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
         server.setRequestLog(createRequestLog());
+
         server.start();
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
         LOGGER.info("Jetty started on port {}", this.port);
