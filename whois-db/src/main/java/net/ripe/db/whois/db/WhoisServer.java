@@ -2,13 +2,13 @@ package net.ripe.db.whois.db;
 
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.ApplicationService;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
@@ -22,13 +22,16 @@ public class WhoisServer {
 
     private final ApplicationContext applicationContext;
     private final List<ApplicationService> applicationServices;
-
-    @Value("${application.version:}") private String version;
+    private final ApplicationVersion applicationVersion;
 
     @Autowired
-    public WhoisServer(final ApplicationContext applicationContext, final List<ApplicationService> applicationServices) {
+    public WhoisServer(
+            final ApplicationContext applicationContext,
+            final List<ApplicationService> applicationServices,
+            final ApplicationVersion applicationVersion) {
         this.applicationContext = applicationContext;
         this.applicationServices = applicationServices;
+        this.applicationVersion = applicationVersion;
     }
 
     public static void main(final String[] args) {
@@ -56,7 +59,7 @@ public class WhoisServer {
             applicationService.start();
         }
 
-        LOGGER.info("Running version: {}", version);
+        LOGGER.info("Running version: {} (commit: {})", applicationVersion.getVersion(), applicationVersion.getCommitId());
     }
 
     public void stop() {
