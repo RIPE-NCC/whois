@@ -41,6 +41,10 @@
             <artifactId>whois-commons</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-query</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
         </dependency>
