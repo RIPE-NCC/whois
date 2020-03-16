@@ -16,6 +16,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+/**
+ * Extends the {@link DoSFilter} from Jetty for support of IP ranges and better support for CIDR ranges using our
+ * own {@link net.ripe.db.whois.common.ip.IpInterval} classes. (
+ */
 public class WhoisDoSFilter extends DoSFilter {
 
     private static final Logger LOGGER = getLogger(WhoisDoSFilter.class);
