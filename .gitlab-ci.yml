@@ -41,7 +41,7 @@ release:
   only:
     - master
   script:
-    - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA.jar
+    - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA
     - mvn deploy
 
 .it_template: &it_env
