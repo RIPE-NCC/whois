@@ -22,6 +22,7 @@ import org.springframework.jmx.JmxException;
 import org.springframework.stereotype.Component;
 
 import javax.management.JMException;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.servlet.DispatcherType;
 import java.lang.management.ManagementFactory;
@@ -34,6 +35,8 @@ public class JettyBootstrap implements ApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JettyBootstrap.class);
 
     private static final String EXTENDED_RIPE_LOG_FORMAT = "%{client}a %{host}i - %u %{dd/MMM/yyyy:HH:mm:ss Z|" + ZoneOffset.systemDefault().getId() + "}t \"%r\" %s %O %D \"%{Referer}i\" \"%{User-Agent}i\"";
+
+    private final ObjectName dosFilterMBeanName;
 
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
@@ -48,11 +51,12 @@ public class JettyBootstrap implements ApplicationService {
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
-                          @Value("${ipranges.trusted}") final String trustedIpRanges) {
+                          @Value("${ipranges.trusted}") final String trustedIpRanges) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
         this.trustedIpRanges = trustedIpRanges;
+        this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
     }
 
     @Override
@@ -127,7 +131,7 @@ public class JettyBootstrap implements ApplicationService {
         holder.setInitParameter("insertHeaders", "false");
         holder.setInitParameter("ipWhitelist", trustedIpRanges);
 
-        ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(dosFilter), ObjectName.getInstance("net.ripe.db.whois:name=DosFilter"));
+        ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(dosFilter), dosFilterMBeanName);
 
         return holder;
     }
@@ -149,6 +153,7 @@ public class JettyBootstrap implements ApplicationService {
     public void stop(final boolean force) {
         new Thread(() -> {
             try {
+                ManagementFactory.getPlatformMBeanServer().unregisterMBean(dosFilterMBeanName);
                 server.stop();
             } catch (Exception e) {
                 LOGGER.error("Stopping server", e);

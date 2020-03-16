@@ -2,23 +2,18 @@ package net.ripe.db.whois.api.httpserver;
 
 import org.junit.Test;
 
+import javax.management.MalformedObjectNameException;
+
 import static org.junit.Assert.assertTrue;
 
 public class JettyBootstrapTest {
 
     @Test
-    public void testWhitelist() {
+    public void testWhitelist() throws MalformedObjectNameException {
         JettyBootstrap jbs = new JettyBootstrap(null, null, null, "127.0.0.1,::1,193.0.0.0 - 193.0.23.255,2001:67c:2e8::/48,10.0.0.0 - 10.255.255.255");
-//        final String whitelist = jbs.buildWhiteList();
 
         TestDosFilter dosFilter = new TestDosFilter();
         dosFilter.setWhitelist("127.0.0.1,::1,193.0.0.0 - 193.0.23.255,2001:67c:2e8::/48,10.0.0.0 - 10.255.255.255");
-
-//        assertTrue(Arrays.stream(whitelist.split(","))
-//                .anyMatch(subnet -> dosFilter.subnetMatch(subnet, "193.0.20.230")));
-//
-//        assertTrue(Arrays.stream(whitelist.split(","))
-//                .anyMatch(subnet -> dosFilter.subnetMatch(subnet, "2001:067c:02e8:0000:0000:0000:0000:0000")));
 
         assertTrue(dosFilter.checkWhitelist("193.0.20.230"));
         assertTrue(dosFilter.checkWhitelist("2001:067c:02e8:0000:0000:0000:0000:0000"));

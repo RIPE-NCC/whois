@@ -10,7 +10,6 @@ import org.eclipse.jetty.util.annotation.ManagedOperation;
 import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -63,6 +62,7 @@ public class WhoisDoSFilter extends DoSFilter {
         StringBuilder result = new StringBuilder();
 
         Joiner.on(',').appendTo(result, ipv4whitelist);
+        result.append(',');
         Joiner.on(',').appendTo(result, ipv6whitelist);
 
         return result.toString();
@@ -75,11 +75,10 @@ public class WhoisDoSFilter extends DoSFilter {
      */
     public void setWhitelist(String commaSeparatedList) {
         clearWhitelist();
-        List<String> result = new ArrayList<>();
         for (String address : StringUtil.csvSplit(commaSeparatedList)) {
-            addWhitelistAddress(address);
+            addWhitelistAddress(address, false);
         }
-        LOGGER.debug("Whitelisted IP addresses: {}", result);
+        LOGGER.info("DoSFilter IP whitelist: {}", getWhitelist());
     }
 
     /**
@@ -89,6 +88,7 @@ public class WhoisDoSFilter extends DoSFilter {
     public void clearWhitelist() {
         ipv4whitelist.clear();
         ipv6whitelist.clear();
+        LOGGER.info("DoSFilter IP whitelist cleared");
     }
 
     /**
@@ -101,11 +101,20 @@ public class WhoisDoSFilter extends DoSFilter {
      */
     @ManagedOperation("adds an IP address that will not be rate limited")
     public boolean addWhitelistAddress(@Name("address") String address) {
+        return addWhitelistAddress(address, true);
+    }
+
+    private boolean addWhitelistAddress(final String address, final boolean log) {
+        boolean result;
         if (address.contains(".")) {
-            return ipv4whitelist.add(Ipv4Resource.parse(address));
+            result = ipv4whitelist.add(Ipv4Resource.parse(address));
         } else {
-            return ipv6whitelist.add(Ipv6Resource.parse(address));
+            result = ipv6whitelist.add(Ipv6Resource.parse(address));
         }
+        if (log) {
+            LOGGER.info("DoSFilter IP whitelist: {}", getWhitelist());
+        }
+        return result;
     }
 
     /**
@@ -116,12 +125,15 @@ public class WhoisDoSFilter extends DoSFilter {
      * @see #addWhitelistAddress(String)
      */
     @ManagedOperation("removes an IP address that will not be rate limited")
-    public boolean removeWhitelistAddress(@Name("address") String address){
+    public boolean removeWhitelistAddress(@Name("address") String address) {
+        boolean result;
         if (address.contains(".")) {
-            return ipv4whitelist.remove(Ipv4Resource.parse(address));
+            result = ipv4whitelist.remove(Ipv4Resource.parse(address));
         } else {
-            return ipv6whitelist.remove(Ipv6Resource.parse(address));
+            result = ipv6whitelist.remove(Ipv6Resource.parse(address));
         }
+        LOGGER.info("DoSFilter IP whitelist: {}", getWhitelist());
+        return result;
     }
 
 }
