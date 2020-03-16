@@ -1,7 +1,5 @@
 package net.ripe.db.whois.nrtm;
 
-import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
@@ -13,14 +11,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,13 +33,12 @@ public class NrtmConnectionPerIpLimitHandlerTest {
     @Mock private Channel channel;
     @Mock private ChannelFuture channelFuture;
     @Mock private NrtmLog nrtmLog;
-    @Mock private AccessControlListManager accessControlListManager;
 
     private NrtmConnectionPerIpLimitHandler subject;
 
     @Before
     public void setUp() {
-        this.subject = new NrtmConnectionPerIpLimitHandler(MAX_CONNECTIONS_PER_IP, accessControlListManager, nrtmLog);
+        this.subject = new NrtmConnectionPerIpLimitHandler(MAX_CONNECTIONS_PER_IP, nrtmLog);
 
         when(ctx.getChannel()).thenReturn(channel);
 
@@ -51,10 +48,7 @@ public class NrtmConnectionPerIpLimitHandlerTest {
     @Test
     public void one_connected() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
-
         when(channel.getRemoteAddress()).thenReturn(remoteAddress);
-        when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
-        when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(true);
 
         final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
         subject.handleUpstream(ctx, event);
@@ -69,10 +63,7 @@ public class NrtmConnectionPerIpLimitHandlerTest {
     @Test
     public void multiple_connected_same_ip() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
-
         when(channel.getRemoteAddress()).thenReturn(remoteAddress);
-        when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
-        when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(true);
 
         final ChannelEvent openEvent = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
         subject.handleUpstream(ctx, openEvent);
@@ -92,47 +83,12 @@ public class NrtmConnectionPerIpLimitHandlerTest {
     }
 
     @Test
-    public void acl_permanently_blocked() throws Exception {
-        final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
-
-        when(channel.getRemoteAddress()).thenReturn(remoteAddress);
-        when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(true);
-
-        final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, event);
-
-        verify(channel, times(1)).write(Matchers.eq(QueryMessages.accessDeniedPermanently(remoteAddress.getAddress())));
-
-        verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
-        verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
-    }
-
-    @Test
-    public void acl_temporarily_blocked() throws Exception {
-        final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
-
-        when(channel.getRemoteAddress()).thenReturn(remoteAddress);
-        when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
-        when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(false);
-
-        final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, event);
-
-        verify(channel, times(1)).write(Matchers.eq(QueryMessages.accessDeniedTemporarily(remoteAddress.getAddress())));
-
-        verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
-        verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
-    }
-
-    @Test
     public void multiple_connected_unlimited_allowed() throws Exception {
-        this.subject = new NrtmConnectionPerIpLimitHandler(0, accessControlListManager, nrtmLog);
+        this.subject = new NrtmConnectionPerIpLimitHandler(0, nrtmLog);
 
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
 
         when(channel.getRemoteAddress()).thenReturn(remoteAddress);
-        when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
-        when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(true);
 
         final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
         subject.handleUpstream(ctx, event);
@@ -151,11 +107,6 @@ public class NrtmConnectionPerIpLimitHandlerTest {
         final InetSocketAddress remoteAddress2 = new InetSocketAddress("10.0.0.1", 43);
         when(channel.getRemoteAddress()).thenReturn(remoteAddress).thenReturn(remoteAddress).thenReturn(remoteAddress2);
 
-        when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
-        when(accessControlListManager.isDenied(remoteAddress2.getAddress())).thenReturn(false);
-        when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(true);
-        when(accessControlListManager.canQueryPersonalObjects(remoteAddress2.getAddress())).thenReturn(true);
-
         final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
         subject.handleUpstream(ctx, event);
         subject.handleUpstream(ctx, event);
@@ -169,4 +120,5 @@ public class NrtmConnectionPerIpLimitHandlerTest {
         verify(channel, never()).write(anyObject());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
+
 }

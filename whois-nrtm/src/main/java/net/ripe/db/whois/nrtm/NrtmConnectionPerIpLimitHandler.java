@@ -2,14 +2,14 @@ package net.ripe.db.whois.nrtm;
 
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.pipeline.ConnectionCounter;
-import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,22 +23,19 @@ import java.net.InetAddress;
 @ChannelHandler.Sharable
 public class NrtmConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
 
-    public static final String REJECTED = "REJECTED";
+    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmConnectionPerIpLimitHandler.class);
 
     private final ConnectionCounter connectionCounter;
     private final int maxConnectionsPerIp;
     private final NrtmLog nrtmLog;
-    private final AccessControlListManager accessControlListManager;
 
     @Autowired
     public NrtmConnectionPerIpLimitHandler(
             @Value("${whois.limit.connectionsPerIp:3}") final int maxConnectionsPerIp,
-            final AccessControlListManager accessControlListManager,
             final NrtmLog nrtmLog) {
         this.maxConnectionsPerIp = maxConnectionsPerIp;
         this.nrtmLog = nrtmLog;
         this.connectionCounter = new ConnectionCounter();
-        this.accessControlListManager = accessControlListManager;
     }
 
     @Override
@@ -46,8 +43,9 @@ public class NrtmConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandle
         final Channel channel = ctx.getChannel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
-        if(!canOpenConnection(channel, remoteAddress)) {
-            nrtmLog.log(remoteAddress, REJECTED);
+        if (limitConnections(remoteAddress) && connectionsExceeded(remoteAddress)) {
+            nrtmLog.log(remoteAddress, "REJECTED");
+            channel.write(NrtmMessages.connectionsExceeded(maxConnectionsPerIp)).addListener(ChannelFutureListener.CLOSE);
             return;
         }
 
@@ -71,24 +69,5 @@ public class NrtmConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandle
     private boolean connectionsExceeded(final InetAddress remoteAddresss) {
         final Integer count = connectionCounter.increment(remoteAddresss);
         return (count != null && count > maxConnectionsPerIp);
-    }
-
-    private boolean canOpenConnection(final Channel channel, final InetAddress remoteAddress) {
-
-        if (accessControlListManager.isDenied(remoteAddress)) {
-            channel.write(QueryMessages.accessDeniedPermanently(remoteAddress)).addListener(ChannelFutureListener.CLOSE);
-            return false;
-        }
-
-        if (!accessControlListManager.canQueryPersonalObjects(remoteAddress)) {
-            channel.write(QueryMessages.accessDeniedTemporarily(remoteAddress)).addListener(ChannelFutureListener.CLOSE);
-            return false;
-        }
-
-        if (limitConnections(remoteAddress) && connectionsExceeded(remoteAddress)) {
-            channel.write(NrtmMessages.connectionsExceeded(maxConnectionsPerIp)).addListener(ChannelFutureListener.CLOSE);
-            return false;
-        }
-        return true;
     }
 }

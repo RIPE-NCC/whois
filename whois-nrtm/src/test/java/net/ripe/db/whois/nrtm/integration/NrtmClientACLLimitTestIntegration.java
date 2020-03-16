@@ -3,9 +3,7 @@ package net.ripe.db.whois.nrtm.integration;
 import com.jayway.awaitility.Awaitility;
 import com.jayway.awaitility.Duration;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
@@ -21,12 +19,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.ws.rs.ClientErrorException;
 import java.net.InetAddress;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -71,7 +64,7 @@ public class NrtmClientACLLimitTestIntegration extends AbstractNrtmIntegrationBa
     }
 
     @After
-    public void reset() throws Exception {
+    public void reset()  {
         databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
         databaseHelper.getAclTemplate().update("DELETE FROM acl_event");
         ipResourceConfiguration.reload();
