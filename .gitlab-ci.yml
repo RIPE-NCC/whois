@@ -13,6 +13,7 @@ include:
 stages:
   - build
   - test
+  - release
   - deploy
 
 cache:
@@ -34,6 +35,14 @@ build:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
+
+release:
+  stage: release
+  only:
+    - master
+  script:
+    - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA.jar
+    - mvn deploy
 
 .it_template: &it_env
   services:
