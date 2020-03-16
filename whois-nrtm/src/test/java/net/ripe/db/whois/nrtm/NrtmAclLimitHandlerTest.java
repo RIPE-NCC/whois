@@ -23,6 +23,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NrtmAclLimitHandlerTest {
@@ -77,5 +78,22 @@ public class NrtmAclLimitHandlerTest {
 
         verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
         verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
+    }
+
+    @Test
+    public void acl_limit_not_breached() throws Exception {
+        final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
+        when(channel.getRemoteAddress()).thenReturn(remoteAddress);
+        when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
+        when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(true);
+
+        final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
+        subject.handleUpstream(ctx, event);
+
+
+        verify(ctx, times(1)).sendUpstream(event);
+        verify(channel, never()).close();
+        verify(channel, never()).write(anyObject());
+        verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 }
