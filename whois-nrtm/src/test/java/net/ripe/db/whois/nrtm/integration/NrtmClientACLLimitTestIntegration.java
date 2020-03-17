@@ -1,10 +1,14 @@
 package net.ripe.db.whois.nrtm.integration;
 
+import com.google.common.collect.Lists;
 import com.jayway.awaitility.Awaitility;
 import com.jayway.awaitility.Duration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
@@ -17,9 +21,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.net.InetAddress;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+import static org.hamcrest.Matchers.is;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -32,8 +41,10 @@ public class NrtmClientACLLimitTestIntegration extends AbstractNrtmIntegrationBa
             "mntner: OWNER-MNT\n" +
             "source: TEST");
 
-    @Autowired protected NrtmImporter nrtmImporter;
-    @Autowired protected SourceContext sourceContext;
+    @Autowired
+    protected NrtmImporter nrtmImporter;
+    @Autowired
+    protected SourceContext sourceContext;
 
     @Autowired
     private AccessControlListManager accessControlListManager;
@@ -64,7 +75,7 @@ public class NrtmClientACLLimitTestIntegration extends AbstractNrtmIntegrationBa
     }
 
     @After
-    public void reset()  {
+    public void reset() {
         databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
         databaseHelper.getAclTemplate().update("DELETE FROM acl_event");
         ipResourceConfiguration.reload();
@@ -75,10 +86,15 @@ public class NrtmClientACLLimitTestIntegration extends AbstractNrtmIntegrationBa
     public void acl_denied() throws Exception {
         databaseHelper.insertAclIpDenied(LOCALHOST_WITH_PREFIX);
         ipResourceConfiguration.reload();
+        final RpslObject mntner = RpslObject.parse("" +
+                "mntner: TEST-MNT1\n" +
+                "source: TEST");
+
+        databaseHelper.addObject(mntner);
 
         try {
             nrtmImporter.start();
-            Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(() -> countThreads("NrtmClient") > 0);
+            objectExists(ObjectType.MNTNER, "TEST-MNT1", false);
         } finally {
             nrtmImporter.stop(false);
             databaseHelper.unban(LOCALHOST_WITH_PREFIX);
@@ -89,15 +105,37 @@ public class NrtmClientACLLimitTestIntegration extends AbstractNrtmIntegrationBa
     @Test
     public void acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final RpslObject mntner = RpslObject.parse("" +
+                "mntner: TEST-MNT\n" +
+                "source: TEST");
+
+        databaseHelper.addObject(mntner);
+
         try {
             accessControlListManager.accountPersonalObjects(localhost, accessControlListManager.getPersonalObjects(localhost) + 1);
             nrtmImporter.start();
-            Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(() -> countThreads("NrtmClient") > 0);
+            objectExists(ObjectType.MNTNER, "TEST-MNT", false);
 
         } finally {
+            nrtmImporter.stop(false);
             databaseHelper.unban(LOCALHOST_WITH_PREFIX);
             ipResourceConfiguration.reload();
             testPersonalObjectAccounting.resetAccounting();
         }
+    }
+
+    @Test
+    public void acl_limit_not_breached() throws Exception {
+        databaseHelper.unban(LOCALHOST_WITH_PREFIX);
+        ipResourceConfiguration.reload();
+        testPersonalObjectAccounting.resetAccounting();
+
+        final RpslObject mntner = RpslObject.parse("" +
+                "mntner: TEST-MNT2\n" +
+                "source: TEST");
+        databaseHelper.addObject(mntner);
+
+        nrtmImporter.start();
+        objectExists(ObjectType.MNTNER, "TEST-MNT2", true);
     }
 }
