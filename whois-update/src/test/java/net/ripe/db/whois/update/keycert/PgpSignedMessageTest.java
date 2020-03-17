@@ -144,7 +144,7 @@ public class PgpSignedMessageTest {
                 "RuoAPlts+k6fPx/BjVUvY47N65jQOg0AF0dquMgybc9zdOvo1x+18rTtt/t5Amw=\n" +
                 "=qtOc\n" +
                 "-----END PGP SIGNATURE-----");
-                
+
         assertThat(pgpSignedMessage.getKeyId(), is("5763950D"));
     }
 
@@ -511,6 +511,33 @@ public class PgpSignedMessageTest {
                 "-----END PGP SIGNATURE-----");
 
         assertThat(pgpSignedMessage.verify(getPublicKey_6481AE34()), is(true));
+    }
+
+    @Ignore("TODO: [ES] cannot verify message signed with ed25519 key")
+    @Test
+    public void verify_signed_message_with_ed25519_key_failure() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA256\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iHUEARYIAB0WIQRiNGNQyuJDPiQAHXKU+mLDZIGuNAUCXiWfSQAKCRCU+mLDZIGu\n" +
+                "NIiqAQD+sksm61T9mYmoLRPhV+D3jSg2IE19id3WyjaH0vCwXQEA6v5xpZQ7AXQe\n" +
+                "vbSHvSrRBNBSAUuJfIYQLsAf6l80MAI=\n" +
+                "=pQ32\n" +
+                "-----END PGP SIGNATURE-----".replace("First Person", "Some Text"));
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_6481AE34()), is(false));
     }
 
     @Test
