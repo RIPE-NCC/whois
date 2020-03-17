@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -32,8 +31,6 @@ public class NrtmClientACLLimitTestIntegration extends AbstractNrtmIntegrationBa
 
     @Autowired
     protected NrtmImporter nrtmImporter;
-    @Autowired
-    protected SourceContext sourceContext;
 
     @Autowired
     private AccessControlListManager accessControlListManager;
