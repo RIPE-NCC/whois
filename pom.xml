@@ -812,17 +812,10 @@
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
-                    <!-- doesnt work (breaks tests)
+                    <groups>${test.groups}</groups>
                     <forkCount>1C</forkCount>
-                    <reuseForks>true</reuseForks>
-                    <threadCount>1</threadCount>
                     <perCoreThreadCount>true</perCoreThreadCount>
                     <parallel>classes</parallel>
-                    <groups>${test.groups}</groups>
-                    <runOrder>random</runOrder> -->
-                    <!-- works (tests pass) -->
-                    <groups>${test.groups}</groups>
-                    <forkCount>3</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
