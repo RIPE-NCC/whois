@@ -1,5 +1,15 @@
 # next
 
+[nrtm] NRTM connection limit (#594)
+[update] Don't allow inconsistent "org-name:" values on create (#607)
+[api] Include build timestamp and commit id in Whois lookup and search responses (#598)
+[nrtm] Open NRTM to non-members (#596)
+[update] Restrict maximum size of object (#601)
+[query] Related irt objects are not returned by default
+[api] Use https in URLs (#604)
+[query] Use local datasource for abuse-c finder (#600)
+
+
 # 1.96.3
 
 [all] Also use grs.import.enabled to disable authoritative resource downloading. (#597)

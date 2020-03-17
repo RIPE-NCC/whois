@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 @Component
 public class OrgNameFormatValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
     private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)[#].*");

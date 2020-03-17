@@ -110,10 +110,15 @@ public class DomainObjectService {
 
         } catch (UpdateFailedException e) {
             return createResponse(e.status, e.whoisResources);
+
+        } catch (IllegalArgumentException e) {
+            return createResponse(BAD_REQUEST, e.getMessage());
+
         } catch (Exception e) {
             updatePerformer.logError(e);
             LOGGER.error("Unexpected", e);
-            return createResponse(INTERNAL_SERVER_ERROR, resources);
+            return createResponse(INTERNAL_SERVER_ERROR, e.getMessage());
+
         } finally {
             updatePerformer.closeContext();
         }
@@ -197,6 +202,10 @@ public class DomainObjectService {
 
     private Response createResponse(Response.Status status, WhoisResources updatedResources) {
         return Response.status(status).entity(updatedResources).build();
+    }
+
+    private Response createResponse(Response.Status status, String message) {
+        return Response.status(status).entity(message).build();
     }
 
     private void auditlogRequest(final HttpServletRequest request) {
