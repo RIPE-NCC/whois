@@ -54,6 +54,10 @@ public class NrtmClientACLLimitTestIntegration extends AbstractNrtmIntegrationBa
     @Before
     public void before() {
         databaseHelper.addObject(mntner);
+
+        ipResourceConfiguration.reload();
+        testPersonalObjectAccounting.resetAccounting();
+
         nrtmServer.start();
 
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
@@ -65,9 +69,6 @@ public class NrtmClientACLLimitTestIntegration extends AbstractNrtmIntegrationBa
     public void reset() {
         databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
         databaseHelper.getAclTemplate().update("DELETE FROM acl_event");
-
-        ipResourceConfiguration.reload();
-        testPersonalObjectAccounting.resetAccounting();
 
         nrtmImporter.stop(true);
         nrtmServer.stop(true);
