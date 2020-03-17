@@ -144,6 +144,7 @@ public class PgpSignedMessageTest {
                 "RuoAPlts+k6fPx/BjVUvY47N65jQOg0AF0dquMgybc9zdOvo1x+18rTtt/t5Amw=\n" +
                 "=qtOc\n" +
                 "-----END PGP SIGNATURE-----");
+                
         assertThat(pgpSignedMessage.getKeyId(), is("5763950D"));
     }
 
@@ -251,6 +252,7 @@ public class PgpSignedMessageTest {
                 "RuoAPlts+k6fPx/BjVUvY47N65jQOg0AF0dquMgybc9zdOvo1x+18rTtt/t5Amw=\n" +
                 "=qtOc\n" +
                 "-----END PGP SIGNATURE-----").replace("Admin Person", "Some Text"));
+
         assertThat(pgpSignedMessage.getKeyId(), is("5763950D"));
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(false));
     }
@@ -282,6 +284,7 @@ public class PgpSignedMessageTest {
                 "-----END PGP SIGNATURE-----";
 
         final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(message);
+
         assertThat(pgpSignedMessage.getKeyId(), is("5763950D"));
         assertThat(pgpSignedMessage.verify(getPublicKey_28F6CD6C()), is(false));
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
@@ -354,7 +357,8 @@ public class PgpSignedMessageTest {
                 "3fIZWxWJJtBjzdFxvgLN7KqPFLI6tcBFB5oW5V5RAI+4zLJUg7goLLZRe3CYkDc=\n" +
                 "=8tAB\n";
 
-        PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
+        final PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
+
         assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
     }
 
@@ -389,7 +393,8 @@ public class PgpSignedMessageTest {
                 "40N9PpN3W9m96pl2m3mI6UwRtW3GZzasup4FnsdkXRpt73rFwUmn5UyiWFbK1Xo=\n" +
                 "=IifW\n";
 
-        PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
+        final PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
+
         assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
     }
 
@@ -591,30 +596,30 @@ public class PgpSignedMessageTest {
     @Ignore("TODO: [ES] headers in signature block should not be required")
     @Test
     public void headers_in_signature_are_mandatory() {
-    final PgpSignedMessage signedMessage = PgpSignedMessage.parse(
-            "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-            "Hash: SHA1\n" +
-            "\n" +
-            "person:  First Person\n" +
-            "address: St James Street\n" +
-            "address: Burnley\n" +
-            "address: UK\n" +
-            "phone:   +44 282 420469\n" +
-            "nic-hdl: FP1-TEST\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "source:  TEST\n" +
-            "-----BEGIN PGP SIGNATURE-----\n" +
-//                "Version: GnuPG v1.4.12 (Darwin)\n" +             // TODO: if no headers found, parsing fails,
-//                "Comment: GPGTools - http://gpgtools.org\n" +     // TODO: as ArmoredInputStream hasHeaders = true by default
-//                "\n" +
-            "iQEcBAEBAgAGBQJWTcPDAAoJELvMuy1XY5UNd50IAKLecIhQCMaUu8hVUW68uXGO\n" +
-            "uWqnkI3/C3CzgNai438xlKqtYNmyhgzCh3LbJSiNkJqRg6QK9G+egcpf9wtlLJJl\n" +
-            "1N72OBV1IS+yWSmkscNuihJNZBwlYrkG7SXAite5wjaY++nVjkNqqCVkHPwD6dr8\n" +
-            "AcPN0lxdhFbnvVlcFJVZPWrEXKEZbRxBr2BosF48IiKDskfu/2wiUWiBwF5QkuTB\n" +
-            "GX/pLJwQ40J79jVhRkiVbJ0YvAcHKbE/ftgw3ZBwjUJk2X2Ck1pv+HOTurhgXRvh\n" +
-            "gr8cbqpXlg1D0FNl3jWe/RTQ/U465ZZiMyUodI93LMZQNPtR7xh3+T8r1gVORMI=\n" +
-            "=D3U7\n" +
-            "-----END PGP SIGNATURE-----");
+        final PgpSignedMessage signedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                //                "Version: GnuPG v1.4.12 (Darwin)\n" +             // TODO: if no headers found, parsing fails,
+                //                "Comment: GPGTools - http://gpgtools.org\n" +     // TODO: as ArmoredInputStream hasHeaders = true by default
+                //                "\n" +
+                "iQEcBAEBAgAGBQJWTcPDAAoJELvMuy1XY5UNd50IAKLecIhQCMaUu8hVUW68uXGO\n" +
+                "uWqnkI3/C3CzgNai438xlKqtYNmyhgzCh3LbJSiNkJqRg6QK9G+egcpf9wtlLJJl\n" +
+                "1N72OBV1IS+yWSmkscNuihJNZBwlYrkG7SXAite5wjaY++nVjkNqqCVkHPwD6dr8\n" +
+                "AcPN0lxdhFbnvVlcFJVZPWrEXKEZbRxBr2BosF48IiKDskfu/2wiUWiBwF5QkuTB\n" +
+                "GX/pLJwQ40J79jVhRkiVbJ0YvAcHKbE/ftgw3ZBwjUJk2X2Ck1pv+HOTurhgXRvh\n" +
+                "gr8cbqpXlg1D0FNl3jWe/RTQ/U465ZZiMyUodI93LMZQNPtR7xh3+T8r1gVORMI=\n" +
+                "=D3U7\n" +
+                "-----END PGP SIGNATURE-----");
 
         assertThat(signedMessage.getKeyId(), is("5763950D"));
     }
@@ -622,7 +627,7 @@ public class PgpSignedMessageTest {
     // helper methods
 
     private PGPPublicKey getPublicKey_28F6CD6C() {
-        PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
                         "key-cert:       PGPKEY-28F6CD6C\n" +
                         "method:         PGP\n" +
@@ -679,7 +684,7 @@ public class PgpSignedMessageTest {
     }
 
     private PGPPublicKey getPublicKey_5763950D() {
-        PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
                         "key-cert:       PGPKEY-5763950D\n" +
                         "method:         PGP\n" +
@@ -723,7 +728,7 @@ public class PgpSignedMessageTest {
     }
 
     private PGPPublicKey getPublicKey_6481AE34() {
-        PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
                         "key-cert:       PGPKEY-6481AE34\n" +
                         "method:         PGP\n" +
@@ -750,7 +755,7 @@ public class PgpSignedMessageTest {
     }
 
     private PGPPublicKey getPublicKey_215A9907() {
-        PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
                         "key-cert:       PGPKEY-215A9907\n" +
                         "method:         PGP\n" +
@@ -774,7 +779,7 @@ public class PgpSignedMessageTest {
     }
 
     private PGPPublicKey getPublicKey_001E82AA() {
-        PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
                         "key-cert:       PGPKEY-001E82AA\n" +
                         "method:         PGP\n" +
@@ -801,7 +806,7 @@ public class PgpSignedMessageTest {
     }
 
     private PGPPublicKey getPublicKey_704E0D52() {
-        PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
                         "key-cert:       PGPKEY-704E0D52\n" +
                         "method:         PGP\n" +
