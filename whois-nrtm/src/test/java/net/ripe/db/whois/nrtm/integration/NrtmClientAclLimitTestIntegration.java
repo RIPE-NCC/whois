@@ -20,7 +20,7 @@ import java.net.InetAddress;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class NrtmClientACLLimitTestIntegration extends AbstractNrtmIntegrationBase {
+public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBase {
 
     private static final String LOCALHOST = "127.0.0.1";
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
