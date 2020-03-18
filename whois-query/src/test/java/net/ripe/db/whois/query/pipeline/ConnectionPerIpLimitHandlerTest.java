@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.pipeline;
 
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -35,25 +36,26 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionPerIpLimitHandlerTest {
     private static final int MAX_CONNECTIONS_PER_IP = 2;
-    private static final String VERSION = "1.0";
 
     @Mock private ChannelHandlerContext ctx;
     @Mock private Channel channel;
     @Mock private ChannelFuture channelFuture;
     @Mock private IpResourceConfiguration ipResourceConfiguration;
     @Mock private WhoisLog whoisLog;
+    @Mock private ApplicationVersion applicationVersion;
 
     private ConnectionPerIpLimitHandler subject;
 
     @Before
     public void setUp() {
-        this.subject = new ConnectionPerIpLimitHandler(ipResourceConfiguration, whoisLog, MAX_CONNECTIONS_PER_IP, VERSION);
+        this.subject = new ConnectionPerIpLimitHandler(ipResourceConfiguration, whoisLog, MAX_CONNECTIONS_PER_IP, applicationVersion);
 
         when(ctx.getChannel()).thenReturn(channel);
 
         when(ipResourceConfiguration.isUnlimitedConnections(any(InetAddress.class))).thenReturn(false);
         when(ipResourceConfiguration.isProxy(any(InetAddress.class))).thenReturn(false);
         when(channel.write(anyObject())).thenReturn(channelFuture);
+        when(applicationVersion.getVersion()).thenReturn("1.0");
     }
 
     @Test
@@ -95,7 +97,7 @@ public class ConnectionPerIpLimitHandlerTest {
 
     @Test
     public void multiple_connected_limit_disabled() throws Exception {
-        this.subject = new ConnectionPerIpLimitHandler(ipResourceConfiguration, whoisLog, 0, VERSION);
+        this.subject = new ConnectionPerIpLimitHandler(ipResourceConfiguration, whoisLog, 0, applicationVersion);
 
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
         when(channel.getRemoteAddress()).thenReturn(remoteAddress);
