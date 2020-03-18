@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.pipeline;
 
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -16,7 +17,6 @@ import org.jboss.netty.handler.timeout.WriteTimeoutHandler;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -33,8 +33,6 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
     private static final int TIMEOUT_SECONDS = 180;
     private static final int POOL_SIZE = 64;
     private static final int MEMORY_SIZE_UNLIMITED = 0;
-
-    @Value("${application.version}") private String version;
 
     private final ReadTimeoutHandler readTimeoutHandler = new ReadTimeoutHandler(TIMER, TIMEOUT_SECONDS, TimeUnit.SECONDS);
     private final WriteTimeoutHandler writeTimeoutHandler = new WriteTimeoutHandler(TIMER, TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -58,6 +56,7 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
     private final WhoisEncoder whoisEncoder;
     private final QueryDecoder queryDecoder;
     private final QueryHandler queryHandler;
+    private final ApplicationVersion applicationVersion;
 
     @Autowired
     public WhoisServerPipelineFactory(final MaintenanceHandler maintenanceHandler,
@@ -66,7 +65,8 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
                                       final QueryDecoder queryDecoder,
                                       final WhoisEncoder whoisEncoder,
                                       final ConnectionPerIpLimitHandler connectionPerIpLimitHandler,
-                                      final QueryHandler queryHandler) {
+                                      final QueryHandler queryHandler,
+                                      final ApplicationVersion applicationVersion) {
         this.maintenanceHandler = maintenanceHandler;
         this.queryChannelsRegistry = queryChannelsRegistry;
         this.termsAndConditionsHandler = termsAndConditionsHandler;
@@ -74,6 +74,7 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
         this.whoisEncoder = whoisEncoder;
         this.connectionPerIpLimitHandler = connectionPerIpLimitHandler;
         this.queryHandler = queryHandler;
+        this.applicationVersion = applicationVersion;
     }
 
     @PreDestroy
@@ -104,7 +105,7 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
         pipeline.addLast("query-decoder", queryDecoder);
         pipeline.addLast("connection-state", new ConnectionStateHandler());
 
-        pipeline.addLast("served-by", new ServedByHandler(version));
+        pipeline.addLast("served-by", new ServedByHandler(applicationVersion.getVersion()));
         pipeline.addLast("whois", new WhoisServerHandler(queryHandler));
 
         return pipeline;

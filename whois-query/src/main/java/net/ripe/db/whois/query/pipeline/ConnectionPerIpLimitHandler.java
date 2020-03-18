@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.pipeline;
 
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.pipeline.ConnectionCounter;
 import net.ripe.db.whois.query.QueryMessages;
@@ -33,18 +34,18 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
     private final WhoisLog whoisLog;
     private final ConnectionCounter connectionCounter;
     private final int maxConnectionsPerIp;
-    private final String version;
+    private final ApplicationVersion applicationVersion;
 
     @Autowired
     public ConnectionPerIpLimitHandler(
             final IpResourceConfiguration ipResourceConfiguration,
             final WhoisLog whoisLog,
             @Value("${whois.limit.connectionsPerIp:3}") final int maxConnectionsPerIp,
-            @Value("${application.version}") final String version) {
+            final ApplicationVersion applicationVersion) {
         this.ipResourceConfiguration = ipResourceConfiguration;
         this.whoisLog = whoisLog;
         this.maxConnectionsPerIp = maxConnectionsPerIp;
-        this.version = version;
+        this.applicationVersion = applicationVersion;
         this.connectionCounter = new ConnectionCounter();
     }
 
@@ -57,7 +58,7 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
             whoisLog.logQueryResult("QRY", 0, 0, QueryCompletionInfo.REJECTED, 0, remoteAddress, channel.getId(), "");
             channel.write(QueryMessages.termsAndConditions());
             channel.write(QueryMessages.connectionsExceeded(maxConnectionsPerIp));
-            channel.write(QueryMessages.servedByNotice(version)).addListener(ChannelFutureListener.CLOSE);
+            channel.write(QueryMessages.servedByNotice(applicationVersion.getVersion())).addListener(ChannelFutureListener.CLOSE);
             return;
         }
 
