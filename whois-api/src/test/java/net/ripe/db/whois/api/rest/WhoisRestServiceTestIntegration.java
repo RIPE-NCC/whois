@@ -24,6 +24,7 @@ import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -1611,6 +1612,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void create_succeeds_plus_character_and_space_in_password() {
+        final RpslObject ownerMnt = new RpslObjectBuilder(OWNER_MNT)
+                    .addAttribute(1, new RpslAttribute(AttributeType.AUTH, String.format("MD5-PW %s", PasswordHelper.hashMd5Password("+Pass word+"))))
+                    .get();
+        databaseHelper.updateObject(ownerMnt);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person")
+                .queryParam("password", "+Pass word+")
+                .request()
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person", getPort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST"), is(not(nullValue())));
     }
 
     @Test
