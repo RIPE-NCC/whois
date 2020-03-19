@@ -13,6 +13,7 @@ include:
 stages:
   - build
   - test
+  - integration-test
   - release
   - deploy
 
@@ -50,7 +51,11 @@ release:
   variables:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
-  stage: test
+  stage: integration-test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
   before_script:
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
@@ -70,7 +75,6 @@ whois-end-to-end-test:
   script:
     - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -pl whois-endtoend
-  when: manual
 
 whois-integration-test:
   <<: *it_env
@@ -87,7 +91,6 @@ whois-integration-test:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-rpsl
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-scheduler
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-update
-  when: manual
 
 .deploy_template: &deploy_env
   stage: deploy
