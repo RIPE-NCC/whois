@@ -670,6 +670,34 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.5</version>
+                <executions>
+                    <execution>
+                        <id>before-unit-test-execution</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <append>true</append>
+                            <propertyName>surefire.jacoco.args</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>before-integration-test-execution</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <append>true</append>
+                            <propertyName>failsafe.jacoco.args</propertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
@@ -776,7 +804,7 @@
                 <version>2.22.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
@@ -803,7 +831,7 @@
                 <version>2.22.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} ${failsafe.jacoco.args}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
@@ -951,7 +979,7 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.files.unit>None</test.files.unit>
+                <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
