@@ -52,6 +52,11 @@ release:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
   stage: integration-test
+  rules:
+    - if: '$CI_BRANCH_NAME == "gitlab-master-rules"'
+      when: always
+    - when: manual
+
   before_script:
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
@@ -71,7 +76,6 @@ whois-end-to-end-test:
   script:
     - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -pl whois-endtoend
-  when: manual
 
 whois-integration-test:
   <<: *it_env
@@ -88,7 +92,6 @@ whois-integration-test:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-rpsl
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-scheduler
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-update
-  when: manual
 
 .deploy_template: &deploy_env
   stage: deploy
