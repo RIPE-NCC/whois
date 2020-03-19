@@ -73,6 +73,7 @@ whois-end-to-end-test:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: always
     - when: manual
+      allow_failure: true
   script:
     - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -pl whois-endtoend
@@ -85,6 +86,7 @@ whois-integration-test:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: always
     - when: manual
+      allow_failure: true
   script:
     - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
