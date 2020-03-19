@@ -53,7 +53,7 @@ release:
     TZ: Europe/Amsterdam
   stage: integration-test
   rules:
-    - if: '$CI_BRANCH_NAME == "gitlab-master-rules"'
+    - if: '$CI_COMMIT_REF_NAME == "gitlab-master-rules"'
       when: always
     - when: manual
   before_script:
