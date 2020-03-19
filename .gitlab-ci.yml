@@ -13,6 +13,7 @@ include:
 stages:
   - build
   - test
+  - integration-test
   - release
   - deploy
 
@@ -50,7 +51,7 @@ release:
   variables:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
-  stage: test
+  stage: integration-test
   before_script:
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
