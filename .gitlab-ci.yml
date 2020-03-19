@@ -56,7 +56,6 @@ release:
     - if: '$CI_BRANCH_NAME == "gitlab-master-rules"'
       when: always
     - when: manual
-
   before_script:
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
