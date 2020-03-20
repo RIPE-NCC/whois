@@ -41,7 +41,7 @@ build:
 release:
   stage: release
   only:
-    - master
+    - tags
   script:
     - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA
     - mvn deploy
@@ -165,3 +165,5 @@ deploy_prod:
   environment:
     name: prod
   when: manual
+  only:
+    - tags
