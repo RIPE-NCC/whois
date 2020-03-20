@@ -38,6 +38,7 @@ import org.apache.lucene.search.TopDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -87,7 +88,7 @@ public class WhoisRdapService {
 
     @Autowired
     public WhoisRdapService(final RdapQueryHandler rdapQueryHandler,
-                            final RpslObjectDao objectDao,
+                            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
                             final AbuseCFinder abuseCFinder,
                             final RdapObjectMapper rdapObjectMapper,
                             final DelegatedStatsService delegatedStatsService,
@@ -320,34 +321,35 @@ public class WhoisRdapService {
             final List<RpslObject> objects = fullTextIndex.search(
                     new IndexTemplate.AccountingSearchCallback<List<RpslObject>>(accessControlListManager, request.getRemoteAddr(), source) {
 
-                @Override
-                protected List<RpslObject> doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
-                    final Stopwatch stopWatch = Stopwatch.createStarted();
+                        @Override
+                        protected List<RpslObject> doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
+                            final Stopwatch stopWatch = Stopwatch.createStarted();
 
-                    final List<RpslObject> results = Lists.newArrayList();
-                    final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
-                    try {
-                        final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
-                        queryParser.setAllowLeadingWildcard(true);
-                        queryParser.setDefaultOperator(QueryParser.Operator.AND);
-                        final org.apache.lucene.search.Query query = queryParser.parse(term);
-                        final TopDocs topDocs = indexSearcher.search(query, maxResults);
-                        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-                            final Document document = indexSearcher.doc(scoreDoc.doc);
-                            final RpslObject rpslObject = convertToRpslObject(document);
-                            account(rpslObject);
-                            results.add(rpslObject);
+                            final List<RpslObject> results = Lists.newArrayList();
+                            final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
+                            try {
+                                final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
+                                queryParser.setAllowLeadingWildcard(true);
+                                queryParser.setDefaultOperator(QueryParser.Operator.AND);
+                                final org.apache.lucene.search.Query query = queryParser.parse(term);
+                                final TopDocs topDocs = indexSearcher.search(query, maxResults);
+                                for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+                                    final Document document = indexSearcher.doc(scoreDoc.doc);
+
+                                    final RpslObject rpslObject = convertToRpslObject(document);
+                                    account(rpslObject);
+                                    results.add(rpslObject);
+                                }
+
+                                LOGGER.info("Found {} objects in {}", results.size(), stopWatch.stop());
+                                return results;
+
+                            } catch (ParseException e) {
+                                LOGGER.error("handleSearch", e);
+                                throw new BadRequestException("cannot parse query " + term);
+                            }
                         }
-
-                        LOGGER.info("Found {} objects in {}", results.size(), stopWatch.stop());
-                        return results;
-
-                    } catch (ParseException e) {
-                        LOGGER.error("handleSearch", e);
-                        throw new BadRequestException("cannot parse query " + term);
-                    }
-                }
-            });
+                    });
 
             if (objects.isEmpty()) {
                 throw new NotFoundException("not found");

@@ -12,7 +12,6 @@ import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import java.time.LocalDate;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -26,6 +25,7 @@ import javax.sql.DataSource;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import java.net.Inet4Address;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -849,7 +849,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getValue(), is("DEV mntner"));
 
         // highlighting
-        assertThat(searchResponse.getLsts(), hasSize(2));
+        assertThat(searchResponse.getLsts(), hasSize(3));
         assertThat(searchResponse.getLsts().get(0).getName(), is("responseHeader"));
         assertThat(searchResponse.getLsts().get(1).getName(), is("highlighting"));
         assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
@@ -857,6 +857,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("lookup-key"));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV</b>-MNT"));
+        assertThat(searchResponse.getLsts().get(2).getName(), is("version"));
     }
 
     @Test
@@ -898,7 +899,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getValue(), is("\"DEV mntner\""));
 
         // highlighting
-        assertThat(searchResponse.getLsts(), hasSize(2));
+        assertThat(searchResponse.getLsts(), hasSize(3));
         assertThat(searchResponse.getLsts().get(0).getName(), is("responseHeader"));
         assertThat(searchResponse.getLsts().get(1).getName(), is("highlighting"));
         assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
@@ -906,6 +907,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getName(), is("remarks"));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getStr().getValue(), is("\"<b>DEV</b> mntner\""));
+        assertThat(searchResponse.getLsts().get(2).getName(), is("version"));
     }
 
     @Test

@@ -88,6 +88,8 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.dryRunNotice());
         }
 
+        updateContext.setOrigin(update, origin);
+
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
         RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);

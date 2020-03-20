@@ -189,7 +189,6 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, GENERATED, SINGLE),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(CREATED, GENERATED, SINGLE),
                         new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
@@ -355,6 +354,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ADDRESS, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(COUNTRY, OPTIONAL, SINGLE),
                         new AttributeTemplate(PHONE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(FAX_NO, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(E_MAIL, MANDATORY, MULTIPLE, LOOKUP_KEY),
@@ -758,7 +758,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                 if (attributeType == AttributeType.CHANGED) {
                     continue;
                 }
-                if ((rpslObject.getType() == ObjectType.AUT_NUM) && (attributeType == MNT_ROUTES)) {
+                if ((rpslObject.getType() == ObjectType.AUT_NUM) && (attributeType == MNT_ROUTES || attributeType == MNT_LOWER)) {
                     continue;
                 }
 

@@ -42,20 +42,23 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
 
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmExceptionHandler exceptionHandler;
-    private final AccessControlHandler aclHandler;
     private final MaintenanceHandler maintenanceHandler;
     private final NrtmQueryHandlerFactory nrtmQueryHandlerFactory;
+    private final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler;
+    private final NrtmAclLimitHandler nrtmAclLimitHandler;
 
     protected BaseNrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
                                             final NrtmExceptionHandler exceptionHandler,
-                                            final AccessControlHandler aclHandler,
                                             final MaintenanceHandler maintenanceHandler,
-                                            final NrtmQueryHandlerFactory nrtmQueryHandlerFactory) {
+                                            final NrtmQueryHandlerFactory nrtmQueryHandlerFactory,
+                                            final NrtmAclLimitHandler nrtmAclLimitHandler,
+                                            final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.exceptionHandler = exceptionHandler;
-        this.aclHandler = aclHandler;
         this.maintenanceHandler = maintenanceHandler;
         this.nrtmQueryHandlerFactory = nrtmQueryHandlerFactory;
+        this.nrtmConnectionPerIpLimitHandler = nrtmConnectionPerIpLimitHandler;
+        this.nrtmAclLimitHandler = nrtmAclLimitHandler;
     }
 
     @Override
@@ -63,8 +66,10 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
         ChannelPipeline pipeline = Channels.pipeline();
 
         pipeline.addLast("U-maintenanceHandler", maintenanceHandler);
+        pipeline.addLast("U-acl", nrtmAclLimitHandler);
+        pipeline.addLast("connectionPerIpLimit", nrtmConnectionPerIpLimitHandler);
+
         pipeline.addLast("U-channels", nrtmChannelsRegistry);
-        pipeline.addLast("U-acl", aclHandler);
 
         pipeline.addLast("U-delimiter", new DelimiterBasedFrameDecoder(128, true, LINE_DELIMITER));
         pipeline.addLast("U-string-decoder", stringDecoder);

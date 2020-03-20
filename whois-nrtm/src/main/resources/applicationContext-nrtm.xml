@@ -11,8 +11,10 @@
 
     <import resource="applicationContext-commons.xml"/>
 
-    <context:component-scan base-package="net.ripe.db.whois.nrtm"/>
+    <!--only want acl package to be included, not whole whois-query -->
+    <context:component-scan base-package="net.ripe.db.whois.query.acl,net.ripe.db.whois.query.dao"/>
 
+    <context:component-scan base-package="net.ripe.db.whois.nrtm"/>
     <task:scheduler id="clientSynchronisationScheduler" pool-size="32"/>
 
 </beans>

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.96-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -64,17 +64,17 @@
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.12</junit.version>
-        <jetty.version>9.4.11.v20180605</jetty.version>
+        <jetty.version>9.4.24.v20191120</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.12</jersey.version>
-        <jackson.version>2.9.5</jackson.version>
+        <jackson.version>2.9.10</jackson.version>
 
         <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
         <log4j.version>1.2.17</log4j.version>
         <lucene.version>7.7.1</lucene.version>
 
         <mail.version>1.6.2</mail.version>
-        <mariadb-java-client.version>1.8.0</mariadb-java-client.version>
+        <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
         <mockito.version>1.9.5</mockito.version>
 
         <netty.version>3.10.6.Final</netty.version>
@@ -96,17 +96,17 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>whois-1.96.1</tag>
   </scm>
 
     <distributionManagement>
         <repository>
             <id>ripe-releases</id>
-            <url>http://nexus.ripe.net/nexus/content/repositories/releases</url>
+            <url>https://nexus.ripe.net/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>ripe-snapshots</id>
-            <url>http://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+            <url>https://nexus.ripe.net/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -483,6 +483,11 @@
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+             <dependency>
+                 <groupId>com.fasterxml.jackson.core</groupId>
+                 <artifactId>jackson-annotations</artifactId>
+                 <version>${jackson.version}</version>
+             </dependency>
 
             <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
@@ -665,6 +670,34 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.5</version>
+                <executions>
+                    <execution>
+                        <id>before-unit-test-execution</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <append>true</append>
+                            <propertyName>surefire.jacoco.args</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>before-integration-test-execution</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <append>true</append>
+                            <propertyName>failsafe.jacoco.args</propertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
@@ -705,11 +738,6 @@
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -773,10 +801,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18.1</version>
+                <version>2.22.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
@@ -800,19 +828,28 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.18.1</version>
+                <version>2.22.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} ${failsafe.jacoco.args}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
+                    <!-- doesnt work (breaks tests)
+                    <forkCount>1C</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <threadCount>1</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
+                    <parallel>classes</parallel>
                     <groups>${test.groups}</groups>
-                    <forkCount>${test.forkCount.integration}</forkCount>
+                    <runOrder>random</runOrder> -->
+                    <!-- works (tests pass) -->
+                    <groups>${test.groups}</groups>
+                    <forkCount>3</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
-                    <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
+                    <testFailureIgnore>false</testFailureIgnore>
                 </configuration>
                 <executions>
                     <execution>
@@ -905,6 +942,22 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.2.6</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -917,7 +970,6 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>None</test.groups>
-                <test.forkCount.integration>3</test.forkCount.integration>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Integration*.class</test.files.integration>
             </properties>
@@ -927,16 +979,14 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.files.unit>None</test.files.unit>
+                <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
             <id>comparison</id>
             <properties>
                 <test.redirectOutput>false</test.redirectOutput>
-                <test.ignoreFailure>false</test.ignoreFailure>
                 <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>
@@ -953,7 +1003,6 @@
                 <test.groups>net.ripe.db.whois.common.EndToEndTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
@@ -964,7 +1013,6 @@
                 </test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
@@ -975,7 +1023,6 @@
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
