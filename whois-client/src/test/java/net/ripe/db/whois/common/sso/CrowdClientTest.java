@@ -131,6 +131,29 @@ public class CrowdClientTest {
     }
 
     @Test
+    public void get_display_name_success() {
+        when(builder.get(CrowdClient.CrowdUsers.class))
+                .then(invocation -> new CrowdClient.CrowdUsers(
+                        Arrays.asList(new CrowdClient.CrowdUser("test@ripe.net", "Test User", true)))
+                );
+
+        assertThat(subject.getDisplayName("uuid"), is("Test User"));
+    }
+
+    @Test
+    public void get_display_name_not_found() {
+        when(builder.get(CrowdClient.CrowdUsers.class)).then(invocation -> {throw new NotFoundException("message");});
+
+        try {
+            subject.getDisplayName("madeup-uuid");
+            fail();
+        } catch (CrowdClientException expected) {
+            assertThat(expected.getMessage(), is("Unknown RIPE NCC Access uuid: madeup-uuid"));
+        }
+    }
+
+
+    @Test
     public void get_uuid_success() {
         when(builder.get(CrowdResponse.class)).then(invocation ->
                 new CrowdResponse(Lists.newArrayList(
@@ -139,6 +162,7 @@ public class CrowdClientTest {
 
         assertThat(subject.getUuid("test@ripe.net"), is("1-2-3-4"));
     }
+
 
     @Test
     public void get_uuid_not_found() {
