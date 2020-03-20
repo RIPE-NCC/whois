@@ -157,6 +157,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         final JdbcTemplate jdbcTemplate = createDefaultTemplate();
         ensureLocalhost(jdbcTemplate);
         cleanupOldTables(jdbcTemplate);
+        validateFilePerTable(jdbcTemplate);
 
         final String uniqueForkId = DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
 
@@ -174,6 +175,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         final String slaveUrl = String.format("jdbc:mariadb://%s/%s_WHOIS", DB_HOST, dbBaseName);
         System.setProperty("whois.db.slave.url", slaveUrl);
         System.setProperty("whois.db.driver", JDBC_DRIVER);
+
+        final String internalsSlaveUrl = String.format("jdbc:mariadb://%s/%s_INTERNALS", DB_HOST, dbBaseName);
+        System.setProperty("internals.slave.database.url", internalsSlaveUrl);
 
         final String grsSlaveUrl = String.format("jdbc:mariadb://%s/%s", DB_HOST, dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
@@ -458,16 +462,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 prefix, "comment");
     }
 
-    public void insertAclMirror(final String prefix) {
-        aclTemplate.update(
-                "INSERT INTO acl_mirror (prefix, comment) VALUES (?, ?)",
-                prefix, "comment");
-    }
-
-    public void clearAclMirrors() {
-        aclTemplate.update("DELETE FROM acl_mirror");
-    }
-
     public List<Map<String, Object>> listAclEvents() {
         return aclTemplate.queryForList(
                 "SELECT * FROM acl_event"
@@ -536,6 +530,19 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public void addAuthoritativeResource(final String source, final String resource) {
         internalsTemplate.execute("insert into authoritative_resource (source, resource) values ('"+source+"', '"+resource+"')");
         authoritativeResourceData.refreshActiveSource();
+    }
+
+    private static void validateFilePerTable(final JdbcTemplate jdbcTemplate) {
+        final Boolean filePerTable = jdbcTemplate.query("SELECT @@innodb_file_per_table", rs -> {
+            if (rs.isBeforeFirst()) {
+                rs.next();
+            }
+            return rs.getBoolean(1);
+        });
+
+        if (filePerTable) {
+            throw new IllegalStateException("Mariadb innodb_file_per_table must be OFF");
+        }
     }
 
 }

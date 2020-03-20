@@ -363,6 +363,13 @@ public class Ipv6ResourceTest {
 
     }
 
+    @Test
+    public void parse_from_strings_124() {
+        Ipv6Resource ipv6Resource = Ipv6Resource.parse("2a02:27d0:116:fffe:fffe:fffe:1671::/124");
+        Ipv6Resource parsedFromStrings = Ipv6Resource.parseFromStrings(Long.toString(Ipv6Resource.msb(ipv6Resource.begin())), Long.toString(Ipv6Resource.lsb(ipv6Resource.begin())), ipv6Resource.getPrefixLength());
+        assertEquals(ipv6Resource, parsedFromStrings);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void reverse_empty() {
         Ipv6Resource.parseReverseDomain("");
