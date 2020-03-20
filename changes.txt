@@ -1,5 +1,10 @@
 # next
 
+# 1.97
+
+[all] Use CI build for releases (#610)
+[nrtm] Apply ACL limit in NRTM (#612)
+[api] Added rate-limiting filter (#609)
 [nrtm] NRTM connection limit (#594)
 [update] Don't allow inconsistent "org-name:" values on create (#607)
 [api] Include build timestamp and commit id in Whois lookup and search responses (#598)
