@@ -127,6 +127,26 @@ public class CrowdClient {
         }
     }
 
+    public String getDisplayName(final String uuid) throws CrowdClientException {
+        try {
+            final List<CrowdUser> users = client.target(restUrl)
+                    .path(CROWD_UUID_SEARCH_PATH)
+                    .queryParam("restriction", "uuid=" + uuid)
+                    .queryParam("entity-type", "user")
+                    .queryParam("expand", "user")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(CrowdUsers.class).getUsers();
+            if(users == null || users.isEmpty()) {
+                throw new CrowdClientException("Unknown RIPE NCC Access uuid: " + uuid);
+            }
+            return users.get(0).getDisplayName();
+        } catch (NotFoundException e) {
+            throw new CrowdClientException("Unknown RIPE NCC Access uuid: " + uuid);
+        } catch (WebApplicationException | ProcessingException e) {
+            throw new CrowdClientException(e);
+        }
+    }
+
     public UserSession getUserSession(final String token) throws CrowdClientException {
         try {
             final CrowdSession crowdSession = client.target(restUrl)
