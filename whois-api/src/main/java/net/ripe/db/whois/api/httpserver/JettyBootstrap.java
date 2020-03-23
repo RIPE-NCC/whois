@@ -47,7 +47,7 @@ public class JettyBootstrap implements ApplicationService {
 
     private final String trustedIpRanges;
 
-    private boolean dosFilterEnabled;
+    private final boolean dosFilterEnabled;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
