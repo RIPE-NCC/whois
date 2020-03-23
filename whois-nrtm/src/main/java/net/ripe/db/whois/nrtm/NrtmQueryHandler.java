@@ -2,6 +2,7 @@ package net.ripe.db.whois.nrtm;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import joptsimple.OptionException;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
@@ -45,7 +46,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private final TaskScheduler clientSynchronisationScheduler;
 
     private final NrtmLog nrtmLog;
-    private final String applicationVersion;
+    final ApplicationVersion applicationVersion;
     private final String source;
     private final String nonAuthSource;
     private final long updateInterval;
@@ -58,7 +59,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             @Qualifier("dummifierNrtm") final Dummifier dummifier,
             @Qualifier("clientSynchronisationScheduler") final TaskScheduler clientSynchronisationScheduler,
             final NrtmLog nrtmLog,
-            @Value("${application.version}") final String applicationVersion,
+            final ApplicationVersion applicationVersion,
             @Value("${whois.source}") final String source,
             @Value("${whois.nonauth.source}") final String nonAuthSource,
             @Value("${nrtm.update.interval:60}") final long updateInterval,
@@ -257,7 +258,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     private void handleVersionQuery(final Channel channel) {
-        writeMessage(channel, NrtmMessages.version(applicationVersion));
+        writeMessage(channel, NrtmMessages.version(applicationVersion.getVersion()));
     }
 
     @Override

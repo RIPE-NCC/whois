@@ -13,6 +13,8 @@ include:
 stages:
   - build
   - test
+  - integration-test
+  - code_quality
   - release
   - deploy
 
@@ -21,7 +23,7 @@ cache:
   paths:
     - .m2/repository
     - target/
-    - "*/target/"
+    - "*/target/*"
 
 build:
   stage: build
@@ -50,7 +52,7 @@ release:
   variables:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
-  stage: test
+  stage: integration-test
   before_script:
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
@@ -67,15 +69,24 @@ whois-end-to-end-test:
   <<: *it_env
   tags:
     - whois
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
+      allow_failure: true
   script:
     - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -pl whois-endtoend
-  when: manual
 
 whois-integration-test:
   <<: *it_env
   tags:
     - whois
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
+      allow_failure: true
   script:
     - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
@@ -87,7 +98,19 @@ whois-integration-test:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-rpsl
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-scheduler
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-update
-  when: manual
+
+sonar:
+  <<: *it_env
+  stage: code_quality
+  only:
+    - schedules
+  tags:
+    - whois
+  script:
+    - mvn install
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -fn # ignore failing (non deterministic) tests, we want QA output regardless
+    - echo PWD=$PWD
+    - mvn sonar:sonar -Dsonar.host.url=http://sonar.ripe.net -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.projectName=whois -Dsonar.java.binaries=$PWD/whois-api/target/classes,$PWD/whois-client/target/classes,$PWD/whois-commons/target/classes,$PWD/whois-db/target/classes,$PWD/whois-nrtm/target/classes,$PWD/whois-query/target/classes,$PWD/whois-rpsl/target/classes,$PWD/whois-scheduler/target/classes,$PWD/whois-update/target/classes
 
 .deploy_template: &deploy_env
   stage: deploy
