@@ -486,7 +486,6 @@ public class PgpSignedMessageTest {
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
     }
 
-    @Ignore("TODO: [ES] cannot verify message signed with ed25519 key")
     @Test
     public void verify_signed_message_with_ed25519_key() {
         final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
@@ -513,7 +512,6 @@ public class PgpSignedMessageTest {
         assertThat(pgpSignedMessage.verify(getPublicKey_6481AE34()), is(true));
     }
 
-    @Ignore("TODO: [ES] cannot verify message signed with ed25519 key")
     @Test
     public void verify_signed_message_with_ed25519_key_failure() {
         final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(

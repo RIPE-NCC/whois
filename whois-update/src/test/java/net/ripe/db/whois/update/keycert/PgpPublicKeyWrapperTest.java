@@ -190,6 +190,38 @@ public class PgpPublicKeyWrapperTest {
     }
 
     @Test
+    public void anotherCurve25519PublicKey() {
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
+            RpslObject.parse(
+                "key-cert:        PGPKEY-90FF806A\n" +
+                "method:          PGP\n" +
+                "owner:           Test User <noreply@ripe.net>\n" +
+                "certif:          -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                "certif:          Comment: GPGTools - http://gpgtools.org\n" +
+                "certif:          \n" +
+                "certif:          mDMEXlRJ3RYJKwYBBAHaRw8BAQdA5HkKu1joqw1Nkz09DHk/QK4+xaqe73kUwl7A\n" +
+                "certif:          kwdA7Vm0IUN1cnZlIDI1NTE5IDxDdXJ2ZTI1NTE5QHJpcGUubmV0PoiQBBMWCAA4\n" +
+                "certif:          FiEEswGlPGBl8/+lpUkmpsCAmZD/gGoFAl5USd0CGwMFCwkIBwIGFQoJCAsCBBYC\n" +
+                "certif:          AwECHgECF4AACgkQpsCAmZD/gGrXFAD8CVFCVHMh+fI3a2t+II+AyKKK6zqX2b/s\n" +
+                "certif:          iFhJQSk10CoA/iIi/sDgNm1YfTuTriH52HHB7cNW90ao4mwiH1xnuMQCuDgEXlRJ\n" +
+                "certif:          3RIKKwYBBAGXVQEFAQEHQNJavQL0KPfih0TzXrtODNJgQetBHA8zQLTzYQjScvdx\n" +
+                "certif:          AwEIB4h4BBgWCAAgFiEEswGlPGBl8/+lpUkmpsCAmZD/gGoFAl5USd0CGwwACgkQ\n" +
+                "certif:          psCAmZD/gGoYQwEAkNdtT0FrfNaTeOy3vll7nGMJ8lNQA8kCXxVlKvFzH1sA/3Zl\n" +
+                "certif:          z4uJvVBmPtjN0kHRkj0KAF7TOC/GMlnI6wPofacF\n" +
+                "certif:          =6ovf\n" +
+                "certif:          -----END PGP PUBLIC KEY BLOCK-----\n" +
+                "admin-c:         AA1-RIPE\n" +
+                "tech-c:          AA1-RIPE\n" +
+                "mnt-by:          UPD-MNT\n" +
+                "source:          TEST"));
+
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.EDDSA));
+        assertThat(subject.getFingerprint(), is("B301 A53C 6065 F3FF A5A5  4926 A6C0 8099 90FF 806A"));
+        assertThat(subject.getMethod(), is("PGP"));
+        assertThat(subject.getOwners(), contains("Curve 25519 <Curve25519@ripe.net>"));
+    }
+
+    @Test
     public void secp256k1PublicKey() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
