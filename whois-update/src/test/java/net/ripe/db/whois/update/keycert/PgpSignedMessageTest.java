@@ -514,7 +514,7 @@ public class PgpSignedMessageTest {
 
     @Test
     public void verify_signed_message_with_ed25519_key_failure() {
-        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse((
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA256\n" +
                 "\n" +
@@ -533,7 +533,7 @@ public class PgpSignedMessageTest {
                 "NIiqAQD+sksm61T9mYmoLRPhV+D3jSg2IE19id3WyjaH0vCwXQEA6v5xpZQ7AXQe\n" +
                 "vbSHvSrRBNBSAUuJfIYQLsAf6l80MAI=\n" +
                 "=pQ32\n" +
-                "-----END PGP SIGNATURE-----".replace("First Person", "Some Text"));
+                "-----END PGP SIGNATURE-----").replace("First Person", "Some Text"));
 
         assertThat(pgpSignedMessage.verify(getPublicKey_6481AE34()), is(false));
     }
