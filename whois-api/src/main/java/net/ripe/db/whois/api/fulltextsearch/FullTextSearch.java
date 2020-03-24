@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.Integer.MAX_VALUE;
 import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.INDEX_ANALYZER;
 import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.PRIMARY_KEY_FIELD_NAME;
 
@@ -157,7 +158,7 @@ public class FullTextSearch {
                 protected SearchResponse doSearch(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 
                     final int maxResults = Math.max(MAX_RESULTS, indexReader.numDocs());
-                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, true);
+                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, MAX_VALUE);
                     final FacetsCollector facetsCollector = new FacetsCollector();
 
                     indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
@@ -166,7 +167,7 @@ public class FullTextSearch {
 
                     final TopDocs topDocs = topFieldCollector.topDocs();
                     final int start = Math.max(0, searchRequest.getStart());
-                    final int end = Math.min(start + searchRequest.getRows(), Long.valueOf(topDocs.totalHits).intValue());
+                    final int end = Math.min(start + searchRequest.getRows(), Long.valueOf(topDocs.totalHits.value).intValue());
                     for (int index = start; index < end; index++) {
                         final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
                         final Document document = indexSearcher.doc(scoreDoc.doc);
@@ -191,7 +192,7 @@ public class FullTextSearch {
                     responseLstList.add(createVersion());
 
                     final SearchResponse searchResponse = new SearchResponse();
-                    searchResponse.setResult(createResult(searchRequest, documents, Long.valueOf(topDocs.totalHits).intValue()));
+                    searchResponse.setResult(createResult(searchRequest, documents, Long.valueOf(topDocs.totalHits.value).intValue()));
                     searchResponse.setLsts(responseLstList);
 
                     return searchResponse;
@@ -260,7 +261,7 @@ public class FullTextSearch {
         }
 
         final Highlighter highlighter = new Highlighter(formatter, new QueryScorer(query));
-        highlighter.setTextFragmenter(new SimpleFragmenter(Integer.MAX_VALUE));
+        highlighter.setTextFragmenter(new SimpleFragmenter(MAX_VALUE));
 
         for (final Document document : documents) {
             final SearchResponse.Lst documentLst = new SearchResponse.Lst(document.get(PRIMARY_KEY_FIELD_NAME));
@@ -305,7 +306,7 @@ public class FullTextSearch {
         final SearchResponse.Lst facetFields = new SearchResponse.Lst("facet_fields");
         final List<SearchResponse.Lst> facetFieldsList = Lists.newArrayList();
 
-        for (FacetResult facetResult : facets.getAllDims(Integer.MAX_VALUE)) {
+        for (FacetResult facetResult : facets.getAllDims(MAX_VALUE)) {
 
             final String label = facetResult.dim;
 

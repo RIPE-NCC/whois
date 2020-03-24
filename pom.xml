@@ -71,7 +71,7 @@
 
         <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
         <log4j.version>1.2.17</log4j.version>
-        <lucene.version>7.7.2</lucene.version>
+        <lucene.version>8.5.0</lucene.version>
 
         <mail.version>1.6.2</mail.version>
         <mariadb-java-client.version>2.5.1</mariadb-java-client.version>

@@ -64,7 +64,7 @@ public class IndexTemplateTest {
                 addDoc(indexWriter, "Managing Gigabytes", "55063554A");
                 addDoc(indexWriter, "The Art of Computer Science", "9900333X");
 
-                assertThat(indexWriter.numDocs(), is(4));
+                assertThat(indexWriter.getDocStats().numDocs, is(4));
             }
         });
 
@@ -72,7 +72,7 @@ public class IndexTemplateTest {
         subject.search(new IndexTemplate.SearchCallback<Void>() {
             @Override
             public Void search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
-                final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
+                final TopScoreDocCollector collector = TopScoreDocCollector.create(10, Integer.MAX_VALUE);
                 indexSearcher.search(query, collector);
                 final ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
@@ -128,7 +128,7 @@ public class IndexTemplateTest {
                     addDoc(indexWriter, "title: " + i, "isbn: " + i);
                 }
 
-                assertThat(indexWriter.numDocs(), is(nrDocs));
+                assertThat(indexWriter.getDocStats().numDocs, is(nrDocs));
             }
         });
 
@@ -143,7 +143,7 @@ public class IndexTemplateTest {
                         subject.search(new IndexTemplate.SearchCallback<Void>() {
                             @Override
                             public Void search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
-                                final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
+                                final TopScoreDocCollector collector = TopScoreDocCollector.create(10, Integer.MAX_VALUE);
                                 indexSearcher.search(query, collector);
                                 assertThat(collector.topDocs().scoreDocs.length, is(nrDocs));
                                 return null;
