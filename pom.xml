@@ -33,7 +33,7 @@
         <awaitility.version>1.3.5</awaitility.version>
 
         <!-- TODO: [ES] downloaded BETA dependencies from: https://downloads.bouncycastle.org/betas/ and copied to local repo -->
-        <bouncycastle.version>1.65b14</bouncycastle.version>
+        <bouncycastle.version>1.65b15</bouncycastle.version>
 
         <c3po.version>0.9.5.4</c3po.version>
         <commons-compress.version>1.19</commons-compress.version>
