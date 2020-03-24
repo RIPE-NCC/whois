@@ -16,6 +16,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.facet.FacetField;
 import org.apache.lucene.facet.FacetsConfig;
@@ -95,6 +96,7 @@ public class FullTextIndex extends RebuildableIndex {
 
         LOOKUP_KEY_FIELD_TYPE = new FieldType();
         LOOKUP_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        LOOKUP_KEY_FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
         LOOKUP_KEY_FIELD_TYPE.setStored(true);
         LOOKUP_KEY_FIELD_TYPE.setTokenized(false);
         LOOKUP_KEY_FIELD_TYPE.freeze();
@@ -283,8 +285,8 @@ public class FullTextIndex extends RebuildableIndex {
         document.add(new StoredField(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));
 
         // lookup key
-        // document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_NOT_TOKENIZED));
-        document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), LOOKUP_KEY_FIELD_TYPE));
+        document.add(new SortedDocValuesField(LOOKUP_KEY_FIELD_NAME, new BytesRef(rpslObject.getKey().toString())));
+        document.add(new StoredField(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString()));
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (FILTERED_ATTRIBUTES.contains(attribute.getType())) {

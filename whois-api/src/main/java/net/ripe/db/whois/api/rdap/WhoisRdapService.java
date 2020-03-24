@@ -331,7 +331,11 @@ public class WhoisRdapService {
                                 final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
                                 queryParser.setAllowLeadingWildcard(true);
                                 queryParser.setDefaultOperator(QueryParser.Operator.AND);
-                                final org.apache.lucene.search.Query query = queryParser.parse(term);
+
+                                // TODO SB: Yuck, query is case insensitive by default
+                                // but case sensitivity also depends on field type
+                                final org.apache.lucene.search.Query query = queryParser.parse(term.toLowerCase());
+
                                 final TopDocs topDocs = indexSearcher.search(query, maxResults);
                                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                                     final Document document = indexSearcher.doc(scoreDoc.doc);
