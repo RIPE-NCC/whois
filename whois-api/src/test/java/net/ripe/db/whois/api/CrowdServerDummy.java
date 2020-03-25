@@ -87,7 +87,7 @@ public class CrowdServerDummy implements Stub {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 } else {
                     response.setStatus(HttpServletResponse.SC_OK);
-                    response.getWriter().println(getUuid(uuid));
+                    response.getWriter().println(serializeUuid(uuid));
                 }
             }
             else if (parameterMap.get("restriction") != null) {
@@ -97,7 +97,7 @@ public class CrowdServerDummy implements Stub {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 } else {
                     response.setStatus(HttpServletResponse.SC_OK);
-                    response.getWriter().println(getUsername(username, displayName));
+                    response.getWriter().println(serializeUserName(username, displayName));
                 }
             }
             else if (request.getRequestURI().contains("session")) {
@@ -108,7 +108,7 @@ public class CrowdServerDummy implements Stub {
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST);
                 } else {
                     response.setStatus(HttpServletResponse.SC_OK);
-                    response.getWriter().print(getUserSessionResponse(userSession));
+                    response.getWriter().print(serializeUserSessionResponse(userSession));
                 }
             }
             else {
@@ -116,7 +116,7 @@ public class CrowdServerDummy implements Stub {
             }
         }
 
-        private String getUserSessionResponse(final UserSession userSession){
+        private String serializeUserSessionResponse(final UserSession userSession){
             return String.format(
                     "<session expand=\"user\">" +
                             "<user name=\"%s\">" +
@@ -126,11 +126,11 @@ public class CrowdServerDummy implements Stub {
                             "</session>", userSession.getUsername(), userSession.isActive());
         }
 
-        private String getUuid(final String username) {
+        private String serializeUuid(final String username) {
             return String.format("<attributes><attribute name=\"uuid\"><values><value>%s</value></values></attribute></attributes>", username);
         }
 
-        private String getUsername(final String uuid, final String displayName) {
+        private String serializeUserName(final String uuid, final String displayName) {
             return String.format("" +
                     "<users expand=\"user\">\n" +
                     "   <user name=\"%s\">\n" +
