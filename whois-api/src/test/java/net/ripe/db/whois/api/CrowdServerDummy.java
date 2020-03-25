@@ -24,8 +24,6 @@ import javax.annotation.PreDestroy;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
 import java.util.Map;
 
