@@ -53,7 +53,7 @@ public class CrowdServerDummy implements Stub {
             usermap.put("person@net.net", new CrowdUser("person@net.net", "Test User", "906635c2-0405-429a-800b-0602bd716124"));
 
             usermap.put("ed7cd420-6402-11e3-949a-0800200c9a66", new CrowdUser("db-test@ripe.net","db-test","ed7cd420-6402-11e3-949a-0800200c9a66"));
-            usermap.put("017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", new CrowdUser("random@ripe.ne", "random", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503"));
+            usermap.put("017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", new CrowdUser("random@ripe.net", "random", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503"));
             usermap.put("8ffe29be-89ef-41c8-ba7f-0e1553a623e5", new CrowdUser("test@ripe.net", "test", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5"));
             usermap.put("906635c2-0405-429a-800b-0602bd716124", new CrowdUser("person@net.net", "Test User", "906635c2-0405-429a-800b-0602bd716124"));
 
