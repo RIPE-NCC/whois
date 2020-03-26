@@ -47,21 +47,21 @@ public class CrowdServerDummy implements Stub {
 
         {
             usermap = Maps.newHashMap();
-            usermap.put("db-test@ripe.net", new CrowdUser("db-test@ripe.net","db-test","ed7cd420-6402-11e3-949a-0800200c9a66"));
-            usermap.put("random@ripe.net", new CrowdUser("random@ripe.net", "random", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503"));
-            usermap.put("test@ripe.net", new CrowdUser("test@ripe.net", "test", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5"));
+            usermap.put("db-test@ripe.net", new CrowdUser("db-test@ripe.net","Db User","ed7cd420-6402-11e3-949a-0800200c9a66"));
+            usermap.put("random@ripe.net", new CrowdUser("random@ripe.net", "Random User", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503"));
+            usermap.put("test@ripe.net", new CrowdUser("test@ripe.net", "Ripe  User", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5"));
             usermap.put("person@net.net", new CrowdUser("person@net.net", "Test User", "906635c2-0405-429a-800b-0602bd716124"));
 
-            usermap.put("ed7cd420-6402-11e3-949a-0800200c9a66", new CrowdUser("db-test@ripe.net","db-test","ed7cd420-6402-11e3-949a-0800200c9a66"));
-            usermap.put("017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", new CrowdUser("random@ripe.net", "random", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503"));
-            usermap.put("8ffe29be-89ef-41c8-ba7f-0e1553a623e5", new CrowdUser("test@ripe.net", "test", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5"));
+            usermap.put("ed7cd420-6402-11e3-949a-0800200c9a66", new CrowdUser("db-test@ripe.net","Db User","ed7cd420-6402-11e3-949a-0800200c9a66"));
+            usermap.put("017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", new CrowdUser("random@ripe.net", "Random User", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503"));
+            usermap.put("8ffe29be-89ef-41c8-ba7f-0e1553a623e5", new CrowdUser("test@ripe.net", "Ripe  User", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5"));
             usermap.put("906635c2-0405-429a-800b-0602bd716124", new CrowdUser("person@net.net", "Test User", "906635c2-0405-429a-800b-0602bd716124"));
 
             // for e2e integration test
-            usermap.put("aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef", new CrowdUser("db_e2e_1@ripe.net", "db_e2e_1", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef"));
-            usermap.put("db_e2e_1@ripe.net", new CrowdUser("db_e2e_1@ripe.net", "db_e2e_1", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef"));
-            usermap.put("e74ccc29-75f9-4ce1-aee0-690345a56c96", new CrowdUser("db_e2e_2@ripe.net", "db_e2e_2", "e74ccc29-75f9-4ce1-aee0-690345a56c96"));
-            usermap.put("db_e2e_2@ripe.net", new CrowdUser("db_e2e_2@ripe.net", "db_e2e_2", "e74ccc29-75f9-4ce1-aee0-690345a56c96"));
+            usermap.put("aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef", new CrowdUser("db_e2e_1@ripe.net", "DB E2E_1", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef"));
+            usermap.put("db_e2e_1@ripe.net", new CrowdUser("db_e2e_1@ripe.net", "DB E2E_1", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef"));
+            usermap.put("e74ccc29-75f9-4ce1-aee0-690345a56c96", new CrowdUser("db_e2e_2@ripe.net", "DB E2E_2", "e74ccc29-75f9-4ce1-aee0-690345a56c96"));
+            usermap.put("db_e2e_2@ripe.net", new CrowdUser("db_e2e_2@ripe.net", "DB E2E_2", "e74ccc29-75f9-4ce1-aee0-690345a56c96"));
         }
 
         final Map<String, UserSession> crowdSessionMap;
