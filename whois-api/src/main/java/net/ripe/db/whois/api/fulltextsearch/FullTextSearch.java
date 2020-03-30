@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.INDEX_ANALYZER;
+import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.LOOKUP_KEY_FIELD_NAME;
 import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.PRIMARY_KEY_FIELD_NAME;
 
 @Component
@@ -60,7 +61,8 @@ import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.PRIMARY_KEY_FIE
 public class FullTextSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(FullTextSearch.class);
 
-    private static final Sort SORT_BY_OBJECT_TYPE = new Sort(new SortField(FullTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING));
+    private static final Sort SORT_BY_OBJECT_TYPE =
+            new Sort(new SortField(FullTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING), new SortField(LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
     private static final int MAX_RESULTS = 100;
 
     private final FullTextIndex fullTextIndex;
