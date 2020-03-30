@@ -102,13 +102,13 @@ public class FullTextIndex extends RebuildableIndex {
         LOOKUP_KEY_FIELD_TYPE.freeze();
 
         FILTERED_ATTRIBUTE_FIELD_TYPE = new FieldType();
-        FILTERED_ATTRIBUTE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FILTERED_ATTRIBUTE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
         FILTERED_ATTRIBUTE_FIELD_TYPE.setStored(true);
         FILTERED_ATTRIBUTE_FIELD_TYPE.setTokenized(false);      // no partial matches
         FILTERED_ATTRIBUTE_FIELD_TYPE.freeze();
 
         ATTRIBUTE_FIELD_TYPE = new FieldType();
-        ATTRIBUTE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        ATTRIBUTE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
         ATTRIBUTE_FIELD_TYPE.setStored(true);
         ATTRIBUTE_FIELD_TYPE.setTokenized(true);
         ATTRIBUTE_FIELD_TYPE.freeze();
