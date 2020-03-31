@@ -18,6 +18,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.facet.FacetField;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
@@ -286,7 +287,7 @@ public class FullTextIndex extends RebuildableIndex {
 
         // lookup key
         document.add(new SortedDocValuesField(LOOKUP_KEY_FIELD_NAME, new BytesRef(rpslObject.getKey().toString())));
-        document.add(new StoredField(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString()));
+        document.add(new StringField(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), Field.Store.YES));
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (FILTERED_ATTRIBUTES.contains(attribute.getType())) {

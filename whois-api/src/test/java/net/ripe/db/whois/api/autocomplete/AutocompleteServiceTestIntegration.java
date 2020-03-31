@@ -34,7 +34,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-// TODO: [ES] failing tests (need to fix lucene index)
 @Category(IntegrationTest.class)
 public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired FullTextIndex fullTextIndex;
@@ -351,6 +350,23 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         assertThat(keys.size(), is(3));
         assertThat(keys.get(0), is("AUTH"));
+    }
+
+    @Test
+    public void mntner_key_exact_match_lowercase() {
+        databaseHelper.addObject("mntner:  AB-TELECOM-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  ADM-RUS-TELECOM\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  AIRNET-TELECOM-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  telecom\nsource:  TEST\n");
+        rebuildIndex();
+
+        final List<String> keys = getValues(query("telecom", "mnt-by"), "key");
+
+        assertThat(keys.size(), is(4));
+        assertThat(keys.get(0), is("telecom"));
+        assertThat(keys.get(1), is("AB-TELECOM-MNT"));
+        assertThat(keys.get(2), is("ADM-RUS-TELECOM"));
+        assertThat(keys.get(3), is("AIRNET-TELECOM-MNT"));
     }
 
     @Test
