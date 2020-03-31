@@ -29,7 +29,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +61,8 @@ public class IndexTemplate implements Closeable {
             index = new RAMDirectory();
         } else {
             LOGGER.info("Using index directory: {}", directory);
-            taxonomy = FSDirectory.open(new File(directory, "taxonomy"));
-            index = FSDirectory.open(new File(directory, "index"));
+            taxonomy = FSDirectory.open(new File(directory, "taxonomy").toPath());
+            index = FSDirectory.open(new File(directory, "index").toPath());
         }
 
         this.config = config;
@@ -78,7 +77,7 @@ public class IndexTemplate implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         updateLock.acquireUninterruptibly();
 
         try {
@@ -127,13 +126,13 @@ public class IndexTemplate implements Closeable {
         taxonomyWriter = new DirectoryTaxonomyWriter(taxonomy);
         addFacetCategories(taxonomyWriter);
 
-        config = new IndexWriterConfig(Version.LUCENE_4_10_4, config.getAnalyzer());
+        config = new IndexWriterConfig(config.getAnalyzer());
         indexWriter = new IndexWriter(index, config);
 
         taxonomyWriter.commit();
         indexWriter.commit();
 
-        readerManager = new ReaderManager(indexWriter, true);
+        readerManager = new ReaderManager(indexWriter, false, false);
     }
 
     private static void addFacetCategories(final TaxonomyWriter taxonomyWriter) throws IOException {
