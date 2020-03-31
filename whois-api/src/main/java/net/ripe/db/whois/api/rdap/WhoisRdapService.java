@@ -21,11 +21,11 @@ import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
-import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
-import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterGraphFilter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.index.IndexReader;
@@ -55,7 +55,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.Reader;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -118,7 +117,7 @@ public class WhoisRdapService {
                            @PathParam("key") final String key) {
 
         LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
-        Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);
+        final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);
 
         switch (requestType) {
             case AUTNUM: {
@@ -332,7 +331,11 @@ public class WhoisRdapService {
                                 final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
                                 queryParser.setAllowLeadingWildcard(true);
                                 queryParser.setDefaultOperator(QueryParser.Operator.AND);
-                                final org.apache.lucene.search.Query query = queryParser.parse(term);
+
+                                // TODO SB: Yuck, query is case insensitive by default
+                                // but case sensitivity also depends on field type
+                                final org.apache.lucene.search.Query query = queryParser.parse(term.toLowerCase());
+
                                 final TopDocs topDocs = indexSearcher.search(query, maxResults);
                                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                                     final Document document = indexSearcher.doc(scoreDoc.doc);
@@ -373,11 +376,11 @@ public class WhoisRdapService {
 
     private class RdapAnalyzer extends Analyzer {
         @Override
-        protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-            final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(reader);
-            TokenStream tok = new WordDelimiterFilter(
+        protected TokenStreamComponents createComponents(final String fieldName) {
+            final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer();
+            TokenStream tok = new WordDelimiterGraphFilter(
                     tokenizer,
-                    WordDelimiterFilter.PRESERVE_ORIGINAL,
+                    WordDelimiterGraphFilter.PRESERVE_ORIGINAL,
                     CharArraySet.EMPTY_SET);
             tok = new LowerCaseFilter(tok);
             return new TokenStreamComponents(tokenizer, tok);

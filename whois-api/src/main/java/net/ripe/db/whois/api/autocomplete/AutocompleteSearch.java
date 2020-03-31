@@ -16,6 +16,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -43,7 +44,7 @@ public class AutocompleteSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(AutocompleteSearch.class);
 
     // results will always be sorted by lookup key (which is case sensitive, and by string value)
-    private static final Sort SORT_BY_LOOKUP_KEY = new Sort(new SortField(FullTextIndex.LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
+    private static final Sort SORT_BY_LOOKUP_KEY = new Sort(SortField.FIELD_SCORE, new SortField(FullTextIndex.LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
 
     private static final Pattern COMMENT_PATTERN = Pattern.compile("#.*");
 
@@ -69,17 +70,20 @@ public class AutocompleteSearch {
                 final Query query;
                 try {
                     if (objectTypes != null && !objectTypes.isEmpty()) {
-                        query = combine(constructQuery(queryAttributes, queryString), constructQuery(objectTypes));
+                        query = new BooleanQuery.Builder()
+                                .add(constructQuery(queryAttributes, queryString), BooleanClause.Occur.MUST)
+                                .add(constructQuery(objectTypes), BooleanClause.Occur.MUST)
+                                .build();
                     } else {
                         query = constructQuery(queryAttributes, queryString);
                     }
                 } catch (ParseException e) {
                     // TODO: [ES] fix parsing of asterisk (wildcard) as first character
                     LOGGER.info("Caught {} on {}", e.getMessage(), queryString);
-                    return Collections.<Map<String, Object>>emptyList();
+                    return Collections.emptyList();
                 }
 
-                final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, SORT_BY_LOOKUP_KEY);
+                final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, SORT_BY_LOOKUP_KEY, true, true);
 
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                     final Document doc = indexSearcher.doc(scoreDoc.doc);
@@ -127,7 +131,14 @@ public class AutocompleteSearch {
                                                         new FullTextAnalyzer(FullTextAnalyzer.Operation.QUERY));
         parser.setAnalyzer(FullTextIndex.QUERY_ANALYZER);
         parser.setDefaultOperator(QueryParser.Operator.AND);
-        return parser.parse(String.format("%s*", normalise(queryString)));
+        Query likeQuery = parser.parse(String.format("%s*", normalise(queryString)));
+
+        final Query exactMatchQuery = new BoostQuery(new TermQuery(new Term(FullTextIndex.LOOKUP_KEY_FIELD_NAME, normalise(queryString))), 2);
+
+        return new BooleanQuery.Builder()
+                .add(exactMatchQuery, BooleanClause.Occur.SHOULD)
+                .add(likeQuery, BooleanClause.Occur.SHOULD)
+                .build();
     }
 
     private String normalise(final String queryString) {
@@ -136,25 +147,16 @@ public class AutocompleteSearch {
 
     // query by object type
     private Query constructQuery(final Set<ObjectType> objectTypes) {
-        final BooleanQuery result = new BooleanQuery();
+        final BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         for (ObjectType objectType : objectTypes) {
-            result.add(
+            builder.add(
                 new TermQuery(
                     new Term(FullTextIndex.OBJECT_TYPE_FIELD_NAME, objectType.getName())),
                     BooleanClause.Occur.SHOULD);
         }
 
-        return result;
+        return builder.build();
     }
 
-    private Query combine(final Query ... queries) {
-        final BooleanQuery result = new BooleanQuery();
-
-        for (Query query : queries) {
-            result.add(query, BooleanClause.Occur.MUST);
-        }
-
-        return result;
-    }
 }

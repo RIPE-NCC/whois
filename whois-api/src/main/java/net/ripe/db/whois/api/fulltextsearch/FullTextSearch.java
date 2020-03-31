@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.INDEX_ANALYZER;
+import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.LOOKUP_KEY_FIELD_NAME;
 import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.PRIMARY_KEY_FIELD_NAME;
 
 @Component
@@ -60,7 +61,8 @@ import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.PRIMARY_KEY_FIE
 public class FullTextSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(FullTextSearch.class);
 
-    private static final Sort SORT_BY_OBJECT_TYPE = new Sort(new SortField(FullTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING));
+    private static final Sort SORT_BY_OBJECT_TYPE =
+            new Sort(new SortField(FullTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING), new SortField(LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
     private static final int MAX_RESULTS = 100;
 
     private final FullTextIndex fullTextIndex;
@@ -129,6 +131,9 @@ public class FullTextSearch {
         return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
     }
 
+    //
+    // TODO: only search in possibly value fields, according to query string
+    //
     public SearchResponse search(final SearchRequest searchRequest, final HttpServletRequest request) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -154,7 +159,7 @@ public class FullTextSearch {
                 protected SearchResponse doSearch(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 
                     final int maxResults = Math.max(MAX_RESULTS, indexReader.numDocs());
-                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, false);
+                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, true);
                     final FacetsCollector facetsCollector = new FacetsCollector();
 
                     indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
@@ -163,13 +168,11 @@ public class FullTextSearch {
 
                     final TopDocs topDocs = topFieldCollector.topDocs();
                     final int start = Math.max(0, searchRequest.getStart());
-                    final int end = Math.min(start + searchRequest.getRows(), topDocs.totalHits);
+                    final int end = Math.min(start + searchRequest.getRows(), Long.valueOf(topDocs.totalHits).intValue());
                     for (int index = start; index < end; index++) {
                         final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
-
-                        Document document = indexSearcher.doc(scoreDoc.doc);
+                        final Document document = indexSearcher.doc(scoreDoc.doc);
                         account(convertToRpslObject(document));
-
                         documents.add(document);
                     }
 
@@ -190,7 +193,7 @@ public class FullTextSearch {
                     responseLstList.add(createVersion());
 
                     final SearchResponse searchResponse = new SearchResponse();
-                    searchResponse.setResult(createResult(searchRequest, documents, topDocs.totalHits));
+                    searchResponse.setResult(createResult(searchRequest, documents, Long.valueOf(topDocs.totalHits).intValue()));
                     searchResponse.setLsts(responseLstList);
 
                     return searchResponse;
