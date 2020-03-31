@@ -145,10 +145,6 @@ public final class PgpSignedMessage {
                 return false;
             }
 
-//            if (pgpSignature.getKeyAlgorithm() == PublicKeyAlgorithmTags.EDDSA) {
-//                return verifyEdDSA(publicKey, pgpSignature);
-//            }
-
             pgpSignature.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
 
             if (clearText) {
@@ -177,45 +173,6 @@ public final class PgpSignedMessage {
             }
 
             return pgpSignature.verify();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    private boolean verifyEdDSA(final PGPPublicKey publicKey, final PGPSignature pgpSignature) {
-        if (!(publicKey.getPublicKeyPacket().getKey() instanceof EdDSAPublicBCPGKey)) {
-            throw new IllegalStateException("Unexpected public key type");
-        }
-
-        final EdDSAPublicBCPGKey key = (EdDSAPublicBCPGKey)publicKey.getPublicKeyPacket().getKey();
-
-        System.out.println("id=" + key.getCurveOID().getId());      // 1.3.6.1.4.1.11591.15.1
-        System.out.println("format=" + key.getFormat());            // PGP
-        try {
-            System.out.println("length=" + key.getCurveOID().getEncoded().length);  // 11
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // ECPointUtil.decodePoint()
-
-
-        final Ed25519Signer ed25519Signer = new Ed25519Signer();    // OK: verifier
-        try {
-            final Ed25519PublicKeyParameters ed25519PublicKeyParameters = new Ed25519PublicKeyParameters(key.getEncoded(), 0);        // specify public key (32 bytes?)
-
-            ed25519Signer.init(false, ed25519PublicKeyParameters);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Couldn't parse EDDSA public key");
-        }
-
-        try {
-            ed25519Signer.update(content, 0, content.length);   // OK: message to verify
-
-            System.out.println("signature length = " + pgpSignature.getSignature().length);     // TODO: expect 64 bytes not 72?
-
-            return ed25519Signer.verifySignature(pgpSignature.getSignature());
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
