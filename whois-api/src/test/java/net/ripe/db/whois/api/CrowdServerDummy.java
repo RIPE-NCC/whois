@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
+@Profile({WhoisProfile.TEST})
 @Component
 public class CrowdServerDummy implements Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrowdServerDummy.class);

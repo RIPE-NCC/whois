@@ -5,14 +5,22 @@ dist: trusty # xenial is causing build failure when installing openjdk8
 jdk:
   - openjdk8
 
+addons:
+  mariadb: '10.2'
+
+services: mariadb
+
 before_install:
- - rm whois-rpsl/src/main/parser/bin/yacc* # in travis yacc needs to be compiled from source
- - sudo apt-get install byacc
+  - rm whois-client/src/main/parser/bin/yacc* # in travis yacc needs to be compiled from source
+  - sudo apt-get install byacc
 
-branches:
-  only:
-    - master
+before_script:
+  - mysql -u root -e "CREATE USER 'dbint'@'localhost' IDENTIFIED BY ''"
+  - mysql -u root -e "GRANT ALL on *.* TO 'dbint'@'localhost'"
+  - mysql -u root -e 'set global connect_timeout = 60'
+  - mysql -u root -e 'set global net_read_timeout = 60'
+  - mysql -u root -e 'set global net_write_timeout = 60'
+  - mysql -u root -e 'set global max_connect_errors = 9999999'
 
-# TODO: [ES] travis integration tests are failing
-script: mvn install
 
+script: mvn install -Ptravis

@@ -7,11 +7,13 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.compare.common.ComparisonExecutor;
 import net.ripe.db.whois.compare.common.ComparisonExecutorConfig;
+import org.apache.velocity.app.event.implement.EscapeXmlReference;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.RedirectionException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -45,6 +47,9 @@ public class RestExecutor implements ComparisonExecutor {
 
         } catch (ClientErrorException e) {
             response = e.getResponse().readEntity(String.class);
+        } catch (RedirectionException e) {
+            //need to add this as some route, autnum objects can be moved to RIR space once authorative file gets updated
+            response = e.getMessage();
         } finally {
             stopWatch.stop();
         }
