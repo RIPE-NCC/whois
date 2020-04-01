@@ -3,8 +3,7 @@ image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:chrome80-jdk8-maven3
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   TZ: Europe/Amsterdam
-  WHITESOURCE_PRODUCT: "database-team"
-  WHITESOURCE_PROJECT: "whois"
+  WHITESOURCE_CONFIG_FILE: "whitesource.config"
 
 include:
   - project: 'swe/gitlab-ci'
