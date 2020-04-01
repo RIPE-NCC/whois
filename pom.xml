@@ -1018,8 +1018,7 @@
             <id>release</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>None</test.groups>
-                <test.files.unit>None</test.files.unit>
+                <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>None</test.files.integration>
                 <maven.javadoc.skip>true</maven.javadoc.skip>
             </properties>
