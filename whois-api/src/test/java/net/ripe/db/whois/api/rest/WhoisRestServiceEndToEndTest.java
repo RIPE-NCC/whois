@@ -10,7 +10,7 @@ import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.EndToEndTest;
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -49,8 +49,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-@ActiveProfiles(profiles = WhoisProfile.ENDTOEND, inheritProfiles = false)
-@Category(EndToEndTest.class)
+@ActiveProfiles(profiles = WhoisProfile.TEST, inheritProfiles = false)
+@Category(IntegrationTest.class)
 public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
     public static final String USER1 = "db_e2e_1@ripe.net";

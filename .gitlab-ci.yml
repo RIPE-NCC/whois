@@ -65,19 +65,6 @@ release:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
-whois-end-to-end-test:
-  <<: *it_env
-  tags:
-    - whois
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
-  script:
-    - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -pl whois-endtoend
-
 whois-integration-test:
   <<: *it_env
   tags:
@@ -98,6 +85,7 @@ whois-integration-test:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-rpsl
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-scheduler
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-update
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-endtoend
 
 sonar:
   <<: *it_env
