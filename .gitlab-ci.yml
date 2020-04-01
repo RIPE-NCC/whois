@@ -27,7 +27,7 @@ cache:
 build:
   stage: build
   script:
-    - mvn $MAVEN_OPTS clean deploy -Prelease
+    - mvn $MAVEN_OPTS clean install -Prelease
   artifacts:
     paths:
       - "*/target/*.jar"
