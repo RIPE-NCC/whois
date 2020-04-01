@@ -32,7 +32,7 @@ build:
     - mvn $MAVEN_OPTS install -U -Prelease
   artifacts:
     paths:
-      - whois-db/target/whois-db-*-SNAPSHOT.jar
+      - "*/target/*.jar"
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
