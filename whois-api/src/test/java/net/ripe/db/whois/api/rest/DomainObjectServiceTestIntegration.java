@@ -228,7 +228,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error", "JSON processing exception: %s (line: %s, column: %s)",
-                    "Unrecognized token 'bad': was expecting", "1", "28");
+                    "Unrecognized token 'bad': was expecting", "1", "32");
         }
     }
 
