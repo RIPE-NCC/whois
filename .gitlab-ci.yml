@@ -3,8 +3,7 @@ image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:chrome80-jdk8-maven3
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   TZ: Europe/Amsterdam
-  WHITESOURCE_PRODUCT: "database-team"
-  WHITESOURCE_PROJECT: "whois"
+  WHITESOURCE_CONFIG_FILE: "whitesource.config"
 
 include:
   - project: 'swe/gitlab-ci'
@@ -28,11 +27,10 @@ cache:
 build:
   stage: build
   script:
-    - mvn $MAVEN_OPTS clean install
-    - mvn $MAVEN_OPTS install -U -Prelease
+    - mvn $MAVEN_OPTS clean install -Prelease
   artifacts:
     paths:
-      - whois-db/target/whois-db-*-SNAPSHOT.jar
+      - "*/target/*.jar"
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
@@ -65,7 +63,7 @@ release:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
-whois-end-to-end-test:
+whois-groovy-test:
   <<: *it_env
   tags:
     - whois
@@ -76,7 +74,7 @@ whois-end-to-end-test:
       allow_failure: true
   script:
     - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -pl whois-endtoend
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-endtoend
 
 whois-integration-test:
   <<: *it_env

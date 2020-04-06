@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,13 +149,12 @@ public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
         assertThat(subject.getByIdForNrtm(3).getRpslObject(), is(object3));
     }
 
-    // getAgeOfExactOrNextExistingSerial()
-
     @Test
     public void getAgeOfExactOrNextExistingSerial_create_and_multiple_updates() {
         final LocalDateTime createTimestamp = LocalDateTime.parse("2001-02-04T17:00:00");
 
         testDateTimeProvider.setTime(createTimestamp);
+
         databaseHelper.addObject("aut-num: AS1\ndescr: first");
 
         testDateTimeProvider.setTime(createTimestamp.plusDays(1).plusMinutes(10));
