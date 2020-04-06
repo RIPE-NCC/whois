@@ -23,10 +23,13 @@ public class WhoisDoSFilter extends DoSFilter {
 
     private static final Logger LOGGER = getLogger(WhoisDoSFilter.class);
 
+    private static final Joiner COMMA_JOINER = Joiner.on(',');
+
     private final List<Ipv4Resource> ipv4whitelist = new CopyOnWriteArrayList<>();
     private final List<Ipv6Resource> ipv6whitelist = new CopyOnWriteArrayList<>();
 
-    protected boolean checkWhitelist(String candidate) {
+    @Override
+    protected boolean checkWhitelist(final String candidate) {
         if (candidate.contains(".")) {
             final Ipv4Resource address = Ipv4Resource.parse(candidate);
             for (Ipv4Resource entry : ipv4whitelist) {
@@ -57,13 +60,14 @@ public class WhoisDoSFilter extends DoSFilter {
      *
      * @return comma-separated whitelist
      */
+    @Override
     @ManagedAttribute("list of IPs that will not be rate limited")
     public String getWhitelist() {
         StringBuilder result = new StringBuilder();
 
-        Joiner.on(',').appendTo(result, ipv4whitelist);
+        COMMA_JOINER.appendTo(result, ipv4whitelist);
         result.append(',');
-        Joiner.on(',').appendTo(result, ipv6whitelist);
+        COMMA_JOINER.appendTo(result, ipv6whitelist);
 
         return result.toString();
     }
@@ -73,7 +77,8 @@ public class WhoisDoSFilter extends DoSFilter {
      *
      * @param commaSeparatedList comma-separated whitelist
      */
-    public void setWhitelist(String commaSeparatedList) {
+    @Override
+    public void setWhitelist(final String commaSeparatedList) {
         clearWhitelist();
         for (String address : StringUtil.csvSplit(commaSeparatedList)) {
             addWhitelistAddress(address, false);
@@ -84,6 +89,7 @@ public class WhoisDoSFilter extends DoSFilter {
     /**
      * Clears the list of whitelisted IP addresses
      */
+    @Override
     @ManagedOperation("clears the list of IP addresses that will not be rate limited")
     public void clearWhitelist() {
         ipv4whitelist.clear();
@@ -99,8 +105,9 @@ public class WhoisDoSFilter extends DoSFilter {
      * @return whether the address was added to the list
      * @see #removeWhitelistAddress(String)
      */
+    @Override
     @ManagedOperation("adds an IP address that will not be rate limited")
-    public boolean addWhitelistAddress(@Name("address") String address) {
+    public boolean addWhitelistAddress(@Name("address") final String address) {
         return addWhitelistAddress(address, true);
     }
 
@@ -124,8 +131,9 @@ public class WhoisDoSFilter extends DoSFilter {
      * @return whether the address was removed from the list
      * @see #addWhitelistAddress(String)
      */
+    @Override
     @ManagedOperation("removes an IP address that will not be rate limited")
-    public boolean removeWhitelistAddress(@Name("address") String address) {
+    public boolean removeWhitelistAddress(@Name("address") final String address) {
         boolean result;
         if (address.contains(".")) {
             result = ipv4whitelist.remove(Ipv4Resource.parse(address));

@@ -31,7 +31,9 @@
 
         <aspectj.version>1.8.8</aspectj.version>
         <awaitility.version>1.3.5</awaitility.version>
+
         <bouncycastle.version>1.65</bouncycastle.version>
+
         <c3po.version>0.9.5.4</c3po.version>
         <commons-compress.version>1.19</commons-compress.version>
         <commons-net.version>3.4</commons-net.version>
@@ -40,7 +42,7 @@
         <commons-collections.version>3.2.2</commons-collections.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-validator.version>1.5.1</commons-validator.version>
+        <commons-validator.version>1.6</commons-validator.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
 
@@ -55,7 +57,7 @@
         <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
         <hazelcast.version>2.6.10</hazelcast.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <httpclient.version>4.5.2</httpclient.version>
+        <httpclient.version>4.5.12</httpclient.version>
 
         <jaxb.version>2.2.11</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
@@ -65,11 +67,11 @@
         <jetty.version>9.4.27.v20200227</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.12</jersey.version>
-        <jackson.version>2.9.10</jackson.version>
+        <jackson.version>2.10.3</jackson.version>
 
         <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
         <log4j.version>1.2.17</log4j.version>
-        <lucene.version>4.10.4</lucene.version>
+        <lucene.version>7.7.2</lucene.version>
 
         <mail.version>1.6.2</mail.version>
         <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
@@ -399,6 +401,12 @@
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
                 <version>${commons-validator.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-beanutils</groupId>
+                        <artifactId>commons-beanutils</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
@@ -814,7 +822,6 @@
                     <reuseForks>true</reuseForks>
                     <excludedGroups>
                         net.ripe.db.whois.common.IntegrationTest,
-                        net.ripe.db.whois.common.EndToEndTest,
                         net.ripe.db.whois.common.ManualTest
                     </excludedGroups>
                     <systemPropertyVariables>
@@ -888,7 +895,6 @@
                         <exclude>**/net/ripe/db/whois/common/IllegalArgumentExceptionMessage.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
-                        <exclude>**/net/ripe/db/whois/common/EndToEndTest.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/IntegrationTest.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>
                     </excludes>
@@ -995,20 +1001,10 @@
             </properties>
         </profile>
         <profile>
-            <id>endtoend</id>
-            <properties>
-                <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.EndToEndTest</test.groups>
-                <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-            </properties>
-        </profile>
-        <profile>
             <id>all</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.EndToEndTest,net.ripe.db.whois.common.IntegrationTest
-                </test.groups>
+                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>
@@ -1027,8 +1023,7 @@
             <id>release</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>None</test.groups>
-                <test.files.unit>None</test.files.unit>
+                <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>None</test.files.integration>
                 <maven.javadoc.skip>true</maven.javadoc.skip>
             </properties>

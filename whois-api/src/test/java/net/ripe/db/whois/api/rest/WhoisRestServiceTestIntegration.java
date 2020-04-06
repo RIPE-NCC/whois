@@ -2319,7 +2319,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
             assertThat(whoisResources.getErrorMessages().get(0).toString(),
-                is("JSON processing exception: Unexpected end-of-input: expected close marker for Object (line: 1, column: 3)"));
+                is("JSON processing exception: Unexpected end-of-input: expected close marker for Object (line: 1, column: 2)"));
         }
     }
 

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
+@Profile({WhoisProfile.TEST})
 @Component
 public class TestDateTimeProvider implements DateTimeProvider, Stub {
     private LocalDateTime localDateTime = LocalDateTime.now();
