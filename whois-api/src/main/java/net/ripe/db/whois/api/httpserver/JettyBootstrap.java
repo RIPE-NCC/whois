@@ -133,7 +133,7 @@ public class JettyBootstrap implements ApplicationService {
             LOGGER.info("DoSFilter is *not* enabled");
         }
         holder.setInitParameter("enabled", Boolean.toString(dosFilterEnabled));
-        holder.setInitParameter("maxRequestsPerSec", "20");
+        holder.setInitParameter("maxRequestsPerSec", "50");
         holder.setInitParameter("delayMs", "-1"); // reject requests over threshold
         holder.setInitParameter("remotePort", "false");
         holder.setInitParameter("trackSessions", "false");
