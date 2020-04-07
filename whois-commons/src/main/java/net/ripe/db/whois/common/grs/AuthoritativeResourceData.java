@@ -44,10 +44,11 @@ public class AuthoritativeResourceData {
 
     @PostConstruct
     void init() {
-        refreshAllSources();
+        refreshActiveSource();
+        refreshGrsSources();
     }
 
-    synchronized public void refreshAllSources() {
+    synchronized public void refreshGrsSources() {
         for (final String sourceName : sourceNames) {
             try {
                 LOGGER.debug("Refresh: {}", sourceName);

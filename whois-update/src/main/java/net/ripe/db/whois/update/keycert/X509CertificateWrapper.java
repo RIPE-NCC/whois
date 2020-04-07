@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.keycert;
 
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.DateUtil;
@@ -9,13 +8,14 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.jce.provider.X509CertParser;
 import org.bouncycastle.x509.util.StreamParsingException;
-import java.time.LocalDateTime;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,8 +37,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(Charsets.ISO_8859_1);
-            return parse(bytes);
+            return parse(RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(StandardCharsets.ISO_8859_1));
         } catch (StreamParsingException e) {
             throw new IllegalArgumentException("Error parsing X509 certificate from key-cert object", e);
         }
@@ -49,6 +48,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
     }
 
     static X509CertificateWrapper parse(final byte[] certificate) throws StreamParsingException {
+        // TODO: [ES] Replace deprecated X509CertParser with (new java.security.cert.CertificateFactory()).generateCertificate(new ByteArrayInputStream(certificate))
         final X509CertParser parser = new X509CertParser();
         parser.engineInit(new ByteArrayInputStream(certificate));
         final X509Certificate result = (X509Certificate) parser.engineRead();

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.Message;
@@ -125,12 +124,7 @@ public final class UpdateMessages {
     // NOTE: this errormessage is being used by webupdates.
     public static Message authenticationFailed(final RpslObject object, final AttributeType attributeType, final Iterable<RpslObject> candidates) {
         final CharSequence joined = LIST_JOINED.join(
-                Iterables.transform(candidates, new Function<RpslObject, CharSequence>() {
-                    @Override
-                    public CharSequence apply(final RpslObject input) {
-                        return input == null ? "" : input.getKey();
-                    }
-                }));
+                Iterables.transform(candidates,input -> input == null ? "" : input.getKey()));
 
         return new Message(Type.ERROR, "" +
                 "Authorisation for [%s] %s failed\n" +
@@ -147,12 +141,7 @@ public final class UpdateMessages {
     // NOTE: this errormessage is being used by webupdates.
     public static Message parentAuthenticationFailed(final RpslObject object, final AttributeType attributeType, final Iterable<RpslObject> candidates) {
         final CharSequence joined = LIST_JOINED.join(
-                Iterables.transform(candidates, new Function<RpslObject, CharSequence>() {
-                    @Override
-                    public CharSequence apply(final RpslObject input) {
-                        return input == null ? "" : input.getKey();
-                    }
-                }));
+                Iterables.transform(candidates, input -> input == null ? "" : input.getKey()));
 
         return new Message(Type.ERROR, "" +
                 "Authorisation for parent [%s] %s failed\n" +
@@ -633,6 +622,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
     }
 
+    public static Message originIsMissing() {
+        return new Message(Type.ERROR, "Origin of the request is missing");
+    }
+
     public static Message netnameCannotBeChanged() {
         return new Message(Type.ERROR, "The \"netname\" attribute can only be changed by the RIPE NCC");
     }
@@ -647,6 +640,10 @@ public final class UpdateMessages {
 
     public static Message mntRoutesAttributeRemoved() {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"mnt-routes\". This attribute has been removed.");
+    }
+
+    public static Message mntLowerAttributeRemoved() {
+        return new Message(Messages.Type.WARNING, "Deprecated attribute \"mnt-lower\". This attribute has been removed.");
     }
 
     public static Message emailAddressCannotBeUsed(final CIString value) {
@@ -664,4 +661,9 @@ public final class UpdateMessages {
     public static Message bogonPrefixNotAllowed(final String prefix) {
         return new Message(Type.ERROR, "Bogon prefix %s is not allowed.", prefix);
     }
+
+    public static Message maximumObjectSizeExceeded(final long size, final long maximumSize) {
+        return new Message(Type.ERROR, "Ignored object with size %d, exceeds maximum object size %d.", size, maximumSize);
+    }
+
 }

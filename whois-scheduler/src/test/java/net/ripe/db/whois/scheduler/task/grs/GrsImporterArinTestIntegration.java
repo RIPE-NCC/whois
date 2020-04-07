@@ -98,7 +98,7 @@ public class GrsImporterArinTestIntegration extends AbstractSchedulerIntegration
     public void setUp() throws Exception {
         // initialize authoritativeresource
         authoritativeResourceImportTask.run();
-        authoritativeResourceData.refreshAllSources();
+        authoritativeResourceData.refreshGrsSources();
 
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();

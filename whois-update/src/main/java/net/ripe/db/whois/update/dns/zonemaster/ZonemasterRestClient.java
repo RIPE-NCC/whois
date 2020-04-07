@@ -24,7 +24,7 @@ public class ZonemasterRestClient {
     private String baseUrl;
 
     @Autowired
-    public ZonemasterRestClient(@Value("${whois.zonemaster.baseUrl}") final String baseUrl) {
+    public ZonemasterRestClient(@Value("${whois.zonemaster.baseUrl:}") final String baseUrl) {
         this.baseUrl = baseUrl;
         this.client = createClient();
     }

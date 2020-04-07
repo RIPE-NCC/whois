@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.executor;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -59,7 +58,7 @@ public class VersionQueryExecutor implements QueryExecutor {
 
     @Override
     public boolean isAclSupported() {
-        return false;
+        return true;
     }
 
     @Override
@@ -77,19 +76,16 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private Iterable<? extends ResponseObject> decorate(final Query query, Iterable<? extends ResponseObject> responseObjects) {
-        final Iterable<ResponseObject> objects = Iterables.transform(responseObjects, new Function<ResponseObject, ResponseObject>() {
-            @Override
-            public ResponseObject apply(final ResponseObject input) {
-                if (input instanceof RpslObject) {
-                    ResponseObject filtered = filter((RpslObject) input);
+        final Iterable<ResponseObject> objects = Iterables.transform(responseObjects, responseObject -> {
+                if (responseObject instanceof RpslObject) {
+                    ResponseObject filtered = filter((RpslObject) responseObject);
                     if (query.isObjectVersion()) {
                         filtered = new VersionWithRpslResponseObject((RpslObject) filtered, query.getObjectVersion());
                     }
                     return filtered;
                 }
-                return input;
-            }
-        });
+                return responseObject;
+            });
 
         if (Iterables.isEmpty(objects)) {
             return Collections.singletonList(new MessageObject(QueryMessages.noResults(sourceContext.getCurrentSource().getName())));

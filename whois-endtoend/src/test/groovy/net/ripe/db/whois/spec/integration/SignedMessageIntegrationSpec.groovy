@@ -3583,7 +3583,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
   def "PGP signed mailupdate with non-ASCII character succeeds"() {
     given:
-      setTime(LocalDateTime.parse("2015-11-20T15:13:56")) // current time must be within 1 hour of signing time
+      setTime(LocalDateTime.parse("2020-03-10T10:23:56")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -3599,7 +3599,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "Content-Transfer-Encoding: quoted-printable\n" +
               "\n" +
               "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-              "Hash: SHA1\n" +
+              "Hash: SHA256\n" +
               "\n" +
               "person:  First Person\n" +
               "address: Sl=FCnstrasse 10\n" +
@@ -3608,16 +3608,16 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "mnt-by:  OWNER-MNT\n" +
               "source:  TEST\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
-              "Version: GnuPG v1\n" +
               "Comment: GPGTools - http://gpgtools.org\n" +
               "\n" +
-              "iQEcBAEBAgAGBQJWTyqkAAoJELvMuy1XY5UNZ+gIAJGoZDmvkcXxsqfn3FFxcfXB\n" +
-              "Wmg6mzvazbTvqB96whPXQGU5rj3cK/4bhiXYBi8rlZSjm4M33aAsvBuQ47YXy6HD\n" +
-              "BGvoMf2n5SdCFYU+u8QhVB1S++N1clkmwD/dljtUn6TdjjupjiHSLIAJ+ON4qSiB\n" +
-              "iQr8v0VL87F2WhjTsrv5v0x8LryYFn7E4mz26EdcP+1JbVoiXpiGnsy4OFnAIA/P\n" +
-              "yaNIoFaMuBSBxsIScnMmwH1arUeN/0VzAFARaEfi/H4S7jh88Rsz37rEzbZngkHX\n" +
-              "T2ihLvi1VtGexAF4PbxVpTSY09WCXDInvxvsiVcCOqhDX06XqbwcBrKMUYPo+dg\n" +
-              "=3D=3DqzbX\n" +
+              "iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAl5nXCkACgkQu8y7LVdj\n" +
+              "lQ0gEggApgg+eXo7HK7i6jvpmL4NDPTLaj3yh7REkU/QXxXSO9ygfXo6aT7OtxWY\n" +
+              "E1YrZ48vKoIjW0rx7ojF6wJ9XgFZ3/UGiPoH2NmMq819LTP2qtlcUh8Dv1x8EI1i\n" +
+              "X96Q2r+v+XH+uD/TJVsVsJb+9UDeTvCtVR2GNPx/Q44g8e2BDlu3BUvQVbBJtTMr\n" +
+              "x8sLDoRaPPyQdtfgNnMLpzD7uIU5OPJRShQNoODuK5Hra/FkujeIO4rHukX5lp6a\n" +
+              "CXnmSnXDTnENLyl/voMphxsnCP1ntRUpCEOs6RYGq6ibBeOSJ8UngIL/vSTGhEjp\n" +
+              "7ez9mNBag29CsrbNy5ZLm5NORabDCA=3D=3D\n" +
+              "=3DUdKK\n" +
               "-----END PGP SIGNATURE-----"
     then:
       def ack = ackFor message

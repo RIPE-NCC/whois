@@ -1,13 +1,11 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import difflib.DiffUtils;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -116,27 +114,23 @@ public class RpslObjectFilter {
 
     public static boolean ignoreGeneratedAttributesEqual(final RpslObject object1, final RpslObject object2) {
         return Iterables.elementsEqual(
-                Iterables.filter(object1.getAttributes(), NOT_GENERATED_PREDICATE_INSTANCE),
-                Iterables.filter(object2.getAttributes(), NOT_GENERATED_PREDICATE_INSTANCE));
+                Iterables.filter(object1.getAttributes(), RpslObjectFilter::notGenerated),
+                Iterables.filter(object2.getAttributes(), RpslObjectFilter::notGenerated));
     }
 
-    private static final NotGeneratedPredicate NOT_GENERATED_PREDICATE_INSTANCE = new NotGeneratedPredicate();
-    private static class NotGeneratedPredicate implements Predicate<RpslAttribute> {
-        //[TP]: we do not use the generated tag in from the object template because it has side effects for autnum status
-        // and sponsoring org. Other systems need to modify these objects and not receive a NOOP instead of modify
-        private static final List<AttributeType> PURELY_GENERATED_ATTRIBUTES =
-                Lists.newArrayList(
-                        AttributeType.CREATED,
-                        AttributeType.CHANGED,
-                        AttributeType.LAST_MODIFIED,
-                        AttributeType.FINGERPR,
-                        AttributeType.OWNER,
-                        AttributeType.METHOD);
+    //[TP]: we do not use the generated tag in from the object template because it has side effects for autnum status
+    // and sponsoring org. Other systems need to modify these objects and not receive a NOOP instead of modify
+    private static final List<AttributeType> PURELY_GENERATED_ATTRIBUTES =
+            Lists.newArrayList(
+                    AttributeType.CREATED,
+                    AttributeType.CHANGED,
+                    AttributeType.LAST_MODIFIED,
+                    AttributeType.FINGERPR,
+                    AttributeType.OWNER,
+                    AttributeType.METHOD);
 
-        @Override
-        public boolean apply(@Nullable RpslAttribute input) {
-            return !PURELY_GENERATED_ATTRIBUTES.contains(input.getType());
-        }
+    private static boolean notGenerated(final RpslAttribute input) {
+        return !PURELY_GENERATED_ATTRIBUTES.contains(input.getType());
     }
 
 }

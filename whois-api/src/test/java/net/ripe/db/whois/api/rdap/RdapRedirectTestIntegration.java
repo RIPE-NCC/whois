@@ -195,7 +195,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     }
 
     private void refreshResourceData() {
-        authoritativeResourceData.refreshAllSources();
+        authoritativeResourceData.refreshGrsSources();
     }
 
 }

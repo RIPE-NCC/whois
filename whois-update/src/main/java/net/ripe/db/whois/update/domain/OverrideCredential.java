@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -8,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Immutable
 public final class OverrideCredential implements Credential {
@@ -55,7 +55,7 @@ public final class OverrideCredential implements Credential {
     public static OverrideCredential parse(final String value) {
         final List<String> values = Lists.newArrayList(OVERRIDE_SPLITTER.split(value));
 
-        final OverrideCredential notValidCredentials = new OverrideCredential(value, Optional.<OverrideValues>absent());
+        final OverrideCredential notValidCredentials = new OverrideCredential(value, Optional.empty());
 
         if (values.size() < 2) {
             return notValidCredentials;

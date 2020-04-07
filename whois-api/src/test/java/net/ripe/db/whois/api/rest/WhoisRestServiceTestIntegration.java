@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
@@ -16,6 +15,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
@@ -24,6 +24,7 @@ import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -65,6 +66,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Timestamp;
@@ -192,6 +194,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
+    @Autowired private ApplicationVersion applicationVersion;
 
     @Before
     public void setup() {
@@ -1146,6 +1149,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
                 "</whois-resources>\n"));
     }
 
@@ -1222,6 +1229,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "\"terms-and-conditions\" : {\n" +
                         "\"type\" : \"locator\",\n" +
                         "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "},\n" +
+                        "\"version\" : {\n" +
+                        "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
+                        "\"timestamp\" : \"" + applicationVersion.getTimestamp() + "\",\n" +
+                        "\"commit-id\" : \"" + applicationVersion.getCommitId() + "\"\n" +
                         "}\n" +
                         "}"
         ));
@@ -1279,6 +1291,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
                 "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "},\n" +
+                "\"version\" : {\n" +
+                "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
+                "\"timestamp\" : \"" + applicationVersion.getTimestamp() + "\",\n" +
+                "\"commit-id\" : \"" + applicationVersion.getCommitId() + "\"\n" +
                 "}\n" +
                 "}"
         ));
@@ -1368,6 +1385,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
                 "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "},\n" +
+                "\"version\" : {\n" +
+                "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
+                "\"timestamp\" : \"" + applicationVersion.getTimestamp() + "\",\n" +
+                "\"commit-id\" : \"" + applicationVersion.getCommitId() + "\"\n" +
                 "}\n" +
                 "}"
         ));
@@ -1417,6 +1439,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
                 "</whois-resources>\n"));
     }
 
@@ -1586,6 +1612,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void create_succeeds_plus_character_and_space_in_password() {
+        final RpslObject ownerMnt = new RpslObjectBuilder(OWNER_MNT)
+                    .addAttribute(1, new RpslAttribute(AttributeType.AUTH, String.format("MD5-PW %s", PasswordHelper.hashMd5Password("+Pass word+"))))
+                    .get();
+        databaseHelper.updateObject(ownerMnt);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person")
+                .queryParam("password", "+Pass word+")
+                .request()
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person", getPort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST"), is(not(nullValue())));
     }
 
     @Test
@@ -1791,7 +1834,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
-                "</whois-resources>").getBytes(Charsets.UTF_8);
+                "</whois-resources>").getBytes(StandardCharsets.UTF_8);
 
         final String response = RestTest.target(getPort(), "whois/test/role?password=test")
             .request()
@@ -2276,7 +2319,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
             assertThat(whoisResources.getErrorMessages().get(0).toString(),
-                is("JSON processing exception: Unexpected end-of-input: expected close marker for Object (line: 1, column: 3)"));
+                is("JSON processing exception: Unexpected end-of-input: expected close marker for Object (line: 1, column: 2)"));
         }
     }
 
@@ -2698,7 +2741,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "        ] }\n" +
                         "    }] \n" +
-                        "}}", new MediaType("application", "json", Charsets.UTF_8.displayName())), String.class), containsString("Flughafenstraße 109/a"));
+                        "}}", new MediaType("application", "json", StandardCharsets.UTF_8.displayName())), String.class), containsString("Flughafenstraße 109/a"));
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
@@ -2750,7 +2793,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "        ] }\n" +
                         "    }] \n" +
-                        "}}", new MediaType("application", "json", Charsets.ISO_8859_1.displayName())), String.class);
+                        "}}", new MediaType("application", "json", StandardCharsets.ISO_8859_1.displayName())), String.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
@@ -3793,117 +3836,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("remarks", "updated")));
-    }
-
-    @Test
-    public void update_maintainer_with_crowd_token_succeeds() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 3000, false);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.REMARKS, "updated")).get();
-
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "valid-token")
-                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("remarks", "updated")));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null)));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
-        assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER-MNT").findAttributes(AttributeType.AUTH),
-                containsInAnyOrder(
-                        new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test"),
-                        new RpslAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124"))
-        );
-    }
-
-    @Test
-    public void update_maintainer_add_sso_with_sync_enabled_should_fail() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO test@ripe.net")).get();
-
-        try {
-            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "valid-token")
-                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
-        }
-    }
-
-    @Test
-    public void update_maintainer_remove_sso_with_sync_enabled_should_fail() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get();
-
-        try {
-            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "valid-token")
-                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
-        }
-    }
-
-    @Test
-    public void update_maintainer_update_sso_with_sync_enabled_should_fail() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get();
-
-        try {
-            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "valid-token")
-                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
-        }
-    }
-
-    @Test
-    public void update_maintainer_succeeds_syn_enabled_no_sso() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT-SYNC", 1000, true);
-
-        RpslObject MNT_SYNC = RpslObject.parse("" +
-                "mntner:      OWNER-MNT-SYNC\n" +
-                "descr:       Owner Maintainer\n" +
-                "admin-c:     TP1-TEST\n" +
-                "upd-to:      noreply@ripe.net\n" +
-                "auth:        SSO person@net.net\n" +
-                "mnt-by:      OWNER-MNT-SYNC\n" +
-                "source:      TEST");
-        databaseHelper.addObject(MNT_SYNC);
-
-        final RpslObject updatedObject = new RpslObjectBuilder(MNT_SYNC).append(new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/")).get();
-
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT-SYNC")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "valid-token")
-                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/")));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
-        assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER-MNT-SYNC").findAttributes(AttributeType.AUTH),
-                containsInAnyOrder(
-                        new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test"),
-                        new RpslAttribute(AttributeType.AUTH, "SSO 906635c2-0405-429a-800b-0602bd716124"))
-        );
     }
 
     @Test

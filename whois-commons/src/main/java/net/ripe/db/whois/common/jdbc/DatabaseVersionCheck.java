@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.jdbc;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
@@ -11,9 +10,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -34,8 +31,6 @@ public class DatabaseVersionCheck {
     static final Splitter VERSION_SPLITTER = Splitter.on(CharMatcher.anyOf(".-")).omitEmptyStrings();
 
     private final ApplicationContext applicationContext;
-    @Value("${application.version}")
-    private String applicationVersion;
 
     @Autowired
     public DatabaseVersionCheck(ApplicationContext applicationContext) {
@@ -66,15 +61,12 @@ public class DatabaseVersionCheck {
     }
 
     public Iterable<String> getSqlPatchResources() throws IOException {
-        return Iterables.transform(Arrays.asList(applicationContext.getResources("patch/*-*.*.sql")), new Function<Resource, String>() {
-            @Override
-            public String apply(final Resource input) {
-                final String ret = input.getFilename();
-                if (ret.endsWith(".sql")) {
-                    return ret.substring(0, ret.length() - 4);
-                }
-                return ret;
+        return Iterables.transform(Arrays.asList(applicationContext.getResources("patch/*-*.*.sql")), input -> {
+            final String ret = input.getFilename();
+            if (ret.endsWith(".sql")) {
+                return ret.substring(0, ret.length() - 4);
             }
+            return ret;
         });
     }
 

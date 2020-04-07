@@ -353,6 +353,23 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
+    public void mntner_key_exact_match_lowercase() {
+        databaseHelper.addObject("mntner:  AB-TELECOM-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  ADM-RUS-TELECOM\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  AIRNET-TELECOM-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  telecom\nsource:  TEST\n");
+        rebuildIndex();
+
+        final List<String> keys = getValues(query("telecom", "mnt-by"), "key");
+
+        assertThat(keys.size(), is(4));
+        assertThat(keys.get(0), is("telecom"));
+        assertThat(keys.get(1), is("AB-TELECOM-MNT"));
+        assertThat(keys.get(2), is("ADM-RUS-TELECOM"));
+        assertThat(keys.get(3), is("AIRNET-TELECOM-MNT"));
+    }
+
+    @Test
     public void key_type_exact_partial_match_returned_first() {
         databaseHelper.addObject("mntner:  AUTHAA-MNT\nsource:  TEST\n");
         databaseHelper.addObject("mntner:  AUTHAB-MNT\nsource:  TEST\n");

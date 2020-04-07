@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -97,12 +96,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
         final List<RpslObject> rpslObjects = Lists.newArrayList(loadedObjects.values());
         Collections.sort(rpslObjects, new Comparator<RpslObject>() {
-            final List<Integer> requestedIds = Lists.newArrayList(Iterables.transform(proxy, new Function<Identifiable, Integer>() {
-                @Override
-                public Integer apply(final Identifiable input) {
-                    return input.getObjectId();
-                }
-            }));
+            final List<Integer> requestedIds = Lists.newArrayList(Iterables.transform(proxy, input -> input.getObjectId()));
 
             @Override
             public int compare(final RpslObject o1, final RpslObject o2) {

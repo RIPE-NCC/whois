@@ -12,7 +12,6 @@ import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import java.time.LocalDate;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -26,6 +25,7 @@ import javax.sql.DataSource;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import java.net.Inet4Address;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -199,7 +199,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
                 "source: RIPE"));
         fullTextIndex.rebuild();
 
-        final QueryResponse queryResponse = query("q=(AA1)+AND+(object-type:organisation)&facet=true");
+        final QueryResponse queryResponse = query("q=(AA1)+AND+(object-type:organisation)");
 
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
@@ -210,6 +210,50 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
         assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
         assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT # include this comment"));
+    }
+
+    @Test
+    public void search_list_value_attribute_comment() {
+        databaseHelper.addObject("mntner: AA1-MNT\nsource: RIPE");
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-AA1-RIPE\n" +
+                "mnt-ref: AA1-MNT # include this comment\n" +
+                "source: RIPE"));
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(include)+AND+(object-type:organisation)");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        final SolrDocument solrDocument = queryResponse.getResults().get(0);
+        assertThat(solrDocument.getFirstValue("primary-key"), is("2"));
+        assertThat(solrDocument.getFirstValue("object-type"), is("organisation"));
+        assertThat(solrDocument.getFirstValue("lookup-key"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("organisation"), is("ORG-AA1-RIPE"));
+        assertThat(solrDocument.getFirstValue("mnt-ref"), is("AA1-MNT # include this comment"));
+    }
+
+    @Test
+    public void search_list_value_attribute_single_value_and_comment_with_facet() {
+        databaseHelper.addObject("mntner: AA1-MNT\nsource: RIPE");
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-AA1-RIPE\n" +
+                "mnt-ref: AA1-MNT # include this comment\n" +
+                "source: RIPE"));
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=(AA1)+AND+(object-type:organisation)&facet=true");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        final List<FacetField> facets = queryResponse.getFacetFields();
+        assertThat(facets.size(), is(1));
+        final FacetField facet = facets.get(0);
+        assertThat(facet.getName(), is("object-type"));
+        assertThat(facet.getValueCount(), is(1));
+        assertThat(facet.getValues().toString(), containsString("organisation (1)"));
     }
 
     @Test
@@ -805,7 +849,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getValue(), is("DEV mntner"));
 
         // highlighting
-        assertThat(searchResponse.getLsts(), hasSize(2));
+        assertThat(searchResponse.getLsts(), hasSize(3));
         assertThat(searchResponse.getLsts().get(0).getName(), is("responseHeader"));
         assertThat(searchResponse.getLsts().get(1).getName(), is("highlighting"));
         assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
@@ -813,6 +857,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("lookup-key"));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV</b>-MNT"));
+        assertThat(searchResponse.getLsts().get(2).getName(), is("version"));
     }
 
     @Test
@@ -854,7 +899,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getResult().getDocs().get(0).getStrs().get(4).getValue(), is("\"DEV mntner\""));
 
         // highlighting
-        assertThat(searchResponse.getLsts(), hasSize(2));
+        assertThat(searchResponse.getLsts(), hasSize(3));
         assertThat(searchResponse.getLsts().get(0).getName(), is("responseHeader"));
         assertThat(searchResponse.getLsts().get(1).getName(), is("highlighting"));
         assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
@@ -862,6 +907,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getName(), is("remarks"));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getStr().getValue(), is("\"<b>DEV</b> mntner\""));
+        assertThat(searchResponse.getLsts().get(2).getName(), is("version"));
     }
 
     @Test
