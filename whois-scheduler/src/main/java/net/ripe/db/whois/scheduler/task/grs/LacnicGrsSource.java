@@ -71,8 +71,8 @@ class LacnicGrsSource extends GrsSource {
 
     @Override
     public void acquireDump(final Path path) throws IOException {
-        final Document loginPage = parse(get("http://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
-        final String loginAction = "http://lacnic.net" + loginPage.select("form").attr("action");
+        final Document loginPage = parse(get("https://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
+        final String loginAction = "https://lacnic.net" + loginPage.select("form").attr("action");
 
         post(loginAction);
 
