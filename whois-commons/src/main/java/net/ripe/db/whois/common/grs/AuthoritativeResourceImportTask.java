@@ -24,16 +24,11 @@ import java.nio.file.Paths;
 import java.util.Set;
 
 @Component
-public class AuthoritativeResourceImportTask implements DailyScheduledTask, EmbeddedValueResolverAware {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceImportTask.class);
-
-    private boolean enabled;
+public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourceImportTask implements DailyScheduledTask, EmbeddedValueResolverAware {
 
     protected static final String TASK_NAME = "AuthoritativeResourceImport";
     private static final Splitter PROPERTY_LIST_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
-    private final ResourceDataDao resourceDataDao;
     private StringValueResolver valueResolver;
     private final Downloader downloader;
     private final String downloadDir;
@@ -44,13 +39,11 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
                                            final ResourceDataDao resourceDataDao,
                                            final Downloader downloader,
                                            @Value("${dir.grs.import.download:}") final String downloadDir,
-                                           @Value("${grs.import.enabled}") final boolean enabled)
-    {
+                                           @Value("${grs.import.enabled}") final boolean enabled) {
+        super(enabled, resourceDataDao);
         this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), input -> input.toLowerCase().replace("-grs", "")));
-        this.resourceDataDao = resourceDataDao;
         this.downloader = downloader;
         this.downloadDir = downloadDir;
-        this.enabled = enabled;
     }
 
     @Override
@@ -65,22 +58,10 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
     @Scheduled(cron = "0 15 0 * * *")
     @SchedulerLock(name = TASK_NAME)
     public void run() {
-        if (!enabled) {
-            LOGGER.info("Authoritative resource import task is disabled");
-            return;
-        }
-
-        for (final String sourceName : sourceNames) {
-            try {
-                final AuthoritativeResource authoritativeResource = downloadAuthoritativeResource(sourceName);
-                resourceDataDao.store(sourceName, authoritativeResource);
-            } catch (Exception e) {
-                LOGGER.warn("Exception processing " + sourceName, e);
-            }
-        }
+        doImport(sourceNames);
     }
 
-    private AuthoritativeResource downloadAuthoritativeResource(final String sourceName) throws IOException {
+    protected AuthoritativeResource fetchAuthoritativeResource(final String sourceName) throws IOException {
         final Logger logger = LoggerFactory.getLogger(String.format("%s_%s", getClass().getName(), sourceName));
         final String resourceDataUrl = valueResolver.resolveStringValue(String.format("${grs.import.%s.resourceDataUrl:}", sourceName));
         if (StringUtils.isBlank(resourceDataUrl)) {
