@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.grs;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import net.javacrumbs.shedlock.core.SchedulerLock;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
@@ -14,11 +14,15 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import java.io.IOException;
 
 @Component
 public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeResourceImportTask implements DailyScheduledTask {
 
     protected static final String TASK_NAME = "RipeAuthoritativeResourceImport";
+
+    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private final String baseUrl;
 
     private Client client;
@@ -30,7 +34,6 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
         super(enabled, resourceDataDao);
         this.baseUrl = baseUrl;
         this.client = ClientBuilder.newBuilder()
-                .register(JacksonFeatures.class)
                 .property(ClientProperties.CONNECT_TIMEOUT, 10_000)
                 .property(ClientProperties.READ_TIMEOUT, 10_000)
                 .build();
@@ -47,11 +50,15 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
     }
 
     @Override
-    protected AuthoritativeResource fetchAuthoritativeResource(String sourceName) {
-        final AuthoritativeResource authoritativeResource = new AuthoritativeResourceJsonLoader(LOGGER).load(client.target(baseUrl)
+    protected AuthoritativeResource fetchAuthoritativeResource(String sourceName) throws IOException {
+        final AuthoritativeResource authoritativeResource = new AuthoritativeResourceJsonLoader(LOGGER).load(
+            OBJECT_MAPPER.readValue(
+                client.target(baseUrl)
                 .path("/rsng-stat/stat/rirstats")
                 .request()
-                .get(JsonNode.class));
+                .get(String.class),
+            JsonNode.class)
+        );
 
 
         LOGGER.info("Downloaded {}; asn: {}, ipv4: {}, ipv6: {}", sourceName, authoritativeResource.getNrAutNums(), authoritativeResource.getNrInetnums(), authoritativeResource.getNrInet6nums());
