@@ -1,8 +1,6 @@
 package net.ripe.db.whois.common.grs;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import net.javacrumbs.shedlock.core.SchedulerLock;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.io.Downloader;
@@ -22,11 +20,14 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourceImportTask implements DailyScheduledTask, EmbeddedValueResolverAware {
 
-    protected static final String TASK_NAME = "AuthoritativeResourceImport";
+    static final String TASK_NAME = "AuthoritativeResourceImport";
+
+
     private static final Splitter PROPERTY_LIST_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     private StringValueResolver valueResolver;
@@ -39,11 +40,23 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
                                            final ResourceDataDao resourceDataDao,
                                            final Downloader downloader,
                                            @Value("${dir.grs.import.download:}") final String downloadDir,
-                                           @Value("${grs.import.enabled}") final boolean enabled) {
+                                           @Value("${grs.import.enabled}") final boolean enabled,
+                                           @Value("${rsng.base.url:}") final String rsngBaseUrl) {
         super(enabled, resourceDataDao);
-        this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), input -> input.toLowerCase().replace("-grs", "")));
+
+        final boolean rsngImportDisabled = StringUtils.isBlank(rsngBaseUrl);
+
+        this.sourceNames = PROPERTY_LIST_SPLITTER.splitToList(grsSourceNames).stream()
+                .map(input -> input.toLowerCase().replace("-grs", ""))
+                .filter(source -> !SOURCE_NAME_RIPE.equalsIgnoreCase(source) || rsngImportDisabled)
+                .collect(Collectors.toSet());
+
         this.downloader = downloader;
         this.downloadDir = downloadDir;
+
+        if (!enabled) {
+            LOGGER.info("Authoritative resource import task is disabled");
+        }
     }
 
     @Override

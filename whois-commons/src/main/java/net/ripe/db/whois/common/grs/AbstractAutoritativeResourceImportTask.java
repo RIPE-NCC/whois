@@ -13,6 +13,8 @@ public abstract class AbstractAutoritativeResourceImportTask {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
+    protected final static String SOURCE_NAME_RIPE = "RIPE";
+
     private boolean enabled;
 
     private final ResourceDataDao resourceDataDao;
@@ -24,9 +26,8 @@ public abstract class AbstractAutoritativeResourceImportTask {
         this.enabled = enabled;
     }
 
-    protected void doImport(final Set<String> sourceNames) {
+    void doImport(final Set<String> sourceNames) {
         if (!enabled) {
-            LOGGER.info("Authoritative resource import task is disabled");
             return;
         }
 

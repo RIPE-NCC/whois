@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import net.javacrumbs.shedlock.core.SchedulerLock;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
+import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,20 +24,24 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
 
     private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final String baseUrl;
+    private final String rsngBaseUrl;
 
     private Client client;
 
     @Autowired
     public RipeAuthoritativeResourceImportTask(final ResourceDataDao resourceDataDao,
                                                @Value("${grs.import.enabled}") final boolean enabled,
-                                               @Value("${rsng.base.url}") final String baseUrl) {
-        super(enabled, resourceDataDao);
-        this.baseUrl = baseUrl;
+                                               @Value("${rsng.base.url:}") final String rsngBaseUrl) {
+        super(enabled && !StringUtils.isBlank(rsngBaseUrl), resourceDataDao);
+        this.rsngBaseUrl = rsngBaseUrl;
         this.client = ClientBuilder.newBuilder()
                 .property(ClientProperties.CONNECT_TIMEOUT, 10_000)
                 .property(ClientProperties.READ_TIMEOUT, 10_000)
                 .build();
+
+        if (!enabled) {
+            LOGGER.info("Authoritative resource RSNG import task is disabled");
+        }
     }
 
     /**
@@ -46,14 +51,14 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
     @Scheduled(cron = "0 5/15 * * * *")
     @SchedulerLock(name = TASK_NAME)
     public void run() {
-        doImport(Sets.newHashSet("ripe"));
+        doImport(Sets.newHashSet(SOURCE_NAME_RIPE));
     }
 
     @Override
     protected AuthoritativeResource fetchAuthoritativeResource(String sourceName) throws IOException {
         final AuthoritativeResource authoritativeResource = new AuthoritativeResourceJsonLoader(LOGGER).load(
             OBJECT_MAPPER.readValue(
-                client.target(baseUrl)
+                client.target(rsngBaseUrl)
                 .path("/rsng-stat/stat/rirstats")
                 .request()
                 .get(String.class),
