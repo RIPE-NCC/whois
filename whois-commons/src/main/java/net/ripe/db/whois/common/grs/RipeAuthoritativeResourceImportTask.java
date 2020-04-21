@@ -39,7 +39,7 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
                 .property(ClientProperties.READ_TIMEOUT, 10_000)
                 .build();
 
-        LOGGER.info("Authoritative resource RSNG import task is {}abled", enabled? "en" : "dis");
+        LOGGER.info("Authoritative resource RSNG import task is {}abled", enabled && !StringUtils.isBlank(rsngBaseUrl)? "en" : "dis");
     }
 
     /**
