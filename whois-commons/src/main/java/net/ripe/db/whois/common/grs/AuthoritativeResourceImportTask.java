@@ -54,9 +54,7 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
         this.downloader = downloader;
         this.downloadDir = downloadDir;
 
-        if (!enabled) {
-            LOGGER.info("Authoritative resource import task is disabled");
-        }
+        LOGGER.info("Authoritative resource import task is {}abled", enabled? "en" : "dis");
     }
 
     @Override
