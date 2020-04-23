@@ -88,7 +88,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response.contains("Create FAILED: [poem] POEM-HAIKU-OBJECT")
-        response.contains("Error:   Poem/Poetic-Form must be maintained by 'LIM-MNT'")
+        response.contains("***Error:   Poem/Poetic-Form must be maintained by 'LIM-MNT'")
     }
 
     def "add poem multiple maintainers"() {
