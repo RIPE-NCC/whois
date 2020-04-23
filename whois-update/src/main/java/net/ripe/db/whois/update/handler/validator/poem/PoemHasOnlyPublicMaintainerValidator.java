@@ -18,7 +18,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 public class PoemHasOnlyPublicMaintainerValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
-    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.POEM);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.POEM, ObjectType.POETIC_FORM);
 
     private static final CIString POEM_MAINTAINER = ciString("LIM-MNT");
 

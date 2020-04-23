@@ -403,7 +403,7 @@ public final class UpdateMessages {
     }
 
     public static Message poemRequiresPublicMaintainer() {
-        return new Message(Type.ERROR, "Poem must be maintained by 'LIM-MNT', which has a public password");
+        return new Message(Type.ERROR, "Poem/Poetic-Form must be maintained by 'LIM-MNT', which has a public password");
     }
 
     public static Message tooManyPasswordsSpecified() {

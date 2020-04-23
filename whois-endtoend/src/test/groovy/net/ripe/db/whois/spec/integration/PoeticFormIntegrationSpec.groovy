@@ -50,9 +50,9 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             descr:           Must be carefully picked
             descr:           and it<92>s funny and often perverse
             admin-c:         TEST-RIPE
-            mnt-by:          UPD-MNT
+            mnt-by:          LIM-MNT
             source:          TEST
-            password:        update
+            password:        update2
             """.stripIndent())
 
         def response = syncUpdate update
@@ -68,9 +68,9 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             poetic-form:     FORM-HAIKU
             descr:           haiku
             admin-c:         TEST-RIPE
-            mnt-by:          UPD-MNT
+            mnt-by:          LIM-MNT
             source:          TEST
-            password:        update
+            password:        update2
             """.stripIndent())
 
         def createResponse = syncUpdate create
@@ -86,9 +86,9 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             descr:           only seven syllables
             descr:           in its density
             admin-c:         TEST-RIPE
-            mnt-by:          UPD-MNT
+            mnt-by:          LIM-MNT
             source:          TEST
-            password:        update
+            password:        update2
             """.stripIndent())
 
         def updateResponse = syncUpdate update
@@ -104,9 +104,9 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             poetic-form:     FORM-HAIKU
             descr:           haiku
             admin-c:         TEST-RIPE
-            mnt-by:          UPD-MNT
+            mnt-by:          LIM-MNT
             source:          TEST
-            password:        update
+            password:        update2
             """.stripIndent())
 
         def createResponse = syncUpdate create
@@ -120,9 +120,9 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             poetic-form:     FORM-HAIKU
             descr:           haiku
             admin-c:         TEST-RIPE
-            mnt-by:          UPD-MNT
+            mnt-by:          LIM-MNT
             source:          TEST
-            password:        update
+            password:        update2
             delete:          test
             """.stripIndent())
 
@@ -131,6 +131,23 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         deleteResponse =~ /SUCCESS/
         deleteResponse.contains("Delete SUCCEEDED: [poetic-form] FORM-HAIKU")
+    }
+
+    def "add poetic form different LIM-MNT"() {
+        given:
+        def update = new SyncUpdate(data: """\
+            poetic-form:     FORM-SONNET-INDONESIAN
+            admin-c:         TEST-RIPE
+            mnt-by:          UPD-MNT
+            source:          TEST
+            """.stripIndent())
+
+        when:
+        def response = syncUpdate update
+
+        then:
+        response.contains("Create FAILED: [poetic-form] FORM-SONNET-INDONESIAN")
+        response.contains("***Error:   Poem/Poetic-Form must be maintained by 'LIM-MNT'")
     }
 }
 
