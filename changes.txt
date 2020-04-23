@@ -1,5 +1,12 @@
 # next
 
+# 1.97.1
+
+[query] Detect a CTRL-C and interrupt (interpret as a delimiter) (#442)
+[update] Fix support for Signed messages with Elliptic Curve Algorithm (#605)
+[all] Updated dependencies
+
+
 # 1.97
 
 [all] Use CI build for releases (#610)

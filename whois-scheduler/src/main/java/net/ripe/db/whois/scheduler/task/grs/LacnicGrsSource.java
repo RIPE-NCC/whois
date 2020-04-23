@@ -16,18 +16,15 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.impl.client.HttpClients;
+import org.glassfish.jersey.client.ClientProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,6 +47,8 @@ class LacnicGrsSource extends GrsSource {
     private final String userId;
     private final String password;
 
+    private Client client;
+
     @Autowired
     LacnicGrsSource(
             @Value("${grs.import.lacnic.source:}") final String source,
@@ -63,12 +62,17 @@ class LacnicGrsSource extends GrsSource {
 
         this.userId = userId;
         this.password = password;
+
+        this.client = ClientBuilder.newBuilder()
+                .property(ClientProperties.CONNECT_TIMEOUT, TIMEOUT)
+                .property(ClientProperties.READ_TIMEOUT, TIMEOUT)
+                .build();
     }
 
     @Override
     public void acquireDump(final Path path) throws IOException {
-        final Document loginPage = parse(get("http://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
-        final String loginAction = "http://lacnic.net" + loginPage.select("form").attr("action");
+        final Document loginPage = parse(get("https://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
+        final String loginAction = "https://lacnic.net" + loginPage.select("form").attr("action");
 
         post(loginAction);
 
@@ -77,38 +81,16 @@ class LacnicGrsSource extends GrsSource {
         downloader.downloadTo(logger, new URL(downloadAction), path);
     }
 
-    private String get(final String url) throws IOException {
-        final HttpClient client = HttpClients
-                .custom()
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(TIMEOUT).build())
-                .build();
-        final HttpUriRequest request = RequestBuilder
-                .get()
-                .setUri(url)
-                .setConfig(RequestConfig.custom().setConnectTimeout(TIMEOUT).build())
-                .build();
-        return IOUtils.toString(
-                client.execute(request)
-                        .getEntity()
-                        .getContent());
+    private String get(final String url) {
+        return client.target(url).request().get(String.class);
     }
 
-    private String post(final String url) throws IOException {
-        final HttpClient client = HttpClients
-                .custom()
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(TIMEOUT).build())
-                .build();
-        final HttpUriRequest request = RequestBuilder
-                .post()
-                .addParameter("handle", userId)
-                .addParameter("passwd", password)
-                .setUri(url)
-                .setConfig(RequestConfig.custom().setConnectTimeout(TIMEOUT).build())
-                .build();
-        return IOUtils.toString(
-                client.execute(request)
-                        .getEntity()
-                        .getContent());
+    private String post(final String url) {
+        return client.target(url)
+                .queryParam("handle", userId)
+                .queryParam("passwd", password)
+                .request()
+                .post(null, String.class);
     }
 
     private static Document parse(final String data) {

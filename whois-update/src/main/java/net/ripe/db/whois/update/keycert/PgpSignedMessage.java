@@ -3,6 +3,9 @@ package net.ripe.db.whois.update.keycert;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.DateUtil;
 import org.bouncycastle.bcpg.ArmoredInputStream;
+import org.bouncycastle.bcpg.EdDSAPublicBCPGKey;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
+import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.openpgp.PGPObjectFactory;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSignature;
@@ -94,7 +97,7 @@ public final class PgpSignedMessage {
 
     private static PgpSignedMessage parse(final byte[] bytes) {
         try {
-            final InputStream decoderStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));     // encodeAsLatin1(matcher.group(0))
+            final InputStream decoderStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));     // TODO: [ES] encodeAsLatin1(matcher.group(0))
             if (!(decoderStream instanceof ArmoredInputStream)) {
                 throw new IllegalArgumentException("Unexpected content");
             }
