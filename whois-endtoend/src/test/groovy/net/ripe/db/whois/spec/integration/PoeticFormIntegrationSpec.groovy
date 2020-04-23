@@ -2,6 +2,7 @@ package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
@@ -133,13 +134,14 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
         deleteResponse.contains("Delete SUCCEEDED: [poetic-form] FORM-HAIKU")
     }
 
-    def "add poetic form different LIM-MNT"() {
+    def "add poetic form different mntner"() {
         given:
         def update = new SyncUpdate(data: """\
             poetic-form:     FORM-SONNET-INDONESIAN
             admin-c:         TEST-RIPE
             mnt-by:          UPD-MNT
             source:          TEST
+            password:        update
             """.stripIndent())
 
         when:
@@ -149,5 +151,26 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
         response.contains("Create FAILED: [poetic-form] FORM-SONNET-INDONESIAN")
         response.contains("***Error:   Poem/Poetic-Form must be maintained by 'LIM-MNT'")
     }
+
+    @Ignore("TODO: [ES] multiple mntners causes unexpected error")
+    def "add poetic form multiple mntners"() {
+        given:
+        def update = new SyncUpdate(data: """\
+            poetic-form:     FORM-SONNET-INDONESIAN
+            admin-c:         TEST-RIPE
+            mnt-by:          UPD-MNT
+            mnt-by:          LIM-MNT
+            source:          TEST
+            password:        update2
+            """.stripIndent())
+
+        when:
+        def response = syncUpdate update
+
+        then:
+        response.contains("Create FAILED: [poetic-form] FORM-SONNET-INDONESIAN")
+        response.contains("***Error:   Poem/Poetic-Form must be maintained by 'LIM-MNT'")
+    }
+
 }
 
