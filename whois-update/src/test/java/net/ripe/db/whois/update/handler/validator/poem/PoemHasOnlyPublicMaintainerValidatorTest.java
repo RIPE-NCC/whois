@@ -32,7 +32,7 @@ public class PoemHasOnlyPublicMaintainerValidatorTest {
 
     @Test
     public void getTypes() {
-        assertThat(subject.getTypes(), containsInAnyOrder(ObjectType.POEM));
+        assertThat(subject.getTypes(), containsInAnyOrder(ObjectType.POEM, ObjectType.POETIC_FORM ));
     }
 
     @Test
