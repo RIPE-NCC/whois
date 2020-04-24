@@ -77,7 +77,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         response.contains("Create FAILED: [poetic-form] FORM-SONNET-INDONESIAN")
-        response.contains("Poetic-form must be maintained by only 'RIPE-DBM-MNT'")
+        response.contains("Poetic-form must only be maintained by 'RIPE-DBM-MNT'")
     }
 
     def "add poetic form multiple mntners"() {
@@ -96,7 +96,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         response.contains("Create FAILED: [poetic-form] FORM-SONNET-INDONESIAN")
-        response.contains("Poetic-form must be maintained by only 'RIPE-DBM-MNT'")
+        response.contains("Poetic-form must only be maintained by 'RIPE-DBM-MNT'")
     }
 
     def "modify poetic form"() {

@@ -407,7 +407,7 @@ public final class UpdateMessages {
     }
 
     public static Message poeticFormRequiresDbmMaintainer() {
-        return new Message(Type.ERROR, "Poetic-form must be maintained by only 'RIPE-DBM-MNT'");
+        return new Message(Type.ERROR, "Poetic-form must only be maintained by 'RIPE-DBM-MNT'");
     }
 
     public static Message tooManyPasswordsSpecified() {

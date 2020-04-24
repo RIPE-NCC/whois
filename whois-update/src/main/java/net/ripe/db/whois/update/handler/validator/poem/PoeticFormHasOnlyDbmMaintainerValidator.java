@@ -22,12 +22,12 @@ public class PoeticFormHasOnlyDbmMaintainerValidator implements BusinessRuleVali
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.POETIC_FORM);
 
-    private static final CIString POETC_FORM_MAINTAINER = ciString("RIPE-DBM-MNT");
+    private static final CIString POETIC_FORM_MAINTAINER = ciString("RIPE-DBM-MNT");
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final List<RpslAttribute> mntByAttribute = update.getUpdatedObject().findAttributes(AttributeType.MNT_BY);
-        if (mntByAttribute.size() !=1 || !mntByAttribute.get(0).getCleanValue().equals(POETC_FORM_MAINTAINER)) {
+        if (mntByAttribute.size() !=1 || !mntByAttribute.get(0).getCleanValue().equals(POETIC_FORM_MAINTAINER)) {
             updateContext.addMessage(update, mntByAttribute.get(0), UpdateMessages.poeticFormRequiresDbmMaintainer());
         }
     }
