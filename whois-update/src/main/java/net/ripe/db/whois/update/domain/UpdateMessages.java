@@ -406,6 +406,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Poem must be maintained by 'LIM-MNT', which has a public password");
     }
 
+    public static Message poeticFormRequiresDbmMaintainer() {
+        return new Message(Type.ERROR, "Poetic-form must be maintained by only 'RIPE-DBM-MNT'");
+    }
+
     public static Message tooManyPasswordsSpecified() {
         return new Message(Type.ERROR, "Too many passwords specified");
     }
