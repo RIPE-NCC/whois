@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-#    ________ .___ ___________
-#   /  _____/ |   |\__    ___/
-#  /   \  ___ |   |  |    |   
-#  \    \_\  \|   |  |    |   
-#   \______  /|___|  |____|   
-#          \/                 
-# git clone gitlab:swe-database-team/db-operational
-# centos/whois-common/log4j2-whois.xml
-# ****************************************
--->
 <Configuration>
 
     <Appenders>
