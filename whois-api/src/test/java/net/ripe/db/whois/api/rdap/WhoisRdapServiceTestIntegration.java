@@ -1451,7 +1451,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_umlaut() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=Tëst%20Person3")
@@ -1478,7 +1478,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_umlaut_utf8_encoded() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=T%C3%ABst%20Person3")
@@ -1490,7 +1490,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_umlaut_substitution() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
         fullTextIndex.rebuild();
 
         try {

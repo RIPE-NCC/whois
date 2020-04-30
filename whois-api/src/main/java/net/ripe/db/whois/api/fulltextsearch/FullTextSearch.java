@@ -2,10 +2,13 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -52,6 +55,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.INDEX_ANALYZER;
@@ -169,7 +173,7 @@ public class FullTextSearch {
 
                     indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
 
-                    final List<Document> documents = Lists.newArrayList();
+                    final Map<RpslObject, Document> rpslObjectToDocument = Maps.newHashMap();
 
                     final TopDocs topDocs = topFieldCollector.topDocs();
                     final int start = Math.max(0, searchRequest.getStart());
@@ -177,15 +181,16 @@ public class FullTextSearch {
                     for (int index = start; index < end; index++) {
                         final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
                         final Document document = indexSearcher.doc(scoreDoc.doc);
-                        account(objectDao.getById(getObjectId(document)));
-                        documents.add(document);
+                        final RpslObject object = objectDao.getById(getObjectId(document));
+                        account(object);
+                        rpslObjectToDocument.put(object, document);
                     }
 
                     final List<SearchResponse.Lst> responseLstList = Lists.newArrayList();
                     responseLstList.add(getResponseHeader(searchRequest, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
 
                     if (searchRequest.isHighlight()) {
-                        responseLstList.add(createHighlights(searchRequest, query, documents));
+                        responseLstList.add(createHighlights(searchRequest, query, rpslObjectToDocument));
                     }
 
                     if (searchRequest.isFacet()) {
@@ -198,7 +203,7 @@ public class FullTextSearch {
                     responseLstList.add(createVersion());
 
                     final SearchResponse searchResponse = new SearchResponse();
-                    searchResponse.setResult(createResult(searchRequest, documents, Long.valueOf(topDocs.totalHits).intValue()));
+                    searchResponse.setResult(createResult(searchRequest, rpslObjectToDocument, Long.valueOf(topDocs.totalHits).intValue()));
                     searchResponse.setLsts(responseLstList);
 
                     return searchResponse;
@@ -234,11 +239,13 @@ public class FullTextSearch {
         return responseHeader;
     }
 
-    private SearchResponse.Result createResult(final SearchRequest searchRequest, final List<Document> documents, final int totalHits) {
+    private SearchResponse.Result createResult(final SearchRequest searchRequest, final Map<RpslObject, Document> rpslObjectToDocument, final int totalHits) {
         final SearchResponse.Result result = new SearchResponse.Result("response", totalHits, searchRequest.getStart());
 
         final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
-        for (Document document : documents) {
+
+        rpslObjectToDocument.forEach( (rpslObject, document) -> {
+
             final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
             final List<SearchResponse.Str> attributes = Lists.newArrayList();
 
@@ -246,15 +253,20 @@ public class FullTextSearch {
                 attributes.add(new SearchResponse.Str(field.name(), field.stringValue()));
             }
 
+            for (final RpslAttribute rpslAttribute :fullTextIndex.filterRpslAttributes(rpslObject)) {
+                attributes.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
+            }
+
             resultDocument.setStrs(attributes);
             resultDocumentList.add(resultDocument);
-        }
+        });
+
 
         result.setDocs(resultDocumentList);
         return result;
     }
 
-    private SearchResponse.Lst createHighlights(final SearchRequest searchRequest, final Query query, final List<Document> documents) {
+    private SearchResponse.Lst createHighlights(final SearchRequest searchRequest, final Query query, final Map<RpslObject, Document> rpslObjectToDocument) {
         final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
         final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
 
@@ -269,7 +281,7 @@ public class FullTextSearch {
         final Highlighter highlighter = new Highlighter(formatter, new QueryScorer(query));
         highlighter.setTextFragmenter(new SimpleFragmenter(Integer.MAX_VALUE));
 
-        for (final Document document : documents) {
+        rpslObjectToDocument.forEach( (rpslObject, document) -> {
             final SearchResponse.Lst documentLst = new SearchResponse.Lst(document.get(PRIMARY_KEY_FIELD_NAME));
             final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
@@ -286,9 +298,22 @@ public class FullTextSearch {
                 }
             }
 
+            for (final RpslAttribute rpslAttribute :fullTextIndex.filterRpslAttributes(rpslObject)) {
+                try {
+                    final String highlightedValue = highlighter.getBestFragment(INDEX_ANALYZER, rpslAttribute.getValue(), rpslAttribute.getValue());
+                    if (highlightedValue != null) {
+                        final SearchResponse.Arr arr = new SearchResponse.Arr(rpslAttribute.getKey());
+                        arr.setStr(new SearchResponse.Str(null, highlightedValue));
+                        documentArrs.add(arr);
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn("Field name: " + rpslAttribute.getKey() + " value:" + rpslAttribute.getValue(), e);
+                }
+            }
+
             documentLst.setArrs(documentArrs);
             highlightDocs.add(documentLst);
-        }
+        });
 
         highlight.setLsts(highlightDocs);
         return highlight;

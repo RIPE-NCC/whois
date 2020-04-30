@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
@@ -303,6 +304,22 @@ public class FullTextIndex extends RebuildableIndex {
         indexWriter.addDocument(facetsConfig.build(taxonomyWriter, document));
     }
 
+    public List<RpslAttribute> filterRpslAttributes(final RpslObject rpslObject) {
+
+        List<RpslAttribute> attributes = Lists.newArrayList();
+
+        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
+            if (FILTERED_ATTRIBUTES.contains(attribute.getType())) {
+                attributes.add(new RpslAttribute(attribute.getKey(), sanitise(filterAttribute(attribute.getValue().trim()))));
+
+            } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
+                attributes.add(new RpslAttribute(attribute.getKey(), sanitise(attribute.getValue().trim())));
+            }
+        }
+
+        return attributes;
+    }
+
     private static String sanitise(final String value) {
         // TODO: [ES] also strips newlines, attribute cannot be re-constructed later
         return CharMatcher.javaIsoControl().removeFrom(value);
@@ -372,7 +389,6 @@ public class FullTextIndex extends RebuildableIndex {
                 }
             }
         }
-
         return null;
     }
 }
