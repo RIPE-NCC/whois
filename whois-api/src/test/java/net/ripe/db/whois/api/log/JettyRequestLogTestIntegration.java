@@ -49,7 +49,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST");
 
-    @Value("var${jvmId:}/log/jetty")
+    @Value("target/log/jetty")
     String requestLogDirectory;
 
     @Before
