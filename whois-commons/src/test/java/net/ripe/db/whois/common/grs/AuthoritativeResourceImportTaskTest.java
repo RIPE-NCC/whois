@@ -44,7 +44,7 @@ public class AuthoritativeResourceImportTaskTest {
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getRoot().getAbsolutePath(), true);
+        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getRoot().getAbsolutePath(), true, "");
         subject.setEmbeddedValueResolver(valueResolver);
     }
 
