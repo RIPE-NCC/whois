@@ -229,22 +229,16 @@ public class IndexTemplate implements Closeable {
             }
         }
 
-        protected RpslObject convertToRpslObject(Document document) {
-            final List<RpslAttribute> attributes = Lists.newArrayList();
-            int objectId = 0;
-
+        protected int getObjectId(Document document) {
             for (final IndexableField field : document.getFields()) {
                 if (SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT.contains(field.name())) {
                     if ("primary-key".equals(field.name())) {
-                        objectId = Integer.parseInt(field.stringValue());
+                        return  Integer.parseInt(field.stringValue());
                     }
-                } else {
-                    attributes.add(new RpslAttribute(AttributeType.getByName(field.name()), field.stringValue()));
                 }
             }
 
-            attributes.add(new RpslAttribute(AttributeType.SOURCE, source.getName()));
-            return new RpslObject(objectId, attributes);
+           return 0;
         }
 
     }

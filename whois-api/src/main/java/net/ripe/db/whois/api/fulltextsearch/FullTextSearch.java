@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.common.ApplicationVersion;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -37,6 +38,7 @@ import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -69,15 +71,18 @@ public class FullTextSearch {
     private final AccessControlListManager accessControlListManager;
     private final Source source;
     private final Version version;
+    private final RpslObjectDao objectDao;
 
     @Autowired
     public FullTextSearch(final FullTextIndex fullTextIndex,
+                          @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
                           final AccessControlListManager accessControlListManager,
                           final SourceContext sourceContext,
                           final ApplicationVersion applicationVersion) {
         this.fullTextIndex = fullTextIndex;
         this.accessControlListManager = accessControlListManager;
         this.source = sourceContext.getCurrentSource();
+        this.objectDao = objectDao;
         this.version = new Version(
             applicationVersion.getVersion(),
             applicationVersion.getTimestamp(),
@@ -172,7 +177,7 @@ public class FullTextSearch {
                     for (int index = start; index < end; index++) {
                         final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
                         final Document document = indexSearcher.doc(scoreDoc.doc);
-                        account(convertToRpslObject(document));
+                        account(objectDao.getById(getObjectId(document)));
                         documents.add(document);
                     }
 

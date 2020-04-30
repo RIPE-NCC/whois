@@ -340,7 +340,7 @@ public class WhoisRdapService {
                                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                                     final Document document = indexSearcher.doc(scoreDoc.doc);
 
-                                    final RpslObject rpslObject = convertToRpslObject(document);
+                                    final RpslObject rpslObject = objectDao.getById(getObjectId(document));
                                     account(rpslObject);
                                     results.add(rpslObject);
                                 }
