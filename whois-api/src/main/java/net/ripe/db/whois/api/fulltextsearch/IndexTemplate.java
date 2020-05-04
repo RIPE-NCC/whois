@@ -240,7 +240,6 @@ public class IndexTemplate implements Closeable {
 
            return 0;
         }
-
     }
 
 }

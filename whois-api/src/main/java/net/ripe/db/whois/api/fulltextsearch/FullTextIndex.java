@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -53,6 +54,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -120,7 +122,8 @@ public class FullTextIndex extends RebuildableIndex {
     private final String source;
     private final FacetsConfig facetsConfig;
 
-    @Autowired FullTextIndex(
+    @Autowired
+    FullTextIndex(
             @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
             @Value("${whois.source}") final String source,
             @Value("${dir.fulltext.index:}") final String indexDir,
@@ -218,7 +221,7 @@ public class FullTextIndex extends RebuildableIndex {
         updateMetadata(indexWriter, source, maxSerial);
     }
 
-    @Scheduled(fixedDelayString = "${fulltext.index.update.interval.msecs:60000}" )
+    @Scheduled(fixedDelayString = "${fulltext.index.update.interval.msecs:60000}")
     public void scheduledUpdate() {
         if (!isEnabled()) {
             return;
@@ -290,13 +293,8 @@ public class FullTextIndex extends RebuildableIndex {
         document.add(new SortedDocValuesField(LOOKUP_KEY_FIELD_NAME, new BytesRef(rpslObject.getKey().toString())));
         document.add(new StringField(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), Field.Store.YES));
 
-        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            if (FILTERED_ATTRIBUTES.contains(attribute.getType())) {
-                document.add(new Field(attribute.getKey(), sanitise(filterAttribute(attribute.getValue().trim())), FILTERED_ATTRIBUTE_FIELD_TYPE));
-
-            } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                document.add(new Field(attribute.getKey(), sanitise(attribute.getValue().trim()), ATTRIBUTE_FIELD_TYPE));
-            }
+        for (final RpslAttribute attribute : filterRpslObject(rpslObject).getAttributes()) {
+            document.add(new Field(attribute.getKey(), attribute.getValue().trim(), FILTERED_ATTRIBUTES.contains(attribute.getType()) ? FILTERED_ATTRIBUTE_FIELD_TYPE : ATTRIBUTE_FIELD_TYPE));
         }
 
         document.add(new FacetField(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));
@@ -304,20 +302,33 @@ public class FullTextIndex extends RebuildableIndex {
         indexWriter.addDocument(facetsConfig.build(taxonomyWriter, document));
     }
 
-    public List<RpslAttribute> filterRpslAttributes(final RpslObject rpslObject) {
+    public RpslObject filterRpslObject(final RpslObject rpslObject) {
 
         List<RpslAttribute> attributes = Lists.newArrayList();
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            if (FILTERED_ATTRIBUTES.contains(attribute.getType())) {
-                attributes.add(new RpslAttribute(attribute.getKey(), sanitise(filterAttribute(attribute.getValue().trim()))));
-
-            } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                attributes.add(new RpslAttribute(attribute.getKey(), sanitise(attribute.getValue().trim())));
+            if (SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
+                continue;
             }
+
+            attributes.add(new RpslAttribute(attribute.getKey(), filterRpslAttribute(attribute.getType(), attribute.getValue())));
         }
 
-        return attributes;
+        return new RpslObject(rpslObject.getObjectId(), attributes);
+    }
+
+    //need to filter as list (not set) as two AUTH MD5 after filter will return 1 entry in set
+   /* public List<String> filterRpslAttribute(final AttributeType attributeType, final Set<String> attributeValues) {
+        return attributeValues.stream().map((value) -> filterRpslAttribute(attributeType, value)).collect(Collectors.toList());
+    }*/
+
+    public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
+
+        if (FILTERED_ATTRIBUTES.contains(attributeType)) {
+            return sanitise(filterAttribute(attributeValue.trim()));
+        }
+
+        return sanitise(attributeValue.trim());
     }
 
     private static String sanitise(final String value) {
@@ -327,9 +338,9 @@ public class FullTextIndex extends RebuildableIndex {
 
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
         indexWriter.deleteDocuments(
-            IntPoint.newExactQuery(
-                PRIMARY_KEY_FIELD_NAME,
-                rpslObject.getObjectId()));
+                IntPoint.newExactQuery(
+                        PRIMARY_KEY_FIELD_NAME,
+                        rpslObject.getObjectId()));
     }
 
     private String filterAttribute(final String value) {

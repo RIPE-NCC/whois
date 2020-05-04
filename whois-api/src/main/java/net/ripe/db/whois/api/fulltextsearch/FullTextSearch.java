@@ -253,7 +253,7 @@ public class FullTextSearch {
                 attributes.add(new SearchResponse.Str(field.name(), field.stringValue()));
             }
 
-            for (final RpslAttribute rpslAttribute :fullTextIndex.filterRpslAttributes(rpslObject)) {
+            for (final RpslAttribute rpslAttribute :fullTextIndex.filterRpslObject(rpslObject).getAttributes()) {
                 attributes.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
             }
 
@@ -298,7 +298,7 @@ public class FullTextSearch {
                 }
             }
 
-            for (final RpslAttribute rpslAttribute :fullTextIndex.filterRpslAttributes(rpslObject)) {
+            for (final RpslAttribute rpslAttribute :fullTextIndex.filterRpslObject(rpslObject).getAttributes()) {
                 try {
                     final String highlightedValue = highlighter.getBestFragment(INDEX_ANALYZER, rpslAttribute.getValue(), rpslAttribute.getValue());
                     if (highlightedValue != null) {
