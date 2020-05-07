@@ -1252,7 +1252,6 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED-BY-LIR");
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED");
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED PI");
-        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "LIR-PARTITIONED PI");
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED ANYCAST");
 
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
