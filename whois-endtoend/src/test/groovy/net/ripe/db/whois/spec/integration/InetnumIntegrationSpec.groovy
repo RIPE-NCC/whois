@@ -516,64 +516,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /Missing required "org:" attribute/
   }
 
-  def "status EARLY-REGISTRATION is allowed for an RS maintainer"() {
-    when:
-      def insertResponse = syncUpdate(new SyncUpdate(data: """\
-                    inetnum: 10.0.0.0 - 10.0.0.255
-                    netname: RIPE-NCC
-                    descr: description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: EARLY-REGISTRATION
-                    mnt-by: RIPE-NCC-HM-MNT
-                    org: ORG-TOL5-TEST
-                    source: TEST
-                    password: update
-                    password: hm
-                    """.stripIndent()))
-    then:
-      insertResponse =~ /Create SUCCEEDED: \[inetnum\] 10.0.0.0 - 10.0.0.255/
-  }
-
-  def "status EARLY-REGISTRATION is not allowed for regular maintainer"() {
-    when:
-      def insertResponse = syncUpdate(new SyncUpdate(data: """\
-                    inetnum: 10.0.0.0 - 10.0.0.255
-                    netname: RIPE-NCC
-                    descr: description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: EARLY-REGISTRATION
-                    mnt-by: TEST2-MNT
-                    org: ORG-TOL6-TEST
-                    source: TEST
-                    password:emptypassword
-                    """.stripIndent()))
-    then:
-      insertResponse =~ /Status EARLY-REGISTRATION can only be created by the database\n\s+administrator/
-  }
-
-  def "status EARLY-REGISTRATION with override"() {
-    when:
-      def insertResponse = syncUpdate(new SyncUpdate(data: """\
-                    inetnum: 10.0.0.0 - 10.0.0.255
-                    netname: RIPE-NCC
-                    descr: description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: EARLY-REGISTRATION
-                    mnt-by: RIPE-NCC-HM-MNT
-                    org: ORG-TOL5-TEST
-                    source: TEST
-                    override:denis,override1
-                    """.stripIndent()))
-    then:
-      insertResponse =~ /Create SUCCEEDED: \[inetnum\] 10.0.0.0 - 10.0.0.255/
-  }
-
   def "modify status ASSIGNED PA does not reference organisation of type LIR or OTHER"() {
     given:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\

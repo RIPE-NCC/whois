@@ -2,9 +2,6 @@ package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
-import net.ripe.db.whois.spec.domain.AckResponse
-import net.ripe.db.whois.spec.domain.Message
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class InetnumStatusNotSetSpec extends BaseQueryUpdateSpec {
@@ -108,7 +105,7 @@ class InetnumStatusNotSetSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    //other disallowed statuses covered by unrelated tests : ALLOCATED UNSPECIFIED, ASSIGNED ANYCAST, EARLY-REGISTRATION, LEGACY
+    //other disallowed statuses covered by unrelated tests : ALLOCATED UNSPECIFIED, ASSIGNED ANYCAST, LEGACY
     def "change NOT-SET status to disallowed statuses with ALLOCATED UNSPECIFIED parent"() {
         given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm\npassword: lir")

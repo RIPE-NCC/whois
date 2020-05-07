@@ -987,10 +987,8 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 "ALLOCATED PI",
                 "ALLOCATED UNSPECIFIED",
                 "LIR-PARTITIONED PA",
-                "LIR-PARTITIONED PI",
                 "SUB-ALLOCATED PA",
                 "ASSIGNED PA",
-                "EARLY-REGISTRATION",
                 "NOT-SET"
         ]
     }

@@ -55,7 +55,6 @@ public class GeolocationService {
             InetnumStatus.ASSIGNED_PI,
             InetnumStatus.ASSIGNED_ANYCAST,
             InetnumStatus.NOT_SET,
-            InetnumStatus.EARLY_REGISTRATION,
             InetnumStatus.ALLOCATED_PA,
             InetnumStatus.ALLOCATED_PI,
             InetnumStatus.ALLOCATED_UNSPECIFIED);

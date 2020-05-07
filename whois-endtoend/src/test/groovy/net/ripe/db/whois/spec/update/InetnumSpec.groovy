@@ -296,46 +296,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 """,
-                "EARLY": """\
-                inetnum:      192.168.0.0 - 192.168.255.255
-                netname:      RIPE-NET1
-                descr:        /16 ERX
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
-                source:       TEST
-                """,
-                "EARLY-USER": """\
-                inetnum:      192.168.0.0 - 192.168.255.255
-                netname:      RIPE-NET1
-                descr:        /16 ERX
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                source:       TEST
-                """,
-                "EARLY-USER-ONLY": """\
-                inetnum:      192.168.0.0 - 192.168.255.255
-                netname:      RIPE-NET1
-                descr:        /16 ERX
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                source:       TEST
-                """,
                 "LEGACY-USER-ONLY": """\
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      RIPE-NET1
@@ -4835,19 +4795,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
-                source:       TEST
-                DELETE:       changing status
-
-                inetnum:      192.168.0.0 - 192.168.255.255
-                netname:      RIPE-NET1
-                descr:        /16 ERX
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
@@ -5272,89 +5219,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         updateAck.summary.assertErrors(0, 0, 0, 0)
 
         queryObjectNotFound("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
-    }
-
-    // TODO delete this test when we deprecate EARLY-REGISTRATION status
-    def "modify EARLY-REGISTRATION, mnt-by RS and user, change mnt-lower"() {
-      given:
-        syncUpdate(getTransient("EARLY-USER") + "override: denis,override1")
-
-      expect:
-        query_object_not_matches("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
-
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.168.0.0 - 192.168.255.255
-                netname:      RIPE-NET1
-                descr:        /16 ERX
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR2-MNT      # was LIR-MNT
-                source:       TEST
-
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
-
-        query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
-    }
-
-    // TODO delete this test when we deprecate EARLY-REGISTRATION status
-    def "modify EARLY-REGISTRATION, mnt-by user only, change mnt-lower"() {
-        given:
-        syncUpdate(getTransient("EARLY-USER-ONLY") + "override: denis,override1")
-
-        expect:
-        query_object_not_matches("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.168.0.0 - 192.168.255.255
-                netname:      RIPE-NET1
-                descr:        /16 ERX
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR2-MNT      # was LIR-MNT
-                mnt-lower:    OWNER-MNT
-                source:       TEST
-
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
-
-        query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
     }
 
     def "create top level LEGACY, mnt-by user only, no parent LEGACY, LIR pw"() {
@@ -5864,74 +5728,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-    }
-
-    def "not create EARLY-REGISTRATION inetnum as lir"() {
-        when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.0.0.0 - 192.255.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       LIR-MNT
-                source:       TEST
-                password:     lir
-                password:     owner2
-                password:     owner3
-                """.stripIndent()
-        )
-
-        then:
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
-                "Authorisation for parent [inetnum] 0.0.0.0 - 255.255.255.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
-                "Status EARLY-REGISTRATION can only be created by the database administrator"
-        ]
-
-        queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-    }
-
-    def "not create EARLY-REGISTRATION inetnum as rs maintainer"() {
-        when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.0.0.0 - 192.255.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       LIR-MNT
-                source:       TEST
-                password:     lir
-                password:     owner2
-                password:     owner3
-                password:     hm
-                """.stripIndent()
-        )
-
-        then:
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
-                "Status EARLY-REGISTRATION can only be created by the database administrator"
-        ]
-
-        queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
     }
 
     def "not create NOT-SET inetnum as lir"() {

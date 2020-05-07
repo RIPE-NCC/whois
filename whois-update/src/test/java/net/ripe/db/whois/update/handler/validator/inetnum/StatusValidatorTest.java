@@ -14,7 +14,6 @@ import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -467,46 +466,6 @@ public class StatusValidatorTest {
     }
 
     @Test
-    public void early_registration_not_allowed_without_an_rs_maintainer() {
-        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
-        when(objectDao.getById(1)).thenReturn(RpslObject.parse("" +
-                "inetnum: 0.0.0.0 - 255.255.255.255\n" +
-                "status: ASSIGNED PA"));
-
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
-                "inetnum: 192.0/24\n" +
-                "status: EARLY-REGISTRATION"));
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext).addMessage(update, UpdateMessages.statusRequiresAuthorization("EARLY-REGISTRATION"));
-        verify(maintainers, times(2)).isRsMaintainer(ciSet());
-        verifyNoMoreInteractions(maintainers);
-    }
-
-    @Test
-    public void early_registration_allowed_with_an_rs_maintainer() {
-        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
-        when(objectDao.getById(1)).thenReturn(RpslObject.parse("" +
-                "inetnum: 0.0.0.0 - 255.255.255.255\n" +
-                "status: ASSIGNED PA"));
-
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
-                "inetnum: 192.0/24\n" +
-                "status: EARLY-REGISTRATION\n" +
-                "mnt-by: RIPE-NCC-HM-MNT\n" +
-                "password: update"));
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext, never()).addMessage(update, UpdateMessages.statusRequiresAuthorization("EARLY-REGISTRATION"));
-        verify(maintainers, times(2)).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
-        verifyNoMoreInteractions(maintainers);
-    }
-
-    @Test
     public void create_inetnum_w_legacy_allowed_under_legacy_w_non_rs_maintainer() {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("" +
@@ -608,40 +567,12 @@ public class StatusValidatorTest {
 
 
     @Test
-    public void delete_inetnum_with_early_registration_not_allowed_without_an_rs_maintainer() {
-        when(update.getAction()).thenReturn(Action.DELETE);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
-                "inetnum: 192.0/24\n" +
-                "status: EARLY-REGISTRATION"));
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext).addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(InetnumStatus.EARLY_REGISTRATION.toString()));
-    }
-
-    @Test
-    public void modify_same() {
-        when(update.getAction()).thenReturn(Action.MODIFY);
-
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
-                "inetnum: 192.0/24\n" +
-                "status: EARLY-REGISTRATION"));
-
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
-                "inetnum: 192.0/24\n" +
-                "status: EARLY-REGISTRATION"));
-
-        subject.validate(update, updateContext);
-        verify(updateContext, never()).addMessage(eq(update), any(Message.class));
-    }
-
-    @Test
     public void create_with_status_notSet() {
         when(update.getAction()).thenReturn(Action.CREATE);
 
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
-                "status: EARLY-REGISTRATION"));
+                "status: ASSIGNED PA"));
 
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/16\n" +
@@ -658,7 +589,7 @@ public class StatusValidatorTest {
 
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
-                "status: EARLY-REGISTRATION"));
+                "status: ASSIGNED PI"));
 
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
