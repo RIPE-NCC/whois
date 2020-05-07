@@ -13,7 +13,7 @@ public interface InetStatus {
 
     boolean requiresAllocMaintainer();
 
-    boolean worksWithParentStatus(InetStatus parent, boolean objectHasRsMaintainer);
+    boolean worksWithParentStatus(InetStatus parent, boolean objectHasRsMaintainer, boolean create);
 
     boolean worksWithParentInHierarchy(InetStatus parentInHierarchyMaintainedByRs, boolean parentHasRsMntLower);
 }

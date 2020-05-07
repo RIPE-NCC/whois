@@ -19,41 +19,41 @@ public class InetnumStatusTest {
 
     @Test
     public void parentVerification() {
-        assertThat(ASSIGNED_PA.worksWithParentStatus(ASSIGNED_PA, true), is(true));
-        assertThat(ASSIGNED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true), is(true));
-        assertThat(ASSIGNED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(true));
-        assertThat(ASSIGNED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
+        assertThat(ASSIGNED_PA.worksWithParentStatus(ASSIGNED_PA, true, false), is(true));
+        assertThat(ASSIGNED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true, false), is(true));
+        assertThat(ASSIGNED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true, false), is(true));
+        assertThat(ASSIGNED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
 
-        assertThat(SUB_ALLOCATED_PA.worksWithParentStatus(ALLOCATED_PA, true), is(true));
-        assertThat(SUB_ALLOCATED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(true));
-        assertThat(SUB_ALLOCATED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true), is(true));
+        assertThat(SUB_ALLOCATED_PA.worksWithParentStatus(ALLOCATED_PA, true, false), is(true));
+        assertThat(SUB_ALLOCATED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true, false), is(true));
+        assertThat(SUB_ALLOCATED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true, false), is(true));
 
-        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
-        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_PI, true), is(false));
-        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_PA, true), is(true));
-        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(true));
-        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true), is(true));
+        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
+        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_PI, true, false), is(false));
+        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_PA, true, false), is(true));
+        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true, false), is(true));
+        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true, false), is(true));
 
-        assertThat(ALLOCATED_PI.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
-        assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
-        assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(LEGACY, true), is(false));
-        assertThat(ALLOCATED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
-        assertThat(ALLOCATED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(false));
+        assertThat(ALLOCATED_PI.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
+        assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
+        assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(LEGACY, true, false), is(false));
+        assertThat(ALLOCATED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
+        assertThat(ALLOCATED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true, false), is(false));
 
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_PI, false), is(true));
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_PI, false), is(true));
-        assertThat(ASSIGNED_PI.worksWithParentStatus(LIR_PARTITIONED_PA, false), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_PI, false, false), is(true));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_PI, false, false), is(true));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(LIR_PARTITIONED_PA, false, false), is(false));
 
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_UNSPECIFIED, false), is(true));
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_PI, false), is(true));
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(SUB_ALLOCATED_PA, false), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_UNSPECIFIED, false, false), is(true));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_PI, false, false), is(true));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(SUB_ALLOCATED_PA, false, false), is(false));
 
-        assertThat(LEGACY.worksWithParentStatus(ALLOCATED_UNSPECIFIED, false), is(true));
-        assertThat(LEGACY.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
-        assertThat(LEGACY.worksWithParentStatus(LEGACY, false), is(true));
-        assertThat(LEGACY.worksWithParentStatus(LEGACY, true), is(true));
-        assertThat(LEGACY.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(false));
+        assertThat(LEGACY.worksWithParentStatus(ALLOCATED_UNSPECIFIED, false, false), is(true));
+        assertThat(LEGACY.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
+        assertThat(LEGACY.worksWithParentStatus(LEGACY, false, false), is(true));
+        assertThat(LEGACY.worksWithParentStatus(LEGACY, true, false), is(true));
+        assertThat(LEGACY.worksWithParentStatus(LIR_PARTITIONED_PA, true, false), is(false));
 
     }
 

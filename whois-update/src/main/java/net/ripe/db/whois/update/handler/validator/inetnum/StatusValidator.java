@@ -33,13 +33,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static net.ripe.db.whois.update.domain.Action.CREATE;
+import static net.ripe.db.whois.update.domain.Action.DELETE;
 import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper.getStatus;
 
 // TODO [AK] Redesign status validator using subtrees: parent or child intervals should not have different validation logic, the tree must be valid as a whole
 @Component
 public class StatusValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY, Action.DELETE);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE, Action.MODIFY, DELETE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);
 
     private final RpslObjectDao objectDao;
@@ -66,9 +68,9 @@ public class StatusValidator implements BusinessRuleValidator {
             return;
         }
 
-        if (update.getAction().equals(Action.CREATE)) {
+        if (update.getAction() == CREATE) {
             validateCreate(update, updateContext);
-        } else if (update.getAction().equals(Action.DELETE)) {
+        } else if (update.getAction() == DELETE) {
             if (update.getType().equals(ObjectType.INETNUM)) {
                 validateDelete(update, updateContext, ipv4Tree);
             } else {
@@ -132,7 +134,7 @@ public class StatusValidator implements BusinessRuleValidator {
 
         if (currentStatus.equals(InetnumStatus.ASSIGNED_PA) && parentStatus.equals(InetnumStatus.ASSIGNED_PA)) {
             checkAuthorizationForStatusInHierarchy(update, updateContext, ipTree, ipInterval, UpdateMessages.incorrectParentStatus(updatedObject.getType(), parentStatus.toString()));
-        } else if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer)) {
+        } else if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer, update.getAction() == CREATE)) {
             updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(updatedObject.getType(), parentStatus.toString()));
         }
 
@@ -248,7 +250,7 @@ public class StatusValidator implements BusinessRuleValidator {
             final Set<CIString> childMntBy = childObject.getValuesForAttribute(AttributeType.MNT_BY);
             final boolean hasRsMaintainer = maintainers.isRsMaintainer(childMntBy);
 
-            if (!childStatus.worksWithParentStatus(updatedStatus, hasRsMaintainer)) {
+            if (!childStatus.worksWithParentStatus(updatedStatus, hasRsMaintainer, update.getAction() == CREATE)) {
                 updateContext.addMessage(update, UpdateMessages.incorrectChildStatus(updateStatusAttribute.getCleanValue(), childStatusValue, childObject.getKey()));
                 return false;
             } else if (updatedStatus.equals(InetnumStatus.ASSIGNED_PA) && childStatus.equals(InetnumStatus.ASSIGNED_PA)) {

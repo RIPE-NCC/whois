@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 
@@ -16,6 +17,7 @@ import static net.ripe.db.whois.common.rpsl.attrs.OrgType.OTHER;
 import static net.ripe.db.whois.common.rpsl.attrs.OrgType.RIR;
 
 public enum InetnumStatus implements InetStatus {
+
     ALLOCATED_PA("ALLOCATED PA", IANA, RIR, LIR),
     ALLOCATED_PI("ALLOCATED PI", IANA, RIR, LIR),
     ALLOCATED_UNSPECIFIED("ALLOCATED UNSPECIFIED", IANA, RIR, LIR),
@@ -31,19 +33,31 @@ public enum InetnumStatus implements InetStatus {
     private static final EnumSet<InetnumStatus> NEEDS_ORG_REFERENCE = EnumSet.of(ALLOCATED_PI, ALLOCATED_PA, ALLOCATED_UNSPECIFIED);
     private static final EnumSet<InetnumStatus> NEEDS_PARENT_RS_MNTR = EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PI);
 
-    private static final EnumMap<InetnumStatus, EnumSet<InetnumStatus>> PARENT_STATUS;
+    private static final EnumMap<InetnumStatus, EnumSet<InetnumStatus>> ACTION_MODIFY_PARENT_STATUS;
+    private static final EnumMap<InetnumStatus, EnumSet<InetnumStatus>> ACTION_CREATE_PARENT_STATUS;
 
     static {
-        PARENT_STATUS = new EnumMap(InetnumStatus.class);
-        PARENT_STATUS.put(ALLOCATED_PI, EnumSet.of(ALLOCATED_UNSPECIFIED));
-        PARENT_STATUS.put(ALLOCATED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED));
-        PARENT_STATUS.put(ALLOCATED_UNSPECIFIED, EnumSet.of(ALLOCATED_UNSPECIFIED));
-        PARENT_STATUS.put(LIR_PARTITIONED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
-        PARENT_STATUS.put(SUB_ALLOCATED_PA, EnumSet.of(ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
-        PARENT_STATUS.put(ASSIGNED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA, ASSIGNED_PA));
-        PARENT_STATUS.put(ASSIGNED_ANYCAST, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PI));
-        PARENT_STATUS.put(ASSIGNED_PI, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PI, ASSIGNED_PI));
-        PARENT_STATUS.put(LEGACY, EnumSet.of(ALLOCATED_UNSPECIFIED, LEGACY));
+        ACTION_MODIFY_PARENT_STATUS = new EnumMap(InetnumStatus.class);
+        ACTION_MODIFY_PARENT_STATUS.put(ALLOCATED_PI, EnumSet.of(ALLOCATED_UNSPECIFIED));
+        ACTION_MODIFY_PARENT_STATUS.put(ALLOCATED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED));
+        ACTION_MODIFY_PARENT_STATUS.put(ALLOCATED_UNSPECIFIED, EnumSet.of(ALLOCATED_UNSPECIFIED));
+        ACTION_MODIFY_PARENT_STATUS.put(LIR_PARTITIONED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
+        ACTION_MODIFY_PARENT_STATUS.put(SUB_ALLOCATED_PA, EnumSet.of(ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
+        ACTION_MODIFY_PARENT_STATUS.put(ASSIGNED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA, ASSIGNED_PA));
+        ACTION_MODIFY_PARENT_STATUS.put(ASSIGNED_ANYCAST, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PI));
+        ACTION_MODIFY_PARENT_STATUS.put(ASSIGNED_PI, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PI, ASSIGNED_PI));
+        ACTION_MODIFY_PARENT_STATUS.put(LEGACY, EnumSet.of(ALLOCATED_UNSPECIFIED, LEGACY));
+
+        ACTION_CREATE_PARENT_STATUS = Maps.newEnumMap(InetnumStatus.class);
+        ACTION_CREATE_PARENT_STATUS.put(ALLOCATED_PI, EnumSet.of(ALLOCATED_UNSPECIFIED));
+        ACTION_CREATE_PARENT_STATUS.put(ALLOCATED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED));
+        ACTION_CREATE_PARENT_STATUS.put(ALLOCATED_UNSPECIFIED, EnumSet.of(ALLOCATED_UNSPECIFIED));
+        ACTION_CREATE_PARENT_STATUS.put(LIR_PARTITIONED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA));
+        ACTION_CREATE_PARENT_STATUS.put(SUB_ALLOCATED_PA, EnumSet.of(ALLOCATED_PA, LIR_PARTITIONED_PA));
+        ACTION_CREATE_PARENT_STATUS.put(ASSIGNED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
+        ACTION_CREATE_PARENT_STATUS.put(ASSIGNED_ANYCAST, EnumSet.of(ALLOCATED_UNSPECIFIED));
+        ACTION_CREATE_PARENT_STATUS.put(ASSIGNED_PI, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PI));
+        ACTION_CREATE_PARENT_STATUS.put(LEGACY, EnumSet.of(ALLOCATED_UNSPECIFIED, LEGACY));
     }
 
     private final CIString literalStatus;
@@ -85,11 +99,13 @@ public enum InetnumStatus implements InetStatus {
     }
 
     @Override
-    public boolean worksWithParentStatus(final InetStatus parent, final boolean objectHasRsMaintainer) {
+    public boolean worksWithParentStatus(final InetStatus parent, final boolean objectHasRsMaintainer, final boolean create) {
         if (this == ASSIGNED_PI && objectHasRsMaintainer) {
             return NEEDS_PARENT_RS_MNTR.contains(parent);
         }
-        return PARENT_STATUS.get(this).contains(parent);
+        return create?
+                ACTION_CREATE_PARENT_STATUS.get(this).contains(parent) :
+                ACTION_MODIFY_PARENT_STATUS.get(this).contains(parent);
     }
 
     @Override
