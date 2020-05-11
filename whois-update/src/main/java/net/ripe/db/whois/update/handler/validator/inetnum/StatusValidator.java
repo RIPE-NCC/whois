@@ -51,7 +51,6 @@ public class StatusValidator implements BusinessRuleValidator {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final Maintainers maintainers;
-    private static final CIString NOT_SET = CIString.ciString("NOT-SET");
 
     @Autowired
     public StatusValidator(
@@ -276,17 +275,9 @@ public class StatusValidator implements BusinessRuleValidator {
         final CIString updateStatus = update.getUpdatedObject() != null ? update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS) : null;
 
         if (!Objects.equals(originalStatus, updateStatus)) {
-            // NOT-SET is the only status which is modifiable
-            if(NOT_SET.equals(originalStatus) ) {
-                final IpInterval ipInterval = IpInterval.parse(update.getUpdatedObject().getKey());
-                // there are no v6 resources with NOT-SET and never will be
-                validateStatusAgainstResourcesInTree(update, updateContext, ipv4Tree, ipInterval);
-            } else {
-                if (!hasAuthOverride(updateContext.getSubject(update))) {
-                    updateContext.addMessage(update, UpdateMessages.statusChange());
-                }
+            if (!hasAuthOverride(updateContext.getSubject(update))) {
+                updateContext.addMessage(update, UpdateMessages.statusChange());
             }
-
         }
     }
 

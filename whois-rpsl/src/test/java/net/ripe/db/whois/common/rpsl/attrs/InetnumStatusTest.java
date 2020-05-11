@@ -4,7 +4,6 @@ package net.ripe.db.whois.common.rpsl.attrs;
 import org.junit.Test;
 
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_PA;
-import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_PI;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_ANYCAST;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_PA;
@@ -29,12 +28,10 @@ public class InetnumStatusTest {
         assertThat(SUB_ALLOCATED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true, false), is(true));
 
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
-        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_PI, true, false), is(false));
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_PA, true, false), is(true));
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true, false), is(true));
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true, false), is(true));
 
-        assertThat(ALLOCATED_PI.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
         assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
         assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(LEGACY, true, false), is(false));
         assertThat(ALLOCATED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
@@ -42,11 +39,9 @@ public class InetnumStatusTest {
 
         assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true, false), is(true));
         assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_PI, false, false), is(true));
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_PI, false, false), is(true));
         assertThat(ASSIGNED_PI.worksWithParentStatus(LIR_PARTITIONED_PA, false, false), is(false));
 
         assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_UNSPECIFIED, false, false), is(true));
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_PI, false, false), is(true));
         assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(SUB_ALLOCATED_PA, false, false), is(false));
 
         assertThat(LEGACY.worksWithParentStatus(ALLOCATED_UNSPECIFIED, false, false), is(true));
@@ -59,11 +54,6 @@ public class InetnumStatusTest {
 
     @Test
     public void allowedOrgTypesChecks() {
-        assertThat(ALLOCATED_PI.isValidOrgType(OrgType.LIR), is(true));
-        assertThat(ALLOCATED_PI.isValidOrgType(OrgType.RIR), is(true));
-        assertThat(ALLOCATED_PI.isValidOrgType(OrgType.IANA), is(true));
-        assertThat(ALLOCATED_PI.isValidOrgType(OrgType.WHITEPAGES), is(false));
-
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.LIR), is(true));
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.RIR), is(true));
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.IANA), is(true));
@@ -113,7 +103,6 @@ public class InetnumStatusTest {
     @Test
     public void needsOrgReference() {
         assertThat(ALLOCATED_PA.needsOrgReference(), is(true));
-        assertThat(ALLOCATED_PI.needsOrgReference(), is(true));
         assertThat(ALLOCATED_UNSPECIFIED.needsOrgReference(), is(true));
         assertThat(LIR_PARTITIONED_PA.needsOrgReference(), is(false));
         assertThat(SUB_ALLOCATED_PA.needsOrgReference(), is(false));
