@@ -32,6 +32,7 @@ import javax.annotation.CheckForNull;
 import java.util.List;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.Messages.Type.ERROR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
 import static net.ripe.db.whois.update.domain.Action.CREATE;
 import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper.getStatus;
@@ -104,9 +105,15 @@ public class StrictStatusValidator implements BusinessRuleValidator {
         final boolean hasRsMaintainer = maintainers.isRsMaintainer(updateMntBy);
 
         if (currentStatus.equals(InetnumStatus.ASSIGNED_PA) && parentStatus.equals(InetnumStatus.ASSIGNED_PA)) {
-            checkAuthorizationForStatusInHierarchy(update, updateContext, ipTree, ipInterval, UpdateMessages.incorrectParentStatus(updatedObject.getType(), parentStatus.toString()));
+            checkAuthorizationForStatusInHierarchy(
+                    update,
+                    updateContext,
+                    ipTree,
+                    ipInterval,
+                    UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString())
+            );
         } else if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer, update.getAction() == CREATE)) {
-            updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(updatedObject.getType(), parentStatus.toString()));
+            updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
         }
 
         if (currentStatus.equals(InetnumStatus.ASSIGNED_PI)) {
@@ -114,11 +121,11 @@ public class StrictStatusValidator implements BusinessRuleValidator {
                 final Set<CIString> parentMntBy = parentObject.getValuesForAttribute(AttributeType.MNT_BY);
                 final boolean parentHasRsMaintainer = maintainers.isRsMaintainer(parentMntBy);
                 if (parentHasRsMaintainer) {
-                    updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(updatedObject.getType(), parentStatus.toString()));
+                    updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
                 }
             }
 
-            checkAuthorizationForStatusInHierarchy(update, updateContext, ipTree, ipInterval, UpdateMessages.incorrectParentStatus(updatedObject.getType(), parentStatus.toString()));
+            checkAuthorizationForStatusInHierarchy(update, updateContext, ipTree, ipInterval, UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
         }
 
     }
@@ -214,10 +221,16 @@ public class StrictStatusValidator implements BusinessRuleValidator {
             final boolean hasRsMaintainer = maintainers.isRsMaintainer(childMntBy);
 
             if (!childStatus.worksWithParentStatus(updatedStatus, hasRsMaintainer, update.getAction() == CREATE)) {
-                updateContext.addMessage(update, UpdateMessages.incorrectChildStatus(updateStatusAttribute.getCleanValue(), childStatusValue, childObject.getKey()));
+                updateContext.addMessage(update, UpdateMessages.incorrectChildStatus(ERROR, updateStatusAttribute.getCleanValue(), childStatusValue, childObject.getKey()));
                 return false;
             } else if (updatedStatus.equals(InetnumStatus.ASSIGNED_PA) && childStatus.equals(InetnumStatus.ASSIGNED_PA)) {
-                checkAuthorizationForStatusInHierarchy(update, updateContext, ipTree, ipInterval, UpdateMessages.incorrectChildStatus(updateStatusAttribute.getCleanValue(), childStatusValue, childObject.getKey()));
+                checkAuthorizationForStatusInHierarchy(
+                    update,
+                    updateContext,
+                    ipTree,
+                    ipInterval,
+                    UpdateMessages.incorrectChildStatus(ERROR, updateStatusAttribute.getCleanValue(), childStatusValue, childObject.getKey())
+                );
             }
         }
         return true;

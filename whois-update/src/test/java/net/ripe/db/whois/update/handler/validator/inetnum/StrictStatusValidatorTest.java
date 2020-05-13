@@ -28,6 +28,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 
+import static net.ripe.db.whois.common.Messages.Type.ERROR;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 import static org.mockito.Matchers.any;
@@ -72,7 +73,7 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.incorrectChildStatus("ALLOCATED PA", "ASSIGNED PI", "192.0/32"));
+        verify(updateContext).addMessage(update, UpdateMessages.incorrectChildStatus(ERROR, "ALLOCATED PA", "ASSIGNED PI", "192.0/32"));
         verify(maintainers).isRsMaintainer(ciSet());
         verifyNoMoreInteractions(maintainers);
     }
@@ -124,7 +125,7 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(INETNUM, "ASSIGNED PA"));
+        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, INETNUM, "ASSIGNED PA"));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
         verify(maintainers, times(2)).isRsMaintainer(ciSet());
         verifyNoMoreInteractions(maintainers);
@@ -144,7 +145,7 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.incorrectParentStatus(INETNUM, "ASSIGNED PA"));
+        verify(updateContext, never()).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, INETNUM, "ASSIGNED PA"));
         verify(maintainers, times(3)).isRsMaintainer(ciSet());
         verifyNoMoreInteractions(maintainers);
     }
@@ -164,7 +165,7 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(INETNUM, "SUB-ALLOCATED PA"));
+        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, INETNUM, "SUB-ALLOCATED PA"));
         verify(maintainers).isRsMaintainer(ciSet());
         verifyNoMoreInteractions(maintainers);
     }
@@ -185,7 +186,7 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(INETNUM, "SUB-ALLOCATED PA"));
+        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, INETNUM, "SUB-ALLOCATED PA"));
     }
 
     @Test
@@ -240,7 +241,7 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INET6NUM, "ALLOCATED-BY-LIR"));
+        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, ObjectType.INET6NUM, "ALLOCATED-BY-LIR"));
         verify(maintainers, times(2)).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -343,7 +344,7 @@ public class StrictStatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.inetnumStatusLegacy());
-        verify(updateContext, times(1)).addMessage(update, UpdateMessages.incorrectParentStatus(INETNUM, "LIR-PARTITIONED PA"));
+        verify(updateContext, times(1)).addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, INETNUM, "LIR-PARTITIONED PA"));
     }
 
     @Test

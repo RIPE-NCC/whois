@@ -267,12 +267,12 @@ public final class UpdateMessages {
                 "Allowed values are %s", allowedOrgTypes);
     }
 
-    public static Message incorrectParentStatus(final ObjectType type, final CharSequence parentStatus) {
-        return new Message(Messages.Type.ERROR, "%s parent has incorrect status: %s", type.getName(), parentStatus);
+    public static Message incorrectParentStatus(final Messages.Type messageType, final ObjectType type, final CharSequence parentStatus) {
+        return new Message(messageType, "%s parent has incorrect status: %s", type.getName(), parentStatus);
     }
 
-    public static Message incorrectChildStatus(final CharSequence givenStatus, final CharSequence childStatus, final CharSequence moreSpecificObject) {
-        return new Message(Type.ERROR, "Status %s not allowed when more specific object '%s' has status %s", givenStatus, moreSpecificObject, childStatus);
+    public static Message incorrectChildStatus(final Messages.Type messageType, final CharSequence givenStatus, final CharSequence childStatus, final CharSequence moreSpecificObject) {
+        return new Message(messageType, "Status %s not allowed when more specific object '%s' has status %s", givenStatus, moreSpecificObject, childStatus);
     }
 
     public static Message intersectingRange(final Interval<?> intersectingRange) {
