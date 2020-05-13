@@ -93,10 +93,6 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
         final RpslObject parent = rpslObjectDao.getById(parents.get(0).getObjectId());
 
         final InetStatus parentStatus = InetStatusHelper.getStatus(parent);
-        if (parentStatus == null) {
-            updateContext.addMessage(update, UpdateMessages.objectHasInvalidStatus("Parent", parent.getKey(), parent.getValueForAttribute(AttributeType.STATUS)));
-            return;
-        }
 
         if (parentStatus.equals(Inet6numStatus.AGGREGATED_BY_LIR)) {
             final int parentAssignmentSize = parent.getValueForAttribute(AttributeType.ASSIGNMENT_SIZE).toInt();

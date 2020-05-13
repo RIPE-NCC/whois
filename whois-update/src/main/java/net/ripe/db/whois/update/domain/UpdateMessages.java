@@ -275,14 +275,6 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Status %s not allowed when more specific object '%s' has status %s", givenStatus, moreSpecificObject, childStatus);
     }
 
-    public static Message objectLacksStatus(final CharSequence familyMember, final CharSequence parentInetnum) {
-        return new Message(Type.ERROR, "%s %s does not have \"status:\"", familyMember, parentInetnum);
-    }
-
-    public static Message objectHasInvalidStatus(final CharSequence familyMember, final CharSequence parentInetnum, final CharSequence status) {
-        return new Message(Type.ERROR, "%s %s has invalid status: %s", familyMember, parentInetnum, status);
-    }
-
     public static Message intersectingRange(final Interval<?> intersectingRange) {
         return new Message(Type.ERROR, "This range overlaps with %s", intervalToString(intersectingRange));
     }

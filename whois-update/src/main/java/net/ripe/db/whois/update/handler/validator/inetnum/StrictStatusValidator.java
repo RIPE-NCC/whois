@@ -32,6 +32,7 @@ import javax.annotation.CheckForNull;
 import java.util.List;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
 import static net.ripe.db.whois.update.domain.Action.CREATE;
 import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper.getStatus;
 
@@ -89,17 +90,8 @@ public class StrictStatusValidator implements BusinessRuleValidator {
         checkAuthorisationForStatus(update, updateContext, updatedObject, currentStatus);
 
         final RpslObject parentObject = objectDao.getById(parents.get(0).getObjectId());
-        final List<RpslAttribute> parentStatuses = parentObject.findAttributes(AttributeType.STATUS);
-        if (parentStatuses.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.objectLacksStatus("Parent", parentObject.getKey()));
-            return;
-        }
 
         final InetStatus parentStatus = InetStatusHelper.getStatus(parentObject);
-        if (parentStatus == null) {
-            updateContext.addMessage(update, UpdateMessages.objectHasInvalidStatus("Parent", parentObject.getKey(), parentObject.getValueForAttribute(AttributeType.STATUS)));
-            return;
-        }
 
         if (updatedObject.getType() == ObjectType.INETNUM) {
             validateStatusLegacy(updatedObject, parentObject, update, updateContext);
@@ -137,7 +129,7 @@ public class StrictStatusValidator implements BusinessRuleValidator {
 
         if (parentInHierarchyMaintainedByRs != null) {
 
-            final List<RpslAttribute> parentStatuses = parentInHierarchyMaintainedByRs.findAttributes(AttributeType.STATUS);
+            final List<RpslAttribute> parentStatuses = parentInHierarchyMaintainedByRs.findAttributes(STATUS);
             if (parentStatuses.isEmpty()) {
                 return;
             }
@@ -145,16 +137,12 @@ public class StrictStatusValidator implements BusinessRuleValidator {
             final CIString parentStatusValue = parentStatuses.get(0).getCleanValue();
             final InetStatus parentStatus = getStatus(parentStatusValue, update);
 
-            if (parentStatus == null) {
-                updateContext.addMessage(update, UpdateMessages.objectHasInvalidStatus("Parent", parentInHierarchyMaintainedByRs.getKey(), parentStatusValue));
-            } else {
-                final Set<CIString> mntLower = parentInHierarchyMaintainedByRs.getValuesForAttribute(AttributeType.MNT_LOWER);
-                final boolean parentHasRsMntLower = maintainers.isRsMaintainer(mntLower);
-                final InetStatus currentStatus = InetStatusHelper.getStatus(update);
+            final Set<CIString> mntLower = parentInHierarchyMaintainedByRs.getValuesForAttribute(AttributeType.MNT_LOWER);
+            final boolean parentHasRsMntLower = maintainers.isRsMaintainer(mntLower);
+            final InetStatus currentStatus = InetStatusHelper.getStatus(update);
 
-                if (!currentStatus.worksWithParentInHierarchy(parentStatus, parentHasRsMntLower)) {
-                    updateContext.addMessage(update, errorMessage);
-                }
+            if (!currentStatus.worksWithParentInHierarchy(parentStatus, parentHasRsMntLower)) {
+                updateContext.addMessage(update, errorMessage);
             }
         }
     }
@@ -194,7 +182,7 @@ public class StrictStatusValidator implements BusinessRuleValidator {
         if (currentStatus.requiresRsMaintainer()) {
             final boolean missingRsMaintainer = !maintainers.isRsMaintainer(mntBy);
             if (missingRsMaintainer) {
-                updateContext.addMessage(update, UpdateMessages.statusRequiresAuthorization(updatedObject.getValueForAttribute(AttributeType.STATUS).toString()));
+                updateContext.addMessage(update, UpdateMessages.statusRequiresAuthorization(updatedObject.getValueForAttribute(STATUS).toString()));
                 return;
             }
             if (!updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
@@ -206,23 +194,15 @@ public class StrictStatusValidator implements BusinessRuleValidator {
     @SuppressWarnings("unchecked")
     private boolean allChildrenHaveCorrectStatus(final PreparedUpdate update, final UpdateContext updateContext, final IpTree ipTree, final IpInterval ipInterval) {
         final List<IpEntry> children = ipTree.findFirstMoreSpecific(ipInterval);
-        final RpslAttribute updateStatusAttribute = update.getUpdatedObject().findAttribute(AttributeType.STATUS);
+        final RpslAttribute updateStatusAttribute = update.getUpdatedObject().findAttribute(STATUS);
         final InetStatus updatedStatus = InetStatusHelper.getStatus(update);
 
         for (final IpEntry child : children) {
             final RpslObject childObject = objectDao.getById(child.getObjectId());
-            final List<RpslAttribute> childStatuses = childObject.findAttributes(AttributeType.STATUS);
-            if (childStatuses.isEmpty()) {
-                updateContext.addMessage(update, UpdateMessages.objectLacksStatus("Child", childObject.getKey()));
-                continue;
-            }
 
-            final CIString childStatusValue = childStatuses.get(0).getCleanValue();
+            final CIString childStatusValue = childObject.getValueForAttribute(STATUS);
             final InetStatus childStatus = getStatus(childStatusValue, update);
-            if (childStatus == null) {
-                updateContext.addMessage(update, UpdateMessages.objectHasInvalidStatus("Child", childObject.getKey(), childStatusValue));
-                return false;
-            }
+
             final Set<CIString> childMntBy = childObject.getValuesForAttribute(AttributeType.MNT_BY);
             final boolean hasRsMaintainer = maintainers.isRsMaintainer(childMntBy);
 
@@ -237,8 +217,8 @@ public class StrictStatusValidator implements BusinessRuleValidator {
     }
 
     private void validateStatusLegacy(final RpslObject updatedObject, final RpslObject parentObject, final PreparedUpdate update, final UpdateContext updateContext) {
-        if (updatedObject.getValueForAttribute(AttributeType.STATUS).equals(InetnumStatus.LEGACY.toString()) &&
-                !parentObject.getValueForAttribute(AttributeType.STATUS).equals(InetnumStatus.LEGACY.toString())) {
+        if (updatedObject.getValueForAttribute(STATUS).equals(InetnumStatus.LEGACY.toString()) &&
+                !parentObject.getValueForAttribute(STATUS).equals(InetnumStatus.LEGACY.toString())) {
             if (!authByRsOrOverride(updateContext.getSubject(update))) {
                 updateContext.addMessage(update, UpdateMessages.inetnumStatusLegacy());
             }
