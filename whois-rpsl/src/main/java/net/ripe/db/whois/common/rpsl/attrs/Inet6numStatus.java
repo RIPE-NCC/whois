@@ -71,7 +71,7 @@ public enum Inet6numStatus implements InetStatus {
     }
 
     @Override
-    public boolean worksWithParentStatus(final InetStatus parent, boolean objectHasRsMaintainer, final boolean create) {
+    public boolean worksWithParentStatus(final InetStatus parent, boolean objectHasRsMaintainer) {
         return PARENT_STATUS.get(this).contains(parent);
     }
 

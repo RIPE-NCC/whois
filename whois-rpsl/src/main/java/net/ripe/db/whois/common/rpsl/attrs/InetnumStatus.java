@@ -32,28 +32,17 @@ public enum InetnumStatus implements InetStatus {
     private static final EnumSet<InetnumStatus> NEEDS_PARENT_RS_MNTR = EnumSet.of(ALLOCATED_UNSPECIFIED);
 
     private static final EnumMap<InetnumStatus, EnumSet<InetnumStatus>> PARENT_STATUS;
-    private static final EnumMap<InetnumStatus, EnumSet<InetnumStatus>> STRICT_PARENT_STATUS;
 
     static {
-        PARENT_STATUS = new EnumMap(InetnumStatus.class);
+        PARENT_STATUS = Maps.newEnumMap(InetnumStatus.class);
         PARENT_STATUS.put(ALLOCATED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED));
         PARENT_STATUS.put(ALLOCATED_UNSPECIFIED, EnumSet.of(ALLOCATED_UNSPECIFIED));
-        PARENT_STATUS.put(LIR_PARTITIONED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
-        PARENT_STATUS.put(SUB_ALLOCATED_PA, EnumSet.of(ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
-        PARENT_STATUS.put(ASSIGNED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA, ASSIGNED_PA));
+        PARENT_STATUS.put(LIR_PARTITIONED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA));
+        PARENT_STATUS.put(SUB_ALLOCATED_PA, EnumSet.of(ALLOCATED_PA, LIR_PARTITIONED_PA));
+        PARENT_STATUS.put(ASSIGNED_PA, EnumSet.of(ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
         PARENT_STATUS.put(ASSIGNED_ANYCAST, EnumSet.of(ALLOCATED_UNSPECIFIED));
-        PARENT_STATUS.put(ASSIGNED_PI, EnumSet.of(ALLOCATED_UNSPECIFIED, ASSIGNED_PI));
+        PARENT_STATUS.put(ASSIGNED_PI, EnumSet.of(ALLOCATED_UNSPECIFIED));
         PARENT_STATUS.put(LEGACY, EnumSet.of(ALLOCATED_UNSPECIFIED, LEGACY));
-
-        STRICT_PARENT_STATUS = Maps.newEnumMap(InetnumStatus.class);
-        STRICT_PARENT_STATUS.put(ALLOCATED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED));
-        STRICT_PARENT_STATUS.put(ALLOCATED_UNSPECIFIED, EnumSet.of(ALLOCATED_UNSPECIFIED));
-        STRICT_PARENT_STATUS.put(LIR_PARTITIONED_PA, EnumSet.of(ALLOCATED_UNSPECIFIED, ALLOCATED_PA));
-        STRICT_PARENT_STATUS.put(SUB_ALLOCATED_PA, EnumSet.of(ALLOCATED_PA, LIR_PARTITIONED_PA));
-        STRICT_PARENT_STATUS.put(ASSIGNED_PA, EnumSet.of(ALLOCATED_PA, LIR_PARTITIONED_PA, SUB_ALLOCATED_PA));
-        STRICT_PARENT_STATUS.put(ASSIGNED_ANYCAST, EnumSet.of(ALLOCATED_UNSPECIFIED));
-        STRICT_PARENT_STATUS.put(ASSIGNED_PI, EnumSet.of(ALLOCATED_UNSPECIFIED));
-        STRICT_PARENT_STATUS.put(LEGACY, EnumSet.of(ALLOCATED_UNSPECIFIED, LEGACY));
     }
 
     private final CIString literalStatus;
@@ -95,16 +84,12 @@ public enum InetnumStatus implements InetStatus {
     }
 
     @Override
-    public boolean worksWithParentStatus(final InetStatus parent, final boolean objectHasRsMaintainer, final boolean strict) {
+    public boolean worksWithParentStatus(final InetStatus parent, final boolean objectHasRsMaintainer) {
         if (this == ASSIGNED_PI && objectHasRsMaintainer) {
-            return strict?
-                    STRICT_PARENT_STATUS.get(this).contains(parent) && NEEDS_PARENT_RS_MNTR.contains(parent) :
-                    NEEDS_PARENT_RS_MNTR.contains(parent);
+            return PARENT_STATUS.get(this).contains(parent) && NEEDS_PARENT_RS_MNTR.contains(parent);
         }
 
-        return strict?
-                STRICT_PARENT_STATUS.get(this).contains(parent) :
-                PARENT_STATUS.get(this).contains(parent);
+        return PARENT_STATUS.get(this).contains(parent);
     }
 
     @Override

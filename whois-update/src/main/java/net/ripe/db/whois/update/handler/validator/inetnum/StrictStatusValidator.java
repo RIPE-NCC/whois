@@ -34,6 +34,7 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.Messages.Type.ERROR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LEGACY;
 import static net.ripe.db.whois.update.domain.Action.CREATE;
 import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper.getStatus;
 
@@ -112,7 +113,7 @@ public class StrictStatusValidator implements BusinessRuleValidator {
                     ipInterval,
                     UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString())
             );
-        } else if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer, update.getAction() == CREATE)) {
+        } else if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer)) {
             updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
         }
 
@@ -220,7 +221,7 @@ public class StrictStatusValidator implements BusinessRuleValidator {
             final Set<CIString> childMntBy = childObject.getValuesForAttribute(AttributeType.MNT_BY);
             final boolean hasRsMaintainer = maintainers.isRsMaintainer(childMntBy);
 
-            if (!childStatus.worksWithParentStatus(updatedStatus, hasRsMaintainer, update.getAction() == CREATE)) {
+            if (!childStatus.worksWithParentStatus(updatedStatus, hasRsMaintainer)) {
                 updateContext.addMessage(update, UpdateMessages.incorrectChildStatus(ERROR, updateStatusAttribute.getCleanValue(), childStatusValue, childObject.getKey()));
                 return false;
             } else if (updatedStatus.equals(InetnumStatus.ASSIGNED_PA) && childStatus.equals(InetnumStatus.ASSIGNED_PA)) {
@@ -237,8 +238,8 @@ public class StrictStatusValidator implements BusinessRuleValidator {
     }
 
     private void validateStatusLegacy(final RpslObject updatedObject, final RpslObject parentObject, final PreparedUpdate update, final UpdateContext updateContext) {
-        if (updatedObject.getValueForAttribute(STATUS).equals(InetnumStatus.LEGACY.toString()) &&
-                !parentObject.getValueForAttribute(STATUS).equals(InetnumStatus.LEGACY.toString())) {
+        if (LEGACY == InetnumStatus.getStatusFor(updatedObject.getValueForAttribute(STATUS)) &&
+                LEGACY != InetnumStatus.getStatusFor(parentObject.getValueForAttribute(STATUS))) {
             if (!authByRsOrOverride(updateContext.getSubject(update))) {
                 updateContext.addMessage(update, UpdateMessages.inetnumStatusLegacy());
             }

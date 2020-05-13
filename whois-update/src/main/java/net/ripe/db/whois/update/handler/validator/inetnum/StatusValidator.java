@@ -180,7 +180,7 @@ public class StatusValidator implements BusinessRuleValidator {
         if (parent.getType() == INETNUM) {
             final InetnumStatus parentStatus = InetnumStatus.getStatusFor(parent.getValueForAttribute(STATUS));
             final InetnumStatus childStatus = InetnumStatus.getStatusFor(child.getValueForAttribute(STATUS));
-            if (!childStatus.worksWithParentStatus(parentStatus, false, true)) {
+            if (!childStatus.worksWithParentStatus(parentStatus, false)) {
 
                 if (parentMessage) {
                     updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(WARNING, child.getType(), parentStatus.toString()));

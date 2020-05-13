@@ -51,129 +51,129 @@ public class Inet6numStatusTest {
 
     @Test
     public void worksWithParentStatus_aggregated_by_lir() {
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER), is(false));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER), is(false));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER), is(false));
+        assertThat(AGGREGATED_BY_LIR.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER), is(false));
     }
 
     @Test
     public void worksWithParentStatus_allocated_by_lir() {
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER), is(false));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER), is(false));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER), is(false));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER), is(false));
+        assertThat(ALLOCATED_BY_LIR.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER), is(false));
     }
 
     @Test
     public void worksWithParentStatus_allocated_by_rir() {
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER), is(false));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER), is(false));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER), is(false));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER), is(false));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER), is(false));
+        assertThat(ALLOCATED_BY_RIR.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER), is(false));
     }
 
     @Test
     public void worksWithParentStatus_assigned() {
-        assertThat(ASSIGNED.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(ASSIGNED.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(ASSIGNED.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(ASSIGNED.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(ASSIGNED.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(ASSIGNED.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(ASSIGNED.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(ASSIGNED.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(ASSIGNED.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(ASSIGNED.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(ASSIGNED.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(ASSIGNED.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER), is(false));
     }
 
     @Test
     public void worksWithParentStatus_assigned_anycast() {
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED_ANYCAST.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER), is(false));
     }
 
 
     @Test
     public void worksWithParentStatus_assigned_pi() {
-        assertThat(ASSIGNED_PI.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED_PI.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(AGGREGATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_BY_LIR, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER, false), is(true));
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER, false), is(true));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_RS_MAINTAINER), is(true));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ALLOCATED_BY_RIR, HAS_NOT_RS_MAINTAINER), is(true));
 
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_ANYCAST, HAS_NOT_RS_MAINTAINER), is(false));
 
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER, false), is(false));
-        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER, false), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_PI, HAS_RS_MAINTAINER), is(false));
+        assertThat(ASSIGNED_PI.worksWithParentStatus(ASSIGNED_PI, HAS_NOT_RS_MAINTAINER), is(false));
     }
 
     @Test
