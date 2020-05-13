@@ -87,7 +87,10 @@ public class StrictStatusValidator implements BusinessRuleValidator {
             updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipInterval));
             return;
         }
-        checkAuthorisationForStatus(update, updateContext, updatedObject, currentStatus);
+
+        if (!hasAuthOverride(updateContext.getSubject(update))) {
+            checkAuthorisationForStatus(update, updateContext, updatedObject, currentStatus);
+        }
 
         final RpslObject parentObject = objectDao.getById(parents.get(0).getObjectId());
 
@@ -121,7 +124,11 @@ public class StrictStatusValidator implements BusinessRuleValidator {
     }
 
     private boolean authByRsOrOverride(final Subject subject) {
-        return subject.hasPrincipal(Principal.RS_MAINTAINER) || subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER);
+        return subject.hasPrincipal(Principal.RS_MAINTAINER) || hasAuthOverride(subject);
+    }
+
+    private boolean hasAuthOverride(final Subject subject) {
+        return subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER);
     }
 
     private void checkAuthorizationForStatusInHierarchy(final PreparedUpdate update, final UpdateContext updateContext, final IpTree ipTree, final IpInterval ipInterval, final Message errorMessage) {

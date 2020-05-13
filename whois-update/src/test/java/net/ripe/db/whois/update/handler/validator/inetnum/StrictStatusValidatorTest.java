@@ -17,7 +17,6 @@ import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
@@ -30,13 +29,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -46,7 +45,6 @@ public class StrictStatusValidatorTest {
     @Mock RpslObjectDao objectDao;
     @Mock Ipv4Tree ipv4Tree;
     @Mock Ipv6Tree ipv6Tree;
-    @Mock Ipv4Entry ipEntry;
     @Mock Subject authenticationSubject;
     @Mock Maintainers maintainers;
     @InjectMocks StrictStatusValidator subject;
@@ -54,7 +52,7 @@ public class StrictStatusValidatorTest {
     @Before
     public void setup() {
         when(update.getAction()).thenReturn(Action.CREATE);
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
         when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
@@ -62,7 +60,7 @@ public class StrictStatusValidatorTest {
 
     @Test
     public void invalid_child_status_fails_ipv4() {
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
 
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse("192.0/32");
@@ -83,7 +81,7 @@ public class StrictStatusValidatorTest {
     public void not_authorized_by_rsmntner_ipv4() {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255\nstatus: ALLOCATED UNSPECIFIED"));
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST"));
 
@@ -100,7 +98,7 @@ public class StrictStatusValidatorTest {
     public void not_authorized_by_rsmntner_ipv4_override() {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255\nstatus: ALLOCATED UNSPECIFIED"));
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST"));
@@ -109,15 +107,12 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "ASSIGNED PA"));
-        //verify(updateContext).getSubject(any(UpdateContainer.class));
-        //verifyNoMoreInteractions(updateContext);
-        //verifyZeroInteractions(maintainers);
+        verify(updateContext, never()).addMessage(eq(update), any(Message.class));
     }
 
     @Test
     public void parent_has_assigned_pa_status_and_grandparent_is_allocated_pa_and_has_rs_maintainer() {
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.168.1.0/24\nstatus: ASSIGNED PA"));
 
         Ipv4Entry parentEntry = new Ipv4Entry(Ipv4Resource.parse("192.168/16"), 1);
@@ -129,7 +124,7 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "ASSIGNED PA"));
+        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(INETNUM, "ASSIGNED PA"));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
         verify(maintainers, times(2)).isRsMaintainer(ciSet());
         verifyNoMoreInteractions(maintainers);
@@ -137,7 +132,7 @@ public class StrictStatusValidatorTest {
 
     @Test
     public void parent_has_assigned_pa_status_and_grandparent_is_allocated_pa_but_does_not_have_rs_maintainer() {
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.168.1.0/24\nstatus: ASSIGNED PA"));
 
         Ipv4Entry parentEntry = new Ipv4Entry(Ipv4Resource.parse("192.168/16"), 1);
@@ -149,14 +144,14 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "ASSIGNED PA"));
+        verify(updateContext, never()).addMessage(update, UpdateMessages.incorrectParentStatus(INETNUM, "ASSIGNED PA"));
         verify(maintainers, times(3)).isRsMaintainer(ciSet());
         verifyNoMoreInteractions(maintainers);
     }
 
     @Test
     public void incorrect_parent_status_ipv4() {
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED PI"));
 
@@ -169,14 +164,14 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "SUB-ALLOCATED PA"));
+        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(INETNUM, "SUB-ALLOCATED PA"));
         verify(maintainers).isRsMaintainer(ciSet());
         verifyNoMoreInteractions(maintainers);
     }
 
     @Test
     public void incorrect_parent_status_ipv4_override() {
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED PI"));
@@ -190,14 +185,12 @@ public class StrictStatusValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
-        verifyNoMoreInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(INETNUM, "SUB-ALLOCATED PA"));
     }
 
     @Test
     public void correct_parent_status_ipv4() {
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED PI\nmnt-by: RIPE-NCC-HM-MNT"));
 
@@ -279,7 +272,7 @@ public class StrictStatusValidatorTest {
                 "inetnum: 0.0.0.0 - 255.255.255.255\n" +
                 "status: LEGACY"));
 
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +
@@ -298,7 +291,7 @@ public class StrictStatusValidatorTest {
                 "inetnum: 0.0.0.0 - 255.255.255.255\n" +
                 "status: ALLOCATED UNSPECIFIED"));
 
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +
@@ -319,7 +312,7 @@ public class StrictStatusValidatorTest {
                 "inetnum: 0.0.0.0 - 255.255.255.255\n" +
                 "status: ALLOCATED UNSPECIFIED"));
 
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +
@@ -340,7 +333,7 @@ public class StrictStatusValidatorTest {
                 "inetnum: 0.0.0.0 - 255.255.255.255\n" +
                 "status: LIR-PARTITIONED PA"));
 
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getType()).thenReturn(INETNUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +
@@ -350,7 +343,7 @@ public class StrictStatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.inetnumStatusLegacy());
-        verify(updateContext, times(1)).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "LIR-PARTITIONED PA"));
+        verify(updateContext, times(1)).addMessage(update, UpdateMessages.incorrectParentStatus(INETNUM, "LIR-PARTITIONED PA"));
     }
 
     @Test
