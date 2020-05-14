@@ -12,7 +12,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
     def resourceRipeMntner = "RIPE-NCC-HM-MNT"
     def resourceRipeMntnerPassword = "hm"
     // other resource specifics
-    def differentStatus = "ALLOCATED PI"
+    def differentStatus = "ALLOCATED UNSPECIFIED"
     def differentRipeMntner = "RIPE-NCC-LEGACY-MNT"
 
     @Override
