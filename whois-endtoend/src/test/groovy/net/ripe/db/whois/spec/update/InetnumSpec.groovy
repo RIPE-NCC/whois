@@ -849,42 +849,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
     }
 
-    def "create allocation, parent with mnt-lower, parent mnt-lower pw supplied"() {
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
-
-      when:
-          def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.128.0 - 192.168.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
-                source:       TEST
-
-                password: hm
-                password: owner3
-                """.stripIndent()
-        )
-
-      then:
-        ack.success
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
-
-        queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
-    }
-
     def "create allocation    UNSPECIFIED with spaces, parent with mnt-lower, parent mnt-lower pw supplied"() {
       expect:
         queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")

@@ -12,7 +12,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
     def resourceRipeMntner = "RIPE-NCC-END-MNT"
     def resourceRipeMntnerPassword = "nccend"
     // other resource specifics
-    def differentStatus = "ALLOCATED PI"
+    def differentStatus = "ALLOCATED PA"
     def differentRipeMntner = "RIPE-NCC-LEGACY-MNT"
 
     @Override
