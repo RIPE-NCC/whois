@@ -326,7 +326,6 @@ public class WhoisRdapService {
                             final Stopwatch stopWatch = Stopwatch.createStarted();
 
                             final List<RpslObject> results = Lists.newArrayList();
-                            final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
                             try {
                                 final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
                                 queryParser.setAllowLeadingWildcard(true);
@@ -336,7 +335,7 @@ public class WhoisRdapService {
                                 // but case sensitivity also depends on field type
                                 final org.apache.lucene.search.Query query = queryParser.parse(term.toLowerCase());
 
-                                final TopDocs topDocs = indexSearcher.search(query, maxResults);
+                                final TopDocs topDocs = indexSearcher.search(query, SEARCH_MAX_RESULTS);
                                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                                     final Document document = indexSearcher.doc(scoreDoc.doc);
 
