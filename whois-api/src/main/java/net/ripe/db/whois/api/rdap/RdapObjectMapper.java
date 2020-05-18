@@ -140,7 +140,7 @@ class RdapObjectMapper {
         if(objects.size() == maxResultSize) {
             final Notice notice = new Notice();
             notice.setTitle("Search result cap to " + maxResultSize);
-            notice.getDescription().add("Due to performace issue, we have capped the maximum search result to " + maxResultSize);
+            notice.getDescription().add("Due to performance issue, we have capped the maximum search result to " + maxResultSize);
 
             searchResult.getNotices().add(notice);
         }
