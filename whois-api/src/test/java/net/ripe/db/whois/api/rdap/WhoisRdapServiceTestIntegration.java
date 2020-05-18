@@ -1367,17 +1367,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("31.12.202.in-addr.arpa"));
     }
 
-    @Test
-    public void search_domain_with_wildcard() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("domains?name=*.in-addr.arpa")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("31.12.202.in-addr.arpa"));
-    }
-
     // search - nameservers
 
     @Test
@@ -1589,65 +1578,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
-    public void search_entity_organisation_by_name_with_wildcard() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?fn=organis*tion")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
     public void search_entity_organisation_by_handle() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=ORG-TEST1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_handle_with_wildcard_prefix() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=*TEST1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_handle_with_wildcard_middle() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=ORG*TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_handle_with_wildcard_suffix() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=ORG*")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_handle_with_wildcard_prefix_middle_and_suffix() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=*ORG*TEST*")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
