@@ -12,7 +12,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
     def resourceRipeMntner = "RIPE-NCC-END-MNT"
     def resourceRipeMntnerPassword = "nccend"
     // other resource specifics
-    def differentStatus = "ALLOCATED PI"
+    def differentStatus = "ALLOCATED PA"
     def differentRipeMntner = "RIPE-NCC-LEGACY-MNT"
 
     @Override
@@ -50,7 +50,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
 
     def "modify resource, add (mnt-lower) lir-unlocked attributes by lir"() {
         given:
-        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
+        dbfixture(getTransient("RSC-MANDATORY"))
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -80,14 +80,16 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
+                ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
     }
 
     def "modify resource, change (mnt-lower) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
-        syncUpdate(getTransient("RSC-EXTRA") + "override: denis, override1")
+        dbfixture(getTransient("RSC-EXTRA"))
 
         expect:
         queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
@@ -124,13 +126,15 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
+                ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
     }
 
     def "modify resource, can change net-name and mnt-by (lir-locked) attributes by lir"() {
         given:
-        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
+        dbfixture(getTransient("RSC-MANDATORY"))
 
         expect:
         queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
@@ -157,13 +161,15 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
+                ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
     }
 
     def "modify resource, cannot add sponsoring-org by lir"() {
         given:
-        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
+        dbfixture(getTransient("RSC-MANDATORY"))
 
         expect:
         queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
@@ -191,16 +197,18 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\""
         ]
+        ack.warningMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
+                ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
     }
 
     def "modify resource, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
         given:
-        syncUpdate(getTransient("RSC-RIPE-NCC-MNTNER") + "override: denis, override1")
+        dbfixture(getTransient("RSC-RIPE-NCC-MNTNER"))
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -232,16 +240,18 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
         ]
+        ack.warningMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
+                ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
     }
 
     def "modify resource, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
         given:
-        syncUpdate(getTransient("RSC-RIPE-NCC-MNTNER") + "override: denis, override1")
+        dbfixture(getTransient("RSC-RIPE-NCC-MNTNER"))
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -274,16 +284,18 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
         ]
+        ack.warningMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
+                ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
     }
 
     def "modify resource, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
         given:
-        syncUpdate(getTransient("RSC-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        dbfixture(getTransient("RSC-EXTRA-RIPE-NCC-MNTNER"))
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -318,7 +330,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
@@ -328,7 +340,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
     def "modify resource, delete (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
-        syncUpdate(getTransient("RSC-EXTRA") + "override: denis, override1")
+        dbfixture(getTransient("RSC-EXTRA"))
 
         expect:
         queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
@@ -367,13 +379,15 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
+                ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
     }
 
     def "modify resource, cannot delete (org) lir-unlocked attributes by lir"() {
         given:
-        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
+        dbfixture(getTransient("RSC-MANDATORY"))
 
         expect:
         queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
@@ -399,9 +413,12 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference."
+        ]
+        ack.warningMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
+                "inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"
         ]
     }
 
@@ -409,7 +426,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
 
     def "modify resource, add sponsoring attributes with rs password"() {
         given:
-        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
+        dbfixture(getTransient("RSC-MANDATORY"))
 
         expect:
         queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
@@ -436,18 +453,20 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\""
         ]
+        ack.warningMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
+                ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
     }
 
     // DELETE resource by LIR
 
     def "cannot delete resource by lir if also has ripe ncc mntner"() {
         given:
-        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
+        dbfixture(getTransient("RSC-MANDATORY"))
 
         expect:
         queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
