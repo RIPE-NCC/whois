@@ -1247,7 +1247,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source:     TEST
                     override:denis,override1
                 """.stripIndent()))
-      syncUpdate(new SyncUpdate(data: """\
+      addObject("""\
                     inetnum:    192.0.0.0 - 192.0.0.255
                     netname:    RIPE-NCC
                     descr:      description
@@ -1259,7 +1259,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     override:denis,override1
-                """.stripIndent()))
+                """.stripIndent())
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -1769,7 +1769,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 override:     denis,override1
                 """.stripIndent()))
     then:
-      response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+      response =~ /inetnum parent has incorrect status: ALLOCATED UNSPECIFIED/
   }
 
   def "create, assigned pi can have other mntby's than rs maintainer"() {
