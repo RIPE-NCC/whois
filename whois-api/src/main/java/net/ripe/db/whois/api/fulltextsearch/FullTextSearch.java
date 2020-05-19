@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -69,20 +70,21 @@ public class FullTextSearch {
 
     private static final Sort SORT_BY_OBJECT_TYPE =
             new Sort(new SortField(FullTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING), new SortField(LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
-    private static final int MAX_RESULTS = 100;
 
     private final FullTextIndex fullTextIndex;
     private final AccessControlListManager accessControlListManager;
     private final Source source;
     private final Version version;
     private final RpslObjectDao objectDao;
+    private final int maxResultSize;
 
     @Autowired
     public FullTextSearch(final FullTextIndex fullTextIndex,
                           @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
                           final AccessControlListManager accessControlListManager,
                           final SourceContext sourceContext,
-                          final ApplicationVersion applicationVersion) {
+                          final ApplicationVersion applicationVersion,
+                          @Value("${fulltext.search.max.results:100}") final int maxResultSize) {
         this.fullTextIndex = fullTextIndex;
         this.accessControlListManager = accessControlListManager;
         this.source = sourceContext.getCurrentSource();
@@ -91,6 +93,7 @@ public class FullTextSearch {
             applicationVersion.getVersion(),
             applicationVersion.getTimestamp(),
             applicationVersion.getCommitId());
+        this.maxResultSize = maxResultSize;
     }
 
     @GET
@@ -146,7 +149,7 @@ public class FullTextSearch {
     public SearchResponse search(final SearchRequest searchRequest, final HttpServletRequest request) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        if (searchRequest.getRows() > MAX_RESULTS) {
+        if (searchRequest.getStart() > maxResultSize) {
             throw new IllegalArgumentException("Too many rows");
         }
 
@@ -167,8 +170,7 @@ public class FullTextSearch {
                 @Override
                 protected SearchResponse doSearch(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 
-                    final int maxResults = Math.max(MAX_RESULTS, indexReader.numDocs());
-                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, true);
+                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResultSize, false, false, false, true);
                     final FacetsCollector facetsCollector = new FacetsCollector();
 
                     indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
@@ -177,7 +179,9 @@ public class FullTextSearch {
 
                     final TopDocs topDocs = topFieldCollector.topDocs();
                     final int start = Math.max(0, searchRequest.getStart());
-                    final int end = Math.min(start + searchRequest.getRows(), Long.valueOf(topDocs.totalHits).intValue());
+                    int resultSize = Math.min(maxResultSize, Long.valueOf(topDocs.totalHits).intValue());
+
+                    final int end = Math.min(start + searchRequest.getRows(), resultSize);
                     for (int index = start; index < end; index++) {
                         final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
                         final Document document = indexSearcher.doc(scoreDoc.doc);
@@ -203,7 +207,7 @@ public class FullTextSearch {
                     responseLstList.add(createVersion());
 
                     final SearchResponse searchResponse = new SearchResponse();
-                    searchResponse.setResult(createResult(searchRequest, rpslObjectToDocument, Long.valueOf(topDocs.totalHits).intValue()));
+                    searchResponse.setResult(createResult(searchRequest, rpslObjectToDocument, resultSize));
                     searchResponse.setLsts(responseLstList);
 
                     return searchResponse;
