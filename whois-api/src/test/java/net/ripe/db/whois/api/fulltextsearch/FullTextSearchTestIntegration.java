@@ -55,6 +55,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     public static void setProperty() {
         // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
         System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
+        System.setProperty("fulltext.search.max.results", "3");
     }
 
     @AfterClass
@@ -188,6 +189,51 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(facet.getValueCount(), is(2));
         assertThat(facet.getValues().toString(), containsString("mntner (2)"));
         assertThat(facet.getValues().toString(), containsString("person (1)"));
+    }
+
+    @Test
+    public void search_multiple_results_with_search_limit() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Another remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Middle Last\n" +
+                        "nic-hdl: AA2-RIPE\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+
+        fullTextIndex.rebuild();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true");
+
+        //search limit to 3
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+
+
+        final List<FacetField> facets = queryResponse.getFacetFields();
+        assertThat(facets.size(), is(1));
+
+        //will show true count
+        final FacetField facet = facets.get(0);
+        assertThat(facet.getName(), is("object-type"));
+        assertThat(facet.getValueCount(), is(2));
+        assertThat(facet.getValues().toString(), containsString("mntner (3)"));
+        assertThat(facet.getValues().toString(), containsString("person (2)"));
     }
 
     @Test
