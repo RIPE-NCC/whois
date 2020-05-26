@@ -1,24 +1,9 @@
 package net.ripe.db.whois.api.rdap;
 
-import com.google.common.collect.Lists;
-import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
-import net.ripe.db.whois.api.rdap.domain.Action;
-import net.ripe.db.whois.api.rdap.domain.Autnum;
-import net.ripe.db.whois.api.rdap.domain.Domain;
-import net.ripe.db.whois.api.rdap.domain.Entity;
-import net.ripe.db.whois.api.rdap.domain.Event;
-import net.ripe.db.whois.api.rdap.domain.Ip;
-import net.ripe.db.whois.api.rdap.domain.Link;
-import net.ripe.db.whois.api.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.rdap.domain.Notice;
-import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.Remark;
-import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.support.TestWhoisLog;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,19 +11,11 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -183,7 +160,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
         assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("17.45.212.in-addr.arpa"));
         assertThat(response.getDomainSearchResults().get(1).getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(response.getNotices(), hasSize(2));
-        assertThat(response.getNotices().get(0).getTitle(), equalTo("Search result cap to 2"));
+        assertThat(response.getNotices().get(0).getTitle(), equalTo("limited search results to 2 maximum"));
     }
 
     @Test
@@ -211,7 +188,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
         assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
         assertThat(response.getEntitySearchResults().get(1).getHandle(), equalTo("ORG-TEST2-TEST"));
         assertThat(response.getNotices(), hasSize(2));
-        assertThat(response.getNotices().get(0).getTitle(), equalTo("Search result cap to 2"));
+        assertThat(response.getNotices().get(0).getTitle(), equalTo("limited search results to 2 maximum"));
     }
 
     @Test
@@ -226,7 +203,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
         assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
         assertThat(response.getEntitySearchResults().get(1).getHandle(), equalTo("ORG-TEST2-TEST"));
         assertThat(response.getNotices(), hasSize(2));
-        assertThat(response.getNotices().get(0).getTitle(), equalTo("Search result cap to 2"));
+        assertThat(response.getNotices().get(0).getTitle(), equalTo("limited search results to 2 maximum"));
     }
 
     @Test
@@ -241,7 +218,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
         assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
         assertThat(response.getEntitySearchResults().get(1).getHandle(), equalTo("ORG-TEST2-TEST"));
         assertThat(response.getNotices(), hasSize(2));
-        assertThat(response.getNotices().get(0).getTitle(), equalTo("Search result cap to 2"));
+        assertThat(response.getNotices().get(0).getTitle(), equalTo("limited search results to 2 maximum"));
     }
 
     @Test
@@ -256,6 +233,6 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
         assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
         assertThat(response.getEntitySearchResults().get(1).getHandle(), equalTo("ORG-TEST2-TEST"));
         assertThat(response.getNotices(), hasSize(2));
-        assertThat(response.getNotices().get(0).getTitle(), equalTo("Search result cap to 2"));
+        assertThat(response.getNotices().get(0).getTitle(), equalTo("limited search results to 2 maximum"));
     }
 }
