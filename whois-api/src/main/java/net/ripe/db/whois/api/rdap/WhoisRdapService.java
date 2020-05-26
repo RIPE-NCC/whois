@@ -77,7 +77,7 @@ public class WhoisRdapService {
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
-    //sort for predictable search results
+    //sort for consistent search results
     private static final Sort SORT_BY_OBJECT_TYPE =
             new Sort(new SortField(FullTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING), new SortField(LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
 
