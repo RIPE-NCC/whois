@@ -248,14 +248,12 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     Status can have one of these values:\n" +
                 "     \n" +
                 "     o ALLOCATED PA\n" +
-                "     o ALLOCATED PI\n" +
                 "     o ALLOCATED UNSPECIFIED\n" +
                 "     o LIR-PARTITIONED PA\n" +
                 "     o SUB-ALLOCATED PA\n" +
                 "     o ASSIGNED PA\n" +
                 "     o ASSIGNED PI\n" +
                 "     o ASSIGNED ANYCAST\n" +
-                "     o NOT-SET\n" +
                 "     o LEGACY\n" +
                 "\n" +
                 "remarks\n" +
