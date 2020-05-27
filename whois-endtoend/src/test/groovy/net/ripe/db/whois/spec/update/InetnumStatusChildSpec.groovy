@@ -2014,13 +2014,10 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.127.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.127.255") ==
-                ["inetnum parent has incorrect status: LIR-PARTITIONED PA"]
+      queryObject("-rGBT inetnum 192.168.0.0 - 192.168.127.255", "inetnum", "192.168.0.0 - 192.168.127.255")
     }
 
     def "create child LIR-PARTITIONED PA, parent status SUB-ALLOCATED PA"() {
@@ -2059,13 +2056,10 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["inetnum parent has incorrect status: SUB-ALLOCATED PA"]
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
     def "create child LIR-PARTITIONED PA, parent status ASSIGNED PI"() {
