@@ -18,7 +18,7 @@ stages:
   - deploy
 
 cache:
-  key: ${CI_JOB_NAME}
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .m2/repository
     - target/
