@@ -23,9 +23,12 @@ public class InetnumStatusTest {
 
         assertThat(SUB_ALLOCATED_PA.worksWithParentStatus(ALLOCATED_PA, true), is(true));
         assertThat(SUB_ALLOCATED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(true));
+        assertThat(SUB_ALLOCATED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true), is(true));
 
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_PA, true), is(true));
+        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(true));
+        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true), is(true));
 
         assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
         assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(LEGACY, true), is(false));
