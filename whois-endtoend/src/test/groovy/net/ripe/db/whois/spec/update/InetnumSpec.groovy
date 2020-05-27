@@ -4673,7 +4673,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 0, 3, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 3)
+        ack.countErrorWarnInfo(0, 2, 3)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
                 "Status ALLOCATED PA not allowed when more specific object '192.168.200.0 - 192.168.255.255' has status LEGACY"]
@@ -4685,8 +4685,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.infoSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.255.255") == [
                 "Authorisation override used"]
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
-                "inetnum parent has incorrect status: SUB-ALLOCATED PA"]
         ack.infoSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
                 "Authorisation override used"]
 
