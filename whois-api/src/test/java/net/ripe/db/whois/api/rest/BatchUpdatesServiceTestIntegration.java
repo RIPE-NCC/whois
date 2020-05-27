@@ -173,7 +173,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "org:          ORG-LIR2-TEST\n" +
             "admin-c:      TP1-TEST\n" +
             "tech-c:       TP1-TEST\n" +
-            "status:       ALLOCATED UNSPECIFIED\n" +
+            "status:       ALLOCATED PA\n" +
             "mnt-by:       RIPE-NCC-HM-MNT\n" +
             "mnt-by:       OWNER4-MNT\n" +
             "source:       TEST");
@@ -437,10 +437,15 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                                 "source:       TEST")
                 );
 
-        RestTest.target(getPort(), "whois/batch/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
-                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        try {
+            RestTest.target(getPort(), "whois/batch/TEST")
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        } catch (BadRequestException bre) {
+            final WhoisResources response = bre.getResponse().readEntity(WhoisResources.class);
+            System.out.println(response);
+        }
 
         assertNotNull(databaseHelper.lookupObject(ObjectType.INETNUM, "19.0.0.0 - 19.1.255.255"));
     }
