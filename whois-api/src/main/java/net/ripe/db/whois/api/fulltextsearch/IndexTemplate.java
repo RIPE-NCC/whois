@@ -238,7 +238,7 @@ public class IndexTemplate implements Closeable {
                 }
             }
 
-           return 0;
+           throw new IllegalStateException("luecene index should always have a primary key stored");
         }
     }
 

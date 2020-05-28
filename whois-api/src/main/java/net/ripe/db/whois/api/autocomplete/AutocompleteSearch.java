@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -59,9 +60,9 @@ public class AutocompleteSearch {
     private final RpslObjectDao objectDao;
 
     @Autowired
-    public AutocompleteSearch(final FullTextIndex fullTextIndex, @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao) {
+    public AutocompleteSearch(final FullTextIndex fullTextIndex, @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao) {
         this.fullTextIndex = fullTextIndex;
-        this.objectDao = objectDao;
+        this.objectDao = rpslObjectDao;
     }
 
     public List<Map<String, Object>> search(
@@ -95,11 +96,18 @@ public class AutocompleteSearch {
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                     final Document doc = indexSearcher.doc(scoreDoc.doc);
                     final Map<String, Object> result = Maps.newLinkedHashMap();
+                    final RpslObject rpslObject;
 
-                    final RpslObject rpslObject =   objectDao.getByKey(
-                                                                ObjectType.getByName(doc.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME)),
-                                                                doc.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME)
-                                                              );
+                    try {
+                        rpslObject =   objectDao.getByKey(
+                                            ObjectType.getByName(doc.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME)),
+                                            doc.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME)
+                                        );
+
+                    } catch (EmptyResultDataAccessException ex) {
+                        LOGGER.info("seems like object has been deleted from database");
+                        continue;
+                    }
 
                     result.put("key", rpslObject.getKey().toString());
                     result.put("type", rpslObject.getType().getName());

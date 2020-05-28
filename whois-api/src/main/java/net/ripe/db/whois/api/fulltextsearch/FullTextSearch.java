@@ -79,14 +79,14 @@ public class FullTextSearch {
 
     @Autowired
     public FullTextSearch(final FullTextIndex fullTextIndex,
-                          @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
+                          @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
                           final AccessControlListManager accessControlListManager,
                           final SourceContext sourceContext,
                           final ApplicationVersion applicationVersion) {
         this.fullTextIndex = fullTextIndex;
         this.accessControlListManager = accessControlListManager;
         this.source = sourceContext.getCurrentSource();
-        this.objectDao = objectDao;
+        this.objectDao = rpslObjectDao;
         this.version = new Version(
             applicationVersion.getVersion(),
             applicationVersion.getTimestamp(),

@@ -316,12 +316,7 @@ public class FullTextIndex extends RebuildableIndex {
 
         return new RpslObject(rpslObject.getObjectId(), attributes);
     }
-
-    //need to filter as list (not set) as two AUTH MD5 after filter will return 1 entry in set
-   /* public List<String> filterRpslAttribute(final AttributeType attributeType, final Set<String> attributeValues) {
-        return attributeValues.stream().map((value) -> filterRpslAttribute(attributeType, value)).collect(Collectors.toList());
-    }*/
-
+    
     public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
 
         if (FILTERED_ATTRIBUTES.contains(attributeType)) {
