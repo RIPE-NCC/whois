@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rdap;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -126,7 +125,7 @@ class RdapObjectMapper {
         return mapCommons(getRdapObject(requestUrl, rpslObject, lastChangedTimestamp, abuseContact), requestUrl);
     }
 
-    public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final Iterable<LocalDateTime> localDateTimes) {
+    public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final Iterable<LocalDateTime> localDateTimes, final int maxResultSize) {
         final SearchResult searchResult = new SearchResult();
         final Iterator<LocalDateTime> iterator = localDateTimes.iterator();
 
@@ -136,6 +135,12 @@ class RdapObjectMapper {
             } else {
                 searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), null));
             }
+        }
+
+        if(objects.size() == maxResultSize) {
+            final Notice notice = new Notice();
+            notice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
+            searchResult.getNotices().add(notice);
         }
 
         return mapCommons(searchResult, requestUrl);

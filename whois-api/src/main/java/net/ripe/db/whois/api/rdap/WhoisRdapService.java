@@ -5,6 +5,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
@@ -34,6 +35,8 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TopDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +66,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.LOOKUP_KEY_FIELD_NAME;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 
@@ -73,7 +77,11 @@ public class WhoisRdapService {
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
-    private static final int SEARCH_MAX_RESULTS = 100;
+    //sort for consistent search results
+    private static final Sort SORT_BY_OBJECT_TYPE =
+            new Sort(new SortField(FullTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING), new SortField(LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
+
+    private final int maxResultSize;
 
     private final RdapQueryHandler rdapQueryHandler;
     private final RpslObjectDao objectDao;
@@ -96,7 +104,8 @@ public class WhoisRdapService {
                             final SourceContext sourceContext,
                             @Value("${rdap.public.baseUrl:}") final String baseUrl,
                             final AccessControlListManager accessControlListManager,
-                            final RdapRequestValidator rdapRequestValidator) {
+                            final RdapRequestValidator rdapRequestValidator,
+                            @Value("${rdap.search.max.results:100}") final int maxResultSize) {
         this.rdapQueryHandler = rdapQueryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
@@ -107,6 +116,7 @@ public class WhoisRdapService {
         this.baseUrl = baseUrl;
         this.accessControlListManager = accessControlListManager;
         this.rdapRequestValidator = rdapRequestValidator;
+        this.maxResultSize = maxResultSize;
     }
 
     @GET
@@ -326,7 +336,6 @@ public class WhoisRdapService {
                             final Stopwatch stopWatch = Stopwatch.createStarted();
 
                             final List<RpslObject> results = Lists.newArrayList();
-                            final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
                             try {
                                 final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
                                 queryParser.setAllowLeadingWildcard(true);
@@ -336,7 +345,7 @@ public class WhoisRdapService {
                                 // but case sensitivity also depends on field type
                                 final org.apache.lucene.search.Query query = queryParser.parse(term.toLowerCase());
 
-                                final TopDocs topDocs = indexSearcher.search(query, maxResults);
+                                final TopDocs topDocs = indexSearcher.search(query, maxResultSize, SORT_BY_OBJECT_TYPE);
                                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                                     final Document document = indexSearcher.doc(scoreDoc.doc);
 
@@ -364,7 +373,8 @@ public class WhoisRdapService {
             return Response.ok(rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
                     objects,
-                    lastUpdateds))
+                    lastUpdateds,
+                    maxResultSize))
                     .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
         }
