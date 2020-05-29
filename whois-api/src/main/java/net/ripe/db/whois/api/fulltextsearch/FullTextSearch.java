@@ -2,9 +2,13 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.common.ApplicationVersion;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -37,6 +41,8 @@ import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,6 +56,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.INDEX_ANALYZER;
@@ -63,25 +70,30 @@ public class FullTextSearch {
 
     private static final Sort SORT_BY_OBJECT_TYPE =
             new Sort(new SortField(FullTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING), new SortField(LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
-    private static final int MAX_RESULTS = 100;
 
     private final FullTextIndex fullTextIndex;
     private final AccessControlListManager accessControlListManager;
     private final Source source;
     private final Version version;
+    private final RpslObjectDao objectDao;
+    private final int maxResultSize;
 
     @Autowired
     public FullTextSearch(final FullTextIndex fullTextIndex,
+                          @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
                           final AccessControlListManager accessControlListManager,
                           final SourceContext sourceContext,
-                          final ApplicationVersion applicationVersion) {
+                          final ApplicationVersion applicationVersion,
+                          @Value("${fulltext.search.max.results:100}") final int maxResultSize) {
         this.fullTextIndex = fullTextIndex;
         this.accessControlListManager = accessControlListManager;
         this.source = sourceContext.getCurrentSource();
+        this.objectDao = rpslObjectDao;
         this.version = new Version(
             applicationVersion.getVersion(),
             applicationVersion.getTimestamp(),
             applicationVersion.getCommitId());
+        this.maxResultSize = maxResultSize;
     }
 
     @GET
@@ -137,7 +149,7 @@ public class FullTextSearch {
     public SearchResponse search(final SearchRequest searchRequest, final HttpServletRequest request) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        if (searchRequest.getRows() > MAX_RESULTS) {
+        if (searchRequest.getStart() > maxResultSize) {
             throw new IllegalArgumentException("Too many rows");
         }
 
@@ -158,29 +170,31 @@ public class FullTextSearch {
                 @Override
                 protected SearchResponse doSearch(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 
-                    final int maxResults = Math.max(MAX_RESULTS, indexReader.numDocs());
-                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, true);
+                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResultSize, false, false, false, true);
                     final FacetsCollector facetsCollector = new FacetsCollector();
 
                     indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
 
-                    final List<Document> documents = Lists.newArrayList();
+                    final Map<RpslObject, Document> rpslObjectToDocument = Maps.newHashMap();
 
                     final TopDocs topDocs = topFieldCollector.topDocs();
                     final int start = Math.max(0, searchRequest.getStart());
-                    final int end = Math.min(start + searchRequest.getRows(), Long.valueOf(topDocs.totalHits).intValue());
+                    int resultSize = Math.min(maxResultSize, Long.valueOf(topDocs.totalHits).intValue());
+
+                    final int end = Math.min(start + searchRequest.getRows(), resultSize);
                     for (int index = start; index < end; index++) {
                         final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
                         final Document document = indexSearcher.doc(scoreDoc.doc);
-                        account(convertToRpslObject(document));
-                        documents.add(document);
+                        final RpslObject object = objectDao.getById(getObjectId(document));
+                        account(object);
+                        rpslObjectToDocument.put(object, document);
                     }
 
                     final List<SearchResponse.Lst> responseLstList = Lists.newArrayList();
                     responseLstList.add(getResponseHeader(searchRequest, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
 
                     if (searchRequest.isHighlight()) {
-                        responseLstList.add(createHighlights(searchRequest, query, documents));
+                        responseLstList.add(createHighlights(searchRequest, query, rpslObjectToDocument));
                     }
 
                     if (searchRequest.isFacet()) {
@@ -193,7 +207,7 @@ public class FullTextSearch {
                     responseLstList.add(createVersion());
 
                     final SearchResponse searchResponse = new SearchResponse();
-                    searchResponse.setResult(createResult(searchRequest, documents, Long.valueOf(topDocs.totalHits).intValue()));
+                    searchResponse.setResult(createResult(searchRequest, rpslObjectToDocument, resultSize));
                     searchResponse.setLsts(responseLstList);
 
                     return searchResponse;
@@ -229,11 +243,13 @@ public class FullTextSearch {
         return responseHeader;
     }
 
-    private SearchResponse.Result createResult(final SearchRequest searchRequest, final List<Document> documents, final int totalHits) {
+    private SearchResponse.Result createResult(final SearchRequest searchRequest, final Map<RpslObject, Document> rpslObjectToDocument, final int totalHits) {
         final SearchResponse.Result result = new SearchResponse.Result("response", totalHits, searchRequest.getStart());
 
         final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
-        for (Document document : documents) {
+
+        rpslObjectToDocument.forEach( (rpslObject, document) -> {
+
             final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
             final List<SearchResponse.Str> attributes = Lists.newArrayList();
 
@@ -241,15 +257,20 @@ public class FullTextSearch {
                 attributes.add(new SearchResponse.Str(field.name(), field.stringValue()));
             }
 
+            for (final RpslAttribute rpslAttribute :fullTextIndex.filterRpslObject(rpslObject).getAttributes()) {
+                attributes.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
+            }
+
             resultDocument.setStrs(attributes);
             resultDocumentList.add(resultDocument);
-        }
+        });
+
 
         result.setDocs(resultDocumentList);
         return result;
     }
 
-    private SearchResponse.Lst createHighlights(final SearchRequest searchRequest, final Query query, final List<Document> documents) {
+    private SearchResponse.Lst createHighlights(final SearchRequest searchRequest, final Query query, final Map<RpslObject, Document> rpslObjectToDocument) {
         final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
         final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
 
@@ -264,7 +285,7 @@ public class FullTextSearch {
         final Highlighter highlighter = new Highlighter(formatter, new QueryScorer(query));
         highlighter.setTextFragmenter(new SimpleFragmenter(Integer.MAX_VALUE));
 
-        for (final Document document : documents) {
+        rpslObjectToDocument.forEach( (rpslObject, document) -> {
             final SearchResponse.Lst documentLst = new SearchResponse.Lst(document.get(PRIMARY_KEY_FIELD_NAME));
             final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
@@ -281,9 +302,22 @@ public class FullTextSearch {
                 }
             }
 
+            for (final RpslAttribute rpslAttribute :fullTextIndex.filterRpslObject(rpslObject).getAttributes()) {
+                try {
+                    final String highlightedValue = highlighter.getBestFragment(INDEX_ANALYZER, rpslAttribute.getValue(), rpslAttribute.getValue());
+                    if (highlightedValue != null) {
+                        final SearchResponse.Arr arr = new SearchResponse.Arr(rpslAttribute.getKey());
+                        arr.setStr(new SearchResponse.Str(null, highlightedValue));
+                        documentArrs.add(arr);
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn("Field name: " + rpslAttribute.getKey() + " value:" + rpslAttribute.getValue(), e);
+                }
+            }
+
             documentLst.setArrs(documentArrs);
             highlightDocs.add(documentLst);
-        }
+        });
 
         highlight.setLsts(highlightDocs);
         return highlight;

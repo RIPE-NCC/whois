@@ -22,8 +22,6 @@ public class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationT
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
 
     @Autowired
-    private AccessControlListManager accessControlListManager;
-    @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
     private TestPersonalObjectAccounting testPersonalObjectAccounting;

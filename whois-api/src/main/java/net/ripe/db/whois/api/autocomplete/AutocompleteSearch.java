@@ -4,9 +4,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.fulltextsearch.FullTextAnalyzer;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.index.IndexReader;
@@ -27,6 +30,8 @@ import org.apache.lucene.search.TopFieldDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -52,9 +57,12 @@ public class AutocompleteSearch {
 
     private final FullTextIndex fullTextIndex;
 
+    private final RpslObjectDao objectDao;
+
     @Autowired
-    public AutocompleteSearch(final FullTextIndex fullTextIndex) {
+    public AutocompleteSearch(final FullTextIndex fullTextIndex, @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao) {
         this.fullTextIndex = fullTextIndex;
+        this.objectDao = rpslObjectDao;
     }
 
     public List<Map<String, Object>> search(
@@ -88,17 +96,29 @@ public class AutocompleteSearch {
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                     final Document doc = indexSearcher.doc(scoreDoc.doc);
                     final Map<String, Object> result = Maps.newLinkedHashMap();
-                    result.put("key", doc.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME));
-                    result.put("type", doc.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME));
+                    final RpslObject rpslObject;
+
+                    try {
+                        rpslObject =   objectDao.getByKey(
+                                            ObjectType.getByName(doc.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME)),
+                                            doc.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME)
+                                        );
+
+                    } catch (EmptyResultDataAccessException ex) {
+                        LOGGER.info("seems like object has been deleted from database");
+                        continue;
+                    }
+
+                    result.put("key", rpslObject.getKey().toString());
+                    result.put("type", rpslObject.getType().getName());
 
                     for (final AttributeType attribute : responseAttributes) {
-                        final ObjectTemplate template = ObjectTemplate.getTemplate(
-                                ObjectType.getByName(doc.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME)));
+                        final ObjectTemplate template = ObjectTemplate.getTemplate(rpslObject.getType());
 
                         if (template.getMultipleAttributes().contains(attribute)) {
-                            result.put(attribute.getName(), filterComments(doc.getValues(attribute.getName())));
+                            result.put(attribute.getName(), filterValues(attribute, rpslObject));
                         } else {
-                            result.put(attribute.getName(), filterComment(doc.get(attribute.getName())));
+                            result.put(attribute.getName(), filterValue(attribute, rpslObject.containsAttribute(attribute) ? rpslObject.findAttribute(attribute).getValue() : null));
                         }
                     }
 
@@ -110,16 +130,12 @@ public class AutocompleteSearch {
     }
 
     @Nullable
-    private String filterComment(final String attributeValue) {
-        return (attributeValue == null) ? null : COMMENT_PATTERN.matcher(attributeValue).replaceFirst("").trim();
+    private String filterValue(final AttributeType type, final String attributeValue) {
+        return attributeValue == null ? null : COMMENT_PATTERN.matcher( fullTextIndex.filterRpslAttribute(type, attributeValue)).replaceFirst("").trim();
     }
 
-    private List<String> filterComments(final String[] attributeValues) {
-        final List<String> response = Lists.newArrayListWithCapacity(attributeValues.length);
-        for (String attributeValue : attributeValues) {
-            response.add(filterComment(attributeValue));
-        }
-        return response;
+    private List<String> filterValues(final AttributeType attributeType, final RpslObject rpslObject) {
+        return rpslObject.findAttributes(attributeType).stream().map( (attribute) -> filterValue(attributeType, attribute.getValue())).collect(Collectors.toList());
     }
 
     // query by attribute(s)
