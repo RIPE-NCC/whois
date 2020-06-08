@@ -437,15 +437,10 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                                 "source:       TEST")
                 );
 
-        try {
-            RestTest.target(getPort(), "whois/batch/TEST")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
-                    .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
-        } catch (BadRequestException bre) {
-            final WhoisResources response = bre.getResponse().readEntity(WhoisResources.class);
-            System.out.println(response);
-        }
+        RestTest.target(getPort(), "whois/batch/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertNotNull(databaseHelper.lookupObject(ObjectType.INETNUM, "19.0.0.0 - 19.1.255.255"));
     }
