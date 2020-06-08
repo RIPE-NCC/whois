@@ -2,8 +2,7 @@ package net.ripe.db.whois.api.rest.search;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.jdbc.JdbcManagedAttributeDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -17,12 +16,9 @@ import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @Component
 public class ManagedAttributeSearch {
@@ -44,17 +40,14 @@ public class ManagedAttributeSearch {
     private static final ImmutableSet<AutnumStatus> AUT_NUM_STATUSES = Sets.immutableEnumSet(AutnumStatus.ASSIGNED, AutnumStatus.LEGACY);
 
     private final Maintainers maintainers;
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
-    private final RpslObjectDao rpslObjectDao;
+    private final JdbcManagedAttributeDao managedAttributeDao;
 
     @Autowired
     public ManagedAttributeSearch(
             final Maintainers maintainers,
-            final RpslObjectUpdateDao rpslObjectUpdateDao,
-            final RpslObjectDao rpslObjectDao) {
+            final JdbcManagedAttributeDao managedAttributeDao) {
         this.maintainers = maintainers;
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
-        this.rpslObjectDao = rpslObjectDao;
+        this.managedAttributeDao = managedAttributeDao;
     }
 
     /**
@@ -248,24 +241,10 @@ public class ManagedAttributeSearch {
         }
 
         if (orgType == OrgType.OTHER) {
-            // is this org referenced by a resource which is RIPE maintained?
-            final Optional<RpslObject> match = findReferences(rpslObject)
-                                                    .filter(this::hasRipeNccMntner)
-                                                    .findFirst();
-            return match.isPresent();
+            return managedAttributeDao.hasManagedResource(rpslObject.getKey());
         }
 
         return false;
-    }
-
-    private Stream<RpslObject> findReferences(final RpslObject rpslObject) {
-        try {
-            return rpslObjectUpdateDao.getReferences(rpslObject)
-                        .stream()
-                        .map(rpslObjectInfo -> rpslObjectDao.getById(rpslObjectInfo.getObjectId()));
-        } catch (DataAccessException e) {
-            return Stream.empty();
-        }
     }
 
     private boolean hasRipeNccMntner(final RpslObject rpslObject) {
