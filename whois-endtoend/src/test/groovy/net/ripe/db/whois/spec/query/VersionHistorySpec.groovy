@@ -861,6 +861,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
 
     def "query --list-versions, 2 exact matching route, 2 versions of each"() {
       given:
+        dbfixture(getTransient("ALLOC-PA"))
         syncUpdate(getTransient("ASS-END") + "override: denis,override1")
         syncUpdate(getTransient("AS1000") + "override: denis,override1")
         syncUpdate(getTransient("AS2000") + "override: denis,override1")
@@ -932,6 +933,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
 
     def "query --show-version for 2 exact matching route, 2 & 3 versions exist"() {
       given:
+        dbfixture(getTransient("ALLOC-PA"))
         syncUpdate(getTransient("ASS-END") + "override: denis,override1")
         syncUpdate(getTransient("AS1000") + "override: denis,override1")
         syncUpdate(getTransient("AS2000") + "override: denis,override1")
