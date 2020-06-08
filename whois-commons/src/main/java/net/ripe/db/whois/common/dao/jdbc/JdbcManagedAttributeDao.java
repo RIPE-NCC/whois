@@ -33,18 +33,18 @@ public class JdbcManagedAttributeDao {
 
     public boolean hasManagedResource(final CIString orgId) {
         final int orgObjectId = jdbcTemplate.queryForObject(
-            "select object_id from organisation where organisation = ?",
+            "SELECT object_id FROM organisation WHERE organisation = ?",
                 new Object[] { orgId },
                 Integer.class
         );
 
         return executeStreaming(
                 jdbcTemplate,
-                "select l.object " +
-                    "from last l inner join org o on l.object_id = o.object_id " +
-                    "where o.org_id = ? " +
-                    "and   o.object_type in (?, ?, ?) " +
-                    "and   l.sequence_id > 0",
+                "SELECT l.object " +
+                    "FROM   last l INNER JOIN org o ON l.object_id = o.object_id " +
+                    "WHERE  o.org_id = ? " +
+                    "AND    o.object_type in (?, ?, ?) " +
+                    "AND    l.sequence_id > 0",
                 pstmt -> {
                     pstmt.setInt(1, orgObjectId);
                     pstmt.setInt(2, ObjectTypeIds.getId(ObjectType.INETNUM));

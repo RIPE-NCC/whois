@@ -20,21 +20,17 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 
-import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
-import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
-import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
-
 @Component
 public class ManagedAttributeSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedAttributeSearch.class);
 
-    private static final ImmutableSet<AttributeType> ALLOCATION_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, ORG, AttributeType.STATUS, AttributeType.NETNAME, AttributeType.SOURCE);
-    private static final ImmutableSet<AttributeType> ASSIGNMENT_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
-    private static final ImmutableSet<AttributeType> LEGACY_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
+    private static final ImmutableSet<AttributeType> ALLOCATION_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.ORG, AttributeType.STATUS, AttributeType.NETNAME, AttributeType.SOURCE);
+    private static final ImmutableSet<AttributeType> ASSIGNMENT_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
+    private static final ImmutableSet<AttributeType> LEGACY_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
 
-    private static final ImmutableSet<AttributeType> ORG_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.ORGANISATION, ORG, AttributeType.ORG_NAME, AttributeType.ORG_TYPE, AttributeType.SOURCE);
-    private static final ImmutableSet<AttributeType> AUT_NUM_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.AUT_NUM, ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
+    private static final ImmutableSet<AttributeType> ORG_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.ORGANISATION, AttributeType.ORG, AttributeType.ORG_NAME, AttributeType.ORG_TYPE, AttributeType.SOURCE);
+    private static final ImmutableSet<AttributeType> AUT_NUM_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.AUT_NUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
 
     private static final ImmutableSet<InetnumStatus> INETNUM_ASSIGNMENT_STATUSES = Sets.immutableEnumSet(InetnumStatus.ASSIGNED_PI, InetnumStatus.ASSIGNED_ANYCAST);
     private static final ImmutableSet<InetnumStatus> INETNUM_ALLOCATION_STATUSES = Sets.immutableEnumSet(InetnumStatus.ALLOCATED_PA, InetnumStatus.ALLOCATED_PI, InetnumStatus.ALLOCATED_UNSPECIFIED);
@@ -182,7 +178,7 @@ public class ManagedAttributeSearch {
 
     @Nullable
     private AutnumStatus getAutNumStatus(final RpslObject rpslObject) {
-        if (rpslObject.getType() != INET6NUM) {
+        if (rpslObject.getType() != ObjectType.INET6NUM) {
             return null;
         }
 
@@ -200,7 +196,7 @@ public class ManagedAttributeSearch {
 
     @Nullable
     private Inet6numStatus getInet6numStatus(final RpslObject rpslObject) {
-        if (rpslObject.getType() != INET6NUM) {
+        if (rpslObject.getType() != ObjectType.INET6NUM) {
             return null;
         }
 
@@ -218,7 +214,7 @@ public class ManagedAttributeSearch {
 
     @Nullable
     private InetnumStatus getInetnumStatus(final RpslObject rpslObject) {
-        if (rpslObject.getType() != INETNUM) {
+        if (rpslObject.getType() != ObjectType.INETNUM) {
             return null;
         }
 
