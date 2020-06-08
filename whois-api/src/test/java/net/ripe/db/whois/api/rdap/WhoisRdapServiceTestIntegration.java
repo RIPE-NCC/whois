@@ -20,6 +20,7 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -549,6 +550,31 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void lookup_inet6num_is_case_insensitive() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:200a::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/2001:200A::")      // uppercase key in request
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:200a::/48"));
+        assertThat(ip.getIpVersion(), is("v6"));
+        assertThat(ip.getStartAddress(), is("2001:200a::"));
+        assertThat(ip.getEndAddress(), is("2001:200a:0:ffff:ffff:ffff:ffff:ffff"));
+        assertThat(ip.getName(), is("RIPE-NCC"));
+        assertThat(ip.getParentHandle(), is("::/0"));
+    }
+
+    @Test
     public void lookup_inet6num_not_found() {
         try {
             createResource("ip/2001:2002:2003::/48")
@@ -598,6 +624,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(notices.get(1).getTitle(), is("Source"));
 
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/PP1-TEST");
+    }
+
+    @Ignore("[ES] TODO lookup should be case insensitive")
+    @Test
+    public void lookup_person_entity_is_case_insensitive() {
+        final Entity entity = createResource("entity/pP1-TeSt")     // mixed case in request
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertCommon(entity);
+        assertThat(entity.getHandle(), equalTo("PP1-TEST"));
     }
 
     @Test
@@ -741,6 +778,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
         assertCopyrightLink(domain.getLinks(), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
+    }
+
+    @Test
+    public void lookup_domain_object_is_case_insensitive() {
+        final Domain domain = createResource("domain/31.12.202.IN-AddR.ARPA")       // mixed case in request
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertCommon(domain);
+        assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getObjectClassName(), is("domain"));
     }
 
     @Test
@@ -1367,6 +1416,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("31.12.202.in-addr.arpa"));
     }
 
+    @Test
+    public void search_domain_is_case_insensitive() {
+        fullTextIndex.rebuild();
+
+        final SearchResult response = createResource("domains?name=31.12.202.IN-AddR.arpa")     // mixed case in request
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("31.12.202.in-addr.arpa"));
+    }
+
     // search - nameservers
 
     @Test
@@ -1428,10 +1488,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
-    public void search_entity_person_by_name_lowercase() {
+    public void search_entity_person_by_name_is_case_insensitive() {
         fullTextIndex.rebuild();
 
-        final SearchResult response = createResource("entities?fn=test%20person")
+        final SearchResult response = createResource("entities?fn=tESt%20PeRSOn")       // mixed case in request
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1517,6 +1577,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void search_entity_person_by_handle_is_case_insensitive() {
+        fullTextIndex.rebuild();
+
+        final SearchResult response = createResource("entities?handle=Tp2-tESt")       // mixed case in request
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP2-TEST"));
+    }
+
+    @Test
     public void search_entity_person_by_handle_not_found() {
         try {
             fullTextIndex.rebuild();
@@ -1567,7 +1638,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
-    public void search_entity_organisation_by_name_mixed_case() {
+    public void search_entity_organisation_by_name_is_case_insensitive() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=ORGanisAtioN")
