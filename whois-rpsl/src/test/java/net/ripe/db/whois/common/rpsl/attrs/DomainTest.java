@@ -85,6 +85,12 @@ public class DomainTest {
     }
 
     @Test
+    public void valid_ipv6_leading_zeros() {
+        final Domain domain = Domain.parse("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.a.0.0.a.2.ip6.arpa");
+        assertThat(domain.getReverseIp().toString(), is("2a00:a800::/124"));
+    }
+
+    @Test
     public void ipv4_prefix_32_allowed() {
         Domain domain = Domain.parse("200.193.193.193.in-addr.arpa.");
         assertThat(domain.getValue(), is(ciString("200.193.193.193.in-addr.arpa")));
