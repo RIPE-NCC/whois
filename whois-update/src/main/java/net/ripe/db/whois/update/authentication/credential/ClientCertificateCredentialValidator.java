@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -18,28 +19,29 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 
 @Component
-public class X509CredentialValidator implements CredentialValidator<X509Credential, X509Credential> {
+public class ClientCertificateCredentialValidator implements CredentialValidator<ClientCertificateCredential, X509Credential> {
 
     private final RpslObjectDao rpslObjectDao;
     private final DateTimeProvider dateTimeProvider;
     private final LoggerContext loggerContext;
 
     @Autowired
-    public X509CredentialValidator(final RpslObjectDao rpslObjectDao, final DateTimeProvider dateTimeProvider, final LoggerContext loggerContext) {
+    public ClientCertificateCredentialValidator(final RpslObjectDao rpslObjectDao, final DateTimeProvider dateTimeProvider, final LoggerContext loggerContext) {
         this.rpslObjectDao = rpslObjectDao;
         this.dateTimeProvider = dateTimeProvider;
         this.loggerContext = loggerContext;
     }
 
     @Override
-    public Class<X509Credential> getSupportedCredentials() {
-        return X509Credential.class;
+    public Class<ClientCertificateCredential> getSupportedCredentials() {
+        return ClientCertificateCredential.class;
     }
 
     @Override
-    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<X509Credential> offeredCredentials, final X509Credential knownCredential) {
-        for (final X509Credential offeredCredential : offeredCredentials) {
-            if (verifySignedMessage(update, updateContext, offeredCredential, knownCredential)) {
+    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<ClientCertificateCredential> offeredCredentials, final X509Credential knownCredential) {
+        for (final ClientCertificateCredential offeredCredential : offeredCredentials) {
+
+            if (verifyClientCertificate(update, updateContext, offeredCredential, knownCredential)) {
                 log(update, String.format("Successfully validated with keycert: %s", knownCredential.getKeyId()));
                 return true;
             }
@@ -48,41 +50,22 @@ public class X509CredentialValidator implements CredentialValidator<X509Credenti
         return false;
     }
 
-    private boolean verifySignedMessage(final PreparedUpdate update, final UpdateContext updateContext, final X509Credential offeredCredential, final X509Credential knownCredential) {
+    private boolean verifyClientCertificate(final PreparedUpdate update, final UpdateContext updateContext, final ClientCertificateCredential offeredCredential, final X509Credential knownCredential) {
         final String keyId = knownCredential.getKeyId();
         final X509CertificateWrapper x509CertificateWrapper = getKeyWrapper(update, updateContext, keyId);
         if (x509CertificateWrapper == null) {
             return false;
         }
 
-        if (verify(update, offeredCredential, x509CertificateWrapper)) {
-            log(update, String.format("Successfully validated with keycert: {}", keyId));
-
-            if (x509CertificateWrapper.isExpired(dateTimeProvider)) {
-                updateContext.addMessage(update, UpdateMessages.certificateHasExpired(keyId));
-            } else {
-                if (x509CertificateWrapper.isNotYetValid(dateTimeProvider)) {
-                    updateContext.addMessage(update, UpdateMessages.certificateNotYetValid(keyId));
-                }
-            }
-
-            if (!offeredCredential.verifySigningTime(dateTimeProvider)) {
-                updateContext.addMessage(update, UpdateMessages.messageSignedMoreThanOneHourAgo());
-            }
-
-            return true;
+        if (x509CertificateWrapper.isExpired(dateTimeProvider)) {
+            updateContext.addMessage(update, UpdateMessages.certificateHasExpired(keyId));
         }
 
-        return false;
-    }
-
-    private boolean verify(final PreparedUpdate update, final X509Credential credential, final X509CertificateWrapper x509CertificateWrapper) {
-        try {
-            return credential.verify(x509CertificateWrapper.getCertificate());
-        } catch (IllegalArgumentException e ) {
-            logException(update, e);
-            return false;
+        if (x509CertificateWrapper.isNotYetValid(dateTimeProvider)) {
+            updateContext.addMessage(update, UpdateMessages.certificateNotYetValid(keyId));
         }
+
+        return x509CertificateWrapper.getFingerprint().equals(offeredCredential.getFingerprint());
     }
 
     @CheckForNull

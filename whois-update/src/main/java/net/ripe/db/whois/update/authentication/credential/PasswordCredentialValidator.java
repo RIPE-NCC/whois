@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 
 @Component
-class PasswordCredentialValidator implements CredentialValidator<PasswordCredential> {
+class PasswordCredentialValidator implements CredentialValidator<PasswordCredential, PasswordCredential> {
     private final LoggerContext loggerContext;
 
     @Autowired

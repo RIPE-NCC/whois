@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 
 @Component
-public class SsoCredentialValidator implements CredentialValidator<SsoCredential> {
+public class SsoCredentialValidator implements CredentialValidator<SsoCredential, SsoCredential> {
     private final LoggerContext loggerContext;
 
     @Autowired

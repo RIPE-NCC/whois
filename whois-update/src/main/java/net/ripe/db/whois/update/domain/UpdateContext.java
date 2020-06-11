@@ -17,8 +17,10 @@ import net.ripe.db.whois.update.dns.DnsCheckResponse;
 import net.ripe.db.whois.update.log.LoggerContext;
 
 import javax.annotation.CheckForNull;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,6 +41,7 @@ public class UpdateContext {
     private boolean dryRun;
     private boolean batchUpdate;
     private UserSession userSession;
+    private Optional<X509Certificate> clientCertificate;
 
     public UpdateContext(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
@@ -314,6 +317,14 @@ public class UpdateContext {
 
     public UserSession getUserSession() {
         return userSession;
+    }
+
+    public void setClientCertificate(Optional<X509Certificate> clientCertificate) {
+        this.clientCertificate = clientCertificate;
+    }
+
+    public Optional<X509Certificate> getClientCertificate() {
+        return clientCertificate;
     }
 
     private static class Context {

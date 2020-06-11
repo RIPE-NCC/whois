@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-class PgpCredentialValidator implements CredentialValidator<PgpCredential> {
+class PgpCredentialValidator implements CredentialValidator<PgpCredential, PgpCredential> {
 
     private final RpslObjectDao rpslObjectDao;
     private final DateTimeProvider dateTimeProvider;
