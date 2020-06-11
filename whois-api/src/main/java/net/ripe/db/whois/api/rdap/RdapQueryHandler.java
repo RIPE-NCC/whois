@@ -21,6 +21,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.util.List;
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 public class RdapQueryHandler {
@@ -63,8 +64,7 @@ public class RdapQueryHandler {
                 }
 
                 private void addIfPrimaryObject(final RpslObject responseObject) {
-                    final String primaryKey = responseObject.getKey().toString();
-                    if(primaryKey.equals(query.getSearchValue())) {
+                    if(responseObject.getKey().equals(ciString(query.getSearchValue()))) {
                         result.add(responseObject);
                     }
                 }
