@@ -195,6 +195,7 @@ public class SyncUpdatesService {
             final UpdateContext updateContext = new UpdateContext(loggerContext);
 
             setSsoSessionToContext(updateContext, request.getSsoToken());
+            updateContext.setClientCertificate(ClientCertificateExtractor.getClientCertificate(httpServletRequest));
 
             final String content = request.hasParam("DATA") ? request.getParam("DATA") : "";
 
