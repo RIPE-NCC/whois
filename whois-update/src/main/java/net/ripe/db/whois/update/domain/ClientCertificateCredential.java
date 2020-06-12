@@ -1,8 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
 
@@ -13,11 +12,7 @@ public class ClientCertificateCredential implements Credential {
 
     public ClientCertificateCredential(final X509Certificate x509Certificate) {
         this.x509Certificate = x509Certificate;
-        try {
-            this.fingerprint = DigestUtils.md5Hex(x509Certificate.getEncoded());
-        } catch (CertificateEncodingException cee) {
-            throw new IllegalStateException(cee);
-        }
+        this.fingerprint = X509CertificateWrapper.wrap(x509Certificate).getFingerprint();
     }
 
     public static Credential createOfferedCredential(X509Certificate clientCertificate) {
@@ -47,4 +42,5 @@ public class ClientCertificateCredential implements Credential {
     public String getFingerprint() {
         return fingerprint;
     }
+
 }

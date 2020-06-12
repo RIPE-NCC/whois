@@ -42,6 +42,11 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential, PgpCr
     }
 
     @Override
+    public Class<PgpCredential> getSupportedOfferedCredentialType() {
+        return PgpCredential.class;
+    }
+
+    @Override
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<PgpCredential> offeredCredentials, final PgpCredential knownCredential) {
         for (final PgpCredential offeredCredential : offeredCredentials) {
             if (verifySignedMessage(update, updateContext, offeredCredential, knownCredential)) {

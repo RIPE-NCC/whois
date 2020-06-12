@@ -37,6 +37,11 @@ public class X509CredentialValidator implements CredentialValidator<X509Credenti
     }
 
     @Override
+    public Class<X509Credential> getSupportedOfferedCredentialType() {
+        return X509Credential.class;
+    }
+
+    @Override
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<X509Credential> offeredCredentials, final X509Credential knownCredential) {
         for (final X509Credential offeredCredential : offeredCredentials) {
             if (verifySignedMessage(update, updateContext, offeredCredential, knownCredential)) {

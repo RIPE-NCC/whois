@@ -27,6 +27,11 @@ class PasswordCredentialValidator implements CredentialValidator<PasswordCredent
     }
 
     @Override
+    public Class<PasswordCredential> getSupportedOfferedCredentialType() {
+        return PasswordCredential.class;
+    }
+
+    @Override
     public boolean hasValidCredential(final PreparedUpdate update,
                                       final UpdateContext updateContext,
                                       final Collection<PasswordCredential> offeredCredentials,

@@ -33,7 +33,12 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     }
 
     @Override
-    public Class<ClientCertificateCredential> getSupportedCredentials() {
+    public Class<X509Credential> getSupportedCredentials() {
+        return X509Credential.class;
+    }
+
+    @Override
+    public Class<ClientCertificateCredential> getSupportedOfferedCredentialType() {
         return ClientCertificateCredential.class;
     }
 
@@ -59,10 +64,12 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
 
         if (x509CertificateWrapper.isExpired(dateTimeProvider)) {
             updateContext.addMessage(update, UpdateMessages.certificateHasExpired(keyId));
+            return false;
         }
 
         if (x509CertificateWrapper.isNotYetValid(dateTimeProvider)) {
             updateContext.addMessage(update, UpdateMessages.certificateNotYetValid(keyId));
+            return false;
         }
 
         return x509CertificateWrapper.getFingerprint().equals(offeredCredential.getFingerprint());

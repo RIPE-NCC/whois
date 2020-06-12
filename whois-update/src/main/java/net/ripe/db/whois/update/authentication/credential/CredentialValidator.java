@@ -7,7 +7,10 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import java.util.Collection;
 
 interface CredentialValidator<T extends Credential, K extends Credential> {
-    Class<T> getSupportedCredentials();
+
+    Class<K> getSupportedCredentials();
+
+    Class<T> getSupportedOfferedCredentialType();
 
     boolean hasValidCredential(PreparedUpdate update, UpdateContext updateContext, Collection<T> offeredCredentials, K knownCredential);
 }

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
-import org.apache.commons.io.IOUtils;
+import net.ripe.db.whois.common.io.ByteArrayInput;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +13,8 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
+
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
 
 public class ClientCertificateExtractor {
 
@@ -40,13 +42,11 @@ public class ClientCertificateExtractor {
         // TODO what to log as cert identifier (fingerprint, subjectDN?)
         Principal subject = null;
         try {
-            final X509Certificate x509 = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(IOUtils.toInputStream(certificate));
+            final X509Certificate x509 = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInput(decodeBase64(certificate)));
 
             subject = x509.getSubjectDN();
             x509.checkValidity();
 
-
-//            final String fingerprint = DigestUtils.md5Hex(x509.getEncoded());
 
             // TODO signature verification (both self signed and ca)
             //x509.verify(x509.getPublicKey());
@@ -58,9 +58,8 @@ public class ClientCertificateExtractor {
             LOGGER.info("Certificate {} is not yet valid", subject);
         } catch (CertificateException e) {
             LOGGER.info("Invalid X.509 certificate");
-//        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
-//            throw new IllegalArgumentException("Certificate signature verification failed");
         }
+
         return Optional.empty();
     }
 }

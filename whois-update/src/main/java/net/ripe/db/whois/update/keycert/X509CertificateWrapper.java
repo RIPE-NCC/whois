@@ -58,6 +58,10 @@ public final class X509CertificateWrapper implements KeyWrapper {
         return new X509CertificateWrapper(result);
     }
 
+    public static X509CertificateWrapper wrap(final X509Certificate certificate) {
+        return new X509CertificateWrapper(certificate);
+    }
+
     static boolean looksLikeX509Key(final RpslObject rpslObject) {
         final String pgpKey = RpslObjectFilter.getCertificateFromKeyCert(rpslObject);
         return pgpKey.indexOf(X509_HEADER) != -1 && pgpKey.indexOf(X509_FOOTER) != -1;
@@ -140,4 +144,5 @@ public final class X509CertificateWrapper implements KeyWrapper {
         final LocalDateTime notAfter = DateUtil.fromDate(certificate.getNotAfter());
         return notAfter.isBefore(dateTimeProvider.getCurrentDateTime());
     }
+
 }

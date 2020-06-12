@@ -319,7 +319,7 @@ public class UpdateContext {
         return userSession;
     }
 
-    public void setClientCertificate(Optional<X509Certificate> clientCertificate) {
+    public void setClientCertificate(final Optional<X509Certificate> clientCertificate) {
         this.clientCertificate = clientCertificate;
     }
 

@@ -25,6 +25,11 @@ public class SsoCredentialValidator implements CredentialValidator<SsoCredential
     }
 
     @Override
+    public Class<SsoCredential> getSupportedOfferedCredentialType() {
+        return SsoCredential.class;
+    }
+
+    @Override
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<SsoCredential> offeredCredentials, final SsoCredential knownCredential) {
         for (SsoCredential offered : offeredCredentials) {
             if (offered.getOfferedUserSession().getUuid().equals(knownCredential.getKnownUuid())) {
