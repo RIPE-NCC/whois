@@ -63,8 +63,7 @@ public class RdapQueryHandler {
                 }
 
                 private void addIfPrimaryObject(final RpslObject responseObject) {
-                    final String primaryKey = responseObject.getKey().toString();
-                    if(primaryKey.equals(query.getSearchValue())) {
+                    if(responseObject.getKey().equals(query.getSearchValue())) {
                         result.add(responseObject);
                     }
                 }

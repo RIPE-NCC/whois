@@ -3088,6 +3088,21 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 password:       owner
              """.stripIndent())
 
+      syncUpdate new SyncUpdate(data: """
+                inetnum: 192.0.0.0 - 193.0.0.255
+                netname: RIPE-NCC
+                country: EU
+                org:     ORG-HR1-TEST
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                status:  ALLOCATED PA
+                mnt-by:  RIPE-NCC-HM-MNT
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                password: hm
+                password: owner
+                """.stripIndent())
+
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
@@ -3193,7 +3208,23 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: hm")
-      clearPowerMaintainers()
+
+      syncUpdate new SyncUpdate(data: """
+                  inetnum: 192.0.0.0 - 193.0.0.255
+                  netname: RIPE-NCC
+                  country: EU
+                  org:     ORG-HR1-TEST
+                  admin-c: TP1-TEST
+                  tech-c:  TP1-TEST
+                  status:  ALLOCATED PA
+                  mnt-by:  RIPE-NCC-HM-MNT
+                  mnt-by:  OWNER-MNT
+                  source:  TEST
+                  password: hm
+                  password: owner
+                  """.stripIndent())
+
+    clearPowerMaintainers()
     then:
       def message = send "From: noreply@ripe.net\n" +
               "Content-Type: multipart/signed; boundary=\"Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB\"; " +
@@ -3288,6 +3319,22 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
+
+      syncUpdate new SyncUpdate(data: """
+                  inetnum: 192.0.0.0 - 193.0.0.255
+                  netname: RIPE-NCC
+                  country: EU
+                  org:     ORG-HR1-TEST
+                  admin-c: TP1-TEST
+                  tech-c:  TP1-TEST
+                  status:  ALLOCATED PA
+                  mnt-by:  RIPE-NCC-HM-MNT
+                  mnt-by:  OWNER-MNT
+                  source:  TEST
+                  password: hm
+                  password: owner
+                  """.stripIndent())
+
     then:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -3343,7 +3390,23 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: hm")
-      clearPowerMaintainers()
+
+      syncUpdate new SyncUpdate(data: """
+                  inetnum: 192.0.0.0 - 193.0.0.255
+                  netname: RIPE-NCC
+                  country: EU
+                  org:     ORG-HR1-TEST
+                  admin-c: TP1-TEST
+                  tech-c:  TP1-TEST
+                  status:  ALLOCATED PA
+                  mnt-by:  RIPE-NCC-HM-MNT
+                  mnt-by:  OWNER-MNT
+                  source:  TEST
+                  password: hm
+                  password: owner
+                  """.stripIndent())
+
+    clearPowerMaintainers()
 
     then:
           def message = send  "From: inetnum@ripe.net\n" +

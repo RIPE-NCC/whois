@@ -366,6 +366,33 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void lookup_entity_case_insensitive_person() {
+        databaseHelper.addObject("" +
+                "person:        Test Person case\n" +
+                "nic-hdl:       gruk-RIPE\n" +
+                "source:        TEST");
+
+        final Entity upperCaseEntity = createResource("entity/GRUK-RIPE")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(upperCaseEntity.getHandle(), equalTo("gruk-RIPE"));
+
+        final Entity exactSearchEntity = createResource("entity/gruk-RIPE")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(exactSearchEntity.getHandle(), equalTo("gruk-RIPE"));
+
+        final Entity mixedCaseEntity = createResource("entity/gRuk-RIpE")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(mixedCaseEntity.getHandle(), equalTo("gruk-RIPE"));
+    }
+
+
+    @Test
     public void lookup_inetnum_not_found() {
         try {
             createResource("ip/193.0.0.0")

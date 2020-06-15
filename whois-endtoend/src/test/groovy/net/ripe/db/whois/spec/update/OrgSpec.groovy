@@ -2282,6 +2282,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
     def "modify organisation, org-type:OTHER, ref from ASSIGNED PA, change org-name"() {
         given:
+        dbfixture(getTransient("ALLOC-PA"))
         syncUpdate(getTransient("ASSIGN-PA-OTHER") + "override: denis,override1")
 
         expect:
@@ -2322,7 +2323,8 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
     def "modify organisation, org-type:OTHER, ref from legacy, change org-name"() {
         given:
-        syncUpdate(getTransient("LEGACY-OTHER") + "override: denis,override1")
+        dbfixture(getTransient("ALLOC-PA"))
+        dbfixture(getTransient("LEGACY-OTHER"))
 
         expect:
         query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "LEGACY")
@@ -2525,7 +2527,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
     def "modify legacy, referenced org is type LIR and also referenced in allocation, change org:"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
-        syncUpdate(getTransient("LEGACY") + "override: denis,override1")
+        dbfixture(getTransient("LEGACY"))
 
         expect:
         query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
@@ -2558,7 +2560,9 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 10.168.0.0 - 10.169.255.255") == [
+                "inetnum parent has incorrect status: ALLOCATED PA"]
 
         query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "org:\\s*ORG-LIRA-TEST")
     }
@@ -2566,7 +2570,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
     def "modify legacy, add org: attribute"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
-        syncUpdate(getTransient("LEGACY-NO-ORG") + "override: denis,override1")
+        dbfixture(getTransient("LEGACY-NO-ORG"))
 
         when:
         def message = syncUpdate("""
@@ -2594,7 +2598,9 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 10.168.0.0 - 10.169.255.255") == [
+                "inetnum parent has incorrect status: ALLOCATED PA"]
     }
 
     def "modify assignment, referenced org is type LIR and also referenced in allocation, change org:"() {

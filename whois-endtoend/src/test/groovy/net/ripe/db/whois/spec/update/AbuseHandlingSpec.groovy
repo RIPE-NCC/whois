@@ -639,6 +639,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
     def "create ASSIGNED PA, no org, then modify, change admin-c ref ROLE with abuse-mailbox"() {
       given:
+        dbfixture(getTransient("ALLOC-PA"))
 
       expect:
         query_object_matches("-r -T role AH1-TEST", "role", "Abuse Handler", "abuse-mailbox:")
@@ -691,6 +692,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
     def "create ASSIGNED PA ref org no abuse-c, then modify, change admin-c ref ROLE with abuse-mailbox"() {
       given:
+        dbfixture(getTransient("ALLOC-PA"))
 
       expect:
         query_object_matches("-r -T role AH1-TEST", "role", "Abuse Handler", "abuse-mailbox:")
@@ -745,6 +747,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
     def "create ASSIGNED PA, no org, then modify, add abuse-c ref ROLE with abuse-mailbox"() {
       given:
+        dbfixture(getTransient("ALLOC-PA"))
 
       expect:
         query_object_matches("-r -T role AH1-TEST", "role", "Abuse Handler", "abuse-mailbox:")
@@ -796,6 +799,8 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
     def "create ASSIGNED PA, then modify, duplicate abuse-c"() {
       given:
+        dbfixture(getTransient("ALLOC-PA"))
+
       expect:
         query_object_matches("-r -T role AH1-TEST", "role", "Abuse Handler", "abuse-mailbox:")
 
@@ -2009,7 +2014,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
     def "modify ORGANISATION with abuse-c, type OTHER, ref ASSIGNED PA, remove abuse-c"() {
       given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
-        syncUpdate(getTransient("ASS-END-A") + "override: denis,override1")
+        dbfixture(getTransient("ASS-END-A"))
 
       expect:
         query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
@@ -2049,7 +2054,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
     def "modify ORGANISATION with abuse-c, type OTHER, ref ASSIGNED PA with HM mntner, remove abuse-c"() {
         given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
-        syncUpdate(getTransient("ASS-END-HM-A") + "override: denis,override1")
+        dbfixture(getTransient("ASS-END-HM-A"))
 
         expect:
         query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")

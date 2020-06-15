@@ -254,17 +254,6 @@ public class MntLowerAddedRemovedTest {
     }
 
     @Test
-    public void modify_succeeds_early_registration_inetnum() {
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: EARLY-REGISTRATION\nmnt-lower: TEST-MNT"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: EARLY-REGISTRATION\nmnt-lower: OTHER-MNT"));
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext, never()).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
-    }
-
-    @Test
     public void modify_fails_assigned_anycast_inetnum() {
         when(authenticationSubject.hasPrincipal(Principal.ENDUSER_MAINTAINER)).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INETNUM);
