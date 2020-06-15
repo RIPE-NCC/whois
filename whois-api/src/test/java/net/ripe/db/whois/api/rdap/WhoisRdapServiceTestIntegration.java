@@ -20,7 +20,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -624,17 +623,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(notices.get(1).getTitle(), is("Source"));
 
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/PP1-TEST");
-    }
-
-    @Ignore("[ES] TODO lookup should be case insensitive")
-    @Test
-    public void lookup_person_entity_is_case_insensitive() {
-        final Entity entity = createResource("entity/pP1-TeSt")     // mixed case in request
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Entity.class);
-
-        assertCommon(entity);
-        assertThat(entity.getHandle(), equalTo("PP1-TEST"));
     }
 
     @Test
