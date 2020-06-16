@@ -36,6 +36,7 @@ import java.net.InetAddress;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -86,7 +87,7 @@ public class IndexTemplate implements Closeable {
         final int processors = Runtime.getRuntime().availableProcessors();
         final int numThreads = Math.max(Math.floorDiv(processors, 8), 1);
         final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
-        return new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+        return new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS, workQueue, new TimeoutPolicy());
     }
 
     private void shutdownExecutorService(final ExecutorService executorService) {
@@ -197,7 +198,32 @@ public class IndexTemplate implements Closeable {
 
     public interface SearchCallback<T> {
         T search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException;
+    }
 
+    public static class TimeoutPolicy implements RejectedExecutionHandler {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(TimeoutPolicy.class);
+
+        private static final long TIMEOUT_SECONDS = 10L;
+
+        /**
+         * Wait a maximum amount of time to submit a task.
+         *
+         * @param r the runnable task requested to be executed
+         * @param e the executor attempting to execute this task
+         */
+         @Override
+        public void rejectedExecution(final Runnable r, final ThreadPoolExecutor e) {
+            if (!e.isShutdown()) {
+                try {
+                    e.getQueue().offer(r, TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                } catch (InterruptedException ex) {
+                    LOGGER.warn("Timeout");
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException(ex);
+                }
+            }
+        }
     }
 
     public abstract static class AccountingSearchCallback<T> implements SearchCallback<T> {
