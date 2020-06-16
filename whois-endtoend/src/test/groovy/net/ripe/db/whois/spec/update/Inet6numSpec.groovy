@@ -752,43 +752,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
 
-    def "create allocation, parent has invalid legacy status"() {
-        expect:
-            queryObjectNotFound("-r -T inet6num 1981:600::/48", "inet6num", "1981:600::/48")
-
-        when:
-            def ack = syncUpdateWithResponse("""
-                inet6num:     1981:600::/48
-                netname:      EU-ZZ-2001-0600
-                descr:        European Regional Registry
-                country:      EU
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                status:       ALLOCATED-BY-LIR
-                source:       TEST
-
-                password: hm
-                password: lir
-                password: owner3
-                """.stripIndent()
-        )
-
-        then:
-            ack.summary.nrFound == 1
-            ack.summary.assertSuccess(0, 0, 0, 0, 0)
-            ack.summary.assertErrors(1, 1, 0, 0)
-
-            ack.countErrorWarnInfo(1, 0, 0)
-            ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 1981:600::/48" }
-            ack.errorMessagesFor("Create", "[inet6num] 1981:600::/48") ==
-                    ["Parent 1981:600::/25 has invalid status: SUBTLA"]
-
-            queryObjectNotFound("-rGBT inet6num 1981:600::/48", "inet6num", "1981:600::/48")
-    }
-
     def "create RIR allocation not mnt-by RS"() {
         expect:
             queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")

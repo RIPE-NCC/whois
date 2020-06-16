@@ -6,8 +6,8 @@ jdk:
   - openjdk8
 
 before_install:
- - rm whois-rpsl/src/main/parser/bin/yacc* # in travis yacc needs to be compiled from source
- - sudo apt-get install byacc
+  - rm whois-rpsl/src/main/parser/bin/yacc* # in travis yacc needs to be compiled from source
+  - sudo apt-get install byacc
 
 branches:
   only:
@@ -15,4 +15,3 @@ branches:
 
 # TODO: [ES] travis integration tests are failing
 script: mvn install
-

@@ -173,7 +173,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "org:          ORG-LIR2-TEST\n" +
             "admin-c:      TP1-TEST\n" +
             "tech-c:       TP1-TEST\n" +
-            "status:       ALLOCATED UNSPECIFIED\n" +
+            "status:       ALLOCATED PA\n" +
             "mnt-by:       RIPE-NCC-HM-MNT\n" +
             "mnt-by:       OWNER4-MNT\n" +
             "source:       TEST");

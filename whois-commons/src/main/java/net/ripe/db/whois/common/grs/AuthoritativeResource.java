@@ -48,7 +48,7 @@ public class AuthoritativeResource {
     }
 
     public static AuthoritativeResource unknown() {
-        return new AuthoritativeResource(new SortedRangeSet<Asn, AsnRange>(), new SortedRangeSet<Ipv4, Ipv4Range>(), new SortedRangeSet<Ipv6, Ipv6Range>());
+        return new AuthoritativeResource(new SortedRangeSet<>(), new SortedRangeSet<>(), new SortedRangeSet<>());
     }
 
     public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {

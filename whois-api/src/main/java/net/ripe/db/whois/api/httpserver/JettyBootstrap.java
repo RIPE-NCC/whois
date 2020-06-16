@@ -47,16 +47,20 @@ public class JettyBootstrap implements ApplicationService {
 
     private final String trustedIpRanges;
 
+    private final boolean dosFilterEnabled;
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
-                          @Value("${ipranges.trusted}") final String trustedIpRanges) throws MalformedObjectNameException {
+                          @Value("${ipranges.trusted}") final String trustedIpRanges,
+                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
         this.trustedIpRanges = trustedIpRanges;
         this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
+        this.dosFilterEnabled = dosFilterEnabled;
     }
 
     @Override
@@ -124,14 +128,22 @@ public class JettyBootstrap implements ApplicationService {
         WhoisDoSFilter dosFilter = new WhoisDoSFilter();
         FilterHolder holder = new FilterHolder(dosFilter);
         holder.setName("DoSFilter");
-        holder.setInitParameter("maxRequestsPerSec", "20");
+
+        if (!dosFilterEnabled) {
+            LOGGER.info("DoSFilter is *not* enabled");
+        }
+        holder.setInitParameter("enabled", Boolean.toString(dosFilterEnabled));
+        holder.setInitParameter("maxRequestsPerSec", "50");
+        holder.setInitParameter("maxRequestMs", "" + 10 * 60 * 1_000); // high default, 10 minutes
         holder.setInitParameter("delayMs", "-1"); // reject requests over threshold
         holder.setInitParameter("remotePort", "false");
         holder.setInitParameter("trackSessions", "false");
         holder.setInitParameter("insertHeaders", "false");
         holder.setInitParameter("ipWhitelist", trustedIpRanges);
 
-        ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(dosFilter), dosFilterMBeanName);
+        if (!ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {
+            ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(dosFilter), dosFilterMBeanName);
+        }
 
         return holder;
     }
@@ -153,7 +165,9 @@ public class JettyBootstrap implements ApplicationService {
     public void stop(final boolean force) {
         new Thread(() -> {
             try {
-                ManagementFactory.getPlatformMBeanServer().unregisterMBean(dosFilterMBeanName);
+                if (ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {
+                    ManagementFactory.getPlatformMBeanServer().unregisterMBean(dosFilterMBeanName);
+                }
                 server.stop();
             } catch (Exception e) {
                 LOGGER.error("Stopping server", e);

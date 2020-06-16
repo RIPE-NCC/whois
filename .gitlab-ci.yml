@@ -3,8 +3,7 @@ image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:chrome80-jdk8-maven3
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   TZ: Europe/Amsterdam
-  WHITESOURCE_PRODUCT: "database-team"
-  WHITESOURCE_PROJECT: "whois"
+  WHITESOURCE_CONFIG_FILE: "whitesource.config"
 
 include:
   - project: 'swe/gitlab-ci'
@@ -19,20 +18,17 @@ stages:
   - deploy
 
 cache:
-  key: ${CI_JOB_NAME}
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .m2/repository
-    - target/
-    - "*/target/*"
 
 build:
   stage: build
   script:
-    - mvn $MAVEN_OPTS clean install
-    - mvn $MAVEN_OPTS install -U -Prelease
+    - mvn $MAVEN_OPTS clean install -Prelease
   artifacts:
     paths:
-      - whois-db/target/whois-db-*-SNAPSHOT.jar
+      - "*/target/*.jar"
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
@@ -41,7 +37,7 @@ build:
 release:
   stage: release
   only:
-    - master
+    - tags
   script:
     - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA
     - mvn deploy
@@ -65,7 +61,7 @@ release:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
-whois-end-to-end-test:
+whois-groovy-test:
   <<: *it_env
   tags:
     - whois
@@ -76,7 +72,7 @@ whois-end-to-end-test:
       allow_failure: true
   script:
     - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -pl whois-endtoend
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-endtoend
 
 whois-integration-test:
   <<: *it_env
@@ -165,3 +161,5 @@ deploy_prod:
   environment:
     name: prod
   when: manual
+  only:
+    - tags

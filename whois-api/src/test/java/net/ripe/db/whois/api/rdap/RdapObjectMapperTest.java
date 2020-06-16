@@ -602,7 +602,7 @@ public class RdapObjectMapperTest {
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
-        return mapper.mapSearch(REQUEST_URL, objects, lastUpdateds);
+        return mapper.mapSearch(REQUEST_URL, objects, lastUpdateds, 10);
     }
 
     private Notice getTnCNotice() {

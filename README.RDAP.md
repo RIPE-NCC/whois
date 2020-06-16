@@ -72,6 +72,12 @@ Example:
 * Request: http://rdap.db.ripe.net/entity/ORG-RIEN1-RIPE
  * Response: Should include "networks" element with referenced networks, including 193.0.0.0 - 193.0.23.255
 
+Entity lookup is case sensitive
+--------------------------------
+An entity lookup makes a case sensitive search for the primary key, but should be case insensitive.
+
+Also, responses return references to an entity key in UPPERCASE, rather than case sensitive, so entities with mixed case can't be found.
+
 
 Nameserver queries always return Not Found
 -------------------------------------------
