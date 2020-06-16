@@ -7,7 +7,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -54,7 +53,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -206,12 +204,7 @@ public class FullTextIndex extends RebuildableIndex {
                 }
         );
 
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(1, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            LOGGER.error("shutdown", e);
-        }
+        shutdownExecutorService(executorService);
 
         updateMetadata(indexWriter, source, maxSerial);
     }
@@ -311,7 +304,7 @@ public class FullTextIndex extends RebuildableIndex {
 
         return new RpslObject(rpslObject.getObjectId(), attributes);
     }
-    
+
     public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
 
         if (FILTERED_ATTRIBUTES.contains(attributeType)) {
@@ -350,6 +343,15 @@ public class FullTextIndex extends RebuildableIndex {
         int numThreads = Runtime.getRuntime().availableProcessors();
         final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
         return new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+    }
+
+    private void shutdownExecutorService(final ExecutorService executorService) {
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(1, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            LOGGER.error("shutdown", e);
+        }
     }
 
     final class DatabaseObjectProcessor implements Runnable {

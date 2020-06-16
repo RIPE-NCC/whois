@@ -1,11 +1,8 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.QueryMessages;
@@ -36,7 +33,6 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -75,11 +71,10 @@ public class IndexTemplate implements Closeable {
 
         this.config = config;
 
-        this.updateLock.acquireUninterruptibly();
-
         this.executorService = createExecutorService();
 
         try {
+            this.updateLock.acquireUninterruptibly();
             createNewWriters();
         } finally {
             this.updateLock.release();
@@ -94,11 +89,21 @@ public class IndexTemplate implements Closeable {
         return new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
+    private void shutdownExecutorService(final ExecutorService executorService) {
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(1, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            LOGGER.error("shutdown", e);
+        }
+    }
+
     @Override
     public void close() {
-        updateLock.acquireUninterruptibly();
+        shutdownExecutorService(executorService);
 
         try {
+            updateLock.acquireUninterruptibly();
             closeWhileHandlingException(readerManager, indexWriter, taxonomyWriter, index, taxonomy);
         } finally {
             updateLock.release();
@@ -106,9 +111,9 @@ public class IndexTemplate implements Closeable {
     }
 
     public void write(final WriteCallback writeCallback) throws IOException {
-        updateLock.acquireUninterruptibly();
-
         try {
+            updateLock.acquireUninterruptibly();
+
             writeCallback.write(indexWriter, taxonomyWriter);
             taxonomyWriter.prepareCommit();
             indexWriter.prepareCommit();
