@@ -34,6 +34,12 @@ Organisation role "registrant" is ambiguous
 -------------------------------------------
 The role "registrant" is used to identify organisation entities, however this is ambiguous as it's also used for mntner entities.
 
+Entity Primary Key can match multiple objects
+---------------------------------------------
+If an entity primary key matches more than one object, a 500 Internal Server Error is returned.
+
+For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
+
 Related Contact information is Filtered
 ---------------------------------------
 Any related contact entities ("technical","administrative","abuse" etc.) have filtered contact information, i.e. "e-mail" and "notify" values are not included. This was done to avoid blocking clients for inadvertently querying excessively for personal data.
