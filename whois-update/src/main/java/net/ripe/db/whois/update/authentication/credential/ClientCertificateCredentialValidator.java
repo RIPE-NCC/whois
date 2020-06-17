@@ -45,6 +45,7 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     @Override
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<ClientCertificateCredential> offeredCredentials, final X509Credential knownCredential) {
         for (final ClientCertificateCredential offeredCredential : offeredCredentials) {
+            log(update, String.format("Validating with offered client certificate %s", offeredCredential.getFingerprint()));
 
             if (verifyClientCertificate(update, updateContext, offeredCredential, knownCredential)) {
                 log(update, String.format("Successfully validated with keycert: %s", knownCredential.getKeyId()));
