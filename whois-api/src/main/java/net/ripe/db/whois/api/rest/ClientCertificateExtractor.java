@@ -1,12 +1,13 @@
 package net.ripe.db.whois.api.rest;
 
-import net.ripe.db.whois.common.io.ByteArrayInput;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
@@ -22,6 +23,9 @@ public class ClientCertificateExtractor {
 
     private final static String HEADER_SSL_CLIENT_CERT = "SSL_CLIENT_CERT";
     private final static String HEADER_SSL_CLIENT_VERIFY = "SSL_CLIENT_VERIFY";
+
+    private static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
+    private static final String X509_FOOTER = "-----END CERTIFICATE-----";
 
     public static Optional<X509Certificate> getClientCertificate(final HttpServletRequest request) {
         final String sslClientCert = request.getHeader(HEADER_SSL_CLIENT_CERT);
@@ -41,7 +45,12 @@ public class ClientCertificateExtractor {
     private static Optional<X509Certificate> getX509Certificate(final String certificate) {
         String fingerprint = null;
         try {
-            final X509Certificate x509 = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInput(decodeBase64(certificate)));
+            final InputStream input = new ByteArrayInputStream(
+                    decodeBase64(certificate.replace(X509_HEADER, "").replace(X509_FOOTER, ""))
+            );
+
+            final X509Certificate x509 =
+                    (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(input);
 
             fingerprint = X509CertificateWrapper.wrap(x509).getFingerprint();
 

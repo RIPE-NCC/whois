@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -29,6 +30,9 @@ import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 public class WhoisClientCertificateAuthenticationTestIntegration extends AbstractIntegrationTest {
+
+    private static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
+    private static final String X509_FOOTER = "-----END CERTIFICATE-----";
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
@@ -78,11 +82,17 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
 
         RestTest.target(getPort(), "whois/test/route6/2001::/32AS12726")
                 .request(MediaType.APPLICATION_XML)
-                .header("SSL_CLIENT_CERT", Base64.encodeBase64URLSafeString(cert.getEncoded()))
+                .header("SSL_CLIENT_CERT", asPem(cert))
                 .header("SSL_CLIENT_VERIFY", "GENEROUS")
                 .put(Entity.entity(updatedRoute, MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(databaseHelper.lookupObject(ROUTE6, "2001::/32AS12726").containsAttribute(AttributeType.REMARKS), is(true));
+    }
+
+    private String asPem(final X509Certificate certificate) throws CertificateEncodingException {
+        return X509_HEADER +
+                Base64.encodeBase64URLSafeString(certificate.getEncoded()) +
+                X509_FOOTER;
     }
 
 }
