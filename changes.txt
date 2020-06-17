@@ -1,5 +1,18 @@
 # next
 
+# 1.97.2
+
+[api] Client cert authentication (#637)
+[query] ignore case in RDAP query (#638)
+[query] Optimised finding first managed resource. (#635)
+[update] Cleanup status hierarchy (#633)
+[update] Fixed 500 internal error on domain object update (#636)
+[api] Fulltext search optimize (#631)
+[all] Add daily scheduled job for reloading legacy autnums. (#634)
+[all] More frequent ripe authoritative resource refresh (#627)
+[update] Poetic form should be maintained by RIPE-DBM-MNT (#629)
+
+
 # 1.97.1
 
 [query] Detect a CTRL-C and interrupt (interpret as a delimiter) (#442)
