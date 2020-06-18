@@ -1,33 +1,25 @@
 package net.ripe.db.whois.api.rest;
 
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.net.util.Base64;
+import org.bouncycastle.x509.util.StreamParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
 import java.util.Optional;
-
-import static org.apache.commons.codec.binary.Base64.decodeBase64;
 
 public class ClientCertificateExtractor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientCertificateExtractor.class);
 
-    private final static String HEADER_SSL_CLIENT_CERT = "SSL_CLIENT_CERT";
-    private final static String HEADER_SSL_CLIENT_VERIFY = "SSL_CLIENT_VERIFY";
+    final static String HEADER_SSL_CLIENT_CERT = "SSL_CLIENT_CERT";
+     final static String HEADER_SSL_CLIENT_VERIFY = "SSL_CLIENT_VERIFY";
 
-    private static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
-    private static final String X509_FOOTER = "-----END CERTIFICATE-----";
-
-    public static Optional<X509Certificate> getClientCertificate(final HttpServletRequest request) {
+    public static Optional<X509CertificateWrapper> getClientCertificate(final HttpServletRequest request,
+                                                                        final DateTimeProvider dateTimeProvider) {
         final String sslClientCert = request.getHeader(HEADER_SSL_CLIENT_CERT);
 
         if (StringUtils.isBlank(sslClientCert)) {
@@ -39,29 +31,37 @@ public class ClientCertificateExtractor {
             return Optional.empty();
         }
 
-        return getX509Certificate(sslClientCert);
+        return getX509Certificate(sslClientCert, dateTimeProvider);
     }
 
-    private static Optional<X509Certificate> getX509Certificate(final String certificate) {
-        String fingerprint = null;
+    private static Optional<X509CertificateWrapper> getX509Certificate(final String certificate,
+                                                                final DateTimeProvider dateTimeProvider) {
+        String fingerprint;
         try {
-            final InputStream input = new ByteArrayInputStream(
-                    decodeBase64(certificate.replace(X509_HEADER, "").replace(X509_FOOTER, ""))
+            // the PEM cert provided by Apache in SSL_CLIENT_CERT has spaces that JCA doesn't like so we decode it ourselves:
+            final byte[] bytes = Base64.decodeBase64(
+                    certificate
+                    .replaceAll(X509CertificateWrapper.X509_HEADER, "")
+                    .replaceAll(X509CertificateWrapper.X509_FOOTER, "")
+                    .replaceAll(" ", "")
             );
+            // TODO we should probably let the servlet container handle this for us and just use javax.servlet.request.X509Certificate
 
-            final X509Certificate x509 =
-                    (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(input);
+            final X509CertificateWrapper x509CertificateWrapper = X509CertificateWrapper.parse(bytes);
+            fingerprint = x509CertificateWrapper.getFingerprint();
 
-            fingerprint = X509CertificateWrapper.wrap(x509).getFingerprint();
+            if (x509CertificateWrapper.isNotYetValid(dateTimeProvider)) {
+                LOGGER.info("Client certificate {} is not yet valid", fingerprint);
+                return Optional.empty();
+            }
 
-            x509.checkValidity();
+            if (x509CertificateWrapper.isExpired(dateTimeProvider)) {
+                LOGGER.info("Client certificate {} has expired", fingerprint);
+                return Optional.empty();
+            }
 
-            return Optional.of(x509);
-        } catch (CertificateExpiredException cee) {
-            LOGGER.info("Client certificate {} has expired", fingerprint);
-        } catch (CertificateNotYetValidException cnyve) {
-            LOGGER.info("Client certificate {} is not yet valid", fingerprint);
-        } catch (CertificateException e) {
+            return Optional.of(x509CertificateWrapper);
+        } catch (StreamParsingException e) {
             LOGGER.info("Invalid X.509 certificate");
         }
 

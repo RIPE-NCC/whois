@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import org.apache.commons.net.util.Base64;
+import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -29,8 +29,10 @@ import java.time.Instant;
 import java.util.Date;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
+import static net.ripe.db.whois.update.keycert.X509CertificateWrapper.X509_FOOTER;
+import static net.ripe.db.whois.update.keycert.X509CertificateWrapper.X509_HEADER;
 
-public class X509CertificateUtility {
+public class X509CertificateTestUtil {
 
     public static RpslObject createKeycertObject(final CIString key,
                                                  final X509Certificate x509,
@@ -47,9 +49,9 @@ public class X509CertificateUtility {
         builder.append(new RpslAttribute(AttributeType.KEY_CERT, key));
         builder.append(new RpslAttribute(AttributeType.METHOD, "X509"));
 
-        builder.append(new RpslAttribute(CERTIF, "-----BEGIN CERTIFICATE-----"));
+        builder.append(new RpslAttribute(CERTIF, X509_HEADER));
         Splitter.fixedLength(104 - 40).split(base64).forEach(certif -> builder.append(new RpslAttribute(CERTIF, certif.replaceAll(" ", "").replaceAll("\n", ""))));
-        builder.append(new RpslAttribute(CERTIF, "-----END CERTIFICATE-----"));
+        builder.append(new RpslAttribute(CERTIF, X509_FOOTER));
 
         X509CertificateWrapper keyWrapper = X509CertificateWrapper.parse(builder.get());
 
@@ -85,6 +87,15 @@ public class X509CertificateUtility {
 
         return new JcaX509CertificateConverter()
                 .setProvider(new BouncyCastleProvider()).getCertificate(certificateBuilder.build(contentSigner));
+    }
+
+    public static String asPem(final X509Certificate certificate) throws CertificateEncodingException {
+        // provide pem cert with spaces instead of line breaks like Apache does:
+        return X509_HEADER +
+                " " +
+                Base64.encodeBase64URLSafeString(certificate.getEncoded()) +
+                " " +
+                X509_FOOTER;
     }
 
 }

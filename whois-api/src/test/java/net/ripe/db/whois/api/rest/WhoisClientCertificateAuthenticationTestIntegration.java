@@ -11,8 +11,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.update.keycert.X509CertificateUtility;
-import org.apache.commons.codec.binary.Base64;
+import net.ripe.db.whois.update.keycert.X509CertificateTestUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -20,19 +19,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
+import static net.ripe.db.whois.update.keycert.X509CertificateTestUtil.asPem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 public class WhoisClientCertificateAuthenticationTestIntegration extends AbstractIntegrationTest {
-
-    private static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
-    private static final String X509_FOOTER = "-----END CERTIFICATE-----";
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
@@ -57,8 +53,8 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
     @Test
     public void update_route_authenticate_with_client_cert() throws Exception {
 
-        final X509Certificate cert = X509CertificateUtility.generate("test-cn", testDateTimeProvider);
-        final RpslObject keycert = X509CertificateUtility.createKeycertObject(ciString("X509-1"), cert, ciString("OWNER-MNT"));
+        final X509Certificate cert = X509CertificateTestUtil.generate("test-cn", testDateTimeProvider);
+        final RpslObject keycert = X509CertificateTestUtil.createKeycertObject(ciString("X509-1"), cert, ciString("OWNER-MNT"));
         databaseHelper.addObject(keycert);
 
         final RpslObject ownerWithX509 = new RpslObjectBuilder(OWNER_MNT)
@@ -87,12 +83,6 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
                 .put(Entity.entity(updatedRoute, MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(databaseHelper.lookupObject(ROUTE6, "2001::/32AS12726").containsAttribute(AttributeType.REMARKS), is(true));
-    }
-
-    private String asPem(final X509Certificate certificate) throws CertificateEncodingException {
-        return X509_HEADER +
-                Base64.encodeBase64URLSafeString(certificate.getEncoded()) +
-                X509_FOOTER;
     }
 
 }

@@ -10,13 +10,13 @@ public class ClientCertificateCredential implements Credential {
     private final X509Certificate x509Certificate;
     private final String fingerprint;
 
-    public ClientCertificateCredential(final X509Certificate x509Certificate) {
-        this.x509Certificate = x509Certificate;
-        this.fingerprint = X509CertificateWrapper.wrap(x509Certificate).getFingerprint();
+    public ClientCertificateCredential(final X509CertificateWrapper x509CertificateWrapper) {
+        this.x509Certificate = x509CertificateWrapper.getCertificate();
+        this.fingerprint = x509CertificateWrapper.getFingerprint();
     }
 
-    public static Credential createOfferedCredential(X509Certificate clientCertificate) {
-        return new ClientCertificateCredential(clientCertificate);
+    public static Credential createOfferedCredential(X509CertificateWrapper x509CertificateWrapper) {
+        return new ClientCertificateCredential(x509CertificateWrapper);
     }
 
     @Override

@@ -14,10 +14,10 @@ import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
+import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 
 import javax.annotation.CheckForNull;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,7 +41,7 @@ public class UpdateContext {
     private boolean dryRun;
     private boolean batchUpdate;
     private UserSession userSession;
-    private Optional<X509Certificate> clientCertificate;
+    private Optional<X509CertificateWrapper> clientCertificate;
 
     public UpdateContext(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
@@ -319,11 +319,11 @@ public class UpdateContext {
         return userSession;
     }
 
-    public void setClientCertificate(final Optional<X509Certificate> clientCertificate) {
+    public void setClientCertificate(final Optional<X509CertificateWrapper> clientCertificate) {
         this.clientCertificate = clientCertificate;
     }
 
-    public Optional<X509Certificate> getClientCertificate() {
+    public Optional<X509CertificateWrapper> getClientCertificate() {
         return clientCertificate;
     }
 
