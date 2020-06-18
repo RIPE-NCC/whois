@@ -16,7 +16,7 @@ public class ClientCertificateExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientCertificateExtractor.class);
 
     final static String HEADER_SSL_CLIENT_CERT = "SSL_CLIENT_CERT";
-     final static String HEADER_SSL_CLIENT_VERIFY = "SSL_CLIENT_VERIFY";
+    final static String HEADER_SSL_CLIENT_VERIFY = "SSL_CLIENT_VERIFY";
 
     public static Optional<X509CertificateWrapper> getClientCertificate(final HttpServletRequest request,
                                                                         final DateTimeProvider dateTimeProvider) {
@@ -41,8 +41,8 @@ public class ClientCertificateExtractor {
             // the PEM cert provided by Apache in SSL_CLIENT_CERT has spaces that JCA doesn't like so we decode it ourselves:
             final byte[] bytes = Base64.decodeBase64(
                     certificate
-                    .replaceAll(X509CertificateWrapper.X509_HEADER, "")
-                    .replaceAll(X509CertificateWrapper.X509_FOOTER, "")
+                    .replace(X509CertificateWrapper.X509_HEADER, "")
+                    .replace(X509CertificateWrapper.X509_FOOTER, "")
                     .replaceAll(" ", "")
             );
             // TODO we should probably let the servlet container handle this for us and just use javax.servlet.request.X509Certificate

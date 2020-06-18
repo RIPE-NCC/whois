@@ -11,7 +11,10 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -21,15 +24,25 @@ import java.util.Collection;
 @Component
 public class ClientCertificateCredentialValidator implements CredentialValidator<ClientCertificateCredential, X509Credential> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientCertificateCredentialValidator.class);
+
     private final RpslObjectDao rpslObjectDao;
     private final DateTimeProvider dateTimeProvider;
     private final LoggerContext loggerContext;
 
+    private boolean enabled;
+
     @Autowired
-    public ClientCertificateCredentialValidator(final RpslObjectDao rpslObjectDao, final DateTimeProvider dateTimeProvider, final LoggerContext loggerContext) {
+    public ClientCertificateCredentialValidator(final RpslObjectDao rpslObjectDao,
+                                                final DateTimeProvider dateTimeProvider,
+                                                final LoggerContext loggerContext,
+                                                final @Value("${client.cert.auth.enabled:false}") boolean enabled) {
         this.rpslObjectDao = rpslObjectDao;
         this.dateTimeProvider = dateTimeProvider;
         this.loggerContext = loggerContext;
+        this.enabled = enabled;
+
+        LOGGER.info("Client certificate authentication is {}abled", enabled? "en" : "dis");
     }
 
     @Override
@@ -44,6 +57,10 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
 
     @Override
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<ClientCertificateCredential> offeredCredentials, final X509Credential knownCredential) {
+        if (!enabled) {
+            return false;
+        }
+
         for (final ClientCertificateCredential offeredCredential : offeredCredentials) {
             log(update, String.format("Validating with offered client certificate %s", offeredCredential.getFingerprint()));
 
