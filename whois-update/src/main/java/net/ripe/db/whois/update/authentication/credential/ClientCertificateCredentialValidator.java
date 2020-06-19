@@ -30,7 +30,7 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     private final DateTimeProvider dateTimeProvider;
     private final LoggerContext loggerContext;
 
-    private boolean enabled;
+    private final boolean enabled;
 
     @Autowired
     public ClientCertificateCredentialValidator(final RpslObjectDao rpslObjectDao,
