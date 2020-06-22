@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.keycert.X509CertificateTestUtil;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,11 @@ public class WhoisClientCertificateAuthenticationTestIntegration extends Abstrac
 
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
+
+    @BeforeClass
+    public static void setProperties() {
+        System.setProperty("client.cert.auth.enabled", "true");
+    }
 
     @Before
     public void setup() {
