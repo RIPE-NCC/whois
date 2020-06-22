@@ -26,12 +26,20 @@ public class ClientCertificateExtractor {
             return Optional.empty();
         }
 
-        final String sslClientVerify = request.getHeader(HEADER_SSL_CLIENT_VERIFY);
-        if (!"GENEROUS".equals(sslClientVerify) && !"SUCCESS".equals(sslClientVerify)) {
+        if (!hasAcceptableVerifyHeader(request)) {
             return Optional.empty();
         }
 
         return getX509Certificate(sslClientCert, dateTimeProvider);
+    }
+
+    private static boolean hasAcceptableVerifyHeader(final HttpServletRequest request) {
+        final String sslClientVerify = request.getHeader(HEADER_SSL_CLIENT_VERIFY);
+
+        return StringUtils.isNotEmpty(sslClientVerify) &&
+                ("GENEROUS".equals(sslClientVerify) ||
+                "SUCCESS".equals(sslClientVerify) ||
+                sslClientVerify.startsWith("FAILED"));
     }
 
     private static Optional<X509CertificateWrapper> getX509Certificate(final String certificate,
