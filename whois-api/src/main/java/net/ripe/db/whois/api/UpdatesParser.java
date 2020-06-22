@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Latin1Conversion;
+import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
@@ -60,6 +61,8 @@ public class UpdatesParser {
         if (updateContext.getUserSession() != null) {
             baseCredentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
+
+        updateContext.getClientCertificate().ifPresent(x509 -> baseCredentials.add(ClientCertificateCredential.createOfferedCredential(x509)));
 
         final List<Paragraph> paragraphs = Lists.newArrayList();
 

@@ -239,7 +239,7 @@ public class ReferencesService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
             updateContext.setBatchUpdate();
             auditlogRequest(request);
 
@@ -493,7 +493,7 @@ public class ReferencesService {
                 final String crowdTokenKey) {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
 
             auditlogRequest(request);
 
