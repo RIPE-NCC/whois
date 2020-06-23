@@ -21,7 +21,7 @@ public class LegacyAutnumReloadTask implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 1/15 * * * *")
     @SchedulerLock(name = "ReloadLegacyAutnums")
     public void run() {
         LOGGER.info("Reloading legacy autnums");
