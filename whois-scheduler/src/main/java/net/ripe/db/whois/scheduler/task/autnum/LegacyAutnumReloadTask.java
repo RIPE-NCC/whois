@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.autnum;
 
-import net.javacrumbs.shedlock.core.SchedulerLock;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.update.domain.LegacyAutnum;
 import org.slf4j.Logger;
@@ -21,8 +20,7 @@ public class LegacyAutnumReloadTask implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
-    @SchedulerLock(name = "ReloadLegacyAutnums")
+    @Scheduled(cron = "0 1/15 * * * *")
     public void run() {
         LOGGER.info("Reloading legacy autnums");
         final int previousTotal = legacyAutnum.getTotal();
