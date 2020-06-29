@@ -30,11 +30,14 @@ public class KeycertValidator implements BusinessRuleValidator {
         this.x509AutoKeyFactory = x509AutoKeyFactory;
     }
 
-
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
 
+        validateAutoKey(update, updateContext, updatedObject);
+    }
+
+    private void validateAutoKey(final PreparedUpdate update, final UpdateContext updateContext, final RpslObject updatedObject) {
         if (x509AutoKeyFactory.isKeyPlaceHolder(updatedObject.getKey().toString())) {
             final KeyWrapper keyWrapper = keyWrapperFactory.createKeyWrapper(updatedObject, update, updateContext);
             if (keyWrapper instanceof PgpPublicKeyWrapper) {
