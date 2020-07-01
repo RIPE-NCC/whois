@@ -482,6 +482,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Public key in keycert %s is revoked", name);
     }
 
+    public static Message publicKeyLengthIsWeak(final CharSequence name, final int minimum, final int actual) {
+        return new Message(Type.ERROR, "Public key in keycert %s has an insufficient key length %d, which is less than the minimum %d", name, actual, minimum);
+    }
+
     public static Message cannotCreateOutOfRegionObject(final ObjectType objectType) {
         return new Message(Type.ERROR, "Cannot create out of region %s objects", objectType.getName());
     }
