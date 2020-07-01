@@ -5,13 +5,11 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.autokey.X509AutoKeyFactory;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,8 +33,6 @@ public class X509KeycertValidatorTest {
 
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
-    @Mock X509AutoKeyFactory x509AutoKeyFactory;
-    @Mock KeyWrapperFactory keyWrapperFactory;
     @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks X509KeycertValidator subject;
     List<Message> messages;
