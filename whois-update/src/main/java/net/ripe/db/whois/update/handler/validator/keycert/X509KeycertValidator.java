@@ -2,6 +2,10 @@ package net.ripe.db.whois.update.handler.validator.keycert;
 
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -9,16 +13,16 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import java.security.PublicKey;
-import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Set;
 
 @Component
 public class X509KeycertValidator implements BusinessRuleValidator {
@@ -27,6 +31,18 @@ public class X509KeycertValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.KEY_CERT);
 
     private static final CIString METHOD_X509 = CIString.ciString("X509");
+
+    private static final Set<String> WEAK_HASH_ALGORITHMS = Sets.newHashSet("SHA1withRSA", "SHA1withDSA", "MD5withRSA", "MD5withDSA");
+
+    private static final int MINIMUM_KEY_LENGTH_RSA = 2048;
+    private static final int MINIMUM_KEY_LENGTH_DSA = 2048;
+
+    private final DateTimeProvider dateTimeProvider;
+
+    @Autowired
+    public X509KeycertValidator(final DateTimeProvider dateTimeProvider) {
+        this.dateTimeProvider = dateTimeProvider;
+    }
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -37,55 +53,38 @@ public class X509KeycertValidator implements BusinessRuleValidator {
             return;
         }
 
-        final X509Certificate certificate = getCertificate(updatedObject);
-        if (certificate == null) {
+        final X509CertificateWrapper wrapper;
+        try {
+            wrapper = X509CertificateWrapper.parse(updatedObject);
+        } catch (Exception e) {
+            updateContext.log(new Message(Messages.Type.ERROR, "Unable to parse X509 keycert"), e);
             return;
         }
 
-        validateKeyLength(update, updateContext, updatedObject, certificate);
-        validateAlgorithm(update, updateContext, updatedObject, certificate);
-    }
+        if (wrapper.isExpired(dateTimeProvider)) {
+            updateContext.addMessage(update, UpdateMessages.publicKeyHasExpired(updatedObject.getKey()));
+        }
 
-    private void validateKeyLength(
-                    final PreparedUpdate update,
-                    final UpdateContext updateContext,
-                    final RpslObject updatedObject,
-                    final X509Certificate certificate) {
-        final int keyLength = getKeyLength(certificate.getPublicKey()); // TODO: catch
+        if (WEAK_HASH_ALGORITHMS.contains(wrapper.getCertificate().getSigAlgName())) {
+            updateContext.addMessage(update, UpdateMessages.certificateHasWeakHash(updatedObject.getKey(), wrapper.getCertificate().getSigAlgName()));
+        }
 
-        // TODO: validate key length
-    }
-
-    private void validateAlgorithm(
-                    final PreparedUpdate update,
-                    final UpdateContext updateContext,
-                    final RpslObject updatedObject,
-                    final X509Certificate certificate) {
-        // TODO: validate algorithm
-    }
-
-    private static int getKeyLength(final PublicKey publicKey) {
+        final PublicKey publicKey = wrapper.getCertificate().getPublicKey();
         if  (publicKey instanceof RSAPublicKey) {
-            return ((RSAPublicKey)publicKey).getModulus().bitLength();
+            final int bitLength = ((RSAPublicKey)publicKey).getModulus().bitLength();
+            if (bitLength < MINIMUM_KEY_LENGTH_DSA) {
+                updateContext.addMessage(update, UpdateMessages.publicKeyLengthIsWeak("RSA", MINIMUM_KEY_LENGTH_RSA, bitLength));
+            }
         } else {
             if  (publicKey instanceof DSAPublicKey) {
-                return ((DSAPublicKey)publicKey).getParams().getP().bitLength();
-            } else {
-                if (publicKey instanceof ECPublicKey) {
-                    return (publicKey.getEncoded().length - 1) / 2 * 8;
-                } else {
-                    throw new IllegalArgumentException("Unknown public key type " + publicKey.getClass().getName());
+                final int bitLength = ((DSAPublicKey)publicKey).getParams().getP().bitLength();
+                if (bitLength < MINIMUM_KEY_LENGTH_DSA) {
+                    updateContext.addMessage(update, UpdateMessages.publicKeyLengthIsWeak("DSA", MINIMUM_KEY_LENGTH_DSA, bitLength));
                 }
+            } else {
+                // skip key length check until we are sure about an appropriate minimum length for that algorithm
+                updateContext.log(new Message(Messages.Type.INFO, "Skipping public key length check for algorithm %s", wrapper.getCertificate().getPublicKey().getClass().getName()));
             }
-        }
-    }
-
-    @Nullable
-    private static X509Certificate getCertificate(final RpslObject rpslObject) {
-        try {
-            return X509CertificateWrapper.parse(rpslObject).getCertificate();
-        } catch (Exception e) {
-            return null;
         }
     }
 

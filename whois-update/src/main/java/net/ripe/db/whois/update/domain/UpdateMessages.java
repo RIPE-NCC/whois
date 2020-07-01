@@ -474,6 +474,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Certificate in keycert %s has expired", name);
     }
 
+    public static Message certificateHasWeakHash(final CharSequence name, final CharSequence hash) {
+        return new Message(Type.ERROR, "Certificate in keycert %s uses a weak hash algorithm %s", name, hash);
+    }
+
     public static Message publicKeyHasExpired(final CharSequence name) {
         return new Message(Type.ERROR, "Public key in keycert %s has expired", name);
     }
@@ -482,8 +486,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Public key in keycert %s is revoked", name);
     }
 
-    public static Message publicKeyLengthIsWeak(final CharSequence name, final int minimum, final int actual) {
-        return new Message(Type.ERROR, "Public key in keycert %s has an insufficient key length %d, which is less than the minimum %d", name, actual, minimum);
+    public static Message publicKeyLengthIsWeak(final CharSequence algorithm, final int minimum, final int actual) {
+        return new Message(Type.ERROR, "%s public key is %d bits which is less than the minimum %d", algorithm, actual, minimum);
     }
 
     public static Message cannotCreateOutOfRegionObject(final ObjectType objectType) {

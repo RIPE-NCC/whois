@@ -2,6 +2,8 @@ package net.ripe.db.whois.update.handler.validator.keycert;
 
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -12,22 +14,20 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PgpKeycertValidator implements BusinessRuleValidator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PgpKeycertValidator.class);
-
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.KEY_CERT);
 
     private static final CIString METHOD_PGP = CIString.ciString("PGP");
 
-    private static final int MINIMUM_KEY_LENGTH = 2048;
+    private static final int MINIMUM_KEY_LENGTH_RSA = 2048;
+    private static final int MINIMUM_KEY_LENGTH_DSA = 2048;
 
     private final DateTimeProvider dateTimeProvider;
 
@@ -49,7 +49,7 @@ public class PgpKeycertValidator implements BusinessRuleValidator {
         try {
             wrapper = PgpPublicKeyWrapper.parse(updatedObject);
         } catch (Exception e) {
-            LOGGER.info("Unable to parse PGP keycert {} due to {}: {}", updatedObject.getKey(), e.getClass().getName(), e.getMessage());
+            updateContext.log(new Message(Messages.Type.ERROR, "Unable to parse PGP keycert"), e);
             return;
         }
 
@@ -61,8 +61,21 @@ public class PgpKeycertValidator implements BusinessRuleValidator {
             updateContext.addMessage(update, UpdateMessages.publicKeyIsRevoked(wrapper.getKeyId()));
         }
 
-        if (wrapper.getPublicKey().getBitStrength() < MINIMUM_KEY_LENGTH) {
-            updateContext.addMessage(update, UpdateMessages.publicKeyLengthIsWeak(wrapper.getKeyId(), MINIMUM_KEY_LENGTH, wrapper.getPublicKey().getBitStrength()));
+        switch (wrapper.getPublicKey().getAlgorithm()) {
+            case PublicKeyAlgorithmTags.DSA:
+                if (wrapper.getPublicKey().getBitStrength() < MINIMUM_KEY_LENGTH_DSA) {
+                    updateContext.addMessage(update, UpdateMessages.publicKeyLengthIsWeak("DSA", MINIMUM_KEY_LENGTH_DSA, wrapper.getPublicKey().getBitStrength()));
+                }
+                break;
+            case PublicKeyAlgorithmTags.RSA_GENERAL:
+                if (wrapper.getPublicKey().getBitStrength() < MINIMUM_KEY_LENGTH_RSA) {
+                    updateContext.addMessage(update, UpdateMessages.publicKeyLengthIsWeak("RSA", MINIMUM_KEY_LENGTH_RSA, wrapper.getPublicKey().getBitStrength()));
+                }
+                break;
+            default:
+                // skip key length check until we are sure about an appropriate minimum length for that algorithm
+                updateContext.log(new Message(Messages.Type.INFO, "Skipping public key length check for algorithm %d", wrapper.getPublicKey().getAlgorithm()));
+                break;
         }
     }
 

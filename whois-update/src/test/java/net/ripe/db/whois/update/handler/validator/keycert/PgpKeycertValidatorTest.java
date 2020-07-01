@@ -94,7 +94,7 @@ public class PgpKeycertValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.publicKeyLengthIsWeak("D8F37DA3", 2048, 1024));
+        verify(updateContext).addMessage(update, UpdateMessages.publicKeyLengthIsWeak("DSA", 2048, 1024));
     }
 
     @Test
