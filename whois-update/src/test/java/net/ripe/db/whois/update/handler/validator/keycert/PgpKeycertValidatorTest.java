@@ -28,6 +28,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -95,6 +96,7 @@ public class PgpKeycertValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.publicKeyLengthIsWeak("DSA", 2048, 1024));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -256,6 +258,8 @@ public class PgpKeycertValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.publicKeyIsRevoked("8947C26B"));
+        verify(updateContext).addMessage(update, UpdateMessages.publicKeyLengthIsWeak("RSA", 2048, 1024));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -295,5 +299,7 @@ public class PgpKeycertValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.publicKeyHasExpired("C88CA438"));
+        verify(updateContext).addMessage(update, UpdateMessages.publicKeyLengthIsWeak("RSA", 2048, 1024));
+        verifyNoMoreInteractions(updateContext);
     }
 }

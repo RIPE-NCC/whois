@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.keycert;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -9,6 +10,7 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,13 +21,13 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -35,6 +37,7 @@ public class X509KeycertValidatorTest {
     @Mock UpdateContext updateContext;
     @Mock X509AutoKeyFactory x509AutoKeyFactory;
     @Mock KeyWrapperFactory keyWrapperFactory;
+    @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks X509KeycertValidator subject;
     List<Message> messages;
 
@@ -49,10 +52,11 @@ public class X509KeycertValidatorTest {
                 return null;
             }
         }).when(updateContext).addMessage(any(UpdateContainer.class), any(RpslAttribute.class), any(Message.class));
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
     }
 
     @Test
-    public void test() {
+    public void weak_hash_MD5withRSA_and_smaller_than_minimum_key_length() {
         final RpslObject rpslObject =  RpslObject.parse(
                 "key-cert:       AUTO-1\n" +
                 "method:         X509\n" +
@@ -87,7 +91,9 @@ public class X509KeycertValidatorTest {
 
         subject.validate(update, updateContext);
 
-        assertThat(messages, is(empty()));
+        verify(updateContext).addMessage(update, UpdateMessages.certificateHasWeakHash("AUTO-1", "MD5withRSA"));
+        verify(updateContext).addMessage(update, UpdateMessages.publicKeyLengthIsWeak("RSA", 2048, 1024));
+        verifyNoMoreInteractions(updateContext);
     }
 
 }
