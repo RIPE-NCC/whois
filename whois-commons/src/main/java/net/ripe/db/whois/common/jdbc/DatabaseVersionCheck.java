@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -110,6 +111,8 @@ public class DatabaseVersionCheck {
             final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             final String dbVersion = jdbcTemplate.queryForObject("SELECT version FROM version", String.class);
             checkDatabase(resources, dataSourceName, dbVersion);
+        } catch (EmptyResultDataAccessException e) {
+                LOGGER.warn("Error checking datasource {}, no version found", dataSourceName);
         } catch (Exception e) {
             if (e.getMessage().contains("SELECT command denied to user")) { // ugly but no other way to get this, sadly
                 LOGGER.info("Datasource {} skipped (no rights)", dataSourceName);
