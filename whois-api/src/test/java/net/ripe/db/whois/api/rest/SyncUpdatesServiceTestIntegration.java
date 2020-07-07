@@ -92,7 +92,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     public void get_help_parameter_only_compressed() {
         final Response response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
                 .request()
-                .header("Accept-Encoding","gzip, deflate")
+                .header(HttpHeaders.ACCEPT_ENCODING,"gzip, deflate")
                 .get(Response.class);
 
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_ENCODING), is("gzip"));
