@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 
 @Component
@@ -59,10 +60,10 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
                 client.target(rsngBaseUrl)
                 .path("/rsng-stat/stat/rirstats")
                 .request()
+                .header(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate")
                 .get(String.class),
             JsonNode.class)
         );
-
 
         LOGGER.info("Downloaded {}; asn: {}, ipv4: {}, ipv6: {}", sourceName, authoritativeResource.getNrAutNums(), authoritativeResource.getNrInetnums(), authoritativeResource.getNrInet6nums());
         return authoritativeResource;
