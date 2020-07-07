@@ -17,6 +17,7 @@ import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -1500,6 +1501,23 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(SearchResult.class);
 
         assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP1-TEST"));
+    }
+
+    @Test
+    public void search_entity_person_object_deleted_before_index_updated() {
+        final RpslObject person = RpslObject.parse("person: Lost Person\nnic-hdl: LP1-TEST\nsource: TEST");
+        databaseHelper.addObject(person);
+        fullTextIndex.rebuild();
+        databaseHelper.deleteObject(person);
+
+        try {
+            createResource("entities?fn=Lost%20Person")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+            fail();
+        } catch (NotFoundException e) {
+            assertErrorTitle(e, "not found");
+        }
     }
 
     @Test
