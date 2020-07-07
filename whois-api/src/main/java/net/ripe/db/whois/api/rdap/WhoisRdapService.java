@@ -5,7 +5,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
@@ -43,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -349,7 +349,13 @@ public class WhoisRdapService {
                                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                                     final Document document = indexSearcher.doc(scoreDoc.doc);
 
-                                    final RpslObject rpslObject = objectDao.getById(getObjectId(document));
+                                    final RpslObject rpslObject;
+                                    try {
+                                        rpslObject = objectDao.getById(getObjectId(document));
+                                    } catch (EmptyResultDataAccessException e) {
+                                        // object was deleted from the database but index was not updated yet
+                                        continue;
+                                    }
                                     account(rpslObject);
                                     results.add(rpslObject);
                                 }
