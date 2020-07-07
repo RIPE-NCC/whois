@@ -675,7 +675,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         given:
 
         expect:
-        queryObjectNotFound("-r -T role FR1-TEST", "role", "@ \"*TTTTTT & ][,] (XAMPLE) 1234567890 abc ._\"*@,&:!'`+/-")
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "Abuse Role")
 
         when:
         def message = syncUpdate("""
