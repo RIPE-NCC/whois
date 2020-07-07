@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.attrs.Changed;
 import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
+import org.apache.commons.mail.util.IDNEmailAddressConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,13 @@ public class AttributeSanitizer {
         SANITIZER_MAP.put(AttributeType.DS_RDATA, new DsRdataSanitizer());
         SANITIZER_MAP.put(AttributeType.SOURCE, new UppercaseSanitizer());
         SANITIZER_MAP.put(AttributeType.STATUS, new UppercaseSanitizer());
+        SANITIZER_MAP.put(AttributeType.ABUSE_MAILBOX, new EmailSanitizer());
+        SANITIZER_MAP.put(AttributeType.E_MAIL, new EmailSanitizer());
+        SANITIZER_MAP.put(AttributeType.IRT_NFY, new EmailSanitizer());
+        SANITIZER_MAP.put(AttributeType.MNT_NFY, new EmailSanitizer());
+        SANITIZER_MAP.put(AttributeType.NOTIFY, new EmailSanitizer());
+        SANITIZER_MAP.put(AttributeType.REF_NFY, new EmailSanitizer());
+        SANITIZER_MAP.put(AttributeType.UPD_TO, new EmailSanitizer());
 
         // add the default sanitizer for keys and primary attributes
         for (ObjectTemplate objectTemplate : ObjectTemplate.getTemplates()) {
@@ -311,4 +319,16 @@ public class AttributeSanitizer {
             return attribute.getCleanValue().toUpperCase();
         }
     }
+
+    private class EmailSanitizer extends Sanitizer {
+
+        private final IDNEmailAddressConverter converter = new IDNEmailAddressConverter();
+
+        @CheckForNull
+        @Override
+        String sanitize(RpslAttribute attribute) {
+            return converter.toASCII(attribute.getCleanValue().toString());
+        }
+    }
+
 }
