@@ -114,6 +114,22 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_single_result_object_deleted_before_index_updated() {
+        final RpslObject mntner = RpslObject.parse(
+                "mntner: DEV-MNT\n" +
+                "source: RIPE");
+        databaseHelper.addObject(mntner);
+        fullTextIndex.update();
+        databaseHelper.deleteObject(mntner);
+
+        final QueryResponse queryResponse = query("q=DEV-MNT");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(0L));
+        assertThat(queryResponse.getResults(), hasSize(0));
+    }
+
+    @Test
     public void search_single_result_json() {
         databaseHelper.addObject(RpslObject.parse("mntner: DEV-MNT\n" +
                 "source: RIPE"));

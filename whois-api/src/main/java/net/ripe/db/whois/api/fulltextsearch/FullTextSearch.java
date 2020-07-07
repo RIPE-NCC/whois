@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -185,7 +186,14 @@ public class FullTextSearch {
                     for (int index = start; index < end; index++) {
                         final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
                         final Document document = indexSearcher.doc(scoreDoc.doc);
-                        final RpslObject object = objectDao.getById(getObjectId(document));
+                        final RpslObject object;
+                        try {
+                            object = objectDao.getById(getObjectId(document));
+                        } catch (EmptyResultDataAccessException e) {
+                            // object was deleted from the database but index was not updated yet
+                            resultSize--;
+                            continue;
+                        }
                         account(object);
                         rpslObjectToDocument.put(object, document);
                     }
