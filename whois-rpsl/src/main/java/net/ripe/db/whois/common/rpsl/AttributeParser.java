@@ -4,18 +4,20 @@ import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
-import net.ripe.db.whois.common.rpsl.attrs.IPAddress;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Changed;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
+import net.ripe.db.whois.common.rpsl.attrs.IPAddress;
 import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.common.rpsl.attrs.SetObject;
 import org.apache.commons.lang.StringUtils;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -158,8 +160,8 @@ public interface AttributeParser<T> {
     }
 
     final class NameParser implements AttributeParser {
-        final private Pattern NAME = Pattern.compile("(?i)[a-z][a-z0-9_-]{0,78}[a-z0-9]");
-        final private Set<String> reserved = ImmutableSet.of(
+        private static final Pattern NAME = Pattern.compile("(?i)[a-z][a-z0-9_-]{0,78}[a-z0-9]");
+        private static final Set<String> RESERVED = ImmutableSet.of(
                 "ANY", "AS-ANY", "RS-ANY", "PEERAS", "AND", "OR", "NOT",
                 "ATOMIC", "FROM", "TO", "AT", "ACTION", "ACCEPT", "ANNOUNCE",
                 "EXCEPT", "REFINE", "NETWORKS", "INTO", "INBOUND", "OUTBOUND");
@@ -168,10 +170,35 @@ public interface AttributeParser<T> {
         public String parse(final String s) {
             if (!StringUtils.isBlank(s) &&
                     NAME.matcher(s).matches() &&
-                    !reserved.contains(s.toUpperCase())) {
+                    ! RESERVED.contains(s.toUpperCase())) {
                 return s;
             }
             throw new AttributeParseException("Unexpected parse result", s);
+        }
+    }
+
+    final class EmailParser implements AttributeParser<InternetAddress> {
+
+        @Override
+        public InternetAddress parse(final String s) {
+            final InternetAddress[] parsed;
+            try {
+                parsed = InternetAddress.parse(s);
+            } catch (AddressException e) {
+                throw new AttributeParseException(String.format("Illegal address (%s)", e.getMessage()), s);
+            }
+
+            if (parsed.length != 1) {
+                throw new AttributeParseException("Illegal address", s);
+            }
+
+            try {
+                parsed[0].validate();
+            } catch (AddressException e) {
+                throw new AttributeParseException(String.format("Invalid address (%s)", e.getMessage()), s);
+            }
+
+            return parsed[0];
         }
     }
 }

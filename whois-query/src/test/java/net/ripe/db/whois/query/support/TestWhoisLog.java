@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Profile({WhoisProfile.ENDTOEND, WhoisProfile.TEST})
+@Profile({WhoisProfile.TEST})
 public class TestWhoisLog extends WhoisLog implements Stub {
     List<String> messages = new ArrayList<>();
 

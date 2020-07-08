@@ -1,9 +1,6 @@
 package net.ripe.db.whois.nrtm;
 
-import com.google.common.base.Charsets;
-import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
-import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -14,8 +11,8 @@ import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
-import org.springframework.scheduling.TaskScheduler;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,8 +26,8 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
     private static final long TIMEOUT_SECONDS = 60L;
     private static final int POOL_SIZE = 32;
 
-    private final StringDecoder stringDecoder = new StringDecoder(Charsets.UTF_8);
-    private final StringEncoder stringEncoder = new StringEncoder(Charsets.UTF_8);
+    private final StringDecoder stringDecoder = new StringDecoder(StandardCharsets.UTF_8);
+    private final StringEncoder stringEncoder = new StringEncoder(StandardCharsets.UTF_8);
 
     protected final ExecutionHandler executionHandler = new ExecutionHandler(
         new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, MEMORY_SIZE_UNLIMITED, MEMORY_SIZE_UNLIMITED, TIMEOUT_SECONDS, TimeUnit.SECONDS, new ThreadFactory() {
@@ -45,34 +42,23 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
 
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmExceptionHandler exceptionHandler;
-    private final AccessControlHandler aclHandler;
-    private final SerialDao serialDao;
-    private final Dummifier dummifier;
-    private final TaskScheduler clientSynchronisationScheduler;
-    private final NrtmLog nrtmLog;
     private final MaintenanceHandler maintenanceHandler;
-
-    private final String version;
-    private final String source;
-    private final long updateInterval;
+    private final NrtmQueryHandlerFactory nrtmQueryHandlerFactory;
+    private final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler;
+    private final NrtmAclLimitHandler nrtmAclLimitHandler;
 
     protected BaseNrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
-                                            final NrtmExceptionHandler exceptionHandler, final AccessControlHandler aclHandler,
-                                            final SerialDao serialDao, final NrtmLog nrtmLog, final Dummifier dummifier,
-                                            final TaskScheduler clientSynchronisationScheduler, final MaintenanceHandler maintenanceHandler, final String version,
-                                            final String source, final long updateInterval) {
+                                            final NrtmExceptionHandler exceptionHandler,
+                                            final MaintenanceHandler maintenanceHandler,
+                                            final NrtmQueryHandlerFactory nrtmQueryHandlerFactory,
+                                            final NrtmAclLimitHandler nrtmAclLimitHandler,
+                                            final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.exceptionHandler = exceptionHandler;
-        this.aclHandler = aclHandler;
-        this.serialDao = serialDao;
-        this.nrtmLog = nrtmLog;
-        this.dummifier = dummifier;
-        this.clientSynchronisationScheduler = clientSynchronisationScheduler;
         this.maintenanceHandler = maintenanceHandler;
-
-        this.version = version;
-        this.source = source;
-        this.updateInterval = updateInterval;
+        this.nrtmQueryHandlerFactory = nrtmQueryHandlerFactory;
+        this.nrtmConnectionPerIpLimitHandler = nrtmConnectionPerIpLimitHandler;
+        this.nrtmAclLimitHandler = nrtmAclLimitHandler;
     }
 
     @Override
@@ -80,8 +66,10 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
         ChannelPipeline pipeline = Channels.pipeline();
 
         pipeline.addLast("U-maintenanceHandler", maintenanceHandler);
+        pipeline.addLast("U-acl", nrtmAclLimitHandler);
+        pipeline.addLast("connectionPerIpLimit", nrtmConnectionPerIpLimitHandler);
+
         pipeline.addLast("U-channels", nrtmChannelsRegistry);
-        pipeline.addLast("U-acl", aclHandler);
 
         pipeline.addLast("U-delimiter", new DelimiterBasedFrameDecoder(128, true, LINE_DELIMITER));
         pipeline.addLast("U-string-decoder", stringDecoder);
@@ -89,7 +77,7 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
 
         pipeline.addLast("UD-execution", executionHandler);
 
-        pipeline.addLast("U-query-handler", new NrtmQueryHandler(serialDao, dummifier, clientSynchronisationScheduler, nrtmLog, version, source, updateInterval));
+        pipeline.addLast("U-query-handler", nrtmQueryHandlerFactory.getInstance());
 
         pipeline.addLast("U-exception-handler", exceptionHandler);
 

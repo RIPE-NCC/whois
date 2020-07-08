@@ -19,7 +19,9 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MntRoutesValidatorTest {
@@ -34,7 +36,7 @@ public class MntRoutesValidatorTest {
 
     @Test
     public void getTypes() {
-        assertThat(subject.getTypes(), contains(ObjectType.AUT_NUM, ObjectType.INET6NUM, ObjectType.INETNUM, ObjectType.ROUTE, ObjectType.ROUTE6));
+        assertThat(subject.getTypes(), contains(ObjectType.INET6NUM, ObjectType.INETNUM, ObjectType.ROUTE, ObjectType.ROUTE6));
     }
 
     @Test

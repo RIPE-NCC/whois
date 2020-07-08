@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class ExportRunner extends AbstractScenarioRunner {
-    private static final String EXPORT_DIR = "./export";
+    private static final String EXPORT_DIR = "var" + System.getProperty("jvmId") + "/export";
 
     public ExportRunner(final Context context) {
         super(context);

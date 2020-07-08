@@ -1,0 +1,91 @@
+{
+  "asnResources": {
+    "allocations": [
+      {
+        "countryCode": "EU",
+        "date": "19930901",
+        "opaqueId": "eb6c0db9-5f1c-411b-ac77-2dbebb81d699",
+        "start": "7",
+        "value": 1
+      }
+    ],
+    "freeResources": [
+      {
+        "start": "1877",
+        "value": 1
+      }
+    ],
+    "reservedResources": [
+      {
+        "start": "2849",
+        "value": 1
+      }
+    ]
+  },
+  "ipv4Resources": {
+    "allocations": [
+      {
+        "countryCode": "FR",
+        "date": "20100712",
+        "opaqueId": "549cc956-7cd6-4d60-8aa1-b6b224b1b465",
+        "start": "2.0.0.0",
+        "value": 1048576
+      }
+    ],
+    "freeResources": [
+      {
+        "start": "5.44.248.0",
+        "value": 2048
+      }
+    ],
+    "assignments": [
+      {
+        "countryCode": "US",
+        "date": "19860425",
+        "opaqueId": "0f5f4d44-cd80-4b98-8038-ccedf87e824c",
+        "start": "13.116.0.0",
+        "value": 524288
+      }
+    ],
+    "reservedResources": [
+      {
+        "start": "2.56.168.0",
+        "value": 1024
+      }
+    ]
+  },
+  "ipv6Resources": {
+    "allocations": [
+      {
+        "countryCode": "EU",
+        "date": "19990826",
+        "opaqueId": "bb6234bd-f37d-4879-9b66-dd686bc8fe11",
+        "start": "2001:600::",
+        "value": 32
+      }
+    ],
+    "freeResources": [
+      {
+        "start": "2001:678::",
+        "value": 48
+      }
+    ],
+    "assignments": [
+      {
+        "countryCode": "CZ",
+        "date": "20061011",
+        "opaqueId": "cbab535a-9c1b-4e7c-9133-07ace689c9ef",
+        "start": "2001:678:1::",
+        "value": 48
+      }
+    ],
+    "reservedResources": [
+      {
+        "start": "2001:601::",
+        "value": 32
+      }
+    ]
+  },
+  "timestamp": 1587040343960,
+  "registry": "ripencc"
+}

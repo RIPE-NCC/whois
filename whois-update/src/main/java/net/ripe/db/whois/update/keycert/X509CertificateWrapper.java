@@ -1,26 +1,27 @@
 package net.ripe.db.whois.update.keycert;
 
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.jce.provider.X509CertParser;
 import org.bouncycastle.x509.util.StreamParsingException;
-import org.joda.time.LocalDateTime;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 public final class X509CertificateWrapper implements KeyWrapper {
-    private static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
-    private static final String X509_FOOTER = "-----END CERTIFICATE-----";
+    public static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
+    public static final String X509_FOOTER = "-----END CERTIFICATE-----";
 
     private static final String METHOD = "X509";
 
@@ -36,21 +37,25 @@ public final class X509CertificateWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(Charsets.UTF_8);
-
-            X509CertParser parser = new X509CertParser();
-            parser.engineInit(new ByteArrayInputStream(bytes));
-            X509Certificate result = (X509Certificate) parser.engineRead();
-
-            if (result == null) {
-                throw new IllegalArgumentException("Invalid X509 Certificate");
-            }
-
-            return new X509CertificateWrapper(result);
-
+            return parse(RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(StandardCharsets.UTF_8));
         } catch (StreamParsingException e) {
             throw new IllegalArgumentException("Error parsing X509 certificate from key-cert object", e);
         }
+    }
+
+    static X509CertificateWrapper parse(final String certificate) throws StreamParsingException {
+        return parse(certificate.getBytes());
+    }
+
+    public static X509CertificateWrapper parse(final byte[] certificate) throws StreamParsingException {
+        // TODO: [ES] Replace deprecated X509CertParser with (new java.security.cert.CertificateFactory()).generateCertificate(new ByteArrayInputStream(certificate))
+        final X509CertParser parser = new X509CertParser();
+        parser.engineInit(new ByteArrayInputStream(certificate));
+        final X509Certificate result = (X509Certificate) parser.engineRead();
+        if (result == null) {
+            throw new IllegalArgumentException("Invalid X509 Certificate");
+        }
+        return new X509CertificateWrapper(result);
     }
 
     static boolean looksLikeX509Key(final RpslObject rpslObject) {
@@ -127,12 +132,13 @@ public final class X509CertificateWrapper implements KeyWrapper {
     }
 
     public boolean isNotYetValid(final DateTimeProvider dateTimeProvider) {
-        final LocalDateTime notBefore = new LocalDateTime(certificate.getNotBefore());
+        final LocalDateTime notBefore = DateUtil.fromDate(certificate.getNotBefore());
         return notBefore.isAfter(dateTimeProvider.getCurrentDateTime());
     }
 
     public boolean isExpired(final DateTimeProvider dateTimeProvider) {
-        final LocalDateTime notAfter = new LocalDateTime(certificate.getNotAfter());
+        final LocalDateTime notAfter = DateUtil.fromDate(certificate.getNotAfter());
         return notAfter.isBefore(dateTimeProvider.getCurrentDateTime());
     }
+
 }

@@ -58,6 +58,15 @@ public final class QueryMessages {
         return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'", key, value);
     }
 
+    public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value, final CharSequence orgId) {
+        return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'" +
+                "\nAbuse-mailbox validation failed. Please refer to %s for further information.", key, value, orgId);
+    }
+
+    public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value) {
+        return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'", key, value);
+    }
+
     public static Message abuseCNotRegistered(final CharSequence key) {
         return new QueryMessage(Type.INFO, "No abuse contact registered for %s", key);
     }
@@ -82,7 +91,7 @@ public final class QueryMessages {
                 type, key, QueryFlag.SHOW_VERSION);
     }
 
-    public static Message versionInformation(final int version, final boolean isCurrentVersion, final CIString key, final String operation, final VersionDateTime timestamp) {
+    public static Message versionInformation(final int version, final boolean isCurrentVersion, final CIString key, final String operation, final String timestamp) {
         return new QueryMessage(Type.INFO, ""
                 + "Version %d %sof object \"%s\"\n"
                 + "This version was a %s operation on %s\n"
@@ -351,4 +360,9 @@ public final class QueryMessages {
     public static Message inverseSearchNotAllowed() {
         return new QueryMessage(Type.ERROR, "Inverse search on 'auth' attribute is limited to 'key-cert' objects only");
     }
+
+    public static Message valueChangedDueToLatin1Conversion() {
+        return new QueryMessage(Type.INFO, "This query was converted into the ISO-8859-1 (Latin-1) character set.");
+    }
+
 }

@@ -511,8 +511,7 @@ public enum AttributeType implements Documented {
     ORIGIN(new Builder("origin", "or")
             .doc("Specifies the AS that originates the route." +
                     "The corresponding aut-num object should be registered in the database.")
-            .syntax(AS_NUMBER_SYNTAX)
-            .references(ObjectType.AUT_NUM)),
+            .syntax(AS_NUMBER_SYNTAX)),
 
     OWNER(new Builder("owner", "ow")
             .doc("Specifies the owner of the public key.")
@@ -571,7 +570,7 @@ public enum AttributeType implements Documented {
 
     ROLE(new Builder("role", "ro")
             .doc("Specifies the full name of a role entity, e.g. RIPE DBM.")
-            .syntax(ORG_NAME_SYNTAX)),
+            .syntax(ORG_NAME_SYNTAX)),  // TODO: [ES] refactor confusing use of org name syntax
 
     ROUTE(new Builder("route", "rt")
             .doc("Specifies the prefix of the interAS route. Together with the \"origin:\" attribute, " +

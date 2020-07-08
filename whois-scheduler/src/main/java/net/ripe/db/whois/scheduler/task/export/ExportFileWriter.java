@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -16,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
@@ -26,35 +26,46 @@ public class ExportFileWriter {
     private final File baseDir;
     private final FilenameStrategy filenameStrategy;
     private final DecorationStrategy decorationStrategy;
+    private final ExportFilter exportFilter;
     private final Map<String, Writer> writerMap = Maps.newHashMap();
 
-    public ExportFileWriter(final File baseDir, final FilenameStrategy filenameStrategy, final DecorationStrategy decorationStrategy) {
+    public ExportFileWriter(final File baseDir,
+                            final FilenameStrategy filenameStrategy,
+                            final DecorationStrategy decorationStrategy,
+                            final ExportFilter exportFilter) {
         this.baseDir = baseDir;
         this.filenameStrategy = filenameStrategy;
         this.decorationStrategy = decorationStrategy;
+        this.exportFilter = exportFilter;
 
         for (final ObjectType objectType : ObjectType.values()) {
             final String filename = filenameStrategy.getFilename(objectType);
-            try {
-                getWriter(filename);
-            } catch (IOException e) {
-                throw new RuntimeException("Initializing: " + filename, e);
+            if (filename != null) {
+                try {
+                    getWriter(filename);
+                } catch (IOException e) {
+                    throw new RuntimeException("Initializing: " + filename, e);
+                }
             }
         }
     }
 
     public void write(final RpslObject object, final List<Tag> tags) throws IOException {
-        final String filename = filenameStrategy.getFilename(object.getType());
-        final Writer writer = getWriter(filename);
+        if (exportFilter.shouldExport(object)) {
+            final String filename = filenameStrategy.getFilename(object.getType());
+            if (filename != null) {
+                final Writer writer = getWriter(filename);
 
-        final RpslObject decoratedObject = decorationStrategy.decorate(object);
-        if (decoratedObject != null) {
-            writer.write('\n');
-            decoratedObject.writeTo(writer);
+                final RpslObject decoratedObject = decorationStrategy.decorate(object);
+                if (decoratedObject != null) {
+                    writer.write('\n');
+                    decoratedObject.writeTo(writer);
 
-            if (!tags.isEmpty()) {
-                writer.write('\n');
-                writer.write(new TagResponseObject(decoratedObject.getKey(), tags).toString());
+                    if (!tags.isEmpty()) {
+                        writer.write('\n');
+                        writer.write(new TagResponseObject(decoratedObject.getKey(), tags).toString());
+                    }
+                }
             }
         }
     }
@@ -77,7 +88,7 @@ public class ExportFileWriter {
             final File file = new File(baseDir, filename + ".gz");
             final FileOutputStream fileOutputStream = new FileOutputStream(file);
             try {
-                writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), Charsets.UTF_8));
+                writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), StandardCharsets.UTF_8));
                 writer.write(QueryMessages.termsAndConditionsDump().toString());
                 writerMap.put(filename, writer);
             } catch (IOException e) {

@@ -11,6 +11,8 @@ import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.AbuseContactMapper;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.rpsl.AttributeSyntax;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -30,9 +32,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Path("/abuse-contact")
@@ -59,7 +60,8 @@ public class AbuseContactService {
 
         final QueryBuilder queryBuilder = new QueryBuilder()
                 .addFlag(QueryFlag.NO_GROUPING)
-                .addFlag(QueryFlag.NO_REFERENCED);
+                .addFlag(QueryFlag.NO_REFERENCED)
+                .addCommaList(QueryFlag.SELECT_TYPES, getObjectType(key).getName());
 
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
@@ -73,15 +75,16 @@ public class AbuseContactService {
                 if (responseObject instanceof RpslObject) {
                     final RpslObject rpslObject = (RpslObject)responseObject;
 
-                    final String abuseContact = abuseCFinder.getAbuseContact(rpslObject);
-                    final RpslObject abuseRole = abuseCFinder.getAbuseContactRole(rpslObject);
+                    final Optional<net.ripe.db.whois.query.planner.AbuseContact> optionalAbuseContact = abuseCFinder.getAbuseContact(rpslObject);
 
                     abuseResources.add(
                         new AbuseResources(
                             "abuse-contact",
                             Link.create(String.format("http://rest.db.ripe.net/abuse-contact/%s", key)),
-                            new Parameters(null, null, null, null, null, new AbusePKey(rpslObject.getKey().toString())),
-                            new AbuseContact(abuseRole != null ? abuseRole.getKey().toString() : "", abuseContact != null ? abuseContact : ""),
+                            new Parameters.Builder().primaryKey(new AbusePKey(rpslObject.getKey().toString())).build(),
+                            optionalAbuseContact
+                                    .map(abuseContact -> new AbuseContact(abuseContact.getNicHandle(), abuseContact.getAbuseMailbox(), abuseContact.isSuspect(), abuseContact.getOrgId()))
+                                    .orElseGet(() -> new AbuseContact("", "", false, "")),
                             Link.create(WhoisResources.TERMS_AND_CONDITIONS)));
                 }
             }
@@ -102,15 +105,30 @@ public class AbuseContactService {
                     .build());
         }
 
-        return Response.ok(new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                StreamingHelper.getStreamingMarshal(request, output).singleton(result);
-            }
-        }).build();
+        return Response.ok((StreamingOutput) output -> StreamingHelper.getStreamingMarshal(request, output).singleton(result)).build();
     }
 
     private boolean isTrusted(final HttpServletRequest request) {
         return accessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
+    }
+
+    private ObjectType getObjectType(final String key) {
+        if (AttributeSyntax.AS_NUMBER_SYNTAX.matches(ObjectType.AUT_NUM, key)) {
+            return ObjectType.AUT_NUM;
+        }
+        else {
+            if (AttributeSyntax.IPV4_SYNTAX.matches(ObjectType.INETNUM, key)) {
+                return ObjectType.INETNUM;
+            }
+            else {
+                if (AttributeSyntax.IPV6_SYNTAX.matches(ObjectType.INET6NUM, key)) {
+                    return ObjectType.INET6NUM;
+                } else {
+                    throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                            .entity(AbuseContactMapper.mapAbuseContactError("Invalid argument: " + key))
+                            .build());
+                }
+            }
+        }
     }
 }

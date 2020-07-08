@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -15,11 +14,13 @@ import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
+import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 
 import javax.annotation.CheckForNull;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,6 +41,7 @@ public class UpdateContext {
     private boolean dryRun;
     private boolean batchUpdate;
     private UserSession userSession;
+    private Optional<X509CertificateWrapper> clientCertificate;
 
     public UpdateContext(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
@@ -96,22 +98,9 @@ public class UpdateContext {
         return ssoTranslation.get(usernameOrUuid);
     }
 
-    public void addPendingUpdate(final UpdateContainer updateContainer, final PendingUpdate pendingUpdate) {
-        getOrCreateContext(updateContainer).pendingUpdate = pendingUpdate;
-    }
-
-    public PendingUpdate getPendingUpdate(final UpdateContainer updateContainer) {
-        return getOrCreateContext(updateContainer).pendingUpdate;
-    }
-
     @CheckForNull
     public DnsCheckResponse getCachedDnsCheckResponse(final DnsCheckRequest dnsCheckRequest) {
         return dnsCheckResponses.get(dnsCheckRequest);
-    }
-
-    public void addMessages(final UpdateContainer updateContainer, final ObjectMessages objectMessages) {
-        getOrCreateContext(updateContainer).objectMessages.addAll(objectMessages);
-        loggerContext.logMessages(updateContainer, objectMessages);
     }
 
     public void addMessage(final UpdateContainer updateContainer, final Message message) {
@@ -136,6 +125,15 @@ public class UpdateContext {
     public Action getAction(final UpdateContainer updateContainer) {
         return getOrCreateContext(updateContainer).action;
     }
+
+    public void setOrigin(final UpdateContainer updateContainer, final Origin origin) {
+        getOrCreateContext(updateContainer).origin = origin;
+    }
+
+    public Origin getOrigin(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).origin;
+    }
+
     public PreparedUpdate getPreparedUpdate(final UpdateContainer updateContainer) {
         return getOrCreateContext(updateContainer).preparedUpdate;
     }
@@ -258,7 +256,7 @@ public class UpdateContext {
             addMessage(updateContainer, message);
         }
 
-        if (getStatus(update).equals(UpdateStatus.SUCCESS) || getStatus(update).equals(UpdateStatus.PENDING_AUTHENTICATION)) {
+        if (getStatus(update).equals(UpdateStatus.SUCCESS)) {
             status(update, UpdateStatus.FAILED);
         }
     }
@@ -321,6 +319,14 @@ public class UpdateContext {
         return userSession;
     }
 
+    public void setClientCertificate(final Optional<X509CertificateWrapper> clientCertificate) {
+        this.clientCertificate = clientCertificate;
+    }
+
+    public Optional<X509CertificateWrapper> getClientCertificate() {
+        return clientCertificate;
+    }
+
     private static class Context {
         private final ObjectMessages objectMessages = new ObjectMessages();
         private Action action;
@@ -330,6 +336,6 @@ public class UpdateContext {
         private int retryCount;
         private RpslObjectUpdateInfo updateInfo;
         private int versionId = -1;
-        private PendingUpdate pendingUpdate;
+        private Origin origin;
     }
 }

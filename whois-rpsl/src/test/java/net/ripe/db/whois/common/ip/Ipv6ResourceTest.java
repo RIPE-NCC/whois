@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.ip;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -32,6 +33,13 @@ public class Ipv6ResourceTest {
         assertThat(subject.end(), is(BigInteger.valueOf(8193)));
     }
 
+    // TODO: [ES] ::ffff:0:0/96 not handled properly — This prefix is used for IPv6 transition mechanisms and designated as an IPv4-mapped IPv6 address.
+    @Ignore
+    @Test
+    public void ipv4_mapped_ipv6_address() {
+        subject = Ipv6Resource.parse("::ffff:c16e:370c/128");       // "Address has to be 16 bytes long"
+    }
+
     @Test
     public void parseValidIPv6ARangeWithSlash() {
         subject = Ipv6Resource.parse("2001::/64");
@@ -51,6 +59,13 @@ public class Ipv6ResourceTest {
         subject = Ipv6Resource.parse("2001::/64\r\n");
         assertThat(subject.begin(), is(new BigInteger("42540488161975842760550356425300246528")));
         assertThat(subject.end(), is(new BigInteger("42540488161975842778997100499009798143")));
+    }
+
+    @Test
+    public void leading_zero() {
+        subject = Ipv6Resource.parse("2a00:0f78::/48");
+
+        assertThat(subject.toString(), is("2a00:f78::/48"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -346,6 +361,13 @@ public class Ipv6ResourceTest {
         assertThat(compare( 1,  1,  1, -1), is(-1));
         assertThat(compare( 1,  1,  1,  1), is(0));
 
+    }
+
+    @Test
+    public void parse_from_strings_124() {
+        Ipv6Resource ipv6Resource = Ipv6Resource.parse("2a02:27d0:116:fffe:fffe:fffe:1671::/124");
+        Ipv6Resource parsedFromStrings = Ipv6Resource.parseFromStrings(Long.toString(Ipv6Resource.msb(ipv6Resource.begin())), Long.toString(Ipv6Resource.lsb(ipv6Resource.begin())), ipv6Resource.getPrefixLength());
+        assertEquals(ipv6Resource, parsedFromStrings);
     }
 
     @Test(expected = IllegalArgumentException.class)

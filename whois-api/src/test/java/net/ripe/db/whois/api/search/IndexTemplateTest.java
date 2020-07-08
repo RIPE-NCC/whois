@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.search;
 
+import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -16,7 +17,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
-import org.apache.lucene.util.Version;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,13 +44,13 @@ public class IndexTemplateTest {
     public void setUp() throws Exception {
         analyzer = new WhitespaceAnalyzer();
 
-        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_4, analyzer);
+        IndexWriterConfig config = new IndexWriterConfig(analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         subject = new IndexTemplate(folder.getRoot().getAbsolutePath(), config);
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         subject.close();
     }
 
@@ -72,7 +72,7 @@ public class IndexTemplateTest {
         subject.search(new IndexTemplate.SearchCallback<Void>() {
             @Override
             public Void search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
-                final TopScoreDocCollector collector = TopScoreDocCollector.create(10, true);
+                final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
                 indexSearcher.search(query, collector);
                 final ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
@@ -143,7 +143,7 @@ public class IndexTemplateTest {
                         subject.search(new IndexTemplate.SearchCallback<Void>() {
                             @Override
                             public Void search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
-                                final TopScoreDocCollector collector = TopScoreDocCollector.create(10, true);
+                                final TopScoreDocCollector collector = TopScoreDocCollector.create(10);
                                 indexSearcher.search(query, collector);
                                 assertThat(collector.topDocs().scoreDocs.length, is(nrDocs));
                                 return null;

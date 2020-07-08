@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -19,7 +18,6 @@ public class Ack {
         for (final UpdateResult updateResult : updateResults) {
             switch(updateResult.getStatus()) {
                 case SUCCESS:
-                case PENDING_AUTHENTICATION:
                     succeeded.add(updateResult);
                     break;
                 default:
@@ -53,39 +51,19 @@ public class Ack {
     }
 
     public int getNrCreate() {
-        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
-            @Override
-            public boolean apply(final UpdateResult input) {
-                return Action.CREATE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
-            }
-        }));
+        return Iterables.size(Iterables.filter(succeededUpdates, input -> Action.CREATE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus())));
     }
 
     public int getNrUpdate() {
-        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
-            @Override
-            public boolean apply(final UpdateResult input) {
-                return Action.MODIFY.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
-            }
-        }));
+        return Iterables.size(Iterables.filter(succeededUpdates, input -> Action.MODIFY.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus())));
     }
 
     public int getNrDelete() {
-        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
-            @Override
-            public boolean apply(final UpdateResult input) {
-                return Action.DELETE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
-            }
-        }));
+        return Iterables.size(Iterables.filter(succeededUpdates, input -> Action.DELETE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus())));
     }
 
     public int getNrNoop() {
-        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
-            @Override
-            public boolean apply(final UpdateResult input) {
-                return Action.NOOP.equals(input.getAction()) || UpdateStatus.PENDING_AUTHENTICATION.equals(input.getStatus());
-            }
-        }));
+        return Iterables.size(Iterables.filter(succeededUpdates, input -> Action.NOOP.equals(input.getAction())));
     }
 
     public int getNrProcessedErrrors() {
@@ -93,37 +71,18 @@ public class Ack {
     }
 
     public int getNrCreateErrors() {
-        return Iterables.size(Iterables.filter(failedUpdates, new Predicate<UpdateResult>() {
-            @Override
-            public boolean apply(final UpdateResult input) {
-                return Action.CREATE.equals(input.getAction());
-            }
-        }));
+        return Iterables.size(Iterables.filter(failedUpdates, input -> Action.CREATE.equals(input.getAction())));
     }
 
     public int getNrUpdateErrors() {
-        return Iterables.size(Iterables.filter(failedUpdates, new Predicate<UpdateResult>() {
-            @Override
-            public boolean apply(final UpdateResult input) {
-                return Action.MODIFY.equals(input.getAction());
-            }
-        }));
+        return Iterables.size(Iterables.filter(failedUpdates, input -> Action.MODIFY.equals(input.getAction())));
     }
 
     public int getNrDeleteErrors() {
-        return Iterables.size(Iterables.filter(failedUpdates, new Predicate<UpdateResult>() {
-            @Override
-            public boolean apply(final UpdateResult input) {
-                return Action.DELETE.equals(input.getAction());
-            }
-        }));
+        return Iterables.size(Iterables.filter(failedUpdates, input -> Action.DELETE.equals(input.getAction())));
     }
 
     public UpdateStatus getUpdateStatus() {
-        if (succeededUpdates.isEmpty() || !failedUpdates.isEmpty()) {
-            return UpdateStatus.FAILED;
-        }
-
-        return UpdateStatus.SUCCESS;
+        return (succeededUpdates.isEmpty() || !failedUpdates.isEmpty()) ? UpdateStatus.FAILED : UpdateStatus.SUCCESS;
     }
 }

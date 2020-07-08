@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
+@Profile({WhoisProfile.TEST})
 @Component
 public class MailSenderStub extends MailSenderBase implements Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailSenderStub.class);

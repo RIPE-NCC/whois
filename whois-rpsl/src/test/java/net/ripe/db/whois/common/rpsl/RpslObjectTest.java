@@ -1,17 +1,20 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.annotation.Nullable;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -179,7 +182,7 @@ public class RpslObjectTest {
     }
 
     private byte[] bytesFrom(String input) {
-        return input.getBytes(Charsets.UTF_8);
+        return input.getBytes(StandardCharsets.UTF_8);
     }
 
     private void parseAndAssign(String input) {
@@ -678,7 +681,7 @@ public class RpslObjectTest {
     }
 
     @Test
-    public void diff_delete_lines() throws Exception {
+    public void diff_delete_lines() {
         final RpslObject original = RpslObject.parse(
                 "mntner: UPD-MNT\n" +
                 "description: descr\n" +
@@ -937,16 +940,6 @@ public class RpslObjectTest {
     // helper methods
 
     private static Iterable<String> convertToString(final Iterable<CIString> c) {
-        return Iterables.transform(c, new Function<CIString, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable final CIString input) {
-                if (input == null) {
-                    return null;
-                }
-
-                return input.toString();
-            }
-        });
+        return Iterables.transform(c, input -> (input == null) ? null : input.toString());
     }
 }

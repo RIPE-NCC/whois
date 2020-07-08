@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -15,15 +14,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationTest {
+
     @Autowired RpslObjectsExporter rpslObjectsExporter;
     @Autowired SourceContext sourceContext;
 
@@ -42,6 +50,8 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
     }
 
     Set<RpslObject> objects;
+
+    private final static Set<ObjectType> NON_AUTH_TYPES = Sets.immutableEnumSet(ObjectType.AUT_NUM, ObjectType.ROUTE, ObjectType.ROUTE6);
 
     @Before
     public void setupServer() {
@@ -428,9 +438,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         final boolean isDumpFile = name.endsWith(".gz");
 
         if (isDumpFile) {
-            reader = new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))), Charsets.UTF_8);
+            reader = new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))), StandardCharsets.UTF_8);
         } else {
-            reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), Charsets.UTF_8);
+            reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), StandardCharsets.UTF_8);
         }
 
         final String contents = FileCopyUtils.copyToString(reader);
@@ -449,4 +459,37 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
             assertThat(contents, containsString(expectedContent));
         }
     }
+
+    @Test
+    public void export_mix_of_sources() throws IOException {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS252\n" +
+                "source:         TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS251\n" +
+                "source:         TEST-NONAUTH"));
+
+        sourceContext.removeCurrentSource();
+
+        rpslObjectsExporter.export();
+
+        assertThat(tmpDir.exists(), is(false));
+        assertThat(exportDir.exists(), is(true));
+
+        for (final ObjectType objectType : ObjectType.values()) {
+            checkFile("dbase/split/ripe.db." + objectType.getName() + ".gz");
+            checkFile("internal/split/ripe.db." + objectType.getName() + ".gz");
+            if (NON_AUTH_TYPES.contains(objectType)) {
+                checkFile("dbase/split/ripe-nonauth.db." + objectType.getName() + ".gz");
+                checkFile("internal/split/ripe-nonauth.db." + objectType.getName() + ".gz");
+            }
+        }
+
+
+
+        checkFile("dbase/split/ripe.db.aut-num.gz", "aut-num:        AS252");
+        checkFile("dbase/split/ripe-nonauth.db.aut-num.gz", "aut-num:        AS251");
+    }
+
 }

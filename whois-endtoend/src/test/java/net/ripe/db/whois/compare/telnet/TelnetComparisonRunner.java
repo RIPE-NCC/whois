@@ -1,6 +1,5 @@
 package net.ripe.db.whois.compare.telnet;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -10,11 +9,11 @@ import net.ripe.db.whois.compare.common.QueryReader;
 import net.ripe.db.whois.query.domain.MessageObject;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
 
@@ -49,15 +48,10 @@ public class TelnetComparisonRunner extends AbstractComparisonRunner {
             final List<ResponseObject> executor1Result,
             final List<ResponseObject> executor2Result) {
 
-        final Predicate<ResponseObject> knownDifferencesPredicate = new Predicate<ResponseObject>() {
-            @Override
-            public boolean apply(@Nullable final ResponseObject input) {
-                return !(input instanceof MessageObject) || !input.toString().startsWith("% This query was served by");
-            }
-        };
+        final Predicate<ResponseObject> knownDifferencesPredicate = (input -> !(input instanceof MessageObject) || !input.toString().startsWith("% This query was served by"));
 
-        final List<ResponseObject> responseObjects1 = Lists.newArrayList(Iterables.filter(executor1Result, knownDifferencesPredicate));
-        final List<ResponseObject> responseObjects2 = Lists.newArrayList(Iterables.filter(executor2Result, knownDifferencesPredicate));
+        final List<ResponseObject> responseObjects1 = Lists.newArrayList(Iterables.filter(executor1Result, knownDifferencesPredicate::test));
+        final List<ResponseObject> responseObjects2 = Lists.newArrayList(Iterables.filter(executor2Result, knownDifferencesPredicate::test));
 
         return new ComparisonResult(responseObjects1, responseObjects2);
     }

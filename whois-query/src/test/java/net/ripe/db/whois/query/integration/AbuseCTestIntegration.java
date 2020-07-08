@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
@@ -35,8 +36,29 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
             "mnt-by:        TEST-MNT\n" +
             "source:        TEST",
 
+            "role:          Another Abuse Role\n" +
+            "address:       APNIC, see http://www.apnic.net\n" +
+            "e-mail:        bitbucket@ripe.net\n" +
+            "admin-c:       ABU-TEST\n" +
+            "tech-c:        ABU-TEST\n" +
+            "nic-hdl:       AH2-TEST\n" +
+            "abuse-mailbox: more_abuse@ripe.net\n" +
+            "mnt-by:        TEST-MNT\n" +
+            "source:        TEST",
+
+            "role:          AbuseC Person\n" +
+            "address:       VENUSNIC, see http://www.venusnic.net\n" +
+            "nic-hdl:       ABUSEC-ROLE-TEST\n" +
+            "abuse-mailbox: abuseperson@ripe.net\n" +
+            "mnt-by:        TEST-MNT\n" +
+            "source:        TEST",
+
             "organisation:  ORG-TEST-1\n" +
             "abuse-c:       ABU-TEST\n" +
+            "source:        TEST",
+
+            "organisation:  ORG-TEST-ABUSEC-ROLE\n" +
+            "abuse-c:       ABUSEC-ROLE-TEST\n" +
             "source:        TEST",
 
             "inetnum:       173.0.0.0 - 173.255.255.255\n" +
@@ -52,6 +74,13 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
             "inetnum:       18.0.0.0 - 18.255.255.255\n" +
             "netname:       NN\n" +
             "mnt-by:        RIPE-NCC-HM-MNT\n" +
+            "source:        TEST",
+
+            "inetnum:       19.0.0.0 - 19.255.255.255\n" +
+            "abuse-c:       AH2-TEST\n" +
+            "netname:       NN\n" +
+            "mnt-by:        RIPE-NCC-HM-MNT\n" +
+            "org:           ORG-TEST-1\n" +
             "source:        TEST",
 
             "inetnum:       0.0.0.0 - 255.255.255.255\n" +
@@ -156,6 +185,16 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
+    public void abuseFinder_shouldPreferAbuseC_on_inetnum() {
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "19.0.0.5");
+
+        assertThat(response, containsString("% Abuse contact for '19.0.0.0 - 19.255.255.255' is 'more_abuse@ripe.net'"));
+//        assertThat(response, containsString("" +
+//                "inetnum:        19.0.0.0 - 19.255.255.255\n" +
+//                "abuse-mailbox:  more_abuse@ripe.net"));
+    }
+
+    @Test
     public void dashBGivesAbuseCMessage_hasNoContact() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-b 18.0.0.0");
 
@@ -191,8 +230,76 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
+    public void query_inverse_person() {
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-i pn ABUSEC-ROLE-TEST");
+        assertThat(response, containsString("ORG-TEST-ABUSEC-ROLE"));
+    }
+
+    @Test
     public void brief_query_shows_abusemailbox_twice() {
         final String briefResponse = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-b 193.0.0.0");
         assertThat(briefResponse, not(containsString("notshown@abuse.net")));
+    }
+    @Test
+    public void should_not_lookup_abuseC_if_rpsl_source_do_not_match() {
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        NON-TEST"));
+
+        final String responseNoAbuseC = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        assertFalse(responseNoAbuseC.contains("Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        TEST"));
+
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
+
+    }
+
+    @Test
+    public void should_lookup_abuseC_for_non_auth() {
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        TEST-NONAUTH"));
+
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        TEST"));
+
+    }
+
+    @Test
+    public void should_lookup_abuseC_for_ripe_grs() {
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        TEST-GRS"));
+
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        TEST"));
+
     }
 }

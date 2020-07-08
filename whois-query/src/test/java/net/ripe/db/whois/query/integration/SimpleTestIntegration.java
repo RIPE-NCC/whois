@@ -50,13 +50,13 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
     @Before
     public void startupWhoisServer() {
-        final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST");
-        final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST");
+        final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST\nsource: TEST");
+        final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST\nsource: TEST");
         databaseHelper.addObjects(Lists.newArrayList(person, mntner));
 
-        databaseHelper.addObject("inetnum: 81.0.0.0 - 82.255.255.255\nnetname: NE\nmnt-by:RIPE-NCC-HM-MNT");
-        databaseHelper.addObject("domain: 117.80.81.in-addr.arpa");
-        databaseHelper.addObject("inetnum: 81.80.117.237 - 81.80.117.237\nnetname: NN\nstatus: OTHER");
+        databaseHelper.addObject("inetnum: 81.0.0.0 - 82.255.255.255\nnetname: NE\nmnt-by:RIPE-NCC-HM-MNT\nsource: TEST");
+        databaseHelper.addObject("domain: 117.80.81.in-addr.arpa\nsource: TEST");
+        databaseHelper.addObject("inetnum: 81.80.117.237 - 81.80.117.237\nnetname: NN\nstatus: OTHER\nsource: TEST");
         databaseHelper.addObject("route: 81.80.117.0/24\norigin: AS123\n");
         databaseHelper.addObject("route: 81.80.0.0/16\norigin: AS123\n");
         ipTreeUpdater.rebuild();
@@ -426,14 +426,21 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         databaseHelper.addObject(RpslObject.parse("" +
                 "person:         Test person\n" +
                 "nic-hdl:        TEST-PN\n" +
-                "source:         RIPE"));
+                "source:         TEST"));
+
+        // after the filtering the person reference in the mirror database is replaced with this DUMY-RIPE one
+        // which should then also be returned in the result as a related object
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person:         Dummy test person\n" +
+                "nic-hdl:        DUMY-RIPE\n" +
+                "source:         TEST"));
 
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner:         AS760-MNT\n" +
                 "descr:          Description\n" +
                 "admin-c:        TEST-PN\n" +
                 "auth:           MD5-PW $1$2$34567\n" +
-                "source:         RIPE"));
+                "source:         TEST"));
 
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-s TEST-GRS AS760-MNT");
         assertThat(response, stringMatchesRegexp("(?si)" +
@@ -456,6 +463,10 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "remarks:        \\* To view the original object, please query the RIPE Database at:\n" +
                 "remarks:        \\* http://www.ripe.net/whois\n" +
                 "remarks:        \\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\n" +
+                "\n" +
+                "person:         Dummy test person\n" +
+                "nic-hdl:        DUMY-RIPE\n" +
+                "source:         TEST\n" +
                 "\n" +
                 "% This query was served by the RIPE Database Query Service version 0.1-TEST \\(.*\\)\n" +
                 "\n" +
@@ -561,7 +572,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "descr:       MNTNER for test\n" +
                 "descr:       object not identical to one above\n" +
                 "admin-c:     ADM-TEST\n" +
-                "upd-to:      dbtest_at_ripe.net\n" +
+                "upd-to:      dbtest@@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
                 "mnt-by:      DEL-MNT\n" +
                 "source:      TEST");
@@ -610,7 +621,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "descr:       MNTNER for test\n" +
                 "descr:       object not identical to one above\n" +
                 "admin-c:     ADM-TEST\n" +
-                "upd-to:      dbtest_at_ripe.net\n" +
+                "upd-to:      dbtest@@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
                 "mnt-by:      DEL-MNT\n" +
                 "source:      TEST");
@@ -652,6 +663,17 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "2aaa:6fff::/48");
 
         assertThat(query, containsString("route6:         2aaa:6fff::/48"));
+    }
+
+    @Test
+    public void find124() {
+        databaseHelper.addObject("inet6num: 2a02:27d0:116:fffe:fffe:fffe:1671::/124\nsource: TEST");
+        databaseHelper.addObject("inet6num: 2a02:27d0::/32\nsource: TEST");
+
+        ipTreeUpdater.rebuild();
+        final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "2a02:27d0:116:fffe:fffe:fffe:1671::/124");
+
+        assertThat(query, containsString("inet6num:       2a02:27d0:116:fffe:fffe:fffe:1671::/124"));
     }
 
     @Test

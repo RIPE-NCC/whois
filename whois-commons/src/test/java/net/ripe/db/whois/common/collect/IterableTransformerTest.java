@@ -7,13 +7,17 @@ import java.util.Deque;
 import java.util.Iterator;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class IterableTransformerTest {
 
     @Test
     public void empty_input_test() {
         final Iterable subject = getSimpleIterable();
+
         final Iterator<Integer> iterator = subject.iterator();
 
         assertFalse(iterator.hasNext());
@@ -23,6 +27,7 @@ public class IterableTransformerTest {
     public void add_header_test() {
         final IterableTransformer<Integer> subject = getOddFilteringIterable(4, 5);
         subject.setHeader(1,2,3);
+
         final Iterator<Integer> iterator = subject.iterator();
 
         assertTrue(iterator.hasNext());
@@ -39,6 +44,7 @@ public class IterableTransformerTest {
     @Test(expected = NullPointerException.class)
     public void null_test() {
         final Iterable<Integer> subject = getSimpleIterable(1, null, 2, null);
+
         final Iterator<Integer> iterator = subject.iterator();
 
         assertTrue(iterator.hasNext());
@@ -55,6 +61,7 @@ public class IterableTransformerTest {
     @Test
     public void simple_test() {
         final Iterable<Integer> subject = getSimpleIterable(1,2,3);
+
         final Iterator<Integer> iterator = subject.iterator();
 
         assertTrue(iterator.hasNext());
@@ -69,11 +76,11 @@ public class IterableTransformerTest {
     @Test
     public void iterable_resettable() {
         final Iterable<Integer> subject = getSimpleIterable(1,2,3);
+
         Iterator<Integer> iterator = subject.iterator();
 
         assertTrue(iterator.hasNext());
         assertThat(iterator.next(), is(1));
-
         iterator = subject.iterator();
         assertTrue(iterator.hasNext());
         assertThat(iterator.next(), is(1));
@@ -87,6 +94,7 @@ public class IterableTransformerTest {
     @Test
     public void odd_filter_test() {
         final Iterable<Integer> subject = getOddFilteringIterable(1, 2, 3);
+
         final Iterator<Integer> iterator = subject.iterator();
 
         assertTrue(iterator.hasNext());
@@ -97,6 +105,7 @@ public class IterableTransformerTest {
     @Test
     public void multiple_results_filter_test() {
         final Iterable<Integer> subject = getOddFilteringEvenDoublingIterable(1, 2, 3);
+
         final Iterator<Integer> iterator = subject.iterator();
 
         assertTrue(iterator.hasNext());
@@ -124,7 +133,6 @@ public class IterableTransformerTest {
                     result.add(input);
                     result.add(input);
                 }
-                return;
             }
         };
     }
@@ -136,7 +144,6 @@ public class IterableTransformerTest {
                 if ((input & 1) == 0) {
                     result.add(input);
                 }
-                return;
             }
         };
     }

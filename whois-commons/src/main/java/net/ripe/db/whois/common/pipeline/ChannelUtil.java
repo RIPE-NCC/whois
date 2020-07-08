@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.pipeline;
 
-import com.google.common.base.Charsets;
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,12 +9,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public final class ChannelUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelUtil.class);
 
-    public static final Charset BYTE_ENCODING = Charsets.UTF_8;
+    public static final Charset BYTE_ENCODING = StandardCharsets.UTF_8;
 
     private ChannelUtil() {
         // do not instantiate

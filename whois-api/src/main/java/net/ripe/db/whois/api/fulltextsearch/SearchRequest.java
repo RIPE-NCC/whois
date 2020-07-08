@@ -1,8 +1,15 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
+import com.google.common.base.MoreObjects;
 import org.apache.commons.lang.Validate;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public final class SearchRequest {
+
+    protected static final String XML_FORMAT = "xml";
+    protected static final String JSON_FORMAT = "json";
 
     private final int rows;
     private final int start;
@@ -24,7 +31,7 @@ public final class SearchRequest {
                 final String format) {
         Validate.notNull(query, "No query parameter.");
         Validate.isTrue(!query.isEmpty(), "Invalid query");
-        Validate.isTrue("xml".equals(format) || "json".equals(format), "invalid format " + format);
+        Validate.isTrue(XML_FORMAT.equals(format) || JSON_FORMAT.equals(format), "invalid format " + format);
         Validate.notNull(highlightPre, "no highlight.pre parameter");
         Validate.notNull(highlightPost, "no highlight.post parameter");
         this.rows = rows;
@@ -67,6 +74,20 @@ public final class SearchRequest {
 
     public String getFormat() {
         return this.format;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(SearchRequest.class)
+                .add("rows", rows)
+                .add("start", start)
+                .add("query", query)
+                .add("highlight", highlight)
+                .add("highlightPre", highlightPre)
+                .add("highlightPost", highlightPost)
+                .add("facet", facet)
+                .add("format", format)
+                .toString();
     }
 
     public static class SearchRequestBuilder {

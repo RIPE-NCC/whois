@@ -18,15 +18,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
-import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -39,8 +40,6 @@ import static org.junit.Assert.fail;
 @Category(IntegrationTest.class)
 public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MasterDatabaseDownTestIntegration.class);
-
     private static final RpslObject OWNER_MNT = RpslObject.parse(
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
@@ -51,7 +50,7 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
             "mnt-by:      OWNER-MNT\n" +
             "source:      TEST");
 
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
+    private static final RpslObject TEST_PERSON = RpslObject.parse(
             "person:    Test Person\n" +
             "address:   Singel 258\n" +
             "phone:     +31 6 12345678\n" +
@@ -66,10 +65,16 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 
     @BeforeClass
     public static void proxyMasterDatabaseConnections() {
-        proxy = new Proxy("localhost", 3306);
-        proxy.start();
         final String url = System.getProperty("whois.db.master.url");
-        System.setProperty("whois.db.master.url", url.replace("localhost", String.format("localhost:%d", proxy.getPort())));
+        Matcher matcher = Pattern.compile("(jdbc:log:mariadb://)(.+)(/.+)").matcher(url);
+        if (matcher.find()) {
+            final String dbHost = matcher.group(2);
+
+            proxy = new Proxy(dbHost, 3306);
+            proxy.start();
+
+            System.setProperty("whois.db.master.url", url.replace("/" + dbHost + "/", "/" + String.format("localhost:%d", proxy.getPort()) + "/"));
+        }
     }
 
     @Before
@@ -87,7 +92,7 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void rest_update_fails_when_master_is_down() throws Exception {
+    public void rest_update_fails_when_master_is_down() {
         final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
                 .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS), new RpslAttribute(AttributeType.ADDRESS, "Amsterdam")).sort().get();
 
@@ -97,15 +102,14 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
                             WhoisResources.class);
             fail();
-        } catch (BadRequestException e) {
-            // TODO: [ES] expect 500 Internal Server Error response ?
+        } catch (InternalServerErrorException e) {
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, containsString("Unexpected error occurred"));
         }
     }
 
     @Test
-    public void rest_lookup_succeeds_when_master_is_down() throws Exception {
+    public void rest_lookup_succeeds_when_master_is_down() {
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(1));
@@ -113,7 +117,7 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void rest_search_succeeds_when_master_is_down() throws Exception {
+    public void rest_search_succeeds_when_master_is_down() {
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST").request().get(WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(1));

@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -26,7 +25,6 @@ public final class QueryServer implements ApplicationService {
     public static int port;
 
     @Value("${port.query}") private int queryPort;
-    @Value("${application.version}") private String version;
     @Value("${loadbalancer.query.timeout:5000}") private int markNodeFailedTimeout;
 
     private Channel serverChannel;
@@ -34,6 +32,7 @@ public final class QueryServer implements ApplicationService {
     private final WhoisServerPipelineFactory whoisServerPipelineFactory;
     private final QueryChannelsRegistry queryChannelsRegistry;
     private final MaintenanceMode maintenanceMode;
+    private ChannelFactory channelFactory;
 
     @Autowired
     public QueryServer(final WhoisServerPipelineFactory whoisServerPipelineFactory,
@@ -46,13 +45,11 @@ public final class QueryServer implements ApplicationService {
 
     @Override
     public void start() {
-        final ChannelFactory channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
+        channelFactory = new NioServerSocketChannelFactory();
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
-
         bootstrap.setPipelineFactory(whoisServerPipelineFactory);
         bootstrap.setOption("backlog", 200);
         bootstrap.setOption("child.keepAlive", true);
-
         serverChannel = bootstrap.bind(new InetSocketAddress(queryPort));
         port = ((InetSocketAddress)serverChannel.getLocalAddress()).getPort();
         LOGGER.info("Query server listening on {}", port);
@@ -60,12 +57,14 @@ public final class QueryServer implements ApplicationService {
 
     @Override
     public void stop(final boolean force) {
+        if (channelFactory != null){
+            channelFactory.shutdown();
+        }
         if (serverChannel != null) {
             if (force) {
                 Uninterruptibles.sleepUninterruptibly(markNodeFailedTimeout - maintenanceMode.shutdownInitiated(), TimeUnit.MILLISECONDS);
                 serverChannel.close();
                 serverChannel = null;
-
                 queryChannelsRegistry.closeChannels();
             } else {
                 maintenanceMode.setShutdown();

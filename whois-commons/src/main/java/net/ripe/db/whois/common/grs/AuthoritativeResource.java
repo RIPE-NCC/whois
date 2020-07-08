@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.grs;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -14,6 +13,8 @@ import net.ripe.commons.ip.SortedRangeSet;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
+import net.ripe.db.whois.common.iptree.Ipv6RouteEntry;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
@@ -26,9 +27,13 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
+
 @Immutable
 public class AuthoritativeResource {
-    private static final Set<ObjectType> RESOURCE_TYPES = Sets.newEnumSet(Lists.newArrayList(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM), ObjectType.class);
+    private static final Set<ObjectType> RESOURCE_TYPES = Sets.newEnumSet(Lists.newArrayList(ObjectType.AUT_NUM, ObjectType.INETNUM, INET6NUM), ObjectType.class);
 
     private final SortedRangeSet<Asn, AsnRange> autNums;
     private final SortedRangeSet<Ipv4, Ipv4Range> inetRanges;
@@ -43,7 +48,7 @@ public class AuthoritativeResource {
     }
 
     public static AuthoritativeResource unknown() {
-        return new AuthoritativeResource(new SortedRangeSet<Asn, AsnRange>(), new SortedRangeSet<Ipv4, Ipv4Range>(), new SortedRangeSet<Ipv6, Ipv6Range>());
+        return new AuthoritativeResource(new SortedRangeSet<>(), new SortedRangeSet<>(), new SortedRangeSet<>());
     }
 
     public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
@@ -93,10 +98,50 @@ public class AuthoritativeResource {
         }
     }
 
+    /**
+     * Is this route(6) maintained in this RIR space?
+     * We only consider the prefix, not the origin.
+     * @param rpslObject the route(6)
+     * @return true when route(6) is maintained in this RIR space
+     */
+    public boolean isRouteMaintainedInRirSpace(final RpslObject rpslObject) {
+        return isRouteMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
+    }
+
+    public boolean isRouteMaintainedInRirSpace(final ObjectType objectType, CIString key) {
+        try {
+            switch (objectType) {
+                case ROUTE:
+                    return isRouteMaintainedInRirSpace(Ipv4RouteEntry.parse(key.toString(), 0));
+                case ROUTE6:
+                    return isRouteMaintainedInRirSpace(Ipv6RouteEntry.parse(key.toString(), 0));
+            }
+        } catch (IllegalArgumentException iae) {
+            return true; // if route key parsing failed we can't determine if it's out of region
+        }
+
+        throw new IllegalArgumentException(String.format("%s is not a route", objectType));
+    }
+
+    private boolean isRouteMaintainedInRirSpace(final Ipv4RouteEntry routeEntry) {
+        return isMaintainedInRirSpace(
+                INETNUM,
+                // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
+                ciString(routeEntry.getKey().toString())
+        );
+    }
+
+    private boolean isRouteMaintainedInRirSpace(final Ipv6RouteEntry routeEntry) {
+        return isMaintainedInRirSpace(
+                INET6NUM,
+                // [SB] TODO: yuck, refactor this at a later time, see AH's TODO in SearchKey
+                ciString(routeEntry.getKey().toString())
+        );
+    }
+
     private AsnRange parseAsn(final CIString pkey) {
         return Asn.parse(pkey.toString()).asRange();
     }
-
 
     private Ipv6Range parseIpv6(final CIString pkey) {
         // use whois-common library to parse input
@@ -119,30 +164,15 @@ public class AuthoritativeResource {
     }
 
     public Iterable<String> findAutnumOverlaps(AuthoritativeResource other) {
-        return Iterables.transform(this.autNums.intersection(other.autNums), new Function<AsnRange, String>() {
-            @Override
-            public String apply(final AsnRange input) {
-                return input.toString();
-            }
-        });
+        return Iterables.transform(this.autNums.intersection(other.autNums), input -> input.toString());
     }
 
     public Iterable<String> findInetnumOverlaps(AuthoritativeResource other) {
-        return Iterables.transform(this.inetRanges.intersection(other.inetRanges), new Function<Ipv4Range, String>() {
-            @Override
-            public String apply(final Ipv4Range input) {
-                return input.toStringInRangeNotation();
-            }
-        });
+        return Iterables.transform(this.inetRanges.intersection(other.inetRanges), input -> input.toStringInRangeNotation());
     }
 
     public Iterable<String> findInet6numOverlaps(AuthoritativeResource other) {
-        return Iterables.transform(this.inet6Ranges.intersection(other.inet6Ranges), new Function<Ipv6Range, String>() {
-            @Override
-            public String apply(final Ipv6Range input) {
-                return input.toStringInCidrNotation();
-            }
-        });
+        return Iterables.transform(this.inet6Ranges.intersection(other.inet6Ranges), input -> input.toStringInCidrNotation());
     }
 
     @Override
@@ -163,32 +193,12 @@ public class AuthoritativeResource {
     }
 
     public List<String> getResources() {
-        return Lists.newArrayList(Iterables.concat(
-                Iterables.transform(autNums, new Function<AsnRange, String>() {
-                    @Override
-                    public String apply(AsnRange input) {
-                        return input.toString();
-                    }
-                }),
-                Iterables.transform(inetRanges, new Function<Ipv4Range, String>() {
-                    @Override
-                    public String apply(Ipv4Range input) {
-                        return input.toStringInRangeNotation();
-                    }
-                }),
-                Iterables.transform(
-                        Iterables.concat(Iterables.transform(inet6Ranges, new Function<Ipv6Range, List<Ipv6Range>>() {
-                            @Override
-                            public List<Ipv6Range> apply(Ipv6Range input) {
-                                return input.splitToPrefixes();
-                            }
-                        })), new Function<Ipv6Range, String>() {
-                            @Override
-                            public String apply(Ipv6Range input) {
-                                return input.toStringInCidrNotation();
-                            }
-                        })
-                ));
+        return Lists.newArrayList(
+            Iterables.concat(
+                Iterables.transform(autNums, input -> input.toString()),
+                Iterables.transform(inetRanges, input -> input.toStringInRangeNotation()),
+                Iterables.transform(Iterables.<Ipv6Range>concat(Iterables.transform(inet6Ranges, input -> input.splitToPrefixes())), input -> input.toStringInCidrNotation())
+            ));
     }
 }
 

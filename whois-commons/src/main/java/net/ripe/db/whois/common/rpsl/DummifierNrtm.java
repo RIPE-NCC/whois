@@ -145,8 +145,10 @@ public class DummifierNrtm implements Dummifier {
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toLowerCase();
         switch(source) {
             case "ripe":
+            case "ripe-nonauth":
             case "ripe-grs":
             case "test":
+            case "test-nonauth":
             case "test-grs":
                 return Lists.newArrayList(
                         new RpslAttribute("remarks", "        ****************************"),
@@ -214,7 +216,7 @@ public class DummifierNrtm implements Dummifier {
                         new RpslAttribute("remarks", "        * Please note that all data that is generally regarded as personal"),
                         new RpslAttribute("remarks", "        * data has been removed from this object."),
                         new RpslAttribute("remarks", "        * To view the original object, please query the RADB Database at:"),
-                        new RpslAttribute("remarks", "        * http://www.ra.net/"),
+                        new RpslAttribute("remarks", "        * http://www.radb.net/"),
                         new RpslAttribute("remarks", "        ****************************"));
 
             default:

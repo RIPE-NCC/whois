@@ -1,10 +1,21 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
-import javax.xml.bind.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
 import java.util.List;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "response")
+@JsonInclude(NON_EMPTY)
 public class SearchResponse {
 
     @XmlElement(required = true)
@@ -21,12 +32,17 @@ public class SearchResponse {
         this.result = result;
     }
 
+    public List<Lst> getLsts() {
+        return lsts;
+    }
+
     public void setLsts(final List<Lst> lsts) {
         this.lsts = lsts;
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "result")
+    @JsonInclude(NON_EMPTY)
     public static class Result {
 
         @XmlAttribute(required = true)
@@ -61,6 +77,7 @@ public class SearchResponse {
 
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlRootElement(name = "doc")
+        @JsonInclude(NON_EMPTY)
         public static class Doc {
 
             @XmlElements({@XmlElement(name = "str", type = Str.class)})
@@ -78,6 +95,7 @@ public class SearchResponse {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "lst")
+    @JsonInclude(NON_EMPTY)
     static class Lst {
         @XmlAttribute(required = true)
         private String name;
@@ -117,10 +135,23 @@ public class SearchResponse {
         public void setArrs(final List<Arr> arrs) {
             this.arrs = arrs;
         }
+
+        public String getName() {
+            return name;
+        }
+
+        public List<Lst> getLsts() {
+            return lsts;
+        }
+
+        public List<Arr> getArrs() {
+            return arrs;
+        }
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "arr")
+    @JsonInclude(NON_EMPTY)
     static class Arr {
         @XmlAttribute(required = true)
         private String name;
@@ -139,10 +170,19 @@ public class SearchResponse {
         public void setStr(final Str str) {
             this.str = str;
         }
+
+        public String getName() {
+            return name;
+        }
+
+        public Str getStr() {
+            return str;
+        }
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "str")
+    @JsonInclude(NON_EMPTY)
     public static class Str {
         @XmlAttribute(required = true)
         private String name;
@@ -170,6 +210,7 @@ public class SearchResponse {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "int")
+    @JsonInclude(NON_EMPTY)
     static class Int {
         @XmlAttribute(required = true)
         private String name;

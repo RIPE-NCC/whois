@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.common.Message;
@@ -11,8 +10,6 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +22,9 @@ import javax.mail.internet.ContentType;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -99,9 +99,9 @@ public class MessageParserTest {
         final MailMessage message = subject.parse(mimeMessage, updateContext);
 
         assertThat(message.getDate().length(), not(is(0)));
-        final String timezone = DateTimeFormat.forPattern("zzz").print(new DateTime());
+        final String timezone = DateTimeFormatter.ofPattern("zzz").format(ZonedDateTime.now());
         assertThat(message.getDate(), containsString(timezone));
-        final String year = DateTimeFormat.forPattern("yyyy").print(new DateTime());
+        final String year = DateTimeFormatter.ofPattern("yyyy").format(ZonedDateTime.now());
         assertThat(message.getDate(), containsString(year));
     }
 
@@ -765,7 +765,7 @@ public class MessageParserTest {
 
     @Test
     public void illegal_charset() throws Exception {
-        assertThat(subject.getCharset(new ContentType("text/plain;\n\tcharset=\"_iso-2022-jp$ESC\"")), is(Charsets.UTF_8));
+        assertThat(subject.getCharset(new ContentType("text/plain;\n\tcharset=\"_iso-2022-jp$ESC\"")), is(StandardCharsets.UTF_8));
     }
 
     @Test

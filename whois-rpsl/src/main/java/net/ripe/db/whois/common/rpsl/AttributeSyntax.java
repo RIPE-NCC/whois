@@ -150,7 +150,7 @@ public interface AttributeSyntax extends Documented {
             "\n" +
             "For more details, see RFC4034.\n");
 
-    AttributeSyntax EMAIL_SYNTAX = new AttributeSyntaxRegexp(80, Pattern.compile("(?i)^.+@([^.]+[.])+[^.]+$"),
+    AttributeSyntax EMAIL_SYNTAX = new AttributeSyntaxParser(new AttributeParser.EmailParser(), "" +
             "An e-mail address as defined in RFC 2822.\n");
 
     AttributeSyntax EXPORT_COMPS_SYNTAX = new ExportCompsSyntax();
@@ -366,7 +366,7 @@ public interface AttributeSyntax extends Documented {
             " action accept announce except refine networks into inbound\n" +
             " outbound\n" +
             "\n" +
-            "Names starting with certain prefixes are reserved for\n" +             // TODO: [ES] implement per type
+            "Names starting with certain prefixes are reserved for\n" +
             "certain object types.  Names starting with \"as-\" are\n" +
             "reserved for as set names.  Names starting with \"rs-\" are\n" +
             "reserved for route set names.  Names starting with \"rtrs-\"\n" +
@@ -728,10 +728,29 @@ public interface AttributeSyntax extends Documented {
                     return validateRouteSetWithRange(objectType, value);
 
                 case RTR_SET:
-                    return allowIpv6 && IPV6_SYNTAX.matches(objectType, value) ||
-                            INET_RTR_SYNTAX.matches(objectType, value) ||
-                            RTR_SET_SYNTAX.matches(objectType, value) ||
-                            IPV4_SYNTAX.matches(objectType, value);
+                    if (allowIpv6 && IPV6_SYNTAX.matches(objectType, value)) {
+                        return true;
+                    }
+
+                    if (INET_RTR_SYNTAX.matches(objectType, value)) {
+                        return true;
+                    }
+
+                    if (RTR_SET_SYNTAX.matches(objectType, value)) {
+                        return true;
+                    }
+
+                    if (IPV4_SYNTAX.matches(objectType, value)) {
+                        if (value.contains("-") || value.contains("/")) {
+                            return false;
+                        }
+
+                        if (Ipv4Resource.parse(value).getPrefixLength() == 1) {
+                            return true;
+                        }
+                    }
+
+                    return false;
 
                 default:
                     return false;

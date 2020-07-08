@@ -10,6 +10,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import joptsimple.OptionSpecBuilder;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
+import net.ripe.db.whois.common.Latin1Conversion;
 import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.concurrent.Immutable;
@@ -36,9 +37,15 @@ public class QueryParser {
     private final String searchKey;
     private final OptionSet options;
 
+    private final boolean hasSubstitutions;
+
     public QueryParser(final String query) {
         originalStringQuery = query;
-        options = PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(query), String.class));
+
+        final String substituted = Latin1Conversion.convertString(query);
+        hasSubstitutions = !substituted.equals(query);
+
+        options = PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(substituted), String.class));
 
 
         final List<?> searchKeys = options.nonOptionArguments();
@@ -191,5 +198,9 @@ public class QueryParser {
 
             return shortOptionSupplied;
         }
+    }
+
+    public boolean hasSubstitutions() {
+        return hasSubstitutions;
     }
 }

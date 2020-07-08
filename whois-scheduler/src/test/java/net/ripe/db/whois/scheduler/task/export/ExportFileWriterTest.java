@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
@@ -24,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.zip.GZIPInputStream;
 
@@ -36,6 +36,7 @@ public class ExportFileWriterTest {
 
     @Mock FilenameStrategy filenameStrategy;
     @Mock DecorationStrategy decorationStrategy;
+    @Mock ExportFilter exportFilter;
 
     ExportFileWriter subject;
 
@@ -55,7 +56,9 @@ public class ExportFileWriterTest {
             }
         });
 
-        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy);
+        when(exportFilter.shouldExport(any(RpslObject.class))).thenReturn(true);
+
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy, exportFilter);
     }
 
     @SuppressWarnings("unchecked")
@@ -98,12 +101,12 @@ public class ExportFileWriterTest {
     }
 
     private void checkFile(final File file, final String expectedContents) throws IOException {
-        final String content = FileCopyUtils.copyToString(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), Charsets.UTF_8));
+        final String content = FileCopyUtils.copyToString(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), StandardCharsets.UTF_8));
         Assert.assertThat(content, Matchers.is(QueryMessages.termsAndConditionsDump() + "\n" + expectedContents));
     }
 
     @Test(expected = RuntimeException.class)
     public void unexisting_folder() throws IOException {
-        new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy);
+        new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, exportFilter);
     }
 }

@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class AbuseContactTestIntegration extends AbstractIntegrationTest {
@@ -81,7 +83,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
     // inetnum
 
     @Test
-    public void lookup_inetnum_exact_match_abuse_contact_found() {
+    public void lookup_inetnum_exact_match_abuse_contact_range_found() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OT1-TEST\n" +
                 "org-type:      OTHER\n" +
@@ -112,9 +114,37 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    <parameters>\n" +
                 "        <primary-key value=\"193.0.0.0 - 193.0.0.255\"/>\n" +
                 "    </parameters>\n" +
-                "    <abuse-contacts key=\"TR1-TEST\" email=\"abuse@test.net\"/>\n" +
+                "    <abuse-contacts key=\"TR1-TEST\" email=\"abuse@test.net\" suspect=\"false\" org-id=\"ORG-OT1-TEST\"/>\n" +
                 "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
                 "</abuse-resources>"));
+    }
+
+    @Test
+    public void lookup_inetnum_exact_match_cidr_found() {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-OT1-TEST\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "inetnum:       193.0.0.0 - 193.0.0.255\n" +
+                "netname:       RIPE-NCC\n" +
+                "descr:         some description\n" +
+                "org:           ORG-OT1-TEST\n" +
+                "country:       DK\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        SUB-ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        ipTreeUpdater.rebuild();
+
+        final AbuseResources result = RestTest.target(getPort(), "whois/abuse-contact/193.0.0.0/24")
+                .request()
+                .get(AbuseResources.class);
+
+        assertThat(result.getAbuseContact().getEmail(), is("abuse@test.net"));
     }
 
     @Test
@@ -156,7 +186,9 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
                 "    \"key\" : \"TR1-TEST\",\n" +
-                "    \"email\" : \"abuse@test.net\"\n" +
+                "    \"email\" : \"abuse@test.net\",\n" +
+                "    \"suspect\" : false,\n" +
+                "    \"org-id\" : \"ORG-OT1-TEST\"\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
@@ -203,7 +235,9 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
                 "    \"key\" : \"\",\n" +
-                "    \"email\" : \"\"\n" +
+                "    \"email\" : \"\",\n" +
+                "    \"suspect\" : false,\n" +
+                "    \"org-id\" : \"\"\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
@@ -269,7 +303,9 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
                 "    \"key\" : \"TR1-TEST\",\n" +
-                "    \"email\" : \"abuse@test.net\"\n" +
+                "    \"email\" : \"abuse@test.net\",\n" +
+                "    \"suspect\" : false,\n" +
+                "    \"org-id\" : \"ORG-OT1-TEST\"\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
@@ -310,7 +346,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    <parameters>\n" +
                 "        <primary-key value=\"2a00:1f78::/32\"/>\n" +
                 "    </parameters>\n" +
-                "    <abuse-contacts key=\"TR1-TEST\" email=\"abuse@test.net\"/>\n" +
+                "    <abuse-contacts key=\"TR1-TEST\" email=\"abuse@test.net\" suspect=\"false\" org-id=\"ORG-OT1-TEST\"/>\n" +
                 "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
                 "</abuse-resources>"));
     }
@@ -347,7 +383,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
 
-        final AbuseResources result = RestTest.target(getPort(), "whois/abuse-contact/AS333")
+        final AbuseResources result = RestTest.target(getPort(), "whois/abuse-contact/As333")
                 .request(MediaType.APPLICATION_XML)
                 .get(AbuseResources.class);
 
@@ -422,5 +458,48 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/AS333\"\n" +
                 "  },"));
+    }
+
+    @Test
+    public void lookup_autnum_abuse_contact_found_matching_asblock() {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-OT1-TEST\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "aut-num:       AS333\n" +
+                "as-name:       Test-User-1\n" +
+                "descr:         some description\n" +
+                "org:           ORG-OT1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "as-block:      AS333 - AS333\n" +
+                "descr:         some description\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final AbuseResources result = RestTest.target(getPort(), "whois/abuse-contact/AS333")
+                .request(MediaType.APPLICATION_XML)
+                .get(AbuseResources.class);
+
+        assertThat(result.getAbuseContact().getEmail(), is("abuse@test.net"));
+    }
+
+    @Test
+    public void invalid_argument() {
+        try {
+            RestTest.target(getPort(), "whois/abuse-contact/1111")
+                            .request(MediaType.APPLICATION_XML)
+                            .get(AbuseResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final AbuseResources result = e.getResponse().readEntity(AbuseResources.class);
+            assertThat(result.getMessage(), is("Invalid argument: 1111"));
+        }
     }
 }

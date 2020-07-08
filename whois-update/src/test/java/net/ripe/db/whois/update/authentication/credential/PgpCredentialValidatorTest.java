@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.authentication.credential;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -19,7 +18,6 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +27,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.is;
@@ -320,8 +320,8 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void offeredCredentialEqualsAndHashCode() {
-        PgpCredential first = PgpCredential.createOfferedCredential("signedData1", "signature1", Charsets.UTF_8);
-        PgpCredential second = PgpCredential.createOfferedCredential("signedData2", "signature2", Charsets.UTF_8);
+        PgpCredential first = PgpCredential.createOfferedCredential("signedData1", "signature1", StandardCharsets.UTF_8);
+        PgpCredential second = PgpCredential.createOfferedCredential("signedData2", "signature2", StandardCharsets.UTF_8);
 
         assertTrue(first.equals(first));
         assertFalse(first.equals(second));
@@ -333,7 +333,7 @@ public class PgpCredentialValidatorTest {
     @Test
     public void offeredAndKnownCredentialsEqualsAndHashCode() {
         PgpCredential known = PgpCredential.createKnownCredential("X509-1");
-        PgpCredential offered = PgpCredential.createOfferedCredential("signedData", "signature", Charsets.UTF_8);
+        PgpCredential offered = PgpCredential.createOfferedCredential("signedData", "signature", StandardCharsets.UTF_8);
 
         assertFalse(known.equals(offered));
         assertFalse(known.hashCode() == offered.hashCode());

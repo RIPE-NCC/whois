@@ -125,6 +125,10 @@ public class Query {
         return trusted;
     }
 
+    public boolean hasSubstitutions() {
+        return queryParser.hasSubstitutions();
+    }
+
     public boolean via(Origin origin) {
         return this.origin == origin;
     }
@@ -520,7 +524,7 @@ public class Query {
             try {
                 final AttributeType type = AttributeType.getByName(attributeType);
                 if (AttributeType.PERSON.equals(type)) {
-                    ret.addAll(Arrays.asList(AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
+                    ret.addAll(Arrays.asList(AttributeType.ABUSE_C, AttributeType.ADMIN_C, AttributeType.TECH_C, AttributeType.ZONE_C, AttributeType.AUTHOR, AttributeType.PING_HDL));
                 } else {
                     ret.add(type);
                 }

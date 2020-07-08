@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.jdbc;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
@@ -11,9 +10,8 @@ import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -34,8 +32,6 @@ public class DatabaseVersionCheck {
     static final Splitter VERSION_SPLITTER = Splitter.on(CharMatcher.anyOf(".-")).omitEmptyStrings();
 
     private final ApplicationContext applicationContext;
-    @Value("${application.version}")
-    private String applicationVersion;
 
     @Autowired
     public DatabaseVersionCheck(ApplicationContext applicationContext) {
@@ -66,15 +62,12 @@ public class DatabaseVersionCheck {
     }
 
     public Iterable<String> getSqlPatchResources() throws IOException {
-        return Iterables.transform(Arrays.asList(applicationContext.getResources("patch/*-*.*.sql")), new Function<Resource, String>() {
-            @Override
-            public String apply(final Resource input) {
-                final String ret = input.getFilename();
-                if (ret.endsWith(".sql")) {
-                    return ret.substring(0, ret.length() - 4);
-                }
-                return ret;
+        return Iterables.transform(Arrays.asList(applicationContext.getResources("patch/*-*.*.sql")), input -> {
+            final String ret = input.getFilename();
+            if (ret.endsWith(".sql")) {
+                return ret.substring(0, ret.length() - 4);
             }
+            return ret;
         });
     }
 
@@ -118,6 +111,8 @@ public class DatabaseVersionCheck {
             final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             final String dbVersion = jdbcTemplate.queryForObject("SELECT version FROM version", String.class);
             checkDatabase(resources, dataSourceName, dbVersion);
+        } catch (EmptyResultDataAccessException e) {
+                LOGGER.warn("Error checking datasource {}, no version found", dataSourceName);
         } catch (Exception e) {
             if (e.getMessage().contains("SELECT command denied to user")) { // ugly but no other way to get this, sadly
                 LOGGER.info("Datasource {} skipped (no rights)", dataSourceName);

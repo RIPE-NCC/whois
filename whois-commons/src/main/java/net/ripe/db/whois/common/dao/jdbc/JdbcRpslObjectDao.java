@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -14,6 +13,7 @@ import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -23,11 +23,11 @@ import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.Validate;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.RecoverableDataAccessException;
@@ -42,6 +42,7 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,6 +53,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Repository
+@Primary
 @RetryFor(RecoverableDataAccessException.class)
 public class JdbcRpslObjectDao implements RpslObjectDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRpslObjectDao.class);
@@ -94,12 +96,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
         final List<RpslObject> rpslObjects = Lists.newArrayList(loadedObjects.values());
         Collections.sort(rpslObjects, new Comparator<RpslObject>() {
-            final List<Integer> requestedIds = Lists.newArrayList(Iterables.transform(proxy, new Function<Identifiable, Integer>() {
-                @Override
-                public Integer apply(final Identifiable input) {
-                    return input.getObjectId();
-                }
-            }));
+            final List<Integer> requestedIds = Lists.newArrayList(Iterables.transform(proxy, input -> input.getObjectId()));
 
             @Override
             public int compare(final RpslObject o1, final RpslObject o2) {
@@ -176,9 +173,8 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public LocalDateTime getLastUpdated(int objectId) {
-        return new LocalDateTime(
-            jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", new Object[]{objectId}, Long.class)
-                * 1000L);
+        final long timestamp = jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", new Object[]{objectId}, Long.class);
+        return (Timestamp.fromSeconds(timestamp)).toLocalDateTime();
     }
 
     @Override

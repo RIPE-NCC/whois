@@ -1,7 +1,11 @@
 package net.ripe.db.whois.common.pipeline;
 
 import com.google.common.net.InetAddresses;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
+import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelPipeline;
 import org.junit.Test;
 
 import java.net.Inet6Address;
@@ -177,6 +181,26 @@ public class ChannelUtilTest {
         @Override
         public ChannelFuture setReadable(boolean readable) {
             return null;
+        }
+
+        @Override
+        public boolean getUserDefinedWritability(int i) {
+            return false;
+        }
+
+        @Override
+        public void setUserDefinedWritability(int i, boolean b) {
+
+        }
+
+        @Override
+        public Object getAttachment() {
+            return null;
+        }
+
+        @Override
+        public void setAttachment(Object o) {
+
         }
     }
 }

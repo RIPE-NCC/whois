@@ -1,11 +1,15 @@
 package net.ripe.db.whois.spec
+
+import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
 import net.ripe.db.whois.common.Message
 import net.ripe.db.whois.common.Messages
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.RpslObject
-import org.joda.time.LocalDateTime
+import java.time.LocalDateTime
+
+import java.util.function.Consumer
 
 import static net.ripe.db.whois.common.domain.CIString.ciString
 
@@ -21,6 +25,7 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
         databaseHelper.insertAclIpLimit("::0/0", -1, true)
 
         allFixtures();
+        allAuthoritativeResources();
     }
 
     def oneBasicFixture(String key) {
@@ -40,12 +45,35 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
         BasicFixtures.basicFixtures
     }
 
+    /**
+     * Override this method to return a list of test case specific authoritative resources.
+     * @return list of authoritative resources
+     */
+    List<String> getAuthoritativeResources() {
+        Lists.newArrayList();
+    }
+
     private void allFixtures() {
         def rpslObjects = Sets.newHashSet();
         rpslObjects.addAll(basicFixtures.values().collect { RpslObject.parse(it.stripIndent()) })
         rpslObjects.addAll(fixtures.values().collect { RpslObject.parse(it.stripIndent()) })
 
         getDatabaseHelper().addObjects(rpslObjects)
+    }
+
+    private void allAuthoritativeResources() {
+        if (!getAuthoritativeResources().isEmpty()) {
+            // if authoritative resources for this test case have been specified clear the existing ones and add the test case specific ones
+            getAuthoritativeResourceDao().delete("test", "0.0.0.0/0")
+            getAuthoritativeResourceDao().delete("test", "::/0")
+            getAuthoritativeResources().forEach(new Consumer<String>() {
+                @Override
+                void accept(String res) {
+                    getAuthoritativeResourceDao().create("test", res)
+                }
+            })
+            whoisFixture.refreshAuthoritativeResourceData();
+        }
     }
 
     String getFixture(String key) {

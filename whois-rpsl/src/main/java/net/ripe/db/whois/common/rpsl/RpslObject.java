@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -18,6 +17,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -235,7 +235,7 @@ public class RpslObject implements Identifiable, ResponseObject {
 
     @Override
     public void writeTo(final OutputStream out) throws IOException {
-        writeTo(new OutputStreamWriter(out, Charsets.UTF_8));
+        writeTo(new OutputStreamWriter(out, StandardCharsets.UTF_8));
     }
 
     public void writeTo(final Writer writer) throws IOException {
