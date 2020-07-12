@@ -217,7 +217,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     static void setupDatabase(final JdbcTemplate jdbcTemplate, final String propertyBase, final String name, final String... sql) {
         final String dbName = dbBaseName + "_" + name;
-        jdbcTemplate.execute("CREATE DATABASE " + dbName + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci");
+        jdbcTemplate.execute("CREATE DATABASE " + dbName + " DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci");
 
         loadScripts(new JdbcTemplate(createDataSource(dbName)), sql);
 
