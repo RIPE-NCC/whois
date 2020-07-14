@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -194,11 +195,20 @@ public interface AttributeParser<T> {
 
             try {
                 parsed[0].validate();
+
+                final String address = parsed[0].getAddress();
+                final String localPart = address.substring(0, address.indexOf('@'));
+
+                if (!StandardCharsets.US_ASCII.newEncoder().canEncode(localPart)) {
+                    throw new AttributeParseException("Address contains non ASCII characters (%s)", s);
+                }
             } catch (AddressException e) {
                 throw new AttributeParseException(String.format("Invalid address (%s)", e.getMessage()), s);
             }
 
             return parsed[0];
         }
+
     }
+
 }
