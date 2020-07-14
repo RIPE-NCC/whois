@@ -671,7 +671,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBT role FR1-TEST", "role", "First Role", "tech-c:")
     }
 
-    def "punycode abuse-mailbox with IDN"() {
+    def "Abuse-mailbox with Umlaut IDN Converted to Punycode"() {
         given:
 
         expect:
@@ -706,6 +706,43 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 ["Value email@zürich.example converted to email@xn--zrich-kva.example"]
 
         query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "email@xn--zrich-kva.example")
+    }
+
+    def "Abuse-mailbox with Cyrillic IDN Converted to Punycode"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "Abuse Role")
+
+        when:
+        def message = syncUpdate("""
+                role:          Abuse Role
+                address:       St James Street
+                address:       Burnley
+                address:       UK
+                e-mail:        dbtest@ripe.net
+                abuse-mailbox: abuse@москва.ru
+                nic-hdl:       FR1-TEST
+                mnt-by:        owner-mnt
+                source:        TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   Abuse Role" }
+        ack.infoSuccessMessagesFor("Create", "[role] FR1-TEST   Abuse Role") ==
+                ["Value abuse@??????.ru converted to xn--abuse@-8nfp5etaw0b.ru"]
+
+        query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "xn--abuse@-8nfp5etaw0b.ru")
     }
 
     def "create role with name including all possible chars"() {
