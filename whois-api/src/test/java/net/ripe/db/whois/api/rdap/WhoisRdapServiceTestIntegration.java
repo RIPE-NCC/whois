@@ -673,7 +673,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (BadRequestException e) {
+        } catch (NotFoundException e) {
             final Entity response = e.getResponse().readEntity(Entity.class);
             assertThat(response.getErrorCode(), is(400));
             assertThat(response.getErrorTitle(), is("Invalid syntax."));
@@ -1259,7 +1259,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (BadRequestException e) {
+        } catch (NotFoundException e) {
             assertErrorTitle(e, "Invalid syntax.");
         }
     }
