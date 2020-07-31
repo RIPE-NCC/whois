@@ -675,7 +675,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (NotFoundException e) {
             final Entity response = e.getResponse().readEntity(Entity.class);
-            assertThat(response.getErrorCode(), is(400));
+            assertThat(response.getErrorCode(), is(404));
             assertThat(response.getErrorTitle(), is("Invalid syntax."));
         }
     }
