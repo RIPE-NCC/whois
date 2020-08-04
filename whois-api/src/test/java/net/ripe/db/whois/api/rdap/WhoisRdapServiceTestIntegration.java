@@ -43,9 +43,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -1795,16 +1796,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
-    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_allowed() {
+    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_not_allowed() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "http://www.foo.net")
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
                 .options();
-        //TODO: POST is not allowed, how toi check????
-        assertNull(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
-        assertNull(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS));
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS), is(nullValue()));
+        assertThat(response.getHeaderString(HttpHeaders.ALLOW), containsString("GET"));
+        assertThat(response.getHeaderString(HttpHeaders.ALLOW), not(containsString("POST")));
     }
 
     @Test
