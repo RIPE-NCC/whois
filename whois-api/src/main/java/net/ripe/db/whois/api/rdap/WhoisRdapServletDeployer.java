@@ -38,7 +38,6 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
         final FilterHolder crossOriginFilterHolder = context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/rdap/*", EnumSet.allOf(DispatcherType.class));
         crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "false");
         crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET, OPTIONS");
-        crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
 
         final ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.register(whoisRDAPService);

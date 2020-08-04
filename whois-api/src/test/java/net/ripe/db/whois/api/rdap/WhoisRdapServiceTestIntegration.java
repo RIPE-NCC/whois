@@ -45,7 +45,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -1780,7 +1779,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertNull(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -1792,7 +1791,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertNull(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -1833,7 +1832,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertNull(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
@@ -1846,7 +1845,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertNull(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
@@ -1859,7 +1858,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net"));
-        assertNull(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
 
     }
