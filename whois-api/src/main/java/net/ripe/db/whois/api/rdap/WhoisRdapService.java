@@ -276,7 +276,8 @@ public class WhoisRdapService {
                         getRequestUrl(request),
                         resultObject,
                         objectDao.getLastUpdated(resultObject.getObjectId()),
-                        abuseCFinder.getAbuseContactRole(resultObject)))
+                        abuseCFinder.getAbuseContactRole(resultObject),
+                        abuseCFinder.getAbuseContact(resultObject)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }

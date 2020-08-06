@@ -18,22 +18,25 @@ import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import java.time.LocalDateTime;
+import net.ripe.db.whois.query.planner.AbuseContact;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.nullValue;
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -52,6 +55,8 @@ public class RdapObjectMapperTest {
     private Ipv4Tree ipv4Tree;
     @Mock
     private Ipv6Tree ipv6Tree;
+    @Mock
+    AbuseContact abuseContact;
 
     private RdapObjectMapper mapper;
 
@@ -60,12 +65,14 @@ public class RdapObjectMapperTest {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Collections.singletonList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
         when(rpslObjectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\nnetname: ROOT-NET\nsource: TEST"));
         when(noticeFactory.generateTnC(REQUEST_URL)).thenReturn(getTnCNotice());
+        when(abuseContact.isSuspect()).thenReturn(false);
 
         this.mapper = new RdapObjectMapper(noticeFactory, rpslObjectDao, ipv4Tree, ipv6Tree, "whois.ripe.net");
     }
 
     @Test
     public void ip() {
+
         final Ip result = (Ip) map(
                 RpslObject.parse(
                         "inetnum:        10.0.0.0 - 10.255.255.255\n" +
@@ -93,7 +100,8 @@ public class RdapObjectMapperTest {
                                 "tech-c:         TP2-TEST\n" +
                                 "phone:          +31 12345678\n" +
                                 "source:         TEST"
-                ));
+                ),
+                Optional.of(abuseContact));
 
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
         assertThat(result.getStartAddress(), is("10.0.0.0"));
@@ -591,14 +599,49 @@ public class RdapObjectMapperTest {
         assertThat(result.getPort43(), is("whois.ripe.net"));
     }
 
+    @Test
+    public void abuse_validation_failed() {
+        when(abuseContact.isSuspect()).thenReturn(true);
+        when(abuseContact.getOrgId()).thenReturn(ciString("ORG-NCC1-RIPE"));
+        when(abuseContact.getAbuseMailbox()).thenReturn(ciString("abuse@test.com"));
+        when(abuseContact.getNicHandle()).thenReturn(ciString("AB-TEST"));
+
+        final Autnum result = (Autnum) map(
+                RpslObject.parse("" +
+                    "aut-num:        AS102\n" +
+                    "as-name:        End-User-2\n" +
+                    "org:            ORG-NCC1-RIPE\n" +
+                    "admin-c:        AP1-TEST\n" +
+                    "tech-c:         AP1-TEST\n" +
+                    "abuse-c:        AB-TEST\n" +
+                    "notify:         noreply@ripe.net\n" +
+                    "mnt-by:         UPD-MNT\n" +
+                    "source:         TEST\n"
+                ),
+                RpslObject.parse(
+                    "role:           Abuse Contact\n" +
+                    "nic-hdl:        AB-TEST\n" +
+                    "mnt-by:         TEST-MNT\n" +
+                    "abuse-mailbox:  abuse@test.com\n" +
+                    "admin-c:        TP1-TEST\n" +
+                    "tech-c:         TP2-TEST\n" +
+                    "phone:          +31 12345678\n" +
+                    "source:         TEST"
+                ),
+                Optional.of(abuseContact)
+        );
+
+        assertThat(result.getRemarks().get(0).getDescription().get(0), is("Abuse-mailbox validation failed. Please refer to ORG-NCC1-RIPE for further information."));
+    }
+
     // helper methods
 
     private Object map(final RpslObject rpslObject) {
-        return map(rpslObject, null);
+        return map(rpslObject, null, Optional.empty());
     }
 
-    private Object map(final RpslObject rpslObject, final RpslObject abuseContact) {
-        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, abuseContact);
+    private Object map(final RpslObject rpslObject, final RpslObject abuseContact, final Optional<AbuseContact> optionalAbuseContact) {
+        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, abuseContact, optionalAbuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
