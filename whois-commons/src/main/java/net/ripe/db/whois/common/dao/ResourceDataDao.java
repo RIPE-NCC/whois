@@ -16,9 +16,13 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -31,11 +35,14 @@ import java.util.Objects;
 @RetryFor(RecoverableDataAccessException.class)
 @Transactional(isolation = Isolation.READ_COMMITTED)
 public class ResourceDataDao {
+
+    private static TransactionTemplate transactionTemplate;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public ResourceDataDao(@Qualifier("internalsDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
     }
 
     public AuthoritativeResource load(final String source) {
@@ -60,22 +67,28 @@ public class ResourceDataDao {
         return new AuthoritativeResource(autNums, inetnums, inet6nums);
     }
 
-    // TODO: [ES] possible race condition (any SELECT FROM between DELETE and INSERT INTO won't return anything)
     public void store(final String source, final AuthoritativeResource authoritativeResource) {
-        jdbcTemplate.update("DELETE FROM authoritative_resource WHERE source = ?", source);
-
-        final List<String> resources = authoritativeResource.getResources();
-
-        jdbcTemplate.batchUpdate("INSERT INTO authoritative_resource (source, resource) VALUES (?, ?)", new BatchPreparedStatementSetter() {
+        transactionTemplate.execute(new TransactionCallback() {
             @Override
-            public void setValues(final PreparedStatement ps, final int i) throws SQLException {
-                ps.setString(1, source);
-                ps.setString(2, resources.get(i));
-            }
+            public Object doInTransaction(final TransactionStatus status) {
+                jdbcTemplate.update("DELETE FROM authoritative_resource WHERE source = ?", source);
 
-            @Override
-            public int getBatchSize() {
-                return resources.size();
+                final List<String> resources = authoritativeResource.getResources();
+
+                jdbcTemplate.batchUpdate("INSERT INTO authoritative_resource (source, resource) VALUES (?, ?)", new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(final PreparedStatement ps, final int i) throws SQLException {
+                        ps.setString(1, source);
+                        ps.setString(2, resources.get(i));
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return resources.size();
+                    }
+                });
+
+                return null;
             }
         });
     }
