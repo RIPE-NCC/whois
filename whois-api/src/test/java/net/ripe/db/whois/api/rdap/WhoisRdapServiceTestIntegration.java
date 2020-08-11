@@ -43,6 +43,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -673,9 +674,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (BadRequestException e) {
+        } catch (NotFoundException e) {
             final Entity response = e.getResponse().readEntity(Entity.class);
-            assertThat(response.getErrorCode(), is(400));
+            assertThat(response.getErrorCode(), is(404));
             assertThat(response.getErrorTitle(), is("Invalid syntax."));
         }
     }
@@ -1259,7 +1260,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (BadRequestException e) {
+        } catch (NotFoundException e) {
             assertErrorTitle(e, "Invalid syntax.");
         }
     }
@@ -1778,7 +1779,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -1790,11 +1791,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
-    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_allowed() {
+    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_not_allowed() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "http://www.foo.net")
@@ -1802,8 +1803,37 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
                 .options();
 
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS), is(nullValue()));
+        assertThat(response.getHeaderString(HttpHeaders.ALLOW), containsString("GET"));
+        assertThat(response.getHeaderString(HttpHeaders.ALLOW), not(containsString("POST")));
+    }
+
+    @Test
+    public void cross_origin_preflight_get_request_from_outside_ripe_net_is_allowed() {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET)
+                .options();
+
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), Matchers.arrayContainingInAnyOrder("GET","POST","HEAD"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), Matchers.arrayContainingInAnyOrder("GET","OPTIONS"));
+    }
+
+    @Test
+    public void cross_origin_preflight_options_request_from_outside_ripe_net_is_allowed() {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET)
+                .get();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
     @Test
@@ -1815,7 +1845,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
@@ -1828,7 +1858,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
 
     }
