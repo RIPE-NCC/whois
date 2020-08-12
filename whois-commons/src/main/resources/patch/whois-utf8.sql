@@ -21,6 +21,7 @@
 
 -- TODO: [ES] how much time is needed for the migration?
 --      eg. history table = 52 mins, last table = 17 mins (tested on metal server)
+--          Entire script ran in 82m12.701s on a standalone metal server
 
 -- TODO: Also convert mirror databases, TEST, mailupdates etc.
 
