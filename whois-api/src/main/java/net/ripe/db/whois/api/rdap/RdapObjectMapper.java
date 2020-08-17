@@ -119,9 +119,8 @@ class RdapObjectMapper {
     public Object map(final String requestUrl,
                       final RpslObject rpslObject,
                       final LocalDateTime lastChangedTimestamp,
-                      @Nullable final RpslObject abuseRoleObject,
                       final Optional<AbuseContact> abuseContact) {
-        return mapCommons(getRdapObject(requestUrl, rpslObject, lastChangedTimestamp, abuseRoleObject, abuseContact), requestUrl);
+        return mapCommons(getRdapObject(requestUrl, rpslObject, lastChangedTimestamp, abuseContact), requestUrl);
     }
 
     public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final Iterable<LocalDateTime> localDateTimes, final int maxResultSize) {
@@ -130,9 +129,9 @@ class RdapObjectMapper {
 
         for (final RpslObject object : objects) {
             if (object.getType() == DOMAIN) {
-                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, iterator.next(), null, Optional.empty()));
+                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, iterator.next(), Optional.empty()));
             } else {
-                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), null, Optional.empty()));
+                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), Optional.empty()));
             }
         }
 
@@ -163,7 +162,6 @@ class RdapObjectMapper {
     private RdapObject getRdapObject(final String requestUrl,
                                      final RpslObject rpslObject,
                                      final LocalDateTime lastChangedTimestamp,
-                                     @Nullable final RpslObject abuseRoleObject,
                                      final Optional<AbuseContact> optionalAbuseContact) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
@@ -196,6 +194,8 @@ class RdapObjectMapper {
             if (abuseContact.isSuspect()) {
                 rdapResponse.getRemarks().add(createRemark(rpslObject.getKey(), abuseContact));
             }
+
+            rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE));
         });
 
         if (hasDescriptions(rpslObject)) {
@@ -205,10 +205,6 @@ class RdapObjectMapper {
         rdapResponse.getEvents().add(createEvent(lastChangedTimestamp));
 
         rdapResponse.getNotices().addAll(noticeFactory.generateNotices(requestUrl, rpslObject));
-
-        if (abuseRoleObject != null) {
-            rdapResponse.getEntitySearchResults().add(createEntity(abuseRoleObject, Role.ABUSE));
-        }
 
         return rdapResponse;
     }

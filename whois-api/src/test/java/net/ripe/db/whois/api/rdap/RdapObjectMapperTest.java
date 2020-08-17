@@ -55,8 +55,6 @@ public class RdapObjectMapperTest {
     private Ipv4Tree ipv4Tree;
     @Mock
     private Ipv6Tree ipv6Tree;
-    @Mock
-    AbuseContact abuseContact;
 
     private RdapObjectMapper mapper;
 
@@ -65,13 +63,26 @@ public class RdapObjectMapperTest {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Collections.singletonList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
         when(rpslObjectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\nnetname: ROOT-NET\nsource: TEST"));
         when(noticeFactory.generateTnC(REQUEST_URL)).thenReturn(getTnCNotice());
-        when(abuseContact.isSuspect()).thenReturn(false);
 
         this.mapper = new RdapObjectMapper(noticeFactory, rpslObjectDao, ipv4Tree, ipv6Tree, "whois.ripe.net");
     }
 
     @Test
     public void ip() {
+
+        final AbuseContact abuseContact = new AbuseContact(
+                RpslObject.parse(
+                    "role:           Abuse Contact\n" +
+                    "nic-hdl:        AB-TEST\n" +
+                    "mnt-by:         TEST-MNT\n" +
+                    "admin-c:        TP1-TEST\n" +
+                    "tech-c:         TP2-TEST\n" +
+                    "phone:          +31 12345678\n" +
+                    "source:         TEST"
+                ),
+                false,
+                ciString("")
+        );
 
         final Ip result = (Ip) map(
                 RpslObject.parse(
@@ -92,15 +103,6 @@ public class RdapObjectMapperTest {
                                 "notify:         notify@test.net\n" +
                                 "org:            ORG-TOL1-TEST\n" +
                                 "source:         TEST"),
-                RpslObject.parse(
-                        "role:           Abuse Contact\n" +
-                                "nic-hdl:        AB-TEST\n" +
-                                "mnt-by:         TEST-MNT\n" +
-                                "admin-c:        TP1-TEST\n" +
-                                "tech-c:         TP2-TEST\n" +
-                                "phone:          +31 12345678\n" +
-                                "source:         TEST"
-                ),
                 Optional.of(abuseContact));
 
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
@@ -601,10 +603,20 @@ public class RdapObjectMapperTest {
 
     @Test
     public void abuse_validation_failed() {
-        when(abuseContact.isSuspect()).thenReturn(true);
-        when(abuseContact.getOrgId()).thenReturn(ciString("ORG-NCC1-RIPE"));
-        when(abuseContact.getAbuseMailbox()).thenReturn(ciString("abuse@test.com"));
-        when(abuseContact.getNicHandle()).thenReturn(ciString("AB-TEST"));
+        final AbuseContact abuseContact = new AbuseContact(
+            RpslObject.parse(
+                "role:           Abuse Contact\n" +
+                "nic-hdl:        AB-TEST\n" +
+                "mnt-by:         TEST-MNT\n" +
+                "abuse-mailbox:  abuse@test.com\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP2-TEST\n" +
+                "phone:          +31 12345678\n" +
+                "source:         TEST"
+            ),
+            true,
+            ciString("ORG-NCC1-RIPE")
+        );
 
         final Autnum result = (Autnum) map(
                 RpslObject.parse("" +
@@ -618,16 +630,6 @@ public class RdapObjectMapperTest {
                     "mnt-by:         UPD-MNT\n" +
                     "source:         TEST\n"
                 ),
-                RpslObject.parse(
-                    "role:           Abuse Contact\n" +
-                    "nic-hdl:        AB-TEST\n" +
-                    "mnt-by:         TEST-MNT\n" +
-                    "abuse-mailbox:  abuse@test.com\n" +
-                    "admin-c:        TP1-TEST\n" +
-                    "tech-c:         TP2-TEST\n" +
-                    "phone:          +31 12345678\n" +
-                    "source:         TEST"
-                ),
                 Optional.of(abuseContact)
         );
 
@@ -637,11 +639,11 @@ public class RdapObjectMapperTest {
     // helper methods
 
     private Object map(final RpslObject rpslObject) {
-        return map(rpslObject, null, Optional.empty());
+        return map(rpslObject, Optional.empty());
     }
 
-    private Object map(final RpslObject rpslObject, final RpslObject abuseContact, final Optional<AbuseContact> optionalAbuseContact) {
-        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, abuseContact, optionalAbuseContact);
+    private Object map(final RpslObject rpslObject, final Optional<AbuseContact> optionalAbuseContact) {
+        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, optionalAbuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
