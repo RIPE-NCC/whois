@@ -633,7 +633,80 @@ public class RdapObjectMapperTest {
                 Optional.of(abuseContact)
         );
 
-        assertThat(result.getRemarks().get(0).getDescription().get(0), is("Abuse-mailbox validation failed. Please refer to ORG-NCC1-RIPE for further information."));
+        assertThat(
+            result.getRemarks().get(0).getDescription().get(0),
+            is("Abuse contact for 'AS102' is 'abuse@test.com'\nAbuse-mailbox validation failed. Please refer to ORG-NCC1-RIPE for further information.\n")
+        );
+    }
+
+    @Test
+    public void abuse_validation_passed() {
+        final AbuseContact abuseContact = new AbuseContact(
+            RpslObject.parse(
+                "role:           Abuse Contact\n" +
+                "nic-hdl:        AB-TEST\n" +
+                "mnt-by:         TEST-MNT\n" +
+                "abuse-mailbox:  abuse@test.com\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP2-TEST\n" +
+                "phone:          +31 12345678\n" +
+                "source:         TEST"
+            ),
+            false,
+            ciString("ORG-NCC1-RIPE")
+        );
+
+        final Autnum result = (Autnum) map(
+            RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "org:            ORG-NCC1-RIPE\n" +
+                "admin-c:        AP1-TEST\n" +
+                "tech-c:         AP1-TEST\n" +
+                "abuse-c:        AB-TEST\n" +
+                "notify:         noreply@ripe.net\n" +
+                "mnt-by:         UPD-MNT\n" +
+                "source:         TEST\n"
+            ),
+            Optional.of(abuseContact)
+        );
+
+        assertThat(result.getRemarks(), hasSize(0));
+    }
+
+    @Test
+    public void abuse_validation_failed_no_responsible_org() {
+        final AbuseContact abuseContact = new AbuseContact(
+                RpslObject.parse(
+                        "role:           Abuse Contact\n" +
+                                "nic-hdl:        AB-TEST\n" +
+                                "mnt-by:         TEST-MNT\n" +
+                                "abuse-mailbox:  abuse@test.com\n" +
+                                "admin-c:        TP1-TEST\n" +
+                                "tech-c:         TP2-TEST\n" +
+                                "phone:          +31 12345678\n" +
+                                "source:         TEST"
+                ),
+                true,
+                null
+        );
+
+        final Autnum result = (Autnum) map(
+                RpslObject.parse("" +
+                        "aut-num:        AS102\n" +
+                        "as-name:        End-User-2\n" +
+                        "org:            ORG-NCC1-RIPE\n" +
+                        "admin-c:        AP1-TEST\n" +
+                        "tech-c:         AP1-TEST\n" +
+                        "abuse-c:        AB-TEST\n" +
+                        "notify:         noreply@ripe.net\n" +
+                        "mnt-by:         UPD-MNT\n" +
+                        "source:         TEST\n"
+                ),
+                Optional.of(abuseContact)
+        );
+
+        assertThat(result.getRemarks(), hasSize(0));
     }
 
     // helper methods

@@ -39,6 +39,7 @@ import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.planner.AbuseContact;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -191,7 +192,7 @@ class RdapObjectMapper {
         }
 
         optionalAbuseContact.ifPresent(abuseContact -> {
-            if (abuseContact.isSuspect()) {
+            if (abuseContact.isSuspect() && abuseContact.getOrgId() != null) {
                 rdapResponse.getRemarks().add(createRemark(rpslObject.getKey(), abuseContact));
             }
 
@@ -302,8 +303,11 @@ class RdapObjectMapper {
     }
 
     private static Remark createRemark(final CIString key, final AbuseContact abuseContact) {
-        // TODO message duplicated from QueryMessages.unvalidatedAbuseCShown
-        return new Remark(Lists.newArrayList(String.format("Abuse-mailbox validation failed. Please refer to %s for further information.", abuseContact.getOrgId())));
+        return new Remark(
+           Lists.newArrayList(
+               QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")
+           )
+        );
     }
 
     private static boolean hasDescriptions(final RpslObject rpslObject) {
