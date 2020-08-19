@@ -87,8 +87,7 @@ public class AbuseCFinder {
         final boolean suspect = abuseValidationStatusDao.isSuspect(role.getValueForAttribute(AttributeType.ABUSE_MAILBOX));
 
         return Optional.of(new AbuseContact(
-                        role.getKey(),
-                        role.getValueForAttribute(AttributeType.ABUSE_MAILBOX),
+                        role,
                         suspect,
                         getOrgToContact(rpslObject, suspect)
                 ));
@@ -134,7 +133,7 @@ public class AbuseCFinder {
 
     @CheckForNull
     @Nullable
-    public RpslObject getAbuseContactRole(final RpslObject rpslObject) {
+    private RpslObject getAbuseContactRole(final RpslObject rpslObject) {
         if(!mainSources.contains(rpslObject.getValueForAttribute(AttributeType.SOURCE))) {
             return null;
         }

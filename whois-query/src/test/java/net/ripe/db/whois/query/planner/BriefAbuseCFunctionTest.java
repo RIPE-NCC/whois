@@ -93,7 +93,12 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: RIPE\n" +
                 "abuse-mailbox: abuse@me.now");
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abusec@ripe.net"), false, ciString(""))));
+        final RpslObject abuseRole = RpslObject.parse("role: Abuse Role\n" +
+                "nic-hdl: AA1-TEST\n" +
+                "abuse-mailbox: abusec@ripe.net"
+        );
+
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(abuseRole, false, ciString(""))));
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
@@ -108,7 +113,12 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: RIPE\n" +
                 "abuse-mailbox: abuse@me.now");
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        final RpslObject abuseRole = RpslObject.parse("role: Abuse Role\n" +
+                "nic-hdl: AA1-TEST\n" +
+                "abuse-mailbox: abuse@ripe.net"
+        );
+
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(abuseRole, false, ciString(""))));
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +

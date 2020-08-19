@@ -1127,6 +1127,44 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
+    @Test
+    public void lookup_autnum_has_invalid_abuse_contact() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 358\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.updateObject("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "abuse-c:       AB-TEST\n" +
+                "source:        TEST");
+
+        databaseHelper.getInternalsTemplate().update(
+           "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
+        );
+
+        final Autnum autnum = createResource("autnum/102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(
+            autnum.getRemarks().get(0).getDescription(),
+            contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
+                    "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
+        );
+    }
+
     // general
 
     @Test
