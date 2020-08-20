@@ -171,6 +171,8 @@
                         <jvmFlags>
                             <jvmFlag>-Dwhois.config=/export/services/whois/properties</jvmFlag>
                             <jvmFlag>-Dlog4j.configurationFile=file:/export/services/whois/log4j2.xml</jvmFlag>
+                            <!-- TODO: get profile from gitlab -->
+                            <jvmFlag>-Dspring.profiles.active=AWS_DEPLOYED</jvmFlag>
                         </jvmFlags>
                         <mainClass>net.ripe.db.whois.db.WhoisServer</mainClass>
                     </container>
