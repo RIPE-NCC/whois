@@ -33,6 +33,7 @@ public class WhoisAWSPropertyResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisAWSPropertyResolver.class);
 
+    //TODO: get region to deploy from gitlab
     private static final String REGION = "eu-central-1";
 
     @Bean
