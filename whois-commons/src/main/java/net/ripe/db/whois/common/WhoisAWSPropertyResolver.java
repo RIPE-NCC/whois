@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import java.util.HashMap;
@@ -23,12 +22,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @Profile(WhoisProfile.AWS_DEPLOYED)
-//TODO: remove this once all properties are stored in parameter store
-@PropertySources({
-        @PropertySource(value = "classpath:version.properties", ignoreResourceNotFound = true),
-        @PropertySource(value = "classpath:whois.properties", ignoreResourceNotFound = true),
-        @PropertySource(value = "file:${whois.config}", ignoreResourceNotFound = true),
-})
+@PropertySource(value = "classpath:version.properties", ignoreResourceNotFound = true)
 public class WhoisAWSPropertyResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisAWSPropertyResolver.class);
@@ -38,10 +32,10 @@ public class WhoisAWSPropertyResolver {
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties(){
-        LOGGER.info("using aws parameter store for properties ");
+        LOGGER.info("AWS profile : using ssm parameter store ");
 
         Properties properties = new Properties();
-        properties.putAll( getParametersByEnvAndApp("/whois", true));
+        properties.putAll( getParametersByEnvAndApp("/whois/", true));
 
         PropertySourcesPlaceholderConfigurer propertySourceConfig = new PropertySourcesPlaceholderConfigurer();
         propertySourceConfig.setProperties(properties);
@@ -66,8 +60,6 @@ public class WhoisAWSPropertyResolver {
             token = parameterResult.getNextToken();
 
             params.putAll(addParamsToMap(parameterResult.getParameters()));
-            //TODO: remove this logger once finalized
-            LOGGER.info("aws parameters are: " + params.toString());
 
         } while (token != null);
 
@@ -78,7 +70,7 @@ public class WhoisAWSPropertyResolver {
         return parameters.stream()
                 .collect(Collectors.toMap(
                         parameter -> parameter.getName().substring(parameter.getName().lastIndexOf("/") + 1),
-                        Parameter::getValue
+                        parameter -> parameter.getValue().trim()
                         )
                 );
     }
