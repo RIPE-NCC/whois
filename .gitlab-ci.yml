@@ -120,10 +120,10 @@ deploy_aws:
     - $(aws ecr get-login --no-include-email --region ${AWS_REGION})
   script:
     - docker pull $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
-    - docker tag $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA} $AWS_REGISTRY_IMAGE:${CI_COMMIT_SHA}
+    - docker tag $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA} $AWS_REGISTRY_IMAGE:${CI_COMMIT_SHORT_SHA}
     - docker push $AWS_REGISTRY_IMAGE:${CI_COMMIT_SHORT_SHA}
     - TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition whois)
-    - NEW_CONTAINER_DEFINITION=$(echo $TASK_DEFINITION | jq ".taskDefinition | del(.taskDefinitionArn, .status, .revision, .compatibilities, .requiresAttributes) | .containerDefinitions[0].image=\"whois:1\" ")
+    - NEW_CONTAINER_DEFINITION=$(echo $TASK_DEFINITION | jq ".taskDefinition | del(.taskDefinitionArn, .status, .revision, .compatibilities, .requiresAttributes) | .containerDefinitions[0].image=\"$AWS_REGISTRY_IMAGE:${CI_COMMIT_SHORT_SHA}\" ")
     - aws ecs register-task-definition --family whois --container-definitions "${NEW_CONTAINER_DEFINITION}"
     - aws ecs update-service --cluster whois --service whois --task-definition whois
   environment:
