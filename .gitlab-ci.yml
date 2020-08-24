@@ -115,6 +115,7 @@ sonar:
 deploy_aws:
   stage: deploy
   before_script:
+    - set -x
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - $(aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $AWS_REGISTRY_IMAGE)
   script:
@@ -128,7 +129,7 @@ deploy_aws:
     - aws ecs update-service --cluster whois --service whois --task-definition whois
   environment:
     name: aws-rc
-  when: manual
+  #when: manual
 
 .deploy_template: &deploy_env
   stage: deploy
