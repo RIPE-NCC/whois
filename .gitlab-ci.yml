@@ -125,7 +125,7 @@ deploy_aws:
     - docker push $AWS_REGISTRY_IMAGE/whois-ecr:${CI_COMMIT_SHORT_SHA}
     - TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition whois)
     - NEW_CONTAINER_DEFINITION=$(echo $TASK_DEFINITION | jq ".taskDefinition | del(.taskDefinitionArn, .status, .revision, .compatibilities, .requiresAttributes) | .containerDefinitions[0].image=\"$AWS_REGISTRY_IMAGE/whois-ecr:${CI_COMMIT_SHORT_SHA}\" ")
-    - aws ecs register-task-definition --family whois --container-definitions "${NEW_CONTAINER_DEFINITION}"
+    - aws ecs register-task-definition --cli-input-json "$NEW_CONTAINER_DEFINITION"
     - aws ecs update-service --cluster whois --service whois --task-definition whois
   environment:
     name: aws-rc
