@@ -127,7 +127,7 @@ deploy_aws:
     - aws ecs update-service --cluster swe --service whois --task-definition whois
   environment:
     name: aws-rc
-  #when: manual
+  when: manual
 
 .deploy_template: &deploy_env
   stage: deploy
