@@ -117,7 +117,7 @@ deploy_aws:
   before_script:
     - set -x
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - $(aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $AWS_REGISTRY_IMAGE)
+    - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $AWS_REGISTRY_IMAGE
   script:
     - set -x
     - docker pull $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
