@@ -113,7 +113,6 @@ sonar:
     - mvn sonar:sonar -Dsonar.host.url=http://sonar.ripe.net -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.projectName=whois -Dsonar.java.binaries=$PWD/whois-api/target/classes,$PWD/whois-client/target/classes,$PWD/whois-commons/target/classes,$PWD/whois-db/target/classes,$PWD/whois-nrtm/target/classes,$PWD/whois-query/target/classes,$PWD/whois-rpsl/target/classes,$PWD/whois-scheduler/target/classes,$PWD/whois-update/target/classes
 
 deploy_aws:
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-ecs:latest
   stage: deploy
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
