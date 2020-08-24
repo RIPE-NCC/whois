@@ -4,10 +4,14 @@ variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   TZ: Europe/Amsterdam
   WHITESOURCE_CONFIG_FILE: "whitesource.config"
+  CI_AWS_ECS_CLUSTER: swe
+  CI_AWS_ECS_SERVICE: whois
+  CI_AWS_ECS_TASK_DEFINITION: whois
 
 include:
   - project: 'swe/gitlab-ci'
     file: '/templates/whitesource-scanning.yml'
+  - template: AWS/Deploy-ECS.gitlab-ci.yml
 
 stages:
   - build
@@ -111,6 +115,12 @@ sonar:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -fn # ignore failing (non deterministic) tests, we want QA output regardless
     - echo PWD=$PWD
     - mvn sonar:sonar -Dsonar.host.url=http://sonar.ripe.net -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.projectName=whois -Dsonar.java.binaries=$PWD/whois-api/target/classes,$PWD/whois-client/target/classes,$PWD/whois-commons/target/classes,$PWD/whois-db/target/classes,$PWD/whois-nrtm/target/classes,$PWD/whois-query/target/classes,$PWD/whois-rpsl/target/classes,$PWD/whois-scheduler/target/classes,$PWD/whois-update/target/classes
+
+deploy_aws:
+  stage: deploy
+  environment:
+    name: aws-rc
+  when: manual
 
 .deploy_template: &deploy_env
   stage: deploy
