@@ -35,7 +35,7 @@ public class WhoisAWSPropertyResolver {
         LOGGER.info("AWS profile : using ssm parameter store ");
 
         Properties properties = new Properties();
-        properties.putAll( getParametersByEnvAndApp("/whois/", true));
+        properties.putAll( getParametersByEnvAndApp("/whois/"));
 
         PropertySourcesPlaceholderConfigurer propertySourceConfig = new PropertySourcesPlaceholderConfigurer();
         propertySourceConfig.setProperties(properties);
@@ -43,12 +43,13 @@ public class WhoisAWSPropertyResolver {
         return propertySourceConfig;
     }
 
-    public static Map<String, Object> getParametersByEnvAndApp(final String path, final boolean encryption) {
+    public static Map<String, Object> getParametersByEnvAndApp(final String path) {
         final AWSSimpleSystemsManagement awsSimpleSystemsManagement = AWSSimpleSystemsManagementClient.builder()
                 .withRegion(REGION).build();
 
-        final GetParametersByPathRequest getParametersByPathRequest = new GetParametersByPathRequest().withPath(path)
-                .withWithDecryption(encryption)
+        final GetParametersByPathRequest getParametersByPathRequest = new GetParametersByPathRequest()
+                .withPath(path)
+                .withWithDecryption(true)
                 .withRecursive(true);
 
         String token = null;
