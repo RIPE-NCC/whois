@@ -24,15 +24,11 @@ import java.util.stream.Collectors;
 @Profile(WhoisProfile.AWS_DEPLOYED)
 @PropertySource(value = "classpath:version.properties", ignoreResourceNotFound = true)
 public class WhoisAWSPropertyResolver {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisAWSPropertyResolver.class);
-
-    //TODO: get region to deploy from gitlab
-    private static final String REGION = "eu-central-1";
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties(){
-        LOGGER.info("AWS profile : using ssm parameter store ");
+        LOGGER.info("AWS profile : using ssm parameter store");
 
         Properties properties = new Properties();
         properties.putAll( getParametersByEnvAndApp("/whois/"));
@@ -45,7 +41,7 @@ public class WhoisAWSPropertyResolver {
 
     public static Map<String, Object> getParametersByEnvAndApp(final String path) {
         final AWSSimpleSystemsManagement awsSimpleSystemsManagement = AWSSimpleSystemsManagementClient.builder()
-                .withRegion(REGION).build();
+                .withRegion(System.getenv("AWS_REGION") ).build();
 
         final GetParametersByPathRequest getParametersByPathRequest = new GetParametersByPathRequest()
                 .withPath(path)
