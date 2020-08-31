@@ -38,7 +38,7 @@ public class WhoisServer {
         Slf4JLogConfiguration.init();
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.DEPLOYED);
+        final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.RIPE_DEPLOYED);
 
         final WhoisServer whoisServer = applicationContext.getBean(WhoisServer.class);
         Runtime.getRuntime().addShutdownHook(new Thread() {
