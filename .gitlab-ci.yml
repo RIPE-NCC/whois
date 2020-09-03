@@ -118,6 +118,9 @@ deploy_aws:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $AWS_REGISTRY_IMAGE
   script:
+    - git clone -b aws_deploy_properties http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/swe-database-team/db-operational.git
+    - cd db-operational/deployment
+    - ./awsUpdateProperties.sh whois
     - docker pull $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
     - docker tag $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA} $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
     - docker push $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
