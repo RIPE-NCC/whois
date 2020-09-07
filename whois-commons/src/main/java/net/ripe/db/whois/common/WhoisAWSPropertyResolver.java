@@ -6,7 +6,6 @@ import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathR
 import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathResult;
 import com.amazonaws.services.simplesystemsmanagement.model.Parameter;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +14,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -51,29 +48,7 @@ public class WhoisAWSPropertyResolver {
         PropertySourcesPlaceholderConfigurer propertySourceConfig = new PropertySourcesPlaceholderConfigurer();
         propertySourceConfig.setProperties(properties);
 
-        ensureDirectoriesExist(properties);
-
         return propertySourceConfig;
-    }
-
-    private static void ensureDirectoriesExist(final Properties properties) {
-        properties.forEach((k, v) -> {
-            final String name = (String) k;
-            if (name.startsWith("dir.")) {
-                final String value = (String) v;
-                LOGGER.info("Checking {} exists", value);
-                File dir = new File(value);
-
-                if (!dir.exists()) {
-                    LOGGER.info("{} does not exist, creating", value);
-                    try {
-                        FileUtils.forceMkdir(dir);
-                    } catch (IOException ioe) {
-                        throw new IllegalStateException("Could not create output directory " + value, ioe);
-                    }
-                }
-            }
-        });
     }
 
     public static Map<String, Object> getParametersByEnvAndApp(final String path) {
