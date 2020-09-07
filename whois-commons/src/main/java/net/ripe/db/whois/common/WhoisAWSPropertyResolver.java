@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,16 @@ import java.util.stream.Collectors;
 @PropertySource(value = "classpath:version.properties", ignoreResourceNotFound = true)
 public class WhoisAWSPropertyResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisAWSPropertyResolver.class);
+
+    static {
+        try {
+            final String hostname = InetAddress.getLocalHost().getHostName();
+            System.setProperty("host.name", hostname);
+            LOGGER.info("Instance hostname is {}", hostname);
+        } catch (UnknownHostException uhe) {
+            throw new IllegalStateException("Could not determine hostname", uhe);
+        }
+    }
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties(){
