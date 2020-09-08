@@ -2,19 +2,19 @@ package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.domain.ReservedAutnum;
-import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
+
+import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Component
 public class RdapRequestValidator {
@@ -61,11 +61,11 @@ public class RdapRequestValidator {
     public void validateEntity(final String key) {
         if (key.toUpperCase().startsWith("ORG-")) {
             if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
-                throw new BadRequestException("Invalid syntax.");
+                throw new NotFoundException("Invalid syntax.");
             }
         } else {
             if (!AttributeType.MNTNER.isValidValue(MNTNER, key)) {
-                throw new BadRequestException("Invalid syntax.");
+                throw new NotFoundException("Invalid syntax.");
             }
         }
     }

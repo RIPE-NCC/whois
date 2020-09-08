@@ -60,6 +60,7 @@ public class ResourceDataDao {
         return new AuthoritativeResource(autNums, inetnums, inet6nums);
     }
 
+    // TODO: [ES] possible race condition (any SELECT FROM between DELETE and INSERT INTO won't return anything)
     public void store(final String source, final AuthoritativeResource authoritativeResource) {
         jdbcTemplate.update("DELETE FROM authoritative_resource WHERE source = ?", source);
 
