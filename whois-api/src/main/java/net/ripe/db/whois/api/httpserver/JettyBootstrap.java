@@ -29,6 +29,7 @@ import java.lang.management.ManagementFactory;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class JettyBootstrap implements ApplicationService {
@@ -41,6 +42,7 @@ public class JettyBootstrap implements ApplicationService {
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
     private final List<ServletDeployer> servletDeployers;
+    private final Optional<AwsRewriteHandler> awsRewriteHandler;
     private Server server;
 
     private int port = 0;
@@ -54,11 +56,13 @@ public class JettyBootstrap implements ApplicationService {
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
-                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled) throws MalformedObjectNameException {
+                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
+                          final Optional<AwsRewriteHandler> awsRewriteHandler) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
         this.trustedIpRanges = trustedIpRanges;
+        this.awsRewriteHandler = awsRewriteHandler;
         this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
         this.dosFilterEnabled = dosFilterEnabled;
     }
@@ -154,6 +158,8 @@ public class JettyBootstrap implements ApplicationService {
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
         server.setRequestLog(createRequestLog());
+
+        awsRewriteHandler.ifPresent(handler -> handlers.addHandler(handler.getRewriteHandler()));
 
         server.start();
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
