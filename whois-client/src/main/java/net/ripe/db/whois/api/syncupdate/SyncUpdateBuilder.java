@@ -32,6 +32,7 @@ public class SyncUpdateBuilder {
     private boolean diff;
     private boolean aNew;
     private boolean redirect;
+    private String charset;
 
     public SyncUpdateBuilder setHeaders(final MultivaluedMap<String, String> headers) {
         this.headers = headers;
@@ -83,23 +84,20 @@ public class SyncUpdateBuilder {
         return this;
     }
 
+    public SyncUpdateBuilder setCharset(final String charset) {
+        this.charset = charset;
+        return this;
+    }
+
     public Client build() {
-        if (url != null) {
-            return new Client(url, headers, data, help, diff, aNew, redirect);
-        }
-
-        if (host != null && port != null && source != null) {
-            return new Client(host, port, source, headers, data, help, diff, aNew, redirect);
-        }
-
-        throw new IllegalStateException("Either (host, port, source) or (url) should not be null");
+        return new Client(url, host, port, source, headers, data, help, diff, aNew, redirect, charset);
     }
 
     public static class Client {
 
         private static final Joiner.MapJoiner PARAM_JOINER = Joiner.on('&').withKeyValueSeparator("=");
         private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
-        private static final String CHARSET = "ISO-8859-1";
+        private static final String DEFAULT_CHARSET = "ISO-8859-1";
 
         private final URL url;
         private final MultivaluedMap<String, String> headers;
@@ -108,25 +106,40 @@ public class SyncUpdateBuilder {
         private final boolean isDiff;
         private final boolean isNew;
         private final boolean isRedirect;
+        private final String charset;
 
-        public Client(final String host, final int port, final String source, final MultivaluedMap<String, String> headers, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
-            this.url = getUrl(host, port, source);
+        public Client(
+                final String url,
+                final String host,
+                final Integer port,
+                final String source,
+                final MultivaluedMap<String, String> headers,
+                final String data,
+                final boolean isHelp,
+                final boolean isDiff,
+                final boolean isNew,
+                final boolean isRedirect,
+                final String charset) {
+            if (url != null) {
+                this.url = getUrl(url);
+            } else {
+                if (host != null && port != null && source != null) {
+                    this.url = getUrl(host, port, source);
+                } else {
+                    throw new IllegalStateException("Either (host, port, source) or (url) should not be null");
+                }
+            }
             this.headers = headers;
             this.data = data;
             this.isHelp = isHelp;
             this.isDiff = isDiff;
             this.isNew = isNew;
             this.isRedirect = isRedirect;
-        }
-
-        public Client(final String url, final MultivaluedMap<String, String> headers, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
-            this.url = getUrl(url);
-            this.headers = headers;
-            this.data = data;
-            this.isHelp = isHelp;
-            this.isDiff = isDiff;
-            this.isNew = isNew;
-            this.isRedirect = isRedirect;
+            if (charset != null) {
+                this.charset = charset;
+            } else {
+                this.charset = DEFAULT_CHARSET;
+            }
         }
 
         public String post() {
@@ -135,7 +148,7 @@ public class SyncUpdateBuilder {
 
                 final String body = getBody();
                 connection.setRequestProperty(HttpHeaders.CONTENT_LENGTH, Integer.toString(body.length()));
-                connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED + "; charset=" + CHARSET);
+                connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED + "; charset=" + charset);
 
                 setHeaders(connection);
 
@@ -159,7 +172,7 @@ public class SyncUpdateBuilder {
         private String getBody() {
             final Map<String, String> params = Maps.newHashMap();
             if ((data != null) && (data.length() > 0)) {
-                params.put("DATA", SyncUpdateUtils.encode(data, CHARSET));
+                params.put("DATA", SyncUpdateUtils.encode(data, charset));
             }
             if (isHelp) {
                 params.put("HELP", "yes");
@@ -198,7 +211,7 @@ public class SyncUpdateBuilder {
         }
 
         private static URL getUrl(final String host, final int port, final String source) {
-            return getUrl(String.format("http://%s%s/whois/syncupdates/%s", host, (port != 0 ? ":" + Integer.toString(port) : ""), source));
+            return getUrl(String.format("http://%s%s/whois/syncupdates/%s", host, (port != 0 ? ":" + port : ""), source));
         }
 
         private static URL getUrl(final String url){
