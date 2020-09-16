@@ -787,6 +787,41 @@ class RoleSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-T role FR1-TEST", "role", "Abuse Role")
     }
 
+    def "punycode abuse-mailbox but object is syntactically incorrect"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "Abuse Role")
+
+        when:
+        def message = syncUpdate("""
+                role:          Abuse Role
+                e-mail:        dbtest@ripe.net
+                abuse-mailbox: abuse@tëst.nl
+                nic-hdl:       FR1-TEST
+                mnt-by:        owner-mnt
+                source:        TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.warningMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Value changed due to conversion of IDN email address(es) into Punycode"]
+        ack.errorMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Mandatory attribute \"address\" is missing"]
+
+        queryObjectNotFound("-T role FR1-TEST", "role", "Abuse Role")
+    }
+
     def "create role with name including all possible chars"() {
         given:
 
