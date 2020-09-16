@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,10 +67,9 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
         assertThat(person.getHandle(), is("TP1-TEST"));
     }
 
-    @Ignore("TODO: [ES] not found?")
     @Test
     public void syncupdates_with_rewrite() {
-        final Response response = RestTest.target(getPort(), "syncupdates/test?HELP=yes")
+        final Response response = RestTest.target(getPort(), "?HELP=yes")
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl).replace("rest", "syncupdates"))
                 .get(Response.class);

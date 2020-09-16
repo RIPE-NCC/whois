@@ -19,9 +19,12 @@ public class RewriteEngine {
     private final String restVirtualHost;
     private final String syncupdatesVirtualHost;
     private final String rdapVirtualHost;
+    private final String source;
 
     @Autowired
-    public RewriteEngine(final @Value("${api.rest.baseurl}") String baseUrl) {
+    public RewriteEngine(final @Value("${api.rest.baseurl}") String baseUrl,
+                         final @Value("${whois.source}") String source) {
+        this.source = source;
         URI uri = URI.create(baseUrl);
         restVirtualHost = uri.getHost();
         syncupdatesVirtualHost = restVirtualHost.replace("rest", "syncupdates");
@@ -60,7 +63,11 @@ public class RewriteEngine {
         syncupdatesVirtualHostRule.addVirtualHost(syncupdatesVirtualHost);
         rewriteHandler.addRule(syncupdatesVirtualHostRule);
 
-        RewriteRegexRule syncupdatesRule = new RewriteRegexRule("/(.+)", "/whois/syncupdates/ripe/$1");
+        RewriteRegexRule syncupdatesRule = new RewriteRegexRule(
+            "/(.*)",
+            String.format("/whois/syncupdates/%s/$1", source)
+        );
+
         syncupdatesRule.setTerminating(true);
         syncupdatesVirtualHostRule.addRule(syncupdatesRule);
 
