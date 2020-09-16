@@ -700,10 +700,11 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   Abuse Role" }
-        ack.infoSuccessMessagesFor("Create", "[role] FR1-TEST   Abuse Role") ==
-                ["Value email@zürich.example converted to email@xn--zrich-kva.example"]
+        ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   Abuse Role") ==
+                ["Value changed due to conversion of IDN email address(es) into Punycode",
+                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
 
         query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "email@xn--zrich-kva.example")
     }
@@ -727,7 +728,9 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(),
+            "UTF-8",
+            false
         )
 
         then:
@@ -737,12 +740,13 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   Abuse Role" }
-        ack.infoSuccessMessagesFor("Create", "[role] FR1-TEST   Abuse Role") ==
-                ["Value abuse@??????.ru converted to xn--abuse@-8nfp5etaw0b.ru"]
+        ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   Abuse Role") ==
+                ["Value changed due to conversion of IDN email address(es) into Punycode",
+                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
 
-        query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "xn--abuse@-8nfp5etaw0b.ru")
+        query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "abuse-mailbox:  abuse@xn--80adxhks.ru")
     }
 
     def "don't punycode abuse-mailbox local part"() {
@@ -774,9 +778,9 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
-        ack.infoMessagesFor("Create", "[role] FR1-TEST") =~
-                ["Value email@zürich.example converted to email@xn\\-\\-zrich-kva.example"]
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.warningMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Value changed due to conversion of IDN email address(es) into Punycode"]
         ack.errorMessagesFor("Create", "[role] FR1-TEST") =~
                 ["Syntax error in abüse@xn\\-\\-tst\\-jma.nl"]
 
