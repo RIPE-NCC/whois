@@ -42,7 +42,7 @@ public class PunycodeConversion {
         try {
             return CONVERTER.toASCII(address);
         } catch (Exception e) {
-            LOGGER.warn("Unable to convert {} to Punycode", address);
+            LOGGER.warn("Unable to convert {} to Punycode due to {}: {}", address, e.getClass().getName(), e.getMessage());
             return address;
         }
     }
