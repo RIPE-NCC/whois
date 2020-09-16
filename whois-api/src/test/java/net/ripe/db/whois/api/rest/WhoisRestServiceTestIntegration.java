@@ -1933,6 +1933,31 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_succeeds_idn_email_address_converted_to_punycode() {
+        final String response = RestTest.target(getPort(), "whois/test/person?password=test")
+            .request()
+            .post(Entity.entity(
+                "<whois-resources>\n" +
+                "    <objects>\n" +
+                "        <object type=\"person\">\n" +
+                "            <source id=\"TEST\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"person\" value=\"New Person\"/>\n" +
+                "                <attribute name=\"address\" value=\"Moscow\"/>\n" +
+                "                <attribute name=\"e-mail\" value=\"example@москва.ru\"/>\n" +
+                "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+
+        assertThat(response, containsString("<attribute name=\"e-mail\" value=\"example@xn--80adxhks.ru\"/>"));
+    }
+
+    @Test
     public void create_succeeds_non_break_space_substituted_with_regular_space() {
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
