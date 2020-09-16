@@ -1817,43 +1817,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_succeeds_utf8_abuse_mailbox_stored_as_latin1() {
-        final byte[] request =
-                ("<whois-resources>\n" +
-                "    <objects>\n" +
-                "        <object type=\"role\">\n" +
-                "            <source id=\"TEST\"/>\n" +
-                "            <attributes>\n" +
-                "                <attribute name=\"role\" value=\"Zurich Role\"/>\n" +
-                "                <attribute name=\"address\" value=\"Z\u00FCrich\"/>\n" +           // unicode encoded u-umlaut, will be encoded as UTF-8 (bytes 0xc3bc in byte[]).
-                "                <attribute name=\"e-mail\" value=\"info@Z\u00FCrich.city\"/>\n" +
-                "                <attribute name=\"abuse-mailbox\" value=\"abuse@Z\u00FCrich.city\"/>\n" +
-                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
-                "                <attribute name=\"nic-hdl\" value=\"ZR1-TEST\"/>\n" +
-                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
-                "            </attributes>\n" +
-                "        </object>\n" +
-                "    </objects>\n" +
-                "</whois-resources>").getBytes(StandardCharsets.UTF_8);
-
-        final String response = RestTest.target(getPort(), "whois/test/role?password=test")
-            .request()
-            .post(Entity.entity(request, MediaType.APPLICATION_XML_TYPE.withCharset("UTF-8")), String.class);
-
-        // u-umlaut returned correctly
-        assertThat(response, containsString("<attribute name=\"abuse-mailbox\" value=\"abuse@Zürich.city\"/>"));
-
-        // expect u-umlaut in Zürich to be stored in the index table as latin1 byte 0xFC, not as UTF8 bytes 0xC3BC
-        assertThat(whoisTemplate.queryForObject("SELECT hex(abuse_mailbox) FROM abuse_mailbox WHERE abuse_mailbox like '%city'", String.class), containsString("5AFC72696368"));
-
-        // lookup object
-        assertThat(queryTelnet("-Br ZR1-TEST"), containsString("abuse-mailbox:  abuse@Zürich.city"));
-
-        // inverse lookup with u-umlaut
-        assertThat(queryTelnet("-r -i abuse-mailbox abuse@zürich.city"), containsString("abuse-mailbox:  abuse@Zürich.city"));
-    }
-
-    @Test
     public void create_succeeds_non_latin1_characters_substituted_in_response() {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
