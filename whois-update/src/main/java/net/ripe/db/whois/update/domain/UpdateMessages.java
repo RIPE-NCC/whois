@@ -606,6 +606,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Invalid character(s) were substituted in attribute \"%s\" value", attributeName);
     }
 
+    public static Message valueChangedDueToPunycodeConversion() {
+        return new Message(Type.WARNING, "Value changed due to conversion of IDN email address(es) into Punycode");
+    }
+
     public static Message oldPasswordsRemoved() {
         return new Message(Type.WARNING, "MD5 passwords older than November 2011 were removed for one or more maintainers of this object, see: https://www.ripe.net/removed2011pw");
     }

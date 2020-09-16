@@ -530,48 +530,6 @@ public class AttributeSanitizerTest {
     }
 
     @Test
-    public void transform_punycode_domain_umlaut() {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "role:          Abuse Role\n" +
-                "abuse-mailbox: abuse@tëst.nl\n" +
-                "nic-hdl:       AH1-TEST");
-
-        final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
-        assertThat(result.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString(), is("abuse@xn--tst-jma.nl"));
-        verify(objectMessages).addMessage(result.findAttribute(AttributeType.ABUSE_MAILBOX), ValidationMessages.attributeValueConverted("abuse@tëst.nl", "abuse@xn--tst-jma.nl"));
-
-        verifyNoMoreInteractions(objectMessages);
-    }
-
-    @Test
-    public void transform_punycode_domain_cyrillic() {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "role:          Abuse Role\n" +
-                "abuse-mailbox: abuse@москва.ru\n" +
-                "nic-hdl:       AH1-TEST");
-
-        final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
-        assertThat(result.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString(), is("xn--abuse@-8nfp5etaw0b.ru"));
-        verify(objectMessages).addMessage(result.findAttribute(AttributeType.ABUSE_MAILBOX), ValidationMessages.attributeValueConverted("abuse@??????.ru", "xn--abuse@-8nfp5etaw0b.ru"));
-
-        verifyNoMoreInteractions(objectMessages);
-    }
-
-    @Test
-    public void transform_dont_punycode_local_part() {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "role:          Abuse Role\n" +
-                "abuse-mailbox: abüse@tëst.nl\n" +
-                "nic-hdl:       AH1-TEST");
-
-        final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
-        assertThat(result.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString(), is("abüse@xn--tst-jma.nl"));
-        verify(objectMessages).addMessage(result.findAttribute(AttributeType.ABUSE_MAILBOX), ValidationMessages.attributeValueConverted("abüse@tëst.nl", "abüse@xn--tst-jma.nl"));
-
-        verifyNoMoreInteractions(objectMessages);
-    }
-
-    @Test
     public void transform_source_to_upper() {
         final RpslObject rpslObject = RpslObject.parse("person: Person A\nnic-hdl: tst-test\nsource: Test");
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
