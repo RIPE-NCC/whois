@@ -15,6 +15,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -97,7 +99,7 @@ public class SyncUpdateBuilder {
 
         private static final Joiner.MapJoiner PARAM_JOINER = Joiner.on('&').withKeyValueSeparator("=");
         private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
-        private static final String DEFAULT_CHARSET = "ISO-8859-1";
+        private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
 
         private final URL url;
         private final MultivaluedMap<String, String> headers;
@@ -106,7 +108,7 @@ public class SyncUpdateBuilder {
         private final boolean isDiff;
         private final boolean isNew;
         private final boolean isRedirect;
-        private final String charset;
+        private final Charset charset;
 
         public Client(
                 final String url,
@@ -136,7 +138,11 @@ public class SyncUpdateBuilder {
             this.isNew = isNew;
             this.isRedirect = isRedirect;
             if (charset != null) {
-                this.charset = charset;
+                try {
+                    this.charset = Charset.forName(charset);
+                } catch (UnsupportedCharsetException e) {
+                    throw new IllegalArgumentException("Unsupported charset " + charset);
+                }
             } else {
                 this.charset = DEFAULT_CHARSET;
             }
@@ -148,7 +154,7 @@ public class SyncUpdateBuilder {
 
                 final String body = getBody();
                 connection.setRequestProperty(HttpHeaders.CONTENT_LENGTH, Integer.toString(body.length()));
-                connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED + "; charset=" + charset);
+                connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED + "; charset=" + charset.name());
 
                 setHeaders(connection);
 

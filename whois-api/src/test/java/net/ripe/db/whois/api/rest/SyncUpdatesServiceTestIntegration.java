@@ -635,7 +635,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "nic-hdl:    TP1-TEST\n" +
                                 "mnt-by:     mntner\n" +
                                 "source:     INVALID\n" +
-                                "password:   emptypassword", "ISO-8859-1"),
+                                "password:   emptypassword", StandardCharsets.ISO_8859_1),
                         MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
@@ -657,7 +657,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "nic-hdl:    TP1-TEST\n" +
                                 "mnt-by:     mntner\n" +
                                 "source:     TEST\n" +
-                                "password:   emptypassword", "ISO-8859-1"),
+                                "password:   emptypassword", StandardCharsets.ISO_8859_1),
                         MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("Modify SUCCEEDED: [person] TP1-TEST"));
