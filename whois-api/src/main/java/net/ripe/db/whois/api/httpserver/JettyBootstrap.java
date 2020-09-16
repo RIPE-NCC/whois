@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.httpserver;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.jmx.ObjectMBean;
+import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
@@ -29,7 +30,6 @@ import java.lang.management.ManagementFactory;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class JettyBootstrap implements ApplicationService {
@@ -42,12 +42,13 @@ public class JettyBootstrap implements ApplicationService {
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
     private final List<ServletDeployer> servletDeployers;
-    private final Optional<AwsRewriteHandler> awsRewriteHandler;
     private Server server;
 
     private int port = 0;
 
+    private final RewriteEngine rewriteEngine;
     private final String trustedIpRanges;
+    private final boolean rewriteEngineEnabled;
 
     private final boolean dosFilterEnabled;
 
@@ -55,14 +56,17 @@ public class JettyBootstrap implements ApplicationService {
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
+                          final RewriteEngine rewriteEngine,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
-                          final Optional<AwsRewriteHandler> awsRewriteHandler) throws MalformedObjectNameException {
+                          @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
+        this.rewriteEngine = rewriteEngine;
         this.trustedIpRanges = trustedIpRanges;
-        this.awsRewriteHandler = awsRewriteHandler;
+        this.rewriteEngineEnabled = rewriteEngineEnabled;
+        LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled? "en" : "dis");
         this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
         this.dosFilterEnabled = dosFilterEnabled;
     }
@@ -108,7 +112,13 @@ public class JettyBootstrap implements ApplicationService {
         }
 
         final HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[]{context});
+        handlers.setHandlers(new Handler[] { context });
+
+        if (rewriteEngineEnabled) {
+            final RewriteHandler rewriteHandler = rewriteEngine.getRewriteHandler();
+            rewriteHandler.setHandler(context);
+            handlers.setHandlers(new Handler[] { rewriteHandler });
+        }
 
         for (final ServletDeployer servletDeployer : servletDeployers) {
             servletDeployer.deploy(context);
@@ -158,8 +168,6 @@ public class JettyBootstrap implements ApplicationService {
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
         server.setRequestLog(createRequestLog());
-
-        awsRewriteHandler.ifPresent(handler -> handlers.addHandler(handler.getRewriteHandler()));
 
         server.start();
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
