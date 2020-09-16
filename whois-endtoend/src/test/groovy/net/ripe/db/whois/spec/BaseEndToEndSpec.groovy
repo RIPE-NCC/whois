@@ -237,11 +237,11 @@ ${notification.contents}
     }
 
     String syncUpdate(String content) {
-        syncUpdate(content, false)
+        syncUpdate(content, null, false)
     }
 
-    String syncUpdate(String content, boolean notifications) {
-        def response = syncUpdate(new SyncUpdate(data: content))
+    String syncUpdate(String content, String charset, boolean notifications) {
+        def response = syncUpdate(new SyncUpdate(data: content, charset: charset))
         if (!notifications) {
             clearAllMails()
         }
@@ -264,7 +264,7 @@ ${syncUpdate.getData()}
 <<<<<
 """
 
-        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect())
+        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.getCharset(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect())
 
         print """\
 >>>>> RECEIVE SYNCUPDATE RESPONSE
@@ -285,7 +285,7 @@ ${response}
     }
 
     SyncUpdateResponse syncUpdateWithResponseWithNotifications(String content) {
-        new SyncUpdateResponse(syncUpdate(content, true));
+        new SyncUpdateResponse(syncUpdate(content, null, true));
     }
 
     def noMoreMessages() {
