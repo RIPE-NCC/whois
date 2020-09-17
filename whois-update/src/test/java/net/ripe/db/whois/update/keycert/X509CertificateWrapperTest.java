@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.keycert;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -35,15 +38,15 @@ public class X509CertificateWrapperTest {
     }
 
     @Test
-    public void isX509Key() throws IOException {
+    public void isX509Key() {
         assertThat(X509CertificateWrapper.looksLikeX509Key(x509Keycert), is(true));
         assertThat(X509CertificateWrapper.looksLikeX509Key(pgpKeycert), is(false));
     }
 
     @Test
     public void isEquals() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
-        X509CertificateWrapper another = X509CertificateWrapper.parse(anotherX509Keycert);
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        final X509CertificateWrapper another = X509CertificateWrapper.parse(anotherX509Keycert);
 
         assertThat(subject.equals(subject), is(true));
         assertThat(subject.equals(another), is(false));
@@ -51,29 +54,28 @@ public class X509CertificateWrapperTest {
 
     @Test
     public void getMethod() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
         assertThat(subject.getMethod(), is("X509"));
     }
 
     @Test
     public void getOwner() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
         assertThat(subject.getOwners(), containsInAnyOrder("/C=NL/ST=Some-State/O=BOGUS"));
     }
 
     @Test
     public void getFingerprint() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
-        assertThat(subject.getFingerprint(),
-                is("16:4F:B6:A4:D9:BC:0C:92:D4:48:13:FE:B6:EF:E2:82"));
+        assertThat(subject.getFingerprint(), is("16:4F:B6:A4:D9:BC:0C:92:D4:48:13:FE:B6:EF:E2:82"));
     }
 
     @Test
     public void notYetValid() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
         assertThat(subject.isNotYetValid(dateTimeProvider), is(false));
 
@@ -83,12 +85,19 @@ public class X509CertificateWrapperTest {
 
     @Test
     public void isExpired() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
         assertThat(subject.isExpired(dateTimeProvider), is(false));
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now().plusYears(100));
         assertThat(subject.isExpired(dateTimeProvider), is(true));
+    }
+
+    @Test
+    public void certificatePublicKey() {
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+
+        assertThat(subject.getCertificate().getPublicKey(), Matchers.is(not(nullValue())));
     }
 
     @Test(expected = IllegalArgumentException.class)
