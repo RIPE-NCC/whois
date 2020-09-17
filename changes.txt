@@ -3,6 +3,7 @@
 # 1.98
 
 [update] NWI-11 Punycode Internationalized Domain Names in email addresses. (#643)
+[all] Prevent race condition when updating authoritative resources. (#652)
 [rdap] Return remark in rdap response when abuse mailbox validation has failed. (#651)
 [rdap] Rdap CORS changes (#648)
 [rdap] Rdap invalid syntax exception (#647)
