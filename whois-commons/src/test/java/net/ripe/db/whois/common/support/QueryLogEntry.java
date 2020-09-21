@@ -31,31 +31,6 @@ public class QueryLogEntry {
     private final String executionTime;
     private final String queryString;
 
-    public static QueryLogEntry parse(final String entry) {
-        final Matcher matcher = ENTRY_PATTERN.matcher(entry.trim());
-
-        if (!matcher.matches()) {
-            throw new IllegalArgumentException("Unreadable log entry: " + entry);
-        }
-
-        return new QueryLogEntryBuilder()
-            .setApi(matcher.group(3))
-            .setPersonalObjects(matcher.group(4))
-            .setNonPersonalObjects(matcher.group(5))
-            .setExecutionTime(matcher.group(7))
-            .setAddress(matcher.group(8))
-            .setQueryString(matcher.group(9))
-            .build();
-    }
-
-    public static boolean isQryLog(final String filename) {
-        return QUERY_FILE_PATTERN.matcher(filename).find();
-    }
-
-    public static boolean isBZip2(final String filename) {
-        return BZIP2_FILE_PATTERN.matcher(filename).matches();
-    }
-
     private QueryLogEntry(
             final String address,
             final String api,
@@ -95,57 +70,29 @@ public class QueryLogEntry {
         return queryString.trim();
     }
 
-    private static class QueryLogEntryBuilder {
+    public static QueryLogEntry parse(final String entry) {
+        final Matcher matcher = ENTRY_PATTERN.matcher(entry.trim());
 
-        private String address;
-        private String api;
-        private int personalObjects;
-        private int nonPersonalObjects;
-        private String executionTime;
-        private String queryString;
-
-        public QueryLogEntryBuilder setAddress(final String address) {
-            this.address = address;
-            return this;
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Unreadable log entry: " + entry);
         }
 
-        public QueryLogEntryBuilder setApi(final String api) {
-            this.api = api;
-            return this;
-        }
-
-        public QueryLogEntryBuilder setExecutionTime(final String executionTime) {
-            this.executionTime = executionTime; // (long) (Double.parseDouble(executionTime) * 1000);
-            return this;
-        }
-
-        public QueryLogEntryBuilder setPersonalObjects(final String personalObjects) {
-            this.personalObjects = Integer.parseInt(personalObjects);
-            return this;
-        }
-
-        public QueryLogEntryBuilder setNonPersonalObjects(final String nonPersonalObjects) {
-            this.nonPersonalObjects = Integer.parseInt(nonPersonalObjects);
-            return this;
-        }
-
-        public QueryLogEntryBuilder setQueryString(final String queryString) {
-            this.queryString = queryString;
-            return this;
-        }
-
-        public QueryLogEntry build() {
-            return new QueryLogEntry(
-                address,
-                api,
-                personalObjects,
-                nonPersonalObjects,
-                executionTime,
-                queryString);
-        }
+        return new QueryLogEntry(
+            matcher.group(8),                   // address
+            matcher.group(3),                   // api
+            Integer.parseInt(matcher.group(4)), // personal objects
+            Integer.parseInt(matcher.group(5)), // non-personal objects
+            matcher.group(7),                   // execution time
+            matcher.group(9));                  // query string
     }
 
+    public static boolean isQryLog(final String filename) {
+        return QUERY_FILE_PATTERN.matcher(filename).find();
+    }
 
+    public static boolean isBZip2(final String filename) {
+        return BZIP2_FILE_PATTERN.matcher(filename).matches();
+    }
 }
 
 
