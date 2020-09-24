@@ -2903,7 +2903,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(object.getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
     }
 
-    // @Ignore("TODO: [ES] empty response body (confirmed FIXED by Jersey 2.22)")
     @Test
     public void update_huge_object_with_syntax_error_compressed_response() throws IOException {
         databaseHelper.addAuthoritativeResource("TEST", "AS3333");
@@ -2920,7 +2919,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             assertThat(e.getResponse().hasEntity(), is(true));
 
             final String response = gunzip(e.getResponse().readEntity(byte[].class));
-            assertThat(response, containsString("Unrecognized source: %s"));
+            assertThat(response, containsString("\"text\" : \"Syntax error in %s\""));
         }
     }
 
