@@ -40,7 +40,7 @@ release:
     - tags
   script:
     - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA
-    - mvn deploy
+    - mvn -DskipTests -DskipITs -Prelease deploy
 
 .it_template: &it_env
   services:
