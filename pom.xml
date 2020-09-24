@@ -66,7 +66,7 @@
         <junit.version>4.12</junit.version>
         <jetty.version>9.4.30.v20200611</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
-        <jersey.version>2.31</jersey.version>
+        <jersey.version>2.29</jersey.version>
         <jackson.version>2.11.2</jackson.version>
 
         <log4j.version>2.13.2</log4j.version>
@@ -442,7 +442,7 @@
                 <version>${jetty.version}</version>
             </dependency>
 
-            <!-- Jersey JAX-RS 2.0 implementation -->
+            <!-- Jersey JAX-RS 2.1 implementation -->
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet-core</artifactId>
@@ -470,6 +470,11 @@
                 <artifactId>validation-api</artifactId>
                 <version>1.1.0.Final</version>
                 <scope>runtime</scope> <!-- so we can't use them but Jersey can at runtime -->
+            </dependency>
+            <dependency>
+              <groupId>org.glassfish.jersey.ext</groupId>
+              <artifactId>jersey-spring5</artifactId>
+              <version>${jersey.version}</version>
             </dependency>
 
             <!-- Jackson -->
