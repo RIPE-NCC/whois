@@ -2903,9 +2903,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(object.getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
     }
 
-    @Ignore("TODO: [ES] empty response body (confirmed FIXED by Jersey 2.22)")
+    // @Ignore("TODO: [ES] empty response body (confirmed FIXED by Jersey 2.22)")
     @Test
     public void update_huge_object_with_syntax_error_compressed_response() throws IOException {
+        databaseHelper.addAuthoritativeResource("TEST", "AS3333");
+
         databaseHelper.addObject("aut-num: AS3333\nsource: TEST");
 
         try {
@@ -2915,7 +2917,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(gunzip(new ClassPathResource("as3333.json.gz").getFile()), MediaType.APPLICATION_JSON), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-
+            assertThat(e.getResponse().hasEntity(), is(true));
 
             final String response = gunzip(e.getResponse().readEntity(byte[].class));
             assertThat(response, containsString("Unrecognized source: %s"));
