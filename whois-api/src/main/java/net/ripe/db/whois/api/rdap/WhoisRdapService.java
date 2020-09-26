@@ -127,7 +127,11 @@ public class WhoisRdapService {
                            @PathParam("key") final String key) {
 
         LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
-        final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);
+        if (requestType == null) {
+            throw new BadRequestException("unknown objectType");
+        }
+
+        final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);  // null
 
         switch (requestType) {
             case AUTNUM: {
