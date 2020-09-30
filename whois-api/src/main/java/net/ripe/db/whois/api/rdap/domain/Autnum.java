@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rdap.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -21,7 +21,7 @@ import java.io.Serializable;
         "country"
 })
 @XmlRootElement(name = "autnum")
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Autnum extends RdapObject implements Serializable {
 
     @XmlElement(required = true)
