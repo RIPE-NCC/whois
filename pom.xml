@@ -441,7 +441,7 @@
                 <version>${jetty.version}</version>
             </dependency>
 
-            <!-- Jersey JAX-RS 2.1 implementation -->
+            <!-- Jersey JAX-RS 2.0 implementation -->
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet-core</artifactId>
