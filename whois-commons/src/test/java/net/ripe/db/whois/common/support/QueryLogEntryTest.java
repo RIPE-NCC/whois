@@ -7,7 +7,7 @@ import static org.junit.Assert.assertThat;
 
 public class QueryLogEntryTest {
 
-    @Test
+    @Test(expected = Test.None.class)
     public void negative_channel_id() {
         QueryLogEntry.parse("20180401 00:14:37 -215685797 PW-QRY-INFO <0+0+0>  3ms [127.0.0.1] --  WWW.COM.EU");
     }
