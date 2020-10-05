@@ -464,11 +464,13 @@
                 <artifactId>jersey-media-multipart</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
-            <dependency> <!-- don't use these in our code, use the static code checks instead -->
+            <dependency>
+                <!-- don't use the Validation API in our code, use the static checks (JSR305) instead -->
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>1.1.0.Final</version>
-                <scope>runtime</scope> <!-- so we can't use them but Jersey can at runtime -->
+                <!-- set scope to prevent compile-time checks but Jersey can use at runtime -->
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Jackson -->
@@ -514,7 +516,7 @@
                 <scope>runtime</scope>
             </dependency>
 
-            <!-- lucene for fulltext search -->
+            <!-- Lucene for fulltext search -->
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
@@ -593,13 +595,13 @@
             <version>${persistence.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!-- common test dependencies -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${findbugs.version}</version>
-            <type>jar</type>
         </dependency>
+
+        <!-- common test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
