@@ -64,10 +64,11 @@
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.12</junit.version>
-        <jetty.version>9.4.30.v20200611</jetty.version>
-        <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
-        <jersey.version>2.12</jersey.version>
-        <jackson.version>2.10.3</jackson.version>
+        <jetty.version>9.4.32.v20200930</jetty.version>
+        <!-- TODO: [ES] update Jersey to 2.16+ (creates unmarshalling problems with Crowd)
+             "MessageBodyReader not found for media type=application/xml" -->
+        <jersey.version>2.15</jersey.version>
+        <jackson.version>2.11.3</jackson.version>
 
         <log4j.version>2.13.2</log4j.version>
         <lucene.version>7.7.2</lucene.version>
@@ -445,7 +446,7 @@
             <!-- Jersey JAX-RS 2.0 implementation -->
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
-                <artifactId>jersey-container-servlet-core</artifactId>
+                <artifactId>jersey-container-servlet</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
@@ -465,11 +466,13 @@
                 <artifactId>jersey-media-multipart</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
-            <dependency> <!-- don't use these in our code, use the static code checks instead -->
+            <dependency>
+                <!-- don't use the Validation API in our code, use the static checks (JSR305) instead -->
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>1.1.0.Final</version>
-                <scope>runtime</scope> <!-- so we can't use them but Jersey can at runtime -->
+                <!-- set scope to prevent compile-time checks but Jersey can use at runtime -->
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Jackson -->
@@ -502,6 +505,7 @@
                 </exclusions>
             </dependency>
 
+            <!-- JAXB -->
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
@@ -511,9 +515,10 @@
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
                 <version>${jaxb.version}</version>
+                <scope>runtime</scope>
             </dependency>
 
-            <!-- lucene for fulltext search -->
+            <!-- Lucene for fulltext search -->
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
@@ -592,13 +597,13 @@
             <version>${persistence.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!-- common test dependencies -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${findbugs.version}</version>
-            <type>jar</type>
         </dependency>
+
+        <!-- common test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

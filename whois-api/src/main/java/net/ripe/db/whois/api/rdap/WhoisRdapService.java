@@ -126,8 +126,12 @@ public class WhoisRdapService {
                            @PathParam("objectType") RdapRequestType requestType,
                            @PathParam("key") final String key) {
 
-        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
-        final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);
+        LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
+        if (requestType == null) {
+            throw new BadRequestException("unknown objectType");
+        }
+
+        final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);  // null
 
         switch (requestType) {
             case AUTNUM: {
@@ -164,7 +168,7 @@ public class WhoisRdapService {
             @QueryParam("fn") final String name,
             @QueryParam("handle") final String handle) {
 
-        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
+        LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
         if (name != null && handle == null) {
             return handleSearch(new String[]{"person", "role", "org-name"}, name, request);
@@ -184,7 +188,7 @@ public class WhoisRdapService {
             @Context final HttpServletRequest request,
             @QueryParam("name") final String name) {
 
-        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
+        LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
         if (StringUtils.isEmpty(name)) {
             throw new BadRequestException("empty lookup key");
@@ -200,7 +204,7 @@ public class WhoisRdapService {
             @Context final HttpServletRequest request,
             @QueryParam("name") final String name) {
 
-        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
+        LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
         return handleSearch(new String[]{"domain"}, name, request);
     }
@@ -321,7 +325,7 @@ public class WhoisRdapService {
     }
 
     private Response handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
-        LOGGER.info("Search {} for {}", fields, term);
+        LOGGER.debug("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
             throw new BadRequestException("empty search term");
@@ -360,7 +364,7 @@ public class WhoisRdapService {
                                     results.add(rpslObject);
                                 }
 
-                                LOGGER.info("Found {} objects in {}", results.size(), stopWatch.stop());
+                                LOGGER.debug("Found {} objects in {}", results.size(), stopWatch.stop());
                                 return results;
 
                             } catch (ParseException e) {
