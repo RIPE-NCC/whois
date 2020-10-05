@@ -470,11 +470,6 @@
                 <version>1.1.0.Final</version>
                 <scope>runtime</scope> <!-- so we can't use them but Jersey can at runtime -->
             </dependency>
-            <dependency>
-              <groupId>org.glassfish.jersey.ext</groupId>
-              <artifactId>jersey-spring5</artifactId>
-              <version>${jersey.version}</version>
-            </dependency>
 
             <!-- Jackson -->
             <dependency>
