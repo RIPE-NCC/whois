@@ -506,6 +506,7 @@
                 </exclusions>
             </dependency>
 
+            <!-- JAXB -->
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
@@ -515,6 +516,7 @@
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
                 <version>${jaxb.version}</version>
+                <scope>runtime</scope>
             </dependency>
 
             <!-- lucene for fulltext search -->
