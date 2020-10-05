@@ -64,8 +64,10 @@
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.12</junit.version>
-        <jersey.version>2.29</jersey.version>
         <jetty.version>9.4.32.v20200930</jetty.version>
+        <!-- TODO: [ES] update Jersey to 2.16+ (creates unmarshalling problems with Crowd)
+             "MessageBodyReader not found for media type=application/xml" -->
+        <jersey.version>2.15</jersey.version>
         <jackson.version>2.11.3</jackson.version>
 
         <log4j.version>2.13.2</log4j.version>
