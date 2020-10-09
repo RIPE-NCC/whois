@@ -1,11 +1,8 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.QueryMessages;
@@ -36,9 +33,13 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.lucene.util.IOUtils.closeWhileHandlingException;
 
@@ -49,12 +50,16 @@ public class IndexTemplate implements Closeable {
     private final Directory index;
     private final Semaphore updateLock = new Semaphore(1);
 
+    private final ExecutorService executorService;
+
     private IndexWriter indexWriter;
     private ReaderManager readerManager;
     private DirectoryTaxonomyWriter taxonomyWriter;
     private IndexWriterConfig config;
 
-    public IndexTemplate(final String directory, final IndexWriterConfig config) throws IOException {
+    public IndexTemplate(
+                final String directory,
+                final IndexWriterConfig config) throws IOException {
         if (StringUtils.isEmpty(directory)) {
             LOGGER.warn("Using RAM directory for index");
             taxonomy = new RAMDirectory();
@@ -67,20 +72,39 @@ public class IndexTemplate implements Closeable {
 
         this.config = config;
 
-        updateLock.acquireUninterruptibly();
+        this.executorService = createExecutorService();
 
         try {
+            this.updateLock.acquireUninterruptibly();
             createNewWriters();
         } finally {
-            updateLock.release();
+            this.updateLock.release();
+        }
+    }
+
+    private ExecutorService createExecutorService() {
+        // sadly Executors don't offer a bounded/blocking submit() implementation
+        final int processors = Runtime.getRuntime().availableProcessors();
+        final int numThreads = Math.max(Math.floorDiv(processors, 8), 1);
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+        return new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS, workQueue, new TimeoutPolicy());
+    }
+
+    private void shutdownExecutorService(final ExecutorService executorService) {
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(1, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            LOGGER.error("shutdown", e);
         }
     }
 
     @Override
     public void close() {
-        updateLock.acquireUninterruptibly();
+        shutdownExecutorService(executorService);
 
         try {
+            updateLock.acquireUninterruptibly();
             closeWhileHandlingException(readerManager, indexWriter, taxonomyWriter, index, taxonomy);
         } finally {
             updateLock.release();
@@ -88,9 +112,9 @@ public class IndexTemplate implements Closeable {
     }
 
     public void write(final WriteCallback writeCallback) throws IOException {
-        updateLock.acquireUninterruptibly();
-
         try {
+            updateLock.acquireUninterruptibly();
+
             writeCallback.write(indexWriter, taxonomyWriter);
             taxonomyWriter.prepareCommit();
             indexWriter.prepareCommit();
@@ -159,7 +183,7 @@ public class IndexTemplate implements Closeable {
 
     public <T> T search(final SearchCallback<T> searchCallback) throws IOException {
         return read((final IndexReader indexReader, final TaxonomyReader taxonomyReader) -> {
-            final IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+            final IndexSearcher indexSearcher = new IndexSearcher(indexReader, executorService);
             return searchCallback.search(indexReader, taxonomyReader, indexSearcher);
         });
     }
@@ -174,7 +198,32 @@ public class IndexTemplate implements Closeable {
 
     public interface SearchCallback<T> {
         T search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException;
+    }
 
+    public static class TimeoutPolicy implements RejectedExecutionHandler {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(TimeoutPolicy.class);
+
+        private static final long TIMEOUT_SECONDS = 10L;
+
+        /**
+         * Wait a maximum amount of time to submit a task.
+         *
+         * @param r the runnable task requested to be executed
+         * @param e the executor attempting to execute this task
+         */
+         @Override
+        public void rejectedExecution(final Runnable r, final ThreadPoolExecutor e) {
+            if (!e.isShutdown()) {
+                try {
+                    e.getQueue().offer(r, TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                } catch (InterruptedException ex) {
+                    LOGGER.warn("Timeout");
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException(ex);
+                }
+            }
+        }
     }
 
     public abstract static class AccountingSearchCallback<T> implements SearchCallback<T> {

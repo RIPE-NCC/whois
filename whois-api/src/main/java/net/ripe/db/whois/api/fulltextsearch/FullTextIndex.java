@@ -7,7 +7,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -54,7 +53,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -126,9 +124,8 @@ public class FullTextIndex extends RebuildableIndex {
     FullTextIndex(
             @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
             @Value("${whois.source}") final String source,
-            @Value("${dir.fulltext.index:}") final String indexDir,
-            @Value("${fulltext.search.max.concurrent:10}") final int maxConcurrentSearches) {
-        super(LOGGER, indexDir, maxConcurrentSearches);
+            @Value("${dir.fulltext.index:}") final String indexDir) {
+        super(LOGGER, indexDir);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
         this.facetsConfig = new FacetsConfig();
@@ -180,11 +177,7 @@ public class FullTextIndex extends RebuildableIndex {
         indexWriter.deleteAll();
         final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
 
-        // sadly Executors don't offer a bounded/blocking submit() implementation
-        int numThreads = Runtime.getRuntime().availableProcessors();
-        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
-        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
-                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+        final ExecutorService executorService = createExecutorService();
 
         JdbcStreamingHelper.executeStreaming(jdbcTemplate, "" +
                         "SELECT object_id, object " +
@@ -211,12 +204,7 @@ public class FullTextIndex extends RebuildableIndex {
                 }
         );
 
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(1, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            LOGGER.error("shutdown", e);
-        }
+        shutdownExecutorService(executorService);
 
         updateMetadata(indexWriter, source, maxSerial);
     }
@@ -316,7 +304,7 @@ public class FullTextIndex extends RebuildableIndex {
 
         return new RpslObject(rpslObject.getObjectId(), attributes);
     }
-    
+
     public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
 
         if (FILTERED_ATTRIBUTES.contains(attributeType)) {
@@ -348,6 +336,22 @@ public class FullTextIndex extends RebuildableIndex {
         }
 
         return value;
+    }
+
+    private ExecutorService createExecutorService() {
+        // sadly Executors don't offer a bounded/blocking submit() implementation
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+        return new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+    }
+
+    private void shutdownExecutorService(final ExecutorService executorService) {
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(1, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            LOGGER.error("shutdown", e);
+        }
     }
 
     final class DatabaseObjectProcessor implements Runnable {

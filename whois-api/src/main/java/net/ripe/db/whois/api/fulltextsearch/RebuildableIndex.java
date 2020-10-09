@@ -12,19 +12,16 @@ import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
 public abstract class RebuildableIndex {
+
     private final Logger logger;
-
     private final Semaphore updateLock = new Semaphore(1);
-
-    private final Semaphore searchLock;
 
     protected final String indexDir;
     protected IndexTemplate index;
 
-    protected RebuildableIndex(final Logger logger, final String indexDir, final int maxConcurrentSearches) {
+    protected RebuildableIndex(final Logger logger, final String indexDir) {
         this.logger = logger;
         this.indexDir = indexDir;
-        this.searchLock = new Semaphore(maxConcurrentSearches, true);
     }
 
     protected void init(final IndexWriterConfig config, final IndexTemplate.WriteCallback initializer) {
@@ -101,14 +98,7 @@ public abstract class RebuildableIndex {
             throw new IllegalStateException("Index not found.");
         }
 
-        try {
-            searchLock.acquire();
-            return index.search(searchCallback);
-        } catch (InterruptedException ie) {
-            throw new IllegalStateException(ie);
-        } finally {
-            searchLock.release();
-        }
+        return index.search(searchCallback);
     }
 
     protected abstract void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException;
