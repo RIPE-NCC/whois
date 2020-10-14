@@ -35,7 +35,7 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
         rdapJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
 
         // allow cross-origin requests from ANY origin (by default)
-        final FilterHolder crossOriginFilterHolder = context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/rdap/*", EnumSet.allOf(DispatcherType.class));
+        final FilterHolder crossOriginFilterHolder = context.addFilter(RdapCrossOriginFilter.class, "/rdap/*", EnumSet.allOf(DispatcherType.class));
         crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "false");
         crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET, OPTIONS");
 
