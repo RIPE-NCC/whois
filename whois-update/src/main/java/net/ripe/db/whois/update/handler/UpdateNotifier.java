@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
