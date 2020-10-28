@@ -94,6 +94,11 @@ whois-integration-test:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-rpsl
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-scheduler
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-update
+    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN}  -Dsonar.projectName=whois -Dsonar.java.binaries=$PWD/whois-api/target/classes,$PWD/whois-client/target/classes,$PWD/whois-commons/target/classes,$PWD/whois-db/target/classes,$PWD/whois-nrtm/target/classes,$PWD/whois-query/target/classes,$PWD/whois-rpsl/target/classes,$PWD/whois-scheduler/target/classes,$PWD/whois-update/target/classes
+    - >
+        if [ "$CI_COMMIT_BRANCH" = "master" ]; then
+        mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN}  -Dsonar.projectName=whois -Dsonar.java.binaries=$PWD/whois-api/target/classes,$PWD/whois-client/target/classes,$PWD/whois-commons/target/classes,$PWD/whois-db/target/classes,$PWD/whois-nrtm/target/classes,$PWD/whois-query/target/classes,$PWD/whois-rpsl/target/classes,$PWD/whois-scheduler/target/classes,$PWD/whois-update/target/classes
+        fi
 
 sonar:
   <<: *it_env
