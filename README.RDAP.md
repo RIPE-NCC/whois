@@ -48,11 +48,11 @@ A workaround is to query for each entity separately using the contact's nic-hdl,
 
 Entity Search
 --------------------------
-Entity search on a handle is limited to returning 100 results, as matching a large number of objects can cause Whois to run out of memory.
+Entity search on a handle is limited to returning 100 results.
 
 Domain Search
 --------------------------
-Domain search is restricted to only search for reverse delegations, and results are limited to 100, as matching a large number of objects can cause Whois to run out of memory.
+Domain search is restricted to only search for reverse delegations, and results are limited to 100.
 
 Netname may not match Whois
 ----------------------------
