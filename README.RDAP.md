@@ -46,21 +46,13 @@ Any related contact entities ("technical","administrative","abuse" etc.) have fi
 
 A workaround is to query for each entity separately using the contact's nic-hdl, and the unfiltered information is returned (although a limit for personal data does apply).
 
-Entity Search is Disabled
+Entity Search
 --------------------------
-Entity search on a handle is disabled, as matching a large number of objects can cause Whois to run out of memory.
+Entity search on a handle is limited to returning 100 results.
 
-Example: 
-* Request: /entities?handle=\*
- * Response: 403 Forbidden
-
-Domain Search is Disabled
+Domain Search
 --------------------------
-Domain search is disabled, as matching a large number of objects can cause Whois to run out of memory.
-
-Example:
-* Request: /domains?name=XXXX
- * Response: 403 Forbidden
+Domain search is restricted to only search for reverse delegations, and results are limited to 100.
 
 Netname may not match Whois
 ----------------------------
