@@ -70,14 +70,9 @@ public class RestServiceHelper {
         if (queryString.contains(OVERRIDE_STRING)) {
             builder.append(separator).append(PasswordFilter.filterPasswordsInUrl(queryString));
         } else {
-            for (String next : AMPERSAND_SPLITTER.split(queryString)) {
-                final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
-                if (iterator.hasNext() && iterator.next().equalsIgnoreCase("password")) {
-                    continue;
-                }
-
-                builder.append(separator).append(next);
-                separator = '&';
+            String removedPasswordsInQueryString = PasswordFilter.removePasswordsInUrl(queryString);
+            if (!StringUtils.isEmpty(removedPasswordsInQueryString)) {
+                builder.append(separator).append(removedPasswordsInQueryString);
             }
         }
 
