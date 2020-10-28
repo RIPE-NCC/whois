@@ -106,7 +106,7 @@ sonar:
     - mvn install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -fn # ignore failing (non deterministic) tests, we want QA output regardless
     - echo PWD=$PWD
-    - mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco-merged-test-coverage-report/jacoco.xml -Dsonar.projectName=whois -Dsonar.java.binaries=$PWD/whois-api/target/classes,$PWD/whois-client/target/classes,$PWD/whois-commons/target/classes,$PWD/whois-db/target/classes,$PWD/whois-nrtm/target/classes,$PWD/whois-query/target/classes,$PWD/whois-rpsl/target/classes,$PWD/whois-scheduler/target/classes,$PWD/whois-update/target/classes
+    - mvn -X org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco-merged-test-coverage-report/jacoco.xml -Dsonar.projectName=whois -Dsonar.java.binaries=$PWD/whois-api/target/classes,$PWD/whois-client/target/classes,$PWD/whois-commons/target/classes,$PWD/whois-db/target/classes,$PWD/whois-nrtm/target/classes,$PWD/whois-query/target/classes,$PWD/whois-rpsl/target/classes,$PWD/whois-scheduler/target/classes,$PWD/whois-update/target/classes
 
 .deploy_template: &deploy_env
   stage: deploy
