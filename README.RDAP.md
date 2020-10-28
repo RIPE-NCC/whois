@@ -50,13 +50,9 @@ Entity Search is Limited to 100 results
 --------------------------
 Entity search on a handle is limited to 100 results, as matching a large number of objects can cause Whois to run out of memory.
 
-Domain Search is Disabled
+Domain Search
 --------------------------
-Domain search is disabled, as matching a large number of objects can cause Whois to run out of memory.
-
-Example:
-* Request: /domains?name=XXXX
- * Response: 403 Forbidden
+Domain search is restricted to only search for reverse delegations, and results are limited to 100, as matching a large number of objects can cause Whois to run out of memory.
 
 Netname may not match Whois
 ----------------------------
