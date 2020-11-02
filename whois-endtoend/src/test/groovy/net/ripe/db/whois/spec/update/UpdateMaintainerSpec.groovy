@@ -304,6 +304,39 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT mntner CRE-MNT", "mntner", "CRE-MNT")
     }
 
+    def "create maintainer object with invalid maintainer name"() {
+        expect:
+        queryNothing("-rGBT mntner CRE-MNT")
+
+        when:
+        def message = send new Message(
+                subject: "create CRE-MNT",
+                body: """\
+                mntner: CRE
+                descr: description
+                admin-c: TP1-TEST
+                mnt-by: OWNER-MNT
+                upd-to: updto_cre@ripe.net
+                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                source: TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.failed
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.errorMessagesFor("Create", "[mntner] CRE") == ["Syntax error in CRE"]
+        ack.countErrorWarnInfo(1, 2, 0)
+
+        queryNothing("-rGBT mntner SELF-MNT")
+    }
+
     def "create maintainer object maintained by other mntner using own pw"() {
       expect:
         queryNothing("-rGBT mntner CRE-MNT")
