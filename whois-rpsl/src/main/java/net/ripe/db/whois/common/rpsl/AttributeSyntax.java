@@ -27,7 +27,6 @@ import net.ripe.db.whois.common.generated.V6FilterParser;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
-import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
@@ -249,8 +248,6 @@ public interface AttributeSyntax extends Documented {
 
     AttributeSyntax METHOD_SYNTAX = new AnySyntax("" +
             "Currently, only PGP keys are supported.\n");
-
-    AttributeSyntax MNT_NAME_SYNTAX = new MnterNameSyntax();
 
     AttributeSyntax MNT_ROUTES_SYNTAX = new AttributeSyntaxParser(new AttributeParser.MntRoutesParser(), new Multiple(new HashMap<ObjectType, String>() {{
         put(ObjectType.AUT_NUM, "<mnt-name> [ { list of (<ipv4-address>/<prefix> or <ipv6-address>/<prefix>) } | ANY ]\n");
@@ -845,48 +842,6 @@ public interface AttributeSyntax extends Documented {
 
             builder.append("\n");
             return builder.toString();
-        }
-    }
-
-    class MnterNameSyntax implements AttributeSyntax {
-        private static final AttributeParser.NameParser NAME_PARSER = new AttributeParser.NameParser();
-
-        @Override
-        public boolean matches(ObjectType objectType, String value) {
-            if (!value.endsWith("-MNT")) {
-                return false;
-            } else {
-                try {
-                    NAME_PARSER.parse(value);
-                    return true;
-                } catch (AttributeParseException e) {
-                    return false;
-                }
-            }
-        }
-
-        @Override
-        public String getDescription(ObjectType objectType) {
-            return "" +
-                    "Made up of letters, digits, the character underscore \"_\",\n" +
-                    "and the character hyphen \"-\"; the first character of a maintainer name\n" +
-                    "must be a letter, and the maintainer name must end with -MNT as a suffix.\n" +
-                    "The following words are reserved by\n" +
-                    "RPSL, and they can not be used as maintainer names:\n" +
-                    "\n" +
-                    " any as-any rs-any peeras and or not atomic from to at\n" +
-                    " action accept announce except refine networks into inbound\n" +
-                    " outbound\n" +
-                    "\n" +
-                    "Names starting with certain prefixes are reserved for\n" +
-                    "certain object types and should not be used as maintainer name.\n" +
-                    "Names starting with \"as-\" are\n" +
-                    "reserved for as set names.  Names starting with \"rs-\" are\n" +
-                    "reserved for route set names.  Names starting with \"rtrs-\"\n" +
-                    "are reserved for router set names. Names starting with\n" +
-                    "\"fltr-\" are reserved for filter set names. Names starting\n" +
-                    "with \"prng-\" are reserved for peering set names. Names\n" +
-                    "starting with \"irt-\" are reserved for irt names.\n";
         }
     }
 

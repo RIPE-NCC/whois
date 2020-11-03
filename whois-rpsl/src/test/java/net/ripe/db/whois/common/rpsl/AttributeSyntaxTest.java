@@ -940,13 +940,9 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "into");
         verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "inbound");
         verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "outbound");
-        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "ABCDEfghijKLMNOprstuVWXYz0123456789_______________----_________________________0");
-        verifySuccess(ObjectType.MNTNER, AttributeType.MNTNER, "ABCDEfghijKLMNOprstuVWXYz0123456789_______________----_____________________0-MNT");
-        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "A1");
-        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "A1MNT");
-        verifySuccess(ObjectType.MNTNER, AttributeType.MNTNER, "A1-MNT");
-        verifyFailure(ObjectType.MNTNER, AttributeType.MNTNER, "FOO-BAR-ZOT");
-        verifySuccess(ObjectType.MNTNER, AttributeType.MNTNER, "FOO-BAR-ZOT-MNT");
+        verifySuccess(ObjectType.MNTNER, AttributeType.MNTNER, "ABCDEfghijKLMNOprstuVWXYz0123456789_______________----_________________________0");
+        verifySuccess(ObjectType.MNTNER, AttributeType.MNTNER, "A1");
+        verifySuccess(ObjectType.MNTNER, AttributeType.MNTNER, "FOO-BAR-ZOT");
     }
 
     @Test

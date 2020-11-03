@@ -52,7 +52,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MBRS_BY_REF_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MEMBERS_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MEMBER_OF_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.METHOD_SYNTAX;
-import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MNT_NAME_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MNT_ROUTES_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_DEFAULT_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_EXPORT_SYNTAX;
@@ -331,7 +330,7 @@ public enum AttributeType implements Documented {
 
     MNTNER(new Builder("mntner", "mt")
             .doc("A unique identifier of the mntner object.")
-            .syntax(MNT_NAME_SYNTAX)),
+            .syntax(OBJECT_NAME_SYNTAX)),
 
     MNT_BY(new Builder("mnt-by", "mb")
             .doc("Specifies the identifier of a registered mntner object used for authorisation of operations " +
