@@ -63,7 +63,7 @@
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <jetty.version>9.4.32.v20200930</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16+ (creates unmarshalling problems with Crowd)
              "MessageBodyReader not found for media type=application/xml" -->
