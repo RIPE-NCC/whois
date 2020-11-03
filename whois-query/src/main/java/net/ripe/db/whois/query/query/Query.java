@@ -235,7 +235,7 @@ public class Query {
                     throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions are the same"));
                 }
                 return new int[]{firstValue, secondValue};
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff version must be a number"));
             }
         }
