@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {

@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PgpSignedMessageTest {

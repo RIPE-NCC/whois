@@ -21,7 +21,7 @@ import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verifyZeroInteractions;
