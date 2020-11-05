@@ -731,7 +731,8 @@
                         <arg>-Xlint:-rawtypes</arg>
                         <arg>-Xlint:-serial</arg>
                         <arg>-Xlint:-fallthrough</arg>
-                    	<arg>--add-modules</arg><arg>java.sql,java.xml</arg>
+                        <!-- Uncomment when we start building java11 binaries: -->
+<!--                    	<arg>&#45;&#45;add-modules</arg><arg>java.sql,java.xml</arg>-->
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
