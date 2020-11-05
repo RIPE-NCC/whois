@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.authentication.credential;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class AuthenticationModule {
@@ -39,18 +41,18 @@ public class AuthenticationModule {
 
     private static final AuthComparator AUTH_COMPARATOR = new AuthComparator();
 
-    private final Map<Class<? extends Credential>, CredentialValidator> credentialValidatorMap;
+    private final Map<Class<? extends Credential>, Set<CredentialValidator<? extends Credential, ? extends Credential>>> credentialValidatorMap;
     private final LoggerContext loggerContext;
 
     @Autowired
     public AuthenticationModule(final LoggerContext loggerContext,
-                                final CredentialValidator<?>... credentialValidators) {
+                                final CredentialValidator<? extends Credential, ? extends Credential>... credentialValidators) {
 
         this.loggerContext = loggerContext;
         credentialValidatorMap = Maps.newHashMap();
 
-        for (final CredentialValidator<?> credentialValidator : credentialValidators) {
-            credentialValidatorMap.put(credentialValidator.getSupportedCredentials(), credentialValidator);
+        for (final CredentialValidator<? extends Credential, ? extends Credential> credentialValidator : credentialValidators) {
+            credentialValidatorMap.computeIfAbsent(credentialValidator.getSupportedCredentials(), credentialClass -> Sets.newHashSet()).add(credentialValidator);
         }
     }
 
@@ -90,9 +92,10 @@ public class AuthenticationModule {
             }
 
             final Class<? extends Credential> credentialClass = credential.getClass();
-            final CredentialValidator credentialValidator = credentialValidatorMap.get(credentialClass);
-            if (credentialValidator != null && credentialValidator.hasValidCredential(update, updateContext, offered.ofType(credentialClass), credential)) {
-                return true;
+            for (CredentialValidator credentialValidator : credentialValidatorMap.get(credentialClass)) {
+                if (credentialValidator.hasValidCredential(update, updateContext, offered.ofType(credentialValidator.getSupportedOfferedCredentialType()), credential)) {
+                    return true;
+                }
             }
         }
 

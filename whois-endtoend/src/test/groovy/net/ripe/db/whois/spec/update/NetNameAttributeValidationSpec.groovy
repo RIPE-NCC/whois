@@ -37,6 +37,19 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
+         "ALLOC-END": """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                """,
          "ASSIGN-END": """\
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
@@ -227,6 +240,7 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "inetnum: modify netname attributes with end mtner for assignment"() {
         given:
+        syncUpdate(getTransient("ALLOC-END") + "override: denis,override1")
         syncUpdate(getTransient("ASSIGN-END") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 

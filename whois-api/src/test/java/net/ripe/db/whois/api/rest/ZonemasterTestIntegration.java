@@ -20,7 +20,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class ZonemasterTestIntegration extends AbstractIntegrationTest {

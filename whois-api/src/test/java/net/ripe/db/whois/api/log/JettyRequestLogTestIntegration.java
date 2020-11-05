@@ -6,9 +6,15 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.AppenderRef;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.eclipse.jetty.server.RequestLog;
 import org.junit.After;
 import org.junit.Before;
@@ -21,7 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
@@ -43,7 +49,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST");
 
-    @Value("var${jvmId:}/log/jetty")
+    @Value("target/log/jetty")
     String requestLogDirectory;
 
     @Before
@@ -83,16 +89,39 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
     }
 
     private void addLog4jAppender() {
-        final FileAppender appender = new FileAppender();
-        appender.setName("REQUESTLOG");
-        appender.setFile(getRequestLogFilename());
-        appender.setLayout(new PatternLayout());
-        appender.activateOptions();
-        Logger.getLogger(RequestLog.class).addAppender(appender);
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+
+        PatternLayout layout = PatternLayout.newBuilder()
+                .withConfiguration(config)
+                //.withPattern("%d{HH:mm:ss.SSS} %level %msg%n")
+                .build();
+
+        Appender appender = FileAppender.newBuilder()
+                .setConfiguration(config)
+                .setName("REQUESTLOG")
+                .setLayout(layout)
+                .withFileName(getRequestLogFilename())
+                .build();
+
+        appender.start();
+        config.addAppender(appender);
+
+        AppenderRef ref = AppenderRef.createAppenderRef("requestLogAppender", null, null);
+        AppenderRef[] refs = new AppenderRef[] { ref };
+
+        LoggerConfig loggerConfig = LoggerConfig
+                .createLogger(false, Level.TRACE, RequestLog.class.getName(), "true", refs, null, config, null);
+        loggerConfig.addAppender(appender, null, null);
+        config.addLogger(RequestLog.class.getName(), loggerConfig);
+        ctx.updateLoggers();
     }
 
     private void removeLog4jAppender() {
-        Logger.getLogger(RequestLog.class).removeAppender("REQUESTLOG");
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(true);
+        Configuration config = ctx.getConfiguration();
+        config.getRootLogger().removeAppender("requestLogAppender");
+        ctx.updateLoggers();
     }
 
     private String getRequestLogFilename() {

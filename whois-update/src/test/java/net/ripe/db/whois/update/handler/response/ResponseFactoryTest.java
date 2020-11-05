@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.response;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -36,7 +37,7 @@ import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatches
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -52,6 +53,7 @@ public class ResponseFactoryTest {
 
     @Mock DateTimeProvider dateTimeProvider;
     @Mock UpdateContext updateContext;
+    @Mock ApplicationVersion applicationVersion;
     @InjectMocks ResponseFactory subject;
 
     private Origin origin;
@@ -108,8 +110,8 @@ public class ResponseFactoryTest {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC));
         when(updateContext.printGlobalMessages()).thenReturn("");
         when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+        when(applicationVersion.getVersion()).thenReturn("1.2.3");
 
-        ReflectionTestUtils.setField(subject, "version", "1.2.3");
         ReflectionTestUtils.setField(subject, "source", "TEST");
     }
 

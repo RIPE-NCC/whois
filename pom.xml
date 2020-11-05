@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.97-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -33,17 +33,18 @@
         <asm.version>6.2.1</asm.version>
         <awaitility.version>1.3.5</awaitility.version>
 
-        <bouncycastle.version>1.60</bouncycastle.version>
+        <bouncycastle.version>1.66</bouncycastle.version>
 
         <c3po.version>0.9.5.4</c3po.version>
         <commons-compress.version>1.19</commons-compress.version>
         <commons-net.version>3.4</commons-net.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.11</commons-codec.version>
+        <commons-email.version>1.5</commons-email.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-validator.version>1.5.1</commons-validator.version>
+        <commons-validator.version>1.6</commons-validator.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
 
@@ -58,21 +59,20 @@
         <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
         <hazelcast.version>2.6.10</hazelcast.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <httpclient.version>4.5.2</httpclient.version>
 
-        <jaxb.version>2.3.1</jaxb.version>
+        <jaxb.version>2.3.3</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
-        <junit.version>4.12</junit.version>
-        <jetty.version>9.4.24.v20191120</jetty.version>
-        <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
-        <jersey.version>2.12</jersey.version>
-        <jackson.version>2.9.10</jackson.version>
+        <junit.version>4.13.1</junit.version>
+        <jetty.version>9.4.32.v20200930</jetty.version>
+        <!-- TODO: [ES] update Jersey to 2.16+ (creates unmarshalling problems with Crowd)
+             "MessageBodyReader not found for media type=application/xml" -->
+        <jersey.version>2.15</jersey.version>
+        <jackson.version>2.11.3</jackson.version>
 
-        <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
-        <log4j.version>1.2.17</log4j.version>
-        <lucene.version>4.10.4</lucene.version>
+        <log4j.version>2.13.2</log4j.version>
+        <lucene.version>7.7.2</lucene.version>
 
         <mail.version>1.6.2</mail.version>
         <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
@@ -84,8 +84,8 @@
 
         <persistence.version>1.0.2</persistence.version>
 
-        <slf4j.version>1.7.18</slf4j.version>
-        <spring.version>5.1.8.RELEASE</spring.version>
+        <slf4j.version>1.7.30</slf4j.version>
+        <spring.version>5.2.9.RELEASE</spring.version>
         <springockito.version>1.0.5</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
@@ -99,17 +99,17 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>whois-1.96.1</tag>
   </scm>
 
     <distributionManagement>
         <repository>
             <id>ripe-releases</id>
-            <url>http://nexus.ripe.net/nexus/content/repositories/releases</url>
+            <url>https://nexus.ripe.net/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>ripe-snapshots</id>
-            <url>http://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+            <url>https://nexus.ripe.net/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -299,9 +299,9 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -309,13 +309,8 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>apache-log4j-extras</artifactId>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
             <dependency>
@@ -404,6 +399,12 @@
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
                 <version>${commons-validator.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-beanutils</groupId>
+                        <artifactId>commons-beanutils</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
@@ -411,14 +412,14 @@
                 <version>${commons-collections.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-email</artifactId>
+                <version>${commons-email.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity-engine-core</artifactId>
                 <version>${velocity.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>${httpclient.version}</version>
             </dependency>
 
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
@@ -448,7 +449,7 @@
             <!-- Jersey JAX-RS 2.0 implementation -->
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
-                <artifactId>jersey-container-servlet-core</artifactId>
+                <artifactId>jersey-container-servlet</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
@@ -468,11 +469,13 @@
                 <artifactId>jersey-media-multipart</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
-            <dependency> <!-- don't use these in our code, use the static code checks instead -->
+            <dependency>
+                <!-- don't use the Validation API in our code, use the static checks (JSR305) instead -->
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>1.1.0.Final</version>
-                <scope>runtime</scope> <!-- so we can't use them but Jersey can at runtime -->
+                <!-- set scope to prevent compile-time checks but Jersey can use at runtime -->
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Jackson -->
@@ -505,11 +508,10 @@
                 </exclusions>
             </dependency>
 
-            <!-- JAXB -->
             <dependency>
-              <groupId>javax.xml.bind</groupId>
-              <artifactId>jaxb-api</artifactId>
-              <version>${jaxb.version}</version>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
@@ -517,7 +519,7 @@
                 <version>${jaxb.version}</version>
             </dependency>
 
-            <!-- lucene for fulltext search -->
+            <!-- Lucene for fulltext search -->
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
@@ -596,13 +598,13 @@
             <version>${persistence.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!-- common test dependencies -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${findbugs.version}</version>
-            <type>jar</type>
         </dependency>
+
+        <!-- common test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -674,6 +676,34 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.5</version>
+                <executions>
+                    <execution>
+                        <id>before-unit-test-execution</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <append>true</append>
+                            <propertyName>surefire.jacoco.args</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>before-integration-test-execution</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <append>true</append>
+                            <propertyName>failsafe.jacoco.args</propertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
@@ -693,8 +723,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>8</release> <!-- generate Java8 binaries for now -->
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArgs>
                         <arg>-Xlint</arg>
@@ -722,11 +751,6 @@
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -790,10 +814,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.0</version>
+                <version>2.22.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
@@ -806,7 +830,6 @@
                     <reuseForks>true</reuseForks>
                     <excludedGroups>
                         net.ripe.db.whois.common.IntegrationTest,
-                        net.ripe.db.whois.common.EndToEndTest,
                         net.ripe.db.whois.common.ManualTest
                     </excludedGroups>
                     <systemPropertyVariables>
@@ -828,16 +851,25 @@
                 <version>2.22.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml</argLine>
+                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml ${failsafe.jacoco.args}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
+                    <!-- doesnt work (breaks tests)
+                    <forkCount>1C</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <threadCount>1</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
+                    <parallel>classes</parallel>
                     <groups>${test.groups}</groups>
-                    <forkCount>${test.forkCount.integration}</forkCount>
+                    <runOrder>random</runOrder> -->
+                    <!-- works (tests pass) -->
+                    <groups>${test.groups}</groups>
+                    <forkCount>3</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
-                    <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
+                    <testFailureIgnore>false</testFailureIgnore>
                 </configuration>
                 <executions>
                     <execution>
@@ -882,7 +914,6 @@
                         <exclude>**/net/ripe/db/whois/common/IllegalArgumentExceptionMessage.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
-                        <exclude>**/net/ripe/db/whois/common/EndToEndTest.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/IntegrationTest.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>
                     </excludes>
@@ -925,13 +956,29 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>3.1.1</version>
+                <version>5.2.4</version>
                 <executions>
                     <execution>
                         <id>not-by-default</id>
                         <phase>not-by-default</phase>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.2.6</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -945,7 +992,6 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>None</test.groups>
-                <test.forkCount.integration>3</test.forkCount.integration>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Integration*.class</test.files.integration>
             </properties>
@@ -955,16 +1001,14 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.files.unit>None</test.files.unit>
+                <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
             <id>comparison</id>
             <properties>
                 <test.redirectOutput>false</test.redirectOutput>
-                <test.ignoreFailure>false</test.ignoreFailure>
                 <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>
@@ -975,24 +1019,12 @@
             </properties>
         </profile>
         <profile>
-            <id>endtoend</id>
-            <properties>
-                <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.EndToEndTest</test.groups>
-                <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
-            </properties>
-        </profile>
-        <profile>
             <id>all</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.EndToEndTest,net.ripe.db.whois.common.IntegrationTest
-                </test.groups>
+                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
@@ -1003,15 +1035,13 @@
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
             <id>release</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>None</test.groups>
-                <test.files.unit>None</test.files.unit>
+                <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>None</test.files.integration>
                 <maven.javadoc.skip>true</maven.javadoc.skip>
             </properties>

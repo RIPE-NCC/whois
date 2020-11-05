@@ -1,6 +1,7 @@
 package net.ripe.db.whois.nrtm;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.whois.nrtm.NrtmQueryHandlerTest.StringMatcher.instanceofString;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -57,6 +58,7 @@ public class NrtmQueryHandlerTest {
     @Mock private MessageEvent messageEventMock;
     @Mock private ChannelFuture channelFutureMock;
     @Mock private NrtmLog nrtmLogMock;
+    @Mock private ApplicationVersion applicationVersion;
 
     private static final long UPDATE_INTERVAL = 1;
     private static final boolean KEEPALIVE_END_OF_STREAM = false;
@@ -81,6 +83,7 @@ public class NrtmQueryHandlerTest {
         when(dummifierMock.dummify(NrtmServer.NRTM_VERSION, inetnum)).thenReturn(inetnum);
         when(serialDaoMock.getByIdForNrtm(2)).thenReturn(new SerialEntry(Operation.UPDATE, true, 2, 1000, 1000, person.toByteArray()));
         when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, person)).thenReturn(false);
+        when(applicationVersion.getVersion()).thenReturn("1.0-SNAPSHOT");
 
         when(mySchedulerMock.scheduleAtFixedRate(any(Runnable.class), anyLong())).thenAnswer(new Answer<ScheduledFuture<?>>() {
             @Override
@@ -91,7 +94,7 @@ public class NrtmQueryHandlerTest {
             }
         });
 
-        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, NONAUTH_SOURCE, UPDATE_INTERVAL, KEEPALIVE_END_OF_STREAM);
+        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, applicationVersion, SOURCE, NONAUTH_SOURCE, UPDATE_INTERVAL, KEEPALIVE_END_OF_STREAM);
         NrtmQueryHandler.PendingWrites.add(channelMock);
     }
 
@@ -168,7 +171,7 @@ public class NrtmQueryHandlerTest {
 
     @Test
     public void keepaliveEndOfStreamIndicator() {
-        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, NONAUTH_SOURCE, UPDATE_INTERVAL, true);
+        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, applicationVersion, SOURCE, NONAUTH_SOURCE, UPDATE_INTERVAL, true);
 
         when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-LAST -k");
 
@@ -251,7 +254,7 @@ public class NrtmQueryHandlerTest {
     public void channelConnected() throws Exception {
         subject.channelConnected(contextMock, channelStateEventMock);
 
-        verify(channelMock).write(NrtmQueryHandler.TERMS_AND_CONDITIONS + "\n\n");
+        verify(channelMock).write(NrtmMessages.termsAndConditions() + "\n\n");
     }
 
     @Test

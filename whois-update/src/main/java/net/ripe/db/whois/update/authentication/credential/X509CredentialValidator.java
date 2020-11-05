@@ -18,7 +18,7 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 
 @Component
-public class X509CredentialValidator implements CredentialValidator<X509Credential> {
+public class X509CredentialValidator implements CredentialValidator<X509Credential, X509Credential> {
 
     private final RpslObjectDao rpslObjectDao;
     private final DateTimeProvider dateTimeProvider;
@@ -33,6 +33,11 @@ public class X509CredentialValidator implements CredentialValidator<X509Credenti
 
     @Override
     public Class<X509Credential> getSupportedCredentials() {
+        return X509Credential.class;
+    }
+
+    @Override
+    public Class<X509Credential> getSupportedOfferedCredentialType() {
         return X509Credential.class;
     }
 

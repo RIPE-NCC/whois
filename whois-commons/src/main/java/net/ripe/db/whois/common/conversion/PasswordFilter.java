@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.conversion;
 
 import com.google.common.base.Splitter;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +11,8 @@ public class PasswordFilter {
 
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').trimResults();
     private static final Splitter ENCODED_COMMA_SPLITTER = Splitter.on("%2C").trimResults();
+    private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings();
+    private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
 
     //from logsearch tweaked
     private static final Pattern PASSWORD_PATTERN_FOR_CONTENT = Pattern.compile("(?im)^(override|password)(:|%3A)\\s*(.+)\\s*$");
@@ -30,6 +33,22 @@ public class PasswordFilter {
             result = replacePassword(matcher);
         }
         return result;
+    }
+
+    public static String removePasswordsInUrl(final String url) {
+        final StringBuilder builder = new StringBuilder();
+        String separator = "";
+        for (String next : AMPERSAND_SPLITTER.split(url)) {
+            final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
+            if (iterator.hasNext() && iterator.next().equalsIgnoreCase("password")) {
+                continue;
+            }
+
+            builder.append(separator).append(next);
+            separator = "&";
+        }
+
+        return builder.toString();
     }
 
     //from logfilesearch.filterContents tweaked

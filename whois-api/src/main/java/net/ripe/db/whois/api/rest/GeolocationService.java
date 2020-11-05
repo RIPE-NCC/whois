@@ -54,10 +54,7 @@ public class GeolocationService {
     private static final Set<InetnumStatus> STOP_AT_STATUS_IPV4 = Sets.immutableEnumSet(
             InetnumStatus.ASSIGNED_PI,
             InetnumStatus.ASSIGNED_ANYCAST,
-            InetnumStatus.NOT_SET,
-            InetnumStatus.EARLY_REGISTRATION,
             InetnumStatus.ALLOCATED_PA,
-            InetnumStatus.ALLOCATED_PI,
             InetnumStatus.ALLOCATED_UNSPECIFIED);
 
     private static final Set<Inet6numStatus> STOP_AT_STATUS_IPV6 = Sets.immutableEnumSet(

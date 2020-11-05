@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -173,7 +173,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "org:          ORG-LIR2-TEST\n" +
             "admin-c:      TP1-TEST\n" +
             "tech-c:       TP1-TEST\n" +
-            "status:       ALLOCATED UNSPECIFIED\n" +
+            "status:       ALLOCATED PA\n" +
             "mnt-by:       RIPE-NCC-HM-MNT\n" +
             "mnt-by:       OWNER4-MNT\n" +
             "source:       TEST");

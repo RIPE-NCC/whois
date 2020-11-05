@@ -11,9 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.springframework.util.StringValueResolver;
 
@@ -23,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
@@ -46,7 +44,7 @@ public class AuthoritativeResourceImportTaskTest {
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getRoot().getAbsolutePath());
+        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getRoot().getAbsolutePath(), true, "");
         subject.setEmbeddedValueResolver(valueResolver);
     }
 
@@ -78,13 +76,10 @@ public class AuthoritativeResourceImportTaskTest {
     public void download() throws IOException {
         when(valueResolver.resolveStringValue(anyString())).thenReturn("http://www.ripe.net/download");
 
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Path path = (Path) invocation.getArguments()[2];
-                Files.createFile(path);
-                return null;
-            }
+        doAnswer(invocation -> {
+            final Path path = (Path) invocation.getArguments()[2];
+            Files.createFile(path);
+            return null;
         }).when(downloader).downloadToWithMd5Check(any(Logger.class), any(URL.class), any(Path.class));
 
         subject.run();

@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AttributeSyntaxTest {
 
@@ -1251,14 +1251,11 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "SUB-ALLOCATED PA");
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED-BY-LIR");
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED");
-        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED PI");
-        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "LIR-PARTITIONED PI");
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED ANYCAST");
 
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
         verifySuccess(ObjectType.INET6NUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
 
-        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED PI");
         verifyFailure(ObjectType.INET6NUM, AttributeType.STATUS, "ALLOCATED PI");
     }
 

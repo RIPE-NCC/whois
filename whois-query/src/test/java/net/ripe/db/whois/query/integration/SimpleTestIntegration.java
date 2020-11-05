@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @Category(IntegrationTest.class)
@@ -48,13 +48,13 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
     @Before
     public void startupWhoisServer() {
-        final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST");
-        final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST");
+        final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST\nsource: TEST");
+        final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST\nsource: TEST");
         databaseHelper.addObjects(Lists.newArrayList(person, mntner));
 
-        databaseHelper.addObject("inetnum: 81.0.0.0 - 82.255.255.255\nnetname: NE\nmnt-by:RIPE-NCC-HM-MNT");
-        databaseHelper.addObject("domain: 117.80.81.in-addr.arpa");
-        databaseHelper.addObject("inetnum: 81.80.117.237 - 81.80.117.237\nnetname: NN\nstatus: OTHER");
+        databaseHelper.addObject("inetnum: 81.0.0.0 - 82.255.255.255\nnetname: NE\nmnt-by:RIPE-NCC-HM-MNT\nsource: TEST");
+        databaseHelper.addObject("domain: 117.80.81.in-addr.arpa\nsource: TEST");
+        databaseHelper.addObject("inetnum: 81.80.117.237 - 81.80.117.237\nnetname: NN\nstatus: OTHER\nsource: TEST");
         databaseHelper.addObject("route: 81.80.117.0/24\norigin: AS123\n");
         databaseHelper.addObject("route: 81.80.0.0/16\norigin: AS123\n");
         ipTreeUpdater.rebuild();
@@ -637,8 +637,8 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void find124() {
-        databaseHelper.addObject("inet6num: 2a02:27d0:116:fffe:fffe:fffe:1671::/124");
-        databaseHelper.addObject("inet6num: 2a02:27d0::/32");
+        databaseHelper.addObject("inet6num: 2a02:27d0:116:fffe:fffe:fffe:1671::/124\nsource: TEST");
+        databaseHelper.addObject("inet6num: 2a02:27d0::/32\nsource: TEST");
 
         ipTreeUpdater.rebuild();
         final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "2a02:27d0:116:fffe:fffe:fffe:1671::/124");

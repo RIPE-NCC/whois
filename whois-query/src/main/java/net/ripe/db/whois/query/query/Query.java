@@ -225,15 +225,19 @@ public class Query {
             if (values.length != 2) {
                 throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions must be in the format a:b"));
             }
-            final int firstValue = Integer.parseInt(values[0]);
-            final int secondValue = Integer.parseInt(values[1]);
-            if (firstValue < 1 || secondValue < 1) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff version number must be greater than 0"));
+            try {
+                final int firstValue = Integer.parseInt(values[0]);
+                final int secondValue = Integer.parseInt(values[1]);
+                if (firstValue < 1 || secondValue < 1) {
+                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff version number must be greater than 0"));
+                }
+                if (secondValue == firstValue) {
+                    throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions are the same"));
+                }
+                return new int[]{firstValue, secondValue};
+            } catch (NumberFormatException e) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff version must be a number"));
             }
-            if (secondValue == firstValue) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("diff versions are the same"));
-            }
-            return new int[]{firstValue, secondValue};
         }
         return new int[]{-1, -1};
     }

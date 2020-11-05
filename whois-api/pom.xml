@@ -3,7 +3,7 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.97-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -49,7 +49,7 @@
         <!-- Jersey JAX-RS 2.0 implementation -->
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
+            <artifactId>jersey-container-servlet</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
@@ -78,8 +78,8 @@
 
         <!-- JAXB -->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>

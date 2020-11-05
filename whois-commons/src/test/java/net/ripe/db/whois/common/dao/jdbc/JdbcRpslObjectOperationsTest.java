@@ -8,7 +8,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import static org.hamcrest.Matchers.endsWith;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;

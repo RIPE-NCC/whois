@@ -16,7 +16,7 @@ import javax.mail.SendFailedException;
 import java.lang.reflect.Field;
 
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;

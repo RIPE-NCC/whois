@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -42,13 +42,15 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     private CountDownLatch countDownLatch;
 
     @BeforeClass
-    public static void setInterval() {
+    public static void setNrtmProperties() {
+        System.setProperty("whois.limit.connectionsPerIp", "100");
         System.setProperty("nrtm.update.interval", "1");
     }
 
     @AfterClass
-    public static void resetInterval() {
+    public static void clearNrtmProperties() {
         System.clearProperty("nrtm.update.interval");
+        System.clearProperty("whois.limit.connectionsPerIp");
     }
 
     @Before

@@ -34,27 +34,25 @@ Organisation role "registrant" is ambiguous
 -------------------------------------------
 The role "registrant" is used to identify organisation entities, however this is ambiguous as it's also used for mntner entities.
 
+Entity Primary Key can match multiple objects
+---------------------------------------------
+If an entity primary key matches more than one object, a 500 Internal Server Error is returned.
+
+For example: https://rdap.db.ripe.net/entity/KR4422-RIPE
+
 Related Contact information is Filtered
 ---------------------------------------
 Any related contact entities ("technical","administrative","abuse" etc.) have filtered contact information, i.e. "e-mail" and "notify" values are not included. This was done to avoid blocking clients for inadvertently querying excessively for personal data.
 
 A workaround is to query for each entity separately using the contact's nic-hdl, and the unfiltered information is returned (although a limit for personal data does apply).
 
-Entity Search is Disabled
+Entity Search
 --------------------------
-Entity search on a handle is disabled, as matching a large number of objects can cause Whois to run out of memory.
+Entity search on a handle is limited to returning 100 results.
 
-Example: 
-* Request: /entities?handle=\*
- * Response: 403 Forbidden
-
-Domain Search is Disabled
+Domain Search
 --------------------------
-Domain search is disabled, as matching a large number of objects can cause Whois to run out of memory.
-
-Example:
-* Request: /domains?name=XXXX
- * Response: 403 Forbidden
+Domain search is restricted to only search for reverse delegations, and results are limited to 100.
 
 Netname may not match Whois
 ----------------------------
@@ -71,6 +69,12 @@ Ref. RFC 7483, Section 5.1 The Entity Object Class. (https://tools.ietf.org/html
 Example:
 * Request: http://rdap.db.ripe.net/entity/ORG-RIEN1-RIPE
  * Response: Should include "networks" element with referenced networks, including 193.0.0.0 - 193.0.23.255
+
+Entity lookup is case sensitive
+--------------------------------
+An entity lookup makes a case sensitive search for the primary key, but should be case insensitive.
+
+Also, responses return references to an entity key in UPPERCASE, rather than case sensitive, so entities with mixed case can't be found.
 
 
 Nameserver queries always return Not Found

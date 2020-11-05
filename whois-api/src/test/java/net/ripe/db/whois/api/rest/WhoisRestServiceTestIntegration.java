@@ -15,6 +15,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
@@ -23,6 +24,7 @@ import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -35,8 +37,6 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -81,6 +81,8 @@ import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -95,7 +97,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
@@ -192,6 +193,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
+    @Autowired private ApplicationVersion applicationVersion;
 
     @Before
     public void setup() {
@@ -1146,6 +1148,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
                 "</whois-resources>\n"));
     }
 
@@ -1222,6 +1228,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "\"terms-and-conditions\" : {\n" +
                         "\"type\" : \"locator\",\n" +
                         "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "},\n" +
+                        "\"version\" : {\n" +
+                        "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
+                        "\"timestamp\" : \"" + applicationVersion.getTimestamp() + "\",\n" +
+                        "\"commit-id\" : \"" + applicationVersion.getCommitId() + "\"\n" +
                         "}\n" +
                         "}"
         ));
@@ -1279,6 +1290,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
                 "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "},\n" +
+                "\"version\" : {\n" +
+                "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
+                "\"timestamp\" : \"" + applicationVersion.getTimestamp() + "\",\n" +
+                "\"commit-id\" : \"" + applicationVersion.getCommitId() + "\"\n" +
                 "}\n" +
                 "}"
         ));
@@ -1368,6 +1384,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
                 "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "},\n" +
+                "\"version\" : {\n" +
+                "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
+                "\"timestamp\" : \"" + applicationVersion.getTimestamp() + "\",\n" +
+                "\"commit-id\" : \"" + applicationVersion.getCommitId() + "\"\n" +
                 "}\n" +
                 "}"
         ));
@@ -1417,6 +1438,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
                 "</whois-resources>\n"));
     }
 
@@ -1586,6 +1611,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void create_succeeds_plus_character_and_space_in_password() {
+        final RpslObject ownerMnt = new RpslObjectBuilder(OWNER_MNT)
+                    .addAttribute(1, new RpslAttribute(AttributeType.AUTH, String.format("MD5-PW %s", PasswordHelper.hashMd5Password("+Pass word+"))))
+                    .get();
+        databaseHelper.updateObject(ownerMnt);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person")
+                .queryParam("password", "+Pass word+")
+                .request()
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person", getPort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST"), is(not(nullValue())));
     }
 
     @Test
@@ -1774,43 +1816,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_succeeds_utf8_abuse_mailbox_stored_as_latin1() {
-        final byte[] request =
-                ("<whois-resources>\n" +
-                "    <objects>\n" +
-                "        <object type=\"role\">\n" +
-                "            <source id=\"TEST\"/>\n" +
-                "            <attributes>\n" +
-                "                <attribute name=\"role\" value=\"Zurich Role\"/>\n" +
-                "                <attribute name=\"address\" value=\"Z\u00FCrich\"/>\n" +           // unicode encoded u-umlaut, will be encoded as UTF-8 (bytes 0xc3bc in byte[]).
-                "                <attribute name=\"e-mail\" value=\"info@Z\u00FCrich.city\"/>\n" +
-                "                <attribute name=\"abuse-mailbox\" value=\"abuse@Z\u00FCrich.city\"/>\n" +
-                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
-                "                <attribute name=\"nic-hdl\" value=\"ZR1-TEST\"/>\n" +
-                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
-                "            </attributes>\n" +
-                "        </object>\n" +
-                "    </objects>\n" +
-                "</whois-resources>").getBytes(StandardCharsets.UTF_8);
-
-        final String response = RestTest.target(getPort(), "whois/test/role?password=test")
-            .request()
-            .post(Entity.entity(request, MediaType.APPLICATION_XML_TYPE.withCharset("UTF-8")), String.class);
-
-        // u-umlaut returned correctly
-        assertThat(response, containsString("<attribute name=\"abuse-mailbox\" value=\"abuse@Zürich.city\"/>"));
-
-        // expect u-umlaut in Zürich to be stored in the index table as latin1 byte 0xFC, not as UTF8 bytes 0xC3BC
-        assertThat(whoisTemplate.queryForObject("SELECT hex(abuse_mailbox) FROM abuse_mailbox WHERE abuse_mailbox like '%city'", String.class), containsString("5AFC72696368"));
-
-        // lookup object
-        assertThat(queryTelnet("-Br ZR1-TEST"), containsString("abuse-mailbox:  abuse@Zürich.city"));
-
-        // inverse lookup with u-umlaut
-        assertThat(queryTelnet("-r -i abuse-mailbox abuse@zürich.city"), containsString("abuse-mailbox:  abuse@Zürich.city"));
-    }
-
-    @Test
     public void create_succeeds_non_latin1_characters_substituted_in_response() {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
@@ -1887,6 +1892,31 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"ÖÜëñ\"/>"));
+    }
+
+    @Test
+    public void create_succeeds_idn_email_address_converted_to_punycode() {
+        final String response = RestTest.target(getPort(), "whois/test/person?password=test")
+            .request()
+            .post(Entity.entity(
+                "<whois-resources>\n" +
+                "    <objects>\n" +
+                "        <object type=\"person\">\n" +
+                "            <source id=\"TEST\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"person\" value=\"New Person\"/>\n" +
+                "                <attribute name=\"address\" value=\"Moscow\"/>\n" +
+                "                <attribute name=\"e-mail\" value=\"example@москва.ru\"/>\n" +
+                "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+
+        assertThat(response, containsString("<attribute name=\"e-mail\" value=\"example@xn--80adxhks.ru\"/>"));
     }
 
     @Test
@@ -2276,7 +2306,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
             assertThat(whoisResources.getErrorMessages().get(0).toString(),
-                is("JSON processing exception: Unexpected end-of-input: expected close marker for Object (line: 1, column: 3)"));
+                is("JSON processing exception: Unexpected end-of-input: expected close marker for Object (line: 1, column: 2)"));
         }
     }
 
@@ -2875,6 +2905,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Ignore("TODO: [ES] empty response body (confirmed FIXED by Jersey 2.22)")
     @Test
     public void update_huge_object_with_syntax_error_compressed_response() throws IOException {
+        databaseHelper.addAuthoritativeResource("TEST", "AS3333");
+
         databaseHelper.addObject("aut-num: AS3333\nsource: TEST");
 
         try {
@@ -2884,10 +2916,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(gunzip(new ClassPathResource("as3333.json.gz").getFile()), MediaType.APPLICATION_JSON), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-
+            assertThat(e.getResponse().hasEntity(), is(true));
 
             final String response = gunzip(e.getResponse().readEntity(byte[].class));
-            assertThat(response, containsString("Unrecognized source: %s"));
+            assertThat(response, containsString("\"text\" : \"Syntax error in %s\""));
         }
     }
 
@@ -4431,8 +4463,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .options();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
     }
 
     @Test
@@ -4443,8 +4475,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .options();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -4456,8 +4488,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
                 .options();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), Matchers.arrayContainingInAnyOrder("GET","POST","HEAD"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET","POST","HEAD"));
     }
 
     @Test
@@ -4469,8 +4501,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
                 .options();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -4481,9 +4513,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     @Test
@@ -4494,11 +4526,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
 
         // actual request is still allowed (it's the browsers responsibility to honor the restriction)
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     @Test
@@ -4509,9 +4541,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML));
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
     }
 
     @Test
@@ -4522,11 +4554,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML));
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
 
         // actual request is still allowed (it's the browsers responsibility to honor the restriction)
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
     }
 
     @Test
@@ -4537,7 +4569,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .options();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
     }
 
     @Test
@@ -4548,8 +4580,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     @Test
@@ -4560,8 +4592,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     @Test

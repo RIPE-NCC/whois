@@ -65,7 +65,7 @@ public class BatchUpdatesService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
             updateContext.setBatchUpdate();
 
             if(isQueryParamSet(dryRun)) {

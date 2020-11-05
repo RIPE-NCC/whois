@@ -999,6 +999,45 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         pkey << ["TST-MNT"]
     }
 
+    def "--diff-versions (invalid first version number)"() {
+        when:
+        def response = query "--diff-versions §:1 " + pkey
+
+        then:
+        response =~ header
+        response =~ "% diff version must be a number\n%\n" +
+                "%ERROR:111: invalid option supplied"
+
+        where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions (invalid second version number)"() {
+        when:
+        def response = query "--diff-versions 2:1- " + pkey
+
+        then:
+        response =~ header
+        response =~ "% diff version must be a number\n%\n" +
+                "%ERROR:111: invalid option supplied"
+
+        where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions (both first and second version number invalid)"() {
+        when:
+        def response = query "--diff-versions §:1- " + pkey
+
+        then:
+        response =~ header
+        response =~ "% diff version must be a number\n%\n" +
+                "%ERROR:111: invalid option supplied"
+
+        where:
+        pkey << ["TST-MNT"]
+    }
+
     def "--diff-versions (out of range)"() {
       when:
         def response = query "--diff-versions 1:3 " + pkey

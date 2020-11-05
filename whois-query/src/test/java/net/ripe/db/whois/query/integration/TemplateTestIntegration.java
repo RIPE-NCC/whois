@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
@@ -248,16 +248,12 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     Status can have one of these values:\n" +
                 "     \n" +
                 "     o ALLOCATED PA\n" +
-                "     o ALLOCATED PI\n" +
                 "     o ALLOCATED UNSPECIFIED\n" +
                 "     o LIR-PARTITIONED PA\n" +
-                "     o LIR-PARTITIONED PI\n" +
                 "     o SUB-ALLOCATED PA\n" +
                 "     o ASSIGNED PA\n" +
                 "     o ASSIGNED PI\n" +
                 "     o ASSIGNED ANYCAST\n" +
-                "     o EARLY-REGISTRATION\n" +
-                "     o NOT-SET\n" +
                 "     o LEGACY\n" +
                 "\n" +
                 "remarks\n" +
