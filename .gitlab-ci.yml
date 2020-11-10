@@ -141,6 +141,8 @@ deploy_aws_prepdev:
     - git clone -b aws_deploy_properties http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/swe-database-team/db-operational.git
     - cd db-operational/deployment
     - ./awsUpdateProperties.sh whois $CI_ENVIRONMENT_NAME
+    - echo "CI Registry $CI_REGISTRY_IMAGE"
+    - echo "CI_ENVIRONMENT_NAME $CI_ENVIRONMENT_NAME"
     - docker pull $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
     - docker tag $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA} $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
     - docker push $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
@@ -167,7 +169,6 @@ deploy_aws_prepdev:
     - git clone http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/swe-database-team/db-operational.git
     - find whois-db/target -name whois-db-*-SNAPSHOT.jar -exec cp {} db-operational/deployment/whois-db-$CI_COMMIT_SHA.jar \;
     - cd db-operational/deployment
-    - echo "CI Registry $CI_REGISTRY_IMAGE"
     - ./stage.sh -p whois -e $CI_ENVIRONMENT_NAME whois-db-$CI_COMMIT_SHA.jar
     - ./sync.sh -p whois -e $CI_ENVIRONMENT_NAME
     - bash ./deploy.sh -p whois -e $CI_ENVIRONMENT_NAME
