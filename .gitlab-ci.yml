@@ -143,7 +143,7 @@ deploy_aws_prepdev:
     - ./awsUpdateProperties.sh whois $CI_ENVIRONMENT_NAME
     - echo "CI Registry $CI_REGISTRY_IMAGE"
     - echo "CI_ENVIRONMENT_NAME $CI_ENVIRONMENT_NAME"
-    - echo "CI_REGISTRY_IMAGE $CI_REGISTRY_IMAGE"
+    - echo "AWS_REGISTRY_IMAGE $AWS_REGISTRY_IMAGE"
     - docker pull $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
     - docker tag $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA} $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
     - docker push $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
