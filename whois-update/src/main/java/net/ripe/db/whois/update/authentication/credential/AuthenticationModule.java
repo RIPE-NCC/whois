@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.PasswordCredential;
@@ -22,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,8 +35,6 @@ public class AuthenticationModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationModule.class);
 
     private static final String PASSWORDS_REMOVED_REMARK = "MD5 passwords older than November 2011 were removed from this maintainer, see: https://www.ripe.net/removed2011pw";
-
-    private static final StackWalker STACK_WALKER = AccessController.doPrivileged((PrivilegedAction<StackWalker>) () -> StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE));
 
     private static final AuthComparator AUTH_COMPARATOR = new AuthComparator();
 
@@ -56,11 +53,14 @@ public class AuthenticationModule {
         }
     }
 
-    public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> maintainers) {
+    public List<RpslObject> authenticate(final PreparedUpdate update,
+                                         final UpdateContext updateContext,
+                                         final Collection<RpslObject> maintainers,
+                                         final Class<? extends AuthenticationStrategy> authenticationStrategyClass) {
         final Credentials offered = update.getCredentials();
         boolean passwordRemovedRemark = false;
 
-        loggerContext.logAuthenticationStrategy(update.getUpdate(), getCaller(), maintainers);
+        loggerContext.logAuthenticationStrategy(update.getUpdate(), authenticationStrategyClass.getName(), maintainers);
 
         final List<RpslObject> authenticatedCandidates = Lists.newArrayList();
         for (final RpslObject maintainer : maintainers) {
@@ -130,10 +130,6 @@ public class AuthenticationModule {
         }
 
         return false;
-    }
-
-    private String getCaller() {
-        return STACK_WALKER.getCallerClass().getCanonicalName();
     }
 
     private static class AuthComparator implements Comparator<CIString> {

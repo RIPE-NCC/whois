@@ -82,7 +82,7 @@ public class MntByAuthenticationTest {
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, org.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(candidates);
 
-        when(credentialValidators.authenticate(update, updateContext, candidates)).thenReturn(candidates);
+        when(credentialValidators.authenticate(update, updateContext, candidates, MntByAuthentication.class)).thenReturn(candidates);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
@@ -103,7 +103,7 @@ public class MntByAuthenticationTest {
         final RpslObject maintainer = RpslObject.parse("mntner: TEST-MNT");
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, person.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(candidates);
-        when(credentialValidators.authenticate(update, updateContext, candidates)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(update, updateContext, candidates, MntByAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
 
@@ -123,7 +123,7 @@ public class MntByAuthenticationTest {
         final ArrayList<RpslObject> candidates = Lists.newArrayList(mntner);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, mntner.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(Lists.<RpslObject>newArrayList());
 
-        when(credentialValidators.authenticate(update, updateContext, candidates)).thenReturn(candidates);
+        when(credentialValidators.authenticate(update, updateContext, candidates, MntByAuthentication.class)).thenReturn(candidates);
 
         when(ssoTranslator.translateFromCacheAuthToUuid(updateContext, mntner)).thenReturn(mntner);
 
@@ -151,7 +151,7 @@ public class MntByAuthenticationTest {
         final List<RpslObject> candidates = Lists.newArrayList(RpslObject.parse("mntner: TEST-MNT"));
         when(rpslObjectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(candidates);
 
-        when(credentialValidators.authenticate(update, updateContext, candidates)).thenReturn(candidates);
+        when(credentialValidators.authenticate(update, updateContext, candidates, MntByAuthentication.class)).thenReturn(candidates);
 
         final List<RpslObject> authenticate = subject.authenticate(update, updateContext);
         assertThat(authenticate, is(candidates));
@@ -193,7 +193,7 @@ public class MntByAuthenticationTest {
         final ArrayList<RpslObject> mntByCandidates = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, ciSet("DEV1-MNT", "RS-MNT"))).thenReturn(mntByCandidates);
 
-        when(credentialValidators.authenticate(update, updateContext, mntByCandidates)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(update, updateContext, mntByCandidates, MntByAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
         try {
             subject.authenticate(update, updateContext);
@@ -219,7 +219,7 @@ public class MntByAuthenticationTest {
         final ArrayList<RpslObject> mntByCandidates = Lists.newArrayList(RpslObject.parse("mntner:   DEV1-MNT\n"));
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, ciSet("DEV1-MNT"))).thenReturn(mntByCandidates);
 
-        when(credentialValidators.authenticate(update, updateContext, mntByCandidates)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(update, updateContext, mntByCandidates, MntByAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
         final Ipv4Entry parent = new Ipv4Entry(Ipv4Resource.parse("193.0.0.0/24"), 1);
         when(ipv4Tree.findExactAndAllLessSpecific(Ipv4Resource.parse(inetnum.getKey()))).thenReturn(Lists.newArrayList(parent));
@@ -261,7 +261,7 @@ public class MntByAuthenticationTest {
         final ArrayList<RpslObject> mntByCandidates = Lists.newArrayList(RpslObject.parse("mntner:   DEV1-MNT\n"));
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, ciSet("DEV1-MNT"))).thenReturn(mntByCandidates);
 
-        when(credentialValidators.authenticate(update, updateContext, mntByCandidates)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(update, updateContext, mntByCandidates, MntByAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
         final Ipv4Entry parent = new Ipv4Entry(Ipv4Resource.parse("193.0.0.0/24"), 1);
         when(ipv4Tree.findExactAndAllLessSpecific(Ipv4Resource.parse(inetnum.getKey()))).thenReturn(Lists.newArrayList(parent));
@@ -281,7 +281,8 @@ public class MntByAuthenticationTest {
                     public boolean matches(final Object argument) {
                         return ((Collection<RpslObject>) argument).containsAll(parentCandidates);
                     }
-                }))).thenReturn(parentCandidates);
+                }),
+                eq(MntByAuthentication.class))).thenReturn(parentCandidates);
 
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated, is(parentCandidates));

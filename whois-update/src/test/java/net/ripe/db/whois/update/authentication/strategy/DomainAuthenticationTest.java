@@ -28,10 +28,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -219,7 +219,7 @@ public class DomainAuthenticationTest {
                 Lists.newArrayList(new Ipv6Entry(Ipv6Resource.parse(ipObject.getKey()), 1)));
 
         when(objectDao.getById(1)).thenReturn(ipObject);
-        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(candidates);
+        when(authenticationModule.authenticate(update, updateContext, candidates, DomainAuthentication.class)).thenReturn(candidates);
 
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated.containsAll(candidates), is(true));
@@ -303,7 +303,7 @@ public class DomainAuthenticationTest {
             assertThat(ignored.getAuthenticationMessages(), contains(UpdateMessages.authenticationFailed(ipObject, attributeType, candidates)));
         }
 
-        verify(authenticationModule).authenticate(update, updateContext, candidates);
+        verify(authenticationModule).authenticate(update, updateContext, candidates, DomainAuthentication.class);
         verifyZeroInteractions(ipv4Tree);
     }
 }

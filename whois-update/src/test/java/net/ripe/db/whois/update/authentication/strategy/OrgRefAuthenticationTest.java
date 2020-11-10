@@ -67,7 +67,7 @@ public class OrgRefAuthenticationTest {
         when(rpslObjectDao.getByKey(ObjectType.MNTNER, "REF-MNT")).thenReturn(maintainer);
 
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(candidates);
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(candidates);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
@@ -86,7 +86,7 @@ public class OrgRefAuthenticationTest {
         final List<RpslObject> organisations = Lists.newArrayList(organisation);
         when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyList())).thenReturn(organisations);
 
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
     }
@@ -104,7 +104,7 @@ public class OrgRefAuthenticationTest {
         final RpslObject maintainer = RpslObject.parse("mntner: REF-MNT");
         when(rpslObjectDao.getByKey(ObjectType.MNTNER, "REF-MNT")).thenThrow(EmptyResultDataAccessException.class);
 
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
 
