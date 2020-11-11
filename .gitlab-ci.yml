@@ -135,6 +135,9 @@ deploy_aws:
 deploy_aws_prepdev:
   stage: deploy
   before_script:
+    - export AWS_ACCESS_KEY_ID=$PREPDEV_AWS_ACCESS_KEY_ID
+    - export AWS_SECRET_ACCESS_KEY=$PREPDEV_AWS_SECRET_ACCESS_KEY
+    - export AWS_REGISTRY_IMAGE=$PREPDEV_AWS_REGISTRY_IMAGE
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $AWS_REGISTRY_IMAGE
   script:
