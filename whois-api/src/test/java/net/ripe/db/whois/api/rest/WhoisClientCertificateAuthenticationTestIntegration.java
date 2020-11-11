@@ -26,7 +26,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
 import static net.ripe.db.whois.update.keycert.X509CertificateTestUtil.asPem;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class WhoisClientCertificateAuthenticationTestIntegration extends AbstractIntegrationTest {
