@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static net.ripe.db.whois.query.support.Fixture.createBlockEvents;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;

@@ -10,7 +10,7 @@ import java.io.StringReader;
 import java.util.List;
 
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PatternFilterTest {
 

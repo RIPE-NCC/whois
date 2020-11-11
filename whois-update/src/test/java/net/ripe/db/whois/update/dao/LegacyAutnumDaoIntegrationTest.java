@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class LegacyAutnumDaoIntegrationTest extends AbstractUpdateDaoIntegrationTest {
