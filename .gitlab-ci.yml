@@ -144,7 +144,6 @@ deploy_aws_prepdev:
     - git clone -b aws_deploy_properties http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/swe-database-team/db-operational.git
     - cd db-operational/deployment
     - ./awsUpdateProperties.sh whois $CI_ENVIRONMENT_NAME
-    - echo "AWS_REGISTRY_IMAGE $AWS_REGISTRY_IMAGE"
     - docker pull $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
     - docker tag $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA} $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
     - docker push $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
