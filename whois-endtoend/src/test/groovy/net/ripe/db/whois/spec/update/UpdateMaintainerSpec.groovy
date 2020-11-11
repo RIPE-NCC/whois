@@ -350,7 +350,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.errorMessagesFor("Create", "[mntner] CRE") == ["Maintainer name must end with a -MNT suffix"]
+        ack.errorMessagesFor("Create", "[mntner] CRE") == ["When creating a MNTNER the name must end with an -MNT suffix"]
         ack.countErrorWarnInfo(1, 2, 0)
 
         queryNothing("-rGBT mntner SELF-MNT")

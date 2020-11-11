@@ -177,7 +177,7 @@ public final class UpdateMessages {
     }
 
     public static Message invalidMaintainerName() {
-        return new Message(Type.ERROR, "Maintainer name must end with a -MNT suffix");
+        return new Message(Type.ERROR, "When creating a MNTNER the name must end with an -MNT suffix");
     }
 
     public static Message cantChangeOrgAttribute() {
