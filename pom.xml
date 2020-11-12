@@ -25,7 +25,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- JAVA version -->
-        <java.version>8</java.version>
+        <java.version>11</java.version>
 
         <!-- dependencies -->
 
@@ -723,7 +723,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <release>8</release> <!-- generate Java8 binaries for now -->
+                    <release>${java.version}</release>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArgs>
                         <arg>-Xlint</arg>
@@ -731,8 +731,7 @@
                         <arg>-Xlint:-rawtypes</arg>
                         <arg>-Xlint:-serial</arg>
                         <arg>-Xlint:-fallthrough</arg>
-                        <!-- Uncomment when we start building java11 binaries: -->
-<!--                    	<arg>&#45;&#45;add-modules</arg><arg>java.sql,java.xml</arg>-->
+                    	<arg>--add-modules</arg><arg>java.sql,java.xml</arg>
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
