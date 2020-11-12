@@ -61,7 +61,7 @@
 
         <jaxb.version>2.2.11</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
-        <jopt-simple.version>4.8</jopt-simple.version>
+        <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.13.1</junit.version>
         <jetty.version>9.4.34.v20201102</jetty.version>
