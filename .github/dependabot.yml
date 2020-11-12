@@ -1,0 +1,16 @@
+# basic dependabot config file. https://github.blog/2020-06-01-keep-all-your-packages-up-to-date-with-dependabot/
+#
+
+version: 2
+updates:
+  - package-ecosystem: "java:maven"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    ignored_updates:
+      - match:
+          # Hazelcast 3+ has breaking changes
+          dependency_name: "com.hazelcast:hazelcast"
+      - match:
+          # Netty 4 has breaking changes
+          dependency_name: "io.netty:netty"
