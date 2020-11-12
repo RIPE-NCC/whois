@@ -11,6 +11,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    # N.B. ignore here overwrites any ignores created using `@dependabot ignore` commands
     ignore:
       # Hazelcast 3+ has breaking changes
       - dependency-name: "com.hazelcast:hazelcast"
