@@ -61,7 +61,7 @@
 
         <jaxb.version>2.2.11</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
-        <jopt-simple.version>4.8</jopt-simple.version>
+        <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.13.1</junit.version>
         <jetty.version>9.4.34.v20201102</jetty.version>
@@ -89,7 +89,7 @@
         <spock.version>0.7-groovy-1.8</spock.version>
         <shedlock.version>2.5.0</shedlock.version>
 
-        <velocity.version>2.0</velocity.version>
+        <velocity.version>2.2</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
     </properties>
@@ -937,7 +937,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>5.2.4</version>
+                <version>6.0.3</version>
                 <executions>
                     <execution>
                         <id>not-by-default</id>
