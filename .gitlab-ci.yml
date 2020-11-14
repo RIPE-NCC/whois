@@ -134,14 +134,16 @@ deploy_aws:
 
 deploy_aws_prepdev:
   stage: deploy
-  variables:
-    AWS_ACCESS_KEY_ID: $PREPDEV_AWS_ACCESS_KEY_ID
-    AWS_SECRET_ACCESS_KEY: $PREPDEV_AWS_SECRET_ACCESS_KEY
-    AWS_REGISTRY_IMAGE: $PREPDEV_AWS_REGISTRY_IMAGE
   before_script:
+    - export AWS_ACCESS_KEY_ID=$PREPDEV_AWS_ACCESS_KEY_ID
+    - export AWS_SECRET_ACCESS_KEY=$PREPDEV_AWS_SECRET_ACCESS_KEY
+    - export AWS_REGISTRY_IMAGE=$PREPDEV_AWS_REGISTRY_IMAGE
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $AWS_REGISTRY_IMAGE
   script:
+    - export AWS_ACCESS_KEY_ID=$PREPDEV_AWS_ACCESS_KEY_ID
+    - export AWS_SECRET_ACCESS_KEY=$PREPDEV_AWS_SECRET_ACCESS_KEY
+    - export AWS_REGISTRY_IMAGE=$PREPDEV_AWS_REGISTRY_IMAGE
     - git clone -b aws_deploy_properties http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/swe-database-team/db-operational.git
     - cd db-operational/deployment
     - ./awsUpdateProperties.sh whois $CI_ENVIRONMENT_NAME
