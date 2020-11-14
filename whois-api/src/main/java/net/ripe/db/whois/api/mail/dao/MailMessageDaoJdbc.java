@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.mail.dao;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.Hosts;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,7 +41,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
                 "where status is null " +
                 "limit 1 ",
                 DequeueStatus.CLAIMED.name(),
-                dateTimeProvider.getCurrentDateTime().toDate().getTime() / 1000,
+                Timestamp.from(dateTimeProvider.getCurrentDateTime()).getValue(),
                 Hosts.getLocalHostName(),
                 uuid);
 
@@ -95,7 +96,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
         final int rows = jdbcTemplate.update(
                 "update mailupdates set status = ?, changed = ? where claim_uuid = ?",
                 status.name(),
-                System.currentTimeMillis() / 1000,
+                Timestamp.from(dateTimeProvider.getCurrentDateTime()).getValue(),
                 messageUuid);
 
         if (rows != 1) {

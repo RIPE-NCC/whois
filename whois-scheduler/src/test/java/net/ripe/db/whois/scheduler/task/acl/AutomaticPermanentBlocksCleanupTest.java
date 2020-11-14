@@ -2,12 +2,13 @@ package net.ripe.db.whois.scheduler.task.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import org.joda.time.LocalDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.time.LocalDate;
 
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.times;
@@ -22,7 +23,7 @@ public class AutomaticPermanentBlocksCleanupTest {
 
     @Test
     public void run() {
-        final LocalDate now = new LocalDate();
+        final LocalDate now = LocalDate.now();
 
         when(dateTimeProvider.getCurrentDate()).thenReturn(now);
 

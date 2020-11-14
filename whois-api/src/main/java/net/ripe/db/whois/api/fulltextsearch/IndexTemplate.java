@@ -1,7 +1,19 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.net.InetAddresses;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
+import net.ripe.db.whois.query.domain.QueryException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.FacetLabel;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
@@ -11,18 +23,21 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.ReaderManager;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import static org.apache.lucene.util.IOUtils.closeWhileHandlingException;
@@ -46,8 +61,8 @@ public class IndexTemplate implements Closeable {
             index = new RAMDirectory();
         } else {
             LOGGER.info("Using index directory: {}", directory);
-            taxonomy = FSDirectory.open(new File(directory, "taxonomy"));
-            index = FSDirectory.open(new File(directory, "index"));
+            taxonomy = FSDirectory.open(new File(directory, "taxonomy").toPath());
+            index = FSDirectory.open(new File(directory, "index").toPath());
         }
 
         this.config = config;
@@ -62,7 +77,7 @@ public class IndexTemplate implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         updateLock.acquireUninterruptibly();
 
         try {
@@ -111,13 +126,13 @@ public class IndexTemplate implements Closeable {
         taxonomyWriter = new DirectoryTaxonomyWriter(taxonomy);
         addFacetCategories(taxonomyWriter);
 
-        config = new IndexWriterConfig(Version.LUCENE_4_10_4, config.getAnalyzer());
+        config = new IndexWriterConfig(config.getAnalyzer());
         indexWriter = new IndexWriter(index, config);
 
         taxonomyWriter.commit();
         indexWriter.commit();
 
-        readerManager = new ReaderManager(indexWriter, true);
+        readerManager = new ReaderManager(indexWriter, false, false);
     }
 
     private static void addFacetCategories(final TaxonomyWriter taxonomyWriter) throws IOException {
@@ -159,5 +174,72 @@ public class IndexTemplate implements Closeable {
 
     public interface SearchCallback<T> {
         T search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException;
+
     }
+
+    public abstract static class AccountingSearchCallback<T> implements SearchCallback<T> {
+
+        private static final Set<String> SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT = Sets.newHashSet("primary-key", "object-type", "lookup-key");
+
+        private final AccessControlListManager accessControlListManager;
+        private final InetAddress remoteAddress;
+        private final Source source;
+
+        private int accountingLimit = -1;
+        private int accountedObjects = 0;
+
+        private final boolean shouldDoAccounting;
+
+        public AccountingSearchCallback(final AccessControlListManager accessControlListManager,
+                                        final String remoteAddress,
+                                        final Source source) {
+            this.accessControlListManager = accessControlListManager;
+            this.remoteAddress = InetAddresses.forString(remoteAddress);
+            this.shouldDoAccounting = !accessControlListManager.isUnlimited(this.remoteAddress);
+            this.source = source;
+        }
+
+        public T search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
+            if (accessControlListManager.isDenied(remoteAddress)) {
+                throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(remoteAddress));
+            } else if (!accessControlListManager.canQueryPersonalObjects(remoteAddress)) {
+                throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress));
+            }
+
+            try {
+                return doSearch(indexReader, taxonomyReader, indexSearcher);
+            } finally {
+                if (shouldDoAccounting && accountedObjects > 0) {
+                    accessControlListManager.accountPersonalObjects(remoteAddress, accountedObjects);
+                }
+            }
+        }
+
+        protected abstract T doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException;
+
+        protected void account(final RpslObject rpslObject) {
+            if (shouldDoAccounting && accessControlListManager.requiresAcl(rpslObject, source)) {
+                if (accountingLimit == -1) {
+                    accountingLimit = accessControlListManager.getPersonalObjects(remoteAddress);
+                }
+
+                if (++accountedObjects > accountingLimit) {
+                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(remoteAddress));
+                }
+            }
+        }
+
+        protected int getObjectId(Document document) {
+            for (final IndexableField field : document.getFields()) {
+                if (SEARCH_INDEX_FIELDS_NOT_MAPPED_TO_RPSL_OBJECT.contains(field.name())) {
+                    if ("primary-key".equals(field.name())) {
+                        return  Integer.parseInt(field.stringValue());
+                    }
+                }
+            }
+
+           throw new IllegalStateException("luecene index should always have a primary key stored");
+        }
+    }
+
 }

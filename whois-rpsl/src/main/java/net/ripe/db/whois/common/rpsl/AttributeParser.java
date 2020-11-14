@@ -4,18 +4,21 @@ import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
-import net.ripe.db.whois.common.rpsl.attrs.IPAddress;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Changed;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
+import net.ripe.db.whois.common.rpsl.attrs.IPAddress;
 import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.common.rpsl.attrs.SetObject;
 import org.apache.commons.lang.StringUtils;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -174,4 +177,38 @@ public interface AttributeParser<T> {
             throw new AttributeParseException("Unexpected parse result", s);
         }
     }
+
+    final class EmailParser implements AttributeParser<InternetAddress> {
+
+        @Override
+        public InternetAddress parse(final String s) {
+            final InternetAddress[] parsed;
+            try {
+                parsed = InternetAddress.parse(s);
+            } catch (AddressException e) {
+                throw new AttributeParseException(String.format("Illegal address (%s)", e.getMessage()), s);
+            }
+
+            if (parsed.length != 1) {
+                throw new AttributeParseException("Illegal address", s);
+            }
+
+            try {
+                parsed[0].validate();
+
+                final String address = parsed[0].getAddress();
+                final String localPart = address.substring(0, address.indexOf('@'));
+
+                if (!StandardCharsets.US_ASCII.newEncoder().canEncode(localPart)) {
+                    throw new AttributeParseException("Address contains non ASCII characters (%s)", s);
+                }
+            } catch (AddressException e) {
+                throw new AttributeParseException(String.format("Invalid address (%s)", e.getMessage()), s);
+            }
+
+            return parsed[0];
+        }
+
+    }
+
 }

@@ -10,7 +10,7 @@ import java.io.StringReader;
 import java.util.List;
 
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PatternFilterTest {
 
@@ -60,7 +60,8 @@ public class PatternFilterTest {
     private List<String> tokenize(final String input) throws IOException {
         final List<String> tokens = Lists.newArrayList();
 
-        final WhitespaceTokenizer whitespaceTokenizer = new WhitespaceTokenizer(new StringReader(input));
+        final WhitespaceTokenizer whitespaceTokenizer = new WhitespaceTokenizer();
+        whitespaceTokenizer.setReader(new StringReader(input));
         final PatternFilter subject = new PatternFilter(whitespaceTokenizer);
 
         try {

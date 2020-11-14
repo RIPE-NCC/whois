@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.pipeline;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -13,6 +12,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @ChannelHandler.Sharable
 @Component
@@ -31,7 +31,7 @@ public class WhoisEncoder extends OneToOneEncoder {
 
             return result;
         } else if (msg instanceof Message) {
-            return ChannelBuffers.wrappedBuffer(msg.toString().getBytes(Charsets.UTF_8), OBJECT_TERMINATOR);
+            return ChannelBuffers.wrappedBuffer(msg.toString().getBytes(StandardCharsets.UTF_8), OBJECT_TERMINATOR);
         }
 
         return msg;

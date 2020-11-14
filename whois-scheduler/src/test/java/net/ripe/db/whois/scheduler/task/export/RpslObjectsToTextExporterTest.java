@@ -30,6 +30,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
+
 @RunWith(MockitoJUnitRunner.class)
 public class RpslObjectsToTextExporterTest {
     @Rule public TemporaryFolder folder = new TemporaryFolder();
@@ -158,8 +161,8 @@ public class RpslObjectsToTextExporterTest {
     public void export_check_files() {
         subject.export();
 
-        Assert.assertThat(exportDir.exists(), Matchers.is(true));
-        Assert.assertThat(tmpDir.exists(), Matchers.is(false));
+        assertThat(exportDir.exists(), Matchers.is(true));
+        assertThat(tmpDir.exists(), Matchers.is(false));
     }
 
     @Test

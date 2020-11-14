@@ -16,6 +16,7 @@ import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
@@ -26,7 +27,6 @@ import net.ripe.db.whois.query.QueryFlag;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -39,6 +39,7 @@ import javax.ws.rs.core.Response;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -112,6 +113,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
+    @Autowired private ApplicationVersion applicationVersion;
 
     @Before
     public void setup() {
@@ -1098,6 +1100,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "\"terms-and-conditions\" : {\n" +
                 "  \"type\" : \"locator\",\n" +
                 "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "},\n" +
+                "\"version\" : {\n" +
+                "  \"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
+                "  \"timestamp\" : \"" + applicationVersion.getTimestamp() + "\",\n" +
+                "  \"commit-id\" : \"" + applicationVersion.getCommitId() + "\"\n" +
                 "}\n" +
                 "}"
         ));
@@ -1175,6 +1182,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "</object>\n" +
                 "</objects>\n" +
                 "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
                 "</whois-resources>\n"));
     }
 
@@ -1927,7 +1938,22 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertTrue(hasSourceTest);
     }
 
-    // helping method
+    @Test
+    public void query_string_normalised() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=%E2%80%8E2019%2011:35%5D%20ok")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (NotFoundException e) {
+            // ensure no stack trace in response
+            assertThat(e.getResponse().readEntity(String.class), not(containsString("Caused by:")));
+        }
+
+    }
+
+    // helper methods
+
     private boolean hasObjectWithSpecifiedSource(List<WhoisObject> whoisObjects, String source) {
         return whoisObjects
                 .stream()

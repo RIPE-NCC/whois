@@ -1,12 +1,12 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import org.bouncycastle.openpgp.PGPPublicKey;
 
 import javax.annotation.Nullable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class PgpCredential implements Credential {
@@ -29,7 +29,7 @@ public class PgpCredential implements Credential {
     }
 
     public static PgpCredential createOfferedCredential(@Nullable final String clearText) {
-        return createOfferedCredential(clearText, Charsets.ISO_8859_1);
+        return createOfferedCredential(clearText, StandardCharsets.ISO_8859_1);
     }
 
     public static PgpCredential createOfferedCredential(@Nullable final String clearText, final Charset charset) {

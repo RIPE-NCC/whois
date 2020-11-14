@@ -1,20 +1,21 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.annotation.Nullable;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
 
 public class RpslObjectTest {
@@ -127,7 +128,7 @@ public class RpslObjectTest {
 
         assertThat(subject, is(not(nullValue())));
         assertThat(subject.getType(), is(ObjectType.MNTNER));
-        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
+        assertThat(subject.containsAttribute(AttributeType.MNTNER), is(true));
         assertThat(subject.getValueForAttribute(AttributeType.MNTNER).toString(), is("DEV-MNT"));
     }
 
@@ -137,7 +138,7 @@ public class RpslObjectTest {
         String value = ":#!@#$%^&*()_+~![]{};':<>,./?\\";
         parseAndAssign(key + ":" + value);
 
-        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
+        assertThat(subject.containsAttribute(AttributeType.MNTNER), is (true));
         assertThat(subject.findAttributes(AttributeType.MNTNER), hasSize(1));
         assertThat(subject.findAttributes(AttributeType.MNTNER).get(0).getValue(), is(value));
     }
@@ -149,7 +150,7 @@ public class RpslObjectTest {
 
         parseAndAssign(key + ":" + value);
 
-        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
+        assertThat(subject.containsAttribute(AttributeType.MNTNER), is(true));
         assertThat(subject.findAttributes(AttributeType.MNTNER), hasSize(1));
         assertThat(subject.findAttributes(AttributeType.MNTNER).get(0).getValue(), is(value));
     }
@@ -161,8 +162,8 @@ public class RpslObjectTest {
 
         parseAndAssign("mntner: DEV-MNT\n" + key + ":" + value + "\n" + key + ":" + value);
 
-        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
-        assertTrue(subject.containsAttribute(AttributeType.DESCR));
+        assertThat(subject.containsAttribute(AttributeType.MNTNER), is(true));
+        assertThat(subject.containsAttribute(AttributeType.DESCR), is(true));
         assertThat(subject.findAttributes(AttributeType.MNTNER), hasSize(1));
         assertThat(subject.findAttributes(AttributeType.DESCR), hasSize(2));
         assertThat(subject.findAttributes(AttributeType.DESCR).get(0).getValue(), is(value));
@@ -170,16 +171,15 @@ public class RpslObjectTest {
 
     @Test
     public void parseMultipleIdenticalKeys() {
-        String key = "descr";
-        int amount = 1000;
+        final int amount = 1000;
 
-        parseAndAssign("mntner: DEV-MNT\n" + StringUtils.repeat(key + ": value", "\n", amount));
+        parseAndAssign("mntner: DEV-MNT\n" + StringUtils.repeat("descr: value", "\n", amount));
 
         assertThat(subject.findAttributes(AttributeType.DESCR), hasSize(amount));
     }
 
     private byte[] bytesFrom(String input) {
-        return input.getBytes(Charsets.ISO_8859_1);
+        return input.getBytes(StandardCharsets.ISO_8859_1);
     }
 
     private void parseAndAssign(String input) {
@@ -492,7 +492,7 @@ public class RpslObjectTest {
                 "mnt-by :DEV-MNT1,DEV-MNT2,DEV-MNT3");
 
         assertThat(object.findAttributes(AttributeType.MNT_BY), hasSize(0));
-        assertNull(object.getAttributes().get(1).getType());
+        assertThat(object.getAttributes().get(1).getType(), is(nullValue()));
     }
 
     @Test
@@ -770,16 +770,6 @@ public class RpslObjectTest {
     // helper methods
 
     private static Iterable<String> convertToString(final Iterable<CIString> c) {
-        return Iterables.transform(c, new Function<CIString, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable final CIString input) {
-                if (input == null) {
-                    return null;
-                }
-
-                return input.toString();
-            }
-        });
+        return Iterables.transform(c, input -> (input == null) ? null : input.toString());
     }
 }

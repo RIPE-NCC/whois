@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-class PgpCredentialValidator implements CredentialValidator<PgpCredential> {
+class PgpCredentialValidator implements CredentialValidator<PgpCredential, PgpCredential> {
 
     private final RpslObjectDao rpslObjectDao;
     private final DateTimeProvider dateTimeProvider;
@@ -38,6 +38,11 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential> {
 
     @Override
     public Class<PgpCredential> getSupportedCredentials() {
+        return PgpCredential.class;
+    }
+
+    @Override
+    public Class<PgpCredential> getSupportedOfferedCredentialType() {
         return PgpCredential.class;
     }
 
@@ -67,8 +72,12 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential> {
                 updateContext.addMessage(update, UpdateMessages.publicKeyHasExpired(keyId));
             }
 
+            if (pgpPublicKeyWrapper.isRevoked()) {
+                updateContext.addMessage(update, UpdateMessages.publicKeyIsRevoked(keyId));
+            }
+
             if (!offeredCredential.verifySigningTime(dateTimeProvider)) {
-                updateContext.addMessage(update, UpdateMessages.messageSignedMoreThanOneWeekAgo());
+                updateContext.addMessage(update, UpdateMessages.messageSignedMoreThanOneHourAgo());
             }
 
             return true;

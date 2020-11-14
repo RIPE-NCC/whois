@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest.client;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.net.UrlEscapers;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
@@ -23,12 +22,7 @@ public class RestClientUtils {
 
     // encode a list of query parameters
     public static final List<String> encode(final List<String> params) {
-        return Lists.transform(params, new Function<String, String>() {
-            @Override
-            public String apply(final String input) {
-                return encode(input);
-            }
-        });
+        return Lists.transform(params, input -> encode(input));
     }
 
     public static RestClient createRestClient(final String restApiUrl, final String source) {

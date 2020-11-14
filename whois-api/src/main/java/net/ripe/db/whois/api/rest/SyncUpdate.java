@@ -2,11 +2,10 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.update.domain.Origin;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
 
 public class SyncUpdate implements Origin {
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("E MMM d HH:mm:ss yyyy");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("E MMM d HH:mm:ss yyyy");
 
     private final DateTimeProvider dateTimeProvider;
     private final String remoteAddress;
@@ -51,7 +50,7 @@ public class SyncUpdate implements Origin {
                 " - From-Host: %s\n" +
                 " - Date/Time: %s\n",
                 remoteAddress,
-                DATE_FORMAT.print(dateTimeProvider.getCurrentDateTime()));
+                DATE_FORMAT.format(dateTimeProvider.getCurrentDateTime()));
     }
 
     @Override

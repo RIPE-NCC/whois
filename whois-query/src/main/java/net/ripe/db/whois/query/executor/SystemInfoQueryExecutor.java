@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.executor;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -11,7 +12,6 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -25,13 +25,12 @@ public class SystemInfoQueryExecutor implements QueryExecutor {
         Collections.addAll(ORDERED_TYPES, ObjectType.values());
     }
 
-    @Value("${application.version}")
-    private String version;
-
+    private final ApplicationVersion applicationVersion;
     private final SourceContext sourceContext;
 
     @Autowired
-    public SystemInfoQueryExecutor(SourceContext sourceContext) {
+    public SystemInfoQueryExecutor(final ApplicationVersion applicationVersion, final SourceContext sourceContext) {
+        this.applicationVersion = applicationVersion;
         this.sourceContext = sourceContext;
     }
 
@@ -52,7 +51,7 @@ public class SystemInfoQueryExecutor implements QueryExecutor {
         final String responseString;
         switch (systemInfoOption) {
             case VERSION:
-                responseString = "% whois-server-" + version;
+                responseString = "% whois-server-" + applicationVersion.getVersion();
                 break;
             case TYPES: {
                 final StringBuilder builder = new StringBuilder();

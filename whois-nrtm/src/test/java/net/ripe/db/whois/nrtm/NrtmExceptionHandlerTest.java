@@ -43,7 +43,7 @@ public class NrtmExceptionHandlerTest {
     }
 
     @Test
-    public void handle_illegal_argument_exception() throws Exception {
+    public void handle_illegal_argument_exception() {
         when(exceptionEventMock.getCause()).thenReturn(new IllegalArgumentException(QUERY));
 
         subject.exceptionCaught(channelHandlerContextMock, exceptionEventMock);
@@ -53,7 +53,7 @@ public class NrtmExceptionHandlerTest {
     }
 
     @Test
-    public void handle_exception() throws Exception {
+    public void handle_exception() {
         when(exceptionEventMock.getCause()).thenReturn(new Exception());
 
         subject.exceptionCaught(channelHandlerContextMock, exceptionEventMock);

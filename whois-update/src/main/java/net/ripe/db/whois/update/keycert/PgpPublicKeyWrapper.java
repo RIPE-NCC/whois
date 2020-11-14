@@ -1,13 +1,12 @@
 package net.ripe.db.whois.update.keycert;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.DateUtil;
+import net.ripe.db.whois.common.Latin1Conversion;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.common.CharacterSetConversion;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.SignatureSubpacketTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -20,20 +19,28 @@ import org.bouncycastle.openpgp.PGPSignatureSubpacketVector;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
-import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.Provider;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
 public class PgpPublicKeyWrapper implements KeyWrapper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PgpPublicKeyWrapper.class);
+
     private static final String PGP_HEADER = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
     private static final String PGP_FOOTER = "-----END PGP PUBLIC KEY BLOCK-----";
     private static final String METHOD = "PGP";
+
+    private static final Long SECONDS_IN_ONE_DAY = 60L * 60L * 24L;
 
     private static final Provider PROVIDER = new BouncyCastleProvider();
 
@@ -52,7 +59,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(object).getBytes(Charsets.ISO_8859_1);
+            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(object).getBytes(StandardCharsets.ISO_8859_1);
             final ArmoredInputStream armoredInputStream = (ArmoredInputStream) PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));
             PGPPublicKey masterKey = null;
             List<PGPPublicKey> subKeys = Lists.newArrayList();
@@ -66,20 +73,12 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
                     final PGPPublicKey key = keyIterator.next();
                     if (key.isMasterKey()) {
                         if (masterKey == null) {
-                            if (key.isRevoked()) {
-                                throw new IllegalArgumentException("The supplied key is revoked");
-                            }
-
                             masterKey = key;
                         } else {
                             throw new IllegalArgumentException("The supplied object has multiple keys");
                         }
                     } else {
                         if (masterKey == null) {
-                            continue;
-                        }
-
-                        if (key.isRevoked()) {
                             continue;
                         }
 
@@ -112,9 +111,12 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
             }
 
             return new PgpPublicKeyWrapper(masterKey, subKeys);
-        } catch (IOException e) {
+        } catch (IOException | PGPException e) {
             throw new IllegalArgumentException("The supplied object has no key");
-        } catch (PGPException e) {
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            LOGGER.warn("Unexpected error, throwing no key by default", e);
             throw new IllegalArgumentException("The supplied object has no key");
         }
     }
@@ -151,13 +153,12 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
 
     @Override
     public List<String> getOwners() {
-        return Lists.newArrayList(Iterators.<String, String>transform(masterKey.getUserIDs(),
-                new Function<String, String>() {
-                    @Override
-                    public String apply(final String input) {
-                        return CharacterSetConversion.convertToLatin1(input);
-                    }
-                }));
+        try {
+            return Lists.newArrayList(Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString));
+        } catch (IllegalArgumentException e) {
+            // Invalid UTF-8 input
+            return Lists.newArrayList(Iterators.transform(masterKey.getRawUserIDs(), bytes -> Latin1Conversion.convertString(new String(bytes))));
+        }
     }
 
     @Override
@@ -178,13 +179,18 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
     }
 
     public boolean isExpired(final DateTimeProvider dateTimeProvider) {
-        final int validDays = masterKey.getValidDays();
-        if (validDays > 0) {
-            final LocalDateTime expired = (new LocalDateTime(masterKey.getCreationTime())).plusDays(validDays);
+        final long validSeconds = masterKey.getValidSeconds();
+        if (validSeconds > 0) {
+            final int days = Long.valueOf(Long.divideUnsigned(validSeconds, SECONDS_IN_ONE_DAY)).intValue();
+            final LocalDateTime expired = (DateUtil.fromDate(masterKey.getCreationTime())).plusDays(days);
             return expired.isBefore(dateTimeProvider.getCurrentDateTime());
         }
 
         return false;
+    }
+
+    public boolean isRevoked() {
+        return masterKey.hasRevocation();
     }
 
     @Override

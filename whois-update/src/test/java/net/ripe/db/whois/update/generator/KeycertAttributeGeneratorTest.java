@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.generator;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -25,7 +24,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -526,12 +525,7 @@ public class KeycertAttributeGeneratorTest {
     // helper methods
 
     private void validateAttributeType(final RpslObject rpslObject, final AttributeType attributeType, final String... values) {
-        final List attributes = Lists.transform(Arrays.asList(values), new Function<String, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final String input) {
-                return new RpslAttribute(attributeType, input);
-            }
-        });
+        final List attributes = Lists.transform(Arrays.asList(values), input -> new RpslAttribute(attributeType, input));
 
         assertThat(rpslObject.findAttributes(attributeType), is(attributes));
     }

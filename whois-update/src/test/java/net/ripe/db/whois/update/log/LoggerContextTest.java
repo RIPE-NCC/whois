@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.log;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
@@ -8,7 +7,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,14 +17,21 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -46,7 +51,7 @@ public class LoggerContextTest {
 
         subject.init(folder.getRoot());
 
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime());
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         when(update.getUpdate()).thenReturn(update);
     }
 
@@ -79,7 +84,7 @@ public class LoggerContextTest {
         });
 
         final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "001.test.txt.gz"))));
-        final String contents = new String(FileCopyUtils.copyToByteArray(is), Charsets.UTF_8);
+        final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
         assertThat(file.getName(), is("001.test.txt.gz"));
         assertThat(contents, is("test"));
@@ -110,7 +115,7 @@ public class LoggerContextTest {
         subject.remove();
 
         final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "000.audit.xml.gz"))));
-        final String contents = new String(FileCopyUtils.copyToByteArray(is), Charsets.UTF_8);
+        final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
         assertThat(contents, containsString("" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
@@ -151,7 +156,7 @@ public class LoggerContextTest {
         subject.remove();
 
         final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "000.audit.xml.gz"))));
-        final String contents = new String(FileCopyUtils.copyToByteArray(is), Charsets.UTF_8);
+        final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
         assertThat(contents, containsString("" +
                 "            <exception>\n" +

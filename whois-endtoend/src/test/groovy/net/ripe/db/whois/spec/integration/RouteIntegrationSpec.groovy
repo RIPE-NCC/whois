@@ -1159,4 +1159,23 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         noMoreMessages()
     }
 
+    def "create route with bogon prefix"() {
+      when:
+        def create = new SyncUpdate(data: """\
+                route: 192.0.2.0/24
+                descr: Test route
+                origin: AS123
+                mnt-by: TEST-MNT
+                source: TEST
+                password: update
+                """.stripIndent())
+
+      then:
+        def response = syncUpdate create
+
+      then:
+        response =~ /FAIL/
+        response.contains("***Error:   Bogon prefix 192.0.2.0/24 is not allowed.")
+    }
+
 }

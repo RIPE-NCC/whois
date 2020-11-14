@@ -1,18 +1,17 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.domain.CIString;
-import org.joda.time.IllegalFieldValueException;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import javax.annotation.CheckForNull;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Changed {
     private static final Pattern CHANGED_PATTERN = Pattern.compile("^([^ ]+@(?:[^. ]+[.])+[^. ]+)(?:[ ]([0-9]{8}))?$");
-    private static final DateTimeFormatter CHANGED_ATTRIBUTE_DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
+    private static final DateTimeFormatter CHANGED_ATTRIBUTE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final int MAX_LENGTH = 89;
 
     private final String email;
@@ -42,7 +41,7 @@ public class Changed {
             return null;
         }
 
-        return CHANGED_ATTRIBUTE_DATE_FORMAT.print(date);
+        return CHANGED_ATTRIBUTE_DATE_FORMAT.format(date);
     }
 
     @Override
@@ -81,8 +80,8 @@ public class Changed {
             date = null;
         } else {
             try {
-                date = CHANGED_ATTRIBUTE_DATE_FORMAT.parseLocalDate(dateString);
-            } catch (IllegalFieldValueException e) {
+                date = LocalDate.from(CHANGED_ATTRIBUTE_DATE_FORMAT.parse(dateString));
+            } catch (DateTimeParseException e) {
                 throw new AttributeParseException("Invalid date: " + dateString, value);
             }
         }

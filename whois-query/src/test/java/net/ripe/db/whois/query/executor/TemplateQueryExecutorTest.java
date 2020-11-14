@@ -6,8 +6,10 @@ import net.ripe.db.whois.query.query.Query;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TemplateQueryExecutorTest {
     private TemplateQueryExecutor subject;

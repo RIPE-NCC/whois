@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AttributeSyntaxTest {
 
@@ -230,13 +230,18 @@ public class AttributeSyntaxTest {
 
     @Test
     public void email() {
-        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a@a");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "@");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a@");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org 20180529");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a.a.a");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user");
 
-        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "foo@provider.com");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "Any User <user@host.org>");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a.a");
-        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "'anthingcan1242go!@(&)^!(&@^21here\"@0.2345678901234567890123456789012345678901");
-        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "test@ümlaut.email");
     }
 
     @Test
@@ -1246,14 +1251,11 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "SUB-ALLOCATED PA");
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED-BY-LIR");
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED");
-        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED PI");
-        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "LIR-PARTITIONED PI");
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED ANYCAST");
 
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
         verifySuccess(ObjectType.INET6NUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
 
-        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED PI");
         verifyFailure(ObjectType.INET6NUM, AttributeType.STATUS, "ALLOCATED PI");
     }
 

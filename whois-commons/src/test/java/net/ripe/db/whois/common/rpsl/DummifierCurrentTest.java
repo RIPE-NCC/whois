@@ -25,7 +25,6 @@ public class DummifierCurrentTest {
     @Test
     public void allowed() {
         assertThat(subject.isAllowed(3, object), is(true));
-
         assertThat(subject.isAllowed(2, object), is(false));
         assertThat(subject.isAllowed(1, object), is(false));
     }

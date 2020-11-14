@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.pipeline;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.query.QueryMessages;
@@ -15,10 +14,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,7 +42,7 @@ public class WhoisEncoderTest {
     }
 
     private static String toString(ChannelBuffer input) {
-        return input.toString(Charsets.UTF_8);
+        return input.toString(StandardCharsets.UTF_8);
     }
 
     @Test

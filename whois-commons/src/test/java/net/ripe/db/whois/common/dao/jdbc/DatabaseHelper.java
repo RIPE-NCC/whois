@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.BlockEvent;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.jdbc.driver.LoggingDriver;
@@ -27,8 +28,8 @@ import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -71,6 +73,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
     private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
+    private static final String DB_HOST = StringUtils.isNotBlank(System.getProperty("db.host"))? System.getProperty("db.host") : "localhost";
 
     private DataSource mailupdatesDataSource;
 
@@ -154,6 +157,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         final JdbcTemplate jdbcTemplate = createDefaultTemplate();
         ensureLocalhost(jdbcTemplate);
         cleanupOldTables(jdbcTemplate);
+        validateFilePerTable(jdbcTemplate);
 
         final String uniqueForkId = DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
 
@@ -164,15 +168,18 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
 
-        final String masterUrl = String.format("jdbc:log:mariadb://localhost/%s_WHOIS;driver=%s", dbBaseName, JDBC_DRIVER);
+        final String masterUrl = String.format("jdbc:log:mariadb://%s/%s_WHOIS;driver=%s", DB_HOST, dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
 
-        final String slaveUrl = String.format("jdbc:mariadb://localhost/%s_WHOIS", dbBaseName);
+        final String slaveUrl = String.format("jdbc:mariadb://%s/%s_WHOIS", DB_HOST, dbBaseName);
         System.setProperty("whois.db.slave.url", slaveUrl);
         System.setProperty("whois.db.driver", JDBC_DRIVER);
 
-        final String grsSlaveUrl = String.format("jdbc:mariadb://localhost/%s", dbBaseName);
+        final String internalsSlaveUrl = String.format("jdbc:mariadb://%s/%s_INTERNALS", DB_HOST, dbBaseName);
+        System.setProperty("internals.slave.database.url", internalsSlaveUrl);
+
+        final String grsSlaveUrl = String.format("jdbc:mariadb://%s/%s", DB_HOST, dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
         System.setProperty("whois.db.grs.master.baseurl", grsSlaveUrl);
     }
@@ -183,9 +190,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             final Matcher dbMatcher = dbPattern.matcher(db);
             if (dbMatcher.matches()) {
                 final String creationTimeString = dbMatcher.group(1);
-
-                final LocalDateTime creationTime = new LocalDateTime(Long.parseLong(creationTimeString));
-                if (creationTime.isBefore(new LocalDateTime().minusHours(1))) {
+                final LocalDateTime creationTime = Timestamp.fromMilliseconds(Long.parseLong(creationTimeString)).toLocalDateTime();
+                if (creationTime.isBefore(LocalDateTime.now().minusHours(1))) {
                     jdbcTemplate.execute("DROP DATABASE IF EXISTS " + db);
                 }
             }
@@ -215,7 +221,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
         loadScripts(new JdbcTemplate(createDataSource(dbName)), sql);
 
-        System.setProperty(propertyBase + ".url", "jdbc:mariadb://localhost/" + dbName);
+        System.setProperty(propertyBase + ".url", String.format("jdbc:mariadb://%s/%s", DB_HOST, dbName));
         System.setProperty(propertyBase + ".username", "dbint");
         System.setProperty(propertyBase + ".password", "");
     }
@@ -224,14 +230,14 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return new JdbcTemplate(createDataSource(""));  // database name can be empty for mysql
     }
 
-    private static DataSource createDataSource(final String databaseName) {
+    private static DataSource createDataSource( final String databaseName) {
         try {
             @SuppressWarnings("unchecked")
             final Class<? extends java.sql.Driver> driverClass = (Class<? extends java.sql.Driver>) Class.forName(JDBC_DRIVER);
 
             final SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
             dataSource.setDriverClass(driverClass);
-            dataSource.setUrl("jdbc:mariadb://localhost/" + databaseName);
+            dataSource.setUrl(String.format("jdbc:mariadb://%s/%s", DB_HOST, databaseName));
             dataSource.setUsername("dbint");
 
             return dataSource;
@@ -248,7 +254,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 final String url = metaData.getURL();
                 final String username = metaData.getUserName();
 
-                return url.contains("localhost") || url.contains("127.0.0.1") || username.startsWith("rdonly");
+                return url.contains("localhost")
+                        || url.contains("mariadb")
+                        || url.contains("127.0.0.1")
+                        || username.startsWith("rdonly");
             }
         });
 
@@ -424,7 +433,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public void unban(final String prefix) throws InterruptedException {
         aclTemplate.update("INSERT INTO acl_event (prefix, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
                 prefix,
-                new LocalDateTime().toDate(),
+                new Date(),
                 0,
                 BlockEvent.Type.UNBLOCK.name());
 
@@ -451,16 +460,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         aclTemplate.update(
                 "INSERT INTO acl_proxy (prefix, comment) VALUES (?, ?)",
                 prefix, "comment");
-    }
-
-    public void insertAclMirror(final String prefix) {
-        aclTemplate.update(
-                "INSERT INTO acl_mirror (prefix, comment) VALUES (?, ?)",
-                prefix, "comment");
-    }
-
-    public void clearAclMirrors() {
-        aclTemplate.update("DELETE FROM acl_mirror");
     }
 
     public List<Map<String, Object>> listAclEvents() {
@@ -524,13 +523,26 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public void deleteAuthoritativeResource(final String source, final String resource) {
         internalsTemplate.execute("delete from authoritative_resource where source ='"+source+"' and resource = '"+resource+"'");
-        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+        authoritativeResourceData.refreshActiveSource();
     }
 
 
     public void addAuthoritativeResource(final String source, final String resource) {
         internalsTemplate.execute("insert into authoritative_resource (source, resource) values ('"+source+"', '"+resource+"')");
-        authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
+        authoritativeResourceData.refreshActiveSource();
+    }
+
+    private static void validateFilePerTable(final JdbcTemplate jdbcTemplate) {
+        final Boolean filePerTable = jdbcTemplate.query("SELECT @@innodb_file_per_table", rs -> {
+            if (rs.isBeforeFirst()) {
+                rs.next();
+            }
+            return rs.getBoolean(1);
+        });
+
+        if (filePerTable) {
+            throw new IllegalStateException("Mariadb innodb_file_per_table must be OFF");
+        }
     }
 
 }

@@ -13,7 +13,7 @@ import org.junit.experimental.categories.Category;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
@@ -98,5 +98,11 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person " + Strings.repeat("arg ", 60));
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
+    }
+
+    @Test
+    public void queryStringNormalised() {
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "\u200E2019 11:35] ok");
+        assertThat(response, containsString("% This query was converted into the ISO-8859-1 (Latin-1) character set."));
     }
 }

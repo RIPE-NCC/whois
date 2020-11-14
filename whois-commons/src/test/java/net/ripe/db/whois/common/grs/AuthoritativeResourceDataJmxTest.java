@@ -12,9 +12,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -23,8 +23,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class AuthoritativeResourceDataJmxTest {
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-    @Mock AuthoritativeResourceData authoritativeResourceData;
     @Mock AuthoritativeResourceDataValidator authoritativeResourceDataValidator;
+    @Mock AuthoritativeResourceRefreshTask authoritativeResourceRefreshTask;
     @InjectMocks AuthoritativeResourceDataJmx subject;
 
     @Test
@@ -32,7 +32,7 @@ public class AuthoritativeResourceDataJmxTest {
         final String msg = subject.refreshCache("comment");
         assertThat(msg, is("Refreshed caches"));
 
-        verify(authoritativeResourceData).refreshAuthoritativeResourceCache();
+        verify(authoritativeResourceRefreshTask).refreshGrsAuthoritativeResourceCaches();
     }
 
     @Test

@@ -9,9 +9,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Optional;
+
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -34,6 +37,8 @@ public class BriefAbuseCFunctionTest {
                 "source: QUX\n" +
                 "abuse-mailbox: abuse@me.now");
 
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.empty());
+
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
                 "inetnum:        10.0.0.0\n" +
@@ -47,6 +52,8 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: QUX\n" +
                 "abuse-mailbox: abuse@me.now");
+
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.empty());
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
@@ -86,7 +93,12 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: RIPE\n" +
                 "abuse-mailbox: abuse@me.now");
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn("abusec@ripe.net");
+        final RpslObject abuseRole = RpslObject.parse("role: Abuse Role\n" +
+                "nic-hdl: AA1-TEST\n" +
+                "abuse-mailbox: abusec@ripe.net"
+        );
+
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(abuseRole, false, ciString(""))));
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
@@ -101,7 +113,12 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: RIPE\n" +
                 "abuse-mailbox: abuse@me.now");
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn("abuse@ripe.net");
+        final RpslObject abuseRole = RpslObject.parse("role: Abuse Role\n" +
+                "nic-hdl: AA1-TEST\n" +
+                "abuse-mailbox: abuse@ripe.net"
+        );
+
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(abuseRole, false, ciString(""))));
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +
@@ -116,6 +133,8 @@ public class BriefAbuseCFunctionTest {
                 "mnt-by:   BAR\n" +
                 "source: QUX\n" +
                 "abuse-mailbox: abuse@me.now");
+
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.empty());
 
         final ResponseObject response = subject.apply(rpslObject);
         assertThat(response.toString(), is("" +

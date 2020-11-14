@@ -6,15 +6,21 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,19 +29,34 @@ import java.util.Set;
 
 @Component
 public class DnsChecker {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DnsChecker.class);
     private static final List<AttributeType> DNSCHECKER_ATTRIBUTES = ImmutableList.of(AttributeType.DOMAIN, AttributeType.NSERVER, AttributeType.DS_RDATA);
 
     private final DnsGateway dnsGateway;
     private final LoggerContext loggerContext;
 
+    private final boolean dnsCheckEnabled;
+
     @Autowired
-    public DnsChecker(final DnsGateway dnsGateway, final LoggerContext loggerContext) {
+    public DnsChecker(final DnsGateway dnsGateway,
+                      final LoggerContext loggerContext,
+                      @Value("${whois.zonemaster.baseUrl:}") final String baseUrl) {
         this.dnsGateway = dnsGateway;
         this.loggerContext = loggerContext;
+        dnsCheckEnabled = StringUtils.isNotBlank(baseUrl);
+
+        if (!dnsCheckEnabled) {
+            LOGGER.info("DNS check is disabled");
+        }
     }
 
     public void checkAll(final UpdateRequest updateRequest, final UpdateContext updateContext) {
+
+        if (!dnsCheckEnabled) {
+            return;
+        }
+
         Set<DnsCheckRequest> dnsCheckRequestSet = Sets.newLinkedHashSet();
 
         for (Update update : updateRequest.getUpdates()) {

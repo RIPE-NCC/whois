@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -29,7 +29,7 @@ public class ReservedWordValidatorTest {
 
     @Test
     public void getActions() {
-        assertThat(subject.getActions(), containsInAnyOrder(Action.CREATE, Action.MODIFY));
+        assertThat(subject.getActions(), containsInAnyOrder(Action.CREATE));
     }
 
     @Test

@@ -23,7 +23,7 @@ import static net.ripe.db.whois.common.sso.CrowdClient.CrowdResponse;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdSession;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdUser;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,6 +46,7 @@ public class CrowdClientTest {
         when(client.target(anyString())).thenReturn(webTarget);
         when(webTarget.path(anyString())).thenReturn(webTarget);
         when(webTarget.queryParam(anyString(), anyVararg())).thenReturn(webTarget);
+        when(webTarget.request(any(String.class))).thenReturn(builder);
         when(webTarget.request()).thenReturn(builder);
 
         subject = new CrowdClient("http://testurl", "crowduser", "crowdpassword");
@@ -130,6 +131,29 @@ public class CrowdClientTest {
     }
 
     @Test
+    public void get_display_name_success() {
+        when(builder.get(CrowdClient.CrowdUsers.class))
+                .then(invocation -> new CrowdClient.CrowdUsers(
+                        Arrays.asList(new CrowdClient.CrowdUser("test@ripe.net", "Test User", true)))
+                );
+
+        assertThat(subject.getDisplayName("uuid"), is("Test User"));
+    }
+
+    @Test
+    public void get_display_name_not_found() {
+        when(builder.get(CrowdClient.CrowdUsers.class)).then(invocation -> {throw new NotFoundException("message");});
+
+        try {
+            subject.getDisplayName("madeup-uuid");
+            fail();
+        } catch (CrowdClientException expected) {
+            assertThat(expected.getMessage(), is("Unknown RIPE NCC Access uuid: madeup-uuid"));
+        }
+    }
+
+
+    @Test
     public void get_uuid_success() {
         when(builder.get(CrowdResponse.class)).then(invocation ->
                 new CrowdResponse(Lists.newArrayList(
@@ -138,6 +162,7 @@ public class CrowdClientTest {
 
         assertThat(subject.getUuid("test@ripe.net"), is("1-2-3-4"));
     }
+
 
     @Test
     public void get_uuid_not_found() {

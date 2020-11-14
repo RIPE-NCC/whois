@@ -15,7 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
@@ -238,5 +239,67 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
     public void brief_query_shows_abusemailbox_twice() {
         final String briefResponse = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-b 193.0.0.0");
         assertThat(briefResponse, not(containsString("notshown@abuse.net")));
+    }
+    @Test
+    public void should_not_lookup_abuseC_if_rpsl_source_do_not_match() {
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        NON-TEST"));
+
+        final String responseNoAbuseC = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        assertFalse(responseNoAbuseC.contains("Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        TEST"));
+
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
+
+    }
+
+    @Test
+    public void should_lookup_abuseC_for_non_auth() {
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        TEST-NONAUTH"));
+
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        TEST"));
+
+    }
+
+    @Test
+    public void should_lookup_abuseC_for_ripe_grs() {
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        TEST-GRS"));
+
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
+        assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
+
+        databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
+                "org:           ORG-TEST-1\n" +
+                "netname:       NN\n" +
+                "status:        OTHER\n" +
+                "source:        TEST"));
+
     }
 }

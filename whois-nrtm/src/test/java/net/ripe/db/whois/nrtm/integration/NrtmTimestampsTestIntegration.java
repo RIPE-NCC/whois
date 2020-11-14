@@ -9,13 +9,13 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         nrtmServer.start();
     }
 

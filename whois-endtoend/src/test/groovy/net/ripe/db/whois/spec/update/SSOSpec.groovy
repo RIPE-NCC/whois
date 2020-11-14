@@ -1,11 +1,12 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.EndToEndTest
+
+
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 
-// TODO: [AH] switch this to IntegrationTest once we got the crowd server dummy instead of the real thing in testlab/prepdev
-@org.junit.experimental.categories.Category(EndToEndTest.class)
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class SSOSpec extends BaseQueryUpdateSpec {
 
     @Override

@@ -28,6 +28,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -212,7 +213,7 @@ public class MessageDequeue implements ApplicationService {
             LOGGER.debug("Unable to parse Message-Id: {}", headers[0]);
         }
 
-        return "No-Message-Id." + dateTimeProvider.getNanoTime();
+        return "No-Message-Id." + dateTimeProvider.getElapsedTime();
     }
 
     private void handleMessageInContext(final String messageId, final MimeMessage message) throws MessagingException, IOException {
@@ -220,6 +221,7 @@ public class MessageDequeue implements ApplicationService {
         mailMessageDao.setStatus(messageId, DequeueStatus.LOGGED);
 
         final UpdateContext updateContext = new UpdateContext(loggerContext);
+        updateContext.setClientCertificate(Optional.empty());
         final MailMessage mailMessage = messageParser.parse(message, updateContext);
         mailMessageDao.setStatus(messageId, DequeueStatus.PARSED);
 

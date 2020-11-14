@@ -1,16 +1,15 @@
 package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
-@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
+@Profile({WhoisProfile.TEST})
 @Component
 public class TestDateTimeProvider implements DateTimeProvider, Stub {
     private LocalDateTime localDateTime = LocalDateTime.now();
@@ -31,20 +30,15 @@ public class TestDateTimeProvider implements DateTimeProvider, Stub {
     }
 
     @Override
-    public DateTime getCurrentDateTimeUtc() {
-        return getCurrentDateTime().toDateTime(DateTimeZone.UTC);
+    public ZonedDateTime getCurrentDateTimeUtc() {
+        return getCurrentDateTime().atZone(ZoneOffset.UTC);
     }
 
-    @Override
-    public long getNanoTime() {
-        return getCurrentDateTime().toDateTime().getMillis();
+    public long getElapsedTime() {
+        return 100L;    // return a predictable non-zero value that's testable
     }
 
-    public void setTime(LocalDateTime dateTime) {
+    public void setTime(final LocalDateTime dateTime) {
         localDateTime = dateTime;
-    }
-
-    public void setNanoTime(long nanoTime) {
-        localDateTime = LocalDateTime.fromDateFields(new Date(nanoTime));
     }
 }

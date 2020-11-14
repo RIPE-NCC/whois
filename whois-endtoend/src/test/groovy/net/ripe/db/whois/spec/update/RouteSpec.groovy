@@ -1370,4 +1370,67 @@ class RouteSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
 
+    def "create route, hole outside prefix range"() {
+        when:
+            def message = send new Message(
+                    subject: "",
+                    body: """\
+                    route:          10.1.224.0/21
+                    holes:          10.1.0.0/16
+                    descr:          Route
+                    origin:         AS1000
+                    mnt-by:         OWNER-MNT
+                    source:         TEST
+    
+                    password:   owner
+                    password:   owner3
+                    """.stripIndent()
+            )
+
+        then:
+            def ack = ackFor message
+
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
+
+            ack.countErrorWarnInfo(1, 0, 0)
+            ack.errors.any { it.operation == "Create" && it.key == "[route] 10.1.224.0/21AS1000" }
+            ack.errorMessagesFor("Create", "[route] 10.1.224.0/21AS1000") ==
+                    ["10.1.0.0/16 is outside the range of this object"]
+
+            queryObjectNotFound("-rGBT route 10.1.224.0/21AS1000", "route", "10.1.224.0/21AS1000")
+    }
+
+    def "create route, hole has invalid prefix length"() {
+        when:
+            def message = send new Message(
+                    subject: "",
+                    body: """\
+                    route:          10.1.224.0/21
+                    holes:          10.1.226.0/21
+                    descr:          Route
+                    origin:         AS1000
+                    mnt-by:         OWNER-MNT
+                    source:         TEST
+    
+                    password:   owner
+                    password:   owner3
+                    """.stripIndent()
+            )
+
+        then:
+            def ack = ackFor message
+
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
+
+            ack.countErrorWarnInfo(1, 0, 0)
+            ack.errors.any { it.operation == "Create" && it.key == "[route] 10.1.224.0/21AS1000" }
+            ack.errorMessagesFor("Create", "[route] 10.1.224.0/21AS1000") ==
+                    ["Syntax error in 10.1.226.0/21"]
+
+            queryObjectNotFound("-rGBT route 10.1.224.0/21AS1000", "route", "10.1.224.0/21AS1000")
+    }
 }

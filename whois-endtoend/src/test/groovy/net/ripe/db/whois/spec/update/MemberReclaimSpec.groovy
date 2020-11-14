@@ -1160,10 +1160,12 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Deleting this object requires administrative authorisation"]
+        ack.warningMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["Status ALLOCATED UNSPECIFIED not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED PA"]
 
         queryObject("-rx -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
     }

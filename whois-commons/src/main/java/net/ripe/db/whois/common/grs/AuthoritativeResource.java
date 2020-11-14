@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.grs;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -49,7 +48,7 @@ public class AuthoritativeResource {
     }
 
     public static AuthoritativeResource unknown() {
-        return new AuthoritativeResource(new SortedRangeSet<Asn, AsnRange>(), new SortedRangeSet<Ipv4, Ipv4Range>(), new SortedRangeSet<Ipv6, Ipv6Range>());
+        return new AuthoritativeResource(new SortedRangeSet<>(), new SortedRangeSet<>(), new SortedRangeSet<>());
     }
 
     public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
@@ -165,30 +164,15 @@ public class AuthoritativeResource {
     }
 
     public Iterable<String> findAutnumOverlaps(AuthoritativeResource other) {
-        return Iterables.transform(this.autNums.intersection(other.autNums), new Function<AsnRange, String>() {
-            @Override
-            public String apply(final AsnRange input) {
-                return input.toString();
-            }
-        });
+        return Iterables.transform(this.autNums.intersection(other.autNums), input -> input.toString());
     }
 
     public Iterable<String> findInetnumOverlaps(AuthoritativeResource other) {
-        return Iterables.transform(this.inetRanges.intersection(other.inetRanges), new Function<Ipv4Range, String>() {
-            @Override
-            public String apply(final Ipv4Range input) {
-                return input.toStringInRangeNotation();
-            }
-        });
+        return Iterables.transform(this.inetRanges.intersection(other.inetRanges), input -> input.toStringInRangeNotation());
     }
 
     public Iterable<String> findInet6numOverlaps(AuthoritativeResource other) {
-        return Iterables.transform(this.inet6Ranges.intersection(other.inet6Ranges), new Function<Ipv6Range, String>() {
-            @Override
-            public String apply(final Ipv6Range input) {
-                return input.toStringInCidrNotation();
-            }
-        });
+        return Iterables.transform(this.inet6Ranges.intersection(other.inet6Ranges), input -> input.toStringInCidrNotation());
     }
 
     @Override
@@ -209,32 +193,12 @@ public class AuthoritativeResource {
     }
 
     public List<String> getResources() {
-        return Lists.newArrayList(Iterables.concat(
-                Iterables.transform(autNums, new Function<AsnRange, String>() {
-                    @Override
-                    public String apply(AsnRange input) {
-                        return input.toString();
-                    }
-                }),
-                Iterables.transform(inetRanges, new Function<Ipv4Range, String>() {
-                    @Override
-                    public String apply(Ipv4Range input) {
-                        return input.toStringInRangeNotation();
-                    }
-                }),
-                Iterables.transform(
-                        Iterables.concat(Iterables.transform(inet6Ranges, new Function<Ipv6Range, List<Ipv6Range>>() {
-                            @Override
-                            public List<Ipv6Range> apply(Ipv6Range input) {
-                                return input.splitToPrefixes();
-                            }
-                        })), new Function<Ipv6Range, String>() {
-                            @Override
-                            public String apply(Ipv6Range input) {
-                                return input.toStringInCidrNotation();
-                            }
-                        })
-                ));
+        return Lists.newArrayList(
+            Iterables.concat(
+                Iterables.transform(autNums, input -> input.toString()),
+                Iterables.transform(inetRanges, input -> input.toStringInRangeNotation()),
+                Iterables.transform(Iterables.<Ipv6Range>concat(Iterables.transform(inet6Ranges, input -> input.splitToPrefixes())), input -> input.toStringInCidrNotation())
+            ));
     }
 }
 

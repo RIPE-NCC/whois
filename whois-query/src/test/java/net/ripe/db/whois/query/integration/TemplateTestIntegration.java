@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
@@ -248,16 +248,12 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     Status can have one of these values:\n" +
                 "     \n" +
                 "     o ALLOCATED PA\n" +
-                "     o ALLOCATED PI\n" +
                 "     o ALLOCATED UNSPECIFIED\n" +
                 "     o LIR-PARTITIONED PA\n" +
-                "     o LIR-PARTITIONED PI\n" +
                 "     o SUB-ALLOCATED PA\n" +
                 "     o ASSIGNED PA\n" +
                 "     o ASSIGNED PI\n" +
                 "     o ASSIGNED ANYCAST\n" +
-                "     o EARLY-REGISTRATION\n" +
-                "     o NOT-SET\n" +
                 "     o LEGACY\n" +
                 "\n" +
                 "remarks\n" +
@@ -434,7 +430,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
                 "status:         [generated]  [single]     [ ]\n" +
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
-                "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
@@ -667,34 +662,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "   whois output.\n" +
                 "\n" +
                 "     An e-mail address as defined in RFC 2822.\n" +
-                "\n" +
-                "mnt-lower\n" +
-                "\n" +
-                "   Specifies the identifier of a registered mntner object used for\n" +
-                "   hierarchical authorisation. Protects creation of objects directly (one\n" +
-                "   level) below in the hierarchy of an object type. The authentication\n" +
-                "   method of this maintainer object will then be used upon creation of\n" +
-                "   any object directly below the object that contains the \"mnt-lower:\"\n" +
-                "   attribute.\n" +
-                "\n" +
-                "     Made up of letters, digits, the character underscore \"_\",\n" +
-                "     and the character hyphen \"-\"; the first character of a name\n" +
-                "     must be a letter, and the last character of a name must be a\n" +
-                "     letter or a digit.  The following words are reserved by\n" +
-                "     RPSL, and they can not be used as names:\n" +
-                "     \n" +
-                "      any as-any rs-any peeras and or not atomic from to at\n" +
-                "      action accept announce except refine networks into inbound\n" +
-                "      outbound\n" +
-                "     \n" +
-                "     Names starting with certain prefixes are reserved for\n" +
-                "     certain object types.  Names starting with \"as-\" are\n" +
-                "     reserved for as set names.  Names starting with \"rs-\" are\n" +
-                "     reserved for route set names.  Names starting with \"rtrs-\"\n" +
-                "     are reserved for router set names. Names starting with\n" +
-                "     \"fltr-\" are reserved for filter set names. Names starting\n" +
-                "     with \"prng-\" are reserved for peering set names. Names\n" +
-                "     starting with \"irt-\" are reserved for irt names.\n" +
                 "\n" +
                 "mnt-by\n" +
                 "\n" +

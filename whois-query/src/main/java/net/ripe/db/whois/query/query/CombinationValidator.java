@@ -12,7 +12,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static net.ripe.db.whois.query.QueryFlag.*;
+import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
+import static net.ripe.db.whois.query.QueryFlag.ALL_SOURCES;
+import static net.ripe.db.whois.query.QueryFlag.BRIEF;
+import static net.ripe.db.whois.query.QueryFlag.CLIENT;
+import static net.ripe.db.whois.query.QueryFlag.DIFF_VERSIONS;
+import static net.ripe.db.whois.query.QueryFlag.INVERSE;
+import static net.ripe.db.whois.query.QueryFlag.LIST_VERSIONS;
+import static net.ripe.db.whois.query.QueryFlag.NO_FILTERING;
+import static net.ripe.db.whois.query.QueryFlag.NO_REFERENCED;
+import static net.ripe.db.whois.query.QueryFlag.NO_TAG_INFO;
+import static net.ripe.db.whois.query.QueryFlag.NO_VALID_SYNTAX;
+import static net.ripe.db.whois.query.QueryFlag.PERSISTENT_CONNECTION;
+import static net.ripe.db.whois.query.QueryFlag.PRIMARY_KEYS;
+import static net.ripe.db.whois.query.QueryFlag.RESOURCE;
+import static net.ripe.db.whois.query.QueryFlag.SELECT_TYPES;
+import static net.ripe.db.whois.query.QueryFlag.SHOW_TAG_INFO;
+import static net.ripe.db.whois.query.QueryFlag.SHOW_VERSION;
+import static net.ripe.db.whois.query.QueryFlag.SOURCES;
+import static net.ripe.db.whois.query.QueryFlag.VALID_SYNTAX;
 
 class CombinationValidator implements QueryValidator {
     private static final Map<QueryFlag, List<QueryFlag>> INVALID_COMBINATIONS = Maps.newLinkedHashMap();

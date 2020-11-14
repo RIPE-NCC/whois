@@ -5,12 +5,11 @@ import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +21,9 @@ public class Fixture {
     public static BlockEvents createBlockEvents(final String prefix, final int count) {
         final List<BlockEvent> blockEventList = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            final LocalDateTime time = new LocalDate().toLocalDateTime(new LocalTime(0, i));
+            final LocalDateTime time = LocalDateTime.now()
+                                            .with(ChronoField.HOUR_OF_DAY, 0)
+                                            .with(ChronoField.MINUTE_OF_HOUR, i);
             blockEventList.add(new BlockEvent(time, 5000, BlockEvent.Type.BLOCK_TEMPORARY));
         }
 

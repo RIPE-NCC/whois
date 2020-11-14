@@ -5,10 +5,10 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.transfer.TransferFailedException;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.source.IllegalSourceException;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +29,8 @@ import java.util.List;
 @Component
 public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExceptionMapper.class);
+
+    private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
     @Override
     public Response toResponse(final Exception exception) {
@@ -62,12 +64,11 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         if (exception instanceof QueryException) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
-        }
+            if (((QueryException) exception).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+                return Response.status(STATUS_TOO_MANY_REQUESTS).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
+            }
 
-        if( exception instanceof TransferFailedException ) {
-            TransferFailedException exc = (TransferFailedException)exception;
-            return Response.status(exc.getStatus()).entity(createErrorEntity(exception.getMessage())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
         }
 
         LOGGER.error("Unexpected", exception);
