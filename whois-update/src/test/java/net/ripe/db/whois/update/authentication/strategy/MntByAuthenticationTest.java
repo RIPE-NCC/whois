@@ -19,7 +19,6 @@ import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -276,12 +275,7 @@ public class MntByAuthenticationTest {
         when(credentialValidators.authenticate(
                 eq(update),
                 eq(updateContext),
-                argThat(new ArgumentMatcher<Collection<RpslObject>>() {
-                    @Override
-                    public boolean matches(final Collection<RpslObject> argument) {
-                        return ((Collection<RpslObject>) argument).containsAll(parentCandidates);
-                    }
-                }))).thenReturn(parentCandidates);
+                argThat(argument -> argument.containsAll(parentCandidates)))).thenReturn(parentCandidates);
 
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated, is(parentCandidates));

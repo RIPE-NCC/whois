@@ -10,7 +10,6 @@ import org.jboss.netty.channel.UpstreamChannelStateEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -71,12 +70,7 @@ public class NrtmConnectionPerIpLimitHandlerTest {
         subject.handleUpstream(ctx, openEvent);
 
         verify(ctx, times(2)).sendUpstream(openEvent);
-        verify(channel, times(1)).write(argThat(new ArgumentMatcher<Object>() {
-            @Override
-            public boolean matches(Object argument) {
-                return NrtmMessages.connectionsExceeded(MAX_CONNECTIONS_PER_IP).equals(argument);
-            }
-        }));
+        verify(channel, times(1)).write(argThat(argument -> NrtmMessages.connectionsExceeded(MAX_CONNECTIONS_PER_IP).equals(argument)));
         verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
         verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
         verify(ctx, times(2)).sendUpstream(openEvent);

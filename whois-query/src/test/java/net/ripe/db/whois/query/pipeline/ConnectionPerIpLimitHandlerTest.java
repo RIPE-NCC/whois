@@ -15,7 +15,6 @@ import org.jboss.netty.channel.UpstreamChannelStateEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -83,12 +82,7 @@ public class ConnectionPerIpLimitHandlerTest {
         subject.handleUpstream(ctx, openEvent);
 
         verify(ctx, times(2)).sendUpstream(openEvent);
-        verify(channel, times(1)).write(argThat(new ArgumentMatcher<Object>() {
-            @Override
-            public boolean matches(Object argument) {
-                return QueryMessages.connectionsExceeded(MAX_CONNECTIONS_PER_IP).equals(argument);
-            }
-        }));
+        verify(channel, times(1)).write(argThat(argument -> QueryMessages.connectionsExceeded(MAX_CONNECTIONS_PER_IP).equals(argument)));
         verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
         verify(whoisLog).logQueryResult(anyString(), eq(0), eq(0), eq(QueryCompletionInfo.REJECTED), eq(0L), any(), Mockito.anyInt(), eq(""));
         verify(ctx, times(2)).sendUpstream(openEvent);
