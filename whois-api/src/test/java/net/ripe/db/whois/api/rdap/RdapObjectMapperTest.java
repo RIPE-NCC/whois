@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyIterable;
