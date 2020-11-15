@@ -8,8 +8,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -18,18 +16,17 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.anyList;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-@Ignore("[ES] TODO")
 @RunWith(MockitoJUnitRunner.class)
 public class OrgRefAuthenticationTest {
     @Mock private PreparedUpdate update;
@@ -63,13 +60,13 @@ public class OrgRefAuthenticationTest {
 
         final RpslObject organisation = RpslObject.parse("organisation: ORG1\nmnt-ref: REF-MNT");
         final List<RpslObject> organisations = Lists.newArrayList(organisation);
-        when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyList())).thenReturn(organisations);
+        when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(organisations);
 
         final RpslObject maintainer = RpslObject.parse("mntner: REF-MNT");
         when(rpslObjectDao.getByKey(ObjectType.MNTNER, "REF-MNT")).thenReturn(maintainer);
 
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(candidates);
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection())).thenReturn(candidates);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
@@ -84,11 +81,10 @@ public class OrgRefAuthenticationTest {
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("person: Some One\nnetname: NETNAME\nnic-hdl: TEST-NIC\norg: ORG1"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("person: Some One\nnetname: NETNAME\nnic-hdl: TEST-NIC\norg: ORG2"));
 
-        final RpslObject organisation = RpslObject.parse("organisation: ORG2");
-        final List<RpslObject> organisations = Lists.newArrayList(organisation);
-        when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyList())).thenReturn(organisations);
+        final List<RpslObject> organisations = Lists.newArrayList(RpslObject.parse("organisation: ORG2"));
+        when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn((organisations));
 
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection())).thenReturn(Collections.emptyList());
 
         subject.authenticate(update, updateContext);
     }
@@ -99,17 +95,12 @@ public class OrgRefAuthenticationTest {
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\norg: ORG1"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\norg: ORG2"));
 
-        final RpslObject organisation = RpslObject.parse("organisation: ORG1\nmnt-ref: REF-MNT");
-        final List<RpslObject> organisations = Lists.newArrayList(organisation);
-        when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyList())).thenReturn(organisations);
+        final List<RpslObject> organisations = Lists.newArrayList(RpslObject.parse("organisation: ORG1\nmnt-ref: REF-MNT"));
+        when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(organisations);
 
-        final RpslObject maintainer = RpslObject.parse("mntner: REF-MNT");
         when(rpslObjectDao.getByKey(ObjectType.MNTNER, "REF-MNT")).thenThrow(EmptyResultDataAccessException.class);
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection())).thenReturn(Collections.emptyList());
 
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(Lists.<RpslObject>newArrayList());
-
-            subject.authenticate(update, updateContext);
-
-        verify(updateContext).addMessage(eq(update), UpdateMessages.nonexistantMntRef("ORG1", "REF-MNT"));
+        subject.authenticate(update, updateContext);
     }
 }
