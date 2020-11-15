@@ -6,17 +6,16 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -26,7 +25,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Ignore("[ES] TODO")
 @RunWith(MockitoJUnitRunner.class)
 public class ResourceTaggerTest {
     @Mock SourceConfiguration sourceConfiguration;
@@ -62,15 +60,14 @@ public class ResourceTaggerTest {
 
     @Test
     public void tagObjects_cleans_up() {
-        doThrow(SQLException.class).when(tagsDao).updateTags(any(Iterable.class), any(List.class), any(List.class));
+        doThrow(UncategorizedSQLException.class).when(tagsDao).updateTags(any(Iterable.class), any(List.class), any(List.class));
 
         try {
             subject.tagObjects(grsSource);
             fail("Expected exception");
         } catch (Exception ignored) {
+            verify(sourceContext).setCurrent(any(Source.class));
+            verify(sourceContext).removeCurrentSource();
         }
-
-        verify(sourceContext).setCurrent(any(Source.class));
-        verify(sourceContext).removeCurrentSource();
     }
 }
