@@ -26,11 +26,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyIterable;
@@ -290,9 +292,16 @@ public class RdapObjectMapperTest {
         assertThat(result.getUnicodeName(), is(nullValue()));
 
         assertThat(result.getNameservers(), hasSize(2));
-        assertThat(result.getNameservers().get(0).getLdhName(), is("ns.1.net"));
-        assertThat(result.getNameservers().get(1).getLdhName(), is("ns.foo.net.0.0.193.in-addr.arpa"));
-        assertThat(result.getNameservers().get(1).getIpAddresses().getIpv4().get(0), is("10.0.0.0/32"));
+        List<String> NameServersList = new ArrayList<String> ();
+        NameServersList.add(result.getNameservers().get(0).getLdhName());
+        NameServersList.add(result.getNameservers().get(1).getLdhName());
+        assertThat(NameServersList, containsInAnyOrder("ns.1.net", "ns.foo.net.0.0.193.in-addr.arpa"));
+        if(result.getNameservers().get(0).getIpAddresses() != null){
+            assertThat(result.getNameservers().get(0).getIpAddresses().getIpv4().get(0), is("10.0.0.0/32"));
+        }
+        else{
+            assertThat(result.getNameservers().get(1).getIpAddresses().getIpv4().get(0), is("10.0.0.0/32"));
+        }
 
         final Domain.SecureDNS secureDNS = result.getSecureDNS();
         assertThat(secureDNS.isDelegationSigned(), is(true));
