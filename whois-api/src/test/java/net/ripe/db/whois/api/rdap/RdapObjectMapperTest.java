@@ -291,16 +291,12 @@ public class RdapObjectMapperTest {
         assertThat(result.getUnicodeName(), is(nullValue()));
 
         assertThat(result.getNameservers(), hasSize(2));
-        List<String> NameServersList = new ArrayList<String> ();
-        NameServersList.add(result.getNameservers().get(0).getLdhName());
-        NameServersList.add(result.getNameservers().get(1).getLdhName());
-        assertThat(NameServersList, containsInAnyOrder("ns.1.net", "ns.foo.net.0.0.193.in-addr.arpa"));
-        if(result.getNameservers().get(0).getIpAddresses() != null){
-            assertThat(result.getNameservers().get(0).getIpAddresses().getIpv4().get(0), is("10.0.0.0/32"));
-        }
-        else{
-            assertThat(result.getNameservers().get(1).getIpAddresses().getIpv4().get(0), is("10.0.0.0/32"));
-        }
+        List<String> nameServersList = new ArrayList<>();
+        nameServersList.add(result.getNameservers().get(0).getLdhName());
+        nameServersList.add(result.getNameservers().get(1).getLdhName());
+        assertThat(nameServersList, containsInAnyOrder("ns.1.net", "ns.foo.net.0.0.193.in-addr.arpa"));
+        int index = (result.getNameservers().get(0).getIpAddresses() != null) ? 0 : 1; 
+        assertThat(result.getNameservers().get(index).getIpAddresses().getIpv4().get(0), is("10.0.0.0/32"));
 
         final Domain.SecureDNS secureDNS = result.getSecureDNS();
         assertThat(secureDNS.isDelegationSigned(), is(true));
