@@ -98,10 +98,6 @@
             <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
     </dependencies>
     <build>
         <resources>
