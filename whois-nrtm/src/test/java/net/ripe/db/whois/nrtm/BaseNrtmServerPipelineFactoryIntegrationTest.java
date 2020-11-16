@@ -57,6 +57,8 @@ public class BaseNrtmServerPipelineFactoryIntegrationTest extends AbstractNrtmIn
                             return;
                         } else if (fieldName.startsWith("$jacoco")) { // added by sonar
                             return;
+                        } else if (fieldName.startsWith("ajc$")) {  // aspectj
+                            return;
                         }
 
                         if (handlerIsShared) {
