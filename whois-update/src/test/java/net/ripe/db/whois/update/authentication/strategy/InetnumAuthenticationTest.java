@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -89,7 +89,7 @@ public class InetnumAuthenticationTest {
 
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(lowerMaintainer));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class InetnumAuthenticationTest {
 
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(maintainer));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test(expected = AuthenticationFailedException.class)
@@ -151,7 +151,7 @@ public class InetnumAuthenticationTest {
 
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(maintainer));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test

@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthoritativeResourceDataJmxTest {
@@ -41,7 +41,7 @@ public class AuthoritativeResourceDataJmxTest {
         final String msg = subject.checkOverlaps(file.getAbsolutePath(), "");
         assertThat(msg, startsWith("Abort, file already exists"));
 
-        verifyZeroInteractions(authoritativeResourceDataValidator);
+        verifyNoMoreInteractions(authoritativeResourceDataValidator);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class AuthoritativeResourceDataJmxTest {
         final String msg = subject.checkOverlaps(file.getAbsolutePath(), "");
         assertThat(msg, startsWith("Failed writing to: /some/unexisting/dir/overlaps"));
 
-        verifyZeroInteractions(authoritativeResourceDataValidator);
+        verifyNoMoreInteractions(authoritativeResourceDataValidator);
     }
 
     @Test

@@ -37,7 +37,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -67,7 +67,7 @@ public class MntByAuthenticationTest {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         assertThat(subject.supports(update), is(true));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -87,8 +87,8 @@ public class MntByAuthenticationTest {
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(maintainer));
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test(expected = AuthenticationFailedException.class)
@@ -130,8 +130,8 @@ public class MntByAuthenticationTest {
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(mntner));
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -154,7 +154,7 @@ public class MntByAuthenticationTest {
         final List<RpslObject> authenticate = subject.authenticate(update, updateContext);
         assertThat(authenticate, is(candidates));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -167,12 +167,12 @@ public class MntByAuthenticationTest {
         when(update.getUpdatedObject()).thenReturn(updated);
         when(update.getType()).thenReturn(ObjectType.PERSON);
 
-        verifyZeroInteractions(rpslObjectDao, credentialValidators);
+        verifyNoMoreInteractions(rpslObjectDao, credentialValidators);
 
         final List<RpslObject> authenticate = subject.authenticate(update, updateContext);
         assertThat(authenticate, hasSize(0));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -200,7 +200,7 @@ public class MntByAuthenticationTest {
             assertThat(e.getAuthenticationMessages(), contains(UpdateMessages.authenticationFailed(inetnum, AttributeType.MNT_BY, Lists.newArrayList(maintainer))));
         }
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test

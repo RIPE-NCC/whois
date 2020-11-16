@@ -22,7 +22,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,7 +58,7 @@ public class MemberOfValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class MemberOfValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class MemberOfValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class MemberOfValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class MemberOfValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class MemberOfValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class MemberOfValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -165,7 +165,7 @@ public class MemberOfValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
 
@@ -178,7 +178,7 @@ public class MemberOfValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -202,6 +202,6 @@ public class MemberOfValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 }

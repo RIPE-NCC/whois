@@ -26,7 +26,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GrsSourceTest {
@@ -63,7 +63,7 @@ public class GrsSourceTest {
 
         subject.handleLines(reader, lineHandler);
 
-        verifyZeroInteractions(lineHandler);
+        verifyNoMoreInteractions(lineHandler);
     }
 
     @Test

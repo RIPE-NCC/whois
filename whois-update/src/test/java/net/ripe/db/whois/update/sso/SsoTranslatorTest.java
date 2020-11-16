@@ -16,7 +16,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,7 +40,7 @@ public class SsoTranslatorTest {
 
         final RpslObject result = subject.translateFromCacheAuthToUuid(updateContext, object);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
         assertThat(result, is(object));
     }
 
@@ -82,7 +82,7 @@ public class SsoTranslatorTest {
 
         subject.populateCacheAuthToUuid(updateContext, update);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class SsoTranslatorTest {
 
         subject.populateCacheAuthToUuid(updateContext, update);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test

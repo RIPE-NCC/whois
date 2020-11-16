@@ -32,7 +32,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -74,7 +74,7 @@ public class KeycertValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test

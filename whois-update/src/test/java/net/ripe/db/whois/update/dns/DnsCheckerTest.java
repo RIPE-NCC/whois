@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,7 +54,7 @@ public class DnsCheckerTest {
         when(update.getOperation()).thenReturn(Operation.DELETE);
         subject.checkAll(updateRequest, updateContext);
 
-        verifyZeroInteractions(dnsGateway);
+        verifyNoMoreInteractions(dnsGateway);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class DnsCheckerTest {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         subject.checkAll(updateRequest, updateContext);
 
-        verifyZeroInteractions(dnsGateway);
+        verifyNoMoreInteractions(dnsGateway);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class DnsCheckerTest {
         when(update.isOverride()).thenReturn(true);
         subject.checkAll(updateRequest, updateContext);
 
-        verifyZeroInteractions(dnsGateway);
+        verifyNoMoreInteractions(dnsGateway);
     }
 
     @Test
@@ -152,6 +152,6 @@ public class DnsCheckerTest {
 
         subject.checkAll(updateRequest, updateContext);
 
-        verifyZeroInteractions(dnsGateway);
+        verifyNoMoreInteractions(dnsGateway);
     }
 }

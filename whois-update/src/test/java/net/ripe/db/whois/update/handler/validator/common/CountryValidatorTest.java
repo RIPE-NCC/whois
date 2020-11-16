@@ -15,7 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -34,7 +34,7 @@ public class CountryValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
