@@ -19,12 +19,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.eq;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.verify;
@@ -71,7 +71,6 @@ public class SetnameMustExistValidatorTest {
 
     @Test
     public void validate_no_hiearchy() {
-        when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: FLTR-ND"));
 
         subject.validate(update, updateContext);
@@ -94,8 +93,6 @@ public class SetnameMustExistValidatorTest {
     @Test
     public void validate_autnum_lookup_does_not_exist_with_override() {
         when(updateSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
-        when(update.getType()).thenReturn(ObjectType.AS_SET);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-set: AS101:AS-TEST"));
 
         subject.validate(update, updateContext);
 

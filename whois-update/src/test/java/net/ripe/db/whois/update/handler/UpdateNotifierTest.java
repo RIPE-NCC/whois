@@ -18,10 +18,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 public class UpdateNotifierTest {
     @Mock UpdateRequest updateRequest;
     @Mock UpdateContext updateContext;
+    @Mock Origin origin;
 
     @Mock RpslObjectDao rpslObjectDao;
     @Mock ResponseFactory responseFactory;
@@ -42,7 +43,7 @@ public class UpdateNotifierTest {
 
     @Test
     public void sendNotifications_empty() {
-        when(updateRequest.getUpdates()).thenReturn(Lists.<Update>newArrayList());
+        when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList());
 
         subject.sendNotifications(updateRequest, updateContext);
 
@@ -78,6 +79,7 @@ public class UpdateNotifierTest {
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, rpslObject, Action.CREATE);
 
         when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
+        when(updateRequest.getOrigin()).thenReturn(origin);
         when(updateContext.getPreparedUpdate(update)).thenReturn(preparedUpdate);
         when(updateContext.getStatus(preparedUpdate)).thenReturn(UpdateStatus.SUCCESS);
         ResponseMessage responseMessage = new ResponseMessage("Notification of RIPE Database changes", "message");
@@ -109,7 +111,6 @@ public class UpdateNotifierTest {
         when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
         when(updateContext.getPreparedUpdate(update)).thenReturn(preparedUpdate);
         when(updateContext.getStatus(preparedUpdate)).thenReturn(UpdateStatus.SUCCESS);
-        when(responseFactory.createNotification(eq(updateContext), any(Origin.class), any(Notification.class))).thenReturn(responseMessage);
 
         subject.sendNotifications(updateRequest, updateContext);
 

@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -14,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.mockito.Mockito.any;
@@ -24,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndUserMaintainerChecksTest {
@@ -36,7 +36,6 @@ public class EndUserMaintainerChecksTest {
 
     @Before
     public void setup() {
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(maintainers.isEnduserMaintainer(ciSet("TEST-MNT"))).thenReturn(false);
     }
 
@@ -55,7 +54,6 @@ public class EndUserMaintainerChecksTest {
 
     @Test
     public void modify_has_no_endusermntner_override() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-by: TEST-MNT"));
         when(updateContext.getSubject(update)).thenReturn(principalSubject);
         when(principalSubject.hasPrincipal(any(Principal.class))).thenReturn(true);
 
@@ -67,9 +65,8 @@ public class EndUserMaintainerChecksTest {
 
     @Test
     public void modify_succeeds() {
-        when(principalSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-by: END-MNT"));
         when(updateContext.getSubject(update)).thenReturn(principalSubject);
+        when(principalSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);
 

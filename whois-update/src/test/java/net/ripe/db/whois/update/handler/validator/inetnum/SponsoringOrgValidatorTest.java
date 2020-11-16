@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;

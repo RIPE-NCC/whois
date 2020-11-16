@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -87,13 +87,7 @@ public class DeleteRsMaintainedObjectValidatorTest {
 
     @Test
     public void validate_no_rs_auth_rs_maintainer_override() {
-        when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
-
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
-                "mntner: DEV-MNT\n" +
-                "mnt-by: DEV-MNT\n" +
-                "mnt-by: RS-MNT\n"));
 
         subject.validate(update, updateContext);
 
@@ -104,11 +98,6 @@ public class DeleteRsMaintainedObjectValidatorTest {
     @Test
     public void validate_rs_auth_rs_maintainer() {
         when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
-
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
-                "mntner: DEV-MNT\n" +
-                "mnt-by: DEV-MNT\n" +
-                "mnt-by: RS-MNT\n"));
 
         subject.validate(update, updateContext);
 
