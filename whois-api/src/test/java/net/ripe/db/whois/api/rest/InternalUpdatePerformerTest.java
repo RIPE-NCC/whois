@@ -38,7 +38,7 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -162,13 +162,13 @@ public class InternalUpdatePerformerTest {
     public void setSsoSessionToContext_no_sso_token() {
         subject.setSsoSessionToContext(updateContextMock, "");
 
-        verifyZeroInteractions(ssoTokenTranslatorMock);
-        verifyZeroInteractions(loggerContextMock);
+        verifyNoMoreInteractions(ssoTokenTranslatorMock);
+        verifyNoMoreInteractions(loggerContextMock);
 
         subject.setSsoSessionToContext(updateContextMock, null);
 
-        verifyZeroInteractions(ssoTokenTranslatorMock);
-        verifyZeroInteractions(loggerContextMock);
+        verifyNoMoreInteractions(ssoTokenTranslatorMock);
+        verifyNoMoreInteractions(loggerContextMock);
     }
 
     @Test
@@ -179,7 +179,7 @@ public class InternalUpdatePerformerTest {
         subject.setSsoSessionToContext(updateContextMock, "test-token");
 
         verify(ssoTokenTranslatorMock).translateSsoToken("test-token");
-        verifyZeroInteractions(loggerContextMock);
+        verifyNoMoreInteractions(loggerContextMock);
         verify(updateContextMock).setUserSession(userSession);
     }
 

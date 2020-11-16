@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.anyCollection;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -93,7 +93,7 @@ public class AutnumAuthenticationTest {
         final List<RpslObject> authenticatedBy = subject.authenticate(update, updateContext);
 
         assertThat(authenticatedBy.equals(parentMaintainers), is(true));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test(expected = AuthenticationFailedException.class)
@@ -128,7 +128,7 @@ public class AutnumAuthenticationTest {
         final List<RpslObject> authenticatedBy = subject.authenticate(update, updateContext);
 
         assertThat(authenticatedBy.equals(parentMaintainers), is(true));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test(expected = AuthenticationFailedException.class)
@@ -158,6 +158,6 @@ public class AutnumAuthenticationTest {
 
         subject.authenticate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 }

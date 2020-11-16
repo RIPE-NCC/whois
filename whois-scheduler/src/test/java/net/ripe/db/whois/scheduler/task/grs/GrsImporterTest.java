@@ -27,7 +27,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -86,7 +86,7 @@ public class GrsImporterTest {
         subject.setGrsImportEnabled(false);
         subject.run();
 
-        verifyZeroInteractions(grsSourceImporter);
+        verifyNoMoreInteractions(grsSourceImporter);
         verify(grsSourceRipe, never()).acquireDump(any(Path.class));
         verify(grsSourceRipe, never()).handleObjects(any(File.class), any(ObjectHandler.class));
         verify(grsSourceOther, never()).acquireDump(any(Path.class));

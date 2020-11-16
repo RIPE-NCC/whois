@@ -25,7 +25,7 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -92,7 +92,7 @@ public class DeleteRsMaintainedObjectValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -102,6 +102,6 @@ public class DeleteRsMaintainedObjectValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 }

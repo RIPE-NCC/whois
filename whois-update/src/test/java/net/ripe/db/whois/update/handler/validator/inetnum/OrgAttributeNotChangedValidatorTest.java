@@ -25,7 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 
@@ -69,7 +69,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -155,7 +155,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -178,7 +178,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test

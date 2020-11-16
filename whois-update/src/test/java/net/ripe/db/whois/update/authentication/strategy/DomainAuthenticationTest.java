@@ -35,7 +35,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -94,7 +94,7 @@ public class DomainAuthenticationTest {
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated, hasSize(0));
 
-        verifyZeroInteractions(ipv4Tree, ipv6Tree, objectDao);
+        verifyNoMoreInteractions(ipv4Tree, ipv6Tree, objectDao);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class DomainAuthenticationTest {
         }
 
         verify(ipv4Tree).findExactOrFirstLessSpecific(any(Ipv4Resource.class));
-        verifyZeroInteractions(ipv6Tree, objectDao);
+        verifyNoMoreInteractions(ipv6Tree, objectDao);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class DomainAuthenticationTest {
         }
 
         verify(ipv6Tree).findExactOrFirstLessSpecific(any(Ipv6Resource.class));
-        verifyZeroInteractions(ipv4Tree, objectDao);
+        verifyNoMoreInteractions(ipv4Tree, objectDao);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class DomainAuthenticationTest {
         }
 
         verify(ipv6Tree).findExactOrFirstLessSpecific(any(Ipv6Resource.class));
-        verifyZeroInteractions(ipv4Tree, objectDao);
+        verifyNoMoreInteractions(ipv4Tree, objectDao);
     }
 
     @Test
@@ -224,7 +224,7 @@ public class DomainAuthenticationTest {
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated.containsAll(candidates), is(true));
 
-        verifyZeroInteractions(ipv4Tree);
+        verifyNoMoreInteractions(ipv4Tree);
     }
 
     @Test
@@ -304,6 +304,6 @@ public class DomainAuthenticationTest {
         }
 
         verify(authenticationModule).authenticate(update, updateContext, candidates);
-        verifyZeroInteractions(ipv4Tree);
+        verifyNoMoreInteractions(ipv4Tree);
     }
 }

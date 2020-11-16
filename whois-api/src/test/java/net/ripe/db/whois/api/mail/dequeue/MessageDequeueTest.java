@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -89,7 +89,7 @@ public class MessageDequeueTest {
     @Test
     public void noMessages() {
         subject.start();
-        verifyZeroInteractions(messageHandler);
+        verifyNoMoreInteractions(messageHandler);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class MessageDequeueTest {
         verify(loggerContext, timeout(TIMEOUT)).log(eq("msg-in.txt"), any(MailMessageLogCallback.class));
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.LOGGED);
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.PARSED);
-        verifyZeroInteractions(messageHandler);
+        verifyNoMoreInteractions(messageHandler);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class MessageDequeueTest {
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.FAILED);
         verify(loggerContext, timeout(TIMEOUT)).init("20120527220444.GA6565");
         verify(loggerContext, timeout(TIMEOUT)).log(eq("msg-in.txt"), any(MailMessageLogCallback.class));
-        verifyZeroInteractions(mailGateway);
+        verifyNoMoreInteractions(mailGateway);
         verify(mailMessageDao, never()).deleteMessage("1");
     }
 

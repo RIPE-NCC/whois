@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import net.ripe.db.whois.update.domain.Action;
@@ -45,6 +45,6 @@ public class NewKeywordValidatorTest {
 
         subject.validate(preparedUpdate, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 }

@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,7 +66,7 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class AbuseValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxRequired("AB-NIC", update.getUpdatedObject().getType()));
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -87,8 +87,8 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class AbuseValidatorTest {
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseCPersonReference());
         verify(updateContext, never()).addMessage(update, UpdateMessages.abuseMailboxRequired("nic-hdl: AB-NIC", update.getUpdatedObject().getType()));
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -112,8 +112,8 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class AbuseValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseContactNotRemovable());
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -135,8 +135,8 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
 
@@ -149,8 +149,8 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
         verify(maintainers).isRsMaintainer(ciSet("A_NON_RS_MAINTAINER"));
         verifyNoMoreInteractions(maintainers);
     }

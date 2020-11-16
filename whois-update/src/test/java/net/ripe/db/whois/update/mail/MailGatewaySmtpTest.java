@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MailGatewaySmtpTest {
@@ -47,7 +47,7 @@ public class MailGatewaySmtpTest {
         ReflectionTestUtils.setField(subject, "outgoingMailEnabled", false);
         subject.sendEmail("to", "subject", "test", "");
 
-        verifyZeroInteractions(mailSender);
+        verifyNoMoreInteractions(mailSender);
     }
 
     @Test
