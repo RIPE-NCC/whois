@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
@@ -14,7 +13,6 @@ import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.mail.MailGateway;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -33,8 +31,8 @@ import static org.mockito.Mockito.when;
 public class UpdateNotifierTest {
     @Mock UpdateRequest updateRequest;
     @Mock UpdateContext updateContext;
+    @Mock Origin origin;
 
-    @Mock RpslObjectDao rpslObjectDao;
     @Mock ResponseFactory responseFactory;
     @Mock MailGateway mailGateway;
     @Mock ResponseMessage responseMessage;
@@ -43,7 +41,7 @@ public class UpdateNotifierTest {
 
     @Test
     public void sendNotifications_empty() {
-        when(updateRequest.getUpdates()).thenReturn(Lists.<Update>newArrayList());
+        when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList());
 
         subject.sendNotifications(updateRequest, updateContext);
 
@@ -60,7 +58,6 @@ public class UpdateNotifierTest {
         verifyZeroInteractions(responseFactory, mailGateway);
     }
 
-    @Ignore("[ES] TODO")
     @Test
     public void sendNotifications_single_no_notifications() {
         final Update update = mock(Update.class);
@@ -80,6 +77,7 @@ public class UpdateNotifierTest {
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, rpslObject, Action.CREATE);
 
         when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
+        when(updateRequest.getOrigin()).thenReturn(origin);
         when(updateContext.getPreparedUpdate(update)).thenReturn(preparedUpdate);
         when(updateContext.getStatus(preparedUpdate)).thenReturn(UpdateStatus.SUCCESS);
         ResponseMessage responseMessage = new ResponseMessage("Notification of RIPE Database changes", "message");
@@ -111,7 +109,6 @@ public class UpdateNotifierTest {
         when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
         when(updateContext.getPreparedUpdate(update)).thenReturn(preparedUpdate);
         when(updateContext.getStatus(preparedUpdate)).thenReturn(UpdateStatus.SUCCESS);
-        when(responseFactory.createNotification(eq(updateContext), any(Origin.class), any(Notification.class))).thenReturn(responseMessage);
 
         subject.sendNotifications(updateRequest, updateContext);
 
