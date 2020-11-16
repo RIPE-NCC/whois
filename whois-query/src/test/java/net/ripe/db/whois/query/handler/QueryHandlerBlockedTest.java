@@ -19,11 +19,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.net.InetAddress;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.eq;
@@ -110,7 +109,7 @@ public class QueryHandlerBlockedTest {
             assertThat(e.getCompletionInfo(), is(queryCompletionInfo));
             assertThat(e.getMessages(), contains(messages));
 
-            verify(whoisLog).logQueryResult(isNull(), eq(0), eq(0), eq(queryCompletionInfo), anyLong(), eq(remoteAddress), eq(contextId), eq(query.toString()));
+            verify(whoisLog).logQueryResult(any(), eq(0), eq(0), eq(queryCompletionInfo), anyLong(), eq(remoteAddress), eq(contextId), eq(query.toString()));
             verify(responseHandler, never()).handle(any(ResponseObject.class));
         }
     }
