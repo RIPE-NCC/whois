@@ -62,8 +62,6 @@ public class LirRipeMaintainedAttributesValidatorTest {
     @Test
     public void update_of_non_lir() {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
 
         subject.validate(update, updateContext);
 
@@ -74,8 +72,6 @@ public class LirRipeMaintainedAttributesValidatorTest {
     @Test
     public void update_of_mntby() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_MNT_BY);
 
         subject.validate(update, updateContext);
@@ -90,8 +86,6 @@ public class LirRipeMaintainedAttributesValidatorTest {
     @Test
     public void update_of_org() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG);
 
         subject.validate(update, updateContext);
@@ -106,8 +100,6 @@ public class LirRipeMaintainedAttributesValidatorTest {
     @Test
     public void update_of_org_type() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
-        when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ORG_TYPE);
 
         subject.validate(update, updateContext);
@@ -131,7 +123,6 @@ public class LirRipeMaintainedAttributesValidatorTest {
 
     @Test
     public void update_of_abuse_mailbox_with_powermntner() {
-        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);

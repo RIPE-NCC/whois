@@ -18,8 +18,8 @@ import static net.ripe.db.whois.update.handler.validator.organisation.LirAttribu
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_MULTIPLE_USER_MNTNER;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_SINGLE_USER_MNTNER;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.NON_LIR_ORG;
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -53,6 +53,17 @@ public class LirMntByAttributeCountValidatorTest {
 
     @Test
     public void update_of_not_lir_with_single_mntner() {
+        when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
+
+        subject.validate(update, updateContext);
+
+        verify(update).getReferenceObject();
+        verifyNoMoreInteractions(update);
+        verifyZeroInteractions(maintainers, updateContext);
+    }
+
+    @Test
+    public void update_of_not_lir_with_multiple_mntner() {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
 
         subject.validate(update, updateContext);
