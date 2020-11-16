@@ -67,7 +67,7 @@ public class WhoisConnectionTestIntegration extends AbstractQueryIntegrationTest
 
     @Before
     public void setUp() throws Exception {
-        upstreamMock = Mockito.mock(SimpleChannelUpstreamHandler.class, Answers.CALLS_REAL_METHODS.get());
+        upstreamMock = Mockito.mock(SimpleChannelUpstreamHandler.class, Answers.CALLS_REAL_METHODS);
 
         ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("open-channels", queryChannelsRegistry);

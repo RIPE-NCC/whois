@@ -22,12 +22,11 @@ import java.util.NoSuchElementException;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdResponse;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdSession;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdUser;
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,7 +44,7 @@ public class CrowdClientTest {
     public void setup() {
         when(client.target(anyString())).thenReturn(webTarget);
         when(webTarget.path(anyString())).thenReturn(webTarget);
-        when(webTarget.queryParam(anyString(), anyVararg())).thenReturn(webTarget);
+        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
         when(webTarget.request(any(String.class))).thenReturn(builder);
         when(webTarget.request()).thenReturn(builder);
 
