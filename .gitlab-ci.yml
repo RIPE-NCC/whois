@@ -94,8 +94,6 @@ whois-integration-test:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-rpsl
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-scheduler
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-update
-    - echo $PWD
-    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=https://sonarqube.ripe.net -Dsonar.login=d5defe1019451967e76db043c69d7d26f1f63db3 -Dsonar.projectName=whois -Dsonar.coverage.jacoco.xmlReportPaths=s=$PWD/whois-api/target/site/jacoco/jacoco.xml,$PWD/whois-client/target/site/jacoco/jacoco.xml,$PWD/whois-db/target/site/jacoco/jacoco.xml,$PWD/whois-nrtm/target/site/jacoco/jacoco.xml,$PWD/whois-query/target/site/jacoco/jacoco.xml,$PWD/whois-rpsl/target/site/jacoco/jacoco.xml,$PWD/whois-scheduler/target/site/jacoco/jacoco.xml,$PWD/whois-update/target/site/jacoco/jacoco.xml
 
 sonar:
   <<: *it_env
@@ -108,7 +106,7 @@ sonar:
     - mvn install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -fn # ignore failing (non deterministic) tests, we want QA output regardless
     - echo PWD=$PWD
-    - mvn -X org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco-merged-test-coverage-report/jacoco.xml -Dsonar.projectName=whois -Dsonar.java.binaries=$PWD/whois-api/target/classes,$PWD/whois-client/target/classes,$PWD/whois-commons/target/classes,$PWD/whois-db/target/classes,$PWD/whois-nrtm/target/classes,$PWD/whois-query/target/classes,$PWD/whois-rpsl/target/classes,$PWD/whois-scheduler/target/classes,$PWD/whois-update/target/classes
+    - mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectName=whois -Dsonar.coverage.jacoco.xmlReportPaths=$PWD/whois-api/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-client/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-commons/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-db/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-query/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-rpsl/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-scheduler/target/site/jacoco-merged-test-coverage-report/jacoco.xml -Dsonar.test.exclusions=**/test/*
 
 .deploy_template: &deploy_env
   stage: deploy
