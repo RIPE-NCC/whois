@@ -116,6 +116,7 @@
     <build>
         <resources>
             <resource>
+                <!-- Include application version (with parameter substitution) -->
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
@@ -123,6 +124,7 @@
                 </includes>
             </resource>
             <resource>
+                <!-- Include database patches etc. (without parameter substitution) -->
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
                 <excludes>
