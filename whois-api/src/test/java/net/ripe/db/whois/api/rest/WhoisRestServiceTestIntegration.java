@@ -1738,7 +1738,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error",
                 "XML processing exception: %s (line: %s, column: %s)",
-                "JAXP00010001: The parser has encountered more than \"64000\" entity expansions in this document; this is the limit imposed by the JDK.", "1", "1");
+                "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.", "2", "10");
         }
     }
 
@@ -1775,7 +1775,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error",
                 "XML processing exception: %s (line: %s, column: %s)",
-                "JAXP00010004: The accumulated size of entities is \"50,000,049\" that exceeded the \"50,000,000\" limit set by \"FEATURE_SECURE_PROCESSING\".", "1", "1000001");
+                "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.", "2", "10");
         }
     }
 
@@ -1811,7 +1811,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error",
                 "XML processing exception: %s (line: %s, column: %s)",
-                "The external entity reference \"&externalEntity;\" is not permitted in an attribute value.", "10", "66");
+                "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.", "2", "10");
         }
     }
 
