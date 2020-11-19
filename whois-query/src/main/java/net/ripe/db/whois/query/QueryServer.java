@@ -48,7 +48,9 @@ public final class QueryServer implements ApplicationService {
         channelFactory = new NioServerSocketChannelFactory();
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
         bootstrap.setPipelineFactory(whoisServerPipelineFactory);
+        // apply TCP options to accepted Channels. Ref. https://netty.io/3.10/guide/
         bootstrap.setOption("backlog", 200);
+        bootstrap.setOption("child.tcpNoDelay", true);
         bootstrap.setOption("child.keepAlive", true);
         serverChannel = bootstrap.bind(new InetSocketAddress(queryPort));
         port = ((InetSocketAddress)serverChannel.getLocalAddress()).getPort();
