@@ -13,13 +13,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,7 +44,7 @@ public class NrtmAclLimitHandlerTest {
 
         when(ctx.getChannel()).thenReturn(channel);
 
-        when(channel.write(anyObject())).thenReturn(channelFuture);
+        when(channel.write(any())).thenReturn(channelFuture);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class NrtmAclLimitHandlerTest {
 
         verify(ctx, times(1)).sendUpstream(event);
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 }

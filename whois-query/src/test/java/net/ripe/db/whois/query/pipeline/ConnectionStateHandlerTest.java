@@ -14,10 +14,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +36,7 @@ public class ConnectionStateHandlerTest {
         when(messageMock.getChannel()).thenReturn(channelMock);
         when(messageMock.getFuture()).thenReturn(futureMock);
         when(channelMock.isOpen()).thenReturn(true);
-        when(channelMock.write(anyObject())).thenReturn(futureMock);
+        when(channelMock.write(any())).thenReturn(futureMock);
         when(channelMock.getPipeline()).thenReturn(pipelineMock);
     }
 
@@ -127,7 +126,7 @@ public class ConnectionStateHandlerTest {
     }
 
     @Test
-    public void dontActOnDownstreamNonQueryCompletedEvents() throws Exception {
+    public void dontActOnDownstreamNonQueryCompletedEvents() {
         subject.handleDownstream(contextMock, null);
 
         verify(channelMock, times(0)).write(any());

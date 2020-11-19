@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,7 +39,6 @@ public class AbuseCNoLimitWarningValidatorTest {
         final RpslObject role = RpslObject.parse("role: Some Role\nnic-hdl: TEST-NIC\nabuse-mailbox: abuse@ripe.net");
 
         when(update.hasOriginalObject()).thenReturn(false);
-        when(update.getReferenceObject()).thenReturn(role);
         when(update.getUpdatedObject()).thenReturn(role);
 
         subject.validate(update, updateContext);

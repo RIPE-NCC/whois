@@ -20,6 +20,7 @@ public class MaintainerNameValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.MNTNER);
+    private static final  String MNT_NAME_SUFFIX = "-MNT";
 
     static final Set<CIString> INVALID_NAMES = ciSet(
             "ASNEW-MNT", "AUTO-1", "BLUELIGHT-MNT", "EXAMPLE-MNT", "GOODY2SHOES-MNT",
@@ -32,6 +33,9 @@ public class MaintainerNameValidator implements BusinessRuleValidator {
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
+        if (Action.CREATE.equals(update.getAction()) && !updatedObject.getKey().endsWith(MNT_NAME_SUFFIX)) {
+            updateContext.addMessage(update, updatedObject.getAttributes().get(0), UpdateMessages.invalidMaintainerName());
+        }
         if (INVALID_NAMES.contains(updatedObject.getKey())) {
             updateContext.addMessage(update, updatedObject.getAttributes().get(0), UpdateMessages.reservedNameUsed());
         }
