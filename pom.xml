@@ -51,7 +51,7 @@
 
         <ezvcard.version>0.8.2</ezvcard.version>
 
-        <findbugs.version>1.3.9</findbugs.version>
+        <findbugs.version>3.0.2</findbugs.version>
 
         <guava.version>26.0-jre</guava.version>
         <groovy.version>2.5.13</groovy.version>
