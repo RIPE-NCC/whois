@@ -28,6 +28,25 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             """,
+            "UPD": """\
+            mntner: UPD
+            descr: description
+            admin-c: TP1-TEST
+            mnt-by: OWNER-MNT
+            upd-to: dbtest@ripe.net
+            auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+            source: TEST
+            """,
+            "UPD2": """\
+            mntner: UPD
+            descr: description
+            admin-c: TP1-TEST
+            remarks: added comment
+            mnt-by: OWNER-MNT
+            upd-to: dbtest@ripe.net
+            auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+            source: TEST
+            """,
             "UPD-MNT": """\
             mntner: UPD-MNT
             descr: description
@@ -304,6 +323,40 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT mntner CRE-MNT", "mntner", "CRE-MNT")
     }
 
+    def "create maintainer object with invalid  (without -mnt suffix) maintainer name"() {
+        expect:
+        queryNothing("-rGBT mntner CRE")
+
+        when:
+        def message = send new Message(
+                subject: "create CRE",
+                body: """\
+                mntner: CRE
+                descr: description
+                admin-c: TP1-TEST
+                mnt-by: OWNER-MNT
+                upd-to: updto_cre@ripe.net
+                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                source: TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.failed
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.errorMessagesFor("Create", "[mntner] CRE") == ["When creating a MNTNER the name must end with an -MNT suffix"]
+        ack.countErrorWarnInfo(1, 2, 0)
+
+        queryNothing("-rGBT mntner SELF-MNT")
+    }
+
+
     def "create maintainer object maintained by other mntner using own pw"() {
       expect:
         queryNothing("-rGBT mntner CRE-MNT")
@@ -367,6 +420,33 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         qryBefore == qryAfter
     }
 
+    def "modify maintainer with no -mnt prefix no changes"() {
+        given:
+        def toUpdate = dbfixture(getTransient("UPD"))
+
+        expect:
+        def qryBefore = queryObject("-r -T mntner UPD", "mntner", "UPD")
+
+        when:
+        def message = send new Message(
+                subject: "update UPD",
+                body: toUpdate + "\npassword: owner"
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
+        ack.successes.find { it.operation == "No operation" && it.key == "[mntner] UPD"}.warnings == ["Submitted object identical to database object"]
+
+        def qryAfter = queryObject("-r -T mntner UPD", "mntner", "UPD")
+        qryBefore == qryAfter
+    }
+
     def "update maintainer no changes syncupdate"() {
       given:
         dbfixture(getTransient("UPD-MNT"))
@@ -412,6 +492,37 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
         notif.added("mntner", "UPD-MNT", "remarks:        added comment")
+    }
+
+    def "modify maintainer with no -mnt suffix add remarks"() {
+        given:
+        dbfixture(getTransient("UPD"))
+        def toUpdate = object(getTransient("UPD2"))
+
+        expect:
+        query_object_not_matches("-r -T mntner UPD", "mntner", "UPD", "remarks:\\s*added comment")
+        queryObject("-r -T mntner UPD", "mntner", "UPD")
+
+        when:
+        def message = send new Message(
+                subject: "update UPD",
+                body: toUpdate + "password: owner"
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
+
+        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] UPD"}
+        query_object_matches("-r -T mntner UPD", "mntner", "UPD", "remarks:\\s*added comment")
+
+        def notif = notificationFor "mntnfy_owner@ripe.net"
+        notif.added("mntner", "UPD", "remarks:        added comment")
     }
 
     def "update maintainer new keyword"() {

@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.mail.internet.MimeMessage;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class RipeMaintainerAuthenticationMailTestIntegration extends AbstractIntegrationTest {

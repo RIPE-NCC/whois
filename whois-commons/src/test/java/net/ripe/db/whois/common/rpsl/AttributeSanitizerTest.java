@@ -6,16 +6,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,7 +32,7 @@ public class AttributeSanitizerTest {
         assertThat(result.getKey().toString(), is("17.45.212.in-addr.arpa"));
         assertThat(result.getValueForAttribute(AttributeType.DOMAIN).toString(), is("17.45.212.in-addr.arpa"));
 
-        verifyZeroInteractions(objectMessages);
+        verifyNoMoreInteractions(objectMessages);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class AttributeSanitizerTest {
 
         assertThat(result.getValueForAttribute(AttributeType.DS_RDATA).toString(), is("52314 5 1 93B5837D4E5C063A3728FAA72BA64068F89B39DF"));
 
-        verifyZeroInteractions(objectMessages);
+        verifyNoMoreInteractions(objectMessages);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class AttributeSanitizerTest {
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
         assertThat(result, is(rpslObject));
 
-        verifyZeroInteractions(objectMessages);
+        verifyNoMoreInteractions(objectMessages);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class AttributeSanitizerTest {
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
         assertThat(result, is(rpslObject));
 
-        verifyZeroInteractions(objectMessages);
+        verifyNoMoreInteractions(objectMessages);
     }
 
 
@@ -194,7 +194,7 @@ public class AttributeSanitizerTest {
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
         assertThat(result.getValueForAttribute(AttributeType.INET6NUM).toString(), is("2001:67c:20c4::/48"));
 
-        verifyZeroInteractions(objectMessages);
+        verifyNoMoreInteractions(objectMessages);
     }
 
     @Test
@@ -262,7 +262,7 @@ public class AttributeSanitizerTest {
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
         assertThat(result.getValueForAttribute(AttributeType.NSERVER).toString(), is("hostname.nu"));
 
-        verifyZeroInteractions(objectMessages);
+        verifyNoMoreInteractions(objectMessages);
     }
 
     @Test
@@ -287,7 +287,7 @@ public class AttributeSanitizerTest {
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
         assertThat(result.getValueForAttribute(AttributeType.NSERVER).toString(), is("hostname.nu 10.0.0.0"));
 
-        verifyZeroInteractions(objectMessages);
+        verifyNoMoreInteractions(objectMessages);
     }
 
     @Test
@@ -326,7 +326,7 @@ public class AttributeSanitizerTest {
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
         assertThat(result.getValueForAttribute(AttributeType.ROUTE).toString(), is("212.166.64.0/19"));
 
-        verifyZeroInteractions(objectMessages);
+        verifyNoMoreInteractions(objectMessages);
     }
 
     @Test
@@ -364,7 +364,7 @@ public class AttributeSanitizerTest {
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
         assertThat(result.getValueForAttribute(AttributeType.ROUTE6).toString(), is("2001:1578:200::/40"));
 
-        verifyZeroInteractions(objectMessages);
+        verifyNoMoreInteractions(objectMessages);
     }
 
     @Test
@@ -503,7 +503,7 @@ public class AttributeSanitizerTest {
         final List<RpslAttribute> changed = result.findAttributes(AttributeType.CHANGED);
         assertThat(changed.get(0).getCleanValue().toString(), is("user@host.org 20120601"));
         assertThat(changed.get(1).getCleanValue().toString(), is("user@host.org 20130225"));
-        verifyZeroInteractions(objectMessages);
+        verifyNoMoreInteractions(objectMessages);
     }
 
     @Test

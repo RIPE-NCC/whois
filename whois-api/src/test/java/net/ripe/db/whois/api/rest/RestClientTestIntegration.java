@@ -12,8 +12,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
-import org.apache.commons.httpclient.HttpStatus;
-import java.time.LocalDateTime;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -22,6 +21,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.ws.rs.core.Cookie;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -32,11 +32,11 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -747,7 +747,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             restClient.request().lookup(ObjectType.AUT_NUM, "AS100");
             fail("Autnum was not deleted");
         } catch (RestClientException rce) {
-            assertThat(rce.getStatus(), is(HttpStatus.SC_NOT_FOUND));
+            assertThat(rce.getStatus(), is(HttpStatus.NOT_FOUND_404));
         }
     }
 

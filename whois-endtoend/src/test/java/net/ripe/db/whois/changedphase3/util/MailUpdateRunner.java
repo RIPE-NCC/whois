@@ -7,7 +7,7 @@ import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MailUpdateRunner extends AbstractScenarioRunner {
 

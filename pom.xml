@@ -29,13 +29,13 @@
 
         <!-- dependencies -->
 
-        <aspectj.version>1.8.8</aspectj.version>
+        <aspectj.version>1.9.6</aspectj.version>
         <awaitility.version>1.3.5</awaitility.version>
 
-        <bouncycastle.version>1.66</bouncycastle.version>
+        <bouncycastle.version>1.67</bouncycastle.version>
 
-        <c3po.version>0.9.5.4</c3po.version>
-        <commons-compress.version>1.19</commons-compress.version>
+        <c3po.version>0.9.5.5</c3po.version>
+        <commons-compress.version>1.20</commons-compress.version>
         <commons-net.version>3.4</commons-net.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.11</commons-codec.version>
@@ -51,9 +51,10 @@
 
         <ezvcard.version>0.8.2</ezvcard.version>
 
-        <findbugs.version>1.3.9</findbugs.version>
+        <findbugs.version>3.0.2</findbugs.version>
 
         <guava.version>26.0-jre</guava.version>
+        <groovy.version>2.5.13</groovy.version>
 
         <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
         <hazelcast.version>2.6.10</hazelcast.version>
@@ -61,10 +62,10 @@
 
         <jaxb.version>2.2.11</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
-        <jopt-simple.version>4.8</jopt-simple.version>
+        <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
-        <junit.version>4.12</junit.version>
-        <jetty.version>9.4.32.v20200930</jetty.version>
+        <junit.version>4.13.1</junit.version>
+        <jetty.version>9.4.34.v20201102</jetty.version>
         <!-- TODO: [ES] update Jersey to 2.16+ (creates unmarshalling problems with Crowd)
              "MessageBodyReader not found for media type=application/xml" -->
         <jersey.version>2.15</jersey.version>
@@ -75,21 +76,21 @@
 
         <mail.version>1.6.2</mail.version>
         <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
-        <mockito.version>1.9.5</mockito.version>
+        <mockito.version>3.6.0</mockito.version>
 
         <netty.version>3.10.6.Final</netty.version>
 
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.30</slf4j.version>
-        <spring.version>5.2.9.RELEASE</spring.version>
+        <spring.version>5.3.1</spring.version>
         <springockito.version>1.0.5</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
-        <spock.version>0.7-groovy-1.8</spock.version>
+        <spock.version>1.3-groovy-2.5</spock.version>
         <shedlock.version>2.5.0</shedlock.version>
 
-        <velocity.version>2.0</velocity.version>
+        <velocity.version>2.2</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
     </properties>
@@ -629,6 +630,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy</artifactId>
+          <version>${groovy.version}</version>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
@@ -798,7 +805,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -825,34 +832,10 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.8.2</version>
             </plugin>
-            <!-- TODO: [ES] update gmaven plugin to 1.5 -->
             <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <version>1.4</version>
-                <configuration>
-                    <source />
-                    <providerSelection>1.8</providerSelection>
-                    <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.gmaven.runtime</groupId>
-                        <artifactId>gmaven-runtime-1.8</artifactId>
-                        <version>1.5</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>org.codehaus.groovy</groupId>
-                                <artifactId>groovy-all</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-all</artifactId>
-                        <version>1.8.9</version>
-                    </dependency>
-                </dependencies>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>1.11.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -988,7 +971,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>5.2.4</version>
+                <version>6.0.3</version>
                 <executions>
                     <execution>
                         <id>not-by-default</id>

@@ -22,7 +22,7 @@ import java.time.temporal.Temporal;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {

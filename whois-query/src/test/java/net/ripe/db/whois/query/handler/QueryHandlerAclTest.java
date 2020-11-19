@@ -20,20 +20,18 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.net.InetAddress;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
@@ -41,8 +39,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+
 @RunWith(MockitoJUnitRunner.class)
-public class QueryHandler_AclTest {
+public class QueryHandlerAclTest {
     @Mock WhoisLog whoisLog;
     @Mock AccessControlListManager accessControlListManager;
     @Mock SourceContext sourceContext;
@@ -99,7 +98,8 @@ public class QueryHandler_AclTest {
 
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
-        verify(accessControlListManager, never()).accountPersonalObjects(any(InetAddress.class), anyInt());
+
+        verify(accessControlListManager, never()).accountPersonalObjects(any(InetAddress.class), any(Integer.class));
         verifyLog(query, null, 0, 4);
     }
 
@@ -109,8 +109,9 @@ public class QueryHandler_AclTest {
 
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
+
         verify(accessControlListManager, never()).requiresAcl(any(RpslObject.class), any(Source.class));
-        verify(accessControlListManager, never()).accountPersonalObjects(any(InetAddress.class), anyInt());
+        verify(accessControlListManager, never()).accountPersonalObjects(any(InetAddress.class), any(Integer.class));
         verifyLog(query, null, 0, 4);
     }
 
@@ -173,6 +174,6 @@ public class QueryHandler_AclTest {
     }
 
     private void verifyLog(final Query query, final QueryCompletionInfo completionInfo, final int nrAccounted, final int nrNotAccounted) {
-        verify(whoisLog).logQueryResult(anyString(), eq(nrAccounted), eq(nrNotAccounted), eq(completionInfo), anyLong(), eq(remoteAddress), eq(contextId), eq(query.toString()));
+        verify(whoisLog).logQueryResult(any(), eq(nrAccounted), eq(nrNotAccounted), eq(completionInfo), anyLong(), eq(remoteAddress), eq(contextId), eq(query.toString()));
     }
 }

@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -16,12 +16,12 @@ import javax.mail.SendFailedException;
 import java.lang.reflect.Field;
 
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MailGatewaySmtpTest {
@@ -47,7 +47,7 @@ public class MailGatewaySmtpTest {
         ReflectionTestUtils.setField(subject, "outgoingMailEnabled", false);
         subject.sendEmail("to", "subject", "test", "");
 
-        verifyZeroInteractions(mailSender);
+        verifyNoMoreInteractions(mailSender);
     }
 
     @Test

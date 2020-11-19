@@ -1,19 +1,17 @@
 package net.ripe.db.whois.scheduler.task.export;
-
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,7 +33,7 @@ public class DecorationStrategyTest {
         DecorationStrategy subject = new DecorationStrategy.None();
         final RpslObject decorated = subject.decorate(object);
 
-        Assert.assertThat(decorated, Matchers.is(object));
+        assertThat(decorated, is(object));
     }
 
     @Test
@@ -47,7 +45,7 @@ public class DecorationStrategyTest {
         Mockito.when(dummifier.dummify(3, object)).thenReturn(dummified);
 
         final RpslObject decorated = subject.decorate(object);
-        Assert.assertThat(decorated, Matchers.is(dummified));
+        assertThat(decorated, is(dummified));
 
         verify(dummifier).isAllowed(3, object);
         verify(dummifier).dummify(3, object);
@@ -59,10 +57,10 @@ public class DecorationStrategyTest {
         Mockito.when(dummifier.isAllowed(3, object)).thenReturn(false);
 
         final RpslObject decorated = subject.decorate(object);
-        Assert.assertThat(decorated, Matchers.is(DummifierNrtm.getPlaceholderPersonObject()));
+        assertThat(decorated, is(DummifierNrtm.getPlaceholderPersonObject()));
 
         final RpslObject decoratedSecond = subject.decorate(object);
-        Assert.assertNull(decoratedSecond);
+        assertThat(decoratedSecond, is(nullValue()));
 
         verify(dummifier, Mockito.times(2)).isAllowed(3, object);
         verify(dummifier, never()).dummify(3, object);

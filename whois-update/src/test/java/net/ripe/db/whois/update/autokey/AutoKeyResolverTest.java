@@ -13,16 +13,13 @@ import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.argThat;
@@ -60,19 +57,10 @@ public class AutoKeyResolverTest {
     }
 
     private void primaryKeyGeneratorSuccessBehavior() {
-        when(autoKeyFactory.isKeyPlaceHolder(argThat(new ArgumentMatcher<String>() {
-            @Override
-            public boolean matches(final Object argument) {
-                return argument.toString().startsWith("AUTO");
-            }
-        }))).thenReturn(true);
-
-        when(autoKeyFactory.generate(anyString(), any(RpslObject.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final RpslObject rpslObject = (RpslObject) invocation.getArguments()[1];
-                return new NicHandle(rpslObject.getTypeAttribute().getCleanValue().toString().substring(0, 1), index++, "RIPE");
-            }
+        when(autoKeyFactory.isKeyPlaceHolder(argThat(argument -> argument.toString().startsWith("AUTO")))).thenReturn(true);
+        when(autoKeyFactory.generate(anyString(), any(RpslObject.class))).thenAnswer(invocation -> {
+            final RpslObject rpslObject = (RpslObject) invocation.getArguments()[1];
+            return new NicHandle(rpslObject.getTypeAttribute().getCleanValue().toString().substring(0, 1), index++, "RIPE");
         });
     }
 
@@ -193,7 +181,7 @@ public class AutoKeyResolverTest {
 
     @Test
     public void resolveAutoKeys_reference_not_found() {
-        when(autoKeyFactory.getKeyPlaceholder(anyString())).thenReturn(ciString("AUTO-1"));
+        when(autoKeyFactory.getKeyPlaceholder(any(CharSequence.class))).thenReturn(ciString("AUTO-1"));
 
         RpslObject mntner = RpslObject.parse("" +
                 "mntner: TST-MNT\n" +
