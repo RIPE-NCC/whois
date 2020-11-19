@@ -834,7 +834,6 @@
                     </excludes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
-                    <forkCount>0</forkCount>
                     <reuseForks>true</reuseForks>
                     <excludedGroups>
                         net.ripe.db.whois.common.IntegrationTest,
