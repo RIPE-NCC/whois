@@ -1607,7 +1607,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_orgnasation_country_code_fails() {
+    public void update_organisation_country_code_fails() {
         databaseHelper.addObject(SSO_AND_PASSWORD_MNT);
 
         final RpslObject ORGANISATION_COUNTRY = RpslObject.parse("" +
@@ -1616,7 +1616,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "address:      Test address\n" +
                 "org-type:     LIR\n" +
                 "country:      NL\n" +
-                "e-mail:        test@ripe.net\n" +
+                "e-mail:       test@ripe.net\n" +
                 "mnt-by:       SSO-PASSWORD-MNT\n" +
                 "mnt-ref:      SSO-PASSWORD-MNT\n" +
                 "abuse-c:      TR1-TEST\n" +
@@ -1624,7 +1624,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         databaseHelper.addObject(ORGANISATION_COUNTRY);
 
-        final RpslObject updatedObject = new RpslObjectBuilder(ORGANISATION_COUNTRY).removeAttributeType(AttributeType.COUNTRY).append(new RpslAttribute(AttributeType.COUNTRY, "DK")).sort().get();
+        final RpslObject updatedObject = new RpslObjectBuilder(ORGANISATION_COUNTRY).removeAttributeType(AttributeType.COUNTRY).append(new RpslAttribute(AttributeType.COUNTRY, "DK")).get();
 
         try {
             RestTest.target(getPort(), "whois/test/organisation/ORG-TO1-TEST?password=test")
@@ -1636,6 +1636,45 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Test
+    public void update_org_country_should_succeed_with_RIPE_mntnr() {
+        databaseHelper.addObject(SSO_AND_PASSWORD_MNT);
+        databaseHelper.addObject("" +
+                "mntner:      RIPE-NCC-HM-MNT\n" +
+                "descr:       Hostmaster\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$tnG/zrDw$nps8tg76q4jgg5zg5o6os. # hm\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      RIPE-NCC-HM-MNT\n" +
+                "source:      TEST\n");
+
+        final RpslObject ORGANISATION_COUNTRY = RpslObject.parse("" +
+                "organisation: ORG-TO1-TEST\n" +
+                "org-name:     Test Organisation\n" +
+                "country:      NL\n" +
+                "org-type:     LIR\n" +
+                "e-mail:        test@ripe.net\n" +
+                "address:      Test address\n" +
+                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                "mnt-ref:      RIPE-NCC-HM-MNT\n" +
+                "mnt-by:       SSO-PASSWORD-MNT\n" +
+                "mnt-ref:      SSO-PASSWORD-MNT\n" +
+                "abuse-c:      TR1-TEST\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject(ORGANISATION_COUNTRY);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(ORGANISATION_COUNTRY).removeAttributeType(AttributeType.COUNTRY).addAttribute(2, new RpslAttribute(AttributeType.COUNTRY, "DK")).get();
+        final WhoisResources updateOrg = RestTest.target(getPort(), "whois/test/organisation/ORG-TO1-TEST?password=hm")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(updateOrg.getWhoisObjects(), hasSize(1));
+        assertThat(updateOrg.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("ORG-TO1-TEST"));
+        assertThat(updateOrg.getWhoisObjects().get(0).getAttributes().get(2).getName(), is("country"));
+    }
+    
     @Test
     public void lookup_inetnum_non_managed_attributes_resource_holder_abuse_contact() {
         databaseHelper.addObject(
