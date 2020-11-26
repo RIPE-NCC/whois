@@ -60,6 +60,8 @@ public class NrtmServer implements ApplicationService {
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
         bootstrap.setPipelineFactory(serverPipelineFactory);
         bootstrap.setOption("backlog", 200);
+        // apply TCP options to accepted Channels. Ref. https://netty.io/3.10/guide/
+        bootstrap.setOption("child.tcpNoDelay", true);
         bootstrap.setOption("child.keepAlive", true);
 
         final Channel channel = bootstrap.bind(new InetSocketAddress(port));
