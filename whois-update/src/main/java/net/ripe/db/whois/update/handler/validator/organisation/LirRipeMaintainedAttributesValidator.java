@@ -30,8 +30,7 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     private static final List<AttributeType> RIPE_NCC_MANAGED_ATTRIBUTES = ImmutableList.of(
             AttributeType.MNT_BY,
             AttributeType.ORG,
-            AttributeType.ORG_TYPE,
-            AttributeType.COUNTRY);
+            AttributeType.ORG_TYPE);
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
