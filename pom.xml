@@ -76,7 +76,7 @@
 
         <mail.version>1.6.2</mail.version>
         <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
-        <mockito.version>3.6.0</mockito.version>
+        <mockito.version>3.6.28</mockito.version>
 
         <netty.version>3.10.6.Final</netty.version>
 
