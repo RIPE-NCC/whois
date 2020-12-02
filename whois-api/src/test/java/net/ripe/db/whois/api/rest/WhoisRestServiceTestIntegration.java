@@ -1564,6 +1564,49 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void validate_country_managed_attribute_only_for_organisation() {
+        databaseHelper.addObject(
+                "mntner:       RIPE-NCC-HM-MNT\n" +
+                        "source:   TEST");
+        databaseHelper.addObject(
+                "organisation: ORG-TO1-TEST\n" +
+                        "org-name:     Test Organisation\n" +
+                        "org-type:     LIR\n" +
+                        "country:      NL\n" +
+                        "abuse-c:      TR1-TEST\n" +
+                        "source:       TEST");
+        databaseHelper.addObject(
+                "inetnum:       10.0.0.0 - 10.0.0.255\n" +
+                        "status:   ALLOCATED PA\n" +
+                        "org:      ORG-TO1-TEST\n" +
+                        "country:  NL\n" +
+                        "mnt-by:   OWNER-MNT\n" +
+                        "mnt-by:   RIPE-NCC-HM-MNT\n" +
+                        "source:   TEST");
+
+
+        final WhoisResources searchOrg = RestTest.target(getPort(), "whois/test/organisation/ORG-TO1-TEST?managed-attributes")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(searchOrg.getWhoisObjects(), hasSize(1));
+        assertThat(searchOrg.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("ORG-TO1-TEST"));
+        assertThat(searchOrg.getWhoisObjects().get(0).isManaged(), is(true));
+        assertThat(searchOrg.getWhoisObjects().get(0).getAttributes().get(3).getName(), is("country"));
+        assertThat(searchOrg.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(true));
+
+
+        final WhoisResources searchinetnum = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0%20-%2010.0.0.255?managed-attributes&resource-holder&abuse-contact")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(searchinetnum.getWhoisObjects(), hasSize(1));
+        assertThat(searchinetnum.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(searchinetnum.getWhoisObjects().get(0).getAttributes().get(3).getName(), is("country"));
+        assertThat(searchinetnum.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(nullValue()));
+    }
+    
+    @Test
     public void lookup_inetnum_non_managed_attributes_resource_holder_abuse_contact() {
         databaseHelper.addObject(
                 "mntner:       RIPE-NCC-HM-MNT\n" +
@@ -3899,7 +3942,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         builder.append(remarks);
 
         RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
-                .request(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(map(builder.sort().get()), MediaType.APPLICATION_XML), WhoisResources.class);
 
         builder.replaceAttribute(remarks, new RpslAttribute(AttributeType.REMARKS, "updated # new comment"));
