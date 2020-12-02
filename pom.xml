@@ -93,6 +93,8 @@
         <velocity.version>2.2</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
+        <!--#TODO: Replace with new nexus url or ripe parent pom.xml -->
+        <nexus.url>http://nexus.ripe.net/nexus/repository</nexus.url>
     </properties>
 
     <scm>
@@ -103,11 +105,11 @@
     <distributionManagement>
         <repository>
             <id>ripe-releases</id>
-            <url>https://nexus.ripe.net/nexus/content/repositories/releases</url>
+            <url>${nexus.url}/releases</url>
         </repository>
         <snapshotRepository>
             <id>ripe-snapshots</id>
-            <url>https://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+            <url>${nexus.url}/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 

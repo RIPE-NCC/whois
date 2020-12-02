@@ -14,7 +14,7 @@ stages:
   - test
   - integration-test
   - code_quality
-  - release
+  - publish
   - deploy
 
 cache:
@@ -34,12 +34,16 @@ build:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
-release:
-  stage: release
-  only:
-    - tags
+publish:
+  stage: publish
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: always
+    - when: manual
+      allow_failure: false
   script:
-    - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA
+    - if [ "$CI_COMMIT_TAG" ]; then NEW_VERSION="$CI_COMMIT_SHORT_SHA"; else NEW_VERSION="$CI_COMMIT_SHORT_SHA-SNAPSHOT"; fi
+    - mvn versions:set -DnewVersion=$NEW_VERSION
     - mvn -DskipTests -DskipITs -Prelease deploy
 
 .it_template: &it_env
@@ -120,7 +124,9 @@ sonar:
     - echo "$DBASE_SSH_KEY" | tr -d '\r' | ssh-add -
   script:
     - git clone http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/swe-database-team/db-operational.git
-    - find whois-db/target -name whois-db-*-SNAPSHOT.jar -exec cp {} db-operational/deployment/whois-db-$CI_COMMIT_SHA.jar \;
+    - if [ "$CI_COMMIT_TAG" ]; then NEW_VERSION="$CI_COMMIT_SHORT_SHA"; else NEW_VERSION="$CI_COMMIT_SHORT_SHA-SNAPSHOT"; fi
+    - mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.1:copy -Dartifact=net.ripe.db:whois-db:$NEW_VERSION:jar -DoutputDirectory=target/
+    - find target -name whois-db-$NEW_VERSION.jar -exec cp {} db-operational/deployment/whois-db-$CI_COMMIT_SHORT_SHA.jar \;
     - cd db-operational/deployment
     - ./stage.sh -p whois -e $CI_ENVIRONMENT_NAME whois-db-$CI_COMMIT_SHA.jar
     - ./sync.sh -p whois -e $CI_ENVIRONMENT_NAME
