@@ -19,7 +19,7 @@ import java.util.Scanner;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class ResourceDataDaoIntegrationTest extends AbstractDaoIntegrationTest {

@@ -26,7 +26,7 @@ public class JdbcAbuseValidationStatusDao implements AbuseValidationStatusDao {
     public boolean isSuspect(final CIString address) {
         return internalsTemplate.queryForObject(
                 "SELECT count(*) FROM abuse_email WHERE address = ? AND status = ?",
-                new Object[] { address.toString(), "SUSPECT" },
-                Integer.class) > 0;
+                Integer.class,
+                new Object[] { address.toString(), "SUSPECT" }) > 0;
     }
 }

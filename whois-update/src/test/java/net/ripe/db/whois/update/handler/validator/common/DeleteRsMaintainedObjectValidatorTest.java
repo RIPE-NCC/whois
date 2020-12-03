@@ -15,17 +15,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -87,32 +87,21 @@ public class DeleteRsMaintainedObjectValidatorTest {
 
     @Test
     public void validate_no_rs_auth_rs_maintainer_override() {
-        when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
-
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
-                "mntner: DEV-MNT\n" +
-                "mnt-by: DEV-MNT\n" +
-                "mnt-by: RS-MNT\n"));
 
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
     public void validate_rs_auth_rs_maintainer() {
         when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
 
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
-                "mntner: DEV-MNT\n" +
-                "mnt-by: DEV-MNT\n" +
-                "mnt-by: RS-MNT\n"));
-
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 }

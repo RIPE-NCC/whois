@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -73,10 +72,12 @@ public class UpdateNotifier {
             final ResponseMessage responseMessage = responseFactory.createNotification(updateContext, updateRequest.getOrigin(), notification);
             try {
                 new InternetAddress(notification.getEmail(), true);
-                mailGateway.sendEmail(notification.getEmail(), responseMessage);
             } catch (final AddressException e) {
                 LOGGER.info("Failed to send notification to '{}' because it's an invalid email address", notification.getEmail());
+                continue;
             }
+
+            mailGateway.sendEmail(notification.getEmail(), responseMessage);
         }
     }
 

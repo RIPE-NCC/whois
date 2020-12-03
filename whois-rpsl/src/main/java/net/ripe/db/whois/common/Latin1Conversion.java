@@ -67,6 +67,10 @@ public class Latin1Conversion {
         }
     }
 
+    private Latin1Conversion() {
+        // do not instantiate
+    }
+
     // NB. input byte[] parameter is modified in-place
     private static byte[] convert(@Nonnull final byte[] input) {
         for (int offset = 0; offset < input.length; offset++) {

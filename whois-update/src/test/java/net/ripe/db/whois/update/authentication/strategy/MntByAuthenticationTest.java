@@ -19,27 +19,25 @@ import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -69,7 +67,7 @@ public class MntByAuthenticationTest {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         assertThat(subject.supports(update), is(true));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -89,8 +87,8 @@ public class MntByAuthenticationTest {
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(maintainer));
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test(expected = AuthenticationFailedException.class)
@@ -103,7 +101,7 @@ public class MntByAuthenticationTest {
         final RpslObject maintainer = RpslObject.parse("mntner: TEST-MNT");
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, person.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(candidates);
-        when(credentialValidators.authenticate(update, updateContext, candidates)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(update, updateContext, candidates)).thenReturn(Lists.newArrayList());
 
         subject.authenticate(update, updateContext);
 
@@ -121,7 +119,7 @@ public class MntByAuthenticationTest {
         when(update.getAction()).thenReturn(Action.CREATE);
 
         final ArrayList<RpslObject> candidates = Lists.newArrayList(mntner);
-        when(rpslObjectDao.getByKeys(ObjectType.MNTNER, mntner.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(Lists.<RpslObject>newArrayList());
+        when(rpslObjectDao.getByKeys(ObjectType.MNTNER, mntner.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(Lists.newArrayList());
 
         when(credentialValidators.authenticate(update, updateContext, candidates)).thenReturn(candidates);
 
@@ -132,8 +130,8 @@ public class MntByAuthenticationTest {
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(mntner));
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -156,7 +154,7 @@ public class MntByAuthenticationTest {
         final List<RpslObject> authenticate = subject.authenticate(update, updateContext);
         assertThat(authenticate, is(candidates));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -169,12 +167,12 @@ public class MntByAuthenticationTest {
         when(update.getUpdatedObject()).thenReturn(updated);
         when(update.getType()).thenReturn(ObjectType.PERSON);
 
-        verifyZeroInteractions(rpslObjectDao, credentialValidators);
+        verifyNoMoreInteractions(rpslObjectDao, credentialValidators);
 
         final List<RpslObject> authenticate = subject.authenticate(update, updateContext);
         assertThat(authenticate, hasSize(0));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -193,7 +191,7 @@ public class MntByAuthenticationTest {
         final ArrayList<RpslObject> mntByCandidates = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, ciSet("DEV1-MNT", "RS-MNT"))).thenReturn(mntByCandidates);
 
-        when(credentialValidators.authenticate(update, updateContext, mntByCandidates)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(update, updateContext, mntByCandidates)).thenReturn(Lists.newArrayList());
 
         try {
             subject.authenticate(update, updateContext);
@@ -202,7 +200,7 @@ public class MntByAuthenticationTest {
             assertThat(e.getAuthenticationMessages(), contains(UpdateMessages.authenticationFailed(inetnum, AttributeType.MNT_BY, Lists.newArrayList(maintainer))));
         }
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -219,7 +217,7 @@ public class MntByAuthenticationTest {
         final ArrayList<RpslObject> mntByCandidates = Lists.newArrayList(RpslObject.parse("mntner:   DEV1-MNT\n"));
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, ciSet("DEV1-MNT"))).thenReturn(mntByCandidates);
 
-        when(credentialValidators.authenticate(update, updateContext, mntByCandidates)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(update, updateContext, mntByCandidates)).thenReturn(Lists.newArrayList());
 
         final Ipv4Entry parent = new Ipv4Entry(Ipv4Resource.parse("193.0.0.0/24"), 1);
         when(ipv4Tree.findExactAndAllLessSpecific(Ipv4Resource.parse(inetnum.getKey()))).thenReturn(Lists.newArrayList(parent));
@@ -238,7 +236,7 @@ public class MntByAuthenticationTest {
         } catch (AuthenticationFailedException e) {
             assertThat(e.getAuthenticationMessages(), contains(
                     UpdateMessages.authenticationFailed(inetnum, AttributeType.MNT_BY, mntByCandidates),
-                    UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_LOWER, Lists.<RpslObject>newArrayList()),
+                    UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_LOWER, Lists.newArrayList()),
                     UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_BY, parentCandidates)));
         }
 
@@ -261,7 +259,7 @@ public class MntByAuthenticationTest {
         final ArrayList<RpslObject> mntByCandidates = Lists.newArrayList(RpslObject.parse("mntner:   DEV1-MNT\n"));
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, ciSet("DEV1-MNT"))).thenReturn(mntByCandidates);
 
-        when(credentialValidators.authenticate(update, updateContext, mntByCandidates)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(update, updateContext, mntByCandidates)).thenReturn(Lists.newArrayList());
 
         final Ipv4Entry parent = new Ipv4Entry(Ipv4Resource.parse("193.0.0.0/24"), 1);
         when(ipv4Tree.findExactAndAllLessSpecific(Ipv4Resource.parse(inetnum.getKey()))).thenReturn(Lists.newArrayList(parent));
@@ -276,12 +274,7 @@ public class MntByAuthenticationTest {
         when(credentialValidators.authenticate(
                 eq(update),
                 eq(updateContext),
-                argThat(new ArgumentMatcher<Collection<RpslObject>>() {
-                    @Override
-                    public boolean matches(final Object argument) {
-                        return ((Collection<RpslObject>) argument).containsAll(parentCandidates);
-                    }
-                }))).thenReturn(parentCandidates);
+                argThat(argument -> argument.containsAll(parentCandidates)))).thenReturn(parentCandidates);
 
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated, is(parentCandidates));

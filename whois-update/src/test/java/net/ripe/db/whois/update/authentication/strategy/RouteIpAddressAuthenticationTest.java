@@ -24,19 +24,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.anyListOf;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -124,7 +122,7 @@ public class RouteIpAddressAuthenticationTest {
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
 
         when(objectDao.getByKeys(ObjectType.MNTNER, ciSet("TEST-MNT"))).thenReturn(candidates);
-        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(Collections.<RpslObject>emptyList());
+        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(Collections.emptyList());
 
         try {
             subject.authenticate(update, updateContext);
@@ -176,7 +174,7 @@ public class RouteIpAddressAuthenticationTest {
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
 
         when(objectDao.getByKeys(ObjectType.MNTNER, ciSet("ROUTES-MNT"))).thenReturn(candidates);
-        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(Collections.<RpslObject>emptyList());
+        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(Collections.emptyList());
 
         try {
             subject.authenticate(update, updateContext);
@@ -203,7 +201,7 @@ public class RouteIpAddressAuthenticationTest {
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
 
         when(objectDao.getByKeys(ObjectType.MNTNER, ciSet("LOWER-MNT"))).thenReturn(candidates);
-        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(Collections.<RpslObject>emptyList());
+        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(Collections.emptyList());
 
         try {
             subject.authenticate(update, updateContext);
@@ -222,7 +220,7 @@ public class RouteIpAddressAuthenticationTest {
                 "mnt-by: TEST-MNT");
 
         final Ipv4Resource existingRouteResource = Ipv4Resource.parse(existingRoute.getTypeAttribute().getCleanValue());
-        when(routeTree.findExactOrFirstLessSpecific(routeResource)).thenReturn(Collections.<Ipv4RouteEntry>emptyList());
+        when(routeTree.findExactOrFirstLessSpecific(routeResource)).thenReturn(Collections.emptyList());
         when(ipv4Tree.findExactOrFirstLessSpecific(routeResource)).thenReturn(Lists.newArrayList(new Ipv4Entry(existingRouteResource, 1)));
         when(objectDao.getById(1)).thenReturn(existingRoute);
 
@@ -230,7 +228,7 @@ public class RouteIpAddressAuthenticationTest {
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
 
         when(objectDao.getByKeys(ObjectType.MNTNER, ciSet("LOWER-MNT"))).thenReturn(candidates);
-        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(Collections.<RpslObject>emptyList());
+        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(Collections.emptyList());
 
         try {
             subject.authenticate(update, updateContext);
@@ -242,15 +240,14 @@ public class RouteIpAddressAuthenticationTest {
 
     @Test
     public void no_match_ipObject() {
-        when(routeTree.findExactOrFirstLessSpecific(routeResource)).thenReturn(Collections.<Ipv4RouteEntry>emptyList());
-        when(ipv4Tree.findExactOrFirstLessSpecific(routeResource)).thenReturn(Collections.<Ipv4Entry>emptyList());
-        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyListOf(RpslObject.class))).thenReturn(Collections.<RpslObject>emptyList());
+        when(routeTree.findExactOrFirstLessSpecific(routeResource)).thenReturn(Collections.emptyList());
+        when(ipv4Tree.findExactOrFirstLessSpecific(routeResource)).thenReturn(Collections.emptyList());
 
         try {
             subject.authenticate(update, updateContext);
             fail("Expected authentication exception");
         } catch (AuthenticationFailedException e) {
-            assertThat(e.getAuthenticationMessages(), contains(UpdateMessages.authenticationFailed(routeObject, AttributeType.ROUTE, Collections.<RpslObject>emptyList())));
+            assertThat(e.getAuthenticationMessages(), contains(UpdateMessages.authenticationFailed(routeObject, AttributeType.ROUTE, Collections.emptyList())));
         }
     }
 
@@ -280,7 +277,7 @@ public class RouteIpAddressAuthenticationTest {
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
 
         when(objectDao.getByKeys(ObjectType.MNTNER, ciSet("LOWER-MNT"))).thenReturn(candidates);
-        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(Collections.<RpslObject>emptyList());
+        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(Collections.emptyList());
 
         try {
             subject.authenticate(update, updateContext);

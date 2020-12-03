@@ -30,8 +30,8 @@ public class JdbcMaintainerSyncStatusDao implements MaintainerSyncStatusDao {
                return internalsTemplate.queryForObject(
                        "SELECT is_synchronised FROM default_maintainer_sync_history " +
                                "WHERE mntner = ? ORDER BY timestamp DESC LIMIT 1",
-                       new Object[]{mntner},
-                       (final ResultSet resultSet, final int rowNum) -> resultSet.getBoolean(1));
+                       (final ResultSet resultSet, final int rowNum) -> resultSet.getBoolean(1),
+                       new Object[]{mntner});
 
            } catch (EmptyResultDataAccessException ex) {
                return false;

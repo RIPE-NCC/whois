@@ -2,7 +2,9 @@ package net.ripe.db.whois.api.rdap;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -33,7 +35,9 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
         rdapJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
 
         // allow cross-origin requests from ANY origin (by default)
-        context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/rdap/*", EnumSet.allOf(DispatcherType.class));
+        final FilterHolder crossOriginFilterHolder = context.addFilter(RdapCrossOriginFilter.class, "/rdap/*", EnumSet.allOf(DispatcherType.class));
+        crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "false");
+        crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET, OPTIONS");
 
         final ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.register(whoisRDAPService);

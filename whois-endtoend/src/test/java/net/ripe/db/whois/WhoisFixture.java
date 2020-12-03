@@ -46,7 +46,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -196,16 +195,17 @@ public class WhoisFixture {
         rpslObjectUpdateDao.deleteObject(byKey.getObjectId(), byKey.getKey());
     }
 
-    public String syncupdate(final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) throws IOException {
-        return syncupdate(jettyBootstrap, data, isHelp, isDiff, isNew, isRedirect);
+    public String syncupdate(final String data, final String charset, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
+        return syncupdate(jettyBootstrap, data, charset, isHelp, isDiff, isNew, isRedirect);
     }
 
-    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) throws IOException {
+    public static String syncupdate(final JettyBootstrap jettyBootstrap, final String data, final String charset, final boolean isHelp, final boolean isDiff, final boolean isNew, final boolean isRedirect) {
         return new SyncUpdateBuilder()
                 .setHost("localhost")
                 .setPort(jettyBootstrap.getPort())
                 .setSource("TEST")
                 .setData(data)
+                .setCharset(charset)
                 .setHelp(isHelp)
                 .setDiff(isDiff)
                 .setNew(isNew)

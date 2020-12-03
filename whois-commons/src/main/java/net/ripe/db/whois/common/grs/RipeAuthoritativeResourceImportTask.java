@@ -8,6 +8,8 @@ import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.message.DeflateEncoder;
+import org.glassfish.jersey.message.GZipEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,11 +25,10 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
 
     protected static final String TASK_NAME = "RipeAuthoritativeResourceImport";
 
-    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final String rsngBaseUrl;
-
-    private Client client;
+    private final Client client;
 
     @Autowired
     public RipeAuthoritativeResourceImportTask(final ResourceDataDao resourceDataDao,
@@ -37,7 +38,9 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
         this.rsngBaseUrl = rsngBaseUrl;
         this.client = ClientBuilder.newBuilder()
                 .property(ClientProperties.CONNECT_TIMEOUT, 10_000)
-                .property(ClientProperties.READ_TIMEOUT, 10_000)
+                .property(ClientProperties.READ_TIMEOUT, 30_000)
+                .register(GZipEncoder.class)
+                .register(DeflateEncoder.class)
                 .build();
 
         LOGGER.info("Authoritative resource RSNG import task is {}abled", enabled && !StringUtils.isBlank(rsngBaseUrl)? "en" : "dis");

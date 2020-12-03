@@ -1,17 +1,14 @@
 package net.ripe.db.whois.api.rdap;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import org.junit.rules.ExpectedException;
-import org.junit.Rule;
 import javax.ws.rs.BadRequestException;
-
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import javax.ws.rs.NotFoundException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RdapRequestValidatorTest {
@@ -24,7 +21,7 @@ public class RdapRequestValidatorTest {
 
     @Test
     public void shouldThrowExceptionForInvalidOrganisation() {
-        expectedEx.expect(BadRequestException.class);
+        expectedEx.expect(NotFoundException.class);
         expectedEx.expectMessage("Invalid syntax");
 
         validator.validateEntity("ORG-Test");

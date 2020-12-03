@@ -3,14 +3,14 @@ package net.ripe.db.whois.update.domain;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -27,7 +27,7 @@ public class OverrideOptionsTest {
         assertThat(overrideOptions.isObjectIdOverride(), is(false));
         assertThat(overrideOptions.isNotifyOverride(), is(false));
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class OverrideOptionsTest {
         assertThat(overrideOptions.isObjectIdOverride(), is(false));
         assertThat(overrideOptions.isNotifyOverride(), is(false));
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class OverrideOptionsTest {
         assertThat(overrideOptions.isObjectIdOverride(), is(false));
         assertThat(overrideOptions.isNotifyOverride(), is(false));
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class OverrideOptionsTest {
 
         assertThat(overrideOptions.isNotifyOverride(), is(false));
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class OverrideOptionsTest {
         assertThat(overrideOptions.isNotifyOverride(), is(true));
         assertThat(overrideOptions.isNotify(), is(false));
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class OverrideOptionsTest {
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
 
         assertThat(overrideOptions.isSkipLastModified(), is(true));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class OverrideOptionsTest {
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
 
         assertThat(overrideOptions.isSkipLastModified(), is(false));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class OverrideOptionsTest {
 
         //!!!!!!!!!!!!!! check TO DO in OverrideOptions
         assertThat(overrideOptions.isSkipLastModified(), is(false));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -158,7 +158,7 @@ public class OverrideOptionsTest {
 
         //!!!!!!!!!!!!!! check TO DO in OverrideOptions
         assertThat(overrideOptions.isSkipLastModified(), is(false));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     private void useCredentialWithRemarks(final String remarks) {
