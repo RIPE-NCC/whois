@@ -1,6 +1,9 @@
 image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:df982ac5
 
 variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  TZ: Europe/Amsterdam
+  WHITESOURCE_CONFIG_FILE: "whitesource.config"
   PROJECT_NAME: "whois"
   ARTIFACT_NAME: "whois-db"
 
@@ -9,8 +12,14 @@ include:
     file: '/templates/whitesource-scanning.yml'
 
   - project: 'swe-database-team/gitlab-ci'
-    ref: d7ebf9391dc326f314899cf763409c48a09fa418
-    file: '/templates/common-template.yml'
+  #TODO: remove the commit hash once template merged to master
+  ref: 2095fe71933d36da9d741035bab2d12094adfbcc
+  file: '/templates/deployment-template.yml'
+
+  - project: 'swe-database-team/gitlab-ci'
+    #TODO: remove the commit hash once template merged to master
+    ref: 2095fe71933d36da9d741035bab2d12094adfbcc
+    file: '/templates/aws-deployment-template.yml'
 
 stages:
   - build
@@ -19,6 +28,35 @@ stages:
   - code_quality
   - release
   - deploy
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .m2/repository
+
+build:
+  stage: build
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - mvn $MAVEN_OPTS clean install -Prelease
+    - docker tag whois:${CI_COMMIT_SHA} $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
+    - docker push $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
+  artifacts:
+    paths:
+      - "*/target/*.jar"
+    reports:
+      junit:
+        - "*/target/surefire-reports/TEST-*.xml"
+        - "*/target/failsafe-reports/TEST-*.xml"
+
+release:
+  stage: release
+  only:
+    - tags
+  script:
+    - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA
+    - mvn -DskipTests -DskipITs -Prelease deploy
 
 .it_template: &it_env
   services:
