@@ -1495,7 +1495,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (ServerErrorException e) {
             final Entity entity = e.getResponse().readEntity(Entity.class);
-            assertThat(entity.getErrorTitle(), is("nameserver search not implemented"));
+            assertThat(entity.getErrorTitle(), is("Nameserver not supported"));
             assertThat(entity.getErrorCode(), is(501));
         }
     }

@@ -153,7 +153,7 @@ public class WhoisRdapService {
                 return lookupObject(request, whoisObjectTypes, key);
             }
             case NAMESERVER: {
-                throw new ServerErrorException("nameserver search not implemented", Response.Status.NOT_IMPLEMENTED);
+                throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
             }
             default: {
                 throw new BadRequestException("unknown type");
@@ -188,7 +188,7 @@ public class WhoisRdapService {
     public Response searchNameservers(
             @Context final HttpServletRequest request,
             @QueryParam("name") final String name) {
-        throw new ServerErrorException("nameserver search not implemented", Response.Status.NOT_IMPLEMENTED);
+        throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
     }
 
     @GET
