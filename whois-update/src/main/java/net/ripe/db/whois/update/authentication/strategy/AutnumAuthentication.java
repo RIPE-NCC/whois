@@ -53,7 +53,7 @@ public class AutnumAuthentication extends AuthenticationStrategyBase {
         }
 
         final List<RpslObject> maintainers = objectDao.getByKeys(ObjectType.MNTNER, parentMnts);
-        final List<RpslObject> authenticatedBy = authenticationModule.authenticate(update, updateContext, maintainers);
+        final List<RpslObject> authenticatedBy = authenticationModule.authenticate(update, updateContext, maintainers, getClass());
         if (authenticatedBy.isEmpty()) {
             throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(asBlock, attributeType, maintainers), maintainers);
         }

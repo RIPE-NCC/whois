@@ -88,7 +88,7 @@ public class AutnumAuthenticationTest {
 
         final ArrayList<RpslObject> parentMaintainers = Lists.newArrayList(RpslObject.parse("mntner: LOW-MNT"));
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
-        when(authenticationModule.authenticate(update, updateContext, parentMaintainers)).thenReturn(parentMaintainers);
+        when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(parentMaintainers);
 
         final List<RpslObject> authenticatedBy = subject.authenticate(update, updateContext);
 
@@ -103,7 +103,7 @@ public class AutnumAuthenticationTest {
 
         final ArrayList<RpslObject> parentMaintainers = Lists.newArrayList(RpslObject.parse("mntner: LOW-MNT"));
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
-        when(authenticationModule.authenticate(update, updateContext, parentMaintainers)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
     }
@@ -123,7 +123,7 @@ public class AutnumAuthenticationTest {
 
         final ArrayList<RpslObject> parentMaintainers = Lists.newArrayList(RpslObject.parse("mntner: TEST-MNT"));
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
-        when(authenticationModule.authenticate(update, updateContext, parentMaintainers)).thenReturn(parentMaintainers);
+        when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(parentMaintainers);
 
         final List<RpslObject> authenticatedBy = subject.authenticate(update, updateContext);
 
@@ -138,7 +138,7 @@ public class AutnumAuthenticationTest {
 
         final ArrayList<RpslObject> parentMaintainers = Lists.newArrayList(RpslObject.parse("mntner: TEST-MNT"));
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
-        when(authenticationModule.authenticate(update, updateContext, parentMaintainers)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
     }
@@ -154,7 +154,7 @@ public class AutnumAuthenticationTest {
 
         final ArrayList<RpslObject> parentMaintainers = Lists.newArrayList(RpslObject.parse("mntner: TEST-MNT"));
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
-        when(authenticationModule.authenticate(update, updateContext, parentMaintainers)).thenReturn(parentMaintainers);
+        when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(parentMaintainers);
 
         subject.authenticate(update, updateContext);
 
