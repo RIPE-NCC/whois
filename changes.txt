@@ -2,7 +2,7 @@
 
 # 1.99
 
-[update] NWI-10: require -mnt suffix (#667)
+[update] Require -mnt suffix when creating an MNTNER object (#667)
 [nrtm] Enable TCP_NODELAY in NRTM and query connections (#693)
 [api] Filter out sensitive information in API response on exception (#664)
 [query] Return 'invalid option supplied' on invalid version number given to --diff-version (#662)
