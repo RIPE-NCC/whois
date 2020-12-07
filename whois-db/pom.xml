@@ -161,7 +161,7 @@
                 </executions>
                 <configuration>
                     <from>
-                        <image>openjdk:8</image>
+                        <image>openjdk:11</image>
                     </from>
                     <to>
                         <image>whois:${git.commit.id}</image>
