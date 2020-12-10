@@ -55,7 +55,7 @@
         <findbugs.version>3.0.2</findbugs.version>
 
         <guava.version>26.0-jre</guava.version>
-        <groovy.version>2.5.13</groovy.version>
+        <groovy.version>3.0.7</groovy.version>
 
         <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
         <hazelcast.version>2.6.10</hazelcast.version>
