@@ -1,4 +1,4 @@
-# basic dependabot config file. 
+# basic dependabot config file.
 #
 # Announcement: https://github.blog/2020-06-01-keep-all-your-packages-up-to-date-with-dependabot/
 # Documentation: https://docs.github.com/en/free-pro-team@latest/github/administering-a-repository/keeping-your-dependencies-updated-automatically
@@ -19,3 +19,22 @@ updates:
       # Netty 4 has breaking changes, 5.0.0 is deprecated
       - dependency-name: "io.netty:netty"
         versions: ["4.x", "5.x"]
+      # Don't update to Spock 2 until we update to JUnit 5
+      - dependency-name: "org.spockframework:spock-core"
+        versions: ["2.x"]
+      - dependency-name: "org.spockframework:spock-spring"
+        versions: ["2.x"]
+      # Don't update to Groovy 3 until we update to Spock 2
+      - dependency-name: "org.codehaus.groovy:groovy"
+        versions: ["3.x"]
+      # Don't update to Jersey 3.x yet
+      - dependency-name: "org.glassfish.jersey.containers:jersey-container-servlet"
+        versions: ["3.x"]
+      - dependency-name: "org.glassfish.jersey.core:jersey-client"
+        versions: ["3.x"]
+      - dependency-name: "org.glassfish.jersey.media:jersey-media-multipart"
+        versions: ["3.x"]
+      - dependency-name: "org.glassfish.jersey.media:jersey-media-jaxb"
+        versions: ["3.x"]
+      - dependency-name: "org.glassfish.jersey.inject:jersey-hk2"
+        versions: ["3.x"]
