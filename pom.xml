@@ -59,7 +59,7 @@
 
         <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
         <hazelcast.version>2.6.10</hazelcast.version>
-        <hamcrest.version>1.3</hamcrest.version>
+        <hamcrest.version>2.2</hamcrest.version>
 
         <jaxb.version>2.3.3</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
