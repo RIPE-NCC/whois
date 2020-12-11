@@ -53,6 +53,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -152,7 +153,7 @@ public class WhoisRdapService {
                 return lookupObject(request, whoisObjectTypes, key);
             }
             case NAMESERVER: {
-                throw new NotFoundException("nameserver not found");
+                throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
             }
             default: {
                 throw new BadRequestException("unknown type");
@@ -187,14 +188,7 @@ public class WhoisRdapService {
     public Response searchNameservers(
             @Context final HttpServletRequest request,
             @QueryParam("name") final String name) {
-
-        LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
-
-        if (StringUtils.isEmpty(name)) {
-            throw new BadRequestException("empty lookup key");
-        }
-
-        throw new NotFoundException("nameservers not found");
+        throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
     }
 
     @GET
