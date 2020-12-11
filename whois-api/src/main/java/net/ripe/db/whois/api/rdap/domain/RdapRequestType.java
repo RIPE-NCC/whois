@@ -2,6 +2,9 @@ package net.ripe.db.whois.api.rdap.domain;
 
 import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+
+import javax.ws.rs.ServerErrorException;
+import javax.ws.rs.core.Response;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
@@ -41,7 +44,7 @@ public enum RdapRequestType {
 
     NAMESERVER {
         public Set<ObjectType> getWhoisObjectTypes(String key) {
-            throw new IllegalStateException("Nameserver is not supported");
+            throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
         }
     };
 
