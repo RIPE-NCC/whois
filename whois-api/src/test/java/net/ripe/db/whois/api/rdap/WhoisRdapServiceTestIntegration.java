@@ -1499,6 +1499,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             assertThat(entity.getErrorCode(), is(501));
         }
     }
+
+    @Test
+    public void lookup_nameserver_not_found() {
+        try {
+              createResource("nameserver/test")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Autnum.class);
+            fail();
+        } catch (ServerErrorException e) {
+            final Entity entity = e.getResponse().readEntity(Entity.class);
+            assertThat(entity.getErrorTitle(), is("Nameserver not supported"));
+            assertThat(entity.getErrorCode(), is(501));
+        }
+    }
+
     // search - entities - person
 
     @Test
