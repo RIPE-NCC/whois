@@ -4708,6 +4708,33 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void delete_domain_trailing_dot_nserver() {
+        databaseHelper.addObject(
+                "domain:        193.in-addr.arpa4\n" +
+                        "nserver:         test.ns.\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "source:          TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/domain/193.in-addr.arpa4")
+                .request()
+                .get(WhoisResources.class);
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("193.in-addr.arpa4"));
+
+        final Response response = RestTest.target(getPort(), "whois/test/domain/193.in-addr.arpa4?password=test")
+                .request().delete();
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+
+        try {
+            RestTest.target(getPort(), "whois/test/domain/193.in-addr.arpa4")
+                    .request()
+                    .get(WhoisResources.class);
+            fail();
+        } catch (NotFoundException ex) {
+            assertThat(ex.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).getText(), containsString("ERROR:101: no entries found"));
+        }
+    }
+
+    @Test
     public void delete_route6_out_of_region_redirect() {
         databaseHelper.deleteAuthoritativeResource("test", "::/0");
 

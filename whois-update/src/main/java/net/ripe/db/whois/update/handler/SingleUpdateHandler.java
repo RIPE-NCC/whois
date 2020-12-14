@@ -205,6 +205,8 @@ public class SingleUpdateHandler {
             if (update.getDeleteReasons().size() > 1) {
                 updateContext.addMessage(update, UpdateMessages.multipleReasonsSpecified(update.getOperation()));
             }
+
+            updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
