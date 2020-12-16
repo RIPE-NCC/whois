@@ -102,7 +102,7 @@ public class SingleUpdateHandler {
         }
 
         if (action == Action.DELETE && originalObject == null) {
-            updateContext.addMessage(update, UpdateMessages.objectNotFound(updatedObject.getFormattedKey()));
+            updateContext.addMessage(update, UpdateMessages.objectNotFound(update.getSubmittedObject().getFormattedKey()));
         }
 
         // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...), bail out if so
