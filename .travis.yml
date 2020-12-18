@@ -3,7 +3,7 @@ language: java
 dist: trusty # xenial is causing build failure when installing openjdk8
 
 jdk:
-  - openjdk8
+  - openjdk11
 
 before_install:
   - rm whois-rpsl/src/main/parser/bin/yacc* # in travis yacc needs to be compiled from source
