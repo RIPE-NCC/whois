@@ -1,13 +1,13 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.StatusDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.IpTree;
+import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.Messages.Type.WARNING;
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
@@ -45,18 +44,18 @@ public class StatusValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(MODIFY, DELETE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(INETNUM, ObjectType.INET6NUM);
 
-    private final RpslObjectDao objectDao;
+    private final StatusDao statusDao;
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final Maintainers maintainers;
 
     @Autowired
     public StatusValidator(
-            final RpslObjectDao objectDao,
+            final StatusDao statusDao,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
             final Maintainers maintainers) {
-        this.objectDao = objectDao;
+        this.statusDao = statusDao;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.maintainers = maintainers;
@@ -84,25 +83,24 @@ public class StatusValidator implements BusinessRuleValidator {
     }
 
     private void validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
+        // TODO: [ES] unnecessary null checks?
         final CIString originalStatus = update.getReferenceObject() != null ? update.getReferenceObject().getValueForAttribute(STATUS) : null;
         final CIString updateStatus = update.getUpdatedObject() != null ? update.getUpdatedObject().getValueForAttribute(STATUS) : null;
 
-        if (!Objects.equals(originalStatus, updateStatus)) {
-            if (!hasAuthOverride(updateContext.getSubject(update))) {
-                updateContext.addMessage(update, UpdateMessages.statusChange());
-            }
+        if (!Objects.equals(originalStatus, updateStatus) && (!hasAuthOverride(updateContext.getSubject(update)))) {
+            updateContext.addMessage(update, UpdateMessages.statusChange());
         }
 
-        addHierarchyWarnings(update.getUpdatedObject(), updateContext, update);
+        addIpv4HierarchyWarnings(update.getUpdatedObject(), updateContext, update);
     }
 
     private void validateDelete(final PreparedUpdate update, final UpdateContext updateContext, final IpTree ipTree) {
-        InetStatus status;
 
         if (update.getReferenceObject() == null) {
             return;
         }
 
+        final InetStatus status;
         try {
             status = getStatus(update.getReferenceObject());
             if (status == null) {
@@ -123,72 +121,91 @@ public class StatusValidator implements BusinessRuleValidator {
             }
         }
 
-        if (update.getReferenceObject().getType().equals(INETNUM)) {
-            final IpInterval ipInterval = IpInterval.parse(update.getReferenceObject().getKey());
-            final List<IpEntry> parents = ipTree.findFirstLessSpecific(ipInterval);
-            if (parents.size() != 1) {
-                if (!hasAuthOverride(updateContext.getSubject(update))) {
-                    updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipInterval));
-                }
-                return;
-            }
-            validateStatusLegacy(update.getReferenceObject(), objectDao.getById(parents.get(0).getObjectId()), update, updateContext);
+        if (!update.getReferenceObject().getType().equals(INETNUM)) {
+            return;
         }
 
-        addHierarchyWarnings(update.getReferenceObject(), updateContext, update);
+        final Ipv4Resource ipv4Resource = Ipv4Resource.parse(update.getReferenceObject().getKey());
+
+        final List<IpEntry<?>> parents = ipTree.findFirstLessSpecific(ipv4Resource);
+        if (parents.size() != 1) {
+            if (!hasAuthOverride(updateContext.getSubject(update))) {
+                updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipv4Resource));
+            }
+            return;
+        }
+
+        validateIpv4LegacyStatus(
+            update.getReferenceObject().getValueForAttribute(STATUS),
+            statusDao.getStatus(parents.get(0).getObjectId()),
+            update,
+            updateContext);
+
+        addIpv4HierarchyWarnings(update.getReferenceObject(), updateContext, update);
     }
 
-    private void validateStatusLegacy(final RpslObject updatedObject, final RpslObject parentObject, final PreparedUpdate update, final UpdateContext updateContext) {
-        if (updatedObject.getValueForAttribute(STATUS).equals(InetnumStatus.LEGACY.toString()) &&
-                !parentObject.getValueForAttribute(STATUS).equals(InetnumStatus.LEGACY.toString())) {
-            if (!authByRsOrOverride(updateContext.getSubject(update))) {
-                updateContext.addMessage(update, UpdateMessages.inetnumStatusLegacy());
-            }
+    private void validateIpv4LegacyStatus(final CIString updateStatus, final CIString parentStatus, final PreparedUpdate update, final UpdateContext updateContext) {
+        if (updateStatus.equals(InetnumStatus.LEGACY.toString()) &&
+                !parentStatus.equals(InetnumStatus.LEGACY.toString()) &&
+               (!authByRsOrOverride(updateContext.getSubject(update)))) {
+            updateContext.addMessage(update, UpdateMessages.inetnumStatusLegacy());
         }
     }
 
-    private void addHierarchyWarnings(final RpslObject rpslObject,
+    private void addIpv4HierarchyWarnings(final RpslObject rpslObject,
                                       final UpdateContext updateContext,
                                       final PreparedUpdate update) {
-        if (rpslObject.getType() == INETNUM) {
-            ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(rpslObject.getKey())).stream()
-                    .findFirst()
-                    .map(entry -> objectDao.getById(entry.getObjectId()))
-                    .ifPresent(parent -> {
-                        // TODO: [ES] use status index to lookup status of children (don't load entire objects)
-                        final List<RpslObject> children = ipv4Tree.findFirstMoreSpecific(Ipv4Resource.parse(rpslObject.getKey())).stream()
-                                .map(entry -> objectDao.getById(entry.getObjectId()))
-                                .collect(Collectors.toList());
-
-                        if (update.getAction() == MODIFY) {
-                            // check modified object against its parent
-                            addWarningIfHierarchyInvalid(parent, rpslObject, updateContext, update, true);
-                            // checked modified object against its children
-                            children.forEach(child -> addWarningIfHierarchyInvalid(rpslObject, child, updateContext, update, false));
-                        } else {
-                            // check object being deleted's parent against object being deleted's children
-                            children.forEach(child -> addWarningIfHierarchyInvalid(parent, child, updateContext, update, false));
-                        }
-                    });
+        if (rpslObject.getType() != INETNUM) {
+            return;
         }
+
+        ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(rpslObject.getKey())).stream()
+                .findFirst()
+                .map(entry -> statusDao.getStatus(entry.getObjectId()))
+                .ifPresent(parentStatus -> {
+                    final List<Ipv4Entry> children = ipv4Tree.findFirstMoreSpecific(Ipv4Resource.parse(rpslObject.getKey()));
+                    if (update.getAction() == MODIFY) {
+                        // check modified object against its parent
+                        addWarningIfIpv4HierarchyInvalid(
+                            parentStatus,
+                            rpslObject.getValueForAttribute(STATUS),
+                            rpslObject.getKey(),
+                            updateContext,
+                            update,
+                            true);
+                        // checked modified object against its children
+                        children.forEach(child -> addWarningIfIpv4HierarchyInvalid(
+                            rpslObject.getValueForAttribute(STATUS),
+                            statusDao.getStatus(child.getObjectId()),
+                            CIString.ciString(child.getKey().toRangeString()),
+                            updateContext,
+                            update,
+                            false));
+                    } else {
+                        // check object being deleted's parent against object being deleted's children
+                        children.forEach(child -> addWarningIfIpv4HierarchyInvalid(
+                            parentStatus,
+                            statusDao.getStatus(child.getObjectId()),
+                            CIString.ciString(child.getKey().toRangeString()),
+                            updateContext,
+                            update,
+                            false));
+                    }
+                });
     }
 
-    private void addWarningIfHierarchyInvalid(final RpslObject parent,
-                                              final RpslObject child,
-                                              final UpdateContext updateContext,
-                                              final PreparedUpdate update,
-                                              final boolean parentMessage) {
-        if (parent.getType() == INETNUM) {
-            final InetnumStatus parentStatus = InetnumStatus.getStatusFor(parent.getValueForAttribute(STATUS));
-            final InetnumStatus childStatus = InetnumStatus.getStatusFor(child.getValueForAttribute(STATUS));
-            if (!childStatus.worksWithParentStatus(parentStatus, false)) {
-
-                if (parentMessage) {
-                    updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(WARNING, child.getType(), parentStatus.toString()));
-                } else {
-                    updateContext.addMessage(update, UpdateMessages.incorrectChildStatus(WARNING, parentStatus.toString(), childStatus.toString(), child.getKey()));
-                }
-
+    private void addWarningIfIpv4HierarchyInvalid(
+            final CIString parentStatus,
+            final CIString childStatus,
+            final CIString childKey,
+            final UpdateContext updateContext,
+            final PreparedUpdate update,
+            final boolean parentMessage) {
+        if (!InetnumStatus.getStatusFor(childStatus).worksWithParentStatus(InetnumStatus.getStatusFor(parentStatus), false)) {
+            if (parentMessage) {
+                updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(WARNING, INETNUM, parentStatus.toString()));
+            } else {
+                updateContext.addMessage(update, UpdateMessages.incorrectChildStatus(WARNING, parentStatus.toString(), childStatus.toString(), childKey));
             }
         }
     }

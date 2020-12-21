@@ -2,7 +2,8 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.StatusDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
@@ -21,7 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class StatusValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
-    @Mock RpslObjectDao objectDao;
+    @Mock StatusDao statusDao;
     @Mock Ipv4Tree ipv4Tree;
     @Mock Subject authenticationSubject;
     @Mock Maintainers maintainers;
@@ -42,17 +42,13 @@ public class StatusValidatorTest {
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
-
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
     }
 
     @Test
     public void delete_inetnum_w_legacy_not_allowed_under_unspecified_w_non_rs_maintainer() {
         when(update.getAction()).thenReturn(Action.DELETE);
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
-        when(objectDao.getById(1)).thenReturn(RpslObject.parse("" +
-                "inetnum: 0.0.0.0 - 255.255.255.255\n" +
-                "status: ALLOCATED UNSPECIFIED"));
+        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
@@ -68,16 +64,15 @@ public class StatusValidatorTest {
     @Test
     public void modify_status_change() {
         when(update.getAction()).thenReturn(Action.MODIFY);
-
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: ASSIGNED PI"));
-
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: ASSIGNED PA"));
 
         subject.validate(update, updateContext);
+
         verify(updateContext).addMessage(update, UpdateMessages.statusChange());
     }
 
