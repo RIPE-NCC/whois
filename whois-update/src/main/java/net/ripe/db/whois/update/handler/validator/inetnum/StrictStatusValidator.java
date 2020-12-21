@@ -94,6 +94,7 @@ public class StrictStatusValidator implements BusinessRuleValidator {
             checkAuthorisationForStatus(update, updateContext, updatedObject, currentStatus);
         }
 
+        // TODO: [ES] use status index to lookup status of parent (don't load entire object)
         final RpslObject parentObject = objectDao.getById(parents.get(0).getObjectId());
 
         final InetStatus parentStatus = InetStatusHelper.getStatus(parentObject);

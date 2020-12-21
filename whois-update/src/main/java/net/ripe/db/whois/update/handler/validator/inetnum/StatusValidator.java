@@ -155,6 +155,7 @@ public class StatusValidator implements BusinessRuleValidator {
                     .findFirst()
                     .map(entry -> objectDao.getById(entry.getObjectId()))
                     .ifPresent(parent -> {
+                        // TODO: [ES] use status index to lookup status of children (don't load entire objects)
                         final List<RpslObject> children = ipv4Tree.findFirstMoreSpecific(Ipv4Resource.parse(rpslObject.getKey())).stream()
                                 .map(entry -> objectDao.getById(entry.getObjectId()))
                                 .collect(Collectors.toList());
