@@ -212,6 +212,7 @@ public class StrictStatusValidator implements BusinessRuleValidator {
         final RpslAttribute updateStatusAttribute = update.getUpdatedObject().findAttribute(STATUS);
         final InetStatus updatedStatus = InetStatusHelper.getStatus(update);
 
+        // TODO: [ES] use status index to lookup status of children (don't load entire objects)
         for (final IpEntry child : children) {
             final RpslObject childObject = objectDao.getById(child.getObjectId());
 
