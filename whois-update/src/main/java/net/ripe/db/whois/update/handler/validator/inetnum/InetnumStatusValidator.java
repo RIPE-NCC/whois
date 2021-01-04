@@ -1,17 +1,18 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.StatusDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -73,32 +75,20 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
             updateContext.addMessage(update, UpdateMessages.statusChange());
         }
 
-        addIpv4HierarchyWarnings(update.getUpdatedObject(), updateContext, update);
+        addIpv4HierarchyWarnings(update.getUpdatedObject(), update, updateContext);
     }
 
     private void validateDelete(final PreparedUpdate update, final UpdateContext updateContext) {
-
-        if (update.getReferenceObject() == null) {
+        if (update.getReferenceObject() == null || update.getUpdatedObject() == null) {
             return;
         }
 
-        final InetStatus status;
-        try {
-            status = InetStatusHelper.getStatus(update.getReferenceObject());
-            if (status == null) {
-                // invalid status attribute value
-                return;
-            }
-        } catch (IllegalArgumentException e) {
-            // status attribute not found
-            return;
-        }
-
-        if (status.requiresRsMaintainer()) {
+        final InetnumStatus updateStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS));
+        if (updateStatus.requiresRsMaintainer()) {
             final Set<CIString> mntBy = update.getReferenceObject().getValuesForAttribute(AttributeType.MNT_BY);
             if (!maintainers.isRsMaintainer(mntBy)) {
                 if (!hasAuthOverride(updateContext.getSubject(update))) {
-                    updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString()));
+                    updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(updateStatus.toString()));
                 }
             }
         }
@@ -113,62 +103,82 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
             return;
         }
 
+        final InetnumStatus referenceStatus = InetnumStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS));
+        final InetnumStatus parentStatus = InetnumStatus.getStatusFor(statusDao.getStatus(parents.get(0).getObjectId()));
+
         validateIpv4LegacyStatus(
-            update.getReferenceObject().getValueForAttribute(AttributeType.STATUS),
-            statusDao.getStatus(parents.get(0).getObjectId()),
+            referenceStatus,
+            parentStatus,
             update,
             updateContext);
 
-        addIpv4HierarchyWarnings(update.getReferenceObject(), updateContext, update);
+        addIpv4HierarchyWarnings(
+            update.getReferenceObject(),
+            update,
+            updateContext);
     }
 
-    private void validateIpv4LegacyStatus(final CIString updateStatus, final CIString parentStatus, final PreparedUpdate update, final UpdateContext updateContext) {
-        if (updateStatus.equals(InetnumStatus.LEGACY.toString()) &&
-                !parentStatus.equals(InetnumStatus.LEGACY.toString()) &&
+    private void validateIpv4LegacyStatus(
+            final InetnumStatus updateStatus,
+            final InetnumStatus parentStatus,
+            final PreparedUpdate update,
+            final UpdateContext updateContext) {
+        if ((updateStatus == InetnumStatus.LEGACY) &&
+                (parentStatus != InetnumStatus.LEGACY) &&
                (!authByRsOrOverride(updateContext.getSubject(update)))) {
             updateContext.addMessage(update, UpdateMessages.inetnumStatusLegacy());
         }
     }
 
-    private void addIpv4HierarchyWarnings(final RpslObject rpslObject,
-                                      final UpdateContext updateContext,
-                                      final PreparedUpdate update) {
-        ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(rpslObject.getKey()))
-                .stream()
-                .findFirst()
-                .map(entry -> statusDao.getStatus(entry.getObjectId()))
-                .ifPresent(parentStatus -> {
-                    final List<Ipv4Entry> children = ipv4Tree.findFirstMoreSpecific(Ipv4Resource.parse(rpslObject.getKey()));
-                    switch (update.getAction()) {
-                        case MODIFY: {
-                            validateParentStatus(
-                                parentStatus,
-                                rpslObject.getValueForAttribute(AttributeType.STATUS),
-                                updateContext,
-                                update);
-                            children.forEach(child ->
-                                validateChildStatus(
-                                    rpslObject.getValueForAttribute(AttributeType.STATUS),
-                                    statusDao.getStatus(child.getObjectId()),       // TODO: need child objectId, key, status
-                                    CIString.ciString(child.getKey().toRangeString()),
-                                    updateContext,
-                                    update));
-                        }
-                        break;
-                        case DELETE: {
-                            children.forEach(child ->
-                                validateChildStatus(
-                                    parentStatus,
-                                    statusDao.getStatus(child.getObjectId()),
-                                    CIString.ciString(child.getKey().toRangeString()),
-                                    updateContext,
-                                    update));
-                        }
-                        break;
-                        default:
-                        break;
-                    }
+    private void addIpv4HierarchyWarnings(
+            final RpslObject rpslObject,
+            final PreparedUpdate update,
+            final UpdateContext updateContext) {
+        final CIString objectStatus = rpslObject.getValueForAttribute(AttributeType.STATUS);
+
+        final Ipv4Entry parent = ipv4Tree.findFirstLessSpecific(Ipv4Resource.parse(rpslObject.getKey())).get(0);
+        final CIString parentStatus = statusDao.getStatus(parent.getObjectId());
+
+        final List<Ipv4Entry> children = ipv4Tree.findFirstMoreSpecific(Ipv4Resource.parse(rpslObject.getKey()));
+        final List<Integer> childrenObjectIds = Lists.transform(children, IpEntry::getObjectId);
+        final Map<Integer, CIString> childStatusMap = statusDao.getStatus(childrenObjectIds);
+
+        switch (update.getAction()) {
+            case MODIFY: {
+                validateParentStatus(
+                    parentStatus,
+                    rpslObject.getValueForAttribute(AttributeType.STATUS),
+                    updateContext,
+                    update);
+
+                children.forEach(child -> {
+                    final CIString childStatus = childStatusMap.get(child.getObjectId());
+                    final CIString childKey = CIString.ciString(child.getKey().toRangeString());
+                    validateChildStatus(
+                        objectStatus,
+                        childStatus,
+                        childKey,
+                        updateContext,
+                        update);
                 });
+            }
+            break;
+            case DELETE: {
+                children.forEach(child -> {
+                    final CIString childStatus = childStatusMap.get(child.getObjectId());
+                    final CIString childKey = CIString.ciString(child.getKey().toRangeString());
+                    validateChildStatus(
+                        parentStatus,
+                        childStatus,
+                        childKey,
+                        updateContext,
+                        update);
+                });
+            }
+            break;
+            default:
+            break;
+        }
     }
 
     private void validateParentStatus(

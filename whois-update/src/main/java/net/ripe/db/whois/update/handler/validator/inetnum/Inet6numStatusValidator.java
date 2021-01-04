@@ -1,10 +1,8 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
-import net.ripe.db.whois.common.dao.StatusDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
@@ -30,17 +28,11 @@ public class Inet6numStatusValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY, Action.DELETE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INET6NUM);
 
-    private final StatusDao statusDao;
-    private final Ipv6Tree ipv6Tree;
     private final Maintainers maintainers;
 
     @Autowired
     public Inet6numStatusValidator(
-            final StatusDao statusDao,
-            final Ipv6Tree ipv6Tree,
             final Maintainers maintainers) {
-        this.statusDao = statusDao;
-        this.ipv6Tree = ipv6Tree;
         this.maintainers = maintainers;
     }
 

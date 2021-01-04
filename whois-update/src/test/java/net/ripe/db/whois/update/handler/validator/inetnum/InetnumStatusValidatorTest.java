@@ -43,15 +43,19 @@ public class InetnumStatusValidatorTest {
     }
 
     @Test
-    public void delete_inetnum_w_legacy_not_allowed_under_unspecified_w_non_rs_maintainer() {
-        when(update.getAction()).thenReturn(Action.DELETE);
-        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
+    public void delete_legacy_inetnum_not_allowed_under_allocated_unspecified_with_non_rs_maintainer() {
+        final RpslObject legacyInetnum =
+            RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +
                 "mnt-by: TEST-MNT\n" +
-                "password: update"));
+                "source: TEST");
+
+        when(update.getAction()).thenReturn(Action.DELETE);
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
+        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
+        when(update.getReferenceObject()).thenReturn(legacyInetnum);
+        when(update.getUpdatedObject()).thenReturn(legacyInetnum);
 
         subject.validate(update, updateContext);
 
@@ -60,6 +64,9 @@ public class InetnumStatusValidatorTest {
 
     @Test
     public void modify_status_change() {
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
+        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
+
         when(update.getAction()).thenReturn(Action.MODIFY);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
