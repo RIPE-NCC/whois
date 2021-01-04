@@ -26,6 +26,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+// TODO: [ES] Replace these unmaintainable unit tests with integration tests
 @RunWith(MockitoJUnitRunner.class)
 public class InetnumStatusValidatorTest {
     @Mock PreparedUpdate update;

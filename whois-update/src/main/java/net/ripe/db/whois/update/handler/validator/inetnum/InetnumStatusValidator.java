@@ -75,7 +75,7 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
             updateContext.addMessage(update, UpdateMessages.statusChange());
         }
 
-        addIpv4HierarchyWarnings(update.getUpdatedObject(), update, updateContext);
+        validateHierarchy(update.getUpdatedObject(), update, updateContext);
     }
 
     private void validateDelete(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -106,19 +106,19 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
         final InetnumStatus referenceStatus = InetnumStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS));
         final InetnumStatus parentStatus = InetnumStatus.getStatusFor(statusDao.getStatus(parents.get(0).getObjectId()));
 
-        validateIpv4LegacyStatus(
+        validateLegacyStatus(
             referenceStatus,
             parentStatus,
             update,
             updateContext);
 
-        addIpv4HierarchyWarnings(
+        validateHierarchy(
             update.getReferenceObject(),
             update,
             updateContext);
     }
 
-    private void validateIpv4LegacyStatus(
+    private void validateLegacyStatus(
             final InetnumStatus updateStatus,
             final InetnumStatus parentStatus,
             final PreparedUpdate update,
@@ -130,7 +130,7 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
         }
     }
 
-    private void addIpv4HierarchyWarnings(
+    private void validateHierarchy(
             final RpslObject rpslObject,
             final PreparedUpdate update,
             final UpdateContext updateContext) {
@@ -180,6 +180,8 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
             break;
         }
     }
+
+    // TODO: [ES] has RS maintainer is *always* false ?
 
     private void validateParentStatus(
             final CIString parentStatus,
