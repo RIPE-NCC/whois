@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.handler.validator.inetnum;
+package net.ripe.db.whois.update.handler.validator.inet6num;
 
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.ip.Ipv6Resource;

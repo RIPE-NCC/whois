@@ -1,11 +1,11 @@
-package net.ripe.db.whois.update.handler.validator.inetnum;
+package net.ripe.db.whois.update.handler.validator.inet6num;
 
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -20,7 +20,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
-import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper.getStatus;
 
 @Component
 public class Inet6numStatusValidator implements BusinessRuleValidator {
@@ -31,8 +30,7 @@ public class Inet6numStatusValidator implements BusinessRuleValidator {
     private final Maintainers maintainers;
 
     @Autowired
-    public Inet6numStatusValidator(
-            final Maintainers maintainers) {
+    public Inet6numStatusValidator(final Maintainers maintainers) {
         this.maintainers = maintainers;
     }
 
@@ -68,18 +66,7 @@ public class Inet6numStatusValidator implements BusinessRuleValidator {
             return;
         }
 
-        final InetStatus status;
-        try {
-            status = getStatus(update.getReferenceObject());
-            if (status == null) {
-                // invalid status attribute value
-                return;
-            }
-        } catch (IllegalArgumentException e) {
-            // status attribute not found
-            return;
-        }
-
+        final Inet6numStatus status = Inet6numStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(STATUS));
         if (status.requiresRsMaintainer()) {
             final Set<CIString> mntBy = update.getReferenceObject().getValuesForAttribute(AttributeType.MNT_BY);
             if (!maintainers.isRsMaintainer(mntBy)) {
