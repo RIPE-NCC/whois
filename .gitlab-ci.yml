@@ -9,7 +9,7 @@ include:
   - project: 'swe/gitlab-ci'
     file: '/templates/whitesource-scanning.yml'
   - project: 'swe-database-team/gitlab-ci'
-    ref: 97a501ed7b68a3763aceba14fb59f1b06a2a6868
+    ref: 73c410ede1f2d682e2639c689a748b8a9705d9f8
     file: '/templates/release-template.yml'
 
 stages:
