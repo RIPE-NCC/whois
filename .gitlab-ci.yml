@@ -8,6 +8,8 @@ variables:
 include:
   - project: 'swe/gitlab-ci'
     file: '/templates/whitesource-scanning.yml'
+  - project: 'swe-database-team/gitlab-ci'
+    file: '/templates/release-template.yml'
 
 stages:
   - build
@@ -41,6 +43,7 @@ release:
   script:
     - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA
     - mvn -DskipTests -DskipITs -Prelease deploy
+  extends: .release_template
 
 .it_template: &it_env
   services:

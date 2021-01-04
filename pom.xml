@@ -102,11 +102,11 @@
     <distributionManagement>
         <repository>
             <id>ripe-releases</id>
-            <url>https://nexus.ripe.net/nexus/content/repositories/releases</url>
+            <url>https://artefacts.ripe.net/repository/maven-releases-ncc/</url>
         </repository>
         <snapshotRepository>
             <id>ripe-snapshots</id>
-            <url>https://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+            <url>https://artefacts.ripe.net/repository/maven-snapshots-ncc/</url>
         </snapshotRepository>
     </distributionManagement>
 
