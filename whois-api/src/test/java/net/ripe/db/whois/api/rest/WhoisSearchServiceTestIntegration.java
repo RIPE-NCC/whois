@@ -955,7 +955,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                     "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
                     "<link xlink:type=\"locator\" xlink:href=\"http://localhost:%s/search?query-string=invalid&amp;source=TEST\"/>" +
                     "<errormessages>" +
-                    "<errormessage severity=\"Error\" text=\"ERROR:101: no entries found&#xA;&#xA;No entries found in source %%s.&#xA;\">" +
+                    "<errormessage severity=\"Error\" text=\"ERROR:101: no entries found&#10;&#10;No entries found in source %%s.&#10;\">" +
                     "<args value=\"TEST\"/>" +
                     "</errormessage>" +
                     "</errormessages>" +

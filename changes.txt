@@ -1,5 +1,16 @@
 # next
 
+# 1.99
+
+[update] Require -mnt suffix when creating an MNTNER object (#667)
+[nrtm] Enable TCP_NODELAY in NRTM and query connections (#693)
+[api] Filter out sensitive information in API response on exception (#664)
+[query] Return 'invalid option supplied' on invalid version number given to --diff-version (#662)
+[rdap] Allow *any* CORS origin on RDAP GET requests by default (as recommended by RFC7480). (#661)
+[all] New dummifier for RC environment
+[all] Updated dependent libraries
+[all] Java 11 support
+
 # 1.98
 
 [update] NWI-11 Punycode Internationalized Domain Names in email addresses. (#643)

@@ -87,12 +87,12 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -638,7 +638,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .head();
 
         assertThat(response.getStatus(), is(200));
-        assertThat(response.readEntity(String.class), isEmptyString());
+        assertThat(response.readEntity(String.class), is(emptyString()));
     }
 
     @Test
@@ -648,7 +648,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .head();
 
         assertThat(response.getStatus(), is(404));
-        assertThat(response.readEntity(String.class), isEmptyString());
+        assertThat(response.readEntity(String.class), is(emptyString()));
     }
 
     @Test
@@ -1564,6 +1564,49 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void validate_country_managed_attribute_only_for_organisation() {
+        databaseHelper.addObject(
+                "mntner:       RIPE-NCC-HM-MNT\n" +
+                        "source:   TEST");
+        databaseHelper.addObject(
+                "organisation: ORG-TO1-TEST\n" +
+                        "org-name:     Test Organisation\n" +
+                        "org-type:     LIR\n" +
+                        "country:      NL\n" +
+                        "abuse-c:      TR1-TEST\n" +
+                        "source:       TEST");
+        databaseHelper.addObject(
+                "inetnum:       10.0.0.0 - 10.0.0.255\n" +
+                        "status:   ALLOCATED PA\n" +
+                        "org:      ORG-TO1-TEST\n" +
+                        "country:  NL\n" +
+                        "mnt-by:   OWNER-MNT\n" +
+                        "mnt-by:   RIPE-NCC-HM-MNT\n" +
+                        "source:   TEST");
+
+
+        final WhoisResources searchOrg = RestTest.target(getPort(), "whois/test/organisation/ORG-TO1-TEST?managed-attributes")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(searchOrg.getWhoisObjects(), hasSize(1));
+        assertThat(searchOrg.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("ORG-TO1-TEST"));
+        assertThat(searchOrg.getWhoisObjects().get(0).isManaged(), is(true));
+        assertThat(searchOrg.getWhoisObjects().get(0).getAttributes().get(3).getName(), is("country"));
+        assertThat(searchOrg.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(true));
+
+
+        final WhoisResources searchinetnum = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0%20-%2010.0.0.255?managed-attributes&resource-holder&abuse-contact")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(searchinetnum.getWhoisObjects(), hasSize(1));
+        assertThat(searchinetnum.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(searchinetnum.getWhoisObjects().get(0).getAttributes().get(3).getName(), is("country"));
+        assertThat(searchinetnum.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(nullValue()));
+    }
+
+    @Test
     public void lookup_inetnum_non_managed_attributes_resource_holder_abuse_contact() {
         databaseHelper.addObject(
                 "mntner:       RIPE-NCC-HM-MNT\n" +
@@ -1738,7 +1781,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error",
                 "XML processing exception: %s (line: %s, column: %s)",
-                "JAXP00010001: The parser has encountered more than \"64000\" entity expansions in this document; this is the limit imposed by the JDK.", "1", "1");
+                "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.", "2", "10");
         }
     }
 
@@ -1775,7 +1818,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error",
                 "XML processing exception: %s (line: %s, column: %s)",
-                "JAXP00010004: The accumulated size of entities is \"50,000,049\" that exceeded the \"50,000,000\" limit set by \"FEATURE_SECURE_PROCESSING\".", "1", "1000001");
+                "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.", "2", "10");
         }
     }
 
@@ -1811,7 +1854,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error",
                 "XML processing exception: %s (line: %s, column: %s)",
-                "The external entity reference \"&externalEntity;\" is not permitted in an attribute value.", "10", "66");
+                "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.", "2", "10");
         }
     }
 
@@ -3899,7 +3942,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         builder.append(remarks);
 
         RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
-                .request(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(map(builder.sort().get()), MediaType.APPLICATION_XML), WhoisResources.class);
 
         builder.replaceAttribute(remarks, new RpslAttribute(AttributeType.REMARKS, "updated # new comment"));
@@ -4662,6 +4705,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
         assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
         databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void delete_domain_trailing_dot_nserver() {
+        databaseHelper.addObject(
+                "domain:        193.in-addr.arpa4\n" +
+                        "nserver:         test.ns.\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "source:          TEST\n");
+
+        final Response response = RestTest.target(getPort(), "whois/test/domain/193.in-addr.arpa4?password=test")
+                .request().delete();
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
     }
 
     @Test

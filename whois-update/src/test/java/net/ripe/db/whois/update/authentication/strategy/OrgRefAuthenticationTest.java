@@ -16,13 +16,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -66,7 +67,7 @@ public class OrgRefAuthenticationTest {
         when(rpslObjectDao.getByKey(ObjectType.MNTNER, "REF-MNT")).thenReturn(maintainer);
 
         final ArrayList<RpslObject> candidates = Lists.newArrayList(maintainer);
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection())).thenReturn(candidates);
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(candidates);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
@@ -84,7 +85,7 @@ public class OrgRefAuthenticationTest {
         final List<RpslObject> organisations = Lists.newArrayList(RpslObject.parse("organisation: ORG2"));
         when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn((organisations));
 
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection())).thenReturn(Collections.emptyList());
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(emptyList());
 
         subject.authenticate(update, updateContext);
     }
@@ -99,7 +100,8 @@ public class OrgRefAuthenticationTest {
         when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(organisations);
 
         when(rpslObjectDao.getByKey(ObjectType.MNTNER, "REF-MNT")).thenThrow(EmptyResultDataAccessException.class);
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection())).thenReturn(Collections.emptyList());
+
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(emptyList());
 
         subject.authenticate(update, updateContext);
     }

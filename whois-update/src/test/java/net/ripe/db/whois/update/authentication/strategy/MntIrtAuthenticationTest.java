@@ -61,7 +61,7 @@ public class MntIrtAuthenticationTest {
 
         final ArrayList<RpslObject> irts = Lists.newArrayList(irt);
         when(rpslObjectDao.getByKeys(ObjectType.IRT, ciSet("IRT-MNT"))).thenReturn(irts);
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection())).thenReturn(irts);
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection(), eq(MntIrtAuthentication.class))).thenReturn(irts);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
@@ -78,7 +78,7 @@ public class MntIrtAuthenticationTest {
 
         final ArrayList<RpslObject> irts = Lists.newArrayList(irt);
         when(rpslObjectDao.getByKeys(ObjectType.IRT, ciSet("IRT-MNT"))).thenReturn(irts);
-        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection())).thenReturn(Lists.<RpslObject>newArrayList());
+        when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection(), eq(MntIrtAuthentication.class))).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
     }

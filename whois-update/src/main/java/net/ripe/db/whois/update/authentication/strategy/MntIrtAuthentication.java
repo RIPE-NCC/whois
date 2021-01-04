@@ -39,7 +39,7 @@ public class MntIrtAuthentication extends AuthenticationStrategyBase {
             candidates.add(update.getUpdatedObject());
         }
 
-        final List<RpslObject> authenticatedBy = credentialValidators.authenticate(update, updateContext, candidates);
+        final List<RpslObject> authenticatedBy = credentialValidators.authenticate(update, updateContext, candidates, getClass());
         if (authenticatedBy.isEmpty()) {
             throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(update.getReferenceObject(), AttributeType.MNT_IRT, candidates), candidates);
         }

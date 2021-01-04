@@ -121,7 +121,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_100/000.audit.xml.gz"));
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
-        assertThat(audit, containsString("<message><![CDATA[POST /whois/TEST/person?override=personadmin,FILTERED,my%2Breason"));
+        assertThat(audit, containsString("<![CDATA[POST /whois/TEST/person?override=personadmin,FILTERED,my%2Breason"));
         assertThat(audit, not(containsString(OVERRIDE_PASSWORD)));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_100/001.msg-in.txt.gz"));
@@ -178,7 +178,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
         assertThat(audit, containsString("Header: X-Forwarded-For=10.20.30.40"));
-        assertThat(audit, containsString("<message><![CDATA[PUT /whois/TEST/person/TP1-TEST?password=FILTERED"));
+        assertThat(audit, containsString("<![CDATA[PUT /whois/TEST/person/TP1-TEST?password=FILTERED"));
         assertThat(audit, not(containsString(PASSWORD)));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_100/001.msg-in.txt.gz"));
@@ -208,7 +208,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
         assertThat(audit, containsString("Header: X-Forwarded-For=10.20.30.40"));
-        assertThat(audit, containsString("<message><![CDATA[DELETE /whois/TEST/person/TP2-TEST?password=FILTERED"));
+        assertThat(audit, containsString("<![CDATA[DELETE /whois/TEST/person/TP2-TEST?password=FILTERED"));
         assertThat(audit, not(containsString(PASSWORD)));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_100/001.msg-in.txt.gz"));
@@ -241,8 +241,8 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         }
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_100/000.audit.xml.gz"));
-        assertThat(audit, containsString("<message><![CDATA[DELETE /whois/TEST/person/ZYZ-TEST?password=FILTERED"));
-        assertThat(audit, containsString("<message><![CDATA[Caught class org.springframework.dao.EmptyResultDataAccessException for ZYZ-TEST: Incorrect result size: expected 1, actual 0]]></message>"));
+        assertThat(audit, containsString("<![CDATA[DELETE /whois/TEST/person/ZYZ-TEST?password=FILTERED"));
+        assertThat(audit, containsString("<![CDATA[Caught class org.springframework.dao.EmptyResultDataAccessException for ZYZ-TEST: Incorrect result size: expected 1, actual 0]]>"));
         assertThat(audit, not(containsString(PASSWORD)));
     }
 
@@ -259,7 +259,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
         assertThat(audit, containsString("Header: X-Forwarded-For=127.0.0.1"));
-        assertThat(audit, containsString("<message><![CDATA[GET /whois/syncupdates/test?DATA"));
+        assertThat(audit, containsString("<![CDATA[GET /whois/syncupdates/test?DATA"));
         assertThat(audit, not(containsString(OVERRIDE_PASSWORD)));
         assertThat(audit, containsString("override%3A+personadmin,FILTERED"));
 
@@ -304,7 +304,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
         assertThat(audit, containsString("Header: X-Forwarded-For=127.0.0.1"));
-        assertThat(audit, containsString("<message><![CDATA[POST /whois/syncupdates/test"));
+        assertThat(audit, containsString("<![CDATA[POST /whois/syncupdates/test"));
         assertThat(audit, not(containsString(OVERRIDE_PASSWORD)));
         assertThat(audit, containsString("OverrideCredential{personadmin,FILTERED,reason}"));
 
@@ -364,7 +364,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
         assertThat(audit, containsString("Header: X-Forwarded-For=10.20.30.40"));
-        assertThat(audit, containsString("<message><![CDATA[GET /whois/syncupdates/test?DATA"));
+        assertThat(audit, containsString("<![CDATA[GET /whois/syncupdates/test?DATA"));
         assertThat(audit, not(containsString(PASSWORD)));
         assertThat(audit, containsString("password%3AFILTERED"));
 
@@ -422,7 +422,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_10.20.30.40_100/000.audit.xml.gz"));
 
-        assertThat(audit, containsString("<message><![CDATA[GET /whois/syncupdates/test?DATA=invalid"));
+        assertThat(audit, containsString("<![CDATA[GET /whois/syncupdates/test?DATA=invalid"));
     }
 
     @Test
@@ -495,9 +495,9 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_100/000.audit.xml.gz"));
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
-        assertThat(audit, containsString("<message><![CDATA[PUT /whois/references/TEST?override=personadmin,FILTERED,some_app"));
-        assertThat(audit, containsString("<paragraph><![CDATA[person:         New Test Person"));
-        assertThat(audit, containsString("<paragraph><![CDATA[person:         Other New Test Person"));
+        assertThat(audit, containsString("<![CDATA[PUT /whois/references/TEST?override=personadmin,FILTERED,some_app"));
+        assertThat(audit, containsString("<![CDATA[person:         New Test Person"));
+        assertThat(audit, containsString("<![CDATA[person:         Other New Test Person"));
         assertThat(audit, not(containsString(OVERRIDE_PASSWORD)));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_100/001.msg-in.txt.gz"));
@@ -549,9 +549,9 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_100/000.audit.xml.gz"));
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
-        assertThat(audit, containsString("<message><![CDATA[PUT /whois/references/TEST?override=personadmin,FILTERED,some_app"));
-        assertThat(audit, containsString("<paragraph><![CDATA[person:         New Test Person"));
-        assertThat(audit, containsString("<paragraph><![CDATA[person:         Other New Test Person"));
+        assertThat(audit, containsString("<![CDATA[PUT /whois/references/TEST?override=personadmin,FILTERED,some_app"));
+        assertThat(audit, containsString("<![CDATA[person:         New Test Person"));
+        assertThat(audit, containsString("<![CDATA[person:         Other New Test Person"));
         assertThat(audit, not(containsString(OVERRIDE_PASSWORD)));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_100/001.msg-in.txt.gz"));

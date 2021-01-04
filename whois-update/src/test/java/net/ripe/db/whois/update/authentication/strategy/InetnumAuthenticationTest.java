@@ -83,7 +83,7 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> lowerMaintainers = Lists.newArrayList(lowerMaintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_LOWER))).thenReturn(lowerMaintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, lowerMaintainers)).thenReturn(lowerMaintainers);
+        when(authenticationModule.authenticate(update, updateContext, lowerMaintainers, InetnumAuthentication.class)).thenReturn(lowerMaintainers);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
@@ -105,7 +105,7 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> maintainers = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(maintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, maintainers)).thenReturn(maintainers);
+        when(authenticationModule.authenticate(update, updateContext, maintainers, InetnumAuthentication.class)).thenReturn(maintainers);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
@@ -127,7 +127,7 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> maintainers = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_LOWER))).thenReturn(maintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, maintainers)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(authenticationModule.authenticate(update, updateContext, maintainers, InetnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
     }
@@ -145,7 +145,7 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> maintainers = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_LOWER))).thenReturn(maintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, maintainers)).thenReturn(Lists.<RpslObject>newArrayList(maintainer));
+        when(authenticationModule.authenticate(update, updateContext, maintainers, InetnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList(maintainer));
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 

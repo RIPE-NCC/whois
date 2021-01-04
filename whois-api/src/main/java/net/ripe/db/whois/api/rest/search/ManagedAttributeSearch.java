@@ -29,7 +29,7 @@ public class ManagedAttributeSearch {
     private static final ImmutableSet<AttributeType> ASSIGNMENT_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
     private static final ImmutableSet<AttributeType> LEGACY_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
 
-    private static final ImmutableSet<AttributeType> ORG_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.ORGANISATION, AttributeType.ORG, AttributeType.ORG_NAME, AttributeType.ORG_TYPE, AttributeType.SOURCE);
+    private static final ImmutableSet<AttributeType> ORG_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.ORGANISATION, AttributeType.ORG, AttributeType.ORG_NAME, AttributeType.ORG_TYPE, AttributeType.COUNTRY, AttributeType.SOURCE);
     private static final ImmutableSet<AttributeType> AUT_NUM_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.AUT_NUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
 
     private static final ImmutableSet<InetnumStatus> INETNUM_ASSIGNMENT_STATUSES = Sets.immutableEnumSet(InetnumStatus.ASSIGNED_PI, InetnumStatus.ASSIGNED_ANYCAST);

@@ -675,7 +675,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         };
 
         assertThat(linesContainingPassword, contains(
-                "<message><![CDATA[PUT /whois/test/person/TP2-TEST?password=FILTERED",
+                "<![CDATA[PUT /whois/test/person/TP2-TEST?password=FILTERED",
                 "<credential>PasswordCredential</credential>"));
     }
 

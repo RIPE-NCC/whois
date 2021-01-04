@@ -28,6 +28,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
@@ -1492,42 +1493,26 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "nameservers not found");
+        } catch (ServerErrorException e) {
+            final Entity entity = e.getResponse().readEntity(Entity.class);
+            assertThat(entity.getErrorTitle(), is("Nameserver not supported"));
+            assertThat(entity.getErrorCode(), is(501));
         }
     }
 
     @Test
-    public void search_nameservers_empty_name() {
+    public void lookup_nameserver_not_found() {
         try {
-            fullTextIndex.rebuild();
-            createResource("nameservers?name=")
+              createResource("nameserver/test")
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
+                    .get(Autnum.class);
             fail();
-        } catch (BadRequestException e) {
-            assertErrorTitle(e, "empty lookup key");
+        } catch (ServerErrorException e) {
+            final Entity entity = e.getResponse().readEntity(Entity.class);
+            assertThat(entity.getErrorTitle(), is("Nameserver not supported"));
+            assertThat(entity.getErrorCode(), is(501));
         }
     }
-
-    @Test
-    public void search_nameservers_bad_request_links() {
-        try {
-            createResource("nameservers?ip=caf?")
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .get(String.class);
-            fail();
-        } catch (BadRequestException e) {
-            final Entity response = e.getResponse().readEntity(Entity.class);
-            assertThat(response.getLinks(), hasSize(1));
-            assertThat(response.getLinks().get(0).getRel(), is("copyright"));
-            assertThat(response.getLinks().get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-            assertThat(response.getNotices(), hasSize(1));
-            assertTnCNotice(response.getNotices().get(0),null);
-        }
-    }
-
-    // search - entities
 
     // search - entities - person
 
