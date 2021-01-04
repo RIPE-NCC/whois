@@ -66,7 +66,14 @@ public class Inet6numStatusValidator implements BusinessRuleValidator {
             return;
         }
 
-        final Inet6numStatus status = Inet6numStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(STATUS));
+        final Inet6numStatus status;
+        try {
+            status = Inet6numStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(STATUS));
+        } catch (IllegalArgumentException e) {
+            // ignore invalid status
+            return;
+        }
+
         if (status.requiresRsMaintainer()) {
             final Set<CIString> mntBy = update.getReferenceObject().getValuesForAttribute(AttributeType.MNT_BY);
             if (!maintainers.isRsMaintainer(mntBy)) {
