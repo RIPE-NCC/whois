@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -28,19 +27,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class StatusValidatorTest {
+public class InetnumStatusValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock StatusDao statusDao;
     @Mock Ipv4Tree ipv4Tree;
     @Mock Subject authenticationSubject;
     @Mock Maintainers maintainers;
-    @InjectMocks StatusValidator subject;
+    @InjectMocks InetnumStatusValidator subject;
 
     @Before
     public void setup() {
         when(update.getAction()).thenReturn(Action.CREATE);
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
     }
 
@@ -49,7 +47,6 @@ public class StatusValidatorTest {
         when(update.getAction()).thenReturn(Action.DELETE);
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
         when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +
