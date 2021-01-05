@@ -102,11 +102,11 @@
     <distributionManagement>
         <repository>
             <id>ripe-releases</id>
-            <url>https://nexus.ripe.net/nexus/content/repositories/releases</url>
+            <url>https://artefacts.ripe.net/repository/maven-releases-ncc/</url>
         </repository>
         <snapshotRepository>
             <id>ripe-snapshots</id>
-            <url>https://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+            <url>https://artefacts.ripe.net/repository/maven-snapshots-ncc/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -1053,16 +1053,6 @@
         </profile>
         <profile>
             <id>all</id>
-            <properties>
-                <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-            </properties>
-        </profile>
-        <profile>
-            <!-- travis can't run endtoend tests because of the dependency on ripe-internal servers like crowd -->
-            <id>travis</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>

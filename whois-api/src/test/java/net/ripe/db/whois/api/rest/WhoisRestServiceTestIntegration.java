@@ -4708,6 +4708,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void delete_domain_trailing_dot_nserver() {
+        databaseHelper.addObject(
+                "domain:        193.in-addr.arpa4\n" +
+                        "nserver:         test.ns.\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "source:          TEST\n");
+
+        final Response response = RestTest.target(getPort(), "whois/test/domain/193.in-addr.arpa4?password=test")
+                .request().delete();
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+    }
+
+    @Test
     public void delete_route6_out_of_region_redirect() {
         databaseHelper.deleteAuthoritativeResource("test", "::/0");
 

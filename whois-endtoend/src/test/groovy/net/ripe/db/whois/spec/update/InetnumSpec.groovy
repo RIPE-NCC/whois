@@ -4805,7 +4805,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "SUB-ALLOCATED PA")
     }
 
-    def "delete inetnum with cidr notation not supported"() {
+    def "delete inetnum with cidr notation supported"() {
         given:
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
 
@@ -4849,27 +4849,8 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 """.stripIndent()
         )
         then:
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
-
-        when:
-        syncUpdate("""\
-                inetnum:      192.168.200.0 - 192.168.207.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                admin-c:      TP1-TEST
-                org:          ORG-LIR1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       LIR-MNT
-                source:       TEST
-                DELETE:       changing status
-
-                password: lir
-                """.stripIndent()
-        )
-        then:
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
+        queryObjectNotFound("-r -T inetnum 192.168.200/21", "inetnum", "192.168.200.0 - 192.168.207.255")
     }
 
     def "modify PI assignment, pw supplied, add remarks:"() {
