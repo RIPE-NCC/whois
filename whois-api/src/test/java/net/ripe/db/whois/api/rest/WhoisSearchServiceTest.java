@@ -43,7 +43,7 @@ public class WhoisSearchServiceTest {
 
     @Test
     public void search_disallowedFlags() {
-        final List<String> disallowedFlags = ImmutableList.of("t", "template", "v", "verbose", "V", "client", "G", "no-grouping", "no-tag-info",
+        final List<String> disallowedFlags = ImmutableList.of("t", "template", "v", "verbose", "G", "no-grouping", "no-tag-info",
                 "show-tag-info", "a", "all-sources", "q", "list-sources", "diff-versions", "list-versions", "show-version", "k", "persistent-connection");
         for (String disallowedFlag : disallowedFlags) {
             try {
