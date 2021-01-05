@@ -175,7 +175,6 @@ public class WhoisSearchService {
 
         final Parameters parameters = new Parameters.Builder()
                 .inverseAttributes(new InverseAttributes(inverseAttributes))
-                //TODO: do we need to add client attributes?
                 .clientAttribute(clientAttribute)
                 .typeFilters(new TypeFilters(types))
                 .flags(new Flags(separateFlags))

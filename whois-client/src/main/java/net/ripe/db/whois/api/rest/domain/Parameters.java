@@ -28,7 +28,6 @@ public class Parameters {
     @JsonProperty(value = "inverse-lookup")
     private InverseAttributes inverseAttributes;
 
-    //TODO: do we need to add this to parameters ?
     @XmlElement(name = "client-attribute")
     @JsonProperty(value = "client-attribute")
     private String clientAttribute;
