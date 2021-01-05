@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlType;
     name = "",
     propOrder = {
         "inverseAttributes",
+        "clientAttribute",
         "typeFilters",
         "flags",
         "queryStrings",
@@ -26,6 +27,12 @@ public class Parameters {
     @XmlElement(name = "inverse-lookup")
     @JsonProperty(value = "inverse-lookup")
     private InverseAttributes inverseAttributes;
+
+    //TODO: do we need to add this to parameters ?
+    @XmlElement(name = "client-attribute")
+    @JsonProperty(value = "client-attribute")
+    private String clientAttribute;
+
     @XmlElement(name="type-filters")
     @JsonProperty(value = "type-filters")
     private TypeFilters typeFilters;
@@ -54,6 +61,7 @@ public class Parameters {
 
     public Parameters(
             final InverseAttributes inverseAttributes,
+            final String clientAttribute,
             final TypeFilters typeFilters,
             final Flags flags,
             final QueryStrings queryStrings,
@@ -77,6 +85,7 @@ public class Parameters {
         this.limit = limit;
         this.offset = offset;
         this.unformatted = unformatted;
+        this.clientAttribute = clientAttribute;
     }
 
     public Parameters() {
@@ -131,9 +140,12 @@ public class Parameters {
         return unformatted;
     }
 
+    public String getClientAttribute() { return clientAttribute; }
+
     public static class Builder {
 
         private InverseAttributes inverseAttributes;
+        private String clientAttribute;
         private TypeFilters typeFilters;
         private Flags flags;
         private QueryStrings queryStrings;
@@ -148,6 +160,11 @@ public class Parameters {
 
         public Builder inverseAttributes(final InverseAttributes inverseAttributes) {
             this.inverseAttributes = inverseAttributes;
+            return this;
+        }
+
+        public Builder clientAttribute(final String clientAttribute) {
+            this.clientAttribute = clientAttribute;
             return this;
         }
 
@@ -209,6 +226,7 @@ public class Parameters {
         public Parameters build() {
             return new Parameters(
                     inverseAttributes,
+                    clientAttribute,
                     typeFilters,
                     flags,
                     queryStrings,
