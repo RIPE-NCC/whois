@@ -92,6 +92,20 @@ public class RemoteAddressFilterTest {
         verify(filterChain).doFilter(argThat(new CheckRemoteAddress("193.0.20.1")), any(ServletResponse.class));
     }
 
+    /**
+     * Test that a RFC 3986 section 3.2.2 formatted IPv6 address is handled properly (e.g. [::1] vs ::1).
+     * Jetty started passing IPv6 addresses in this format since 9.4.32.
+     * @throws Exception shouldn't happen
+     */
+    @Test
+    public void support_rfc3986_ipv6() throws Exception {
+        when(request.getRemoteAddr()).thenReturn("[::1]");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(argThat(new CheckRemoteAddress("::1")), any(ServletResponse.class));
+    }
+
     private static class CheckRemoteAddress implements ArgumentMatcher<ServletRequest> {
         private final String address;
 
