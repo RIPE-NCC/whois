@@ -12,12 +12,9 @@ include:
     file: '/templates/whitesource-scanning.yml'
 
   - project: 'swe-database-team/gitlab-ci'
-    ref: 2095fe71933d36da9d741035bab2d12094adfbcc
     file: '/templates/deployment-template.yml'
 
   - project: 'swe-database-team/gitlab-ci'
-    #TODO: remove the commit hash once template merged to master
-    ref: 2095fe71933d36da9d741035bab2d12094adfbcc
     file: '/templates/aws-deployment-template.yml'
 
 stages:
