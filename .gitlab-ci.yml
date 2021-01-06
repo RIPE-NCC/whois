@@ -4,10 +4,18 @@ variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   TZ: Europe/Amsterdam
   WHITESOURCE_CONFIG_FILE: "whitesource.config"
+  PROJECT_NAME: "whois"
+  ARTIFACT_NAME: "whois-db"
 
 include:
   - project: 'swe/gitlab-ci'
     file: '/templates/whitesource-scanning.yml'
+
+  - project: 'swe-database-team/gitlab-ci'
+    file: '/templates/deployment-template.yml'
+
+  - project: 'swe-database-team/gitlab-ci'
+    file: '/templates/aws-deployment-template.yml'
 
 stages:
   - build
@@ -111,106 +119,3 @@ sonar:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -fn # ignore failing (non deterministic) tests, we want QA output regardless
     - echo PWD=$PWD
     - mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectName=whois -Dsonar.coverage.jacoco.xmlReportPaths=$PWD/whois-api/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-client/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-commons/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-db/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-query/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-rpsl/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-scheduler/target/site/jacoco-merged-test-coverage-report/jacoco.xml -Dsonar.test.exclusions=**/test/*
-
-deploy_aws:
-  stage: deploy
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $AWS_REGISTRY_IMAGE
-  script:
-    - git clone -b aws_deploy_properties http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/swe-database-team/db-operational.git
-    - cd db-operational/deployment
-    - ./awsUpdateProperties.sh whois $CI_ENVIRONMENT_NAME
-    - docker pull $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
-    - docker tag $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA} $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
-    - docker push $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
-    - TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition whois)
-    - NEW_CONTAINER_DEFINITION=$(echo $TASK_DEFINITION | jq ".taskDefinition | del(.taskDefinitionArn, .status, .revision, .compatibilities, .requiresAttributes) | .containerDefinitions[0].image=\"$AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}\" ")
-    - aws ecs register-task-definition --cli-input-json "$NEW_CONTAINER_DEFINITION"
-    - aws ecs update-service --cluster swe --service whois --task-definition whois
-  environment:
-    name: aws-rc
-  when: manual
-
-deploy_aws_prepdev:
-  stage: deploy
-  before_script:
-    - export AWS_ACCESS_KEY_ID=$PREPDEV_AWS_ACCESS_KEY_ID
-    - export AWS_SECRET_ACCESS_KEY=$PREPDEV_AWS_SECRET_ACCESS_KEY
-    - export AWS_REGISTRY_IMAGE=$PREPDEV_AWS_REGISTRY_IMAGE
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $AWS_REGISTRY_IMAGE
-  script:
-    - export AWS_ACCESS_KEY_ID=$PREPDEV_AWS_ACCESS_KEY_ID
-    - export AWS_SECRET_ACCESS_KEY=$PREPDEV_AWS_SECRET_ACCESS_KEY
-    - export AWS_REGISTRY_IMAGE=$PREPDEV_AWS_REGISTRY_IMAGE
-    - git clone -b aws_deploy_properties http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/swe-database-team/db-operational.git
-    - cd db-operational/deployment
-    - ./awsUpdateProperties.sh whois $CI_ENVIRONMENT_NAME
-    - docker pull $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
-    - docker tag $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA} $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
-    - docker push $AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
-    - TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition whois)
-    - NEW_CONTAINER_DEFINITION=$(echo $TASK_DEFINITION | jq ".taskDefinition | del(.taskDefinitionArn, .status, .revision, .compatibilities, .requiresAttributes) | .containerDefinitions[0].image=\"$AWS_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}\" ")
-    - aws ecs register-task-definition --cli-input-json "$NEW_CONTAINER_DEFINITION"
-    - aws ecs update-service --cluster whois --service whois --task-definition whois
-  environment:
-    name: aws-prepdev
-  when: manual
-
-
-.deploy_template: &deploy_env
-  stage: deploy
-  before_script:
-    - mkdir -p /root/.ssh
-    - touch /root/.ssh/known_hosts
-    - ssh-keyscan hanwoo.ripe.net 2>&1 >>/root/.ssh/known_hosts
-    - echo "search ripe.net">>/etc/resolv.conf
-    - eval $(ssh-agent -s)
-    - echo -e "Host *\n\tStrictHostKeyChecking no\n\nAddressFamily inet\n\n" > ~/.ssh/config
-    - echo "$DBASE_SSH_KEY" | tr -d '\r' | ssh-add -
-  script:
-    - git clone http://dbase:$DB_OPERATIONAL_DEPLOY_TOKEN@gitlab.ripe.net/swe-database-team/db-operational.git
-    - find whois-db/target -name whois-db-*-SNAPSHOT.jar -exec cp {} db-operational/deployment/whois-db-$CI_COMMIT_SHA.jar \;
-    - cd db-operational/deployment
-    - ./stage.sh -p whois -e $CI_ENVIRONMENT_NAME whois-db-$CI_COMMIT_SHA.jar
-    - ./sync.sh -p whois -e $CI_ENVIRONMENT_NAME
-    - bash ./deploy.sh -p whois -e $CI_ENVIRONMENT_NAME
-
-deploy_dev:
-  <<: *deploy_env
-  environment:
-    name: dev
-  when: manual
-
-deploy_prepdev:
-  <<: *deploy_env
-  environment:
-    name: prepdev
-  when: manual
-
-deploy_rc:
-  <<: *deploy_env
-  environment:
-    name: rc
-  when: manual
-
-deploy_training:
-  <<: *deploy_env
-  environment:
-    name: training
-  when: manual
-
-deploy_test:
-  <<: *deploy_env
-  environment:
-    name: test
-  when: manual
-
-deploy_prod:
-  <<: *deploy_env
-  environment:
-    name: prod
-  when: manual
-  only:
-    - tags
