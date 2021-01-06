@@ -219,7 +219,7 @@ public class DomainAuthenticationTest {
                 Lists.newArrayList(new Ipv6Entry(Ipv6Resource.parse(ipObject.getKey()), 1)));
 
         when(objectDao.getById(1)).thenReturn(ipObject);
-        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(candidates);
+        when(authenticationModule.authenticate(update, updateContext, candidates, DomainAuthentication.class)).thenReturn(candidates);
 
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated.containsAll(candidates), is(true));
@@ -303,7 +303,7 @@ public class DomainAuthenticationTest {
             assertThat(ignored.getAuthenticationMessages(), contains(UpdateMessages.authenticationFailed(ipObject, attributeType, candidates)));
         }
 
-        verify(authenticationModule).authenticate(update, updateContext, candidates);
+        verify(authenticationModule).authenticate(update, updateContext, candidates, DomainAuthentication.class);
         verifyNoMoreInteractions(ipv4Tree);
     }
 }

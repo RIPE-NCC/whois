@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.authentication.credential;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.strategy.MntByAuthentication;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -56,7 +57,7 @@ public class AuthenticationModuleTest {
         final RpslObject mntner2 = RpslObject.parse("mntner: TEST2-MNT\nauth: MD5-PWsomethingElse");
         final RpslObject mntner3 = RpslObject.parse("mntner: TEST3-MNT");
 
-        final List<RpslObject> result = subject.authenticate(update, updateContext, Lists.newArrayList(mntner1, mntner2, mntner3));
+        final List<RpslObject> result = subject.authenticate(update, updateContext, Lists.newArrayList(mntner1, mntner2, mntner3), MntByAuthentication.class);
 
         assertThat(result.size(), is(2));
         assertThat(result.contains(mntner1), is(true));
@@ -69,7 +70,7 @@ public class AuthenticationModuleTest {
         when(credentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class))).thenReturn(true);
 
         final RpslObject mntner = RpslObject.parse("mntner: TEST-MNT\nauth: Md5-pW something");
-        final List<RpslObject> result = subject.authenticate(update, updateContext, Lists.newArrayList(mntner));
+        final List<RpslObject> result = subject.authenticate(update, updateContext, Lists.newArrayList(mntner), MntByAuthentication.class);
 
         assertThat(result, hasSize(1));
         assertThat(result.contains(mntner), is(true));
@@ -80,7 +81,7 @@ public class AuthenticationModuleTest {
         when(credentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class))).thenReturn(false);
 
         final RpslObject mntner = RpslObject.parse("mntner: TEST-MNT\nauth: MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/");
-        final List<RpslObject> result = subject.authenticate(update, updateContext, Lists.newArrayList(mntner));
+        final List<RpslObject> result = subject.authenticate(update, updateContext, Lists.newArrayList(mntner), MntByAuthentication.class);
 
         assertThat(result, hasSize(0));
     }
@@ -107,6 +108,6 @@ public class AuthenticationModuleTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
 
-        subject.authenticate(update, updateContext, Collections.singletonList(maintainer));
+        subject.authenticate(update, updateContext, Collections.singletonList(maintainer), MntByAuthentication.class);
     }
 }

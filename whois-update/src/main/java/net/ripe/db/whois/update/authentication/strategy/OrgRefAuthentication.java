@@ -48,7 +48,7 @@ public class OrgRefAuthentication extends AuthenticationStrategyBase {
         final Set<RpslObject> authenticatedOrganisations = Sets.newLinkedHashSet();
         for (final Map.Entry<RpslObject, List<RpslObject>> organisationEntry : candidatesForOrganisations.entrySet()) {
             final List<RpslObject> candidates = organisationEntry.getValue();
-            final List<RpslObject> authenticatedBy = credentialValidators.authenticate(update, updateContext, candidates);
+            final List<RpslObject> authenticatedBy = credentialValidators.authenticate(update, updateContext, candidates, getClass());
 
             if (authenticatedBy.isEmpty()) {
                 final RpslObject organisation = organisationEntry.getKey();
