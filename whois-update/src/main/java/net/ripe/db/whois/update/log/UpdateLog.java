@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.log;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.profiles.DeployedProfile;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
@@ -19,14 +19,13 @@ import net.ripe.db.whois.update.domain.X509Credential;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Set;
 
 @Component
-@Profile(WhoisProfile.DEPLOYED)
+@DeployedProfile
 public class UpdateLog {
     private static final Map<Class<? extends Credential>, String> CREDENTIAL_NAME_MAP = Maps.newHashMap();
 
