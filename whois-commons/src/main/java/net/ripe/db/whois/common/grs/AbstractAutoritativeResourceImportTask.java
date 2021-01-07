@@ -13,10 +13,9 @@ public abstract class AbstractAutoritativeResourceImportTask {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    protected final static String SOURCE_NAME_RIPE = "RIPE";
+    protected static final String SOURCE_NAME_RIPE = "RIPE";
 
-    private boolean enabled;
-
+    private final boolean enabled;
     private final ResourceDataDao resourceDataDao;
 
     @Autowired
@@ -36,7 +35,7 @@ public abstract class AbstractAutoritativeResourceImportTask {
                 final AuthoritativeResource authoritativeResource = fetchAuthoritativeResource(sourceName);
                 resourceDataDao.store(sourceName, authoritativeResource);
             } catch (Exception e) {
-                LOGGER.warn("Exception processing " + sourceName, e);
+                LOGGER.warn("Exception processing {} due to {}: {}", sourceName, e.getClass().getName(), e.getMessage());
             }
         }
     }
