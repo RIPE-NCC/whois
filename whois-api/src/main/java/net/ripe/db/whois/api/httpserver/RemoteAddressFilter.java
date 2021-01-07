@@ -58,7 +58,11 @@ public class RemoteAddressFilter implements Filter {
         private static String getRemoteAddress(final HttpServletRequest request) {
             final String forwardedAddress = getForwardedAddress(request);
             if (forwardedAddress == null) {
-                return request.getRemoteAddr();
+                final String address = request.getRemoteAddr();
+                if (address.startsWith("[") && address.endsWith("]")) {
+                    return address.substring(1, address.length() - 1);
+                }
+                return address;
             }
             return forwardedAddress;
         }
