@@ -60,7 +60,7 @@
         <hazelcast.version>2.6.10</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
-        <jaxb.version>2.3.3</jaxb.version>
+        <jaxb.version>3.0.0</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
@@ -439,6 +439,11 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlets</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-rewrite</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
 
