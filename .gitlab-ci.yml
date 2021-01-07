@@ -6,6 +6,7 @@ variables:
   WHITESOURCE_CONFIG_FILE: "whitesource.config"
   PROJECT_NAME: "whois"
   ARTIFACT_NAME: "whois-db"
+  ARTIFACT_DIR: "whois-db"
 
 include:
   - project: 'swe/gitlab-ci'
