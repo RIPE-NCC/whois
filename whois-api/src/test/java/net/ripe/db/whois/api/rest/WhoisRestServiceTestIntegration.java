@@ -87,12 +87,12 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -638,7 +638,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .head();
 
         assertThat(response.getStatus(), is(200));
-        assertThat(response.readEntity(String.class), isEmptyString());
+        assertThat(response.readEntity(String.class), is(emptyString()));
     }
 
     @Test
@@ -648,7 +648,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .head();
 
         assertThat(response.getStatus(), is(404));
-        assertThat(response.readEntity(String.class), isEmptyString());
+        assertThat(response.readEntity(String.class), is(emptyString()));
     }
 
     @Test
@@ -1605,7 +1605,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(searchinetnum.getWhoisObjects().get(0).getAttributes().get(3).getName(), is("country"));
         assertThat(searchinetnum.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(nullValue()));
     }
-    
+
     @Test
     public void lookup_inetnum_non_managed_attributes_resource_holder_abuse_contact() {
         databaseHelper.addObject(
@@ -4705,6 +4705,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
         assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
         databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void delete_domain_trailing_dot_nserver() {
+        databaseHelper.addObject(
+                "domain:        193.in-addr.arpa4\n" +
+                        "nserver:         test.ns.\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "source:          TEST\n");
+
+        final Response response = RestTest.target(getPort(), "whois/test/domain/193.in-addr.arpa4?password=test")
+                .request().delete();
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
     }
 
     @Test
