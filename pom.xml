@@ -30,7 +30,6 @@
         <!-- dependencies -->
 
         <aspectj.version>1.9.6</aspectj.version>
-        <asm.version>9.0</asm.version>
         <awaitility.version>1.3.5</awaitility.version>
 
         <bouncycastle.version>1.67</bouncycastle.version>
@@ -794,13 +793,6 @@
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                    <groupId>org.ow2.asm</groupId>
-                        <artifactId>asm</artifactId>
-                        <version>${asm.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -870,13 +862,6 @@
                         <hazelcast.phone.home.enabled>false</hazelcast.phone.home.enabled>
                     </systemPropertyVariables>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                    <groupId>org.ow2.asm</groupId>
-                        <artifactId>asm</artifactId>
-                        <version>${asm.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
