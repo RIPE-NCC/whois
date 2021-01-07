@@ -3737,4 +3737,99 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
     }
 
+    // ASSIGNED PA under ASSIGNED PA
+
+    def "create ASSIGNED PA, parent status ASSIGNED PA"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        syncUpdate(getTransient("SUB-ALLOC-PA") + "password: lir\npassword: owner3")
+        queryObject("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+        syncUpdate(getTransient("ASS-END") + "password: end\npassword: sub")
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+      expect:
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
+
+      when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.200.0 - 192.168.200.127
+                netname:      RIPE-NET1
+                descr:        /27 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       END-USER-MNT
+                source:       TEST
+
+                password: end
+                password: sub
+                """.stripIndent()
+        )
+
+      then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
+                ["inetnum parent has incorrect status: ASSIGNED PA"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
+    }
+
+    def "modify ASSIGNED PA, parent status ASSIGNED PA"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        syncUpdate(getTransient("SUB-ALLOC-PA") + "password: lir\npassword: owner3")
+        queryObject("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+        syncUpdate(getTransient("ASS-END") + "password: end\npassword: sub")
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        dbfixture("""\
+                inetnum:      192.168.200.0 - 192.168.200.127
+                netname:      RIPE-NET1
+                descr:        /27 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       END-USER-MNT
+                source:       TEST
+                """.stripIndent())
+      expect:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
+
+      when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.200.0 - 192.168.200.127
+                netname:      RIPE-NET1
+                descr:        /27 assigned updated
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       END-USER-MNT
+                source:       TEST
+
+                password: end
+                password: sub
+                """.stripIndent()
+        )
+
+      then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127"}
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
+                ["inetnum parent has incorrect status: ASSIGNED PA"]
+    }
 }
