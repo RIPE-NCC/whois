@@ -13,16 +13,18 @@ public class OverrideOptions {
     private static final Splitter OPTION_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
     private static final Pattern OPTION_PATTERN = Pattern.compile("(.+)=(.+)");
 
-    public static final OverrideOptions NONE = new OverrideOptions(null, null, null);
+    public static final OverrideOptions NONE = new OverrideOptions(null, null, null, null);
 
     private final Integer objectId;
     private final Boolean notify;
     private final Boolean skipLastModified;
+    private final Boolean updateOnNoop;
 
-    OverrideOptions(final Integer objectId, final Boolean notify, final Boolean skipLastModified) {
+    OverrideOptions(final Integer objectId, final Boolean notify, final Boolean skipLastModified, Boolean updateOnNoop) {
         this.objectId = objectId;
         this.notify = notify;
         this.skipLastModified = skipLastModified;
+        this.updateOnNoop = updateOnNoop;
     }
 
     public boolean isObjectIdOverride() {
@@ -44,6 +46,10 @@ public class OverrideOptions {
 
     public boolean isSkipLastModified() {
         return skipLastModified == null ? false : skipLastModified;
+    }
+
+    public boolean isUpdateOnNoop() {
+        return updateOnNoop == null ? false : updateOnNoop;
     }
 
     public static OverrideOptions parse(final Update update, final UpdateContext updateContext) {
@@ -72,6 +78,7 @@ public class OverrideOptions {
         Integer objectId = null;
         Boolean notify = null;
         Boolean skipLastModified = null;
+        Boolean updateOnNoop = null;
 
         for (final String option : OPTION_SPLITTER.split(options)) {
             final Matcher matcher = OPTION_PATTERN.matcher(option);
@@ -94,6 +101,9 @@ public class OverrideOptions {
                         case "skip-last-modified":
                             skipLastModified = Boolean.parseBoolean(value);
                             break;
+                        case "update-on-noop":
+                            updateOnNoop = Boolean.parseBoolean(value);
+                            break;
                         default:
                             updateContext.addMessage(update, UpdateMessages.overrideOptionInvalid(option));
                     }
@@ -103,6 +113,6 @@ public class OverrideOptions {
             }
         }
 
-        return new OverrideOptions(objectId, notify, skipLastModified);
+        return new OverrideOptions(objectId, notify, skipLastModified, updateOnNoop);
     }
 }
