@@ -1334,13 +1334,37 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_too_many_arguments() {
+    public void search_too_many_invalid_arguments() {
         try {
             RestTest.target(getPort(), "whois/search?query-string=" +
                     "d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
                     "%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
                     "%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
                     "%20d%20d%20d%20d")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            RestTest.assertOnlyErrorMessage(e, "Error", "ERROR:118: too many arguments supplied\n\nToo many arguments supplied.\n");
+        }
+    }
+
+    @Test
+    public void search_too_many_valid_arguments() {
+        try {
+            RestTest.target(getPort(), "whois/search?abuse-contact=true&ignore40=true&managed-attributes=true&" +
+                    "resource-holder=true&flags=r&offset=0&limit=20&query-string=126/8%09APNIC%09Jan-05%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20125/8%09APNIC%09Jan-05%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20124/8%09APNIC%09Jan-05%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20123/8%09APNIC%09Jan-06%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20122/8%09APNIC%09Jan-06%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20121/8%09APNIC%09Jan-06%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20120/8%09APNIC%09Jan-07%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20119/8%09APNIC%09Jan-07%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20118/8%09APNIC%09Jan-07%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20117/8%09APNIC%09Jan-07%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED%20116/8%09APNIC%09Jan-07%09whois.apnic.net%09" +
+                    "https://rdap.apnic.net/%09ALLOCATED")
                     .request(MediaType.APPLICATION_JSON)
                     .get(String.class);
             fail();

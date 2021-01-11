@@ -142,7 +142,9 @@ public class RestServiceHelper {
         return createWebApplicationException(exception, request, Lists.newArrayList());
     }
 
-    public static WebApplicationException createWebApplicationException(final RuntimeException exception, final HttpServletRequest request, final List<Message> messages) {
+    public static WebApplicationException createWebApplicationException(final RuntimeException exception,
+                                                                        final HttpServletRequest request,
+                                                                        final List<Message> messages) {
         final Response.ResponseBuilder responseBuilder;
 
         if (exception instanceof QueryException) {
@@ -154,6 +156,9 @@ public class RestServiceHelper {
             }
             messages.addAll(queryException.getMessages());
 
+        } else if (exception instanceof IllegalArgumentException) {
+            responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+            messages.add(QueryMessages.tooManyArguments());
         } else {
             if (skipStackTrace(exception)) {
                 LOGGER.error("{}: {}", exception.getClass().getName(), exception.getMessage());
