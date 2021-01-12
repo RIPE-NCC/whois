@@ -31,8 +31,13 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
