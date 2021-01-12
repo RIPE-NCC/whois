@@ -1334,7 +1334,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_too_many_invalid_arguments() {
+    public void search_too_many_single_query_arguments() {
         try {
             RestTest.target(getPort(), "whois/search?query-string=" +
                     "d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
@@ -1350,7 +1350,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_too_many_valid_arguments() {
+    public void search_too_many_multiple_query_arguments() {
         try {
             RestTest.target(getPort(), "whois/search?abuse-contact=true&ignore40=true&managed-attributes=true&" +
                     "resource-holder=true&flags=r&offset=0&limit=20&query-string=126/8%09APNIC%09Jan-05%09whois.apnic.net%09" +
