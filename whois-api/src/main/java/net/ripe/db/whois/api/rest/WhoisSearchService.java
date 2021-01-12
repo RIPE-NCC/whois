@@ -163,7 +163,7 @@ public class WhoisSearchService {
         queryBuilder.addCommaList(QueryFlag.FILTER_TAG_INCLUDE, includeTags);
         queryBuilder.addCommaList(QueryFlag.FILTER_TAG_EXCLUDE, excludeTags);
 
-        if(clientAttribute != null) {
+        if (clientAttribute != null) {
             queryBuilder.addCommaList(QueryFlag.CLIENT, clientAttribute);
         }
 

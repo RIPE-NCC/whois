@@ -2053,7 +2053,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             assertThat(remaining, is(limit));
 
             final int proxyRemaining = accessControlListManager.getPersonalObjects(proxyHost);
-            assertThat(proxyRemaining, is(proxylLimit-1));
+            assertThat(proxyRemaining, is(proxylLimit - 1));
 
         } finally {
             testPersonalObjectAccounting.resetAccounting();
