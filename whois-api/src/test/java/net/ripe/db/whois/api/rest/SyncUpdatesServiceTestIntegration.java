@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -27,14 +28,15 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -451,6 +453,48 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("Create SUCCEEDED: [person] TP2-RIPE   Test Person"));
         assertThat(response, containsString("***Warning: Deprecated attribute \"changed\". This attribute has been removed."));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-RIPE").containsAttribute(AttributeType.CHANGED), is(false));
+    }
+
+    @Test
+    public void modify_generated_attributes_changes_last_modified_attribute() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.AUT_NUM));
+
+        final String AUTNUM_TEST = "" +
+                "aut-num:        AS104\n" +
+                "status:         ASSIGNED\n" +
+                "as-name:        End-User-2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         mntner-mnt\n" +
+                "created:         2001-02-04T17:00:00Z\n" +
+                "last-modified:   2001-02-04T17:00:00Z\n" +
+                "source:         TEST\n";
+
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+        databaseHelper.addObject(AUTNUM_TEST);
+
+        final CIString orginialModifiedDate = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104").getValueForAttribute(AttributeType.LAST_MODIFIED);
+
+        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode("aut-num:        AS104\n" +
+                "status:         OTHER\n" +
+                "as-name:        End-User-2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         mntner-mnt\n" +
+                "source:         TEST-NONAUTH\n" +
+                "override:       agoston,zoh\n"))
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("Modify SUCCEEDED: [aut-num] AS104"));
+        assertThat(databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104").getValueForAttribute(AttributeType.LAST_MODIFIED), is(not(orginialModifiedDate)));
+        assertThat(databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104").getValueForAttribute(AttributeType.STATUS), is("OTHER"));
+        assertThat(databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104").getValueForAttribute(AttributeType.SOURCE), is("TEST-NONAUTH"));
     }
 
     @Test

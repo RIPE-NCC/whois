@@ -151,6 +151,36 @@ public class OverrideOptionsTest {
     }
 
     @Test
+    public void override_update_on_noop_true() {
+        useCredentialWithRemarks("{update-on-noop=true}");
+
+        final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
+
+        assertThat(overrideOptions.isUpdateOnNoop(), is(true));
+        verifyNoMoreInteractions(updateContext);
+    }
+
+    @Test
+    public void override_update_on_noop_false() {
+        useCredentialWithRemarks("{update-on-noop=false}");
+
+        final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
+
+        assertThat(overrideOptions.isUpdateOnNoop(), is(false));
+        verifyNoMoreInteractions(updateContext);
+    }
+
+    @Test
+    public void override_update_on_noop_unknown() {
+        useCredentialWithRemarks("{update-on-noop=unknown}");
+
+        final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
+
+        assertThat(overrideOptions.isUpdateOnNoop(), is(false));
+        verifyNoMoreInteractions(updateContext);
+    }
+
+    @Test
     public void override_last_modified_default() {
         useCredentialWithRemarks("");
 
