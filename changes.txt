@@ -1,5 +1,12 @@
 # next
 
+[all] Java 11 support (#673)
+[rdap] nameserver not implemented (#711)
+[update] Delete object bug (#723)
+[all] Removed Travis integration (#724)
+[all] Updated dependencies
+[all] Merged AWS profile (#721)
+
 # 1.99
 
 [update] Require -mnt suffix when creating an MNTNER object (#667)
