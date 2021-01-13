@@ -458,8 +458,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void modify_generated_attributes_changes_last_modified_attribute() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.AUT_NUM));
-        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
-        testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 
         final String AUTNUM_TEST = "" +
                 "aut-num:        AS104\n" +
@@ -477,6 +475,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(AUTNUM_TEST);
 
         final CIString orginialModifiedDate = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104").getValueForAttribute(AttributeType.LAST_MODIFIED);
+
+        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 
         final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
                 "DATA=" + SyncUpdateUtils.encode("aut-num:        AS104\n" +
