@@ -68,7 +68,7 @@ public class RemoteAddressFilter implements Filter {
                 return address;
             }
 
-            LOGGER.info("Received Client IP address is {}", forwardedAddress);
+            LOGGER.debug("Received Client IP address is {}", forwardedAddress);
             return forwardedAddress;
         }
 
