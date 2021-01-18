@@ -39,6 +39,9 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
 
         instance.getCluster().addMembershipListener(new HazelcastMemberShipListner());
 
+        LOGGER.info("hazelcast instances : " + instance.getName() +  " members: " + instance.getCluster().getMembers());
+        LOGGER.info("hazelcast instances properties  : " + instance.getConfig().getProperties().toString());
+        
         counterMap = instance.getMap("queriedPersonal");
     }
 
