@@ -1976,7 +1976,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:    TEST\n");
 
         try {
-            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&client-attribute=testId,10.1.2.3")
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&client=testId,10.1.2.3")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
@@ -2000,7 +2000,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
         final int limit = accessControlListManager.getPersonalObjects(localhost);
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client-attribute=testId")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
@@ -2011,7 +2011,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         final int remaining = accessControlListManager.getPersonalObjects(localhost);
         assertThat(remaining, is(limit - 1));
 
-        assertThat(whoisResources.getParameters().getClientAttribute(), is("testId"));
+        assertThat(whoisResources.getParameters().getClient(), is("testId"));
     }
 
     @Test
@@ -2035,13 +2035,13 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         final int limit = accessControlListManager.getPersonalObjects(localhost);
         final int proxylLimit = accessControlListManager.getPersonalObjects(proxyHost);
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client-attribute=testId,10.1.2.3")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId,10.1.2.3")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getParameters().getClientAttribute(), is("testId,10.1.2.3"));
+        assertThat(whoisResources.getParameters().getClient(), is("testId,10.1.2.3"));
 
         //only proxy ip is counted for ACL
         final int remaining = accessControlListManager.getPersonalObjects(localhost);

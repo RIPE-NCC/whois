@@ -118,7 +118,7 @@ public class WhoisSearchService {
      * @param sources source database(s) to search, defaults to RIPE
      * @param searchKey (Mandatory) query search key
      * @param inverseAttributes perform an inverse query using the specified attribute(s)
-     * @param clientAttribute Sends information about the client to the server
+     * @param client Sends information about the client to the server
      * @param includeTags return only objects with the specified tag(s)
      * @param excludeTags do not return objects with the specified tag(s)
      * @param types Filter results by object type(s)
@@ -139,7 +139,7 @@ public class WhoisSearchService {
             @QueryParam("source") final Set<String> sources,
             @QueryParam("query-string") final String searchKey,
             @QueryParam("inverse-attribute") final Set<String> inverseAttributes,
-            @QueryParam("client-attribute") final String clientAttribute,
+            @QueryParam("client") final String client,
             @QueryParam("include-tag") final Set<String> includeTags,
             @QueryParam("exclude-tag") final Set<String> excludeTags,
             @QueryParam("type-filter") final Set<String> types,
@@ -165,8 +165,8 @@ public class WhoisSearchService {
         queryBuilder.addCommaList(QueryFlag.FILTER_TAG_INCLUDE, includeTags);
         queryBuilder.addCommaList(QueryFlag.FILTER_TAG_EXCLUDE, excludeTags);
 
-        if (clientAttribute != null) {
-            queryBuilder.addCommaList(QueryFlag.CLIENT, clientAttribute);
+        if (client != null) {
+            queryBuilder.addCommaList(QueryFlag.CLIENT, client);
         }
 
         for (QueryFlag separateFlag : separateFlags) {
@@ -177,7 +177,7 @@ public class WhoisSearchService {
 
         final Parameters parameters = new Parameters.Builder()
                 .inverseAttributes(new InverseAttributes(inverseAttributes))
-                .clientAttribute(clientAttribute)
+                .client(client)
                 .typeFilters(new TypeFilters(types))
                 .flags(new Flags(separateFlags))
                 .queryStrings(new QueryStrings(new QueryString(searchKey)))

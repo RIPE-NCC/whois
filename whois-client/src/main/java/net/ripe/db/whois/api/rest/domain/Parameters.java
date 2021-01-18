@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlType;
     name = "",
     propOrder = {
         "inverseAttributes",
-        "clientAttribute",
+        "client",
         "typeFilters",
         "flags",
         "queryStrings",
@@ -28,9 +28,9 @@ public class Parameters {
     @JsonProperty(value = "inverse-lookup")
     private InverseAttributes inverseAttributes;
 
-    @XmlElement(name = "client-attribute")
-    @JsonProperty(value = "client-attribute")
-    private String clientAttribute;
+    @XmlElement(name = "client")
+    @JsonProperty(value = "client")
+    private String client;
 
     @XmlElement(name="type-filters")
     @JsonProperty(value = "type-filters")
@@ -60,7 +60,7 @@ public class Parameters {
 
     public Parameters(
             final InverseAttributes inverseAttributes,
-            final String clientAttribute,
+            final String client,
             final TypeFilters typeFilters,
             final Flags flags,
             final QueryStrings queryStrings,
@@ -84,7 +84,7 @@ public class Parameters {
         this.limit = limit;
         this.offset = offset;
         this.unformatted = unformatted;
-        this.clientAttribute = clientAttribute;
+        this.client = client;
     }
 
     public Parameters() {
@@ -139,12 +139,12 @@ public class Parameters {
         return unformatted;
     }
 
-    public String getClientAttribute() { return clientAttribute; }
+    public String getClient() { return client; }
 
     public static class Builder {
 
         private InverseAttributes inverseAttributes;
-        private String clientAttribute;
+        private String client;
         private TypeFilters typeFilters;
         private Flags flags;
         private QueryStrings queryStrings;
@@ -162,8 +162,8 @@ public class Parameters {
             return this;
         }
 
-        public Builder clientAttribute(final String clientAttribute) {
-            this.clientAttribute = clientAttribute;
+        public Builder client(final String client) {
+            this.client = client;
             return this;
         }
 
@@ -225,7 +225,7 @@ public class Parameters {
         public Parameters build() {
             return new Parameters(
                     inverseAttributes,
-                    clientAttribute,
+                    client,
                     typeFilters,
                     flags,
                     queryStrings,
