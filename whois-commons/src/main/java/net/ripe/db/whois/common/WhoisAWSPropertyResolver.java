@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import java.net.InetAddress;
@@ -25,10 +24,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @Profile(WhoisProfile.AWS_DEPLOYED)
-@PropertySources({
-        @PropertySource(value = "classpath:version.properties", ignoreResourceNotFound = true),
-        @PropertySource(value = "classpath:whois.properties", ignoreResourceNotFound = true),
-})
+@PropertySource(value = "classpath:version.properties", ignoreResourceNotFound = true)
 public class WhoisAWSPropertyResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisAWSPropertyResolver.class);
 
