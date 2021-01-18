@@ -57,7 +57,7 @@
         <groovy.version>2.5.14</groovy.version>
 
         <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
-        <hazelcast.version>2.6.10</hazelcast.version>
+        <hazelcast.version>4.2-SNAPSHOT</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
         <jaxb.version>2.3.3</jaxb.version>
