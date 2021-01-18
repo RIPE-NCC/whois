@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.acl;
 
-import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -32,18 +31,17 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
             throw new IllegalStateException("Hazelcast already started");
         }
 
-        //TODO: use  efs mount for hazelcast config, instead of java config. This is just for testing
-        Config config = new Config();
-        config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-        config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(true);
-        config.getNetworkConfig().getInterfaces().setEnabled(true).addInterface("10.231.*.*");
+        instance = Hazelcast.newHazelcastInstance(null);
 
-        instance = Hazelcast.newHazelcastInstance(config);
+        //TODO: use  efs mount for hazelcast config, instead of java config. This is just for testing
+        instance.getConfig().getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+        instance.getConfig().getNetworkConfig().getJoin().getAwsConfig().setEnabled(true);
+        instance.getConfig().getNetworkConfig().getInterfaces().setEnabled(true).addInterface("10.231.*.*");
+
         instance.getCluster().addMembershipListener(new HazelcastMemberShipListner());
 
         LOGGER.info("hazelcast instances : " + instance.getName() +  " members: " + instance.getCluster().getMembers());
         LOGGER.info("hazelcast instances interfaces  : " + instance.getConfig().getNetworkConfig().getInterfaces());
-        LOGGER.info("hazelcast properties  : " + instance.getConfig().getProperties().toString());
 
         counterMap = instance.getMap("queriedPersonal");
     }
