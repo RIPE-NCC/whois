@@ -343,13 +343,8 @@
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast</artifactId>
-                <version>${hazelcast.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast-aws</artifactId>
-                <version>3.3.1-SNAPSHOT</version>
+                <artifactId>hazelcast-all</artifactId>
+                <version>4.1.1</version>
             </dependency>
 
             <!-- bouncy castle -->
