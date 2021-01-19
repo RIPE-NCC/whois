@@ -14,6 +14,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -38,7 +39,7 @@ public class WhoisServer {
         Slf4JLogConfiguration.init();
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        LOGGER.info("Initial arguments : " + args.toString());
+        LOGGER.info("Initial arguments : " + Arrays.toString(args));
         final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.RIPE_DEPLOYED);
 
         final WhoisServer whoisServer = applicationContext.getBean(WhoisServer.class);

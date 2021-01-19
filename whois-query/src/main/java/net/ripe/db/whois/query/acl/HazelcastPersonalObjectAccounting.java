@@ -35,13 +35,16 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
         Config config = new Config("hz_instance_prepdev");
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
         config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(true);
-        config.getNetworkConfig().getInterfaces().setEnabled(true).addInterface("10.231.*.*");
+        config.getNetworkConfig().getInterfaces().setEnabled(true).addInterface("10.*.*.*");
+        config.setProperty("cluster","whois");
+        config.setProperty("cluster","whois");
 
         instance = Hazelcast.newHazelcastInstance(config);
         instance.getCluster().addMembershipListener(new HazelcastMemberShipListner());
 
         LOGGER.info("hazelcast instances : " + instance.getName() +  " members: " + instance.getCluster().getMembers());
         LOGGER.info("hazelcast instances interfaces  : " + instance.getConfig().getNetworkConfig().getInterfaces());
+        LOGGER.info("hazelcast instances properties   : " + instance.getConfig().getProperties());
 
         counterMap = instance.getMap("queriedPersonal");
     }
