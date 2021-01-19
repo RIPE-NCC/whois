@@ -1,10 +1,14 @@
 package net.ripe.db.whois.query.acl;
 
+import com.hazelcast.aws.AwsDiscoveryStrategyFactory;
 import com.hazelcast.config.Config;
+import com.hazelcast.config.DiscoveryConfig;
+import com.hazelcast.config.DiscoveryStrategyConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.OperationTimeoutException;
 import com.hazelcast.map.IMap;
+import com.hazelcast.spi.discovery.DiscoveryStrategyFactory;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +40,13 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
         config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(true);
         config.getNetworkConfig().getInterfaces().setEnabled(true).addInterface("10.231.*.*");
+
+        //TODO: is it because of maven shade plugin???
+        DiscoveryConfig discoveryConfig = config.getNetworkConfig().getJoin().getDiscoveryConfig();
+
+        DiscoveryStrategyFactory factory = new AwsDiscoveryStrategyFactory();
+        DiscoveryStrategyConfig strategyConfig = new DiscoveryStrategyConfig(factory);
+        discoveryConfig.addDiscoveryStrategyConfig(strategyConfig);
 
         instance = Hazelcast.newHazelcastInstance(config);
         instance.getCluster().addMembershipListener(new HazelcastMemberShipListner());
