@@ -1,9 +1,9 @@
 package net.ripe.db.whois.query.acl;
 
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MembershipListener;
+import com.hazelcast.cluster.MembershipEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.hazelcast.cluster.MembershipListener;
 
 public class HazelcastMemberShipListner  implements MembershipListener {
 

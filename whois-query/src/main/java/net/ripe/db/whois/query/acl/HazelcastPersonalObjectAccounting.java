@@ -2,8 +2,8 @@ package net.ripe.db.whois.query.acl;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.OperationTimeoutException;
+import com.hazelcast.map.IMap;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @DeployedProfile
 @Primary
@@ -83,20 +82,18 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
     @Override
     public int accountPersonalObject(final InetAddress remoteAddress, final int amount) {
         try {
-            Integer count = counterMap.tryLockAndGet(remoteAddress, 3, TimeUnit.SECONDS);
+            counterMap.lock(remoteAddress, 3, TimeUnit.SECONDS);
 
-            if (count == null) {
-                count = amount;
-            } else {
-                count += amount;
-            }
+            Integer count = counterMap.get(remoteAddress);
+            count = (count == null)  ? amount :  count + amount;
 
-            counterMap.putAndUnlock(remoteAddress, count);
+            counterMap.put(remoteAddress, count);
             return count;
-        } catch (TimeoutException | IllegalStateException e) {
+        } catch (Exception e) {
             LOGGER.info("Unable to account personal object, allowed by default. Threw {}: {}", e.getClass().getName(), e.getMessage());
+        } finally {
+            counterMap.unlock(remoteAddress);
         }
-
         return 0;
     }
 
