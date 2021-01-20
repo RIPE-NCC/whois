@@ -1,7 +1,10 @@
 package net.ripe.db.whois.query.acl;
 
 import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -16,11 +19,24 @@ import static org.hamcrest.Matchers.is;
 public class HazelcastPersonalObjectAccountingTest {
     private InetAddress ipv4Address;
 
-    final HazelcastPersonalObjectAccounting subject = new HazelcastPersonalObjectAccounting(Hazelcast.newHazelcastInstance(null));
+    private static HazelcastPersonalObjectAccounting subject;
+    private static HazelcastInstance instance;
+
+    @BeforeClass
+    public static void startHazelcast() {
+       instance = Hazelcast.newHazelcastInstance(null);
+       subject = new HazelcastPersonalObjectAccounting(instance);
+    }
+
+    @AfterClass
+    public static void shutdownHazelcast() {
+        instance.getLifecycleService().shutdown();
+    }
 
     @Before
     public void setUp() throws Exception {
         subject.resetAccounting();
+
         ipv4Address = Inet4Address.getLocalHost();
     }
 
