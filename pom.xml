@@ -65,7 +65,7 @@
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.13.1</junit.version>
-        <jetty.version>9.4.35.v20201120</jetty.version>
+        <jetty.version>11.0.0</jetty.version>
         <jersey.version>3.0.0</jersey.version>
         <jackson.version>2.12.1</jackson.version>
 
