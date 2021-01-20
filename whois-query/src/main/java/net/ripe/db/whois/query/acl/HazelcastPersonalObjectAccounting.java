@@ -29,7 +29,6 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
         this.counterMap =  hazelcastInstance.getMap("queriedPersonal");
 
         LOGGER.info("hazelcast instances : " + this.hazelcastInstance.getName() +  " members: " + this.hazelcastInstance.getCluster().getMembers());
-        LOGGER.info("hazelcast instances interfaces  : " + this.hazelcastInstance.getConfig().getNetworkConfig().getInterfaces());
     }
 
     @PreDestroy

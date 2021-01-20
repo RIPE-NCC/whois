@@ -21,7 +21,10 @@ public class HazelcastInstanceManager {
     @Profile(WhoisProfile.RIPE_DEPLOYED)
     public HazelcastInstance hazelcastInstance() {
       LOGGER.info("Creating hazelcast instance with Ripe deployed profile");
-      return Hazelcast.newHazelcastInstance(null);
+      final HazelcastInstance instance =  Hazelcast.newHazelcastInstance(null);
+      instance.getCluster().addMembershipListener(new HazelcastMemberShipListner());
+
+      return instance;
     }
 
     @Bean
