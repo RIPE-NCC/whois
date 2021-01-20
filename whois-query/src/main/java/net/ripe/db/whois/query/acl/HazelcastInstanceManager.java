@@ -33,7 +33,7 @@ public class HazelcastInstanceManager {
     public HazelcastInstance hazelcastAwsInstance() {
         LOGGER.info("Creating hazelcast instance with AWS deployed profile");
 
-        final Config config = new Config("hz_instance_prepdev");
+        final Config config = new Config();
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
         config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(true);
         config.getNetworkConfig().getInterfaces().setEnabled(true).addInterface("10.*.*.*");

@@ -56,18 +56,45 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
 
     @Override
     public int accountPersonalObject(final InetAddress remoteAddress, final int amount) {
+        if( !counterMap.containsKey(remoteAddress) ) {
+            return handleNewEntry(remoteAddress, amount);
+        }
+
         try {
-            counterMap.lock(remoteAddress, 3, TimeUnit.SECONDS);
-
             Integer count = counterMap.get(remoteAddress);
-            count = (count == null)  ? amount :  count + amount;
+            Integer total = count + amount;
 
-            counterMap.put(remoteAddress, count);
-            counterMap.unlock(remoteAddress);
+            if (counterMap.replace(remoteAddress, count, total)) {
+                return total;
+            }
 
             return count;
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             LOGGER.info("Unable to account personal object, allowed by default. Threw {}: {}", e.getClass().getName(), e.getMessage());
+        }
+
+        return 0;
+    }
+
+    private int handleNewEntry(final InetAddress remoteAddress, final int amount) {
+        boolean isLocked = false;
+
+        try {
+            if (isLocked = counterMap.tryLock(remoteAddress,3, TimeUnit.SECONDS)) {
+                Integer count = counterMap.get(remoteAddress);
+                count = (count == null) ? amount : (count + amount);
+                counterMap.putIfAbsent(remoteAddress, amount);
+
+                return count;
+            }
+
+        } catch (Exception e) {
+            LOGGER.info("Unable to account personal object, allowed by default. Threw {}: {}", e.getClass().getName(), e.getMessage());
+        } finally {
+            //unlock only if it is locked by this instance
+            if(isLocked) {
+                counterMap.unlock(remoteAddress);
+            }
         }
         return 0;
     }
