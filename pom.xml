@@ -489,10 +489,11 @@
                 <scope>runtime</scope>
             </dependency>
 
-            <!-- Jackson -->
+            <!-- Jackson JSON Library -->
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-base</artifactId>
+                <classifier>jakarta</classifier>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
