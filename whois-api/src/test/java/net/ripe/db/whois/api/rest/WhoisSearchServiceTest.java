@@ -52,6 +52,7 @@ public class WhoisSearchServiceTest {
                         Sets.newHashSet("TEST"),
                         "AARDVARK-MNT",
                         Collections.EMPTY_SET,
+                        null,
                         Collections.EMPTY_SET,
                         Collections.EMPTY_SET,
                         Collections.EMPTY_SET,
