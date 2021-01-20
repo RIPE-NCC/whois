@@ -80,6 +80,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <classifier>jakarta</classifier>
         </dependency>
 
         <!-- StaxUtils for the XMLWriterUtils -->

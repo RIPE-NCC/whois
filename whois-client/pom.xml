@@ -71,6 +71,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <classifier>jakarta</classifier>
         </dependency>
         <dependency>
              <groupId>com.fasterxml.jackson.core</groupId>

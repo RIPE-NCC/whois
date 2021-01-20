@@ -67,7 +67,7 @@
         <junit.version>4.13.1</junit.version>
         <jetty.version>9.4.35.v20201120</jetty.version>
         <jersey.version>2.32</jersey.version>
-        <jackson.version>2.11.3</jackson.version>
+        <jackson.version>2.12.1</jackson.version>
 
         <log4j.version>2.14.0</log4j.version>
         <lucene.version>7.7.2</lucene.version>
@@ -498,6 +498,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <classifier>jakarta</classifier>
                 <version>${jackson.version}</version>
             </dependency>
              <dependency>
