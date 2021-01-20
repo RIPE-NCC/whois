@@ -60,7 +60,7 @@
         <hazelcast.version>2.6.10</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
-        <jaxb.version>2.3.3</jaxb.version>
+        <jaxb.version>3.0.0</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.11.2</jsoup.version>
@@ -524,10 +524,18 @@
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jaxb.version}</version>
             </dependency>
+            <!--
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb.version}</version>
+            </dependency>
+            -->
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${jaxb.version}</version>
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Lucene for fulltext search -->
