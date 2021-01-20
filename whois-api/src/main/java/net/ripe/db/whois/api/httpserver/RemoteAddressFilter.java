@@ -4,6 +4,8 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.net.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -21,6 +23,7 @@ import java.util.Enumeration;
 @Component
 public class RemoteAddressFilter implements Filter {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(RemoteAddressFilter.class);
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     @Override
@@ -64,6 +67,8 @@ public class RemoteAddressFilter implements Filter {
                 }
                 return address;
             }
+
+            LOGGER.debug("Received Client IP address is {}", forwardedAddress);
             return forwardedAddress;
         }
 
