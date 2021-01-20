@@ -1,17 +1,15 @@
 package net.ripe.db.whois.query.acl;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.OperationTimeoutException;
 import com.hazelcast.map.IMap;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
@@ -22,48 +20,22 @@ import java.util.concurrent.TimeUnit;
 public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounting {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastPersonalObjectAccounting.class);
 
-    private static IMap<InetAddress, Integer> counterMap;
+    private IMap<InetAddress, Integer> counterMap;
+    private HazelcastInstance hazelcastInstance;
 
-    private static volatile HazelcastInstance instance;
+    @Autowired
+    public HazelcastPersonalObjectAccounting(final HazelcastInstance hazelcastInstance) {
+        this.hazelcastInstance = hazelcastInstance;
+        this.counterMap =  hazelcastInstance.getMap("queriedPersonal");
 
-    static synchronized void startHazelcast() {
-        if (instance != null) {
-            throw new IllegalStateException("Hazelcast already started");
-        }
-
-        //TODO: use  efs mount for hazelcast config, instead of java config. This is just for testing
-        Config config = new Config("hz_instance_prepdev");
-        config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-        config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(true);
-        config.getNetworkConfig().getInterfaces().setEnabled(true).addInterface("10.*.*.*");
-        config.setProperty("cluster","whois");
-        config.setProperty("cluster","whois");
-
-        instance = Hazelcast.newHazelcastInstance(config);
-        instance.getCluster().addMembershipListener(new HazelcastMemberShipListner());
-
-        LOGGER.info("hazelcast instances : " + instance.getName() +  " members: " + instance.getCluster().getMembers());
-        LOGGER.info("hazelcast instances interfaces  : " + instance.getConfig().getNetworkConfig().getInterfaces());
-        LOGGER.info("hazelcast instances properties   : " + instance.getConfig().getProperties());
-
-        counterMap = instance.getMap("queriedPersonal");
-    }
-
-    static void shutdownHazelcast() {
-        LOGGER.debug("Shutting down hazelcast instance");
-
-        instance.getLifecycleService().shutdown();
-        instance = null;
-    }
-
-    @PostConstruct
-    public void startService() {
-        startHazelcast();
+        LOGGER.info("hazelcast instances : " + this.hazelcastInstance.getName() +  " members: " + this.hazelcastInstance.getCluster().getMembers());
+        LOGGER.info("hazelcast instances interfaces  : " + this.hazelcastInstance.getConfig().getNetworkConfig().getInterfaces());
     }
 
     @PreDestroy
     public void stopService() {
-        shutdownHazelcast();
+        hazelcastInstance.getLifecycleService().shutdown();
+        hazelcastInstance = null;
     }
 
     @Override
@@ -92,11 +64,11 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
             count = (count == null)  ? amount :  count + amount;
 
             counterMap.put(remoteAddress, count);
-            return count;
-        } catch (Exception e) {
-            LOGGER.info("Unable to account personal object, allowed by default. Threw {}: {}", e.getClass().getName(), e.getMessage());
-        } finally {
             counterMap.unlock(remoteAddress);
+
+            return count;
+        } catch (IllegalStateException e) {
+            LOGGER.info("Unable to account personal object, allowed by default. Threw {}: {}", e.getClass().getName(), e.getMessage());
         }
         return 0;
     }

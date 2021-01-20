@@ -1,3 +1,4 @@
+/*
 package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -83,3 +84,4 @@ public class HazelcastPersonalObjectAccountingTest {
         assertThat(subject.getQueriedPersonalObjects(ipv4Address), is(0));
     }
 }
+*/
