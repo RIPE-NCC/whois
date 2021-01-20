@@ -1,21 +1,34 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Vector;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class HttpRequestMessageTest {
 
-    private MockHttpServletRequest request;
+    @Mock
+    private HttpServletRequest request;
 
     @Before
     public void setup() {
-        request = new MockHttpServletRequest("GET", "/some/path");
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getRequestURI()).thenReturn("/some/path");
+        when(request.getHeaders(any(String.class))).thenReturn(Collections.emptyEnumeration());
+        when(request.getHeaderNames()).thenReturn(Collections.emptyEnumeration());
     }
 
     @Test
@@ -25,58 +38,66 @@ public class HttpRequestMessageTest {
 
     @Test
     public void log_single_header() {
-        request.addHeader("name", "value");
+        when(request.getHeaderNames()).thenReturn(enumeration("name"));
+        when(request.getHeaders("name")).thenReturn(enumeration("value"));
 
         assertThat(toString(request), is("GET /some/path\nHeader: name=value\n"));
     }
 
     @Test
     public void log_multiple_headers() {
-        request.addHeader("header1", "value1");
-        request.addHeader("header2", "value2");
-        request.addHeader("header3", "value3");
+        when(request.getHeaderNames()).thenReturn(enumeration("header1", "header2", "header3"));
+        when(request.getHeaders("header1")).thenReturn(enumeration("value1"));
+        when(request.getHeaders("header2")).thenReturn(enumeration("value2"));
+        when(request.getHeaders("header3")).thenReturn(enumeration("value3"));
 
         assertThat(toString(request), is("GET /some/path\nHeader: header1=value1\nHeader: header2=value2\nHeader: header3=value3\n"));
     }
 
     @Test
     public void log_empty_query_string() {
-        request.setQueryString("");
+        when(request.getQueryString()).thenReturn("");
 
         assertThat(toString(request), is("GET /some/path\n"));
     }
 
     @Test
     public void log_encoded_query_parameter() {
-        request.setQueryString("password=p%3Fssword%26");
+        when(request.getQueryString()).thenReturn("password=p%3Fssword%26");
 
         assertThat(toString(request), is("GET /some/path?password=FILTERED\n"));
     }
 
     @Test
     public void log_query_parameters_including_password() {
-        request.setQueryString("password=secret");
+        when(request.getQueryString()).thenReturn("password=secret");
         assertThat(toString(request), is("GET /some/path?password=FILTERED\n"));
 
-        request.setQueryString("password=secret&param");
+        when(request.getQueryString()).thenReturn("password=secret&param");
         assertThat(toString(request), is("GET /some/path?password=FILTERED&param\n"));
 
-        request.setQueryString("password=secret&password=other");
+        when(request.getQueryString()).thenReturn("password=secret&password=other");
         assertThat(toString(request), is("GET /some/path?password=FILTERED&password=FILTERED\n"));
 
-        request.setQueryString("password=secret&password=other&param=value");
+        when(request.getQueryString()).thenReturn("password=secret&password=other&param=value");
         assertThat(toString(request), is("GET /some/path?password=FILTERED&password=FILTERED&param=value\n"));
 
-        request.setQueryString("param=value&password=secret&password=other");
+        when(request.getQueryString()).thenReturn("param=value&password=secret&password=other");
         assertThat(toString(request), is("GET /some/path?param=value&password=FILTERED&password=FILTERED\n"));
 
-        request.setQueryString("param=value&password=secret&param=password");
+        when(request.getQueryString()).thenReturn("param=value&password=secret&param=password");
         assertThat(toString(request), is("GET /some/path?param=value&password=FILTERED&param=password\n"));
     }
 
     // helper methods
     private String toString(final HttpServletRequest request) {
         return new HttpRequestMessage(request).toString();
+    }
+
+    private Enumeration<String> enumeration(final String ... values) {
+        final Vector<String> vector = new Vector<>();
+        vector.addAll(Arrays.asList(values));
+        return vector.elements();
     }
 
 }
