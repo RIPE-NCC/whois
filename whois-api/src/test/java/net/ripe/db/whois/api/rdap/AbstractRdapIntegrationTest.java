@@ -8,9 +8,9 @@ import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -45,7 +45,7 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
     protected String syncupdate(String data) {
         WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
         return resource.request()
-                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
+                .post(jakarta.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
                         MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
 

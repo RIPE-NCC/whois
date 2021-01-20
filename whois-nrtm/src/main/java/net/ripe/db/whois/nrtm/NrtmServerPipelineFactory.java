@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 @Component
 public class NrtmServerPipelineFactory extends BaseNrtmServerPipelineFactory {

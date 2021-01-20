@@ -9,8 +9,8 @@ import net.ripe.db.whois.update.domain.ReservedAutnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;

@@ -3,8 +3,8 @@ package net.ripe.db.whois.api.rdap.domain;
 import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.core.Response;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
