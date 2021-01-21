@@ -60,6 +60,9 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
                 return count;
             }
 
+            //if cannot get a lock in specified time, return the current state not zero
+            return counterMap.get(remoteAddress);
+
         } catch (Exception e) {
             LOGGER.info("Unable to account personal object, allowed by default. Threw {}: {}", e.getClass().getName(), e.getMessage());
         } finally {
