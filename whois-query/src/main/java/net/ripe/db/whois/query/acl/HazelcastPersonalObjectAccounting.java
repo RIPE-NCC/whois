@@ -55,7 +55,7 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
             if (isLocked = counterMap.tryLock(remoteAddress,3, TimeUnit.SECONDS)) {
                 Integer count = counterMap.get(remoteAddress);
                 count = (count == null) ? amount : (count + amount);
-                counterMap.putIfAbsent(remoteAddress, count);
+                counterMap.put(remoteAddress, count);
 
                 return count;
             }
