@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
@@ -29,12 +28,6 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
         this.counterMap =  hazelcastInstance.getMap("queriedPersonal");
 
         LOGGER.info("hazelcast instances : " + this.hazelcastInstance.getName() +  " members: " + this.hazelcastInstance.getCluster().getMembers());
-    }
-
-    @PreDestroy
-    public void stopService() {
-        hazelcastInstance.getLifecycleService().shutdown();
-        hazelcastInstance = null;
     }
 
     @Override
@@ -56,34 +49,13 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
 
     @Override
     public int accountPersonalObject(final InetAddress remoteAddress, final int amount) {
-        if( !counterMap.containsKey(remoteAddress) ) {
-            return handleNewEntry(remoteAddress, amount);
-        }
-
-        try {
-            Integer count = counterMap.get(remoteAddress);
-            Integer total = count + amount;
-
-            if (counterMap.replace(remoteAddress, count, total)) {
-                return total;
-            }
-
-            return count;
-        } catch (Exception e) {
-            LOGGER.info("Unable to account personal object, allowed by default. Threw {}: {}", e.getClass().getName(), e.getMessage());
-        }
-
-        return 0;
-    }
-
-    private int handleNewEntry(final InetAddress remoteAddress, final int amount) {
         boolean isLocked = false;
 
         try {
             if (isLocked = counterMap.tryLock(remoteAddress,3, TimeUnit.SECONDS)) {
                 Integer count = counterMap.get(remoteAddress);
                 count = (count == null) ? amount : (count + amount);
-                counterMap.putIfAbsent(remoteAddress, amount);
+                counterMap.putIfAbsent(remoteAddress, count);
 
                 return count;
             }
