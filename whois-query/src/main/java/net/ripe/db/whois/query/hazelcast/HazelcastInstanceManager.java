@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.acl;
+package net.ripe.db.whois.query.hazelcast;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.profiles.DeployedProfile;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,8 @@ public class HazelcastInstanceManager {
 
     final String interfaces;
 
-    public HazelcastInstanceManager( @Value("${hazelcast.config.interace:10.*.*.*}") final String interfaces) {
+    @Autowired
+    public HazelcastInstanceManager( @Value("${hazelcast.config.interaces:10.*.*.*}") final String interfaces) {
         this.interfaces = interfaces;
     }
 

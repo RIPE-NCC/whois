@@ -1,6 +1,7 @@
-package net.ripe.db.whois.query.acl;
+package net.ripe.db.whois.query.hazelcast;
 
 import com.hazelcast.cluster.MembershipEvent;
+import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.hazelcast.cluster.MembershipListener;
