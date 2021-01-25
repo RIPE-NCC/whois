@@ -56,7 +56,6 @@
         <guava.version>26.0-jre</guava.version>
         <groovy.version>2.5.14</groovy.version>
 
-        <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
         <hazelcast.version>4.1.1</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
