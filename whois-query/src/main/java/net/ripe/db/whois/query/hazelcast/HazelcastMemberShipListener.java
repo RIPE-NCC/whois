@@ -1,14 +1,13 @@
 package net.ripe.db.whois.query.hazelcast;
 
 import com.hazelcast.cluster.MembershipEvent;
-import net.ripe.db.whois.query.acl.HazelcastPersonalObjectAccounting;
+import com.hazelcast.cluster.MembershipListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.hazelcast.cluster.MembershipListener;
 
-public class HazelcastMemberShipListner  implements MembershipListener {
+public class HazelcastMemberShipListener implements MembershipListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastPersonalObjectAccounting.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastMemberShipListener.class);
 
     @Override
     public void memberAdded(MembershipEvent membershipEvent) {

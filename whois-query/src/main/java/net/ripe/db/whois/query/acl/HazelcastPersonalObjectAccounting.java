@@ -19,15 +19,15 @@ import java.util.concurrent.TimeUnit;
 public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounting {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastPersonalObjectAccounting.class);
 
-    private IMap<InetAddress, Integer> counterMap;
-    private HazelcastInstance hazelcastInstance;
+    private final IMap<InetAddress, Integer> counterMap;
+    private final HazelcastInstance hazelcastInstance;
 
     @Autowired
     public HazelcastPersonalObjectAccounting(final HazelcastInstance hazelcastInstance) {
         this.hazelcastInstance = hazelcastInstance;
         this.counterMap =  hazelcastInstance.getMap("queriedPersonal");
 
-        LOGGER.info("hazelcast instances : " + this.hazelcastInstance.getName() +  " members: " + this.hazelcastInstance.getCluster().getMembers());
+        LOGGER.info("hazelcast instances {} members: {} " , this.hazelcastInstance.getName() , this.hazelcastInstance.getCluster().getMembers());
     }
 
     @Override
@@ -68,10 +68,19 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
         } finally {
             //unlock only if it is locked by this instance
             if(isLocked) {
-                counterMap.unlock(remoteAddress);
+                unlockKey(remoteAddress);
             }
         }
         return 0;
+    }
+
+    private void unlockKey(InetAddress remoteAddress) {
+        try {
+            counterMap.unlock(remoteAddress);
+        } catch(Exception e) {
+            LOGGER.info("Unable to unlock object key {}. Threw {}: {}", remoteAddress, e.getClass().getName(), e.getMessage());
+        }
+
     }
 
     @Override

@@ -22,7 +22,7 @@ public class HazelcastInstanceManager {
     final String interfaces;
 
     @Autowired
-    public HazelcastInstanceManager( @Value("${hazelcast.config.interaces:10.*.*.*}") final String interfaces) {
+    public HazelcastInstanceManager( @Value("${hazelcast.config.interaces}") final String interfaces) {
         this.interfaces = interfaces;
     }
 
@@ -31,7 +31,7 @@ public class HazelcastInstanceManager {
     public HazelcastInstance hazelcastInstance() {
       LOGGER.info("Creating hazelcast instance with Ripe deployed profile");
       final HazelcastInstance instance =  Hazelcast.newHazelcastInstance(null);
-      instance.getCluster().addMembershipListener(new HazelcastMemberShipListner());
+      instance.getCluster().addMembershipListener(new HazelcastMemberShipListener());
 
       return instance;
     }
@@ -48,7 +48,7 @@ public class HazelcastInstanceManager {
         config.getNetworkConfig().getInterfaces().setEnabled(true).addInterface(interfaces);
 
         final HazelcastInstance instance = Hazelcast.newHazelcastInstance(config);
-        instance.getCluster().addMembershipListener(new HazelcastMemberShipListner());
+        instance.getCluster().addMembershipListener(new HazelcastMemberShipListener());
 
         return instance;
     }
