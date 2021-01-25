@@ -7,7 +7,7 @@
     </properties>
 
     <network>
-        <port auto-increment="false">5701</port>
+        <port auto-increment="true">5701</port>
         <join>
             <tcp-ip enabled="false">
                 <member>localhost</member>

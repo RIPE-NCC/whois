@@ -40,7 +40,7 @@ public class HazelcastInstanceManager {
     @Profile(WhoisProfile.AWS_DEPLOYED)
     @Primary
     public HazelcastInstance hazelcastAwsInstance() {
-        LOGGER.info("Creating hazelcast instance with AWS deployed profile, interfaces {}" + interfaces);
+        LOGGER.info("Creating hazelcast instance with AWS deployed profile, interfaces {}", interfaces);
 
         final Config config = new Config();
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);

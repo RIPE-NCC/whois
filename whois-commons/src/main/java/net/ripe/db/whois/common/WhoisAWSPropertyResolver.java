@@ -72,7 +72,6 @@ public class WhoisAWSPropertyResolver {
 
         } while (token != null);
 
-        LOGGER.info("properties loaded from parameter store: " + params.toString());
         return params;
     }
 
