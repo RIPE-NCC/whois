@@ -22,7 +22,7 @@ public class HazelcastInstanceManager {
     final String interfaces;
 
     @Autowired
-    public HazelcastInstanceManager( @Value("${hazelcast.config.interaces}") final String interfaces) {
+    public HazelcastInstanceManager( @Value("${hazelcast.config.interfaces}") final String interfaces) {
         this.interfaces = interfaces;
     }
 
