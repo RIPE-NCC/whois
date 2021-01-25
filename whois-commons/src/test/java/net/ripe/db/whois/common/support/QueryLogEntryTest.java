@@ -2,14 +2,17 @@ package net.ripe.db.whois.common.support;
 
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class QueryLogEntryTest {
 
-    @Test(expected = Test.None.class)
+    @Test
     public void negative_channel_id() {
-        QueryLogEntry.parse("20180401 00:14:37 -215685797 PW-QRY-INFO <0+0+0>  3ms [127.0.0.1] --  WWW.COM.EU");
+        final QueryLogEntry entry = QueryLogEntry.parse("20180401 00:14:37 -215685797 PW-QRY-INFO <0+0+0>  3ms [127.0.0.1] --  WWW.COM.EU");
+
+        assertThat(entry.getQueryString(), is("WWW.COM.EU"));
     }
 
     @Test
@@ -18,7 +21,7 @@ public class QueryLogEntryTest {
 
         assertThat(query.getAddress(), is("127.0.0.1"));
         assertThat(query.getExecutionTime(), is("0ms"));
-        assertThat(query.getQueryString(), is(""));
+        assertThat(query.getQueryString(), is(emptyString()));
     }
 
     @Test
