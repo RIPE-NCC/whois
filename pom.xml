@@ -56,8 +56,7 @@
         <guava.version>26.0-jre</guava.version>
         <groovy.version>2.5.14</groovy.version>
 
-        <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
-        <hazelcast.version>2.6.10</hazelcast.version>
+        <hazelcast.version>4.1.1</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
         <jaxb.version>2.3.3</jaxb.version>
@@ -341,11 +340,10 @@
                 <artifactId>javax.mail</artifactId>
                 <version>${mail.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast</artifactId>
-                <version>${hazelcast.version}</version>
+                <artifactId>hazelcast-all</artifactId>
+                <version>4.1.1</version>
             </dependency>
 
             <!-- bouncy castle -->
