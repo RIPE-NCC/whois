@@ -113,7 +113,7 @@ public class DummifierRCTest {
         assertThat(after.toString(), is(
             "aut-num:        AS3333\n" +
             "descr:          ***\n" +
-            "as-name:        ***\n" +
+            "as-name:        RIPE_NCC_AS_NAME\n" +
             "admin-c:        AC1-TEST\n" +
             "tech-c:         TC1-TEST\n" +
             "mnt-by:         TEST-MNT\n" +
