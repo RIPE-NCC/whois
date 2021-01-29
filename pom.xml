@@ -32,7 +32,7 @@
         <aspectj.version>1.9.6</aspectj.version>
         <awaitility.version>1.3.5</awaitility.version>
 
-        <bouncycastle.version>1.67</bouncycastle.version>
+        <bouncycastle.version>1.68</bouncycastle.version>
 
         <c3po.version>0.9.5.5</c3po.version>
         <commons-compress.version>1.20</commons-compress.version>
@@ -65,7 +65,7 @@
         <jsoup.version>1.11.2</jsoup.version>
         <junit.version>4.13.1</junit.version>
         <jetty.version>9.4.35.v20201120</jetty.version>
-        <jersey.version>2.32</jersey.version>
+        <jersey.version>3.0.1</jersey.version>
         <jackson.version>2.11.3</jackson.version>
 
         <log4j.version>2.14.0</log4j.version>
