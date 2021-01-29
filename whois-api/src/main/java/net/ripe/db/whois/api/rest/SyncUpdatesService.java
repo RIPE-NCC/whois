@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
@@ -68,7 +67,6 @@ public class SyncUpdatesService {
     private final UpdatesParser updatesParser;
     private final LoggerContext loggerContext;
     private final SourceContext sourceContext;
-    private final IpRanges ipRanges;
     private final SsoTokenTranslator ssoTokenTranslator;
 
     @Autowired
@@ -77,14 +75,12 @@ public class SyncUpdatesService {
                               final UpdatesParser updatesParser,
                               final LoggerContext loggerContext,
                               final SourceContext sourceContext,
-                              final IpRanges ipRanges,
                               final SsoTokenTranslator ssoTokenTranslator) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
         this.updatesParser = updatesParser;
         this.loggerContext = loggerContext;
         this.sourceContext = sourceContext;
-        this.ipRanges = ipRanges;
         this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
