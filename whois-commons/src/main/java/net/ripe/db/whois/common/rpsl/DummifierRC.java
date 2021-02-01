@@ -18,7 +18,6 @@ public class DummifierRC extends DummifierCurrent {
             replacement = dummifyOrgName(rpslObject, replacement);
             replacement = dummifyDescr(replacement);
             replacement = dummifyRemarks(replacement);
-            replacement = dummifyAsName(replacement);
             replacement = dummifyOwner(replacement);
 
             attributes.set(i, replacement);
@@ -50,14 +49,6 @@ public class DummifierRC extends DummifierCurrent {
         }
 
         return new RpslAttribute(AttributeType.REMARKS, "***");
-    }
-
-    private RpslAttribute dummifyAsName(final RpslAttribute rpslAttribute) {
-        if (rpslAttribute.getType() != AttributeType.AS_NAME) {
-            return rpslAttribute;
-        }
-
-        return new RpslAttribute(AttributeType.AS_NAME, "***");
     }
 
     private RpslAttribute dummifyOwner(final RpslAttribute rpslAttribute) {
