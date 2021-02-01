@@ -1518,11 +1518,61 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_autnum_with_managed_attributes() {
+        databaseHelper.addObject("mntner: RIPE-NCC-END-MNT");
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        ASNAME\n" +
+                "status:         ASSIGNED\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-by:         RIPE-NCC-END-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102&managed-attributes")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey(), contains(new Attribute("aut-num", "AS102")));
+        assertThat(whoisResources.getWhoisObjects().get(0).isManaged(), is(true));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getName(), is("status"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(true));
+    }
+
+    @Test
+    public void search_autnum_without_managed_attributes() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        ASNAME\n" +
+                "status:         OTHER\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102&managed-attributes")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey(), contains(new Attribute("aut-num", "AS102")));
+        assertThat(whoisResources.getWhoisObjects().get(0).isManaged(), is(false));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getName(), is("status"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(nullValue()));
+    }
+
+    @Test
     public void search_managed_attributes_lir_inetnum() {
         databaseHelper.addObject(TEST_LIR_ORGANISATION);
         databaseHelper.addObject(RIPE_NCC_HM_MNT);
         databaseHelper.addObject(
-                "inetnum:   10.0.0.0 - 10.0.0.255\n" +          // managed
+                        "inetnum:   10.0.0.0 - 10.0.0.255\n" +         // managed
                         "org:       ORG-TO2-TEST\n" +                   // managed
                         "netname:   TEST-NET\n" +                       // managed
                         "descr:     description\n" +
@@ -1538,6 +1588,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisResources response0 = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.0.0.255")
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .get(WhoisResources.class);
+
         // Ensure passing no flags means that the comaintained flag is null (nulls are stripped from JSON response)
         assertThat(response0.getWhoisObjects(), hasSize(3));
         assertThat(response0.getWhoisObjects().get(0).isManaged(), is(nullValue()));
