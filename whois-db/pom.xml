@@ -131,6 +131,7 @@
                                     <jvmFlag>-XX:+UseContainerSupport</jvmFlag>
                                     <jvmFlag>-Dwhois.config=/export/services/whois/properties</jvmFlag>
                                     <jvmFlag>-Dlog4j.configurationFile=file:/export/services/whois/log4j2.xml</jvmFlag>
+                                    <jvmFlag>-Dbase.dir=/export/services/whois</jvmFlag>
                                 </jvmFlags>
                                 <mainClass>net.ripe.db.whois.db.WhoisServer</mainClass>
                             </container>
