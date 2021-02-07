@@ -1527,6 +1527,56 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_autnum_with_managed_attributes() {
+        databaseHelper.addObject("mntner: RIPE-NCC-END-MNT");
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        ASNAME\n" +
+                "status:         ASSIGNED\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-by:         RIPE-NCC-END-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/aut-num/AS102?managed-attributes")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey(), contains(new Attribute("aut-num", "AS102")));
+        assertThat(whoisResources.getWhoisObjects().get(0).isManaged(), is(true));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getName(), is("status"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(true));
+    }
+
+    @Test
+    public void lookup_autnum_without_managed_attributes() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        ASNAME\n" +
+                "status:         OTHER\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/aut-num/AS102?managed-attributes")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey(), contains(new Attribute("aut-num", "AS102")));
+        assertThat(whoisResources.getWhoisObjects().get(0).isManaged(), is(false));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getName(), is("status"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(nullValue()));
+    }
+
+    @Test
     public void lookup_inetnum_managed_attributes_resource_holder_abuse_contact() {
         databaseHelper.addObject(
                 "mntner:       RIPE-NCC-HM-MNT\n" +
