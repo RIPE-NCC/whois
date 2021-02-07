@@ -1,13 +1,12 @@
 package net.ripe.db.whois.nrtm;
 
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.ChannelGroupFuture;
-import org.jboss.netty.channel.group.ChannelGroupFutureListener;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.ChannelGroupFutureListener;
+import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.util.concurrent.ImmediateEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,17 +17,18 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ChannelHandler.Sharable
-public class NrtmChannelsRegistry extends SimpleChannelUpstreamHandler {
+public class NrtmChannelsRegistry extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmChannelsRegistry.class);
 
-    private final ChannelGroup channels = new DefaultChannelGroup();
+//  TODO [DA] revisit and confirm using ImmediateEventExecutor.INSTANCE is right
+    private final ChannelGroup channels = new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
 
     @Override
-    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
+    public void channelActive(ChannelHandlerContext ctx) {
         // Channel automatically removes closed channels, so no need to remove on close channels from the group on close.
-        channels.add(e.getChannel());
+        channels.add(ctx.channel());
 
-        ctx.sendUpstream(e);
+        ctx.fireChannelActive();
     }
 
     public int size() {
@@ -37,11 +37,6 @@ public class NrtmChannelsRegistry extends SimpleChannelUpstreamHandler {
 
     public void closeChannels() {
         LOGGER.info("Closing {} open channels.", size());
-        channels.close().addListener(new ChannelGroupFutureListener() {
-            @Override
-            public void operationComplete(ChannelGroupFuture future) {
-                LOGGER.info("Closed all channels.");
-            }
-        });
+        channels.close().addListener((ChannelGroupFutureListener) future -> LOGGER.info("Closed all channels."));
     }
 }

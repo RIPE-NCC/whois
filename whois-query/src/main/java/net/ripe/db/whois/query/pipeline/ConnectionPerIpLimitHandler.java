@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.channel.*;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.pipeline.ConnectionCounter;
@@ -7,12 +8,6 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.handler.WhoisLog;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +21,7 @@ import java.net.InetAddress;
  */
 @Component
 @ChannelHandler.Sharable
-public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
+public class ConnectionPerIpLimitHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionPerIpLimitHandler.class);
 
@@ -50,28 +45,27 @@ public class ConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void channelOpen(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        final Channel channel = ctx.getChannel();
+    public void channelActive(final ChannelHandlerContext ctx) {
+        final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
         if (limitConnections(remoteAddress) && connectionsExceeded(remoteAddress)) {
-            whoisLog.logQueryResult("QRY", 0, 0, QueryCompletionInfo.REJECTED, 0, remoteAddress, channel.getId(), "");
+            whoisLog.logQueryResult("QRY", 0, 0, QueryCompletionInfo.REJECTED, 0, remoteAddress, channel.id().asLongText(), "");
             channel.write(QueryMessages.termsAndConditions());
             channel.write(QueryMessages.connectionsExceeded(maxConnectionsPerIp));
             channel.write(QueryMessages.servedByNotice(applicationVersion.getVersion())).addListener(ChannelFutureListener.CLOSE);
             return;
         }
 
-        super.channelOpen(ctx, e);
+        ctx.fireChannelActive();
     }
 
     @Override
-    public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        final Channel channel = ctx.getChannel();
+    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+        final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
         connectionCounter.decrement(remoteAddress);
-
-        super.channelClosed(ctx, e);
+        ctx.fireChannelInactive();
     }
 
     private boolean limitConnections(final InetAddress remoteAddress) {

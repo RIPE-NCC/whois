@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.handler;
 
+import io.netty.channel.ChannelId;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import org.slf4j.Logger;
@@ -15,10 +16,11 @@ import java.net.InetAddress;
 public class WhoisLog {
     private final Logger logger = LoggerFactory.getLogger(WhoisLog.class);
 
-    protected String formatMessage(final String api, final int personalObjects, final int nonPersonalObjects, @Nullable final QueryCompletionInfo completionInfo, final long executionTime, @Nullable final InetAddress remoteAddress, final Integer channelId, final String queryString) {
+    protected String formatMessage(final String api, final int personalObjects, final int nonPersonalObjects, @Nullable final QueryCompletionInfo completionInfo, final long executionTime, @Nullable final InetAddress remoteAddress, final String channelId, final String queryString) {
+//        TODO [DA] Revisit
         return MessageFormatter.arrayFormat("{} PW-{}-INFO <{}+{}+0> {} {}ms [{}] --  {}",
                 new Object[]{
-                        String.format("%10d", channelId),
+                        String.format("%10s", channelId),
                         api,
                         personalObjects,
                         nonPersonalObjects,
@@ -29,7 +31,7 @@ public class WhoisLog {
                 }).getMessage();
     }
 
-    public void logQueryResult(final String api, final int personalObjects, final int nonPersonalObjects, @Nullable final QueryCompletionInfo completionInfo, final long executionTime, @Nullable final InetAddress remoteAddress, final Integer channelId, final String queryString) {
+    public void logQueryResult(final String api, final int personalObjects, final int nonPersonalObjects, @Nullable final QueryCompletionInfo completionInfo, final long executionTime, @Nullable final InetAddress remoteAddress, final String channelId, final String queryString) {
         logger.info(formatMessage(api, personalObjects, nonPersonalObjects, completionInfo, executionTime, remoteAddress, channelId, queryString));
     }
 }

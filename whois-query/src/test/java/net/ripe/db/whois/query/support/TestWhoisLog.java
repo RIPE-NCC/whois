@@ -18,7 +18,7 @@ public class TestWhoisLog extends WhoisLog implements Stub {
     List<String> messages = new ArrayList<>();
 
     @Override
-    public void logQueryResult(final String api, final int personalObjects, final int nonPersonalObjects, @Nullable final QueryCompletionInfo completionInfo, final long executionTime, @Nullable final InetAddress remoteAddress, final Integer channelId, final String queryString) {
+    public void logQueryResult(final String api, final int personalObjects, final int nonPersonalObjects, @Nullable final QueryCompletionInfo completionInfo, final long executionTime, @Nullable final InetAddress remoteAddress, final String channelId, final String queryString) {
         messages.add(formatMessage(api, personalObjects, nonPersonalObjects, completionInfo, executionTime, remoteAddress, channelId, queryString));
     }
 

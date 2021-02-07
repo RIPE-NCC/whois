@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
+            <artifactId>netty-all</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -56,6 +56,7 @@
             <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
+
 
     </dependencies>
     <build>

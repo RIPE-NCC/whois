@@ -67,7 +67,7 @@ public class AbuseContactService {
 
         final List<AbuseResources> abuseResources = Lists.newArrayList();
 
-        final int contextId = System.identityHashCode(Thread.currentThread());
+        final String contextId = String.valueOf(System.identityHashCode(Thread.currentThread()));
         queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), contextId, new ApiResponseHandler() {
 
             @Override

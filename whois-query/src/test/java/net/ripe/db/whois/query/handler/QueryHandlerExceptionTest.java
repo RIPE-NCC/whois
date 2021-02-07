@@ -34,7 +34,7 @@ public class QueryHandlerExceptionTest {
     @Mock QueryExecutor queryExecutor;
     QueryHandler subject;
 
-    int contextId = 1;
+    String contextId = "1";
     InetAddress remoteAddress = InetAddresses.forString("193.0.0.10");
     @Mock ResponseHandler responseHandler;
 

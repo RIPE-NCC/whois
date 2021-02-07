@@ -1,39 +1,38 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageEncoder;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBufferOutputStream;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @ChannelHandler.Sharable
 @Component
-public class WhoisEncoder extends OneToOneEncoder {
+public class WhoisEncoder extends MessageToMessageEncoder<Object> {
     private static final int DEFAULT_BUFFER_SIZE = 1024;
     private static final byte[] OBJECT_TERMINATOR = {'\n'};
 
     @Override
-    protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws IOException {
+    protected void encode(final ChannelHandlerContext ctx, final Object msg, final List<Object> out) {
         if (msg instanceof ResponseObject) {
-            final ChannelBuffer result = ChannelBuffers.dynamicBuffer(DEFAULT_BUFFER_SIZE);
-            final ChannelBufferOutputStream out = new ChannelBufferOutputStream(result);
-
-            ((ResponseObject) msg).writeTo(out);
-            out.write(OBJECT_TERMINATOR);
-
-            return result;
+            ByteBuf result = ctx.alloc().buffer(DEFAULT_BUFFER_SIZE);
+//            TODO [DA] revisit ?? why not this?
+//            ByteBuf result = Unpooled.buffer(DEFAULT_BUFFER_SIZE);
+            byte[] bytes = ((ResponseObject) msg).toByteArray();
+            result.writeBytes(bytes);
+            result.writeBytes(OBJECT_TERMINATOR);
+            out.add(result);
         } else if (msg instanceof Message) {
-            return ChannelBuffers.wrappedBuffer(msg.toString().getBytes(StandardCharsets.UTF_8), OBJECT_TERMINATOR);
+            out.add(Unpooled.wrappedBuffer(msg.toString().getBytes(StandardCharsets.UTF_8), OBJECT_TERMINATOR));
+        } else {
+            out.add(msg);
         }
-
-        return msg;
     }
 }

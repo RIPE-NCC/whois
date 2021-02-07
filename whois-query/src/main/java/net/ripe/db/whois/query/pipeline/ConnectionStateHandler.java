@@ -1,32 +1,28 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelDownstreamHandler;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
-public class ConnectionStateHandler extends SimpleChannelUpstreamHandler implements ChannelDownstreamHandler {
 
-    static final ChannelBuffer NEWLINE = ChannelBuffers.wrappedBuffer(new byte[]{'\n'});
+public class ConnectionStateHandler extends ChannelDuplexHandler {
+
+//    TODO [DA] revisit why ByteBuf won't do
+    static final byte[] NEWLINE = new byte[]{'\n'};
 
     private boolean keepAlive;
     private boolean closed;
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) {
+    public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         if (closed) {
             return;
         }
 
-        final Query query = (Query) e.getMessage();
-        final Channel channel = e.getChannel();
+        final Query query = (Query) msg;
+        final Channel channel = ctx.channel();
 
 
         if (keepAlive && query.hasOnlyKeepAlive()) {
@@ -39,24 +35,27 @@ public class ConnectionStateHandler extends SimpleChannelUpstreamHandler impleme
         }
 
         if (query.hasOnlyKeepAlive()) {
-            channel.getPipeline().sendDownstream(new QueryCompletedEvent(channel));
+            channel.pipeline().write(new QueryCompletedEvent(channel));
         } else {
-            ctx.sendUpstream(e);
+            ctx.fireChannelRead(msg);
         }
     }
 
-    @Override
-    public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) {
-        ctx.sendDownstream(e);
 
-        if (e instanceof QueryCompletedEvent) {
-            final Channel channel = e.getChannel();
-            if (keepAlive && !((QueryCompletedEvent) e).isForceClose()) {
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
+//        TODO [DA] revisit
+//        ctx.fireChannelRead(msg);
+        ctx.write(msg);
+
+        if (msg instanceof QueryCompletedEvent) {
+            final Channel channel = ((QueryCompletedEvent) msg).getChannel();
+            if (keepAlive && !((QueryCompletedEvent) msg).isForceClose()) {
                 channel.write(NEWLINE);
                 channel.write(QueryMessages.termsAndConditions());
             } else {
                 closed = true;
-                channel.write(NEWLINE).addListener(ChannelFutureListener.CLOSE);
+                ctx.write(NEWLINE).addListener(ChannelFutureListener.CLOSE);
             }
         }
     }

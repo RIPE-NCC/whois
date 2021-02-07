@@ -96,7 +96,7 @@ public class RpslObjectStreamer {
 
             final SearchResponseHandler responseHandler = new SearchResponseHandler();
             try {
-                final int contextId = System.identityHashCode(Thread.currentThread());
+                final String contextId = String.valueOf(System.identityHashCode(Thread.currentThread()));
                 queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
 
                 if (!responseHandler.rpslObjectFound()) {

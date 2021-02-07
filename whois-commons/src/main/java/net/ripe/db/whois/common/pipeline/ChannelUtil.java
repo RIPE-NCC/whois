@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.pipeline;
 
-import org.jboss.netty.channel.Channel;
+import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +20,14 @@ public final class ChannelUtil {
     }
 
     public static InetAddress getRemoteAddress(final Channel channel) {
-        final InetAddress inetAddress = ((InetSocketAddress) channel.getRemoteAddress()).getAddress();
+        final InetAddress inetAddress = ((InetSocketAddress) channel.remoteAddress()).getAddress();
 
         if (inetAddress instanceof Inet6Address) {
             // clean the zone index (% following the ip address)
             try {
                 return InetAddress.getByAddress(inetAddress.getAddress());
-            } catch (UnknownHostException ignored) {
-                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
+            } catch (UnknownHostException e) {
+                LOGGER.debug("{}: {}", e.getClass().getName(), e.getMessage());
             }
         }
 
