@@ -35,7 +35,6 @@ public class JdbcRpslObjectOperationsTest {
 
     @Test
     public void sanityCheckLettingThrough() {
-        when(whoisTemplate.queryForObject(startsWith("SELECT count(*) FROM "), eq(Integer.class))).thenReturn(10);
         for (String dbName : ImmutableList.of("WHOIS_TEST_TEST", "GRSteST", "WHOIS_MIRROR_APNIC_GRS")) {
             when(whoisTemplate.queryForObject(eq("SELECT database()"), eq(String.class))).thenReturn(dbName);
             JdbcRpslObjectOperations.sanityCheck(whoisTemplate);
