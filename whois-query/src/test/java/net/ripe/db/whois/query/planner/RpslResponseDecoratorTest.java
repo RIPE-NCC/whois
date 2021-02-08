@@ -86,7 +86,6 @@ public class RpslResponseDecoratorTest {
                 ssoTokenTranslator,
                 crowdClient,
                 decorator);
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
         when(sourceContext.isMain()).thenReturn(true);
@@ -207,7 +206,6 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void shouldNotFilterForGrsSources() {
-        when(sourceContext.getCurrentSource()).thenReturn(Source.slave("APNIC-GRS"));
         when(sourceContext.isAcl()).thenReturn(false);
         when(sourceContext.isMain()).thenReturn(false);
 
@@ -427,8 +425,6 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void dummify_response() {
-        when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
-        when(sourceContext.isDummificationRequired()).thenReturn(true);
         when(sourceContext.isMain()).thenReturn(false);
         when(dummifyDecorator.decorate(any(Query.class), any(Iterable.class))).thenReturn(Collections.EMPTY_LIST);
 
@@ -442,8 +438,6 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void dummify_filter() {
-        when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
-        when(sourceContext.isDummificationRequired()).thenReturn(true);
         when(dummifyDecorator.decorate(any(Query.class), any(Iterable.class))).thenReturn(Collections.EMPTY_LIST);
 
         final RpslObject inetnum = RpslObject.parse(1, "inetnum: 10.0.0.0\norg:ORG1-TEST");

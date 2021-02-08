@@ -28,7 +28,6 @@ public class ServedByHandlerTest {
     public void setup() {
         subject = new ServedByHandler("");
         when(ctxMock.channel()).thenReturn(channelMock);
-        when(queryCompletedEventMock.getChannel()).thenReturn(channelMock);
     }
 
     @Test

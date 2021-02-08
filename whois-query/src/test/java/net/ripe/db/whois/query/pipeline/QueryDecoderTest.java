@@ -46,17 +46,7 @@ public class QueryDecoderTest {
 
     @Before
     public void setup() {
-        when(channelMock.write(any(ByteBuf.class))).thenAnswer(new Answer<ChannelFuture>() {
-            public ChannelFuture answer(InvocationOnMock invocation) throws Throwable {
-                writtenBuffer.add(invocation.getArguments()[0]);
-                return channelFutureMock;
-            }
-        });
-
-        when(channelMock.pipeline()).thenReturn(channelPipelineMock);
-        when(channelHandlerContextMock.pipeline()).thenReturn(channelPipelineMock);
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
-        when(channelPipelineMock.context(QueryDecoder.class)).thenReturn(channelHandlerContextMock);
         when(accessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
     }
 
