@@ -18,7 +18,7 @@ import java.net.InetAddress;
 @Component
 @ChannelHandler.Sharable
 public class MaintenanceHandler extends ChannelInboundHandlerAdapter {
-    private final AttributeKey<Object> CONNECTION_REFUSED_KEY = AttributeKey.newInstance("connection_refused");
+    private static final AttributeKey<Object> CONNECTION_REFUSED_KEY = AttributeKey.newInstance("connection_refused");
     private static final Object CONNECTION_REFUSED = new Object();
 
     private final MaintenanceMode maintenanceMode;
