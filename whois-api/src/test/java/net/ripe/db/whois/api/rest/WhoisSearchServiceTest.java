@@ -37,7 +37,6 @@ public class WhoisSearchServiceTest {
     @Before
     public void setup() {
         when(sourceContext.getAllSourceNames()).thenReturn(CIString.ciSet("TEST", "TEST-GRS"));
-        when(whoisResources.getErrorMessages()).thenReturn(Lists.newArrayList(new ErrorMessage(new Message(Messages.Type.ERROR, "Disallowed search flag '%s'"))));
         when(request.getRequestURL()).thenReturn(new StringBuffer());
     }
 
