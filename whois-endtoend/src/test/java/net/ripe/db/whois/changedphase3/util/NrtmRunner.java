@@ -12,6 +12,7 @@ import java.util.concurrent.FutureTask;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 public class NrtmRunner extends AbstractScenarioRunner {
 
@@ -46,6 +47,9 @@ public class NrtmRunner extends AbstractScenarioRunner {
 
             context.getNrtmServer().start();
 
+            // Ensures server is up before proceeding with test
+            Thread.sleep(1000);
+
             String nrtmCommand = String.format("-g TEST:3:%d-LAST -k", getCurrentOffset());
             AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), nrtmCommand, 2);
             client.start();
@@ -70,6 +74,8 @@ public class NrtmRunner extends AbstractScenarioRunner {
                 assertThat(eventStream, not(containsString("mntner:")));
             }
 
+        } catch (InterruptedException e) {
+            fail("Failed with exception" +  e.getMessage());
         } finally {
             context.getNrtmServer().stop(true);
         }

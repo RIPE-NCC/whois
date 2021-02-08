@@ -78,13 +78,6 @@ public class NrtmServer implements ApplicationService {
                 LOGGER.info("NRTM server listening on port {} ({})", actualPort, instanceName);
             });
 
-            channelFuture.channel().closeFuture().addListener((ChannelFutureListener) future -> {
-                System.out.printf("FIX ME");
-                workerGroup.shutdownGracefully();
-                bossGroup.shutdownGracefully();
-            });
-
-
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -94,6 +87,7 @@ public class NrtmServer implements ApplicationService {
     public void stop(final boolean force) {
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
+        NrtmServer.port = 0;
         if (nrtmEnabled) {
             if (force) {
                 LOGGER.info("Shutting down");
