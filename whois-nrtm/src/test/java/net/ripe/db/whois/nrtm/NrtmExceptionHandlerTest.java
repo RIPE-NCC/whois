@@ -37,13 +37,14 @@ public class NrtmExceptionHandlerTest {
         when(channelMock.id().asLongText()).thenReturn("anyString()");
         when(channelMock.isOpen()).thenReturn(true);
         when(channelMock.write(any())).thenReturn(channelFutureMock);
+        when(channelMock.writeAndFlush(any())).thenReturn(channelFutureMock);
     }
 
     @Test
     public void handle_illegal_argument_exception() throws Exception {
         subject.exceptionCaught(channelHandlerContextMock, new IllegalArgumentException(QUERY));
 
-        verify(channelMock, times(1)).write(QUERY + "\n\n");
+        verify(channelMock, times(1)).writeAndFlush(QUERY + "\n\n");
         verify(channelFutureMock, times(1)).addListener(ChannelFutureListener.CLOSE);
     }
 
