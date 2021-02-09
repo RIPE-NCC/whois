@@ -9,28 +9,36 @@ import java.nio.file.Path;
 public class InstanceLock {
 
     private final static int MAX_INSTANCES = 16;
-    final static String INSTANCE_NAME_PREFIX = "whois-aws-";
     private final static String LOCK_FILE_NAME = "lock";
+
+    private final String instanceNamePrefix;
 
     private Path lockFile;
     private String instanceName;
 
-    public InstanceLock(final String baseDir) {
+    public InstanceLock(final String baseDir, final String instanceNamePrefix) {
         if (StringUtils.isEmpty(baseDir)) {
             throw new IllegalStateException("Base directory has not been set");
+        }
+
+        if (StringUtils.isEmpty(instanceNamePrefix)) {
+            throw new IllegalStateException("Instance name prefix has not been set");
         }
 
         final Path base = Path.of(baseDir);
         if (!Files.isDirectory(base)) {
             throw new IllegalStateException(String.format("Base directory %s does not exist", baseDir));
         }
+
+        this.instanceNamePrefix = instanceNamePrefix;
+
         obtain(base);
     }
 
     private void obtain(final Path base) {
         for (int i = 1; i < MAX_INSTANCES; i++) {
             try {
-                final String instanceName = INSTANCE_NAME_PREFIX + i;
+                final String instanceName = this.instanceNamePrefix + i;
                 final Path instanceDir = base.resolve(Path.of(instanceName));
 
                 if (!Files.isDirectory(instanceDir)) {

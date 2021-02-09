@@ -30,10 +30,9 @@ public class WhoisAWSPropertyResolver {
     private static InstanceLock INSTANCE_LOCK;
 
     static {
-        INSTANCE_LOCK = new InstanceLock(System.getProperty("base.dir"));
+        INSTANCE_LOCK = new InstanceLock(System.getProperty("base.dir"), System.getProperty("instance.name.prefix"));
 
-        // TODO use host.name for backward compatibility temporarily, but change to instance.name or something later
-        System.setProperty("host.name", INSTANCE_LOCK.getInstanceName());
+        System.setProperty("instance.name", INSTANCE_LOCK.getInstanceName());
         LOGGER.info("Instance name is {}", INSTANCE_LOCK.getInstanceName());
     }
 
