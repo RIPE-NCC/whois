@@ -1,6 +1,11 @@
 package net.ripe.db.whois.query.pipeline;
 
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelPromise;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.query.Query;
@@ -15,7 +20,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionStateHandlerTest {

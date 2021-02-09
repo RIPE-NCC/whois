@@ -1,7 +1,9 @@
 package net.ripe.db.whois.query.integration;
 
 import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandler;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;

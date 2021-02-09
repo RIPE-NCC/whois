@@ -1,8 +1,11 @@
 package net.ripe.db.whois.query.pipeline;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
 
