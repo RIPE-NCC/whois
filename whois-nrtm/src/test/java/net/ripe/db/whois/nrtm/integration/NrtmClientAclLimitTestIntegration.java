@@ -49,13 +49,17 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     }
 
     @Before
-    public void before() {
+    public void before() throws InterruptedException {
         databaseHelper.addObject(mntner);
-
         ipResourceConfiguration.reload();
         testPersonalObjectAccounting.resetAccounting();
 
         nrtmServer.start();
+
+        // TODO [DA] seems the upgrade introduced a slow startup
+        // requiring a pause before exercising the tests
+        // revisit and see if this start up time can be reduced via configuration
+        Thread.sleep(1000);
 
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");

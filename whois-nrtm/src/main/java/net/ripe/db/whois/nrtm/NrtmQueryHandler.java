@@ -284,7 +284,7 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
 
         PendingWrites.increment(channel);
 
-        channel.write(message + "\n\n").addListener(LISTENER);
+        channel.writeAndFlush(message + "\n\n").addListener(LISTENER);
     }
 
     private static final ChannelFutureListener LISTENER = future -> PendingWrites.decrement(future.channel());
