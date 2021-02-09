@@ -38,7 +38,7 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
         this.rsngBaseUrl = rsngBaseUrl;
         this.client = ClientBuilder.newBuilder()
                 .property(ClientProperties.CONNECT_TIMEOUT, 10_000)
-                .property(ClientProperties.READ_TIMEOUT, 30_000)
+                .property(ClientProperties.READ_TIMEOUT, 60_000)
                 .register(GZipEncoder.class)
                 .register(DeflateEncoder.class)
                 .build();
