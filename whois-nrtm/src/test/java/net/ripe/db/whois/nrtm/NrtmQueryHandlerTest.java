@@ -75,7 +75,7 @@ public class NrtmQueryHandlerTest {
         when(contextMock.channel()).thenReturn(channelMock);
         when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(0));
         when(channelMock.isOpen()).thenReturn(true);
-        when(channelMock.write(any())).thenReturn(channelFutureMock);
+        when(channelMock.writeAndFlush(any())).thenReturn(channelFutureMock);
         when(channelMock.attr(any())).thenReturn(attributeMock);
         doNothing().when(attributeMock).set(any());
         when(serialDaoMock.getSerials()).thenReturn(new SerialRange(1, 2));
@@ -109,14 +109,14 @@ public class NrtmQueryHandlerTest {
 
         InOrder orderedChannelMock = inOrder(channelMock);
 
-        verify(channelMock, times(7)).write(any());
-        orderedChannelMock.verify(channelMock).write("%START Version: 2 RIPE 1-2\n\n");
-        orderedChannelMock.verify(channelMock).write("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
-        orderedChannelMock.verify(channelMock).write("ADD\n\n");
-        orderedChannelMock.verify(channelMock).write(inetnum + "\n");
-        orderedChannelMock.verify(channelMock).write("ADD\n\n");
-        orderedChannelMock.verify(channelMock).write(DummifierNrtm.getPlaceholderPersonObject() + "\n");
-        orderedChannelMock.verify(channelMock).write("%END RIPE\n\n");
+        verify(channelMock, times(7)).writeAndFlush(argThat(instanceofString()));
+        orderedChannelMock.verify(channelMock).writeAndFlush("%START Version: 2 RIPE 1-2\n\n");
+        orderedChannelMock.verify(channelMock).writeAndFlush("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
+        orderedChannelMock.verify(channelMock).writeAndFlush("ADD\n\n");
+        orderedChannelMock.verify(channelMock).writeAndFlush(inetnum + "\n");
+        orderedChannelMock.verify(channelMock).writeAndFlush("ADD\n\n");
+        orderedChannelMock.verify(channelMock).writeAndFlush(DummifierNrtm.getPlaceholderPersonObject() + "\n");
+        orderedChannelMock.verify(channelMock).writeAndFlush("%END RIPE\n\n");
     }
 
     @Test
@@ -125,8 +125,8 @@ public class NrtmQueryHandlerTest {
 
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock).write(argThat(instanceofString()));
-        verify(channelMock).write("% nrtm-server-" + VERSION + "\n\n");
+        verify(channelMock).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock).writeAndFlush("% nrtm-server-" + VERSION + "\n\n");
     }
 
     @Test
@@ -135,8 +135,8 @@ public class NrtmQueryHandlerTest {
 
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock).write(argThat(instanceofString()));
-        verify(channelMock).write(SOURCE + ":3:X:1-2\n\n");
+        verify(channelMock).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock).writeAndFlush(SOURCE + ":3:X:1-2\n\n");
     }
 
     @Test
@@ -145,13 +145,13 @@ public class NrtmQueryHandlerTest {
         when(channelMock.attr(any()).get()).thenReturn(new AtomicInteger());
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock, times(4)).write(argThat(instanceofString()));
-        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
-        verify(channelMock).write("ADD 1\n\n");
-        verify(channelMock).write(inetnum.toString() + "\n");
-        verify(channelMock, never()).write("ADD 2\n\n");
-        verify(channelMock, never()).write(person.toString() + "\n");
-        verify(channelMock).write("%END RIPE\n\n");
+        verify(channelMock, times(4)).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock).writeAndFlush("%START Version: 3 RIPE 1-2\n\n");
+        verify(channelMock).writeAndFlush("ADD 1\n\n");
+        verify(channelMock).writeAndFlush(inetnum.toString() + "\n");
+        verify(channelMock, never()).writeAndFlush("ADD 2\n\n");
+        verify(channelMock, never()).writeAndFlush(person.toString() + "\n");
+        verify(channelMock).writeAndFlush("%END RIPE\n\n");
     }
 
     @Test
@@ -161,11 +161,11 @@ public class NrtmQueryHandlerTest {
 
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock, times(3)).write(argThat(instanceofString()));
-        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(channelMock, times(3)).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock).writeAndFlush("%START Version: 3 RIPE 1-2\n\n");
         verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
-        verify(channelMock).write("ADD 1\n\n");
-        verify(channelMock).write(inetnum.toString() + "\n");
+        verify(channelMock).writeAndFlush("ADD 1\n\n");
+        verify(channelMock).writeAndFlush(inetnum.toString() + "\n");
     }
 
     @Test
@@ -177,12 +177,12 @@ public class NrtmQueryHandlerTest {
 
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock, times(4)).write(argThat(instanceofString()));
-        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
+        verify(channelMock, times(4)).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock).writeAndFlush("%START Version: 3 RIPE 1-2\n\n");
         verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
-        verify(channelMock).write("ADD 1\n\n");
-        verify(channelMock).write(inetnum.toString() + "\n");
-        verify(channelMock).write("%END 1 - 2\n\n");
+        verify(channelMock).writeAndFlush("ADD 1\n\n");
+        verify(channelMock).writeAndFlush(inetnum.toString() + "\n");
+        verify(channelMock).writeAndFlush("%END 1 - 2\n\n");
     }
 
     @Test
@@ -192,11 +192,11 @@ public class NrtmQueryHandlerTest {
 
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock, times(4)).write(argThat(instanceofString()));
-        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
-        verify(channelMock).write("ADD 1\n\n");
-        verify(channelMock).write(inetnum.toString() + "\n");
-        verify(channelMock).write("%END RIPE\n\n");
+        verify(channelMock, times(4)).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock).writeAndFlush("%START Version: 3 RIPE 1-2\n\n");
+        verify(channelMock).writeAndFlush("ADD 1\n\n");
+        verify(channelMock).writeAndFlush(inetnum.toString() + "\n");
+        verify(channelMock).writeAndFlush("%END RIPE\n\n");
     }
 
     @Test
@@ -245,17 +245,17 @@ public class NrtmQueryHandlerTest {
         when(channelMock.attr(any()).get()).thenReturn(new AtomicInteger());
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock, times(3)).write(argThat(instanceofString()));
-        verify(channelMock).write("%START Version: 2 RIPE 1-1\n\n");
-        verify(channelMock).write("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
-        verify(channelMock).write("%END RIPE\n\n");
+        verify(channelMock, times(3)).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock).writeAndFlush("%START Version: 2 RIPE 1-1\n\n");
+        verify(channelMock).writeAndFlush("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
+        verify(channelMock).writeAndFlush("%END RIPE\n\n");
     }
 
     @Test
     public void channelConnected() throws Exception {
         subject.channelActive(contextMock);
 
-        verify(channelMock).write(NrtmMessages.termsAndConditions() + "\n\n");
+        verify(channelMock).writeAndFlush(NrtmMessages.termsAndConditions() + "\n\n");
     }
 
     @Test
@@ -267,8 +267,8 @@ public class NrtmQueryHandlerTest {
         messageReceived(msg);
         unsetPending(channelMock);
 
-        verify(channelMock).write("%START Version: 3 RIPE 1-2\n\n");
-        verify(channelMock, atMost(1)).write(any(String.class));
+        verify(channelMock).writeAndFlush("%START Version: 3 RIPE 1-2\n\n");
+        verify(channelMock, atMost(1)).writeAndFlush(any(String.class));
         verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
     }
 

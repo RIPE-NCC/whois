@@ -22,9 +22,10 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     private int updateInterval;
 
     @Before
-    public void before() {
+    public void before() throws InterruptedException {
         updateInterval = Integer.valueOf(updateIntervalString);
         nrtmServer.start();
+        Thread.sleep(2000);
     }
 
     @After
