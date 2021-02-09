@@ -29,7 +29,7 @@ public class NrtmExceptionHandler extends ChannelInboundHandlerAdapter {
 
         if (exception instanceof IllegalArgumentException) {
             // expected query exception
-            channel.write(exception.getMessage() + "\n\n").addListener(ChannelFutureListener.CLOSE);
+            channel.writeAndFlush(exception.getMessage() + "\n\n").addListener(ChannelFutureListener.CLOSE);
         } else if (exception instanceof IOException) {
             LOGGER.debug("IO exception", exception);
         } else {
