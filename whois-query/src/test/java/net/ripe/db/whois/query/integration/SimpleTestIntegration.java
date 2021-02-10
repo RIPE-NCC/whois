@@ -61,8 +61,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         databaseHelper.addObject("route: 81.80.0.0/16\norigin: AS123\n");
         ipTreeUpdater.rebuild();
         queryServer.start();
-        // TODO [DA] revisit to see other ways to handle the async server startup
-        Thread.sleep(200);
     }
 
     @After

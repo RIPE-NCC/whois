@@ -64,21 +64,9 @@ public final class QueryServer implements ApplicationService {
             .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             ChannelFuture channelFuture = bootstrap.bind(new InetSocketAddress(queryPort)).sync();
+            port = ((InetSocketAddress)channelFuture.channel().localAddress()).getPort();
+            LOGGER.info("Query server listening on {}", port);
 
-
-            channelFuture.addListener((ChannelFutureListener) future -> {
-                if (!future.isSuccess()) {
-                    System.out.println(future.cause());
-                } else {
-                    port = ((InetSocketAddress)future.channel().localAddress()).getPort();
-                    LOGGER.info("Query server listening on {}", port);
-                }
-            });
-
-            channelFuture.channel().closeFuture().addListener((ChannelFutureListener) future -> {
-                workerGroup.shutdownGracefully();
-                bossGroup.shutdownGracefully();
-            });
         } catch (InterruptedException e) {
 //            TODO [DA] revisit
             e.printStackTrace();

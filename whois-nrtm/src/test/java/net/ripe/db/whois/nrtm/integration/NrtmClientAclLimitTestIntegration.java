@@ -56,11 +56,6 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
 
         nrtmServer.start();
 
-        // TODO [DA] seems the upgrade introduced a slow startup
-        // requiring a pause before exercising the tests
-        // revisit and see if this start up time can be reduced via configuration
-        Thread.sleep(1000);
-
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
         System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));

@@ -56,7 +56,7 @@ public class NrtmServer implements ApplicationService {
         bootstrapChannel(nrtmServerChannelInitializer, nrtmPort, "NRTM DUMMIFIER");
     }
 
-    private void bootstrapChannel(final NrtmServerChannelInitializer serverChannelInitializer, final int port, final String instanceName) {
+    private void bootstrapChannel(final NrtmServerChannelInitializer serverChannelInitializer, final int nrtmPort, final String instanceName) {
         try {
 
             bossGroup = new NioEventLoopGroup();
@@ -72,14 +72,9 @@ public class NrtmServer implements ApplicationService {
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            ChannelFuture channelFuture = bootstrap.bind(new InetSocketAddress(port)).sync();
-
-            channelFuture.addListener((ChannelFutureListener) future -> {
-                serverChannel = future.channel();
-                final int actualPort = ((InetSocketAddress) serverChannel.localAddress()).getPort();
-                NrtmServer.port = actualPort;
-                LOGGER.info("NRTM server listening on port {} ({})", actualPort, instanceName);
-            });
+            ChannelFuture channelFuture = bootstrap.bind(new InetSocketAddress(nrtmPort)).sync();
+            port = ((InetSocketAddress)channelFuture.channel().localAddress()).getPort();
+            LOGGER.info("NRTM server listening on port {} ({})", port, instanceName);
 
         } catch (InterruptedException e) {
             e.printStackTrace();

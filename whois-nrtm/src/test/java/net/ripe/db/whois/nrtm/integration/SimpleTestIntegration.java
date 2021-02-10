@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,11 +22,15 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
     private int updateInterval;
 
+    @BeforeClass
+    public static void setNrtmProperties() {
+        System.setProperty("whois.limit.connectionsPerIp", "100");
+    }
+
     @Before
     public void before() throws InterruptedException {
         updateInterval = Integer.valueOf(updateIntervalString);
         nrtmServer.start();
-        Thread.sleep(2000);
     }
 
     @After

@@ -27,7 +27,6 @@ import java.util.concurrent.Callable;
 
 import static org.hamcrest.Matchers.is;
 
-// TODO [DA] revisit the inclusion of Thread.sleep due to asyncronous nature of startup
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
@@ -55,7 +54,6 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         nrtmServer.start();
 
-        Thread.sleep(1000);
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
         System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
@@ -104,7 +102,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.addObject(mntner);
 
         nrtmServer.start();
-        Thread.sleep(1000);
+
         System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 
@@ -112,7 +110,6 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    @Ignore
     public void delete_maintainer_from_nrtm() {
         databaseHelper.deleteObject(MNTNER);
 
@@ -145,7 +142,6 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    @Ignore
     public void network_error() throws InterruptedException {
         final RpslObject mntner1 = RpslObject.parse("" +
                 "mntner: TEST1-MNT\n" +
@@ -165,7 +161,6 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         databaseHelper.addObject(mntner2);
         nrtmServer.start();
-        Thread.sleep(1000);
         System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 
@@ -200,7 +195,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.updateObject(test1mntB);
 
         nrtmServer.start();
-        Thread.sleep(1000);
+
         System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 
