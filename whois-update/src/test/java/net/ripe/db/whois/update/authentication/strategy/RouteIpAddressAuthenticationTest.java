@@ -34,8 +34,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -242,7 +240,6 @@ public class RouteIpAddressAuthenticationTest {
     public void no_match_ipObject() {
         when(routeTree.findExactOrFirstLessSpecific(routeResource)).thenReturn(emptyList());
         when(ipv4Tree.findExactOrFirstLessSpecific(routeResource)).thenReturn(emptyList());
-        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList(), eq(RouteIpAddressAuthentication.class))).thenReturn(emptyList());
 
         try {
             subject.authenticate(update, updateContext);

@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 
@@ -585,7 +586,7 @@ public class UpdatesParserTest {
     public void testPerformance() throws Exception {
         // Note: prevously, we had a regexp matcher that took unacceptable time to finish (>10 minutes).
         // Hint: don't try to match massive input with DOTALL and .*? - it will be too slow
-        final String content = IOUtils.toString(new ClassPathResource("testMail/giantRawUnsignedObject").getInputStream());
+        final String content = IOUtils.toString(new ClassPathResource("testMail/giantRawUnsignedObject").getInputStream(), Charset.defaultCharset());
         subject.createParagraphs(new ContentWithCredentials(content + "\n\n" + content), updateContext);
     }
 
