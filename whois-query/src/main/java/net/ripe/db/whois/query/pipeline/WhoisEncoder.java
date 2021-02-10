@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 @ChannelHandler.Sharable
@@ -32,7 +33,11 @@ public class WhoisEncoder extends MessageToMessageEncoder<Object> {
         } else if (msg instanceof Message) {
             out.add(Unpooled.wrappedBuffer(msg.toString().getBytes(StandardCharsets.UTF_8), OBJECT_TERMINATOR));
         } else {
-            out.add(msg);
+            if (Arrays.equals((byte[]) msg, OBJECT_TERMINATOR)) {
+                out.add((Unpooled.wrappedBuffer(OBJECT_TERMINATOR)));
+            } else {
+                out.add(msg);
+            }
         }
     }
 }

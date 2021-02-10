@@ -93,7 +93,7 @@ public class TelnetWhoisClient {
         try {
             return sendQueryWithRetry(query, function, charset, timeoutMs);
         } catch (IOException e) {
-            final String message = String.format("Error querying for '%s' at '%s': %s", query, host, e.getMessage());
+            final String message = String.format("Error querying for '%s' at '%s':'%s' %s", query, host, port, e.getMessage());
             throw new IllegalStateException(message, e);
         }
     }

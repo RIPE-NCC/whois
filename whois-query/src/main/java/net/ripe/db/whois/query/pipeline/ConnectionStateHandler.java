@@ -47,8 +47,6 @@ public class ConnectionStateHandler extends ChannelDuplexHandler {
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-//        TODO [DA] revisit
-//        ctx.fireChannelRead(msg);
         ctx.write(msg);
 
         if (msg instanceof QueryCompletedEvent) {

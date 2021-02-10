@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.integration;
 
 import com.google.common.collect.Lists;
+import io.netty.channel.ChannelFuture;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -48,7 +49,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
     @Before
-    public void startupWhoisServer() {
+    public void startupWhoisServer() throws InterruptedException {
         final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST\nsource: TEST");
         final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST\nsource: TEST");
         databaseHelper.addObjects(Lists.newArrayList(person, mntner));
@@ -60,6 +61,8 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         databaseHelper.addObject("route: 81.80.0.0/16\norigin: AS123\n");
         ipTreeUpdater.rebuild();
         queryServer.start();
+        // TODO [DA] revisit to see other ways to handle the async server startup
+        Thread.sleep(200);
     }
 
     @After
@@ -88,11 +91,13 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
-    @Ignore("TODO DA passes when run alone. But fails otherwise")
     public void kFlagShouldKeepTheConnectionOpenUntilTheSecondKWithoutArguments() throws Exception {
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 
-        client.connectAndWait();
+        ChannelFuture channelFuture = client.connectAndWait();
+
+        channelFuture.sync();
+
         client.sendLine("-k");
 
         client.waitForResponseEndsWith(END_OF_HEADER);
@@ -104,10 +109,13 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
+
     public void kFlagShouldKeepTheConnectionOpenAfterSupportedQuery() throws Exception {
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 
-        client.connectAndWait();
+        ChannelFuture channelFuture = client.connectAndWait();
+        channelFuture.sync();
+
         client.sendLine("-k");
 
         client.waitForResponseEndsWith(END_OF_HEADER);
@@ -296,7 +304,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
-    @Ignore("TODO DA passes when run alone. But fails otherwise")
     public void routeOneMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 81.0.0.0/8AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
@@ -423,7 +430,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
-    @Ignore("TODO DA")
     public void query_grs() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "person:         Test person\n" +
