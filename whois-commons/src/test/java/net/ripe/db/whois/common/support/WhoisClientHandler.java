@@ -83,7 +83,7 @@ public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
     public ChannelFuture sendLine(String query) throws InterruptedException {
         Assert.assertTrue(success);
         ChannelFuture future = channel.writeAndFlush(query + "\n");
-        success = future.await(10, TimeUnit.SECONDS);
+        success = future.await(3, TimeUnit.SECONDS);
         return future;
     }
 
