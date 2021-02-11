@@ -13,6 +13,7 @@ public class NrtmClientKeepaliveEndStreamTestIntegration extends NrtmClientTestI
 
     @BeforeClass
     public static void beforeKeepaliveClass() {
+        System.setProperty("whois.limit.connectionsPerIp", "100");
         System.setProperty("nrtm.keepalive.end.of.stream", "true");
     }
 
@@ -32,7 +33,6 @@ public class NrtmClientKeepaliveEndStreamTestIntegration extends NrtmClientTestI
     }
 
     @Test
-    @Ignore
     public void delete_maintainer_from_nrtm() {
         super.delete_maintainer_from_nrtm();
     }
@@ -43,7 +43,6 @@ public class NrtmClientKeepaliveEndStreamTestIntegration extends NrtmClientTestI
     }
 
     @Test
-    @Ignore
     public void network_error() throws InterruptedException {
         super.network_error();
     }

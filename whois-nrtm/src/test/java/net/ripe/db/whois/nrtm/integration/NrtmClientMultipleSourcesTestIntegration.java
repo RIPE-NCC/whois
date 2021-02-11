@@ -69,7 +69,6 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
     }
 
     @Test
-    @Ignore("TODO revisit")
     public void add_mntner_from_nrtm() {
         final RpslObject mntner = RpslObject.parse("" +
                 "mntner: TEST-MNT\n" +
