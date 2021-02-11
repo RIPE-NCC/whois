@@ -75,7 +75,6 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
             }
         }
 
-//        TODO [DA] revisit - can ctx.fireUserEventTriggered be used instead
         channel.pipeline().write(new QueryCompletedEvent(channel, completionInfo));
     }
 }

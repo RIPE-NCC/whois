@@ -17,7 +17,7 @@ public class WhoisLog {
     private final Logger logger = LoggerFactory.getLogger(WhoisLog.class);
 
     protected String formatMessage(final String api, final int personalObjects, final int nonPersonalObjects, @Nullable final QueryCompletionInfo completionInfo, final long executionTime, @Nullable final InetAddress remoteAddress, final String channelId, final String queryString) {
-//        TODO [DA] Revisit
+
         return MessageFormatter.arrayFormat("{} PW-{}-INFO <{}+{}+0> {} {}ms [{}] --  {}",
                 new Object[]{
                         String.format("%10s", channelId),
