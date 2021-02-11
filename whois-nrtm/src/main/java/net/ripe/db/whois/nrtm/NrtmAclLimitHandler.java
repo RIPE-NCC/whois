@@ -53,6 +53,6 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        ctx.fireChannelActive();
+        ctx.fireChannelInactive();
     }
 }
