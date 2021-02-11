@@ -274,7 +274,6 @@ public class NrtmQueryHandlerTest {
 
     // TODO: [ES] slow unit test (takes ~10s)
     @Test
-    @Ignore("TODO revisit. The Aspect seems not to be working")
     public void retryForAnnotation() {
         when(serialDaoMock.getByIdForNrtm(any(Integer.class))).thenThrow(CannotGetJdbcConnectionException.class);
         when(channelMock.attr(any()).get()).thenReturn(new AtomicInteger());
