@@ -11,13 +11,6 @@ import org.springframework.test.annotation.DirtiesContext;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientKeepaliveEndStreamTestIntegration extends NrtmClientTestIntegration {
 
-    @BeforeClass
-    public static void beforeKeepaliveClass() {
-        //    TODO [DA] revisit why this is needed. Ensure no connection leak
-        System.setProperty("whois.limit.connectionsPerIp", "100");
-        System.setProperty("nrtm.keepalive.end.of.stream", "true");
-    }
-
     @Test
     public void check_mntner_exists() {
         super.check_mntner_exists();
