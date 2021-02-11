@@ -3,7 +3,6 @@ package net.ripe.db.whois.nrtm;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -68,7 +67,6 @@ public class NrtmServer implements ApplicationService {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(serverChannelInitializer)
                     .option(ChannelOption.SO_BACKLOG, 200)
-                    // apply TCP options to accepted Channels. Ref. https://netty.io/3.10/guide/
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
@@ -77,7 +75,7 @@ public class NrtmServer implements ApplicationService {
             LOGGER.info("NRTM server listening on port {} ({})", port, instanceName);
 
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.info("NRTM server start up failed due to {}", e.getMessage());
         }
     }
 

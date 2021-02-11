@@ -4,7 +4,6 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -58,7 +57,6 @@ public final class QueryServer implements ApplicationService {
             bootstrap.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
             .childHandler(whoisServerChannelInitializer)
-                    // apply TCP options to accepted Channels. Ref. https://netty.io/3.10/guide/
             .option(ChannelOption.SO_BACKLOG, 200)
             .childOption(ChannelOption.TCP_NODELAY, true)
             .childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -68,8 +66,7 @@ public final class QueryServer implements ApplicationService {
             LOGGER.info("Query server listening on {}", port);
 
         } catch (InterruptedException e) {
-//            TODO [DA] revisit
-            e.printStackTrace();
+            LOGGER.info("Query server start up failed due to {}", e.getMessage());
         }
     }
 
