@@ -11,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -153,6 +154,6 @@ public class X509CertificateWrapperTest {
     }
 
     private String getResource(final String resourceName) throws IOException {
-        return IOUtils.toString(new ClassPathResource(resourceName).getInputStream());
+        return IOUtils.toString(new ClassPathResource(resourceName).getInputStream(), Charset.defaultCharset());
     }
 }
