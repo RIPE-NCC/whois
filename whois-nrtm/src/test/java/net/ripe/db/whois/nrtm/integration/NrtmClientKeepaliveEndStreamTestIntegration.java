@@ -13,6 +13,7 @@ public class NrtmClientKeepaliveEndStreamTestIntegration extends NrtmClientTestI
 
     @BeforeClass
     public static void beforeKeepaliveClass() {
+        //    TODO [DA] revisit why this is needed. Ensure no connection leak
         System.setProperty("whois.limit.connectionsPerIp", "100");
         System.setProperty("nrtm.keepalive.end.of.stream", "true");
     }

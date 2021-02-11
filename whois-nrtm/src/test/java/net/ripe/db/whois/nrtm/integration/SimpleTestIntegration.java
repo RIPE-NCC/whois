@@ -24,6 +24,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
     @BeforeClass
     public static void setNrtmProperties() {
+        //    TODO [DA] revisit why this is needed. Ensure no connection leak
         System.setProperty("whois.limit.connectionsPerIp", "100");
     }
 
