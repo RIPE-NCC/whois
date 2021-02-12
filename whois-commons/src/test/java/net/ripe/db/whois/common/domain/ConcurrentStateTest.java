@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
-import com.jayway.awaitility.Awaitility;
+import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 
