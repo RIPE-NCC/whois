@@ -30,7 +30,7 @@
         <!-- dependencies -->
 
         <aspectj.version>1.9.6</aspectj.version>
-        <awaitility.version>1.3.5</awaitility.version>
+        <awaitility.version>1.7.0</awaitility.version>
 
         <bouncycastle.version>1.68</bouncycastle.version>
 
