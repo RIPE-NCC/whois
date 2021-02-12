@@ -2,9 +2,9 @@ package net.ripe.db.whois.update.mail;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.jayway.awaitility.Awaitility;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.awaitility.Awaitility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -51,7 +51,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         final GetResponse getResponse = new GetResponse(to);
 
         try {
-            Awaitility.await().atMost(30, TimeUnit.SECONDS).until(getResponse);
+            Awaitility.await().atMost(30L, TimeUnit.SECONDS).until(getResponse);
             final MimeMessage message = getResponse.getMessage();
             messages.remove(message);
             return message;
