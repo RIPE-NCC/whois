@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.support;
 
 import com.google.common.net.InetAddresses;
-import com.jayway.awaitility.Awaitility;
+import org.awaitility.Awaitility;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -110,7 +110,7 @@ public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void waitForResponse(Matcher<String> anwserMatcher) throws Exception {
-        Awaitility.waitAtMost(3, TimeUnit.SECONDS).until(new Callable<String>() {
+        Awaitility.waitAtMost(3L, TimeUnit.SECONDS).until(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 return getResponse();
