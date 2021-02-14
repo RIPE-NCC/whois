@@ -16,26 +16,8 @@ import java.nio.charset.StandardCharsets;
 abstract class BaseNrtmServerChannelInitializer extends ChannelInitializer<Channel> {
 
     private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
-
-    private static final long MEMORY_SIZE_UNLIMITED = 0;
-    private static final long TIMEOUT_SECONDS = 60L;
-    private static final int POOL_SIZE = 32;
-
     private final StringDecoder stringDecoder = new StringDecoder(StandardCharsets.UTF_8);
     private final StringEncoder stringEncoder = new StringEncoder(StandardCharsets.UTF_8);
-
-//    TODO [DA] ensure similar properties are configured for Netty4
-//    protected final ExecutionHandler executionHandler = new ExecutionHandler(
-//        new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, MEMORY_SIZE_UNLIMITED, MEMORY_SIZE_UNLIMITED, TIMEOUT_SECONDS, TimeUnit.SECONDS, new ThreadFactory() {
-//        private final ThreadGroup threadGroup = new ThreadGroup("nrtm-executor-pool");
-//        private final AtomicInteger threadNumber = new AtomicInteger();
-//
-//        @Override
-//        public Thread newThread(final Runnable r) {
-//            return new Thread(threadGroup, r, "nrtm-executor-thread-" + threadNumber.incrementAndGet());
-//        }
-//    }));
-
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmExceptionHandler exceptionHandler;
     private final MaintenanceHandler maintenanceHandler;
