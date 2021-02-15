@@ -11,7 +11,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 
 import javax.annotation.CheckForNull;
 
-final class InetStatusHelper {
+public final class InetStatusHelper {
     private InetStatusHelper() {
     }
 

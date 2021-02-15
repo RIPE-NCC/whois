@@ -1449,8 +1449,8 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(2, 0, 1)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 62.59.192.2 - 62.59.192.30" }
         ack.errorMessagesFor("Create", "[inetnum] 62.59.192.2 - 62.59.192.30") ==
-                ["This range overlaps with 62.59.192.0 - 62.59.192.7",
-                "Status ASSIGNED PA not allowed when more specific object '62.59.192.8 - 62.59.192.15' has status ALLOCATED PA"]
+                ["Status ASSIGNED PA not allowed when more specific object '62.59.192.8 - 62.59.192.15' has status ALLOCATED PA",
+                 "This range overlaps with 62.59.192.0 - 62.59.192.7"]
         ack.infoMessagesFor("Create", "[inetnum] 62.59.192.2 - 62.59.192.30") ==
                 ["Authorisation override used"]
 
