@@ -74,3 +74,6 @@ Nameserver queries always return Not Found
 -------------------------------------------
 The RIPE database doesn't contain any forward domain objects, consequently a nameserver query will always return Not Found.
 
+Only "mnt-by:" Maintainers are Listed as Registrants
+-----------------------------------------------------
+Only maintainers referenced in "mnt-by:" attributes will be listed as Registrants in responses.

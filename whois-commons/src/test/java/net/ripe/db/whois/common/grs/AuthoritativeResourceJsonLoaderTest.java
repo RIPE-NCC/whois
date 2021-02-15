@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.junit.Assert.assertTrue;
@@ -20,7 +21,7 @@ public class AuthoritativeResourceJsonLoaderTest {
     @Test
     public void load() throws IOException {
         final AuthoritativeResource authoritativeResource = new AuthoritativeResourceJsonLoader(logger).load(
-                new ObjectMapper().readValue(IOUtils.toString(getClass().getResourceAsStream("/grs/rirstats.json")), JsonNode.class)
+                new ObjectMapper().readValue(IOUtils.toString(getClass().getResourceAsStream("/grs/rirstats.json"), Charset.defaultCharset()), JsonNode.class)
         );
 
         assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS7")));

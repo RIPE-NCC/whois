@@ -1,13 +1,12 @@
 package net.ripe.db.whois.common.profiles;
 
-import net.ripe.db.whois.common.WhoisAWSPropertyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 public class WhoisProfile {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisAWSPropertyResolver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisProfile.class);
 
     private WhoisProfile() {}
 

@@ -10,6 +10,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.ApplicationVersion;
+import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -115,6 +116,8 @@ public class RpslObjectStreamer {
                     default:
                         throw createWebApplicationException(queryException, responseHandler);
                 }
+            } catch (IllegalArgumentExceptionMessage e) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, e.getExceptionMessage());
             } catch (RuntimeException e) {
                 throw createWebApplicationException(e, responseHandler);
             }

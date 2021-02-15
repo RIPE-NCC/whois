@@ -1,20 +1,17 @@
 package net.ripe.db.whois.query.acl;
 
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.OperationTimeoutException;
+import com.hazelcast.map.IMap;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @DeployedProfile
 @Primary
@@ -22,34 +19,15 @@ import java.util.concurrent.TimeoutException;
 public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounting {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastPersonalObjectAccounting.class);
 
-    private static IMap<InetAddress, Integer> counterMap;
+    private final IMap<InetAddress, Integer> counterMap;
+    private final HazelcastInstance hazelcastInstance;
 
-    private static volatile HazelcastInstance instance;
+    @Autowired
+    public HazelcastPersonalObjectAccounting(final HazelcastInstance hazelcastInstance) {
+        this.hazelcastInstance = hazelcastInstance;
+        this.counterMap =  hazelcastInstance.getMap("queriedPersonal");
 
-    static synchronized void startHazelcast() {
-        if (instance != null) {
-            throw new IllegalStateException("Hazelcast already started");
-        }
-
-        instance = Hazelcast.newHazelcastInstance(null);
-        counterMap = instance.getMap("queriedPersonal");
-    }
-
-    static void shutdownHazelcast() {
-        LOGGER.debug("Shutting down hazelcast instance");
-
-        instance.getLifecycleService().shutdown();
-        instance = null;
-    }
-
-    @PostConstruct
-    public void startService() {
-        startHazelcast();
-    }
-
-    @PreDestroy
-    public void stopService() {
-        shutdownHazelcast();
+        LOGGER.info("hazelcast instances {} members: {} " , this.hazelcastInstance.getName() , this.hazelcastInstance.getCluster().getMembers());
     }
 
     @Override
@@ -71,22 +49,38 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
 
     @Override
     public int accountPersonalObject(final InetAddress remoteAddress, final int amount) {
-        try {
-            Integer count = counterMap.tryLockAndGet(remoteAddress, 3, TimeUnit.SECONDS);
+        boolean isLocked = false;
 
-            if (count == null) {
-                count = amount;
-            } else {
-                count += amount;
+        try {
+            if (isLocked = counterMap.tryLock(remoteAddress,3, TimeUnit.SECONDS)) {
+                Integer count = counterMap.get(remoteAddress);
+                count = (count == null) ? amount : (count + amount);
+                counterMap.put(remoteAddress, count);
+
+                return count;
             }
 
-            counterMap.putAndUnlock(remoteAddress, count);
-            return count;
-        } catch (TimeoutException | IllegalStateException e) {
+            //if cannot get a lock in specified time, return the current state not zero
+            return counterMap.get(remoteAddress);
+
+        } catch (Exception e) {
             LOGGER.info("Unable to account personal object, allowed by default. Threw {}: {}", e.getClass().getName(), e.getMessage());
+        } finally {
+            //unlock only if it is locked by this instance
+            if(isLocked) {
+                unlockKey(remoteAddress);
+            }
+        }
+        return 0;
+    }
+
+    private void unlockKey(InetAddress remoteAddress) {
+        try {
+            counterMap.unlock(remoteAddress);
+        } catch(Exception e) {
+            LOGGER.info("Unable to unlock object key {}. Threw {}: {}", remoteAddress, e.getClass().getName(), e.getMessage());
         }
 
-        return 0;
     }
 
     @Override

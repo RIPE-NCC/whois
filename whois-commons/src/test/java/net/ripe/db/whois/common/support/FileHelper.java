@@ -33,15 +33,12 @@ public class FileHelper {
     public static File addToZipFile(final File directory, final String zipFilename, final String entryFilename, final String entryContent) throws IOException {
         final File zipFile = File.createTempFile(zipFilename, ".zip", directory);
 
-        final FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
-        try {
+        try (final FileOutputStream fileOutputStream = new FileOutputStream(zipFile)) {
             final ZipArchiveOutputStream zipArchiveOutputStream = new ZipArchiveOutputStream(fileOutputStream);
             zipArchiveOutputStream.putArchiveEntry(new ZipArchiveEntry(entryFilename));
             IOUtils.write(entryContent.getBytes(), zipArchiveOutputStream);
             zipArchiveOutputStream.closeArchiveEntry();
             zipArchiveOutputStream.finish();
-        } finally {
-            IOUtils.closeQuietly(fileOutputStream);
         }
 
         return zipFile;
@@ -54,14 +51,11 @@ public class FileHelper {
     public static File addToGZipFile(final File directory, final String gzipFilename, final String content) throws IOException {
         final File gzipFile = File.createTempFile(gzipFilename, ".gz", directory);
 
-        final FileOutputStream fileOutputStream = new FileOutputStream(gzipFile);
-        try {
+        try (final FileOutputStream fileOutputStream = new FileOutputStream(gzipFile)) {
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), StandardCharsets.ISO_8859_1));
             writer.write(content);
             writer.flush();
             writer.close();
-        } finally {
-            IOUtils.closeQuietly(fileOutputStream);
         }
 
         return gzipFile;

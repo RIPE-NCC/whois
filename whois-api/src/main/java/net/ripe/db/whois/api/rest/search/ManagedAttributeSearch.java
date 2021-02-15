@@ -178,7 +178,7 @@ public class ManagedAttributeSearch {
 
     @Nullable
     private AutnumStatus getAutNumStatus(final RpslObject rpslObject) {
-        if (rpslObject.getType() != ObjectType.INET6NUM) {
+        if (rpslObject.getType() != ObjectType.AUT_NUM) {
             return null;
         }
 

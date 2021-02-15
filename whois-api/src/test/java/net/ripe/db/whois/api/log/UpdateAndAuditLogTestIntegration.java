@@ -1,8 +1,6 @@
 package net.ripe.db.whois.api.log;
 
 import com.google.common.net.HttpHeaders;
-import com.jayway.awaitility.Awaitility;
-import com.jayway.awaitility.Duration;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.RestTest;
@@ -29,6 +27,7 @@ import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import net.ripe.db.whois.update.support.TestUpdateLog;
 import org.apache.commons.io.FileUtils;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,17 +46,18 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -596,7 +596,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     }
 
     private void waitForFileToBeWritten(final File file) {
-        Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(new Callable<Long>() {
+        Awaitility.waitAtMost(5L, TimeUnit.SECONDS).until(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
                 return Long.valueOf(file.length());

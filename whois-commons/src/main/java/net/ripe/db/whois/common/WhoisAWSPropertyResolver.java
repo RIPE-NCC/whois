@@ -14,8 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,14 +27,18 @@ import java.util.stream.Collectors;
 public class WhoisAWSPropertyResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisAWSPropertyResolver.class);
 
+    private static InstanceLock INSTANCE_LOCK;
+
     static {
-        try {
-            final String hostname = InetAddress.getLocalHost().getHostName();
-            System.setProperty("host.name", hostname);
-            LOGGER.info("Instance hostname is {}", hostname);
-        } catch (UnknownHostException uhe) {
-            throw new IllegalStateException("Could not determine hostname", uhe);
-        }
+        INSTANCE_LOCK = new InstanceLock(System.getProperty("base.dir"), System.getProperty("instance.name.prefix"));
+
+        System.setProperty("instance.name", INSTANCE_LOCK.getInstanceName());
+        LOGGER.info("Instance name is {}", INSTANCE_LOCK.getInstanceName());
+    }
+
+    @PreDestroy
+    public void releaseLock() {
+        INSTANCE_LOCK.release();
     }
 
     @Bean

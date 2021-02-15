@@ -142,7 +142,9 @@ public class RestServiceHelper {
         return createWebApplicationException(exception, request, Lists.newArrayList());
     }
 
-    public static WebApplicationException createWebApplicationException(final RuntimeException exception, final HttpServletRequest request, final List<Message> messages) {
+    public static WebApplicationException createWebApplicationException(final RuntimeException exception,
+                                                                        final HttpServletRequest request,
+                                                                        final List<Message> messages) {
         final Response.ResponseBuilder responseBuilder;
 
         if (exception instanceof QueryException) {

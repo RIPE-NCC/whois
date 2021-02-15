@@ -1,39 +1,36 @@
 package net.ripe.db.whois.query.acl;
 
-import net.ripe.db.whois.common.DateTimeProvider;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.time.LocalDate;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HazelcastPersonalObjectAccountingTest {
     private InetAddress ipv4Address;
 
-    @Mock DateTimeProvider dateTimeProvider;
-    @Mock Runnable runnable;
-    @InjectMocks HazelcastPersonalObjectAccounting subject;
+    private static HazelcastPersonalObjectAccounting subject;
+    private static HazelcastInstance instance;
 
     @BeforeClass
     public static void startHazelcast() {
-        HazelcastPersonalObjectAccounting.startHazelcast();
+       instance = Hazelcast.newHazelcastInstance(null);
+       subject = new HazelcastPersonalObjectAccounting(instance);
     }
 
     @AfterClass
     public static void shutdownHazelcast() {
-        HazelcastPersonalObjectAccounting.shutdownHazelcast();
+        instance.getLifecycleService().shutdown();
     }
 
     @Before
@@ -41,7 +38,6 @@ public class HazelcastPersonalObjectAccountingTest {
         subject.resetAccounting();
 
         ipv4Address = Inet4Address.getLocalHost();
-        when(dateTimeProvider.getCurrentDate()).thenReturn(LocalDate.now());
     }
 
     @Test
