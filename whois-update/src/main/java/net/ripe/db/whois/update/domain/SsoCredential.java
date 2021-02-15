@@ -33,9 +33,6 @@ public class SsoCredential implements Credential {
 
     @Override
     public String toString() {
-        return "SsoCredential{" +
-                "knownUuid='" + knownUuid + '\'' +
-                ", offeredUserSession=" + offeredUserSession +
-                '}';
+        return String.format("SsoCredential{knownUuid='%s', offeredUserSession=%s}", knownUuid, offeredUserSession);
     }
 }

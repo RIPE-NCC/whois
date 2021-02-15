@@ -32,7 +32,9 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 public class DelegatedStatsService implements EmbeddedValueResolverAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(DelegatedStatsService.class);
 
+    private static final Splitter COMMA_SPLITTER = Splitter.on(',');
     private static final Set<ObjectType> ALLOWED_OBJECTTYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INET6NUM, ObjectType.INETNUM);
+
     private final Map<CIString, String> sourceToPathMap = Maps.newHashMap();
     private final Set<CIString> sources;
     private final AuthoritativeResourceData resourceData;
@@ -41,7 +43,7 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
     @Autowired
     public DelegatedStatsService(@Value("${rdap.sources:}") String rdapSourceNames,
                                  final AuthoritativeResourceData resourceData) {
-        this.sources = ciSet(Splitter.on(',').split(rdapSourceNames));
+        this.sources = ciSet(COMMA_SPLITTER.split(rdapSourceNames));
         this.resourceData = resourceData;
     }
 

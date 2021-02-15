@@ -13,10 +13,12 @@ public class StreamingHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamingHelper.class);
 
+    private static final Splitter COMMA_SPLITTER = Splitter.on(',');
+
     public static StreamingMarshal getStreamingMarshal(final HttpServletRequest request, final OutputStream outputStream) {
         final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
         if (acceptHeader != null) {
-            for (final String accept : Splitter.on(',').split(acceptHeader)) {
+            for (final String accept : COMMA_SPLITTER.split(acceptHeader)) {
                 try {
                     final MediaType mediaType = MediaType.valueOf(accept);
                     final String subtype = mediaType.getSubtype().toLowerCase();

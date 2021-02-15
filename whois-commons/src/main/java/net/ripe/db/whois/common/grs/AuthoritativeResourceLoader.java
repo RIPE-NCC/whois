@@ -8,6 +8,8 @@ import java.util.Scanner;
 
 public class AuthoritativeResourceLoader extends AbstractAuthoritativeResourceLoader {
 
+    private static final Splitter PIPE_SPLITTER = Splitter.on('|');
+
     private final String name;
     private final Scanner scanner;
 
@@ -32,7 +34,7 @@ public class AuthoritativeResourceLoader extends AbstractAuthoritativeResourceLo
 
     private void handleLine(final String expectedSource, final String line) {
 
-        final List<String> columns = Splitter.on('|').splitToList(line);
+        final List<String> columns = PIPE_SPLITTER.splitToList(line);
 
         if (columns.size() < 7) {
             logger.debug("Skipping, not enough columns: {}", line);
