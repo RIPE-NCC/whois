@@ -39,9 +39,6 @@ public class RestServiceHelper {
     private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
     private static final String OVERRIDE_STRING = "override";
 
-    @Deprecated // [ES] update jaxrs which includes 429 status instead
-    private static final int STATUS_TOO_MANY_REQUESTS = 429;
-
     private static final Set<Class> SKIP_STACK_TRACE = Sets.newHashSet(
                                                         CrowdClientException.class,
                                                         CannotGetJdbcConnectionException.class,
@@ -150,7 +147,7 @@ public class RestServiceHelper {
         if (exception instanceof QueryException) {
             final QueryException queryException = (QueryException) exception;
             if (queryException.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                responseBuilder = Response.status(STATUS_TOO_MANY_REQUESTS);
+                responseBuilder = Response.status(Response.Status.TOO_MANY_REQUESTS);
             } else {
                 responseBuilder = Response.status(Response.Status.BAD_REQUEST);
             }
