@@ -20,6 +20,9 @@ import java.util.Map;
 @RetryFor(RecoverableDataAccessException.class)
 public class JdbcStatusDao implements StatusDao {
 
+    // partition query values to keep inside the max_packet_size limit for the IN clause
+    private static final int QUERY_PARTITION = 10_000;
+
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final JdbcTemplate jdbcTemplate;
 
@@ -42,8 +45,7 @@ public class JdbcStatusDao implements StatusDao {
         final Map<Integer, CIString> results = Maps.newHashMap();
         final Map<String, Object> params = Maps.newHashMap();
 
-        // partition object ids to keep inside the max_packet_size limit for the IN clause
-        for (List<Integer> partition : Lists.partition(objectIds, 10_000)) {
+        for (List<Integer> partition : Lists.partition(objectIds, QUERY_PARTITION)) {
             params.put("objectids", partition);
             namedParameterJdbcTemplate.query(
                 "SELECT object_id, status FROM status WHERE object_id IN (:objectids)",
