@@ -55,7 +55,7 @@
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <guava.version>26.0-jre</guava.version>
+        <guava.version>30.1-jre</guava.version>
         <groovy.version>2.5.14</groovy.version>
 
         <hazelcast.version>4.1.1</hazelcast.version>
@@ -802,7 +802,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
