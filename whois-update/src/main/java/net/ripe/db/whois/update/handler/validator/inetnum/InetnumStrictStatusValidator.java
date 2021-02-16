@@ -5,18 +5,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.StatusDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.IpEntry;
-import net.ripe.db.whois.common.iptree.IpTree;
+import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
-import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -30,34 +29,38 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.Messages.Type.ERROR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_PI;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LEGACY;
 import static net.ripe.db.whois.update.domain.Action.CREATE;
-import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper.getStatus;
 
+/**
+ * Apply stricter status validation when creating an inetnum object.
+ */
 @Component
-public class StrictStatusValidator implements BusinessRuleValidator {
+public class InetnumStrictStatusValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE);
-    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM);
 
     private final RpslObjectDao objectDao;
+    private final StatusDao statusDao;
     private final Ipv4Tree ipv4Tree;
-    private final Ipv6Tree ipv6Tree;
     private final Maintainers maintainers;
 
     @Autowired
-    public StrictStatusValidator(
+    public InetnumStrictStatusValidator(
             final RpslObjectDao objectDao,
+            final StatusDao statusDao,
             final Ipv4Tree ipv4Tree,
-            final Ipv6Tree ipv6Tree,
             final Maintainers maintainers) {
         this.objectDao = objectDao;
+        this.statusDao = statusDao;
         this.ipv4Tree = ipv4Tree;
-        this.ipv6Tree = ipv6Tree;
         this.maintainers = maintainers;
     }
 
@@ -67,40 +70,32 @@ public class StrictStatusValidator implements BusinessRuleValidator {
     }
 
     private void validateCreate(final PreparedUpdate update, final UpdateContext updateContext) {
-        final IpInterval ipInterval = IpInterval.parse(update.getUpdatedObject().getKey());
-        if (update.getType().equals(ObjectType.INETNUM)) {
-            validateStatusAgainstResourcesInTree(update, updateContext, ipv4Tree, ipInterval);
-        } else {
-            validateStatusAgainstResourcesInTree(update, updateContext, ipv6Tree, ipInterval);
-        }
-
+        validateStatusAgainstResourcesInTree(update, updateContext);
     }
 
     @SuppressWarnings("unchecked")
-    private void validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext, final IpTree ipTree, final IpInterval ipInterval) {
+    private void validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
-        if (!allChildrenHaveCorrectStatus(update, updateContext, ipTree, ipInterval)) {
+        final Ipv4Resource ipInterval = Ipv4Resource.parse(updatedObject.getKey());
+
+        if (!allChildrenHaveCorrectStatus(update, updateContext, ipInterval)) {
             return;
         }
 
-        final InetStatus currentStatus = InetStatusHelper.getStatus(update);
-        final List<IpEntry> parents = ipTree.findFirstLessSpecific(ipInterval);
+        final List<Ipv4Entry> parents = ipv4Tree.findFirstLessSpecific(ipInterval);
         if (parents.size() != 1) {
             updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipInterval));
             return;
         }
 
+        final InetnumStatus currentStatus = InetnumStatus.getStatusFor(updatedObject.getValueForAttribute(STATUS));
         if (!hasAuthOverride(updateContext.getSubject(update))) {
             checkAuthorisationForStatus(update, updateContext, updatedObject, currentStatus);
         }
 
-        final RpslObject parentObject = objectDao.getById(parents.get(0).getObjectId());
+        final InetnumStatus parentStatus = InetnumStatus.getStatusFor(statusDao.getStatus(parents.get(0).getObjectId()));
 
-        final InetStatus parentStatus = InetStatusHelper.getStatus(parentObject);
-
-        if (updatedObject.getType() == ObjectType.INETNUM) {
-            validateStatusLegacy(updatedObject, parentObject, update, updateContext);
-        }
+        validateLegacyStatus(currentStatus, parentStatus, update, updateContext);
 
         final Set<CIString> updateMntBy = updatedObject.getValuesForAttribute(AttributeType.MNT_BY);
         final boolean hasRsMaintainer = maintainers.isRsMaintainer(updateMntBy);
@@ -109,24 +104,32 @@ public class StrictStatusValidator implements BusinessRuleValidator {
             checkAuthorizationForStatusInHierarchy(
                     update,
                     updateContext,
-                    ipTree,
                     ipInterval,
                     UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString())
             );
-        } else if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer)) {
-            updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
+        } else {
+            if (!currentStatus.worksWithParentStatus(parentStatus, hasRsMaintainer)) {
+                updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
+            }
+        }
+
+        if (currentStatus.equals(InetnumStatus.ASSIGNED_PI) && parentStatus.equals(InetnumStatus.ASSIGNED_PI)) {
+            final RpslObject parentObject = objectDao.getById(parents.get(0).getObjectId());
+
+            final Set<CIString> parentMntBy = parentObject.getValuesForAttribute(AttributeType.MNT_BY);
+            final boolean parentHasRsMaintainer = maintainers.isRsMaintainer(parentMntBy);
+
+            if (parentHasRsMaintainer) {
+                updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
+            }
         }
 
         if (currentStatus.equals(InetnumStatus.ASSIGNED_PI)) {
-            if (parentStatus.equals(InetnumStatus.ASSIGNED_PI)) {
-                final Set<CIString> parentMntBy = parentObject.getValuesForAttribute(AttributeType.MNT_BY);
-                final boolean parentHasRsMaintainer = maintainers.isRsMaintainer(parentMntBy);
-                if (parentHasRsMaintainer) {
-                    updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
-                }
-            }
-
-            checkAuthorizationForStatusInHierarchy(update, updateContext, ipTree, ipInterval, UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
+            checkAuthorizationForStatusInHierarchy(
+                    update,
+                    updateContext,
+                    ipInterval,
+                    UpdateMessages.incorrectParentStatus(ERROR, updatedObject.getType(), parentStatus.toString()));
         }
 
     }
@@ -139,23 +142,22 @@ public class StrictStatusValidator implements BusinessRuleValidator {
         return subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER);
     }
 
-    private void checkAuthorizationForStatusInHierarchy(final PreparedUpdate update, final UpdateContext updateContext, final IpTree ipTree, final IpInterval ipInterval, final Message errorMessage) {
-        final RpslObject parentInHierarchyMaintainedByRs = findParentWithRsMaintainer(ipTree, ipInterval);
+    private void checkAuthorizationForStatusInHierarchy(final PreparedUpdate update, final UpdateContext updateContext, final Ipv4Resource ipInterval, final Message errorMessage) {
+        final RpslObject parentInHierarchyMaintainedByRs = findParentWithRsMaintainer(ipInterval);
 
         if (parentInHierarchyMaintainedByRs != null) {
-
             final List<RpslAttribute> parentStatuses = parentInHierarchyMaintainedByRs.findAttributes(STATUS);
             if (parentStatuses.isEmpty()) {
                 return;
             }
 
             final CIString parentStatusValue = parentStatuses.get(0).getCleanValue();
-            final InetStatus parentStatus = getStatus(parentStatusValue, update);
+            final InetnumStatus parentStatus = InetnumStatus.getStatusFor(parentStatusValue);
 
             final Set<CIString> mntLower = parentInHierarchyMaintainedByRs.getValuesForAttribute(AttributeType.MNT_LOWER);
             final boolean parentHasRsMntLower = maintainers.isRsMaintainer(mntLower);
-            final InetStatus currentStatus = InetStatusHelper.getStatus(update);
 
+            final InetnumStatus currentStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(STATUS));
             if (!currentStatus.worksWithParentInHierarchy(parentStatus, parentHasRsMntLower)) {
                 updateContext.addMessage(update, errorMessage);
             }
@@ -163,10 +165,10 @@ public class StrictStatusValidator implements BusinessRuleValidator {
     }
 
     @CheckForNull
-    private RpslObject findParentWithRsMaintainer(final IpTree ipTree, final IpInterval ipInterval) {
+    private RpslObject findParentWithRsMaintainer(final Ipv4Resource ipInterval) {
         @SuppressWarnings("unchecked")
-        final List<IpEntry> allLessSpecific = Lists.reverse(ipTree.findAllLessSpecific(ipInterval));
-        for (final IpEntry parent : allLessSpecific) {
+        final List<Ipv4Entry> allLessSpecific = Lists.reverse(ipv4Tree.findAllLessSpecific(ipInterval));
+        for (final Ipv4Entry parent : allLessSpecific) {
             final RpslObject parentObject = objectDao.getById(parent.getObjectId());
             final Set<CIString> mntBy = parentObject.getValuesForAttribute(AttributeType.MNT_BY);
 
@@ -179,7 +181,7 @@ public class StrictStatusValidator implements BusinessRuleValidator {
         return null;
     }
 
-    private void checkAuthorisationForStatus(final PreparedUpdate update, final UpdateContext updateContext, final RpslObject updatedObject, final InetStatus currentStatus) {
+    private void checkAuthorisationForStatus(final PreparedUpdate update, final UpdateContext updateContext, final RpslObject updatedObject, final InetnumStatus currentStatus) {
         final Set<CIString> mntBy = updatedObject.getValuesForAttribute(AttributeType.MNT_BY);
 
         if (currentStatus.requiresAllocMaintainer()) {
@@ -207,43 +209,49 @@ public class StrictStatusValidator implements BusinessRuleValidator {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean allChildrenHaveCorrectStatus(final PreparedUpdate update, final UpdateContext updateContext, final IpTree ipTree, final IpInterval ipInterval) {
-        final List<IpEntry> children = ipTree.findFirstMoreSpecific(ipInterval);
-        final RpslAttribute updateStatusAttribute = update.getUpdatedObject().findAttribute(STATUS);
-        final InetStatus updatedStatus = InetStatusHelper.getStatus(update);
+    private boolean allChildrenHaveCorrectStatus(final PreparedUpdate update, final UpdateContext updateContext, final Ipv4Resource ipInterval) {
+        final InetnumStatus updatedStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(STATUS));
 
-        for (final IpEntry child : children) {
-            final RpslObject childObject = objectDao.getById(child.getObjectId());
+        final List<Ipv4Entry> children = ipv4Tree.findFirstMoreSpecific(ipInterval);
+        final List<Integer> childrenObjectIds = Lists.transform(children, IpEntry::getObjectId);
+        final Map<Integer, CIString> childStatusMap = statusDao.getStatus(childrenObjectIds);
 
-            final CIString childStatusValue = childObject.getValueForAttribute(STATUS);
-            final InetStatus childStatus = getStatus(childStatusValue, update);
+        for (final Ipv4Entry child : children) {
+            final InetnumStatus childStatus = InetnumStatus.getStatusFor(childStatusMap.get(child.getObjectId()));
 
-            final Set<CIString> childMntBy = childObject.getValuesForAttribute(AttributeType.MNT_BY);
-            final boolean hasRsMaintainer = maintainers.isRsMaintainer(childMntBy);
-
-            if (!childStatus.worksWithParentStatus(updatedStatus, hasRsMaintainer)) {
-                updateContext.addMessage(update, UpdateMessages.incorrectChildStatus(ERROR, updateStatusAttribute.getCleanValue(), childStatusValue, childObject.getKey()));
+            if (!childStatus.worksWithParentStatus(updatedStatus, childHasRsMaintainer(child, childStatus))) {
+                updateContext.addMessage(update, UpdateMessages.incorrectChildStatus(ERROR, updatedStatus.toString(), childStatus.toString(), child.getKey().toRangeString()));
                 return false;
             } else if (updatedStatus.equals(InetnumStatus.ASSIGNED_PA) && childStatus.equals(InetnumStatus.ASSIGNED_PA)) {
                 checkAuthorizationForStatusInHierarchy(
                     update,
                     updateContext,
-                    ipTree,
                     ipInterval,
-                    UpdateMessages.incorrectChildStatus(ERROR, updateStatusAttribute.getCleanValue(), childStatusValue, childObject.getKey())
+                    UpdateMessages.incorrectChildStatus(ERROR, updatedStatus.toString(), childStatus.toString(), child.getKey().toRangeString())
                 );
             }
         }
         return true;
     }
 
-    private void validateStatusLegacy(final RpslObject updatedObject, final RpslObject parentObject, final PreparedUpdate update, final UpdateContext updateContext) {
-        if (LEGACY == InetnumStatus.getStatusFor(updatedObject.getValueForAttribute(STATUS)) &&
-                LEGACY != InetnumStatus.getStatusFor(parentObject.getValueForAttribute(STATUS))) {
-            if (!authByRsOrOverride(updateContext.getSubject(update))) {
+    private boolean childHasRsMaintainer(final Ipv4Entry child, final InetnumStatus childStatus) {
+        if (!ASSIGNED_PI.equals(childStatus)) {
+            // check only needed for ASSIGNED PI status
+            return false;
+        }
+
+        final RpslObject childObject = objectDao.getById(child.getObjectId());
+
+        final Set<CIString> childMntBy = childObject.getValuesForAttribute(AttributeType.MNT_BY);
+        return maintainers.isRsMaintainer(childMntBy);
+    }
+
+    private void validateLegacyStatus(final InetnumStatus currentStatus, final InetnumStatus parentStatus, final PreparedUpdate update, final UpdateContext updateContext) {
+        if ((LEGACY == currentStatus) &&
+                (LEGACY != parentStatus) &&
+                    (!authByRsOrOverride(updateContext.getSubject(update)))) {
                 updateContext.addMessage(update, UpdateMessages.inetnumStatusLegacy());
             }
-        }
     }
 
     @Override
