@@ -22,7 +22,8 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 @Component
 public class AuthoritativeResourceData {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceData.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceData.class);
+
     private static final Splitter PROPERTY_LIST_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     private final ResourceDataDao resourceDataDao;
@@ -37,7 +38,7 @@ public class AuthoritativeResourceData {
                                      final ResourceDataDao resourceDataDao) {
         this.resourceDataDao = resourceDataDao;
         this.source = source.toLowerCase();
-        this.sourceNames = PROPERTY_LIST_SPLITTER.splitToList(grsSourceNames).stream()
+        this.sourceNames = PROPERTY_LIST_SPLITTER.splitToStream(grsSourceNames)
             .map(sourceName -> sourceName.toLowerCase().replace("-grs", ""))
             .collect(Collectors.toSet());
     }

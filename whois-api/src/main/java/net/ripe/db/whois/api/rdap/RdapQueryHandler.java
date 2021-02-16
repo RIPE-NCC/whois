@@ -26,9 +26,6 @@ import java.util.List;
 public class RdapQueryHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapQueryHandler.class);
 
-    @Deprecated // [ES] update jaxrs which includes 429 status instead
-    private static final int STATUS_TOO_MANY_REQUESTS = 429;
-
     private final QueryHandler queryHandler;
 
     @Autowired
@@ -122,6 +119,6 @@ public class RdapQueryHandler {
     }
 
     private WebApplicationException tooManyRequests(final String message) {
-        return new WebApplicationException(message, Response.status(STATUS_TOO_MANY_REQUESTS).build());
+        return new WebApplicationException(message, Response.Status.TOO_MANY_REQUESTS);
     }
 }

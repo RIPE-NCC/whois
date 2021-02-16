@@ -46,7 +46,7 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
 
         final boolean rsngImportDisabled = StringUtils.isBlank(rsngBaseUrl);
 
-        this.sourceNames = PROPERTY_LIST_SPLITTER.splitToList(grsSourceNames).stream()
+        this.sourceNames = PROPERTY_LIST_SPLITTER.splitToStream(grsSourceNames)
                 .map(input -> input.toLowerCase().replace("-grs", ""))
                 .filter(source -> !SOURCE_NAME_RIPE.equalsIgnoreCase(source) || rsngImportDisabled)
                 .collect(Collectors.toSet());
