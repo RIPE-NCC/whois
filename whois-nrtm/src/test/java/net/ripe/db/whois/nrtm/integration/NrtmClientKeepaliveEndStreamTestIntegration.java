@@ -1,8 +1,8 @@
 package net.ripe.db.whois.nrtm.integration;
 
 import net.ripe.db.whois.common.IntegrationTest;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.test.annotation.DirtiesContext;
@@ -10,6 +10,16 @@ import org.springframework.test.annotation.DirtiesContext;
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientKeepaliveEndStreamTestIntegration extends NrtmClientTestIntegration {
+
+    @BeforeClass
+    public static void beforeKeepaliveClass() {
+        System.setProperty("nrtm.keepalive.end.of.stream", "true");
+    }
+
+    @AfterClass
+    public static void afterKeepaliveClass() {
+        System.clearProperty("nrtm.keepalive.end.of.stream");
+    }
 
     @Test
     public void check_mntner_exists() {
