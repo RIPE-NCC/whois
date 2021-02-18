@@ -9,19 +9,14 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
@@ -29,6 +24,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
     private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
     private static final ByteBuf INTERRUPT_DELIMITER = Unpooled.wrappedBuffer(new byte[]{(byte)0xff, (byte)0xf4, (byte)0xff, (byte)0xfd, (byte)0x6});
     private static final int TIMEOUT_SECONDS = 180;
+
     private final StringDecoder stringDecoder = new StringDecoder(StandardCharsets.UTF_8);
     private final MaintenanceHandler maintenanceHandler;
     private final ConnectionPerIpLimitHandler connectionPerIpLimitHandler;
