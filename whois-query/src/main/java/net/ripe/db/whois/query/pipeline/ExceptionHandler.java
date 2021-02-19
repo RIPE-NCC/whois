@@ -32,11 +32,11 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        LOGGER.info("Caught exception", cause);
+        LOGGER.debug("Caught exception", cause);
 
         final Channel channel = ctx.channel();
         if (cause instanceof ClosedChannelException) {
-            LOGGER.info("Channel closed", cause);
+            LOGGER.debug("Channel closed", cause);
         } else if (cause instanceof QueryException) {
             handleException(channel, ((QueryException) cause).getMessages(), ((QueryException) cause).getCompletionInfo());
         }  else if (cause.getCause() instanceof QueryException) {
@@ -50,7 +50,7 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
         }  else if (cause instanceof IOException) {
             handleException(channel, Collections.<Message>emptyList(), QueryCompletionInfo.EXCEPTION);
         } else if (cause instanceof DataAccessException) {
-            LOGGER.info("Caught exception on channel id = {}, from = {} for query = {}\n{}",
+            LOGGER.error("Caught exception on channel id = {}, from = {} for query = {}\n{}",
                     channel.id().asLongText(),
                     ChannelUtil.getRemoteAddress(channel),
                     query,
@@ -58,7 +58,7 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
 
             handleException(channel, Collections.singletonList(QueryMessages.internalErroroccurred()), QueryCompletionInfo.EXCEPTION);
         } else {
-            LOGGER.info("Caught exception on channel id = {}, from = {} for query = {}",
+            LOGGER.error("Caught exception on channel id = {}, from = {} for query = {}",
                     channel.id().asLongText(),
                     ChannelUtil.getRemoteAddress(channel),
                     query,
