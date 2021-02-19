@@ -25,20 +25,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.net.InetAddress;
 import java.nio.channels.ClosedChannelException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
 
-@Ignore("[DA] I suggest we remove this test. For one, the changes in the API makes mocking cumbersome. But the main reason is that the utility of the test can be argued." +
+@Ignore("TODO [DA] I suggest we remove this test. For one, the changes in the API makes mocking cumbersome. But the main reason is that the utility of the test can be argued." +
         "The test basically constructs a different pipeline, starts the server with that and run assertion against that. It is testing the Netty framework rather than" +
         "actually testing the pipeline and handlers as we have them in a running whois instance")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
