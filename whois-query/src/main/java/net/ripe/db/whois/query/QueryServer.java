@@ -48,25 +48,22 @@ public final class QueryServer implements ApplicationService {
 
     @Override
     public void start() {
-
-
-        try {
-            bossGroup = new NioEventLoopGroup();
-            workerGroup = new NioEventLoopGroup();
-            final ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(bossGroup, workerGroup)
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
+        final ServerBootstrap bootstrap = new ServerBootstrap();
+        bootstrap.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
             .childHandler(whoisServerChannelInitializer)
             .option(ChannelOption.SO_BACKLOG, 200)
             .childOption(ChannelOption.TCP_NODELAY, true)
             .childOption(ChannelOption.SO_KEEPALIVE, true);
 
+        try {
             ChannelFuture channelFuture = bootstrap.bind(new InetSocketAddress(queryPort)).sync();
             port = ((InetSocketAddress)channelFuture.channel().localAddress()).getPort();
             LOGGER.info("Query server listening on {}", port);
-
         } catch (InterruptedException e) {
-            LOGGER.info("Query server start up failed due to {}", e.getMessage());
+            throw new IllegalStateException("Query server start up failed", e);
         }
     }
 
