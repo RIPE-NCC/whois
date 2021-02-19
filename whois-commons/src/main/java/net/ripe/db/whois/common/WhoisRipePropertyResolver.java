@@ -11,7 +11,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @Configuration
 @PropertySources({
         @PropertySource(value = "classpath:version.properties", ignoreResourceNotFound = true),
-        @PropertySource(value = "classpath:whois.properties", ignoreResourceNotFound = true),
         @PropertySource(value = "file:${whois.config}", ignoreResourceNotFound = true),
 })
 @Profile({WhoisProfile.RIPE_DEPLOYED, WhoisProfile.TEST})
