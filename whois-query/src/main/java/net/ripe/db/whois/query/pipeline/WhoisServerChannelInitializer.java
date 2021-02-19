@@ -9,6 +9,8 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutorGroup;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
@@ -25,7 +27,11 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
     private static final ByteBuf INTERRUPT_DELIMITER = Unpooled.wrappedBuffer(new byte[]{(byte)0xff, (byte)0xf4, (byte)0xff, (byte)0xfd, (byte)0x6});
     private static final int TIMEOUT_SECONDS = 180;
 
+    private static final int POOL_SIZE = 64;
+
     private final StringDecoder stringDecoder = new StringDecoder(StandardCharsets.UTF_8);
+    private final EventExecutorGroup executorGroup = new DefaultEventExecutorGroup(POOL_SIZE);
+
     private final MaintenanceHandler maintenanceHandler;
     private final ConnectionPerIpLimitHandler connectionPerIpLimitHandler;
     private final QueryChannelsRegistry queryChannelsRegistry;
@@ -76,7 +82,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("connection-state", new ConnectionStateHandler());
 
         pipeline.addLast("served-by", new ServedByHandler(applicationVersion.getVersion()));
-        pipeline.addLast("whois", new WhoisServerHandler(queryHandler));
+        pipeline.addLast(executorGroup, "whois", new WhoisServerHandler(queryHandler));
         pipeline.addLast("exception", new ExceptionHandler());
     }
 
