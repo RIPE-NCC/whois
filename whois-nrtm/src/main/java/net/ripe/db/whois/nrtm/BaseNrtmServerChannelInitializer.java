@@ -14,7 +14,7 @@ import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 
 import java.nio.charset.StandardCharsets;
 
-
+// TODO: [ES] why use an abstraction? there is only one implementation
 abstract class BaseNrtmServerChannelInitializer extends ChannelInitializer<Channel> {
 
     private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
