@@ -52,30 +52,28 @@ public class NrtmServer implements ApplicationService {
             return;
         }
 
-        bootstrapChannel(nrtmServerChannelInitializer, nrtmPort, "NRTM DUMMIFIER");
+        serverChannel = bootstrapChannel(nrtmServerChannelInitializer, nrtmPort);
+        port = ((InetSocketAddress) serverChannel.localAddress()).getPort();
+        LOGGER.info("NRTM server listening on port {}", port);
     }
 
-    private void bootstrapChannel(final NrtmServerChannelInitializer serverChannelInitializer, final int nrtmPort, final String instanceName) {
+    // TODO: [ES] channel was not returned?
+    private Channel bootstrapChannel(final NrtmServerChannelInitializer serverChannelInitializer, final int nrtmPort) {
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
+        final ServerBootstrap bootstrap = new ServerBootstrap();
+        bootstrap.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .childHandler(serverChannelInitializer)
+                .option(ChannelOption.SO_BACKLOG, 200)
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
+
         try {
-
-            bossGroup = new NioEventLoopGroup();
-            workerGroup = new NioEventLoopGroup();
-
-            final ServerBootstrap bootstrap = new ServerBootstrap();
-
-            bootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(serverChannelInitializer)
-                    .option(ChannelOption.SO_BACKLOG, 200)
-                    .childOption(ChannelOption.TCP_NODELAY, true)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
-
-            ChannelFuture channelFuture = bootstrap.bind(new InetSocketAddress(nrtmPort)).sync();
-            port = ((InetSocketAddress)channelFuture.channel().localAddress()).getPort();
-            LOGGER.info("NRTM server listening on port {} ({})", port, instanceName);
-
+            final ChannelFuture channelFuture = bootstrap.bind(new InetSocketAddress(nrtmPort)).sync();
+            return channelFuture.channel();
         } catch (InterruptedException e) {
-            LOGGER.info("NRTM server start up failed due to {}", e.getMessage());
+            throw new IllegalStateException("NRTM server start up failed", e);
         }
     }
 
@@ -83,10 +81,11 @@ public class NrtmServer implements ApplicationService {
     public void stop(final boolean force) {
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
-        NrtmServer.port = 0;
+        NrtmServer.port = 0;    // TODO: [ES] why reset port to 0?
         if (nrtmEnabled) {
             if (force) {
                 LOGGER.info("Shutting down");
+                // TODO: [ES] do we need to shutdown bossGroup and workerGroup?
                 if (serverChannel != null) {
                     serverChannel.close();
                     serverChannel = null;
