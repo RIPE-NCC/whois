@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.handler;
 
-import io.netty.channel.ChannelId;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ public class WhoisLog {
 
         return MessageFormatter.arrayFormat("{} PW-{}-INFO <{}+{}+0> {} {}ms [{}] --  {}",
                 new Object[]{
-                        String.format("%10s", channelId),
+                        String.format("%10s", channelId),   // TODO: [ES] why is channel id changed from an int to a string? This changes the query log format
                         api,
                         personalObjects,
                         nonPersonalObjects,
