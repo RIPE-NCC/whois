@@ -6,6 +6,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelGroupFutureListener;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.util.concurrent.DefaultEventExecutor;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +21,7 @@ import org.springframework.stereotype.Component;
 public class NrtmChannelsRegistry extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmChannelsRegistry.class);
 
-//  TODO [DA] revisit and confirm using ImmediateEventExecutor.INSTANCE is right
-    private final ChannelGroup channels = new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
+    private final ChannelGroup channels = new DefaultChannelGroup(new DefaultEventExecutor());
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
