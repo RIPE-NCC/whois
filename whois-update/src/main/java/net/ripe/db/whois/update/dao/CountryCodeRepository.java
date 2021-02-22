@@ -16,7 +16,7 @@ public class CountryCodeRepository {
     private Set<CIString> countryCodes;
 
     @Autowired
-    public CountryCodeRepository(@Value("${whois.countrycodes}") final String[] countryCodes) {
+    public CountryCodeRepository(@Value("${whois.countrycodes:}") final String[] countryCodes) {
         final Set<CIString> set = Sets.newHashSetWithExpectedSize(countryCodes.length);
         for (final String countryCode : countryCodes) {
             set.add(ciString(countryCode));

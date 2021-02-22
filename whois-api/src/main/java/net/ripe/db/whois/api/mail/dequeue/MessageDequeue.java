@@ -58,10 +58,10 @@ public class MessageDequeue implements ApplicationService {
     private ExecutorService handlerExecutor;
     private ScheduledExecutorService pollerExecutor;
 
-    @Value("${mail.update.threads}")
+    @Value("${mail.update.threads:2}")
     private int nrThreads;
 
-    @Value("${mail.dequeue.interval}")
+    @Value("${mail.dequeue.interval:1000}")
     private int intervalMs;
 
     @Autowired

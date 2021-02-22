@@ -14,7 +14,7 @@ public class ReservedAutnum {
     private final List<LongRange> reservedAsnumbers;
 
     @Autowired
-    public ReservedAutnum(@Value("${whois.reserved.as.numbers}") final String reservedAsNumbers) {
+    public ReservedAutnum(@Value("${whois.reserved.as.numbers:}") final String reservedAsNumbers) {
         this.reservedAsnumbers = parseReservedAsNumbers(reservedAsNumbers);
     }
 

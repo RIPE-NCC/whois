@@ -41,9 +41,9 @@ public class CrowdClient {
     private Client client;
 
     @Autowired
-    public CrowdClient(@Value("${crowd.rest.url}") final String translatorUrl,
-                       @Value("${crowd.rest.user}") final String crowdAuthUser,
-                       @Value("${crowd.rest.password}") final String crowdAuthPassword) {
+    public CrowdClient(@Value("${crowd.rest.url:}") final String translatorUrl,
+                       @Value("${crowd.rest.user:}") final String crowdAuthUser,
+                       @Value("${crowd.rest.password:}") final String crowdAuthPassword) {
         this.restUrl = translatorUrl;
         this.client = ClientBuilder.newBuilder()
                 .register(HttpAuthenticationFeature.basic(crowdAuthUser, crowdAuthPassword))
