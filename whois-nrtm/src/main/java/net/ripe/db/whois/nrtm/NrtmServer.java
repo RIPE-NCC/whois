@@ -23,8 +23,8 @@ public class NrtmServer implements ApplicationService {
 
     public static final int NRTM_VERSION = 3;
 
-    @Value("${nrtm.enabled}") private boolean nrtmEnabled;
-    @Value("${port.nrtm}") private int nrtmPort;
+    @Value("${nrtm.enabled:true}") private boolean nrtmEnabled;
+    @Value("${port.nrtm:0}") private int nrtmPort;
 
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmServerChannelInitializer nrtmServerChannelInitializer;

@@ -23,7 +23,7 @@ public class GrsImporterJmx extends JmxBase {
 
     private String grsDefaultSources;
 
-    @Value("${grs.import.sources}")
+    @Value("${grs.import.sources:}")
     void setGrsDefaultSources(final String grsDefaultSources) {
         this.grsDefaultSources = grsDefaultSources;
     }

@@ -19,7 +19,7 @@ public abstract class AbstractAutoritativeResourceImportTask {
     private final ResourceDataDao resourceDataDao;
 
     @Autowired
-    public AbstractAutoritativeResourceImportTask(@Value("${grs.import.enabled}") final boolean enabled,
+    public AbstractAutoritativeResourceImportTask(@Value("${grs.import.enabled:false}") final boolean enabled,
                                                   final ResourceDataDao resourceDataDao) {
         this.resourceDataDao = resourceDataDao;
         this.enabled = enabled;

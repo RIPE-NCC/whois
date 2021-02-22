@@ -40,7 +40,7 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
                                            final ResourceDataDao resourceDataDao,
                                            final Downloader downloader,
                                            @Value("${dir.grs.import.download:}") final String downloadDir,
-                                           @Value("${grs.import.enabled}") final boolean enabled,
+                                           @Value("${grs.import.enabled:false}") final boolean enabled,
                                            @Value("${rsng.base.url:}") final String rsngBaseUrl) {
         super(enabled, resourceDataDao);
 

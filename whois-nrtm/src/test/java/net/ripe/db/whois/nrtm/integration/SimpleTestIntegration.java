@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.not;
 @Category(IntegrationTest.class)
 public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
-    @Value("${nrtm.update.interval}") private String updateIntervalString;
+    @Value("${nrtm.update.interval:15}") private String updateIntervalString;
 
     private int updateInterval;
 
