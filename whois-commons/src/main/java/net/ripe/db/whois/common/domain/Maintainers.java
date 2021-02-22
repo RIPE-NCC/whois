@@ -23,11 +23,11 @@ public class Maintainers {
 
     @Autowired
     public Maintainers(
-            @Value("${whois.maintainers.enduser}") final String[] enduserMaintainers,
-            @Value("${whois.maintainers.legacy}") final String[] legacyMaintainers,
-            @Value("${whois.maintainers.alloc}") final String[] allocMaintainers,
-            @Value("${whois.maintainers.enum}") final String[] enumMaintainers,
-            @Value("${whois.maintainers.dbm}") final String[] dbmMaintainers) {
+            @Value("${whois.maintainers.enduser:}") final String[] enduserMaintainers,
+            @Value("${whois.maintainers.legacy:}") final String[] legacyMaintainers,
+            @Value("${whois.maintainers.alloc:}") final String[] allocMaintainers,
+            @Value("${whois.maintainers.enum:}") final String[] enumMaintainers,
+            @Value("${whois.maintainers.dbm:}") final String[] dbmMaintainers) {
 
         this.enduserMaintainers = ciImmutableSet(enduserMaintainers);
         this.legacyMaintainers = ciImmutableSet(legacyMaintainers);

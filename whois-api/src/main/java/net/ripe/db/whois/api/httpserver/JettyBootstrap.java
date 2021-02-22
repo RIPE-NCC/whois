@@ -76,7 +76,7 @@ public class JettyBootstrap implements ApplicationService {
         server = createAndStartServer(port);
     }
 
-    @Value("${port.api}")
+    @Value("${port.api:0}")
     public void setPort(final int port) {
         if (port > 0) {
             this.port = port;
