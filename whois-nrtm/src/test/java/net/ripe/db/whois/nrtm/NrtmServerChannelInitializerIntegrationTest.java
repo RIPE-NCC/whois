@@ -22,8 +22,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class BaseNrtmServerChannelInitializerIntegrationTest extends AbstractNrtmIntegrationBase {
-    @Autowired private BaseNrtmServerChannelInitializer nrtmServerPipelineFactory;
+public class NrtmServerChannelInitializerIntegrationTest extends AbstractNrtmIntegrationBase {
+    @Autowired private NrtmServerChannelInitializer nrtmServerPipelineFactory;
     @Autowired private List<ChannelHandler> channelHandlers;
 
     @Test
