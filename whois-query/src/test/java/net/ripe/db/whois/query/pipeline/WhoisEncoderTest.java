@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,11 +31,10 @@ import static org.mockito.Mockito.when;
 public class WhoisEncoderTest {
 
     @Mock private ChannelHandlerContext contextMock;
-    @Mock private Channel channelMock;
     @Mock private ResponseObject objectMock;
     @InjectMocks private WhoisEncoder subject;
 
-    private ByteBuf encode(Object input) {
+    private ByteBuf encode(Object input) throws IOException {
         List<Object> actualResult = new ArrayList<>();
         subject.encode(contextMock, input, actualResult);
 
@@ -56,7 +57,7 @@ public class WhoisEncoderTest {
     }
 
     @Test
-    public void encode_Message() {
+    public void encode_Message() throws IOException {
         Message message = QueryMessages.inputTooLong();
         ByteBuf result = encode(message);
 
@@ -64,12 +65,11 @@ public class WhoisEncoderTest {
     }
 
     @Test
-    public void encode_ResponseObject() {
-        when(objectMock.toByteArray()).thenReturn(new byte[]{});
+    public void encode_ResponseObject() throws IOException {
         when(contextMock.alloc()).thenReturn(ByteBufAllocator.DEFAULT);
         ByteBuf result = encode(objectMock);
 
-        verify(objectMock, times(1)).toByteArray();
+        verify(objectMock, times(1)).writeTo(any(OutputStream.class));
 
         assertThat(toString(result), is("\n"));
     }
