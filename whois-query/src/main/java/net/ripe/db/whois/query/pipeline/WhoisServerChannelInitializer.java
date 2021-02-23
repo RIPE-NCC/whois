@@ -78,10 +78,10 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("string-decoder", stringDecoder);
         pipeline.addLast(executorGroup, "whois-encoder", whoisEncoder);
 
-        pipeline.addLast("query-decoder", queryDecoder);
-        pipeline.addLast("connection-state", new ConnectionStateHandler());
+        pipeline.addLast(executorGroup, "query-decoder", queryDecoder);
+        pipeline.addLast(executorGroup, "connection-state", new ConnectionStateHandler());
 
-        pipeline.addLast("served-by", new ServedByHandler(applicationVersion.getVersion()));
+        pipeline.addLast(executorGroup, "served-by", new ServedByHandler(applicationVersion.getVersion()));
         pipeline.addLast(executorGroup, "whois", new WhoisServerHandler(queryHandler));
         pipeline.addLast("exception", new ExceptionHandler());
     }
