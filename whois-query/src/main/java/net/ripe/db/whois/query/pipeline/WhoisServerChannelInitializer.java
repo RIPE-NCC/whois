@@ -76,7 +76,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(1024, LINE_DELIMITER, INTERRUPT_DELIMITER));
 
         pipeline.addLast("string-decoder", stringDecoder);
-        pipeline.addLast("whois-encoder", whoisEncoder);
+        pipeline.addLast(executorGroup, "whois-encoder", whoisEncoder);
 
         pipeline.addLast("query-decoder", queryDecoder);
         pipeline.addLast("connection-state", new ConnectionStateHandler());
