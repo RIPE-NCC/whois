@@ -33,9 +33,10 @@ public class HazelcastInstanceManager {
     @Bean
     @Profile(WhoisProfile.RIPE_DEPLOYED)
     public HazelcastInstance hazelcastInstance() {
-      LOGGER.info("Creating hazelcast instance with Ripe deployed profile {}", Arrays.asList(interfaces.split(",")) );
+      LOGGER.info("Creating hazelcast instance with Ripe deployed profile");
 
       final Config config = getGenericConfig();
+      //We define ipv6 addresses
       config.setProperty("hazelcast.prefer.ipv4.stack", "false");
 
       config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(false);
@@ -71,6 +72,7 @@ public class HazelcastInstanceManager {
         config.setProperty("hazelcast.jmx", "true")
                 .setProperty("hazelcast.version.check.enabled", "false")
                 .setProperty("hazelcast.memcache.enabled","false")
+                .setProperty("hazelcast.redo.giveup.threshold","10")
                 .setProperty("hazelcast.logging.type","slf4j");
 
         return config;
