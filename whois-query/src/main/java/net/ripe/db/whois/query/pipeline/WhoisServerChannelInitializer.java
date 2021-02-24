@@ -24,7 +24,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
 
     private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
     private static final ByteBuf INTERRUPT_DELIMITER = Unpooled.wrappedBuffer(new byte[]{(byte)0xff, (byte)0xf4, (byte)0xff, (byte)0xfd, (byte)0x6});
-    private static final int TIMEOUT_SECONDS = 5;
+    private static final int TIMEOUT_SECONDS = 180;
 
     private static final int POOL_SIZE = 64;
 
