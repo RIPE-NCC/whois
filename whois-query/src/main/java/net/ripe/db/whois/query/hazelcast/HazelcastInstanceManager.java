@@ -25,7 +25,7 @@ public class HazelcastInstanceManager {
     final int port;
 
     @Autowired
-    public HazelcastInstanceManager(@Value("${hazelcast.config.interfaces}") final String interfaces, @Value("${hazelcast.port:5701}") final int port) {
+    public HazelcastInstanceManager(@Value("${hazelcast.config.interfaces:localhost}") final String interfaces, @Value("${hazelcast.port:5701}") final int port) {
         this.interfaces = interfaces;
         this.port = port;
     }
