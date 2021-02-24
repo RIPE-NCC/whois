@@ -3,10 +3,12 @@ package net.ripe.db.whois.query.pipeline;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
@@ -25,7 +27,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
 
     private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
     private static final ByteBuf INTERRUPT_DELIMITER = Unpooled.wrappedBuffer(new byte[]{(byte)0xff, (byte)0xf4, (byte)0xff, (byte)0xfd, (byte)0x6});
-    private static final int TIMEOUT_SECONDS = 180;
+    private static final int TIMEOUT_SECONDS = 5;
 
     private static final int POOL_SIZE = 64;
 
@@ -68,7 +70,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("connectionPerIpLimit", connectionPerIpLimitHandler);
 
         pipeline.addLast("query-channels", queryChannelsRegistry);
-        pipeline.addLast("read-timeout", new ReadTimeoutHandler(TIMEOUT_SECONDS, TimeUnit.SECONDS));
+        pipeline.addLast("read-timeout", new KeepChannelOpenOnReadTimeoutHandler(TIMEOUT_SECONDS, TimeUnit.SECONDS));
         pipeline.addLast("write-timeout", new WriteTimeoutHandler(TIMEOUT_SECONDS, TimeUnit.SECONDS));
 
         pipeline.addLast("terms-conditions", termsAndConditionsHandler);
