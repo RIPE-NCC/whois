@@ -16,6 +16,7 @@ import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -47,6 +48,11 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Autowired IpTreeUpdater ipTreeUpdater;
     @Autowired TestDateTimeProvider dateTimeProvider;
+
+    @BeforeClass
+    public static void setProperty() {
+        System.setProperty("whois.read.timeout.sec", "3");
+    }
 
     // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
     @Before
@@ -119,7 +125,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
         client.waitForResponseEndsWith(END_OF_HEADER);
 
-        // Read timeout configured in test properties is 3 sec so wait at most 5
+        // Read timeout configured in @BeforeClass as 3 sec so wait at most 5
         client.waitForResponseContains(READ_TIMEOUT_FRAGMENT, 5L);
     }
 
