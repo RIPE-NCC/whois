@@ -1,12 +1,18 @@
 package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @Configuration
 @PropertySources({
@@ -15,6 +21,26 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 })
 @Profile({WhoisProfile.RIPE_DEPLOYED, WhoisProfile.TEST})
 public class WhoisRipePropertyResolver {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRipePropertyResolver.class);
+
+    static {
+        String hostName = System.getenv("HOSTNAME");
+        if (StringUtils.isBlank(hostName)) {
+            try {
+                hostName = InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException ignored) {
+                LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
+            }
+
+            if (StringUtils.isBlank(hostName)) {
+                System.err.println("Acquiring HOSTNAME failed! Try\nexport HOSTNAME=$(hostname -s)\n");
+                System.exit(1);
+            }
+        }
+
+        System.setProperty("instance.name", StringUtils.substringBefore(hostName, ".").toUpperCase());
+    }
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties(){
