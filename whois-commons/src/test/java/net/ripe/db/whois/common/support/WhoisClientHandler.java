@@ -106,7 +106,7 @@ public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void waitForResponseContains(final String assertText, final long waitingTime) throws Exception {
-        waitForResponse(containsString(assertText));
+        waitForResponse(containsString(assertText), waitingTime);
     }
 
     public void waitForResponseEndsWith(final String assertText) throws Exception {

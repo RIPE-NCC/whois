@@ -120,7 +120,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         client.waitForResponseEndsWith(END_OF_HEADER);
 
         // Read timeout configured in test properties is 3 sec so wait at most 5
-        client.waitForResponseContains(READ_TIMEOUT_FRAGMENT, 5L);
+        client.waitForResponseContains(READ_TIMEOUT_FRAGMENT, 3L);
     }
 
     @Test
