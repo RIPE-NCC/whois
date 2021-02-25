@@ -43,6 +43,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     //TODO [TP]: Too many different things being tested here. Should be refactored.
 
     private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
+    private static final String READ_TIMEOUT_FRAGMENT = "has been closed after a period of inactivity";
 
     @Autowired IpTreeUpdater ipTreeUpdater;
     @Autowired TestDateTimeProvider dateTimeProvider;
@@ -107,7 +108,22 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
+    public void readTimeoutShouldPrintErrorMessage() throws Exception {
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 
+        ChannelFuture channelFuture = client.connectAndWait();
+
+        channelFuture.sync();
+
+        client.sendLine("-k");
+
+        client.waitForResponseEndsWith(END_OF_HEADER);
+
+        // Read timeout configured in test properties is 3 sec so wait at most 5
+        client.waitForResponseContains(READ_TIMEOUT_FRAGMENT, 5L);
+    }
+
+    @Test
     public void kFlagShouldKeepTheConnectionOpenAfterSupportedQuery() throws Exception {
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 

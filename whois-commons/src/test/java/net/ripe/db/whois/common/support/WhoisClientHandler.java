@@ -105,12 +105,20 @@ public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
         waitForResponse(containsString(assertText));
     }
 
+    public void waitForResponseContains(final String assertText, final long waitingTime) throws Exception {
+        waitForResponse(containsString(assertText));
+    }
+
     public void waitForResponseEndsWith(final String assertText) throws Exception {
         waitForResponse(endsWith(assertText));
     }
 
     private void waitForResponse(Matcher<String> anwserMatcher) throws Exception {
-        Awaitility.waitAtMost(3L, TimeUnit.SECONDS).until(new Callable<String>() {
+        waitForResponse(anwserMatcher, 3L);
+    }
+
+    private void waitForResponse(Matcher<String> anwserMatcher, final long waitingTime) throws Exception {
+        Awaitility.waitAtMost(waitingTime, TimeUnit.SECONDS).until(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 return getResponse();
