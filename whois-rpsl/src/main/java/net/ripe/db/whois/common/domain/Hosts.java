@@ -6,7 +6,7 @@ public class Hosts {
     private static final String instanceName;
 
     static {
-        instanceName = System.getenv("instance.name");
+        instanceName = System.getProperty("instance.name");
         if (StringUtils.isBlank(instanceName)) {
             System.err.println("Instance name is not defined");
             System.exit(1);

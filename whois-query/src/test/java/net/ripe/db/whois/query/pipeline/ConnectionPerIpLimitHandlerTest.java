@@ -46,6 +46,7 @@ public class ConnectionPerIpLimitHandlerTest {
 
     @Before
     public void setUp() {
+        System.setProperty("instance.name", "10.0.0.0");
         this.subject = new ConnectionPerIpLimitHandler(ipResourceConfiguration, whoisLog, MAX_CONNECTIONS_PER_IP, applicationVersion);
 
         when(ctx.getChannel()).thenReturn(channel);

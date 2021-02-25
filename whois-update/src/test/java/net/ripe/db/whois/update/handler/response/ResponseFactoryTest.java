@@ -62,6 +62,7 @@ public class ResponseFactoryTest {
 
     @Before
     public void setUp() throws Exception {
+        System.setProperty("instance.name", "10.0.0.0");
         origin = new Origin() {
             @Override
             public boolean isDefaultOverride() {
