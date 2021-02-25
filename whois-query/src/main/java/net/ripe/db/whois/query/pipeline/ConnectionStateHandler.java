@@ -1,6 +1,8 @@
 package net.ripe.db.whois.query.pipeline;
 
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFutureListener;
@@ -12,8 +14,7 @@ import net.ripe.db.whois.query.query.Query;
 
 public class ConnectionStateHandler extends ChannelDuplexHandler {
 
-//    TODO [DA] revisit why ByteBuf won't do
-    static final byte[] NEWLINE = new byte[]{'\n'};
+    static final ByteBuf NEWLINE = Unpooled.wrappedBuffer(new byte[]{'\n'});
 
     private boolean keepAlive;
     private boolean closed;
