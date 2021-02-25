@@ -5,7 +5,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.timeout.WriteTimeoutHandler;
@@ -30,7 +29,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
     private static final int POOL_SIZE = 64;
 
     private final StringDecoder stringDecoder = new StringDecoder(StandardCharsets.UTF_8);
-    private final EventExecutorGroup executorGroup = new NioEventLoopGroup(POOL_SIZE);
+    private final EventExecutorGroup executorGroup = new DefaultEventExecutorGroup(POOL_SIZE);
 
     private final MaintenanceHandler maintenanceHandler;
     private final ConnectionPerIpLimitHandler connectionPerIpLimitHandler;
