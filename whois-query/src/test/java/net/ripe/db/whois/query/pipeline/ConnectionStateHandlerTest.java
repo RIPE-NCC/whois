@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.pipeline;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -67,7 +66,7 @@ public class ConnectionStateHandlerTest {
         subject.write(contextMock, new QueryCompletedEvent(channelMock), promiseMock);
         verify(contextMock, atLeastOnce()).channel();
         verify(contextMock, atLeastOnce()).write(any(QueryCompletedEvent.class));
-        verify(channelMock, atLeastOnce()).write(any(ByteBuf.class));
+        verify(channelMock, atLeastOnce()).write(any(byte[].class));
         verify(channelMock, atLeastOnce()).write(QueryMessages.termsAndConditions());
         verify(futureMock, times(0)).addListener(ChannelFutureListener.CLOSE);
     }
