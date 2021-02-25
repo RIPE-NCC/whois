@@ -81,7 +81,6 @@ public class NrtmServer implements ApplicationService {
     public void stop(final boolean force) {
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
-        NrtmServer.port = 0;    // TODO: [ES] why reset port to 0?
         if (nrtmEnabled) {
             if (force) {
                 LOGGER.info("Shutting down");
