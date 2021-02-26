@@ -72,7 +72,7 @@ public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
 
     public ChannelFuture connectAndWait() throws InterruptedException {
         ChannelFuture future = bootstrap.connect(host);
-        success = future.await(3, TimeUnit.SECONDS);
+        success = future.await(5, TimeUnit.SECONDS);
         return future;
     }
 
