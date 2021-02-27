@@ -128,6 +128,16 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
         assertThat(response, containsString(trim(QueryMessages.inputTooLong())));
     }
 
+    @Test
+    public void exceptionShouldGiveErrorMessage() {
+        doThrow(new NullPointerException()).when(queryHandler)
+                .streamResults(any(Query.class), any(InetAddress.class), anyString(), any(ResponseHandler.class));
+
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
+
+        assertThat(response, containsString("%ERROR:100: internal software error"));
+    }
+
     private String trim(Message message) {
         return message.toString().trim();
     }
