@@ -72,7 +72,7 @@ public class ConnectionPerIpLimitHandlerTest {
     }
 
     @Test
-    public void multiple_connected_same_ip() throws Exception {
+    public void multiple_connected_same_ip() {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
         when(channel.remoteAddress()).thenReturn(remoteAddress);
         when(channel.id()).thenReturn(channelId);
