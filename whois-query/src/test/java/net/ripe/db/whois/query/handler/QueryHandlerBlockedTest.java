@@ -38,7 +38,7 @@ public class QueryHandlerBlockedTest {
     @Mock QueryExecutor queryExecutor;
     QueryHandler subject;
 
-    String contextId = "1";
+    int contextId = 1;
     InetAddress remoteAddress = InetAddresses.forString("193.0.0.10");
     @Mock ResponseHandler responseHandler;
 

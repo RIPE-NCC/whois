@@ -39,7 +39,7 @@ public class RdapQueryHandler {
         final List<RpslObject> result = Lists.newArrayList();
 
         try {
-            queryHandler.streamResults(query, remoteAddress, "0", new ApiResponseHandler() {
+            queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {
@@ -80,7 +80,7 @@ public class RdapQueryHandler {
         final List<RpslObject> resultAsBlock = Lists.newArrayList();
 
         try {
-            queryHandler.streamResults(query, remoteAddress, "0", new ApiResponseHandler() {
+            queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {

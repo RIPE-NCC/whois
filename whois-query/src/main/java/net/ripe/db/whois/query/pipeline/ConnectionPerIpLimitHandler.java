@@ -54,7 +54,7 @@ public class ConnectionPerIpLimitHandler extends ChannelInboundHandlerAdapter {
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
         if (limitConnections(remoteAddress) && connectionsExceeded(remoteAddress)) {
-            whoisLog.logQueryResult("QRY", 0, 0, QueryCompletionInfo.REJECTED, 0, remoteAddress, channel.id().asLongText(), "");
+            whoisLog.logQueryResult("QRY", 0, 0, QueryCompletionInfo.REJECTED, 0, remoteAddress, channel.id().hashCode(), "");
             channel.write(QueryMessages.termsAndConditions());
             channel.write(QueryMessages.connectionsExceeded(maxConnectionsPerIp));
             channel.write(QueryMessages.servedByNotice(applicationVersion.getVersion())).addListener(ChannelFutureListener.CLOSE);

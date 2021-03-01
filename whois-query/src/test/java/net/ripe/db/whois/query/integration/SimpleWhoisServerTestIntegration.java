@@ -34,8 +34,8 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -78,7 +78,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
                 responseHandler.handle(RpslObject.parse(queryResult));
                 return null;
             }
-        }).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyString(), any(ResponseHandler.class));
+        }).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
 
         String response = new TelnetWhoisClient(QueryServer.port).sendQuery(queryString);
 
@@ -87,7 +87,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
 
     @Test
     public void whoisQueryGivesException() throws IOException {
-        doThrow(IllegalStateException.class).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyString(), any(ResponseHandler.class));
+        doThrow(IllegalStateException.class).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
 
         String response = new TelnetWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
 
@@ -97,7 +97,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
 
     @Test
     public void end_of_transmission_exception() throws IOException {
-        doThrow(IllegalStateException.class).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyString(), any(ResponseHandler.class));
+        doThrow(IllegalStateException.class).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
 
         String response = new TelnetWhoisClient(QueryServer.port).sendQuery("10.0.0.0");
 
@@ -131,7 +131,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
     @Test
     public void exceptionShouldGiveErrorMessage() {
         doThrow(new NullPointerException()).when(queryHandler)
-                .streamResults(any(Query.class), any(InetAddress.class), anyString(), any(ResponseHandler.class));
+                .streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
 
         String response = new TelnetWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
 

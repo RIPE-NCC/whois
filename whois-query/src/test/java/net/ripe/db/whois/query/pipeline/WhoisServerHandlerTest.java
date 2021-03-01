@@ -55,12 +55,12 @@ public class WhoisServerHandlerTest {
         when(ctx.pipeline()).thenReturn(pipeline);
         when(channel.remoteAddress()).thenReturn(new InetSocketAddress(inetAddress, 80));
         when(channel.pipeline()).thenReturn(pipeline);
-        when(channel.id().asLongText()).thenReturn("0");
+        when(channel.id().hashCode()).thenReturn(0);
 
         doNothing().when(queryHandler).streamResults(
             any(Query.class),
             eq(inetAddress),
-            eq("0"),
+            eq(0),
             argThat(o -> {
                 o.handle(responseObject);
                 return true;

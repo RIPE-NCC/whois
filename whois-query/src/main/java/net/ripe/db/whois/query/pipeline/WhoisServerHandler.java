@@ -27,8 +27,7 @@ public class WhoisServerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         final Query query = (Query) msg;
         final Channel channel = ctx.channel();
-
-        queryHandler.streamResults(query, ChannelUtil.getRemoteAddress(channel), channel.id().asLongText(), new ResponseHandler() {
+        queryHandler.streamResults(query, ChannelUtil.getRemoteAddress(channel), channel.id().hashCode(), new ResponseHandler() {
             @Override
             public String getApi() {
                 return "QRY";

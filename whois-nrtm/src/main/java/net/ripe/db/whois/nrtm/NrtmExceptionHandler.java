@@ -35,7 +35,7 @@ public class NrtmExceptionHandler extends ChannelInboundHandlerAdapter {
         } else {
 //            TODO [DA] difference between asLongText and asShortText
             LOGGER.error("Caught exception on channel id = {}, from = {}",
-                    channel.id().asLongText(),
+                    channel.id().hashCode(),
                     ChannelUtil.getRemoteAddress(channel),
                     exception
             );

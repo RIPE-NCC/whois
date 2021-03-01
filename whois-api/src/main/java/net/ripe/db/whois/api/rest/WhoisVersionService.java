@@ -79,7 +79,7 @@ public class WhoisVersionService {
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
-        final String contextId = String.valueOf(System.identityHashCode(Thread.currentThread()));
+        final int contextId = System.identityHashCode(Thread.currentThread());
         queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), contextId, versionsResponseHandler);
 
         final List<DeletedVersionResponseObject> deleted = versionsResponseHandler.getDeletedObjects();
@@ -121,7 +121,7 @@ public class WhoisVersionService {
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
-        final String contextId = String.valueOf(System.identityHashCode(Thread.currentThread()));
+        final int contextId = System.identityHashCode(Thread.currentThread());
         queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), contextId, versionsResponseHandler);
 
         final VersionWithRpslResponseObject versionWithRpslResponseObject = versionsResponseHandler.getVersionWithRpslResponseObject();

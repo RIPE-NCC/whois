@@ -73,7 +73,7 @@ public class ConnectionPerIpLimitHandlerTest {
     public void multiple_connected_same_ip() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
         when(channel.remoteAddress()).thenReturn(remoteAddress);
-        when(channel.id().asLongText()).thenReturn("anyString()");
+        when(channel.id().hashCode()).thenReturn(any(Integer.class));
 
         subject.channelActive(ctx);
         subject.channelActive(ctx);
@@ -82,7 +82,7 @@ public class ConnectionPerIpLimitHandlerTest {
         verify(ctx, times(2)).fireChannelActive();
         verify(channel, times(1)).write(argThat(argument -> QueryMessages.connectionsExceeded(MAX_CONNECTIONS_PER_IP).equals(argument)));
         verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
-        verify(whoisLog).logQueryResult(anyString(), eq(0), eq(0), eq(QueryCompletionInfo.REJECTED), eq(0L), any(), Mockito.anyString(), eq(""));
+        verify(whoisLog).logQueryResult(anyString(), eq(0), eq(0), eq(QueryCompletionInfo.REJECTED), eq(0L), any(), Mockito.anyInt(), eq(""));
         verify(ctx, times(2)).fireChannelActive();
     }
 

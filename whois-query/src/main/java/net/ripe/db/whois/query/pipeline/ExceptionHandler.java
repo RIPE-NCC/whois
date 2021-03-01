@@ -51,7 +51,7 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
             handleException(channel, Collections.<Message>emptyList(), QueryCompletionInfo.EXCEPTION);
         } else if (cause instanceof DataAccessException) {
             LOGGER.error("Caught exception on channel id = {}, from = {} for query = {}\n{}",
-                    channel.id().asLongText(),
+                    channel.id().hashCode(),
                     ChannelUtil.getRemoteAddress(channel),
                     query,
                     cause.toString());
@@ -59,7 +59,7 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
             handleException(channel, Collections.singletonList(QueryMessages.internalErroroccurred()), QueryCompletionInfo.EXCEPTION);
         } else {
             LOGGER.error("Caught exception on channel id = {}, from = {} for query = {}",
-                    channel.id().asLongText(),
+                    channel.id().hashCode(),
                     ChannelUtil.getRemoteAddress(channel),
                     query,
                     cause);
