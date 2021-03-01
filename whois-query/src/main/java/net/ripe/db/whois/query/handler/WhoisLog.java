@@ -19,7 +19,7 @@ public class WhoisLog {
 
         return MessageFormatter.arrayFormat("{} PW-{}-INFO <{}+{}+0> {} {}ms [{}] --  {}",
                 new Object[]{
-                        String.format("%10d", channelId),   // TODO: [ES] why is channel id changed from an int to a string? This changes the query log format
+                        String.format("%10d", channelId),
                         api,
                         personalObjects,
                         nonPersonalObjects,
