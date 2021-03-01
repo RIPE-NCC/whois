@@ -4,6 +4,7 @@ import com.sun.jdi.event.ExceptionEvent;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.timeout.ReadTimeoutException;
@@ -32,6 +33,7 @@ public class ExceptionHandlerTest {
     @Mock private ChannelPipeline channelPipelineMock;
     @Mock private ChannelHandlerContext channelHandlerContextMock;
     @Mock private ChannelFuture channelFutureMock;
+    @Mock private ChannelId channelId;
     @InjectMocks private ExceptionHandler subject;
 
     private static final String QUERY = "query";
@@ -39,7 +41,7 @@ public class ExceptionHandlerTest {
     @Before
     public void setup() {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
-        when(channelMock.id().hashCode()).thenReturn(0);
+        when(channelMock.id()).thenReturn(channelId);
         when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(0));
         when(channelMock.isOpen()).thenReturn(true);
         when(channelMock.write(any())).thenReturn(channelFutureMock);

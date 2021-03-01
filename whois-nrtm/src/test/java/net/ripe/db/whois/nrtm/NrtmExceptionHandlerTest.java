@@ -11,6 +11,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,7 @@ public class NrtmExceptionHandlerTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS) private Channel channelMock;
     @Mock private ChannelHandlerContext channelHandlerContextMock;
     @Mock private ChannelFuture channelFutureMock;
+    @Mock private ChannelId channelId;
     @InjectMocks private NrtmExceptionHandler subject;
 
     private static final String QUERY = "query";
@@ -33,7 +35,7 @@ public class NrtmExceptionHandlerTest {
     public void setup() {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
         when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(0));
-        when(channelMock.id().hashCode()).thenReturn(0);
+        when(channelMock.id()).thenReturn(channelId);
         when(channelMock.isOpen()).thenReturn(true);
         when(channelMock.write(any())).thenReturn(channelFutureMock);
         when(channelMock.writeAndFlush(any())).thenReturn(channelFutureMock);
