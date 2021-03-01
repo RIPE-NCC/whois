@@ -39,7 +39,9 @@ public class WhoisRipePropertyResolver {
             }
         }
 
-        System.setProperty("instance.name", StringUtils.substringBefore(hostName, ".").toUpperCase());
+        final String instanceName = StringUtils.substringBefore(hostName, ".").toUpperCase();
+        System.setProperty("instance.name", instanceName);
+        LOGGER.info("Instance name is {}", instanceName);
     }
 
     @Bean
