@@ -33,7 +33,7 @@ public class NrtmExceptionHandlerTest {
     public void setup() {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
         when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(0));
-        when(channelMock.id().asLongText()).thenReturn("anyString()");
+        when(channelMock.id().hashCode()).thenReturn(0);
         when(channelMock.isOpen()).thenReturn(true);
         when(channelMock.write(any())).thenReturn(channelFutureMock);
         when(channelMock.writeAndFlush(any())).thenReturn(channelFutureMock);

@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.pipeline;
 import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelPipeline;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -31,6 +32,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,13 +40,15 @@ import static org.mockito.Mockito.when;
 public class WhoisServerHandlerTest {
     @Mock
     ChannelHandlerContext ctx;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     Channel channel;
     @Mock
     ChannelPipeline pipeline;
-
+    @Mock
+    ChannelId channelId;
     @Mock QueryHandler queryHandler;
     @InjectMocks WhoisServerHandler subject;
+
 
     InetAddress inetAddress = InetAddresses.forString("10.0.0.1");
     ResponseObject responseObject = RpslObject.parse("inetnum: 10.0.0.0");
@@ -54,13 +58,12 @@ public class WhoisServerHandlerTest {
         when(ctx.channel()).thenReturn(channel);
         when(ctx.pipeline()).thenReturn(pipeline);
         when(channel.remoteAddress()).thenReturn(new InetSocketAddress(inetAddress, 80));
-        when(channel.pipeline()).thenReturn(pipeline);
-        when(channel.id().hashCode()).thenReturn(0);
+        when(channel.id()).thenReturn(channelId);
 
         doNothing().when(queryHandler).streamResults(
             any(Query.class),
             eq(inetAddress),
-            eq(0),
+            any(Integer.class),
             argThat(o -> {
                 o.handle(responseObject);
                 return true;

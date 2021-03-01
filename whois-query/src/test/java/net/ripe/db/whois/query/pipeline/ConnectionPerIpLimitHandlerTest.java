@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
@@ -35,6 +36,7 @@ public class ConnectionPerIpLimitHandlerTest {
 
     @Mock private ChannelHandlerContext ctx;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS) private Channel channel;
+    @Mock private ChannelId channelId;
     @Mock private ChannelFuture channelFuture;
     @Mock private IpResourceConfiguration ipResourceConfiguration;
     @Mock private WhoisLog whoisLog;
@@ -73,7 +75,7 @@ public class ConnectionPerIpLimitHandlerTest {
     public void multiple_connected_same_ip() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
         when(channel.remoteAddress()).thenReturn(remoteAddress);
-        when(channel.id().hashCode()).thenReturn(any(Integer.class));
+        when(channel.id()).thenReturn(channelId);
 
         subject.channelActive(ctx);
         subject.channelActive(ctx);
