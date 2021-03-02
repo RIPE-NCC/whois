@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.timeout.TimeoutException;
-import io.netty.handler.timeout.WriteTimeoutException;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.QueryMessages;
@@ -50,8 +49,6 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
             handleException(channel, Collections.singletonList(QueryMessages.inputTooLong()), QueryCompletionInfo.EXCEPTION);
         }  else if (cause instanceof IOException) {
             handleException(channel, Collections.<Message>emptyList(), QueryCompletionInfo.EXCEPTION);
-        } else if (cause instanceof WriteTimeoutException) {
-            LOGGER.info("FIXME:{}{}", cause.getMessage(), cause.getCause(), cause);
         } else if (cause instanceof DataAccessException) {
             LOGGER.error("Caught exception on channel id = {}, from = {} for query = {}\n{}",
                     channel.id().hashCode(),
