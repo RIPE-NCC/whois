@@ -18,7 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -57,7 +58,9 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
                                          final WhoisEncoder whoisEncoder,
                                          final ConnectionPerIpLimitHandler connectionPerIpLimitHandler,
                                          final QueryHandler queryHandler,
-                                         final ApplicationVersion applicationVersion) {
+                                         final ApplicationVersion applicationVersion,
+                                         final ProxyProtocolChannelHandler proxyProtocolChannelHandler,
+                                         final Environment env) {
         this.maintenanceHandler = maintenanceHandler;
         this.queryChannelsRegistry = queryChannelsRegistry;
         this.termsAndConditionsHandler = termsAndConditionsHandler;
@@ -66,6 +69,10 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         this.connectionPerIpLimitHandler = connectionPerIpLimitHandler;
         this.queryHandler = queryHandler;
         this.applicationVersion = applicationVersion;
+
+        if (env.acceptsProfiles(Profiles.of(WhoisProfile.AWS_DEPLOYED))) {
+            this.proxyProtocolChannelHandler = proxyProtocolChannelHandler;
+        }
     }
 
     @Override
@@ -73,6 +80,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         ChannelPipeline pipeline = channel.pipeline();
 
         if (proxyProtocolChannelHandler != null) {
+            LOGGER.info("Adding proxy protocol handler");
             pipeline.addLast(ProxyProtocolChannelHandler.NAME, new ProxyProtocolChannelHandler());
         }
 
@@ -96,12 +104,6 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast(executorGroup, "served-by", new ServedByHandler(applicationVersion.getVersion()));
         pipeline.addLast(executorGroup, "whois", new WhoisServerHandler(queryHandler));
         pipeline.addLast("exception", new ExceptionHandler());
-    }
-
-    @Profile(WhoisProfile.AWS_DEPLOYED)
-    public void setProxyProtocolChannelHandler(final ProxyProtocolChannelHandler proxyProtocolChannelHandler) {
-        LOGGER.info("Enabling proxy protocol handler");
-        this.proxyProtocolChannelHandler = proxyProtocolChannelHandler;
     }
 
 }
