@@ -71,6 +71,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         this.applicationVersion = applicationVersion;
 
         if (env.acceptsProfiles(Profiles.of(WhoisProfile.AWS_DEPLOYED))) {
+            LOGGER.info("Proxy protocol handler enabled");
             this.proxyProtocolChannelHandler = proxyProtocolChannelHandler;
         }
     }
@@ -80,7 +81,6 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         ChannelPipeline pipeline = channel.pipeline();
 
         if (proxyProtocolChannelHandler != null) {
-            LOGGER.info("Adding proxy protocol handler");
             pipeline.addLast(ProxyProtocolChannelHandler.NAME, new ProxyProtocolChannelHandler());
         }
 
