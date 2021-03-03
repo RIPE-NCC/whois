@@ -42,7 +42,8 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
         }  else if (cause.getCause() instanceof QueryException) {
             handleException(channel, ((QueryException) cause.getCause()).getMessages(), ((QueryException) cause.getCause()).getCompletionInfo());
         } else if (cause instanceof TimeoutException) {
-            LOGGER.info("FIXME {} - {}", cause.getMessage(), cause.getCause(), cause);
+            LOGGER.info("FIXME {} - {} - {}", cause.getMessage(), cause.getCause(), cause.getStackTrace());
+            LOGGER.info("Channel is open on exception {}:", channel.isOpen());
             handleException(channel, Collections.singletonList(QueryMessages.timeout()), QueryCompletionInfo.EXCEPTION);
         } else if (cause instanceof TooLongFrameException) {
             handleException(channel, Collections.singletonList(QueryMessages.inputTooLong()), QueryCompletionInfo.EXCEPTION);
