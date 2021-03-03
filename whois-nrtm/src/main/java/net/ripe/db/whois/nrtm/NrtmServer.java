@@ -79,9 +79,9 @@ public class NrtmServer implements ApplicationService {
 
     @Override
     public void stop(final boolean force) {
-        workerGroup.shutdownGracefully();
-        bossGroup.shutdownGracefully();
         if (nrtmEnabled) {
+            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
             if (force) {
                 LOGGER.info("Shutting down");
                 // TODO: [ES] do we need to shutdown bossGroup and workerGroup?
