@@ -12,17 +12,15 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
-import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -48,7 +46,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
     private final QueryDecoder queryDecoder;
     private final QueryHandler queryHandler;
     private final ApplicationVersion applicationVersion;
-    private ProxyProtocolChannelHandler proxyProtocolChannelHandler;
+    private final Optional<ProxyProtocolChannelHandler> proxyProtocolChannelHandler;
 
     @Autowired
     public WhoisServerChannelInitializer(final MaintenanceHandler maintenanceHandler,
@@ -59,8 +57,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
                                          final ConnectionPerIpLimitHandler connectionPerIpLimitHandler,
                                          final QueryHandler queryHandler,
                                          final ApplicationVersion applicationVersion,
-                                         final ProxyProtocolChannelHandler proxyProtocolChannelHandler,
-                                         final Environment env) {
+                                         final @Value("${proxy.protocol.enabled:false}") boolean proxyProtocolEnabled) {
         this.maintenanceHandler = maintenanceHandler;
         this.queryChannelsRegistry = queryChannelsRegistry;
         this.termsAndConditionsHandler = termsAndConditionsHandler;
@@ -70,19 +67,19 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         this.queryHandler = queryHandler;
         this.applicationVersion = applicationVersion;
 
-        if (env.acceptsProfiles(Profiles.of(WhoisProfile.AWS_DEPLOYED))) {
+        if (proxyProtocolEnabled) {
             LOGGER.info("Proxy protocol handler enabled");
-            this.proxyProtocolChannelHandler = proxyProtocolChannelHandler;
+            this.proxyProtocolChannelHandler = Optional.of(new ProxyProtocolChannelHandler());
+        } else {
+            this.proxyProtocolChannelHandler = Optional.empty();
         }
     }
 
     @Override
     public void initChannel(Channel channel) {
-        ChannelPipeline pipeline = channel.pipeline();
+        final ChannelPipeline pipeline = channel.pipeline();
 
-        if (proxyProtocolChannelHandler != null) {
-            pipeline.addLast(ProxyProtocolChannelHandler.NAME, new ProxyProtocolChannelHandler());
-        }
+        proxyProtocolChannelHandler.ifPresent(handler -> pipeline.addLast(ProxyProtocolChannelHandler.NAME, handler));
 
         pipeline.addLast("maintenanceHandler", maintenanceHandler);
         pipeline.addLast("connectionPerIpLimit", connectionPerIpLimitHandler);
