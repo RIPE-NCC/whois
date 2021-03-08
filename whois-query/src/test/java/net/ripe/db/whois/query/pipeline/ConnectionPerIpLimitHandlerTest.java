@@ -12,6 +12,7 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelState;
 import org.jboss.netty.channel.UpstreamChannelStateEvent;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +57,12 @@ public class ConnectionPerIpLimitHandlerTest {
         when(channel.write(any())).thenReturn(channelFuture);
         when(applicationVersion.getVersion()).thenReturn("1.0");
     }
+
+    @After
+    public void after() {
+        System.clearProperty("instance.name");
+    }
+
 
     @Test
     public void one_connected() throws Exception {

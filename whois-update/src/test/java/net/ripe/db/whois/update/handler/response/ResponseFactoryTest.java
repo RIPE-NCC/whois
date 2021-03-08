@@ -20,6 +20,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateResult;
 import net.ripe.db.whois.update.domain.UpdateStatus;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -114,6 +115,11 @@ public class ResponseFactoryTest {
         when(applicationVersion.getVersion()).thenReturn("1.2.3");
 
         ReflectionTestUtils.setField(subject, "source", "TEST");
+    }
+
+    @After
+    public void after() {
+        System.clearProperty("instance.name");
     }
 
     @Test

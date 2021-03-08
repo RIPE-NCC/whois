@@ -34,8 +34,8 @@ public class WhoisRipePropertyResolver {
             }
 
             if (StringUtils.isBlank(hostName)) {
-                System.err.println("Acquiring HOSTNAME failed! Try\nexport HOSTNAME=$(hostname -s)\n");
-                System.exit(1);
+                LOGGER.error("Acquiring HOSTNAME failed! Try\nexport HOSTNAME=$(hostname -s)\n");
+                throw new IllegalStateException("Acquiring HOSTNAME failed!");
             }
         }
 
