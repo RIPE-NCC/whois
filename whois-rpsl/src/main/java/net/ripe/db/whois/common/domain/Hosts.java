@@ -8,8 +8,7 @@ public class Hosts {
     static {
         instanceName = System.getProperty("instance.name");
         if (StringUtils.isBlank(instanceName)) {
-            System.err.println("Instance name is not defined");
-            System.exit(1);
+            throw new IllegalStateException("Instance name is not defined");
         }
     }
 
