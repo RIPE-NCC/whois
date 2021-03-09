@@ -26,6 +26,7 @@ public class HAProxyMessageChannelHandler extends ChannelInboundHandlerAdapter {
             }
 
             ctx.pipeline().remove(this);
+            ctx.fireChannelActive(); // trigger channel active again now client ip has been set
         }
     }
 }
