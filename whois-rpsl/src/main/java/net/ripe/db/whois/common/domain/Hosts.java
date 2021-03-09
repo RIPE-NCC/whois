@@ -6,9 +6,10 @@ public class Hosts {
 
     public static String getInstanceName() {
         final String instanceName = System.getProperty("instance.name");
-        if (StringUtils.isBlank(instanceName)) {
-            throw new IllegalStateException("Instance name is not defined");
+        final String  hostName = System.getenv("HOSTNAME");
+        if (StringUtils.isBlank(instanceName) && StringUtils.isBlank(hostName)) {
+            throw new IllegalStateException("Instance name and host name is not defined");
         }
-        return instanceName;
+        return StringUtils.isBlank(instanceName) ? hostName : instanceName;
     }
 }
