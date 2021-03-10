@@ -32,7 +32,7 @@ public final class QueryMessages {
     public static Message servedByNotice(final CharSequence version) {
         return new Message(Type.INFO,
                 "%% This query was served by the RIPE Database Query Service version %s (%s)\n",
-                version, Hosts.getLocalHostName());
+                version, Hosts.getInstanceName());
     }
 
     // solely used by text_export
