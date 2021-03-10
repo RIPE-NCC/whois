@@ -29,7 +29,10 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisServerChannelInitializer.class);
 
     private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
+
+    // TODO: [ES] interrupt doesn't work in keepalive mode
     private static final ByteBuf INTERRUPT_DELIMITER = Unpooled.wrappedBuffer(new byte[]{(byte)0xff, (byte)0xf4, (byte)0xff, (byte)0xfd, (byte)0x6});
+
     @Value("${whois.read.timeout.sec:180}")
     private int TIMEOUT_SECONDS;
 

@@ -57,7 +57,6 @@ public class NrtmServer implements ApplicationService {
         LOGGER.info("NRTM server listening on port {}", port);
     }
 
-    // TODO: [ES] channel was not returned?
     private Channel bootstrapChannel(final NrtmServerChannelInitializer serverChannelInitializer, final int nrtmPort) {
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
@@ -79,12 +78,11 @@ public class NrtmServer implements ApplicationService {
 
     @Override
     public void stop(final boolean force) {
-        workerGroup.shutdownGracefully();
-        bossGroup.shutdownGracefully();
         if (nrtmEnabled) {
+            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
             if (force) {
                 LOGGER.info("Shutting down");
-                // TODO: [ES] do we need to shutdown bossGroup and workerGroup?
                 if (serverChannel != null) {
                     serverChannel.close();
                     serverChannel = null;
