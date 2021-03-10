@@ -83,7 +83,6 @@ public class NrtmServer implements ApplicationService {
             bossGroup.shutdownGracefully();
             if (force) {
                 LOGGER.info("Shutting down");
-                // TODO: [ES] do we need to shutdown bossGroup and workerGroup?
                 if (serverChannel != null) {
                     serverChannel.close();
                     serverChannel = null;
