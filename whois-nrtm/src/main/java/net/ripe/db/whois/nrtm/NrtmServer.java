@@ -57,7 +57,6 @@ public class NrtmServer implements ApplicationService {
         LOGGER.info("NRTM server listening on port {}", port);
     }
 
-    // TODO: [ES] channel was not returned?
     private Channel bootstrapChannel(final NrtmServerChannelInitializer serverChannelInitializer, final int nrtmPort) {
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
