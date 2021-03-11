@@ -10,11 +10,14 @@ import org.springframework.stereotype.Component;
 @Component
 @ChannelHandler.Sharable
 public class TermsAndConditionsHandler extends ChannelInboundHandlerAdapter {
+
     private static final Message TERMS_AND_CONDITIONS = QueryMessages.termsAndConditions();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         ctx.channel().write(TERMS_AND_CONDITIONS);
+        ctx.pipeline().remove(this);
         ctx.fireChannelActive();
     }
+
 }
