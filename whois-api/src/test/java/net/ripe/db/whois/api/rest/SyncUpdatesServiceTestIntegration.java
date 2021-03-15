@@ -216,7 +216,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("***Info:    Dry-run performed, no changes to the database have been made"));
     }
 
-    @Ignore("TODO: [ES] implement character substitution")
     @Test
     public void non_break_spaces_are_substituted_with_regular_space() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
@@ -728,7 +727,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
-        assertThat(response, containsString("address:        Тверская улица,москва"));
+        assertThat(response, containsString("address:        ???????? ?????,??????"));
     }
 
     @Test
@@ -752,7 +751,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 containsString("address:        Тверская улица,москва"));
     }
 
-    @Ignore("TODO: [ES] implement character substitution")
     @Test
     public void post_url_encoded_data_with_control_characters_address() {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
@@ -772,6 +770,52 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
                 containsString("address:        Test???? Address"));
+    }
+
+    @Test
+    public void post_url_encoded_data_with_latin1_email_address_converted_to_punycode() {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
+                    "person:    Test Person\n" +
+                    "address:   Zürich\n" +
+                    "e-mail:    no-reply@zürich.example\n" +
+                    "phone:     +31-6-123456\n" +
+                    "nic-hdl:   TP2-TEST\n" +
+                    "mnt-by:    mntner-mnt\n" +
+                    "source:    TEST\n" +
+                    "password:  emptypassword"),
+                  MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
+
+        assertThat(response, containsString("***Warning: Value changed due to conversion of IDN email address(es) into\n            Punycode\n"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("e-mail:         no-reply@xn--zrich-kva.example"));
+    }
+
+    @Test
+    public void post_url_encoded_data_with_cyrillic_email_address_converted_to_punycode() {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
+                    "person:    Test Person\n" +
+                    "address:   Moscow\n" +
+                    "e-mail:    no-reply@москва.ru\n" +
+                    "phone:     +31-6-123456\n" +
+                    "nic-hdl:   TP2-TEST\n" +
+                    "mnt-by:    mntner-mnt\n" +
+                    "source:    TEST\n" +
+                    "password:  emptypassword"),
+                  MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
+
+        assertThat(response, containsString("***Warning: Value changed due to conversion of IDN email address(es) into\n            Punycode\n"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("e-mail:         no-reply@xn--80adxhks.ru"));
     }
 
     @Test
@@ -819,10 +863,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
-
-        // TODO: [ES] control characters are *not* stripped out
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
-                containsString("address:        Test\u000B\f\u007F\u008F Address"));
+                containsString("address:        Тверская улица,москва"));
     }
 
     @Test
@@ -868,6 +910,29 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(multipart, new MediaType("multipart", "form-data", StandardCharsets.ISO_8859_1.displayName())), String.class);
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ÅçÅç"));
+    }
+
+    @Test
+    public void post_multipart_data_with_latin1_email_address_converted_to_punycode() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                        "address:        Zürich\n" +
+                        "e-mail:         no-reply@zürich.example\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner-mnt\n" +
+                        "source:         TEST\n" +
+                        "password: emptypassword")
+                .field("NEW", "yes");
+        RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", StandardCharsets.ISO_8859_1.displayName())), String.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("e-mail:         no-reply@xn--zrich-kva.example"));
     }
 
     @Test
