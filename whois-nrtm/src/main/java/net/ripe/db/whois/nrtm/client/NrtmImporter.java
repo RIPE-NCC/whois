@@ -32,6 +32,8 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmImporter.class);
 
+    private static final Splitter COMMA_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
+
     private final boolean enabled;
     private final Set<CIString> sources;
     private final NrtmClientFactory nrtmClientFactory;
@@ -49,7 +51,7 @@ public class NrtmImporter implements EmbeddedValueResolverAware, ApplicationServ
         this.nrtmClientFactory = nrtmClientFactory;
         this.sourceContext = sourceContext;
         this.enabled = enabled;
-        this.sources = ciSet(Splitter.on(",").trimResults().omitEmptyStrings().split(sources));
+        this.sources = ciSet(COMMA_SPLITTER.split(sources));
     }
 
     @Override

@@ -32,7 +32,7 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
 
     @Autowired
     public RipeAuthoritativeResourceImportTask(final ResourceDataDao resourceDataDao,
-                                               @Value("${grs.import.enabled}") final boolean enabled,
+                                               @Value("${grs.import.enabled:false}") final boolean enabled,
                                                @Value("${rsng.base.url:}") final String rsngBaseUrl) {
         super(enabled && !StringUtils.isBlank(rsngBaseUrl), resourceDataDao);
         this.rsngBaseUrl = rsngBaseUrl;

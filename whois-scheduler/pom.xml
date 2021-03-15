@@ -35,7 +35,6 @@
             <artifactId>solr-solrj</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>

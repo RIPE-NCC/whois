@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.client.ClientProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -99,10 +98,7 @@ class LacnicGrsSource extends GrsSource {
 
     @Override
     public void handleObjects(final File file, final ObjectHandler handler) throws IOException {
-        FileInputStream is = null;
-        try {
-            is = new FileInputStream(file);
-
+        try (FileInputStream is = new FileInputStream(file)) {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             handleLines(reader, lines -> {
                 final String rpslObjectString = Joiner.on("").join(lines);
@@ -123,8 +119,6 @@ class LacnicGrsSource extends GrsSource {
 
                 handler.handle(FILTER_CHANGED_FUNCTION.apply(new RpslObject(newAttributes)));
             });
-        } finally {
-            IOUtils.closeQuietly(is);
         }
     }
 

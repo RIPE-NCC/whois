@@ -1095,8 +1095,8 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The \"sponsoring-org:\" attribute is not allowed with status value \"SUB-ALLOCATED PA\"",
-                "inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
+                ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED",
+                 "The \"sponsoring-org:\" attribute is not allowed with status value \"SUB-ALLOCATED PA\""]
         ack.infoMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Authorisation override used"]
 
@@ -1136,8 +1136,8 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The \"sponsoring-org:\" attribute is not allowed with status value \"ASSIGNED PA\"",
-                "inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
+                ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED",
+                 "The \"sponsoring-org:\" attribute is not allowed with status value \"ASSIGNED PA\""]
         ack.infoMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Authorisation override used"]
 
@@ -2930,8 +2930,8 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The \"sponsoring-org:\" attribute is not allowed with status value \"ASSIGNED PA\"",
-                 "inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
+                ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED",
+                 "The \"sponsoring-org:\" attribute is not allowed with status value \"ASSIGNED PA\""]
 
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }

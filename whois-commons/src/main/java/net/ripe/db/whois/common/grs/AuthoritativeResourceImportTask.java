@@ -40,13 +40,13 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
                                            final ResourceDataDao resourceDataDao,
                                            final Downloader downloader,
                                            @Value("${dir.grs.import.download:}") final String downloadDir,
-                                           @Value("${grs.import.enabled}") final boolean enabled,
+                                           @Value("${grs.import.enabled:false}") final boolean enabled,
                                            @Value("${rsng.base.url:}") final String rsngBaseUrl) {
         super(enabled, resourceDataDao);
 
         final boolean rsngImportDisabled = StringUtils.isBlank(rsngBaseUrl);
 
-        this.sourceNames = PROPERTY_LIST_SPLITTER.splitToList(grsSourceNames).stream()
+        this.sourceNames = PROPERTY_LIST_SPLITTER.splitToStream(grsSourceNames)
                 .map(input -> input.toLowerCase().replace("-grs", ""))
                 .filter(source -> !SOURCE_NAME_RIPE.equalsIgnoreCase(source) || rsngImportDisabled)
                 .collect(Collectors.toSet());

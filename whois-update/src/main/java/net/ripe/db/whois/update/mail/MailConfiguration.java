@@ -10,7 +10,7 @@ import java.util.Properties;
 @Component
 public class MailConfiguration {
 
-    @Value("${mail.smtp.host}")
+    @Value("${mail.smtp.host:localhost}")
     private String smtpHost;
 
     @Value("${whois.update.mail.smtpPort:25}")

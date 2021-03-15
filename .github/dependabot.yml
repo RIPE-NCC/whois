@@ -38,3 +38,5 @@ updates:
         versions: ["3.x"]
       - dependency-name: "org.glassfish.jersey.inject:jersey-hk2"
         versions: ["3.x"]
+      # More recent versions of awaitility depend on Groovy 3
+      - dependency-name: "org.awaitility:awaitility"

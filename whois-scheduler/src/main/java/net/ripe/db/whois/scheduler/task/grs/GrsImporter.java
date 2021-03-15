@@ -44,7 +44,7 @@ public class GrsImporter implements DailyScheduledTask {
 
     private boolean grsImportEnabled;
 
-    @Value("${grs.import.enabled}")
+    @Value("${grs.import.enabled:false}")
     public void setGrsImportEnabled(final boolean grsImportEnabled) {
         LOGGER.info("GRS import enabled: {}", grsImportEnabled);
         this.grsImportEnabled = grsImportEnabled;
@@ -52,7 +52,7 @@ public class GrsImporter implements DailyScheduledTask {
 
     private String defaultSources;
 
-    @Value("${grs.import.sources}")
+    @Value("${grs.import.sources:}")
     public void setDefaultSources(final String defaultSources) {
         this.defaultSources = defaultSources;
     }

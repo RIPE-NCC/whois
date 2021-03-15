@@ -23,7 +23,8 @@ import java.util.Enumeration;
 @Component
 public class RemoteAddressFilter implements Filter {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(RemoteAddressFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAddressFilter.class);
+
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     @Override

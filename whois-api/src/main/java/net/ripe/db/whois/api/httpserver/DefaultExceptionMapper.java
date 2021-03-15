@@ -30,8 +30,6 @@ import java.util.List;
 public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExceptionMapper.class);
 
-    private static final int STATUS_TOO_MANY_REQUESTS = 429;
-
     @Override
     public Response toResponse(final Exception exception) {
 
@@ -65,7 +63,7 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
 
         if (exception instanceof QueryException) {
             if (((QueryException) exception).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                return Response.status(STATUS_TOO_MANY_REQUESTS).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
+                return Response.status(Response.Status.TOO_MANY_REQUESTS).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
             }
 
             return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
