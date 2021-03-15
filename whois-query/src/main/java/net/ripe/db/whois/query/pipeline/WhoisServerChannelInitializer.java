@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -49,7 +48,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
     private final QueryDecoder queryDecoder;
     private final QueryHandler queryHandler;
     private final ApplicationVersion applicationVersion;
-    private final Optional<ProxyProtocolChannelHandler> proxyProtocolChannelHandler;
+    private final boolean proxyProtocolEnabled;
 
     @Autowired
     public WhoisServerChannelInitializer(final MaintenanceHandler maintenanceHandler,
@@ -69,20 +68,16 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         this.connectionPerIpLimitHandler = connectionPerIpLimitHandler;
         this.queryHandler = queryHandler;
         this.applicationVersion = applicationVersion;
+        this.proxyProtocolEnabled = proxyProtocolEnabled;
 
         if (proxyProtocolEnabled) {
             LOGGER.info("Proxy protocol handler enabled");
-            this.proxyProtocolChannelHandler = Optional.of(new ProxyProtocolChannelHandler());
-        } else {
-            this.proxyProtocolChannelHandler = Optional.empty();
         }
     }
 
     @Override
     public void initChannel(Channel channel) {
         final ChannelPipeline pipeline = channel.pipeline();
-
-        proxyProtocolChannelHandler.ifPresent(handler -> pipeline.addLast(ProxyProtocolChannelHandler.NAME, handler));
 
         pipeline.addLast("maintenanceHandler", maintenanceHandler);
         pipeline.addLast("connectionPerIpLimit", connectionPerIpLimitHandler);
@@ -92,6 +87,10 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("write-timeout", new WriteTimeoutHandler(TIMEOUT_SECONDS, TimeUnit.SECONDS));
 
         pipeline.addLast("terms-conditions", termsAndConditionsHandler);
+
+        if (proxyProtocolEnabled) {
+            pipeline.addLast(ProxyProtocolChannelHandler.NAME, new ProxyProtocolChannelHandler());
+        }
 
         pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(1024, LINE_DELIMITER, INTERRUPT_DELIMITER));
 

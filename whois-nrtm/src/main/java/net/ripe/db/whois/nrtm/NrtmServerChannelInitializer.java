@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 @Component
 public class NrtmServerChannelInitializer extends ChannelInitializer<Channel> {
@@ -41,7 +40,7 @@ public class NrtmServerChannelInitializer extends ChannelInitializer<Channel> {
     private final NrtmQueryHandlerFactory nrtmQueryHandlerFactory;
     private final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler;
     private final NrtmAclLimitHandler nrtmAclLimitHandler;
-    private final Optional<ProxyProtocolChannelHandler> proxyProtocolChannelHandler;
+    private final boolean proxyProtocolEnabled;
 
     protected NrtmServerChannelInitializer(final NrtmChannelsRegistry nrtmChannelsRegistry,
                                                final NrtmExceptionHandler exceptionHandler,
@@ -56,12 +55,10 @@ public class NrtmServerChannelInitializer extends ChannelInitializer<Channel> {
         this.nrtmQueryHandlerFactory = nrtmQueryHandlerFactory;
         this.nrtmConnectionPerIpLimitHandler = nrtmConnectionPerIpLimitHandler;
         this.nrtmAclLimitHandler = nrtmAclLimitHandler;
+        this.proxyProtocolEnabled = proxyProtocolEnabled;
 
         if (proxyProtocolEnabled) {
             LOGGER.info("Proxy protocol handler enabled");
-            this.proxyProtocolChannelHandler = Optional.of(new ProxyProtocolChannelHandler());
-        } else {
-            this.proxyProtocolChannelHandler = Optional.empty();
         }
     }
 
@@ -69,13 +66,15 @@ public class NrtmServerChannelInitializer extends ChannelInitializer<Channel> {
     protected void initChannel(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
 
-        proxyProtocolChannelHandler.ifPresent(handler -> pipeline.addLast(ProxyProtocolChannelHandler.NAME, handler));
-
         pipeline.addLast("U-maintenanceHandler", maintenanceHandler);
         pipeline.addLast("U-acl", nrtmAclLimitHandler);
         pipeline.addLast("connectionPerIpLimit", nrtmConnectionPerIpLimitHandler);
 
         pipeline.addLast("U-channels", nrtmChannelsRegistry);
+
+        if (proxyProtocolEnabled) {
+            pipeline.addLast(ProxyProtocolChannelHandler.NAME, new ProxyProtocolChannelHandler());
+        }
 
         pipeline.addLast("U-delimiter", new DelimiterBasedFrameDecoder(DELIMITER_MAX_FRAME_LENGTH, STRIP_DELIMITER, LINE_DELIMITER));
         pipeline.addLast("U-string-decoder", stringDecoder);

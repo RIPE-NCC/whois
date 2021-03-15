@@ -36,7 +36,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
-public class ProxyProtocolTestIntegration extends AbstractQueryIntegrationTest {
+public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationTest {
 
     @Autowired
     TestPersonalObjectAccounting testPersonalObjectAccounting;
