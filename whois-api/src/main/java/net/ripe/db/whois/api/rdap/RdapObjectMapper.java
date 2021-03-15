@@ -10,36 +10,28 @@ import net.ripe.commons.ip.Ipv6Range;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Domain;
-
 import net.ripe.db.whois.api.rdap.domain.Entity;
-import net.ripe.db.whois.api.rdap.domain.Role;
+import net.ripe.db.whois.api.rdap.domain.Event;
+import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Link;
-import net.ripe.db.whois.api.rdap.domain.SearchResult;
-
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
-
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Remark;
-import net.ripe.db.whois.api.rdap.domain.Event;
-
+import net.ripe.db.whois.api.rdap.domain.Role;
+import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.iptree.Ipv4Tree;
-import net.ripe.db.whois.common.iptree.Ipv6Tree;
-import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
+import net.ripe.db.whois.common.iptree.Ipv4Tree;
+import net.ripe.db.whois.common.iptree.Ipv6Entry;
+import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -47,7 +39,8 @@ import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
-import java.time.LocalDateTime;
+import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.planner.AbuseContact;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,30 +49,33 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.InternalServerErrorException;
-import java.util.Map;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Set;
-
+import java.time.LocalDateTime;
 import java.util.HashMap;
-
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-
-import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
-import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
-import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
 import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
+import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PHONE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
-import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
-import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
@@ -121,7 +117,10 @@ class RdapObjectMapper {
         this.port43 = port43;
     }
 
-    public Object map(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, @Nullable final RpslObject abuseContact) {
+    public Object map(final String requestUrl,
+                      final RpslObject rpslObject,
+                      final LocalDateTime lastChangedTimestamp,
+                      final Optional<AbuseContact> abuseContact) {
         return mapCommons(getRdapObject(requestUrl, rpslObject, lastChangedTimestamp, abuseContact), requestUrl);
     }
 
@@ -131,9 +130,9 @@ class RdapObjectMapper {
 
         for (final RpslObject object : objects) {
             if (object.getType() == DOMAIN) {
-                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, iterator.next(), null));
+                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, iterator.next(), Optional.empty()));
             } else {
-                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), null));
+                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), Optional.empty()));
             }
         }
 
@@ -161,7 +160,10 @@ class RdapObjectMapper {
         return mapCommons(new RdapObject(), requestUrl);
     }
 
-    private RdapObject getRdapObject(final String requestUrl, final RpslObject rpslObject, final LocalDateTime lastChangedTimestamp, @Nullable final RpslObject abuseContact) {
+    private RdapObject getRdapObject(final String requestUrl,
+                                     final RpslObject rpslObject,
+                                     final LocalDateTime lastChangedTimestamp,
+                                     final Optional<AbuseContact> optionalAbuseContact) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
 
@@ -189,17 +191,21 @@ class RdapObjectMapper {
                 throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
         }
 
-        if (hasRemark(rpslObject)) {
+        optionalAbuseContact.ifPresent(abuseContact -> {
+            if (abuseContact.isSuspect() && abuseContact.getOrgId() != null) {
+                rdapResponse.getRemarks().add(createRemark(rpslObject.getKey(), abuseContact));
+            }
+
+            rdapResponse.getEntitySearchResults().add(createEntity(abuseContact.getAbuseRole(), Role.ABUSE));
+        });
+
+        if (hasDescriptions(rpslObject)) {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
         rdapResponse.getEvents().add(createEvent(lastChangedTimestamp));
 
         rdapResponse.getNotices().addAll(noticeFactory.generateNotices(requestUrl, rpslObject));
-
-        if (abuseContact != null) {
-            rdapResponse.getEntitySearchResults().add(createEntity(abuseContact, Role.ABUSE));
-        }
 
         return rdapResponse;
     }
@@ -296,7 +302,15 @@ class RdapObjectMapper {
         return new Remark(descriptions);
     }
 
-    private static boolean hasRemark(final RpslObject rpslObject) {
+    private static Remark createRemark(final CIString key, final AbuseContact abuseContact) {
+        return new Remark(
+           Lists.newArrayList(
+               QueryMessages.unvalidatedAbuseCShown(key, abuseContact.getAbuseMailbox(), abuseContact.getOrgId()).toString().replaceAll("% ", "")
+           )
+        );
+    }
+
+    private static boolean hasDescriptions(final RpslObject rpslObject) {
         return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty();
     }
 

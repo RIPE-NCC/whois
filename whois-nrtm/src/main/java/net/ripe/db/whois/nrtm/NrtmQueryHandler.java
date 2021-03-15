@@ -46,7 +46,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private final TaskScheduler clientSynchronisationScheduler;
 
     private final NrtmLog nrtmLog;
-    final ApplicationVersion applicationVersion;
+    private final ApplicationVersion applicationVersion;
     private final String source;
     private final String nonAuthSource;
     private final long updateInterval;

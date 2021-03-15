@@ -18,20 +18,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -585,7 +586,7 @@ public class UpdatesParserTest {
     public void testPerformance() throws Exception {
         // Note: prevously, we had a regexp matcher that took unacceptable time to finish (>10 minutes).
         // Hint: don't try to match massive input with DOTALL and .*? - it will be too slow
-        final String content = IOUtils.toString(new ClassPathResource("testMail/giantRawUnsignedObject").getInputStream());
+        final String content = IOUtils.toString(new ClassPathResource("testMail/giantRawUnsignedObject").getInputStream(), Charset.defaultCharset());
         subject.createParagraphs(new ContentWithCredentials(content + "\n\n" + content), updateContext);
     }
 

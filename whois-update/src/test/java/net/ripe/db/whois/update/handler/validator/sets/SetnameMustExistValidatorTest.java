@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
+import net.ripe.db.whois.update.authentication.strategy.MntByAuthentication;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
@@ -19,12 +20,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.verify;
@@ -71,7 +72,6 @@ public class SetnameMustExistValidatorTest {
 
     @Test
     public void validate_no_hiearchy() {
-        when(update.getType()).thenReturn(ObjectType.FILTER_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("filter-set: FLTR-ND"));
 
         subject.validate(update, updateContext);
@@ -94,8 +94,6 @@ public class SetnameMustExistValidatorTest {
     @Test
     public void validate_autnum_lookup_does_not_exist_with_override() {
         when(updateSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
-        when(update.getType()).thenReturn(ObjectType.AS_SET);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-set: AS101:AS-TEST"));
 
         subject.validate(update, updateContext);
 
@@ -108,7 +106,7 @@ public class SetnameMustExistValidatorTest {
         when(update.getType()).thenReturn(ObjectType.AS_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-set: AS101:AS-TEST"));
         when(objectDao.getByKeys(eq(ObjectType.AUT_NUM), anyCollection())).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("aut-num: AS101")));
-        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(Lists.<RpslObject>newArrayList());
+        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList(), eq(MntByAuthentication.class))).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.validate(update, updateContext);
 
@@ -121,7 +119,7 @@ public class SetnameMustExistValidatorTest {
         when(update.getType()).thenReturn(ObjectType.AS_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-set: AS101:AS-TEST"));
         when(objectDao.getByKeys(eq(ObjectType.AUT_NUM), anyCollection())).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("aut-num: AS101\nmnt-by: TEST-MNT")));
-        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("mntner: TEST-MNT")));
+        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList(), eq(MntByAuthentication.class))).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("mntner: TEST-MNT")));
 
         subject.validate(update, updateContext);
 
@@ -134,7 +132,7 @@ public class SetnameMustExistValidatorTest {
         when(update.getType()).thenReturn(ObjectType.ROUTE_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("route-set: As101:RS-ROUTESET"));
         when(objectDao.getByKeys(eq(ObjectType.AUT_NUM), anyCollection())).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("aut-num: AS101\nmnt-by: TEST-MNT")));
-        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("mntner: TEST-MNT")));
+        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList(), eq(MntByAuthentication.class))).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("mntner: TEST-MNT")));
 
         subject.validate(update, updateContext);
 
@@ -147,7 +145,7 @@ public class SetnameMustExistValidatorTest {
         when(update.getType()).thenReturn(ObjectType.ROUTE_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("route-set: RS-PARENT:RS-CHILD"));
         when(objectDao.getByKeys(eq(ObjectType.ROUTE_SET), anyCollection())).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("route-set: RS-PARENT\nmnt-lower: TEST-MNT")));
-        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("mntner: TEST-MNT")));
+        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList(), eq(MntByAuthentication.class))).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("mntner: TEST-MNT")));
 
         subject.validate(update, updateContext);
 
@@ -161,7 +159,7 @@ public class SetnameMustExistValidatorTest {
         when(update.getType()).thenReturn(ObjectType.ROUTE_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("route-set: RS-PARENT:RS-CHILD"));
         when(objectDao.getByKeys(eq(ObjectType.ROUTE_SET), anyCollection())).thenReturn(Lists.<RpslObject>newArrayList(RpslObject.parse("route-set: RS-PARENT\nmnt-by: TEST-MNT")));
-        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList())).thenReturn(Lists.<RpslObject>newArrayList());
+        when(authenticationModule.authenticate(eq(update), eq(updateContext), anyList(), eq(MntByAuthentication.class))).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.validate(update, updateContext);
 

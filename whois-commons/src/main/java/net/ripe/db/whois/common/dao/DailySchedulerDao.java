@@ -30,8 +30,8 @@ public class DailySchedulerDao {
         try {
             return Optional.of(Timestamp.from(jdbcTemplate.queryForObject(
                     "SELECT lock_until FROM shedlock WHERE name = ?",
-                    new Object[] { taskName },
-                    java.sql.Timestamp.class
+                    java.sql.Timestamp.class,
+                    new Object[] { taskName }
             )));
         } catch (EmptyResultDataAccessException erdae) {
             return Optional.empty();

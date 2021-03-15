@@ -19,7 +19,6 @@ import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -29,6 +28,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
@@ -37,6 +37,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -45,7 +47,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -1127,6 +1128,44 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
+    @Test
+    public void lookup_autnum_has_invalid_abuse_contact() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 358\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.updateObject("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "abuse-c:       AB-TEST\n" +
+                "source:        TEST");
+
+        databaseHelper.getInternalsTemplate().update(
+           "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
+        );
+
+        final Autnum autnum = createResource("autnum/102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(
+            autnum.getRemarks().get(0).getDescription(),
+            contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
+                    "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
+        );
+    }
+
     // general
 
     @Test
@@ -1454,42 +1493,26 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "nameservers not found");
+        } catch (ServerErrorException e) {
+            final Entity entity = e.getResponse().readEntity(Entity.class);
+            assertThat(entity.getErrorTitle(), is("Nameserver not supported"));
+            assertThat(entity.getErrorCode(), is(501));
         }
     }
 
     @Test
-    public void search_nameservers_empty_name() {
+    public void lookup_nameserver_not_found() {
         try {
-            fullTextIndex.rebuild();
-            createResource("nameservers?name=")
+              createResource("nameserver/test")
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
+                    .get(Autnum.class);
             fail();
-        } catch (BadRequestException e) {
-            assertErrorTitle(e, "empty lookup key");
+        } catch (ServerErrorException e) {
+            final Entity entity = e.getResponse().readEntity(Entity.class);
+            assertThat(entity.getErrorTitle(), is("Nameserver not supported"));
+            assertThat(entity.getErrorCode(), is(501));
         }
     }
-
-    @Test
-    public void search_nameservers_bad_request_links() {
-        try {
-            createResource("nameservers?ip=caf?")
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .get(String.class);
-            fail();
-        } catch (BadRequestException e) {
-            final Entity response = e.getResponse().readEntity(Entity.class);
-            assertThat(response.getLinks(), hasSize(1));
-            assertThat(response.getLinks().get(0).getRel(), is("copyright"));
-            assertThat(response.getLinks().get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-            assertThat(response.getNotices(), hasSize(1));
-            assertTnCNotice(response.getNotices().get(0),null);
-        }
-    }
-
-    // search - entities
 
     // search - entities - person
 
@@ -1819,7 +1842,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), Matchers.arrayContainingInAnyOrder("GET","OPTIONS"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET","OPTIONS"));
     }
 
     @Test
@@ -1860,7 +1883,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net"));
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
-
     }
 
     @Test
@@ -1896,6 +1918,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net:8443"));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
+    }
+
+    @Test
+    public void cross_origin_get_request_without_origin() {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .get();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
     }
 
     @Test

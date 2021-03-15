@@ -10,7 +10,7 @@ import javax.ws.rs.ClientErrorException;
 import java.net.HttpURLConnection;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {

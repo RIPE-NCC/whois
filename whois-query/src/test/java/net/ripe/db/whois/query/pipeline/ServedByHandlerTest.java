@@ -1,17 +1,17 @@
 package net.ripe.db.whois.query.pipeline;
 
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.domain.MessageObject;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,20 +27,24 @@ public class ServedByHandlerTest {
 
     @Before
     public void setup() {
+        System.setProperty("instance.name", "10.0.0.0");
         subject = new ServedByHandler("");
 
         when(queryCompletedEventMock.getChannel()).thenReturn(channelMock);
-        when(channelMock.isOpen()).thenReturn(true);
+    }
+
+    @After
+    public void after() {
+        System.clearProperty("instance.name");
     }
 
     @Test
     public void test_handleDownstream_whois() {
-        when(messageEventMock.getMessage()).thenReturn(new MessageObject(""));
         subject.handleDownstream(ctxMock, messageEventMock);
         verify(ctxMock, times(1)).sendDownstream(messageEventMock);
 
         subject.handleDownstream(ctxMock, queryCompletedEventMock);
         verify(ctxMock, times(1)).sendDownstream(queryCompletedEventMock);
-        verify(channelMock, times(1)).write(QueryMessages.servedByNotice(anyString()));
+        verify(channelMock, times(1)).write(QueryMessages.servedByNotice(any()));
     }
 }

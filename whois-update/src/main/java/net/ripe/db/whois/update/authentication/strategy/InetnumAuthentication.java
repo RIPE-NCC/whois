@@ -70,7 +70,7 @@ public class InetnumAuthentication extends AuthenticationStrategyBase {
         }
 
         final List<RpslObject> maintainers = rpslObjectDao.getByKeys(ObjectType.MNTNER, maintainerKeys);
-        final List<RpslObject> authenticatedBy = authenticationModule.authenticate(update, updateContext, maintainers);
+        final List<RpslObject> authenticatedBy = authenticationModule.authenticate(update, updateContext, maintainers, getClass());
         if (authenticatedBy.isEmpty()) {
             throw new AuthenticationFailedException(UpdateMessages.parentAuthenticationFailed(parentObject, attributeType, maintainers), maintainers);
         }

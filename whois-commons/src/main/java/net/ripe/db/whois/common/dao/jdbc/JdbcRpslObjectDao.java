@@ -76,7 +76,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
         Set<Integer> differences = loadObjects(proxy, loadedObjects);
         if (!differences.isEmpty()) {
             final Source originalSource = sourceContext.getCurrentSource();
-            LOGGER.info("Objects in source {} not found for ids: {}", originalSource, differences);
+            LOGGER.warn("Objects in source {} not found for ids: {}", originalSource, differences);
 
             if (originalSource.getType().equals(Source.Type.SLAVE)) {
                 final Source masterSource = Source.master(originalSource.getName());
@@ -84,7 +84,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                     sourceContext.setCurrent(masterSource);
                     differences = loadObjects(proxy, loadedObjects);
                     if (!differences.isEmpty()) {
-                        LOGGER.info("Objects in source {} not found for ids: {}", masterSource, differences);
+                        LOGGER.warn("Objects in source {} not found for ids: {}", masterSource, differences);
                     }
                 } catch (IllegalSourceException e) {
                     LOGGER.debug("Source not configured: {}", masterSource, e);
@@ -173,7 +173,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public LocalDateTime getLastUpdated(int objectId) {
-        final long timestamp = jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", new Object[]{objectId}, Long.class);
+        final long timestamp = jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", Long.class, new Object[]{objectId});
         return (Timestamp.fromSeconds(timestamp)).toLocalDateTime();
     }
 

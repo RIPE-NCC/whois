@@ -24,7 +24,7 @@ public final class QueryServer implements ApplicationService {
 
     public static int port;
 
-    @Value("${port.query}") private int queryPort;
+    @Value("${port.query:0}") private int queryPort;
     @Value("${loadbalancer.query.timeout:5000}") private int markNodeFailedTimeout;
 
     private Channel serverChannel;
@@ -48,7 +48,9 @@ public final class QueryServer implements ApplicationService {
         channelFactory = new NioServerSocketChannelFactory();
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
         bootstrap.setPipelineFactory(whoisServerPipelineFactory);
+        // apply TCP options to accepted Channels. Ref. https://netty.io/3.10/guide/
         bootstrap.setOption("backlog", 200);
+        bootstrap.setOption("child.tcpNoDelay", true);
         bootstrap.setOption("child.keepAlive", true);
         serverChannel = bootstrap.bind(new InetSocketAddress(queryPort));
         port = ((InetSocketAddress)serverChannel.getLocalAddress()).getPort();

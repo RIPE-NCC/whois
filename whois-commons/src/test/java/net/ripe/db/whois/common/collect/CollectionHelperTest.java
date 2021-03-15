@@ -15,12 +15,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyListOf;
-import static org.mockito.Mockito.anyObject;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -46,14 +45,14 @@ public class CollectionHelperTest {
     @Test
     public void iterateProxy_empty() {
         ProxyLoader<Identifiable, RpslObject> proxyLoader = Mockito.mock(ProxyLoader.class);
-        final Iterable<ResponseObject> responseObjects = CollectionHelper.iterateProxy(proxyLoader, Collections.<Identifiable>emptyList());
+        final Iterable<ResponseObject> responseObjects = CollectionHelper.iterateProxy(proxyLoader, Collections.emptyList());
 
-        verify(proxyLoader, never()).load(anyListOf(Identifiable.class), (List<RpslObject>) anyObject());
+        verify(proxyLoader, never()).load(anyList(), any());
 
         final Iterator<ResponseObject> iterator = responseObjects.iterator();
         assertThat(iterator.hasNext(), is(false));
 
-        verify(proxyLoader, never()).load(anyListOf(Identifiable.class), (List<RpslObject>) anyObject());
+        verify(proxyLoader, never()).load(anyList(), any());
     }
 
     @Test
@@ -81,7 +80,7 @@ public class CollectionHelperTest {
 
         final Iterable<ResponseObject> responseObjects = CollectionHelper.iterateProxy(proxyLoader, Arrays.asList(info1, info2));
 
-        verify(proxyLoader).load(anyListOf(Identifiable.class), anyListOf(RpslObject.class));
+        verify(proxyLoader).load(anyList(), anyList());
 
         final Iterator<ResponseObject> iterator = responseObjects.iterator();
         assertThat(iterator.hasNext(), is(true));
@@ -92,6 +91,6 @@ public class CollectionHelperTest {
 
         assertThat(iterator.hasNext(), is(false));
 
-        verify(proxyLoader).load(anyListOf(Identifiable.class), anyListOf(RpslObject.class));
+        verify(proxyLoader).load(anyList(), anyList());
     }
 }

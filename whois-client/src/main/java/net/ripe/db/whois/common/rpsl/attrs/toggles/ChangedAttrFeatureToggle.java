@@ -15,7 +15,7 @@ public class ChangedAttrFeatureToggle {
     private static Boolean isAvailable = Boolean.TRUE;
 
     @Autowired
-    public ChangedAttrFeatureToggle(@Value("${feature.toggle.changed.attr.available}") final Boolean isAvailable) {
+    public ChangedAttrFeatureToggle(@Value("${feature.toggle.changed.attr.available:true}") final Boolean isAvailable) {
         this.isAvailable = isAvailable;
     }
 

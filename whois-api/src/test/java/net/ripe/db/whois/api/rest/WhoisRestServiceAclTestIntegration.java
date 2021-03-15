@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -20,9 +21,9 @@ import javax.ws.rs.core.MediaType;
 import java.net.InetAddress;
 
 import static net.ripe.db.whois.api.RestTest.assertOnlyErrorMessage;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -99,6 +100,36 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
             }
         } finally {
             databaseHelper.unban(LOCALHOST_WITH_PREFIX);
+            ipResourceConfiguration.reload();
+            testPersonalObjectAccounting.resetAccounting();
+        }
+    }
+
+    @Test
+    public void lookup_person_filtered_acl_still_counted() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        databaseHelper.addObject(
+                "person:    Test Person\n" +
+                        "nic-hdl:   TP2-TEST\n" +
+                        "e-mail:   test@ripe.net\n" +
+                        "source:    TEST");
+
+        try {
+            final int limit = accessControlListManager.getPersonalObjects(localhost);
+
+            final WhoisResources whoisResources =  RestTest.target(getPort(), "whois/test/person/TP2-TEST")
+                                                    .request()
+                                                    .get(WhoisResources.class);
+
+            assertThat(whoisResources.getWhoisObjects().get(0).getAttributes()
+                            .stream()
+                            .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL)),
+                        is(false));
+
+            final int remaining = accessControlListManager.getPersonalObjects(localhost);
+            assertThat(remaining, is(limit-1));
+
+        } finally {
             ipResourceConfiguration.reload();
             testPersonalObjectAccounting.resetAccounting();
         }

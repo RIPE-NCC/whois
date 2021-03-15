@@ -176,6 +176,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
     }
 
+    public static Message invalidMaintainerName() {
+        return new Message(Type.ERROR, "When creating a MNTNER the name must end with an -MNT suffix");
+    }
+
     public static Message cantChangeOrgAttribute() {
         return new Message(Type.ERROR, "Referenced organisation can only be changed by the RIPE NCC for this resource.\n" +
                 "Please contact \"ncc@ripe.net\" to change this reference.");
@@ -604,6 +608,10 @@ public final class UpdateMessages {
 
     public static Message valueChangedDueToLatin1Conversion(final String attributeName) {
         return new Message(Type.WARNING, "Invalid character(s) were substituted in attribute \"%s\" value", attributeName);
+    }
+
+    public static Message valueChangedDueToPunycodeConversion() {
+        return new Message(Type.WARNING, "Value changed due to conversion of IDN email address(es) into Punycode");
     }
 
     public static Message oldPasswordsRemoved() {

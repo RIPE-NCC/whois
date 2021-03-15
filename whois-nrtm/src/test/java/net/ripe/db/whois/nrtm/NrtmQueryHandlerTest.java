@@ -20,23 +20,20 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static net.ripe.db.whois.nrtm.NrtmQueryHandlerTest.StringMatcher.instanceofString;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.inOrder;
@@ -85,13 +82,10 @@ public class NrtmQueryHandlerTest {
         when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, person)).thenReturn(false);
         when(applicationVersion.getVersion()).thenReturn("1.0-SNAPSHOT");
 
-        when(mySchedulerMock.scheduleAtFixedRate(any(Runnable.class), anyLong())).thenAnswer(new Answer<ScheduledFuture<?>>() {
-            @Override
-            public ScheduledFuture<?> answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                ((Runnable) args[0]).run();
-                return null;
-            }
+        when(mySchedulerMock.scheduleAtFixedRate(any(Runnable.class), anyLong())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            ((Runnable) args[0]).run();
+            return null;
         });
 
         subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, applicationVersion, SOURCE, NONAUTH_SOURCE, UPDATE_INTERVAL, KEEPALIVE_END_OF_STREAM);
@@ -309,7 +303,7 @@ public class NrtmQueryHandlerTest {
      * Check that an argument is an instanceof String.
      * any(String.class) is also matched by Object.class, if the method accepts Object.
      */
-    static class StringMatcher extends ArgumentMatcher<Object> {
+    static class StringMatcher implements ArgumentMatcher<Object> {
 
         static final StringMatcher instance = new StringMatcher();
 

@@ -101,8 +101,8 @@ public class CrowdServerDummy implements Stub {
                 }
             }
             else if (request.getRequestURI().contains("session")) {
-                Splitter SPACE_SPLITTER = Splitter.on('/');
-                String ssoToken= Iterables.getLast(SPACE_SPLITTER.split(request.getRequestURI()));
+                final Splitter SLASH_SPLITTER = Splitter.on('/');
+                String ssoToken= Iterables.getLast(SLASH_SPLITTER.split(request.getRequestURI()));
                 final UserSession userSession = crowdSessionMap.get(ssoToken);
                 if (userSession == null){
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -134,9 +134,9 @@ public class CrowdServerDummy implements Stub {
             return String.format("" +
                     "<users expand=\"user\">\n" +
                     "   <user name=\"%s\">\n" +
-                    "   <display-name>" + displayName + "</display-name>" +
+                    "   <display-name>%s</display-name>" +
                     "   </user>\n" +
-                    "</users>", uuid);
+                    "</users>", uuid, displayName);
         }
 
     }

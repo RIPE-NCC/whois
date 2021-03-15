@@ -10,15 +10,14 @@ import org.jboss.netty.channel.UpstreamChannelStateEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,7 +41,7 @@ public class NrtmConnectionPerIpLimitHandlerTest {
 
         when(ctx.getChannel()).thenReturn(channel);
 
-        when(channel.write(anyObject())).thenReturn(channelFuture);
+        when(channel.write(any())).thenReturn(channelFuture);
     }
 
     @Test
@@ -56,7 +55,7 @@ public class NrtmConnectionPerIpLimitHandlerTest {
 
         verify(ctx, times(2)).sendUpstream(event);
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -71,12 +70,7 @@ public class NrtmConnectionPerIpLimitHandlerTest {
         subject.handleUpstream(ctx, openEvent);
 
         verify(ctx, times(2)).sendUpstream(openEvent);
-        verify(channel, times(1)).write(argThat(new ArgumentMatcher<Object>() {
-            @Override
-            public boolean matches(Object argument) {
-                return NrtmMessages.connectionsExceeded(MAX_CONNECTIONS_PER_IP).equals(argument);
-            }
-        }));
+        verify(channel, times(1)).write(argThat(argument -> NrtmMessages.connectionsExceeded(MAX_CONNECTIONS_PER_IP).equals(argument)));
         verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
         verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
         verify(ctx, times(2)).sendUpstream(openEvent);
@@ -97,7 +91,7 @@ public class NrtmConnectionPerIpLimitHandlerTest {
 
         verify(ctx, times(3)).sendUpstream(event);
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -117,7 +111,7 @@ public class NrtmConnectionPerIpLimitHandlerTest {
         verify(ctx, times(2)).sendUpstream(event);
         verify(ctx, times(1)).sendUpstream(event2);
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 

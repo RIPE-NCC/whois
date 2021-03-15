@@ -63,7 +63,7 @@ public class RouteIpAddressAuthentication extends RouteAuthentication {
                 final List<RpslObject> candidates = getCandidatesForMntRoutesAuthentication(ipObject, update);
                 allCandidates.addAll(candidates);
 
-                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates, getClass());
                 if (authenticated.isEmpty()) {
                     authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_ROUTES, candidates));
                 } else {
@@ -83,7 +83,7 @@ public class RouteIpAddressAuthentication extends RouteAuthentication {
                 final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_LOWER));
                 allCandidates.addAll(candidates);
 
-                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates, getClass());
                 if (authenticated.isEmpty()) {
                     authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_LOWER, candidates));
                 } else {
@@ -101,7 +101,7 @@ public class RouteIpAddressAuthentication extends RouteAuthentication {
                 final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_BY));
                 allCandidates.addAll(candidates);
 
-                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates, getClass());
                 if (authenticated.isEmpty()) {
                     authenticationMessages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_BY, candidates));
                 } else {

@@ -1,27 +1,29 @@
 package net.ripe.db.whois.query.planner;
 
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 
 public class AbuseContact {
 
-    private final CIString nicHandle;
-    private final CIString abuseMailbox;
+    private final RpslObject abuseRole;
     private final boolean suspect;
     private final CIString orgId;
 
-    public AbuseContact(final CIString nicHandle, final CIString abuseMailbox, final boolean suspect, final CIString orgId) {
-        this.nicHandle = nicHandle;
-        this.abuseMailbox = abuseMailbox;
+    public AbuseContact(final RpslObject abuseRole,
+                        final boolean suspect,
+                        final CIString orgId) {
+        this.abuseRole = abuseRole;
         this.suspect = suspect;
         this.orgId = orgId;
     }
 
     public CIString getNicHandle() {
-        return nicHandle;
+        return abuseRole.getKey();
     }
 
     public CIString getAbuseMailbox() {
-        return abuseMailbox;
+        return abuseRole.getValueForAttribute(AttributeType.ABUSE_MAILBOX);
     }
 
     public boolean isSuspect() {
@@ -30,5 +32,9 @@ public class AbuseContact {
 
     public CIString getOrgId() {
         return orgId;
+    }
+
+    public RpslObject getAbuseRole() {
+        return abuseRole;
     }
 }

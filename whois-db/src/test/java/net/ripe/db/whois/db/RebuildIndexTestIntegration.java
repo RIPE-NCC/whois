@@ -33,7 +33,7 @@ import static net.ripe.db.whois.common.support.database.diff.Rows.with;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 
 @Ignore("[ES] TODO fix integration build [SB] build hangs when this integration test runs, we'll have to figure out why")

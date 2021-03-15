@@ -12,6 +12,7 @@ import net.ripe.db.whois.api.rest.mapper.DirtySuppressChangedAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.RegularSuppressChangedAttributeMapper;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -36,9 +37,7 @@ public class RestServiceHelper {
 
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings();
     private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
-
-    @Deprecated // [ES] update jaxrs which includes 429 status instead
-    private static final int STATUS_TOO_MANY_REQUESTS = 429;
+    private static final String OVERRIDE_STRING = "override";
 
     private static final Set<Class> SKIP_STACK_TRACE = Sets.newHashSet(
                                                         CrowdClientException.class,
@@ -65,14 +64,13 @@ public class RestServiceHelper {
         final StringBuilder builder = new StringBuilder();
         char separator = '?';
 
-        for (String next : AMPERSAND_SPLITTER.split(queryString)) {
-            final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
-            if (iterator.hasNext() && iterator.next().equalsIgnoreCase("password")) {
-                continue;
+        if (queryString.contains(OVERRIDE_STRING)) {
+            builder.append(separator).append(PasswordFilter.filterPasswordsInUrl(queryString));
+        } else {
+            String removedPasswordsInQueryString = PasswordFilter.removePasswordsInUrl(queryString);
+            if (!StringUtils.isEmpty(removedPasswordsInQueryString)) {
+                builder.append(separator).append(removedPasswordsInQueryString);
             }
-
-            builder.append(separator).append(next);
-            separator = '&';
         }
 
         return builder.toString();
@@ -141,13 +139,15 @@ public class RestServiceHelper {
         return createWebApplicationException(exception, request, Lists.newArrayList());
     }
 
-    public static WebApplicationException createWebApplicationException(final RuntimeException exception, final HttpServletRequest request, final List<Message> messages) {
+    public static WebApplicationException createWebApplicationException(final RuntimeException exception,
+                                                                        final HttpServletRequest request,
+                                                                        final List<Message> messages) {
         final Response.ResponseBuilder responseBuilder;
 
         if (exception instanceof QueryException) {
             final QueryException queryException = (QueryException) exception;
             if (queryException.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                responseBuilder = Response.status(STATUS_TOO_MANY_REQUESTS);
+                responseBuilder = Response.status(Response.Status.TOO_MANY_REQUESTS);
             } else {
                 responseBuilder = Response.status(Response.Status.BAD_REQUEST);
             }

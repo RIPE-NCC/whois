@@ -14,7 +14,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.BufferedInputStream;
@@ -31,7 +31,7 @@ import java.util.zip.GZIPInputStream;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,10 +45,10 @@ public class LoggerContextTest {
 
     @Before
     public void setUp() throws Exception {
-        try {   // need to reinit static threadlocal
+        // need to reinit static threadlocal
+        try {
             subject.remove();
         } catch (IllegalStateException ignored) {}
-
         subject.init(folder.getRoot());
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
@@ -121,12 +121,17 @@ public class LoggerContextTest {
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason/>\n" +
-                "            <paragraph><![CDATA[mntner: DEV-ROOT-MNT]]></paragraph>\n" +
-                "            <object><![CDATA[mntner:         DEV-ROOT-MNT\n"));
+                "            <paragraph>\n" +
+                "                <![CDATA[mntner: DEV-ROOT-MNT]]>\n" +
+                "            </paragraph>\n" +
+                "            <object>\n" +
+                "                <![CDATA[mntner:         DEV-ROOT-MNT\n"));
 
         assertThat(contents, containsString("" +
                 "            <query>\n" +
-                "                <sql><![CDATA[sql]]></sql>\n" +
+                "                <sql>\n" +
+                "                    <![CDATA[sql]]>\n" +
+                "                </sql>\n" +
                 "                <params/>\n" +
                 "                <results/>\n" +
                 "            </query>\n"));
@@ -160,9 +165,14 @@ public class LoggerContextTest {
 
         assertThat(contents, containsString("" +
                 "            <exception>\n" +
-                "                <class>java.lang.NullPointerException</class>\n" +
-                "                <message><![CDATA[null]]></message>\n" +
-                "                <stacktrace><![CDATA[java.lang.NullPointerException\n"));
+                "                <class>java.lang.NullPointerException</class>\n"));
+        assertThat(contents, containsString("" +
+                "                <message>\n" +
+                "                    <![CDATA[null]]>\n" +
+                "                </message>\n"));
+        assertThat(contents, containsString("" +
+                "                <stacktrace>\n" +
+                "                    <![CDATA[java.lang.NullPointerException\n"));
     }
 
     @Test

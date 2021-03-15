@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
+import net.ripe.db.whois.update.authentication.strategy.MntByAuthentication;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -61,7 +62,7 @@ public class SetnameMustExistValidator implements BusinessRuleValidator {
         }
 
         final List<RpslObject> referencedMaintainers = findMaintainers(parent);
-        final List<RpslObject> authenticatedMaintainers = authenticationModule.authenticate(update, updateContext, referencedMaintainers);
+        final List<RpslObject> authenticatedMaintainers = authenticationModule.authenticate(update, updateContext, referencedMaintainers, MntByAuthentication.class);
 
         if (authenticatedMaintainers.isEmpty()) {
             updateContext.addMessage(update, UpdateMessages.parentAuthenticationFailed(parent, findAttributeType(parent), referencedMaintainers));

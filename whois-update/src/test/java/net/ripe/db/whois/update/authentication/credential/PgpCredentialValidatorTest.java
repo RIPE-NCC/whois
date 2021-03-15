@@ -16,14 +16,13 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.nio.charset.Charset;
@@ -31,19 +30,19 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PgpCredentialValidatorTest {
     @Mock private PreparedUpdate preparedUpdate;
-
+    @Mock private Update update;
     @Mock private UpdateContext updateContext;
     @Mock private RpslObjectDao rpslObjectDao;
     @Mock private DateTimeProvider dateTimeProvider;
@@ -92,6 +91,7 @@ public class PgpCredentialValidatorTest {
     @Before
     public void setup() {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        when(preparedUpdate.getUpdate()).thenReturn(update);
     }
 
     @Test
@@ -207,8 +207,8 @@ public class PgpCredentialValidatorTest {
 
         subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
 
-        MatcherAssert.assertThat(update.getEffectiveCredential(), Is.is(knownCredential.getKeyId()));
-        MatcherAssert.assertThat(update.getEffectiveCredentialType(), Is.is(Update.EffectiveCredentialType.PGP));
+        assertThat(update.getEffectiveCredential(), Is.is(knownCredential.getKeyId()));
+        assertThat(update.getEffectiveCredentialType(), Is.is(Update.EffectiveCredentialType.PGP));
     }
 
     @Test
@@ -376,6 +376,7 @@ public class PgpCredentialValidatorTest {
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
 
         assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
 

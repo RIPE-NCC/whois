@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.ZonedDateTime;
@@ -36,9 +36,9 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -162,13 +162,13 @@ public class InternalUpdatePerformerTest {
     public void setSsoSessionToContext_no_sso_token() {
         subject.setSsoSessionToContext(updateContextMock, "");
 
-        verifyZeroInteractions(ssoTokenTranslatorMock);
-        verifyZeroInteractions(loggerContextMock);
+        verifyNoMoreInteractions(ssoTokenTranslatorMock);
+        verifyNoMoreInteractions(loggerContextMock);
 
         subject.setSsoSessionToContext(updateContextMock, null);
 
-        verifyZeroInteractions(ssoTokenTranslatorMock);
-        verifyZeroInteractions(loggerContextMock);
+        verifyNoMoreInteractions(ssoTokenTranslatorMock);
+        verifyNoMoreInteractions(loggerContextMock);
     }
 
     @Test
@@ -179,7 +179,7 @@ public class InternalUpdatePerformerTest {
         subject.setSsoSessionToContext(updateContextMock, "test-token");
 
         verify(ssoTokenTranslatorMock).translateSsoToken("test-token");
-        verifyZeroInteractions(loggerContextMock);
+        verifyNoMoreInteractions(loggerContextMock);
         verify(updateContextMock).setUserSession(userSession);
     }
 

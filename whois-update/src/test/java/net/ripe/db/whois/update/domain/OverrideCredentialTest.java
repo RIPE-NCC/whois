@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class OverrideCredentialTest {
     final Optional<OverrideCredential.OverrideValues> absent = Optional.empty();

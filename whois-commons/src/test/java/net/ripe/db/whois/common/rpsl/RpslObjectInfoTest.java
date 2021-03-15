@@ -34,7 +34,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.RTR_SET;
 import static net.ripe.db.whois.common.rpsl.ObjectType.values;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RpslObjectInfoTest {
     private RpslObjectInfo subject;

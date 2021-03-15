@@ -10,8 +10,10 @@ import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.collect.IterableTransformer;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -45,7 +47,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @ActiveProfiles(profiles = WhoisProfile.TEST, inheritProfiles = false)
@@ -55,6 +57,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     public static final String USER1 = "db_e2e_1@ripe.net";
     public static final String USER2 = "db_e2e_2@ripe.net";
     public static final String INACTIVE_USER = "db_e2e_3@ripe.net";
+    private static final String OVERRIDE_PASSWORD = "team-red1234";
 
     private static ImmutableMap<String, RpslObject> baseFixtures = ImmutableMap.<String, RpslObject>builder()
             .put("OWNER-MNT", RpslObject.parse("" +
@@ -315,7 +318,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException expected) {
-            final WhoisResources whoisResources = RestTest.mapClientException(expected);
             assertUnauthorizedErrorMessage(expected, "inetnum", "10.0.0.0 - 10.0.255.255", "mnt-by", "LIR-MNT");
         }
     }
@@ -673,9 +675,62 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
         };
 
         assertThat(linesContainingPassword, contains(
-                "<message><![CDATA[PUT /whois/test/person/TP2-TEST?password=FILTERED",
+                "<![CDATA[PUT /whois/test/person/TP2-TEST?password=FILTERED",
                 "<credential>PasswordCredential</credential>"));
     }
+
+    @Test
+    public void on_exception_remove_password_in_link_when_override_is_not_used() {
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1),
+                makeMntner("LIR2", "auth: SSO " + USER2),
+                makeMntner("LIR3", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT", "changed: john.smith@example.com 20171114");
+
+        try {
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/inetnum?password=owner")
+                    .request(mediaType)
+                    .cookie("crowd.token_key", "db_e2e_2")
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
+
+
+            assertThat(whoisResources.getLink().getHref(), is("http://localhost:" + getPort() + "/test/inetnum"));
+
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        }
+    }
+
+    @Test
+    public void on_exception_filter_password_in_link_when_override_is_used() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", OVERRIDE_PASSWORD, ObjectType.values()));
+        databaseHelper.addObjects(
+                makeMntner("LIR", "auth: SSO " + USER1),
+                makeMntner("LIR2", "auth: SSO " + USER2),
+                makeMntner("LIR3", "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"),
+                makeInetnum("10.0.0.0 - 10.255.255.255", "mnt-lower: OWNER-MNT"));
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255", "status: ASSIGNED PA", "mnt-by: LIR-MNT", "mnt-by: LIR2-MNT", "mnt-by: LIR3-MNT", "changed: john.smith@example.com 20171114");
+
+        try {
+            final WhoisResources whoisResources = RestTest
+                    .target(
+                            getPort(), "whois/test/inetnum")
+                    .queryParam("override", SyncUpdateUtils.encode("personadmin," + OVERRIDE_PASSWORD + ",my reason"))
+                    .request(mediaType)
+                    .cookie("crowd.token_key", "db_e2e_2")
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
+
+
+            assertThat(whoisResources.getLink().getHref(), is("http://localhost:" + getPort() + "/test/inetnum?override=personadmin,FILTERED,my%2Breason"));
+
+        } catch (ClientErrorException e) {
+            reportAndThrowUnknownError(e);
+        }
+    }
+
 
     // helper methods
 

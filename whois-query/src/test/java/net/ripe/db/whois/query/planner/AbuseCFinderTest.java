@@ -18,19 +18,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -81,7 +81,7 @@ public class AbuseCFinderTest {
 
         assertThat(subject.getAbuseContact(inetnum).get().getAbuseMailbox(), is("abuse@ripe.net"));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class AbuseCFinderTest {
 
         assertThat(subject.getAbuseContact(inetnum).get().getAbuseMailbox(), is("abuse@ripe.net"));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class AbuseCFinderTest {
 
         assertThat(subject.getAbuseContact(inetnum).get().getAbuseMailbox(), is("more_abuse@ripe.net"));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class AbuseCFinderTest {
 
         assertThat(subject.getAbuseContact(object).get().getAbuseMailbox(), is("abuse@ripe.net"));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -181,10 +181,10 @@ public class AbuseCFinderTest {
         when(objectDao.getByKey(ObjectType.ROLE, ciString("AB-TEST"))).thenReturn(RpslObject.parse("role: Abuse Role\nnic-hdl: AB-TEST\nabuse-mailbox: abuse@ripe.net"));
 
         assertThat(subject.getAbuseContact(autnum).get().getAbuseMailbox(), is("abuse@ripe.net"));
-        verifyZeroInteractions(ipv4Tree);
-        verifyZeroInteractions(ipv6Tree);
+        verifyNoMoreInteractions(ipv4Tree);
+        verifyNoMoreInteractions(ipv6Tree);
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -195,7 +195,7 @@ public class AbuseCFinderTest {
 
         assertThat(subject.getAbuseContact(autnum).isPresent(), is(false));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -204,7 +204,7 @@ public class AbuseCFinderTest {
 
         assertThat(subject.getAbuseContact(inetnum).isPresent(), is(false));
 
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
 
     }
 }

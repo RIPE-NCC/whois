@@ -1,8 +1,6 @@
 package net.ripe.db.whois.nrtm.integration;
 
 import com.google.common.collect.Lists;
-import com.jayway.awaitility.Awaitility;
-import com.jayway.awaitility.Duration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -12,6 +10,7 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -23,6 +22,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
 
@@ -221,7 +221,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     private void objectMatches(final RpslObject rpslObject) {
-        Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(new Callable<RpslObject>() {
+        Awaitility.waitAtMost(5L, TimeUnit.SECONDS).until(new Callable<RpslObject>() {
             @Override
             public RpslObject call() {
                 try {

@@ -72,6 +72,8 @@ import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.keepKeyAttributesOn
 public class DatabaseHelper implements EmbeddedValueResolverAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
+    private static final Splitter COMMA_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+
     private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     private static final String DB_HOST = StringUtils.isNotBlank(System.getProperty("db.host"))? System.getProperty("db.host") : "localhost";
 
@@ -266,9 +268,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     public void setup() {
         // Setup configured sources
-        final Splitter splitter = Splitter.on(',').trimResults().omitEmptyStrings();
         final String sourcesConfig = valueResolver.resolveStringValue("${whois.source},${nrtm.import.sources:},${grs.sources:}");
-        final Set<String> sources = Sets.newHashSet(splitter.split(sourcesConfig));
+        final Set<String> sources = Sets.newHashSet(COMMA_SPLITTER.split(sourcesConfig));
 
         for (final String source : sources) {
             try {

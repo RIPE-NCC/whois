@@ -19,7 +19,7 @@ import static net.ripe.db.whois.common.rpsl.attrs.OrgType.RIR;
 import static net.ripe.db.whois.common.rpsl.attrs.OrgType.WHITEPAGES;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 public class Inet6numStatusTest {

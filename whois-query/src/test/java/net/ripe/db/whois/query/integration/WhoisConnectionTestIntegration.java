@@ -45,7 +45,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doAnswer;
@@ -67,7 +67,7 @@ public class WhoisConnectionTestIntegration extends AbstractQueryIntegrationTest
 
     @Before
     public void setUp() throws Exception {
-        upstreamMock = Mockito.mock(SimpleChannelUpstreamHandler.class, Answers.CALLS_REAL_METHODS.get());
+        upstreamMock = Mockito.mock(SimpleChannelUpstreamHandler.class, Answers.CALLS_REAL_METHODS);
 
         ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("open-channels", queryChannelsRegistry);

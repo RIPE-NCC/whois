@@ -12,7 +12,7 @@ import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LEGACY;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LIR_PARTITIONED_PA;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.SUB_ALLOCATED_PA;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class InetnumStatusTest {
 

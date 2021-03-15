@@ -1,5 +1,34 @@
 # next
 
+[all] Java 11 support (#673)
+[rdap] nameserver not implemented (#711)
+[update] Delete object bug (#723)
+[all] Removed Travis integration (#724)
+[all] Updated dependencies
+[all] Merged AWS profile (#721)
+
+# 1.99
+
+[update] Require -mnt suffix when creating an MNTNER object (#667)
+[nrtm] Enable TCP_NODELAY in NRTM and query connections (#693)
+[api] Filter out sensitive information in API response on exception (#664)
+[query] Return 'invalid option supplied' on invalid version number given to --diff-version (#662)
+[rdap] Allow *any* CORS origin on RDAP GET requests by default (as recommended by RFC7480). (#661)
+[all] New dummifier for RC environment
+[all] Updated dependent libraries
+[all] Java 11 support
+
+# 1.98
+
+[update] NWI-11 Punycode Internationalized Domain Names in email addresses. (#643)
+[all] Prevent race condition when updating authoritative resources. (#652)
+[rdap] Return remark in rdap response when abuse mailbox validation has failed. (#651)
+[rdap] Rdap CORS changes (#648)
+[rdap] Rdap invalid syntax exception (#647)
+[rdap] An deleted object may be matched by an RDAP lookup (#645)
+[api] An deleted object may not be removed from the fulltextsearch index and matched in a search (#644)
+[all] Refresh legacy autnums list every 15 minutes (#641)
+
 # 1.97.2
 
 [api] Client cert authentication (#637)

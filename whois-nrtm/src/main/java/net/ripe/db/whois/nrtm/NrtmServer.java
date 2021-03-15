@@ -22,9 +22,8 @@ public class NrtmServer implements ApplicationService {
 
     public static final int NRTM_VERSION = 3;
 
-    @Value("${nrtm.enabled}") private boolean nrtmEnabled;
-    @Value("${port.nrtm}") private int nrtmPort;
-    @Value("${loadbalancer.nrtm.timeout:5000}") private int markNodeFailedTimeout;
+    @Value("${nrtm.enabled:true}") private boolean nrtmEnabled;
+    @Value("${port.nrtm:0}") private int nrtmPort;
 
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmServerPipelineFactory nrtmServerPipelineFactory;
@@ -60,6 +59,8 @@ public class NrtmServer implements ApplicationService {
         final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
         bootstrap.setPipelineFactory(serverPipelineFactory);
         bootstrap.setOption("backlog", 200);
+        // apply TCP options to accepted Channels. Ref. https://netty.io/3.10/guide/
+        bootstrap.setOption("child.tcpNoDelay", true);
         bootstrap.setOption("child.keepAlive", true);
 
         final Channel channel = bootstrap.bind(new InetSocketAddress(port));

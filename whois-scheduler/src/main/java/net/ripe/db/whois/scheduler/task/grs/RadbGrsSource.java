@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -44,11 +43,7 @@ class RadbGrsSource extends GrsSource {
 
     @Override
     public void handleObjects(final File file, final ObjectHandler handler) throws IOException {
-        FileInputStream is = null;
-
-        try {
-            is = new FileInputStream(file);
-
+        try (FileInputStream is = new FileInputStream(file)) {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(is), StandardCharsets.UTF_8));
             handleLines(reader, new LineHandler() {
                 @Override
@@ -58,8 +53,6 @@ class RadbGrsSource extends GrsSource {
                     }
                 }
             });
-        } finally {
-            IOUtils.closeQuietly(is);
         }
     }
 }

@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Ignore("TODO: [ES] not applicable to UTF8 branch?")
 public class Latin1ConversionTest {

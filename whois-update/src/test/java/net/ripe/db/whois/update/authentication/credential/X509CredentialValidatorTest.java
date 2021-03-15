@@ -15,19 +15,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.hamcrest.Matchers.not;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,10 +42,8 @@ public class X509CredentialValidatorTest {
     @Before
     public void setup() {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
-        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenAnswer(new Answer<RpslObject>() {
-            @Override
-            public RpslObject answer(InvocationOnMock invocation) throws Throwable {
-                return RpslObject.parse("" +
+        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenAnswer(invocation ->
+                    RpslObject.parse("" +
                         "key-cert:       AUTO-1\n" +
                         "method:         X509\n" +
                         "owner:          /C=NL/ST=Noord-Holland/O=RIPE NCC/OU=DB/CN=Edward Shryane/EMAILADDRESS=eshryane@ripe.net\n" +
@@ -76,43 +71,37 @@ public class X509CredentialValidatorTest {
                         "certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==\n" +
                         "certif:         -----END CERTIFICATE-----\n" +
                         "mnt-by:         OWNER-MNT\n" +
-                        "source:         TEST\n");
-            }
-        });
+                        "source:         TEST\n"));
         when(knownCredential.getKeyId()).thenReturn("X509-1");
         when(offeredCredential.verify(any(X509Certificate.class))).thenReturn(true);
     }
 
     @Test
     public void authentication_success() {
-        boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
 
         assertThat(result, is(true));
     }
 
     @Test
-    public void authentication_keycert_not_found() throws Exception {
+    public void authentication_keycert_not_found() {
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenThrow(new EmptyResultDataAccessException(1));
 
-        boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
 
         assertThat(result, is(false));
     }
 
     @Test
-    public void authentication_keycert_is_invalid() throws Exception {
-        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenAnswer(new Answer<RpslObject>() {
-            @Override
-            public RpslObject answer(InvocationOnMock invocation) throws Throwable {
-                return RpslObject.parse(
+    public void authentication_keycert_is_invalid() {
+        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenAnswer(invocation ->
+                     RpslObject.parse(
                         "key-cert:       AUTO-1\n" +
                         "method:         X509\n" +
                         "mnt-by:         OWNER-MNT\n" +
-                        "source:         TEST\n");
-            }
-        });
+                        "source:         TEST\n"));
 
-        boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
 
         assertThat(result, is(false));
     }
@@ -120,53 +109,47 @@ public class X509CredentialValidatorTest {
 
     @Test
     public void knownCredentialEqualsAndHashCode() {
-        X509Credential first = X509Credential.createKnownCredential("X509-1");
-        X509Credential second = X509Credential.createKnownCredential("X509-2");
+        final X509Credential first = X509Credential.createKnownCredential("X509-1");
+        final X509Credential second = X509Credential.createKnownCredential("X509-2");
 
-        assertTrue(first.equals(first));
-        assertFalse(first.equals(second));
+        assertThat(first, is(first));
+        assertThat(first, is(not(second)));
 
-        assertFalse(first.hashCode() == second.hashCode());
-        assertTrue(first.hashCode() == first.hashCode());
+        assertThat(first.hashCode(), is(not(second.hashCode())));
+        assertThat(first.hashCode(), is(first.hashCode()));
     }
 
     @Test
     public void offeredCredentialEqualsAndHashCode() {
-        X509Credential first = X509Credential.createOfferedCredential("signedData1", "signature1");
-        X509Credential second = X509Credential.createOfferedCredential("signedData2", "signature2");
+        final X509Credential first = X509Credential.createOfferedCredential("signedData1", "signature1");
+        final X509Credential second = X509Credential.createOfferedCredential("signedData2", "signature2");
 
-        assertTrue(first.equals(first));
-        assertFalse(first.equals(second));
+        assertThat(first, is(first));
+        assertThat(first, is(not(second)));
 
-        assertFalse(first.hashCode() == second.hashCode());
-        assertTrue(first.hashCode() == first.hashCode());
+        assertThat(first.hashCode(), is(not(second.hashCode())));
+        assertThat(first.hashCode(), is(first.hashCode()));
     }
 
     @Test
     public void offeredAndKnownCredentialsEqualsAndHashCode() {
-        X509Credential known = X509Credential.createKnownCredential("X509-1");
-        X509Credential offered = X509Credential.createOfferedCredential("signedData", "signature");
+        final X509Credential known = X509Credential.createKnownCredential("X509-1");
+        final X509Credential offered = X509Credential.createOfferedCredential("signedData", "signature");
 
-        assertFalse(known.equals(offered));
-        assertFalse(known.hashCode() == offered.hashCode());
+        assertThat(known, is(not(offered)));
+        assertThat(known.hashCode(), is(not(offered.hashCode())));
     }
 
     @Test
     public void knownCredentialIsInvalid() {
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
-        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenAnswer(new Answer<RpslObject>() {
-            @Override
-            public RpslObject answer(InvocationOnMock invocation) throws Throwable {
-                return RpslObject.parse("" +
+        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenAnswer(
+            invocation -> RpslObject.parse("" +
                         "key-cert:       AUTO-1\n" +
                         "method:         X509\n" +
-                        "source:         TEST\n");
-            }
-        });
+                        "source:         TEST\n"));
         when(knownCredential.getKeyId()).thenReturn("X509-1");
-        when(offeredCredential.verify(any(X509Certificate.class))).thenReturn(true);
 
-        boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
 
         assertThat(result, is(false));
     }

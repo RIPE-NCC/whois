@@ -7,10 +7,8 @@ import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import net.ripe.db.whois.update.domain.Keyword;
-import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
@@ -27,7 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -35,19 +33,18 @@ import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
-import static org.mockito.Mockito.anyListOf;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -80,30 +77,25 @@ public class MessageDequeueTest {
 
     @Test(expected = IllegalStateException.class)
     public void start_twice() {
-        when(mailMessageDao.claimMessage()).thenReturn(null);
-
         subject.start();
         subject.start();
     }
 
     @Test
-    public void stop_not_running() throws InterruptedException {
+    public void stop_not_running() {
         subject.stop(true);
     }
 
     @Test
     public void noMessages() {
-        when(mailMessageDao.claimMessage()).thenReturn(null);
-
         subject.start();
-        verifyZeroInteractions(messageHandler);
+        verifyNoMoreInteractions(messageHandler);
     }
 
     @Test
-    public void handleMessage_filtered() throws Exception {
+    public void handleMessage_filtered() {
         final MimeMessage message = MimeMessageProvider.getMessageSimpleTextUnsigned();
 
-        when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(false);
         when(mailMessageDao.getMessage("1")).thenReturn(message);
         when(mailMessageDao.claimMessage()).thenReturn("1").thenReturn(null);
 
@@ -114,7 +106,7 @@ public class MessageDequeueTest {
         verify(loggerContext, timeout(TIMEOUT)).log(eq("msg-in.txt"), any(MailMessageLogCallback.class));
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.LOGGED);
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.PARSED);
-        verifyZeroInteractions(messageHandler);
+        verifyNoMoreInteractions(messageHandler);
     }
 
     @Test
@@ -123,8 +115,8 @@ public class MessageDequeueTest {
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(true);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
-                new MailMessage("", "", "", "", "", "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
-        when(updatesParser.parse(any(UpdateContext.class), anyListOf(ContentWithCredentials.class))).thenReturn(Lists.<Update>newArrayList());
+                new MailMessage("", "", "", "", "", "", Keyword.NONE, Lists.newArrayList()));
+        when(updatesParser.parse(any(UpdateContext.class), anyList())).thenReturn(Lists.newArrayList());
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, ""));
 
         when(mailMessageDao.getMessage("1")).thenReturn(message);
@@ -147,8 +139,8 @@ public class MessageDequeueTest {
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(true);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
-                new MailMessage("", "", "", "", "", "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
-        when(updatesParser.parse(any(UpdateContext.class), anyListOf(ContentWithCredentials.class))).thenReturn(Lists.<Update>newArrayList());
+                new MailMessage("", "", "", "", "", "", Keyword.NONE, Lists.newArrayList()));
+        when(updatesParser.parse(any(UpdateContext.class), anyList())).thenReturn(Lists.newArrayList());
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenThrow(RuntimeException.class);
 
         when(mailMessageDao.getMessage("1")).thenReturn(message);
@@ -161,7 +153,7 @@ public class MessageDequeueTest {
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.FAILED);
         verify(loggerContext, timeout(TIMEOUT)).init("20120527220444.GA6565");
         verify(loggerContext, timeout(TIMEOUT)).log(eq("msg-in.txt"), any(MailMessageLogCallback.class));
-        verifyZeroInteractions(mailGateway);
+        verifyNoMoreInteractions(mailGateway);
         verify(mailMessageDao, never()).deleteMessage("1");
     }
 
@@ -171,7 +163,7 @@ public class MessageDequeueTest {
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(false);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
-                new MailMessage("", null, "", "", null, "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
+                new MailMessage("", null, "", "", null, "", Keyword.NONE, Lists.newArrayList()));
 
         when(mailMessageDao.getMessage("1")).thenReturn(message);
         when(mailMessageDao.claimMessage()).thenReturn("1").thenReturn(null);

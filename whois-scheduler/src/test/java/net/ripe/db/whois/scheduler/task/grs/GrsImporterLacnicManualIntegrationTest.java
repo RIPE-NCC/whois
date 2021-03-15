@@ -25,7 +25,7 @@ import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(ManualTest.class)
 @DirtiesContext

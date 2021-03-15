@@ -2,25 +2,24 @@ package net.ripe.db.whois.common.source;
 
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.DataSourceFactory;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sql.DataSource;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -159,6 +158,6 @@ public class SourceContextTest {
             whoisSlaveDataSource,
             dataSourceFactory
         );
-        assertThat(subject.getAdditionalSourceNames(), Matchers.hasSize(0));
+        assertThat(subject.getAdditionalSourceNames(), hasSize(0));
     }
 }
