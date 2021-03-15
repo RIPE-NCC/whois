@@ -117,24 +117,24 @@ public class LoggerContextTest {
         final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "000.audit.xml.gz"))));
         final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
-        assertThat(contents, containsString("" +
-                "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
-                "            <operation>DELETE</operation>\n" +
-                "            <reason/>\n" +
-                "            <paragraph>\n" +
-                "                <![CDATA[mntner: DEV-ROOT-MNT]]>\n" +
-                "            </paragraph>\n" +
-                "            <object>\n" +
-                "                <![CDATA[mntner:         DEV-ROOT-MNT\n"));
+        assertThat(trim(contents), containsString("" +
+                "<key>[mntner] DEV-ROOT-MNT</key>" +
+                "<operation>DELETE</operation>" +
+                "<reason/>" +
+                "<paragraph>" +
+                "<![CDATA[mntner: DEV-ROOT-MNT]]>" +
+                "</paragraph>" +
+                "<object>" +
+                "<![CDATA[mntner:         DEV-ROOT-MNT"));
 
-        assertThat(contents, containsString("" +
-                "            <query>\n" +
-                "                <sql>\n" +
-                "                    <![CDATA[sql]]>\n" +
-                "                </sql>\n" +
-                "                <params/>\n" +
-                "                <results/>\n" +
-                "            </query>\n"));
+        assertThat(trim(contents), containsString("" +
+                "<query>" +
+                "<sql>" +
+                "<![CDATA[sql]]>" +
+                "</sql>" +
+                "<params/>" +
+                "<results/>" +
+                "</query>"));
     }
 
     @Test
@@ -163,16 +163,16 @@ public class LoggerContextTest {
         final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "000.audit.xml.gz"))));
         final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
-        assertThat(contents, containsString("" +
-                "            <exception>\n" +
-                "                <class>java.lang.NullPointerException</class>\n"));
-        assertThat(contents, containsString("" +
-                "                <message>\n" +
-                "                    <![CDATA[null]]>\n" +
-                "                </message>\n"));
-        assertThat(contents, containsString("" +
-                "                <stacktrace>\n" +
-                "                    <![CDATA[java.lang.NullPointerException\n"));
+        assertThat(trim(contents), containsString("" +
+                "<exception>" +
+                "<class>java.lang.NullPointerException</class>"));
+        assertThat(trim(contents), containsString("" +
+                "<message>" +
+                "<![CDATA[null]]>" +
+                "</message>"));
+        assertThat(trim(contents), containsString("" +
+                "<stacktrace>" +
+                "<![CDATA[java.lang.NullPointerException"));
     }
 
     @Test
@@ -224,5 +224,9 @@ public class LoggerContextTest {
         context.checkDirs();
 
         assertThat(context.getFile("test").getCanonicalPath(), containsString(".2001:2002::x0B/001.test.gz"));
+    }
+
+    private String trim(final String value) {
+        return value.replaceAll("(?m)^\\s+", "").replaceAll("(?m)\\n", "");
     }
 }

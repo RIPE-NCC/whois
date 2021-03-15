@@ -16,8 +16,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.core.MediaType;
 import java.net.InetAddress;
 
 import static net.ripe.db.whois.api.RestTest.assertOnlyErrorMessage;

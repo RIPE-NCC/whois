@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import org.apache.commons.lang.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
 
 public class HttpRequestMessage extends Message {

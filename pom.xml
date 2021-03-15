@@ -61,14 +61,14 @@
         <hazelcast.version>4.1.1</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
-        <jaxb.version>2.3.3</jaxb.version>
+        <jaxb.version>3.0.0</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.13.1</jsoup.version>
         <junit.version>4.13.1</junit.version>
-        <jetty.version>10.0.0</jetty.version>
-        <jersey.version>2.32</jersey.version>
-        <jackson.version>2.11.3</jackson.version>
+        <jetty.version>11.0.1</jetty.version>
+        <jersey.version>3.0.1</jersey.version>
+        <jackson.version>2.12.2</jackson.version>
 
         <log4j.version>2.14.0</log4j.version>
         <lucene.version>7.7.2</lucene.version>
@@ -447,7 +447,7 @@
                 <version>${jetty.version}</version>
             </dependency>
 
-            <!-- Jersey JAX-RS 2.0 implementation -->
+            <!-- Jersey JAX-RS 3.0 implementation -->
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet</artifactId>
@@ -489,15 +489,17 @@
                 <scope>runtime</scope>
             </dependency>
 
-            <!-- Jackson -->
+            <!-- Jackson JSON Library -->
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-base</artifactId>
+                <classifier>jakarta</classifier>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <classifier>jakarta</classifier>
                 <version>${jackson.version}</version>
             </dependency>
              <dependency>

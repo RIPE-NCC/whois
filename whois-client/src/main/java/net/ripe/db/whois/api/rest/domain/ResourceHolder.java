@@ -3,8 +3,8 @@ package net.ripe.db.whois.api.rest.domain;
 import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @Immutable
 @XmlRootElement

@@ -48,7 +48,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import javax.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.InternalServerErrorException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Iterator;

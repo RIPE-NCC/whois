@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.update.keycert.X509CertificateTestUtil;
 import org.junit.Test;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDateTime;
 

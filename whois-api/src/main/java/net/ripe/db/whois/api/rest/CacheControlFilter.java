@@ -2,9 +2,9 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.HttpHeaders;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
 import java.io.IOException;
 
 // Ref. http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html

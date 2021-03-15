@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.mail;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import javax.mail.Session;
 import java.util.Properties;
 

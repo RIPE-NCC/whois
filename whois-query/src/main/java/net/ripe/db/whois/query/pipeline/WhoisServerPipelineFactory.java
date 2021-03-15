@@ -19,7 +19,7 @@ import org.jboss.netty.util.Timer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;

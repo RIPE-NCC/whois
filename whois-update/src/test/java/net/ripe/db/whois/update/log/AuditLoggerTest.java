@@ -21,10 +21,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,15 +31,13 @@ import static org.mockito.Mockito.when;
 public class AuditLoggerTest {
     @Spy ByteArrayOutputStream outputStream;
     @Mock DateTimeProvider dateTimeProvider;
-    AuditLogger subject;
-
+    private AuditLogger subject;
     private Update update;
 
     @Before
     public void setUp() throws Exception {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.of(2012, 12, 1, 0, 0));
         update = new Update(new Paragraph("paragraph"), Operation.DELETE, Arrays.asList("reason"), RpslObject.parse("mntner:DEV-ROOT-MNT"));
-
         subject = new AuditLogger(dateTimeProvider, outputStream);
     }
 
@@ -50,25 +47,25 @@ public class AuditLoggerTest {
         subject.close();
 
         final String log = outputStream.toString("UTF-8");
-        assertThat(log, containsString("" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
-                "    <messages/>\n" +
-                "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
-                "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
-                "            <operation>DELETE</operation>\n" +
-                "            <reason>reason</reason>\n" +
-                "            <paragraph>\n" +
-                "                <![CDATA[paragraph]]>\n" +
-                "            </paragraph>\n" +
-                "            <object>\n" +
-                "                <![CDATA[mntner:         DEV-ROOT-MNT\n" +
-                "]]>\n" +
-                "            </object>\n" +
-                "        </update>\n" +
-                "    </updates>\n" +
-                "</dbupdate>\n"));
+
+        assertThat(trim(log), containsString("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                "<dbupdate created=\"2012-12-01 00:00:00\">" +
+                "<messages/>" +
+                "<updates>" +
+                "<update attempt=\"1\" time=\"2012-12-01 00:00:00\">" +
+                "<key>[mntner] DEV-ROOT-MNT</key>" +
+                "<operation>DELETE</operation>" +
+                "<reason>reason</reason>" +
+                "<paragraph>" +
+                "<![CDATA[paragraph]]>" +
+                "</paragraph>" +
+                "<object>" +
+                "<![CDATA[mntner:         DEV-ROOT-MNT]]>" +
+                "</object>" +
+                "</update>" +
+                "</updates>" +
+                "</dbupdate>"));
     }
 
     @Test
@@ -78,25 +75,21 @@ public class AuditLoggerTest {
         subject.close();
 
         final String log = outputStream.toString("UTF-8");
-        assertThat(log, is("" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
-                "    <messages/>\n" +
-                "    <updates>\n" +
-                "        <update attempt=\"2\" time=\"2012-12-01 00:00:00\">\n" +
-                "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
-                "            <operation>DELETE</operation>\n" +
-                "            <reason>reason</reason>\n" +
-                "            <paragraph>\n" +
-                "                <![CDATA[paragraph]]>\n" +
-                "            </paragraph>\n" +
-                "            <object>\n" +
-                "                <![CDATA[mntner:         DEV-ROOT-MNT\n" +
-                "]]>\n" +
-                "            </object>\n" +
-                "        </update>\n" +
-                "    </updates>\n" +
-                "</dbupdate>\n"));
+
+        assertThat(trim(log), is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                "<dbupdate created=\"2012-12-01 00:00:00\">" +
+                "<messages/>" +
+                "<updates>" +
+                "<update attempt=\"2\" time=\"2012-12-01 00:00:00\">" +
+                "<key>[mntner] DEV-ROOT-MNT</key>" +
+                "<operation>DELETE</operation>" +
+                "<reason>reason</reason>" +
+                "<paragraph><![CDATA[paragraph]]></paragraph>" +
+                "<object><![CDATA[mntner:         DEV-ROOT-MNT]]></object>" +
+                "</update>" +
+                "</updates>" +
+                "</dbupdate>"));
     }
 
     @Test
@@ -106,29 +99,29 @@ public class AuditLoggerTest {
         subject.close();
 
         final String log = outputStream.toString("UTF-8");
-        assertThat(log, containsString("" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
-                "    <messages/>\n" +
-                "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
-                "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
-                "            <operation>DELETE</operation>\n" +
-                "            <reason>reason</reason>\n" +
-                "            <paragraph>\n" +
-                "                <![CDATA[paragraph]]>\n" +
-                "            </paragraph>\n" +
-                "            <object>\n" +
-                "                <![CDATA[mntner:         DEV-ROOT-MNT\n" +
-                "]]>\n" +
-                "            </object>\n" +
-                "            <exception>\n" +
-                "                <class>java.lang.NullPointerException</class>\n" +
-                "                <message>\n" +
-                "                    <![CDATA[null]]>\n" +
-                "                </message>\n" +
-                "                <stacktrace>\n" +
-                "                    <![CDATA[java.lang.NullPointerException\n"));
+
+        assertThat(trim(log), containsString("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                "<dbupdate created=\"2012-12-01 00:00:00\">" +
+                "<messages/>" +
+                "<updates>" +
+                "<update attempt=\"1\" time=\"2012-12-01 00:00:00\">" +
+                "<key>[mntner] DEV-ROOT-MNT</key>" +
+                "<operation>DELETE</operation>" +
+                "<reason>reason</reason>" +
+                "<paragraph>" +
+                "<![CDATA[paragraph]]>" +
+                "</paragraph>" +
+                "<object>" +
+                "<![CDATA[mntner:         DEV-ROOT-MNT]]>" +
+                "</object>" +
+                "<exception>" +
+                "<class>java.lang.NullPointerException</class>" +
+                "<message>" +
+                "<![CDATA[null]]>" +
+                "</message>" +
+                "<stacktrace>" +
+                "<![CDATA[java.lang.NullPointerException"));
     }
 
     @Test
@@ -138,25 +131,26 @@ public class AuditLoggerTest {
         subject.close();
 
         final String log = outputStream.toString("UTF-8");
-        assertThat(log, containsString("" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
-                "    <messages/>\n" +
-                "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
-                "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
-                "            <operation>DELETE</operation>\n" +
-                "            <reason>reason</reason>\n" +
-                "            <paragraph>\n" +
-                "                <![CDATA[paragraph]]>\n" +
-                "            </paragraph>\n" +
-                "            <object>\n" +
-                "                <![CDATA[mntner:         DEV-ROOT-MNT\n" +
-                "]]>\n" +
-                "            </object>\n" +
-                "            <duration>1 ns</duration>\n" +
-                "        </update>\n" +
-                "    </updates>\n" +
+
+        assertThat(trim(log), containsString("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                "<dbupdate created=\"2012-12-01 00:00:00\">" +
+                "<messages/>" +
+                "<updates>" +
+                "<update attempt=\"1\" time=\"2012-12-01 00:00:00\">" +
+                "<key>[mntner] DEV-ROOT-MNT</key>" +
+                "<operation>DELETE</operation>" +
+                "<reason>reason</reason>" +
+                "<paragraph>" +
+                "<![CDATA[paragraph]]>" +
+                "</paragraph>" +
+                "<object>" +
+                "<![CDATA[mntner:         DEV-ROOT-MNT" +
+                "]]>" +
+                "</object>" +
+                "<duration>1 ns</duration>" +
+                "</update>" +
+                "</updates>" +
                 "</dbupdate>"));
     }
 
@@ -178,51 +172,52 @@ public class AuditLoggerTest {
         subject.close();
 
         final String log = outputStream.toString("UTF-8");
-        assertThat(log, containsString("" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
-                "    <messages/>\n" +
-                "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
-                "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
-                "            <operation>DELETE</operation>\n" +
-                "            <reason>reason</reason>\n" +
-                "            <paragraph>\n" +
-                "                <![CDATA[paragraph]]>\n" +
-                "            </paragraph>\n" +
-                "            <object>\n" +
-                "                <![CDATA[mntner:         DEV-ROOT-MNT\n" +
-                "]]>\n" +
-                "            </object>\n" +
-                "            <query>\n" +
-                "                <sql>\n" +
-                "                    <![CDATA[sql]]>\n" +
-                "                </sql>\n" +
-                "                <params>\n" +
-                "                    <param idx=\"1\">p1</param>\n" +
-                "                    <param idx=\"2\">22</param>\n" +
-                "                </params>\n" +
-                "                <results>\n" +
-                "                    <row idx=\"1\">\n" +
-                "                        <column idx=\"0\">\n" +
-                "                            <![CDATA[c1-1]]>\n" +
-                "                        </column>\n" +
-                "                        <column idx=\"1\">\n" +
-                "                            <![CDATA[c1-2]]>\n" +
-                "                        </column>\n" +
-                "                    </row>\n" +
-                "                    <row idx=\"2\">\n" +
-                "                        <column idx=\"0\">\n" +
-                "                            <![CDATA[c2-1]]>\n" +
-                "                        </column>\n" +
-                "                        <column idx=\"1\">\n" +
-                "                            <![CDATA[c2-2]]>\n" +
-                "                        </column>\n" +
-                "                    </row>\n" +
-                "                </results>\n" +
-                "            </query>\n" +
-                "        </update>\n" +
-                "    </updates>\n" +
+
+        assertThat(trim(log), containsString("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                "<dbupdate created=\"2012-12-01 00:00:00\">" +
+                "<messages/>" +
+                "<updates>" +
+                "<update attempt=\"1\" time=\"2012-12-01 00:00:00\">" +
+                "<key>[mntner] DEV-ROOT-MNT</key>" +
+                "<operation>DELETE</operation>" +
+                "<reason>reason</reason>" +
+                "<paragraph>" +
+                "<![CDATA[paragraph]]>" +
+                "</paragraph>" +
+                "<object>" +
+                "<![CDATA[mntner:         DEV-ROOT-MNT" +
+                "]]>" +
+                "</object>" +
+                "<query>" +
+                "<sql>" +
+                "<![CDATA[sql]]>" +
+                "</sql>" +
+                "<params>" +
+                "<param idx=\"1\">p1</param>" +
+                "<param idx=\"2\">22</param>" +
+                "</params>" +
+                "<results>" +
+                "<row idx=\"1\">" +
+                "<column idx=\"0\">" +
+                "<![CDATA[c1-1]]>" +
+                "</column>" +
+                "<column idx=\"1\">" +
+                "<![CDATA[c1-2]]>" +
+                "</column>" +
+                "</row>" +
+                "<row idx=\"2\">" +
+                "<column idx=\"0\">" +
+                "<![CDATA[c2-1]]>" +
+                "</column>" +
+                "<column idx=\"1\">" +
+                "<![CDATA[c2-2]]>" +
+                "</column>" +
+                "</row>" +
+                "</results>" +
+                "</query>" +
+                "</update>" +
+                "</updates>" +
                 "</dbupdate>"));
     }
 
@@ -238,6 +233,10 @@ public class AuditLoggerTest {
                 "</dbupdate>\n"
         ));
 
-        verify(outputStream, times(1)).close();
+        verify(outputStream).close();
+    }
+
+    private String trim(final String value) {
+        return value.replaceAll("(?m)^\\s+", "").replaceAll("(?m)\\n", "");
     }
 }

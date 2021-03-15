@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -33,7 +33,7 @@ public class RestServiceHelperTest {
         assertThat(getRequestURL("http://test.net", "password=abc&param=one&password=xyz&param=two"), is("http://test.net?param=one&param=two"));
         assertThat(getRequestURL("http://test.net", "password=aaa&password=bbb&param=one&password=ccc&param=two"), is("http://test.net?param=one&param=two"));
     }
-    
+
     @Test
     public void getRequestUrlWithPasswordWithoutOverride() {
         assertThat(getRequestURL("http://test.net", "unformatted=true&override=rsng,TEST-DBM-MNT"), is("http://test.net?unformatted=true&override=rsng,FILTERED"));

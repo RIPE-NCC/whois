@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import javax.ws.rs.ClientErrorException;
+import jakarta.ws.rs.ClientErrorException;
 import java.net.HttpURLConnection;
 
 import static org.hamcrest.Matchers.is;
