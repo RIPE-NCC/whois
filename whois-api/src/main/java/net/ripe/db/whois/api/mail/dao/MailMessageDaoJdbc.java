@@ -42,7 +42,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
                 "limit 1 ",
                 DequeueStatus.CLAIMED.name(),
                 Timestamp.from(dateTimeProvider.getCurrentDateTime()).getValue(),
-                Hosts.getLocalHostName(),
+                Hosts.getInstanceName(),
                 uuid);
 
         switch (rows) {
