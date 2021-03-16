@@ -93,7 +93,7 @@ public class ResponseFactory {
         velocityContext.put("globalMessages", updateContext.printGlobalMessages());
         velocityContext.put("origin", origin);
         velocityContext.put("version", applicationVersion.getVersion());
-        velocityContext.put("hostName", Hosts.getLocalHostName());
+        velocityContext.put("hostName", Hosts.getInstanceName());
         velocityContext.put("source", source);
         velocityContext.put("timestamp", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
 

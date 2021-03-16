@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.ripe.db.whois.query.QueryMessages;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,8 +27,14 @@ public class ServedByHandlerTest {
 
     @Before
     public void setup() {
+        System.setProperty("instance.name", "10.0.0.0");
         subject = new ServedByHandler("");
         when(ctxMock.channel()).thenReturn(channelMock);
+    }
+
+    @After
+    public void after() {
+        System.clearProperty("instance.name");
     }
 
     @Test

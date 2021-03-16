@@ -10,6 +10,7 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.handler.WhoisLog;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +47,7 @@ public class ConnectionPerIpLimitHandlerTest {
 
     @Before
     public void setUp() {
+        System.setProperty("instance.name", "10.0.0.0");
         this.subject = new ConnectionPerIpLimitHandler(ipResourceConfiguration, whoisLog, MAX_CONNECTIONS_PER_IP, applicationVersion);
 
         when(ctx.channel()).thenReturn(channel);
@@ -55,6 +57,12 @@ public class ConnectionPerIpLimitHandlerTest {
         when(channel.write(any())).thenReturn(channelFuture);
         when(applicationVersion.getVersion()).thenReturn("1.0");
     }
+
+    @After
+    public void after() {
+        System.clearProperty("instance.name");
+    }
+
 
     @Test
     public void one_connected() {
