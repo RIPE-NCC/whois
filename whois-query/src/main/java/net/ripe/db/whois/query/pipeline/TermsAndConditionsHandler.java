@@ -15,8 +15,8 @@ public class TermsAndConditionsHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        ctx.channel().write(TERMS_AND_CONDITIONS);
-        ctx.pipeline().remove(this);
+        ctx.channel().writeAndFlush(TERMS_AND_CONDITIONS);
+        //ctx.pipeline().remove(this);
         ctx.fireChannelActive();
     }
 

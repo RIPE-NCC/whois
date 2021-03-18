@@ -26,7 +26,6 @@ public class TermsAndConditionsHandlerTest {
     @Before
     public void setup() {
         when(ctxMock.channel()).thenReturn(channelMock);
-        when(ctxMock.pipeline()).thenReturn(mock(ChannelPipeline.class));
     }
 
     @Test
@@ -34,6 +33,6 @@ public class TermsAndConditionsHandlerTest {
         subject.channelActive(ctxMock);
 
         verify(ctxMock, times(1)).channel();
-        verify(channelMock, times(1)).write(QueryMessages.termsAndConditions());
+        verify(channelMock, times(1)).writeAndFlush(QueryMessages.termsAndConditions());
     }
 }
