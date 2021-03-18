@@ -26,6 +26,7 @@ public class TermsAndConditionsHandlerTest {
     @Before
     public void setup() {
         when(ctxMock.channel()).thenReturn(channelMock);
+        when(ctxMock.pipeline()).thenReturn(mock(ChannelPipeline.class));
     }
 
     @Test
