@@ -11,15 +11,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import static net.ripe.db.whois.query.pipeline.ConnectionStateHandler.NEWLINE;
+
 @Component
 @ChannelHandler.Sharable
 public class TermsAndConditionsHandler extends ChannelInboundHandlerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TermsAndConditionsHandler.class);
     private static final Message TERMS_AND_CONDITIONS = QueryMessages.termsAndConditions();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        ctx.writeAndFlush(TERMS_AND_CONDITIONS);
+        ctx.write(TERMS_AND_CONDITIONS);
+        ctx.writeAndFlush(NEWLINE);
         ctx.pipeline().remove(this);
         ctx.fireChannelActive();
     }
