@@ -19,14 +19,7 @@ public class TermsAndConditionsHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws InterruptedException {
-        ChannelFuture channelFuture = ctx.writeAndFlush(TERMS_AND_CONDITIONS);
-        channelFuture.addListener(future -> {
-            if (!future.isSuccess()) {
-                LOGGER.info("writing failed: " + future.cause());
-            } else {
-                LOGGER.info("writing succeeded");
-            }
-        });
+        ctx.writeAndFlush(TERMS_AND_CONDITIONS);
         ctx.pipeline().remove(this);
         ctx.fireChannelActive();
     }
