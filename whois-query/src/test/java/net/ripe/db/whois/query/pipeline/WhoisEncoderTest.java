@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.query.QueryMessages;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -57,6 +58,7 @@ public class WhoisEncoderTest {
     }
 
     @Test
+    @Ignore
     public void encode_Message() throws IOException {
         Message message = QueryMessages.inputTooLong();
         ByteBuf result = encode(message);
