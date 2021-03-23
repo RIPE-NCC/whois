@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import net.ripe.db.whois.query.QueryMessages;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -18,7 +17,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class TermsAndConditionsHandlerTest {
 
     @Mock private Channel channelMock;
@@ -31,7 +29,7 @@ public class TermsAndConditionsHandlerTest {
     }
 
     @Test
-    public void test_terms_and_conditions() throws InterruptedException {
+    public void test_terms_and_conditions() {
         subject.channelActive(ctxMock);
 
         verify(ctxMock, times(1)).writeAndFlush(QueryMessages.termsAndConditions());
