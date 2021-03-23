@@ -18,7 +18,7 @@ public class TermsAndConditionsHandler extends ChannelInboundHandlerAdapter {
     private static final Message TERMS_AND_CONDITIONS = QueryMessages.termsAndConditions();
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws InterruptedException {
+    public void channelActive(ChannelHandlerContext ctx) {
         ctx.writeAndFlush(TERMS_AND_CONDITIONS);
         ctx.pipeline().remove(this);
         ctx.fireChannelActive();

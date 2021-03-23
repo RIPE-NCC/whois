@@ -29,7 +29,7 @@ public class TermsAndConditionsHandlerTest {
     }
 
     @Test
-    public void test_terms_and_conditions() throws InterruptedException {
+    public void test_terms_and_conditions() {
         subject.channelActive(ctxMock);
 
         verify(ctxMock, times(1)).writeAndFlush(QueryMessages.termsAndConditions());
