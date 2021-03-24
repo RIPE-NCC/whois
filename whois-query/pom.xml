@@ -80,7 +80,7 @@
             <plugin>
                 <groupId>com.lazerycode.jmeter</groupId>
                 <artifactId>jmeter-maven-plugin</artifactId>
-                <version>1.10.0</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>jmeter-tests</id>
@@ -112,7 +112,7 @@
                     <plugin>
                         <groupId>com.lazerycode.jmeter</groupId>
                         <artifactId>jmeter-maven-plugin</artifactId>
-                        <version>1.10.0</version>
+                        <version>3.3.0</version>
                         <executions>
                             <execution>
                                 <id>jmeter</id>
