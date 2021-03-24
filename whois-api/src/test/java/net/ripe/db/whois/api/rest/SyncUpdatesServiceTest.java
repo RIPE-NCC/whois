@@ -64,7 +64,6 @@ public class SyncUpdatesServiceTest {
     public void setUp() {
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
         when(request.getHeaderNames()).thenReturn(Iterators.asEnumeration(Collections.emptyIterator()));
-        when(request.getCookies()).thenReturn(new Cookie[]{});
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
         when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
@@ -263,7 +262,6 @@ public class SyncUpdatesServiceTest {
         final String contentType = "UTF-8";
         final String ssoToken = null;
 
-        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
         final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));

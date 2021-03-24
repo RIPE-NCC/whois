@@ -1,14 +1,13 @@
 package net.ripe.db.whois.nrtm;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +18,7 @@ import java.net.InetAddress;
  */
 @Component
 @ChannelHandler.Sharable
-public class NrtmAclLimitHandler extends SimpleChannelUpstreamHandler {
+public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
 
     public static final String REJECTED = "REJECTED";
 
@@ -33,8 +32,8 @@ public class NrtmAclLimitHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void channelOpen(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        final Channel channel = ctx.getChannel();
+    public void channelActive(ChannelHandlerContext ctx) {
+        final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
         if (accessControlListManager.isDenied(remoteAddress)) {
@@ -49,11 +48,11 @@ public class NrtmAclLimitHandler extends SimpleChannelUpstreamHandler {
             return;
         }
 
-        super.channelOpen(ctx, e);
+        ctx.fireChannelActive();
     }
 
     @Override
-    public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        super.channelClosed(ctx, e);
+    public void channelInactive(ChannelHandlerContext ctx) {
+        ctx.fireChannelInactive();
     }
 }

@@ -39,7 +39,7 @@ public class QueryHandler {
         this.queryExecutors = Lists.newArrayList(queryExecutors);
     }
 
-    public void streamResults(final Query query, final InetAddress remoteAddress, final int contextId, final ResponseHandler responseHandler) {
+    public void streamResults(final Query query, final InetAddress remoteAddress, final Integer contextId, final ResponseHandler responseHandler) {
         new Runnable() {
             private final Stopwatch stopwatch = Stopwatch.createStarted();
 

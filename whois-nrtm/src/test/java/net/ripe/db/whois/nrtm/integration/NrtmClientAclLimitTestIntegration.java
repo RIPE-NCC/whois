@@ -49,9 +49,8 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     }
 
     @Before
-    public void before() {
+    public void before() throws InterruptedException {
         databaseHelper.addObject(mntner);
-
         ipResourceConfiguration.reload();
         testPersonalObjectAccounting.resetAccounting();
 

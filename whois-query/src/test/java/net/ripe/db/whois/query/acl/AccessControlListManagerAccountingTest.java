@@ -71,7 +71,6 @@ public class AccessControlListManagerAccountingTest {
 
     private void setPersonalLimit(int count) {
         when(ipResourceConfiguration.getLimit(ipv4Address)).thenReturn(count);
-        when(ipResourceConfiguration.getLimit(ipv6Address)).thenReturn(count);
         personalObjectAccounting.resetAccounting();
     }
 }

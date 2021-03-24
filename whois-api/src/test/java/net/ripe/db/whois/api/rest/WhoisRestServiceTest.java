@@ -25,20 +25,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class WhoisRestServiceTest {
 
-    @Mock HttpServletRequest request;
-    @Mock WhoisResources whoisResources;
     @Mock UpdateContext updateContext;
-    @Mock SourceContext sourceContext;
     @InjectMocks WhoisRestService subject;
     Source source;
 
     @Before
     public void setup() {
         source = Source.slave("TEST");
-        when(sourceContext.getCurrentSource()).thenReturn(source);
-        when(sourceContext.getAllSourceNames()).thenReturn(CIString.ciSet("TEST", "TEST-GRS"));
-        when(whoisResources.getErrorMessages()).thenReturn(Lists.newArrayList(new ErrorMessage(new Message(Messages.Type.ERROR, "Disallowed search flag '%s'"))));
-        when(request.getRequestURL()).thenReturn(new StringBuffer());
     }
 
     @Test

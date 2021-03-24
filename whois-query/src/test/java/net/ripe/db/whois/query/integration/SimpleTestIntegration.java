@@ -1,20 +1,23 @@
 package net.ripe.db.whois.query.integration;
 
 import com.google.common.collect.Lists;
+import io.netty.channel.ChannelFuture;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +31,12 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertI
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static net.ripe.db.whois.query.support.PatternCountMatcher.matchesPatternCount;
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @Category(IntegrationTest.class)
@@ -41,13 +44,24 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     //TODO [TP]: Too many different things being tested here. Should be refactored.
 
     private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
+    private static final String READ_TIMEOUT_FRAGMENT = "has been closed after a period of inactivity";
 
     @Autowired IpTreeUpdater ipTreeUpdater;
     @Autowired TestDateTimeProvider dateTimeProvider;
 
+    @BeforeClass
+    public static void setProperty() {
+        System.setProperty("whois.read.timeout.sec", "3");
+    }
+
+    @AfterClass
+    public static void clearProperty() {
+        System.clearProperty("whois.read.timeout.sec");
+    }
+
     // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
     @Before
-    public void startupWhoisServer() {
+    public void startupWhoisServer() throws InterruptedException {
         final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST\nsource: TEST");
         final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST\nsource: TEST");
         databaseHelper.addObjects(Lists.newArrayList(person, mntner));
@@ -90,7 +104,10 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     public void kFlagShouldKeepTheConnectionOpenUntilTheSecondKWithoutArguments() throws Exception {
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 
-        client.connectAndWait();
+        ChannelFuture channelFuture = client.connectAndWait();
+
+        channelFuture.sync();
+
         client.sendLine("-k");
 
         client.waitForResponseEndsWith(END_OF_HEADER);
@@ -102,10 +119,28 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
+    public void readTimeoutShouldPrintErrorMessage() throws Exception {
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+
+        ChannelFuture channelFuture = client.connectAndWait();
+
+        channelFuture.sync();
+
+        client.sendLine("-k");
+
+        client.waitForResponseEndsWith(END_OF_HEADER);
+
+        // Read timeout configured in @BeforeClass as 3 sec so wait at most 5
+        client.waitForResponseContains(READ_TIMEOUT_FRAGMENT, 5L);
+    }
+
+    @Test
     public void kFlagShouldKeepTheConnectionOpenAfterSupportedQuery() throws Exception {
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
 
-        client.connectAndWait();
+        ChannelFuture channelFuture = client.connectAndWait();
+        channelFuture.sync();
+
         client.sendLine("-k");
 
         client.waitForResponseEndsWith(END_OF_HEADER);

@@ -1,12 +1,13 @@
 package net.ripe.db.whois.nrtm;
 
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.MaintenanceMode;
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +27,21 @@ public class NrtmServer implements ApplicationService {
     @Value("${port.nrtm:0}") private int nrtmPort;
 
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
-    private final NrtmServerPipelineFactory nrtmServerPipelineFactory;
+    private final NrtmServerChannelInitializer nrtmServerChannelInitializer;
     private final MaintenanceMode maintenanceMode;
     private Channel serverChannel;
-    private ChannelFactory channelFactory;
+    private NioEventLoopGroup bossGroup;
+    private NioEventLoopGroup workerGroup;
 
     private static int port;
 
 
     @Autowired
     public NrtmServer(final NrtmChannelsRegistry nrtmChannelsRegistry,
-                      final NrtmServerPipelineFactory nrtmServerPipelineFactory,
+                      final NrtmServerChannelInitializer nrtmServerChannelInitializer,
                       final MaintenanceMode maintenanceMode) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
-        this.nrtmServerPipelineFactory = nrtmServerPipelineFactory;
+        this.nrtmServerChannelInitializer = nrtmServerChannelInitializer;
         this.maintenanceMode = maintenanceMode;
     }
 
@@ -50,33 +52,37 @@ public class NrtmServer implements ApplicationService {
             return;
         }
 
-        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, nrtmPort, "NRTM DUMMIFIER");
-        port = ((InetSocketAddress) serverChannel.getLocalAddress()).getPort();
+        serverChannel = bootstrapChannel(nrtmServerChannelInitializer, nrtmPort);
+        port = ((InetSocketAddress) serverChannel.localAddress()).getPort();
+        LOGGER.info("NRTM server listening on port {}", port);
     }
 
-    private Channel bootstrapChannel(final ChannelPipelineFactory serverPipelineFactory, final int port, final String instanceName) {
-        channelFactory = new NioServerSocketChannelFactory();
-        final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
-        bootstrap.setPipelineFactory(serverPipelineFactory);
-        bootstrap.setOption("backlog", 200);
-        // apply TCP options to accepted Channels. Ref. https://netty.io/3.10/guide/
-        bootstrap.setOption("child.tcpNoDelay", true);
-        bootstrap.setOption("child.keepAlive", true);
+    private Channel bootstrapChannel(final NrtmServerChannelInitializer serverChannelInitializer, final int nrtmPort) {
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
+        final ServerBootstrap bootstrap = new ServerBootstrap();
+        bootstrap.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .childHandler(serverChannelInitializer)
+                .option(ChannelOption.SO_BACKLOG, 200)
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-        final Channel channel = bootstrap.bind(new InetSocketAddress(port));
-        final int actualPort = ((InetSocketAddress) channel.getLocalAddress()).getPort();
-        LOGGER.info("NRTM server listening on port {} ({})", actualPort, instanceName);
-        return channel;
+        try {
+            final ChannelFuture channelFuture = bootstrap.bind(new InetSocketAddress(nrtmPort)).sync();
+            return channelFuture.channel();
+        } catch (InterruptedException e) {
+            throw new IllegalStateException("NRTM server start up failed", e);
+        }
     }
 
     @Override
     public void stop(final boolean force) {
         if (nrtmEnabled) {
+            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
             if (force) {
                 LOGGER.info("Shutting down");
-                if (channelFactory != null) {
-                    channelFactory.shutdown();
-                }
                 if (serverChannel != null) {
                     serverChannel.close();
                     serverChannel = null;
@@ -92,5 +98,4 @@ public class NrtmServer implements ApplicationService {
     public static int getPort() {
         return port;
     }
-
 }
