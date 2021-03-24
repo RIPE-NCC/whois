@@ -16,5 +16,8 @@ Running Whois Locally For Development
 See [Running whois from within Intellij](https://github.com/RIPE-NCC/whois/wiki/Development#running-whois-from-within-intellij) for instructions.
 
 ### Running outside an IDE
-- See [Installation instructions](https://github.com/RIPE-NCC/whois/wiki/Installation-instructions) for instructions.
+- See [Installation instructions](https://github.com/RIPE-NCC/whois/wiki/Installation-instructions).
 
+### Configure pre-commit hooks
+
+Pre-commit hook can be found in `tools/precommitcheck`. This can be optionally configured by running: `ln -fsv tools/precommitcheck .git/hooks/pre-commit` 
