@@ -32,15 +32,7 @@ public class WhoisEncoder extends MessageToMessageEncoder<Object> {
 
             out.add(result);
         } else if (msg instanceof Message) {
-
-            final ByteBuf result = ctx.alloc().buffer(DEFAULT_BUFFER_SIZE);
-            final ByteBufOutputStream outputStream = new ByteBufOutputStream(result);
-
-            outputStream.write(msg.toString().getBytes(StandardCharsets.UTF_8));
-            outputStream.write(OBJECT_TERMINATOR);
-
-            out.add(result);
-
+            out.add(Unpooled.wrappedBuffer(msg.toString().getBytes(StandardCharsets.UTF_8), OBJECT_TERMINATOR));
         } else {
             if (Arrays.equals((byte[]) msg, OBJECT_TERMINATOR)) {
                 out.add((Unpooled.wrappedBuffer(OBJECT_TERMINATOR)));

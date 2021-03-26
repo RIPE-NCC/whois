@@ -58,7 +58,6 @@ public class WhoisEncoderTest {
     }
 
     @Test
-    @Ignore
     public void encode_Message() throws IOException {
         Message message = QueryMessages.inputTooLong();
         ByteBuf result = encode(message);
