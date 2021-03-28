@@ -87,9 +87,11 @@ public class NrtmProxyProtocolTestIntegration extends AbstractNrtmIntegrationBas
 
         try (final Socket socket = new Socket("localhost", NrtmServer.getPort());
              final InputStream in = socket.getInputStream();
-             final OutputStream out = socket.getOutputStream();) {
+             final OutputStream out = socket.getOutputStream()) {
 
             out.write(createProxyProtocolHeader(clientIp));
+            out.write(System.lineSeparator().getBytes(StandardCharsets.ISO_8859_1));
+            out.flush();
             out.write("-g TEST:3:1-LAST\r\n".getBytes(StandardCharsets.ISO_8859_1));
 
             assertThat(IOUtils.toString(in).contains("TEST-MNT"), is(false));
