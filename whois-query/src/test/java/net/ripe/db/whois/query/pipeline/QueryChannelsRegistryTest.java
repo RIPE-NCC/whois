@@ -1,9 +1,9 @@
 package net.ripe.db.whois.query.pipeline;
 
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.DefaultChannelId;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,29 +21,29 @@ import static org.mockito.Mockito.when;
 public class QueryChannelsRegistryTest {
 
     @Mock private ChannelHandlerContext contextMock;
-    @Mock private ChannelStateEvent eventMock;
     @Mock private Channel channelMock;
     @Mock private ChannelFuture futureMock;
     @InjectMocks private QueryChannelsRegistry subject;
 
     @Before
     public void setup() {
-        when(eventMock.getChannel()).thenReturn(channelMock);
-        when(channelMock.getCloseFuture()).thenReturn(futureMock);
+        when(contextMock.channel()).thenReturn(channelMock);
+        when(channelMock.closeFuture()).thenReturn(futureMock);
         when(channelMock.close()).thenReturn(futureMock);
+        when(channelMock.id()).thenReturn(DefaultChannelId.newInstance());
     }
 
     @Test
     public void channel_open_records_sends_upstream() {
-        subject.channelOpen(contextMock, eventMock);
+        subject.channelActive(contextMock);
 
         assertThat(subject.size(), is(1));
-        verify(contextMock, times(1)).sendUpstream(eventMock);
+        verify(contextMock, times(1)).fireChannelActive();
     }
 
     @Test
     public void service_stop_closes_channels() {
-        subject.channelOpen(contextMock, eventMock);
+        subject.channelActive(contextMock);
 
         subject.closeChannels();
 

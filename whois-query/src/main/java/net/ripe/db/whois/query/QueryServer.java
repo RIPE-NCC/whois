@@ -1,14 +1,16 @@
 package net.ripe.db.whois.query;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.query.pipeline.QueryChannelsRegistry;
-import net.ripe.db.whois.query.pipeline.WhoisServerPipelineFactory;
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import net.ripe.db.whois.query.pipeline.WhoisServerChannelInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,39 +31,46 @@ public final class QueryServer implements ApplicationService {
 
     private Channel serverChannel;
 
-    private final WhoisServerPipelineFactory whoisServerPipelineFactory;
+    private final WhoisServerChannelInitializer whoisServerChannelInitializer;
     private final QueryChannelsRegistry queryChannelsRegistry;
     private final MaintenanceMode maintenanceMode;
-    private ChannelFactory channelFactory;
+    private NioEventLoopGroup bossGroup;
+    private NioEventLoopGroup workerGroup;
 
     @Autowired
-    public QueryServer(final WhoisServerPipelineFactory whoisServerPipelineFactory,
+    public QueryServer(final WhoisServerChannelInitializer whoisServerChannelInitializer,
                        final QueryChannelsRegistry queryChannelsRegistry,
                        final MaintenanceMode maintenanceMode) {
-        this.whoisServerPipelineFactory = whoisServerPipelineFactory;
+        this.whoisServerChannelInitializer = whoisServerChannelInitializer;
         this.queryChannelsRegistry = queryChannelsRegistry;
         this.maintenanceMode = maintenanceMode;
     }
 
     @Override
     public void start() {
-        channelFactory = new NioServerSocketChannelFactory();
-        final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
-        bootstrap.setPipelineFactory(whoisServerPipelineFactory);
-        // apply TCP options to accepted Channels. Ref. https://netty.io/3.10/guide/
-        bootstrap.setOption("backlog", 200);
-        bootstrap.setOption("child.tcpNoDelay", true);
-        bootstrap.setOption("child.keepAlive", true);
-        serverChannel = bootstrap.bind(new InetSocketAddress(queryPort));
-        port = ((InetSocketAddress)serverChannel.getLocalAddress()).getPort();
-        LOGGER.info("Query server listening on {}", port);
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
+        final ServerBootstrap bootstrap = new ServerBootstrap();
+        bootstrap.group(bossGroup, workerGroup)
+            .channel(NioServerSocketChannel.class)
+            .childHandler(whoisServerChannelInitializer)
+            .option(ChannelOption.SO_BACKLOG, 200)
+            .childOption(ChannelOption.TCP_NODELAY, true)
+            .childOption(ChannelOption.SO_KEEPALIVE, true);
+
+        try {
+            ChannelFuture channelFuture = bootstrap.bind(new InetSocketAddress(queryPort)).sync();
+            port = ((InetSocketAddress)channelFuture.channel().localAddress()).getPort();
+            LOGGER.info("Query server listening on {}", port);
+        } catch (InterruptedException e) {
+            throw new IllegalStateException("Query server start up failed", e);
+        }
     }
 
     @Override
     public void stop(final boolean force) {
-        if (channelFactory != null){
-            channelFactory.shutdown();
-        }
+        workerGroup.shutdownGracefully();
+        bossGroup.shutdownGracefully();
         if (serverChannel != null) {
             if (force) {
                 Uninterruptibles.sleepUninterruptibly(markNodeFailedTimeout - maintenanceMode.shutdownInitiated(), TimeUnit.MILLISECONDS);

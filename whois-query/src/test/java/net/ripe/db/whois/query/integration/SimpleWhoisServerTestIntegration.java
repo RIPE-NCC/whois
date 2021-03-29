@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.kubek2k.springockito.annotations.ReplaceWithMock;
@@ -33,8 +34,8 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -125,6 +126,16 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
         String response = new TelnetWhoisClient(QueryServer.port).sendQuery(bigString);
 
         assertThat(response, containsString(trim(QueryMessages.inputTooLong())));
+    }
+
+    @Test
+    public void exceptionShouldGiveErrorMessage() {
+        doThrow(new NullPointerException()).when(queryHandler)
+                .streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
+
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
+
+        assertThat(response, containsString("%ERROR:100: internal software error"));
     }
 
     private String trim(Message message) {

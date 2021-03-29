@@ -47,7 +47,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Before
-    public void before() {
+    public void before() throws InterruptedException {
         databaseHelper.addObject(MNTNER);
         databaseHelper.addObjectToSource("1-GRS", MNTNER);
 
@@ -60,7 +60,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @After
-    public void after() {
+    public void after() throws InterruptedException {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);
     }
@@ -87,7 +87,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void add_mntner_from_nrtm_gap_in_serials() {
+    public void add_mntner_from_nrtm_gap_in_serials() throws InterruptedException {
         final RpslObject mntner = RpslObject.parse("" +
                 "mntner: TEST-MNT\n" +
                 "source: TEST");
@@ -101,6 +101,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.addObject(mntner);
 
         nrtmServer.start();
+
         System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 
@@ -140,7 +141,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void network_error() {
+    public void network_error() throws InterruptedException {
         final RpslObject mntner1 = RpslObject.parse("" +
                 "mntner: TEST1-MNT\n" +
                 "mnt-by: OWNER-MNT\n" +
@@ -166,7 +167,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void ensure_all_changes_of_object_are_imported_with_no_missing_references() {
+    public void ensure_all_changes_of_object_are_imported_with_no_missing_references() throws InterruptedException {
         final RpslObject test1mntA = RpslObject.parse("" +
                 "mntner: TEST1-MNT\n" +
                 "mnt-ref: OWNER-MNT\n" +
@@ -193,6 +194,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.updateObject(test1mntB);
 
         nrtmServer.start();
+
         System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 

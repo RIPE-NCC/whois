@@ -1,14 +1,13 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.DefaultChannelPromise;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.DefaultChannelFuture;
 
 import java.util.Objects;
 
-public class QueryCompletedEvent implements ChannelEvent {
+public class QueryCompletedEvent {
     private final Channel channel;
     private final QueryCompletionInfo completionInfo;
 
@@ -21,14 +20,12 @@ public class QueryCompletedEvent implements ChannelEvent {
         this.completionInfo = completionInfo;
     }
 
-    @Override
     public Channel getChannel() {
         return channel;
     }
 
-    @Override
     public ChannelFuture getFuture() {
-        return new DefaultChannelFuture(channel, false);
+        return new DefaultChannelPromise(channel);
     }
 
     public boolean isForceClose() {

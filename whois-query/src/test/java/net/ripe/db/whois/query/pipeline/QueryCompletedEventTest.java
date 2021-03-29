@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.channel.Channel;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import org.jboss.netty.channel.Channel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -26,7 +26,7 @@ public class QueryCompletedEventTest {
         subject = new QueryCompletedEvent(channel);
 
         assertThat(subject.getChannel(), is(channel));
-        assertThat(subject.getFuture().getChannel(), is(channel));
+        assertThat(subject.getFuture().channel(), is(channel));
         assertThat(subject.isForceClose(), is(false));
         assertNull(subject.getCompletionInfo());
         assertThat(subject.toString(), containsString("null"));

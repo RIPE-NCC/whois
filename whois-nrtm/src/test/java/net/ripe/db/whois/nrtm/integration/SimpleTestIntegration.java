@@ -10,9 +10,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Value;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
@@ -22,7 +22,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     private int updateInterval;
 
     @Before
-    public void before() {
+    public void before() throws InterruptedException {
         updateInterval = Integer.valueOf(updateIntervalString);
         nrtmServer.start();
     }

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
@@ -112,7 +111,6 @@ public class ReferencedTypeResolverTest {
     @Test
     public void person() {
         when(rpslObjectDao.findByKey(ObjectType.PERSON, "PP1-RIPE")).thenReturn(new RpslObjectInfo(1, ObjectType.PERSON, "PP1-RIPE"));
-        when(rpslObjectDao.findByKey(ObjectType.ROLE, "PP1-RIPE")).thenThrow(EmptyResultDataAccessException.class);
 
         assertThat(subject.getReferencedType(AttributeType.TECH_C, CIString.ciString("PP1-RIPE")), is("person"));
     }

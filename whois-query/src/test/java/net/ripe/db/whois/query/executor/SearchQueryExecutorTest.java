@@ -228,7 +228,6 @@ public class SearchQueryExecutorTest {
 
     @Test
     public void query_sources_not_additional() {
-        when(sourceContext.getAdditionalSourceNames()).thenReturn(ciSet("RIPE", "APNIC-GRS", "ARIN-GRS"));
 
         final Query query = Query.parse("--sources APNIC-GRS,ARIN-GRS 10.0.0.0");
 

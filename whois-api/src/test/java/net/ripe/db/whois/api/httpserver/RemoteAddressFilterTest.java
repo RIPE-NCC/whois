@@ -65,7 +65,6 @@ public class RemoteAddressFilterTest {
     @Test
     public void forward_header() throws Exception {
         when(request.getHeaders(HttpHeaders.X_FORWARDED_FOR)).thenReturn(Collections.enumeration(Lists.newArrayList("193.0.20.1")));
-        when(request.getRemoteAddr()).thenReturn("10.0.0.0");
 
         subject.doFilter(request, response, filterChain);
 
@@ -75,7 +74,6 @@ public class RemoteAddressFilterTest {
     @Test
     public void forward_headers_ripe_range() throws Exception {
         when(request.getHeaders(HttpHeaders.X_FORWARDED_FOR)).thenReturn(Collections.enumeration(Lists.newArrayList("74.125.136.99", "193.0.20.1")));
-        when(request.getRemoteAddr()).thenReturn("10.0.0.0");
 
         subject.doFilter(request, response, filterChain);
 
@@ -85,7 +83,6 @@ public class RemoteAddressFilterTest {
     @Test
     public void forward_header_comma_separated_values() throws Exception {
         when(request.getHeaders(HttpHeaders.X_FORWARDED_FOR)).thenReturn(Collections.enumeration(Lists.newArrayList("74.125.136.99, 193.0.20.1")));
-        when(request.getRemoteAddr()).thenReturn("10.0.0.0");
 
         subject.doFilter(request, response, filterChain);
 

@@ -75,7 +75,6 @@ public class AbuseCFinderTest {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1\nsource: RIPE");
 
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(inetnum.getKey());
-        when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG-TEST1"))).thenReturn(RpslObject.parse("organisation: ORG-TEST1\nabuse-c: ABU-TEST"));
         when(objectDao.getByKey(ObjectType.ROLE, ciString("ABU-TEST"))).thenReturn(RpslObject.parse("role: abuse role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: ABU-TEST"));
 
@@ -91,7 +90,6 @@ public class AbuseCFinderTest {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1\nsource: RIPE");
 
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(inetnum.getKey());
-        when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
         when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG-TEST1"))).thenReturn(RpslObject.parse("organisation: ORG-TEST1\norg-type: LIR\nabuse-c: ABU-TEST"));
         when(objectDao.getByKey(ObjectType.ROLE, ciString("ABU-TEST"))).thenReturn(RpslObject.parse("role: abuse role\nabuse-mailbox: abuse@ripe.net\nnic-hdl: ABU-TEST"));
 
@@ -106,7 +104,6 @@ public class AbuseCFinderTest {
         final RpslObject inetnum = RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255\norg: ORG-TEST1\nabuse-c: AH1-TEST\nsource: RIPE");
 
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(inetnum.getKey());
-        when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
         when(objectDao.getByKey(ObjectType.ROLE, ciString("AH1-TEST"))).thenReturn(
                 RpslObject.parse("role: another abuse role\nabuse-mailbox: more_abuse@ripe.net\nnic-hdl: ABU-TEST")
         );
@@ -132,7 +129,6 @@ public class AbuseCFinderTest {
 
         final RpslObject root = RpslObject.parse("inetnum: 0.0.0.0 - 255.255.255.255\norg: ORG-TEST1\nmnt-by:RS1-MNT\nsource: RIPE");
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(object.getKey());
-        when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
 
         assertThat(subject.getAbuseContact(object).get().getAbuseMailbox(), is("abuse@ripe.net"));
 
@@ -165,7 +161,6 @@ public class AbuseCFinderTest {
         final Ipv4Resource ipv4Resource = Ipv4Resource.parse(object.getKey());
         when(ipv4Tree.findFirstLessSpecific(ipv4Resource)).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse(root.getKey()), 1)));
         when(objectDao.getById(1)).thenReturn(root);
-        when(objectDao.getByKey(ObjectType.ORGANISATION, ciString("ORG-TEST1"))).thenReturn(RpslObject.parse("organisation: ORG-TEST1\nsource: RIPE"));
 
         assertThat(subject.getAbuseContact(object).isPresent(), is(false));
 

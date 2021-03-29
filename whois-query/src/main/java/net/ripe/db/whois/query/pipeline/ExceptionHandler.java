@@ -1,17 +1,15 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.TooLongFrameException;
+import io.netty.handler.timeout.TimeoutException;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.handler.codec.frame.TooLongFrameException;
-import org.jboss.netty.handler.timeout.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -20,37 +18,40 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.util.Collections;
 
-public class ExceptionHandler extends SimpleChannelUpstreamHandler {
+public class ExceptionHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
 
     private String query;
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) {
-        query = e.getMessage().toString();
-
-        ctx.sendUpstream(e);
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        query = msg.toString();
+        ctx.fireChannelRead(msg);
     }
 
+
     @Override
-    public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent event) {
-        final Throwable cause = event.getCause();
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         LOGGER.debug("Caught exception", cause);
 
-        final Channel channel = event.getChannel();
+        final Channel channel = ctx.channel();
         if (cause instanceof ClosedChannelException) {
             LOGGER.debug("Channel closed", cause);
         } else if (cause instanceof QueryException) {
             handleException(channel, ((QueryException) cause).getMessages(), ((QueryException) cause).getCompletionInfo());
+        }  else if (cause.getCause() instanceof QueryException) {
+            handleException(channel, ((QueryException) cause.getCause()).getMessages(), ((QueryException) cause.getCause()).getCompletionInfo());
         } else if (cause instanceof TimeoutException) {
             handleException(channel, Collections.singletonList(QueryMessages.timeout()), QueryCompletionInfo.EXCEPTION);
         } else if (cause instanceof TooLongFrameException) {
             handleException(channel, Collections.singletonList(QueryMessages.inputTooLong()), QueryCompletionInfo.EXCEPTION);
-        } else if (cause instanceof IOException) {
+        }  else if (cause.getCause() instanceof TooLongFrameException) {
+            handleException(channel, Collections.singletonList(QueryMessages.inputTooLong()), QueryCompletionInfo.EXCEPTION);
+        }  else if (cause instanceof IOException) {
             handleException(channel, Collections.<Message>emptyList(), QueryCompletionInfo.EXCEPTION);
         } else if (cause instanceof DataAccessException) {
             LOGGER.error("Caught exception on channel id = {}, from = {} for query = {}\n{}",
-                    channel.getId(),
+                    channel.id().hashCode(),
                     ChannelUtil.getRemoteAddress(channel),
                     query,
                     cause.toString());
@@ -58,7 +59,7 @@ public class ExceptionHandler extends SimpleChannelUpstreamHandler {
             handleException(channel, Collections.singletonList(QueryMessages.internalErroroccurred()), QueryCompletionInfo.EXCEPTION);
         } else {
             LOGGER.error("Caught exception on channel id = {}, from = {} for query = {}",
-                    channel.getId(),
+                    channel.id().hashCode(),
                     ChannelUtil.getRemoteAddress(channel),
                     query,
                     cause);
@@ -74,6 +75,6 @@ public class ExceptionHandler extends SimpleChannelUpstreamHandler {
             }
         }
 
-        channel.getPipeline().sendDownstream(new QueryCompletedEvent(channel, completionInfo));
+        channel.pipeline().write(new QueryCompletedEvent(channel, completionInfo));
     }
 }

@@ -88,8 +88,6 @@ public class QueryHandlerAclTest {
                 return Sets.newHashSet(personTest, roleTest).contains(invocationOnMock.getArguments()[0]);
             }
         });
-
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
     }
 
     @Test
