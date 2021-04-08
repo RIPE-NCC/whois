@@ -1,11 +1,18 @@
 # next
 
+# 1.100
+
+[query] Use AWS instance name (#781)
+[update] Use status index during validation (#725)
+[api] Fixed aut-num attribute managed flag (#749)
+[api] Added client flag to API for proxying requests (#728)
 [all] Java 11 support (#673)
 [rdap] nameserver not implemented (#711)
 [update] Delete object bug (#723)
 [all] Removed Travis integration (#724)
 [all] Updated dependencies
 [all] Merged AWS profile (#721)
+[update] Separate email address and leading/trailing space during Punycode conversion (#782)
 
 # 1.99
 
