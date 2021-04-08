@@ -13,7 +13,7 @@ public class MailConfiguration {
     @Value("${mail.smtp.host:localhost}")
     private String smtpHost;
 
-    @Value("${whois.update.mail.smtpPort:25}")
+    @Value("${mail.smtp.port:25}")
     private String smtpPort;
 
     @Value("${mail.from}")

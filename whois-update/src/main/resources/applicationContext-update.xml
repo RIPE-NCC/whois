@@ -14,7 +14,7 @@
     <beans profile="RIPE_DEPLOYED,AWS_DEPLOYED">
         <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" primary="true">
             <property name="host" value="${mail.smtp.host}"/>
-            <property name="port" value="25"/>
+            <property name="port" value="${mail.smtp.port:25}"/>
         </bean>
     </beans>
 </beans>
