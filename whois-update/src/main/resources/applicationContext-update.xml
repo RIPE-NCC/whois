@@ -15,11 +15,11 @@
         <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" primary="true">
             <property name="host" value="${mail.smtp.host}"/>
             <property name="port" value="${mail.smtp.port:25}"/>
-            <property name="javaMailProperties" ref="mailConfiguration"/>
+            <property name="javaMailProperties" ref="javaMailProperties"/>
         </bean>
 
         <!-- Ref. https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html -->
-        <bean id="mailConfiguration" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <bean id="javaMailProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
             <property name="properties">
                 <props>
                     <!-- Socket connection timeout value in milliseconds. Default is infinite timeout. -->
