@@ -19,7 +19,7 @@ public class MailConfiguration {
     @Value("${mail.from}")
     private String from;
 
-    @Value("${whois.update.mail.debug:false}")
+    @Value("${mail.smtp.debug:false}")
     private boolean debug;
 
     private Session session;
