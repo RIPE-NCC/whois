@@ -75,8 +75,7 @@ public class MailGatewaySmtp implements MailGateway {
 
             sendEmailAttempt(to, replyTo, subject, text);
         } catch (MailException e) {
-            loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to {} with subject {}", to, subject), e);
-            LOGGER.error("Unable to send mail message to: {}", to, e);
+            loggerContext.log(new Message(Messages.Type.ERROR, "Unable to send mail to %s with subject %s", to, subject), e);
         }
     }
 
@@ -101,10 +100,12 @@ public class MailGatewaySmtp implements MailGateway {
                 }
             });
         } catch (MailSendException e) {
+            loggerContext.log(new Message(Messages.Type.ERROR, "Caught %s: %s", e.getClass().getName(), e.getMessage()));
+            LOGGER.error(String.format("Unable to send mail message to: %s", to), e);
             if (retrySending) {
                 throw e;
             } else {
-                LOGGER.info("not retrying sending mail to {}", to);
+                loggerContext.log(new Message(Messages.Type.ERROR, "Not retrying sending mail to %s with subject %s", to, subject));
             }
         }
     }
