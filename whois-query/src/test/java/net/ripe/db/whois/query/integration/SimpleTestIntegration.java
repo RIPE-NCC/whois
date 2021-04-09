@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 import java.util.Set;
@@ -40,6 +41,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @Category(IntegrationTest.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     //TODO [TP]: Too many different things being tested here. Should be refactored.
 
