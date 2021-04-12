@@ -50,6 +50,12 @@ public class WhoisServer {
 
         whoisServer.start();
 
+        applicationContext.getEnvironment().getSystemProperties()
+                .entrySet()
+                .stream()
+                .filter(property -> !property.getKey().contains("password"))
+                .forEach(property -> LOGGER.info(property.getKey() + ":" + property.getValue()));
+
         LOGGER.info("Whois server started in {}", stopwatch.stop());
     }
 
