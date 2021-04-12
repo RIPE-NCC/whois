@@ -50,7 +50,7 @@ public class WhoisServer {
 
         whoisServer.start();
 
-        applicationContext.getEnvironment().getSystemProperties()
+        applicationContext.getEnvironment().getSystemEnvironment()
                 .entrySet()
                 .stream()
                 .filter(property -> !property.getKey().contains("password"))
