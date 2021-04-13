@@ -1,15 +1,19 @@
 package net.ripe.db.whois.query.integration;
 
+import com.google.common.collect.Lists;
 import io.netty.channel.ChannelFuture;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.test.annotation.DirtiesContext;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,10 +24,39 @@ import static org.junit.Assert.assertTrue;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleKeepaliveTestIntegration.class);
-
     private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
     private static final String READ_TIMEOUT_FRAGMENT = "has been closed after a period of inactivity";
+
+    @BeforeClass
+    public static void setProperty() {
+        System.setProperty("whois.read.timeout.sec", "3");
+    }
+
+    @AfterClass
+    public static void clearProperty() {
+        System.clearProperty("whois.read.timeout.sec");
+    }
+
+    // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
+    @Before
+    public void startupWhoisServer() {
+        final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST\nsource: TEST");
+        final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST\nsource: TEST");
+        databaseHelper.addObjects(Lists.newArrayList(person, mntner));
+
+        databaseHelper.addObject("inetnum: 81.0.0.0 - 82.255.255.255\nnetname: NE\nmnt-by:RIPE-NCC-HM-MNT\nsource: TEST");
+        databaseHelper.addObject("domain: 117.80.81.in-addr.arpa\nsource: TEST");
+        databaseHelper.addObject("inetnum: 81.80.117.237 - 81.80.117.237\nnetname: NN\nstatus: OTHER\nsource: TEST");
+        databaseHelper.addObject("route: 81.80.117.0/24\norigin: AS123\n");
+        databaseHelper.addObject("route: 81.80.0.0/16\norigin: AS123\n");
+        ipTreeUpdater.rebuild();
+        queryServer.start();
+    }
+
+    @After
+    public void shutdownWhoisServer() {
+        queryServer.stop(true);
+    }
 
     @Test
     public void kFlagShouldKeepTheConnectionOpenUntilTheSecondKWithoutArguments() throws Exception {
