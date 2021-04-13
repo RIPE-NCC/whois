@@ -60,7 +60,7 @@ public class WhoisServer {
                 .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
                 .flatMap(Arrays::stream)
                 .distinct()
-                .forEach(prop -> LOGGER.info("{}: {}", prop, (prop.contains("credentials") || prop.contains("password") ? "*****" :  applicationContext.getEnvironment().getProperty(prop)));
+                .forEach(prop -> LOGGER.info("{}: {}", prop, (prop.contains("credentials") || prop.contains("password")) ? "*****" :  applicationContext.getEnvironment().getProperty(prop)));
 
         LOGGER.info("Whois server started in {}", stopwatch.stop());
     }
