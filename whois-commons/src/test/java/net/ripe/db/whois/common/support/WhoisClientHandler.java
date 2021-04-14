@@ -82,10 +82,10 @@ public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
 
     public ChannelFuture sendLine(String query) throws InterruptedException {
         Assert.assertTrue(success);
-        while (channel == null) {
-            // Ensures the channelActive has been fired and channel set before continuing with test
-            Thread.sleep(1000);
-        }
+
+        // Ensures the channelActive has been fired and channel set before continuing with test
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (channel != null));
+
         ChannelFuture future = channel.writeAndFlush(query + "\n");
         success = future.await(3, TimeUnit.SECONDS);
         return future;
