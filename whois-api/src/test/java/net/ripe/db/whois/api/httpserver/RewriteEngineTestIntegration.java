@@ -68,7 +68,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Before
     public void setup() {
-        databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
+        databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST\nsource: TEST\n");
         final RpslObject mntner = RpslObject.parse(
                 "mntner:        TEST-MNT\n" +
                         "descr:         Test maintainer\n" +
@@ -232,6 +232,5 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
         final URI uri = URI.create(url);
         return uri.getHost();
     }
-
 
 }

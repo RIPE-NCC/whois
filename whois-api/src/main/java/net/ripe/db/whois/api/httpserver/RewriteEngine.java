@@ -71,7 +71,7 @@ public class RewriteEngine {
         );
 
         syncupdatesRule.setTerminating(true);
-        syncupdatesVirtualHostRule.addRule(new HttpMethodRule("POST", syncupdatesRule));
+        syncupdatesVirtualHostRule.addRule(syncupdatesRule);
 
         return rewriteHandler;
     }
@@ -90,12 +90,12 @@ public class RewriteEngine {
         ))));
 
         // Don't allow passwords over plain HTTP
-//        virtualHost.addRule(
-//            new HttpTransportRule("http",
-//                new HttpMethodRule("get", new CaseInsensitiveResponseRegexRule(
-//                "^(.*(?:^|&))password=(.*)$",
-//                403
-//        ))));
+        virtualHost.addRule(
+            new HttpTransportRule("http",
+                new HttpMethodRule("get", new RequestParamRegexRule(
+                "(&?password=(.*))*$",
+                403
+        ))));
 
         // Lookups
         virtualHost.addRule(
@@ -103,7 +103,6 @@ public class RewriteEngine {
                     String.format("^/(%s|%s|[a-z]+-grs)/(.*)$", source, nonAuthSource),
             "/whois/$1/$2"
         )));
-
 
         // CORS preflight request
         virtualHost.addRule(

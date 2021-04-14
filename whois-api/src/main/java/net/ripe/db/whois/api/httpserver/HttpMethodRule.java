@@ -17,7 +17,7 @@ public class HttpMethodRule extends Rule {
     private final Rule delegate;
 
     /**
-     * Ctor.
+     * Constructor.
      * @param method the HTTP method the request should have
      * @param rule the actual rewrite rule
      */
