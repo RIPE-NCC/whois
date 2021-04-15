@@ -16,6 +16,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.glassfish.jersey.uri.UriComponent;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,7 +35,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 
-// FIXME: make this into a suite that runs twice: once with XML, once with JSON
 @Category(IntegrationTest.class)
 public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegrationTest {
 
@@ -85,6 +85,11 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
     @BeforeClass
     public static void beforeClass() {
         System.setProperty("ipranges.trusted", "");
+    }
+
+    @AfterClass
+    public static void clearProperty() {
+        System.clearProperty("ipranges.trusted");
     }
 
     @Test
