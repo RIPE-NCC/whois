@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.httpserver;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.rewrite.handler.Rule;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +37,7 @@ public class RequestParamRegexRule extends Rule {
     }
 
     private String apply(final String target, final HttpServletResponse response) throws IOException {
-        if (responseCode >= 400) {
+        if (HttpStatus.isClientError(responseCode) || HttpStatus.isServerError(responseCode)) {
             response.sendError(responseCode);
         } else {
             response.setStatus(responseCode);

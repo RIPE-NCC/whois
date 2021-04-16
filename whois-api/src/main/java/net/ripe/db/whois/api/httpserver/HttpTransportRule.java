@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.httpserver;
 
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.rewrite.handler.Rule;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,10 +11,10 @@ import java.util.Enumeration;
 
 public class HttpTransportRule extends Rule {
 
-    private final String transport;
+    private final HttpScheme transport;
     private final Rule delegate;
 
-    public HttpTransportRule(final String transport, final Rule delegate) {
+    public HttpTransportRule(final HttpScheme transport, final Rule delegate) {
         this.transport = transport;
         this.delegate = delegate;
     }
@@ -24,12 +26,12 @@ public class HttpTransportRule extends Rule {
 
 
     private boolean hasTransport(final HttpServletRequest request) {
-        final Enumeration<String> header = request.getHeaders("X-Forwarded-Proto");
+        final Enumeration<String> header = request.getHeaders(HttpHeader.X_FORWARDED_PROTO.toString());
         if (header == null || !header.hasMoreElements()) {
             return false;
         }
 
-        return header.nextElement().equalsIgnoreCase(transport);
+        return transport.is(header.nextElement());
     }
 
     @Override

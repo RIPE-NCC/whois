@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.rewrite.handler.Rule;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +17,7 @@ public class FixedResponseRule extends Rule {
 
     @Override
     public String matchAndApply(String target, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (responseCode >= 400) {
+        if (HttpStatus.isClientError(responseCode) || HttpStatus.isServerError(responseCode)) {
             response.sendError(responseCode);
         } else {
             response.setStatus(responseCode);

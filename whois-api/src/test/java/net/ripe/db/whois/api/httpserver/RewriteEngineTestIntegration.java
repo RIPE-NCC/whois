@@ -13,6 +13,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpScheme;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -88,7 +90,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
         final WhoisResources whoisResources = RestTest.target(getPort(), "test/person/TP1-TEST")
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                .header("X-Forwarded-Proto", "http")
+                .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTP)
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -101,7 +103,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
             final WhoisResources whoisResources = RestTest.target(getPort(), "test/person/TP1-TEST?password=123")
                     .request()
                     .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                    .header("X-Forwarded-Proto", "http")
+                    .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTP)
                     .get(WhoisResources.class);
             fail("Should have resulted in 403");
         } catch (ForbiddenException fe) {
@@ -119,7 +121,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .queryParam("password", "123")
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                .header("X-Forwarded-Proto", "https")
+                .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
                 .put(javax.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertTrue(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS));
@@ -137,7 +139,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .queryParam("override", "batch,batch")
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                .header("X-Forwarded-Proto", "https")
+                .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
                 .post(javax.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertTrue(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS));

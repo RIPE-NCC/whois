@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.httpserver;
 
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpScheme;
+import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.rewrite.handler.RedirectRegexRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
@@ -83,38 +86,38 @@ public class RewriteEngine {
         ));
 
         virtualHost.addRule(
-            new HttpTransportRule("https",
-                new HttpMethodRule(Set.of("post", "put", "delete"), new CaseInsensitiveRewriteRegexRule(
+            new HttpTransportRule(HttpScheme.HTTPS,
+                new HttpMethodRule(Set.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE), new CaseInsensitiveRewriteRegexRule(
                 String.format("^/(%s|%s)/(.*)$", source, nonAuthSource),
                 "/whois/$1/$2"
         ))));
 
         // Don't allow passwords over plain HTTP
         virtualHost.addRule(
-            new HttpTransportRule("http",
-                new HttpMethodRule("get", new RequestParamRegexRule(
+            new HttpTransportRule(HttpScheme.HTTP,
+                new HttpMethodRule(HttpMethod.GET, new RequestParamRegexRule(
                 "(&?password=(.*))*$",
-                403
+                HttpStatus.FORBIDDEN_403
         ))));
 
         // Lookups
         virtualHost.addRule(
-            new HttpMethodRule("get", new CaseInsensitiveRewriteRegexRule(
+            new HttpMethodRule(HttpMethod.GET, new CaseInsensitiveRewriteRegexRule(
                     String.format("^/(%s|%s|[a-z]+-grs)/(.*)$", source, nonAuthSource),
             "/whois/$1/$2"
         )));
 
         // CORS preflight request
         virtualHost.addRule(
-            new HttpMethodRule("options", new CaseInsensitiveRewriteRegexRule(
+            new HttpMethodRule(HttpMethod.OPTIONS, new CaseInsensitiveRewriteRegexRule(
                     String.format("^/(%s|%s|[a-z]+-grs)/(.*)$", source, nonAuthSource),
             "/whois/$1/$2"
         )));
 
         //
         // Batch
-        virtualHost.addRule(new HttpTransportRule("https",
-            new HttpMethodRule("post", new CaseInsensitiveRewriteRegexRule(
+        virtualHost.addRule(new HttpTransportRule(HttpScheme.HTTPS,
+            new HttpMethodRule(HttpMethod.POST, new CaseInsensitiveRewriteRegexRule(
             "^/batch/?(.*)$",
             "/whois/batch/$1"
         ))));
@@ -126,7 +129,7 @@ public class RewriteEngine {
         ));
 
         // catch-all fallthrough; return 400
-        virtualHost.addRule(new FixedResponseRule(400));
+        virtualHost.addRule(new FixedResponseRule(HttpStatus.BAD_REQUEST_400));
     }
 
 }

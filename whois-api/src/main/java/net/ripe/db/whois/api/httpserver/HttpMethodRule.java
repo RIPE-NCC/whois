@@ -1,19 +1,19 @@
 package net.ripe.db.whois.api.httpserver;
 
+import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.rewrite.handler.Rule;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * {@link Rule} to conditionally match on HTTP request method before applying a rewrite rule.
  */
 public class HttpMethodRule extends Rule {
 
-    private final Set<String> methods;
+    private final Set<HttpMethod> methods;
     private final Rule delegate;
 
     /**
@@ -21,20 +21,24 @@ public class HttpMethodRule extends Rule {
      * @param method the HTTP method the request should have
      * @param rule the actual rewrite rule
      */
-    public HttpMethodRule(final String method, final Rule rule) {
+    public HttpMethodRule(final HttpMethod method, final Rule rule) {
         this(Set.of(method), rule);
     }
 
-    public HttpMethodRule(final Set<String> methods, final Rule rule) {
-        this.methods = methods.stream().map(String::toLowerCase).collect(Collectors.toSet());
+    public HttpMethodRule(final Set<HttpMethod> methods, final Rule rule) {
+        this.methods = methods;
         this.delegate = rule;
     }
 
     @Override
     public String matchAndApply(String target, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return methods.contains(request.getMethod().toLowerCase())?
+        try {
+        return methods.contains(HttpMethod.valueOf(request.getMethod()))?
                 delegate.matchAndApply(target, request, response) :
                 null;
+        } catch (IllegalArgumentException iae) {
+            return null;
+        }
     }
 
     @Override
