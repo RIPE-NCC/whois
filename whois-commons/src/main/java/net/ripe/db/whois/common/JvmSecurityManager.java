@@ -13,8 +13,6 @@ public class JvmSecurityManager {
 
     @Autowired
     public JvmSecurityManager() {
-
-        LOGGER.info("Setting jvm ttl properties");
         java.security.Security.setProperty("networkaddress.cache.ttl", "30");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "10");
     }

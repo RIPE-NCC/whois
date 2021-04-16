@@ -62,8 +62,8 @@ public class WhoisServer {
                 .distinct()
                 .forEach(prop -> LOGGER.info("{}: {}", prop, (prop.contains("credentials") || prop.contains("password")) ? "*****" :  applicationContext.getEnvironment().getProperty(prop)));
 
-        LOGGER.info("JVM TTL properties {}", java.security.Security.getProperty("networkaddress.cache.ttl"));
-        LOGGER.info("JVM TTL properties {}", java.security.Security.getProperty("networkaddress.cache.negative.ttl"));
+        LOGGER.info("networkaddress.cache.ttl:", java.security.Security.getProperty("networkaddress.cache.ttl"));
+        LOGGER.info("networkaddress.cache.negative.ttl:", java.security.Security.getProperty("networkaddress.cache.negative.ttl"));
 
         LOGGER.info("Whois server started in {}", stopwatch.stop());
     }
