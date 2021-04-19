@@ -110,7 +110,7 @@ public class X509SignedMessage {
             return true;
         }
 
-        final LocalDateTime currentTime = dateTimeProvider.getCurrentDateTime();
+        final LocalDateTime currentTime = dateTimeProvider.getLocalDateTimeUtc();
         return (signingTime.isAfter(currentTime.minusHours(1)) && signingTime.isBefore(currentTime.plusHours(1)));
     }
 

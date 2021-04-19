@@ -51,7 +51,7 @@ public class WhoisRestApi implements Origin {
                 " - From-Host: %s\n" +
                 " - Date/Time: %s\n",
                 remoteAddress,
-                DATE_FORMAT.format(dateTimeProvider.getCurrentDateTime()));
+                DATE_FORMAT.format(dateTimeProvider.getLocalDateTimeUtc()));
     }
 
     @Override

@@ -29,11 +29,11 @@ public class AutomaticPermanentBlocksCleanup implements DailyScheduledTask {
     @Scheduled(cron = "0 0 0 * * *")
     @SchedulerLock(name = "AutomaticPermanentBlocksCleanup")
     public void run() {
-        final LocalDate eventRemoveDate = dateTimeProvider.getCurrentDate().minusMonths(3);
+        final LocalDate eventRemoveDate = dateTimeProvider.getLocalDateUtc().minusMonths(3);
         LOGGER.debug("Removing block events before {}", eventRemoveDate);
         accessControlListDao.removeBlockEventsBefore(eventRemoveDate);
 
-        final LocalDate blockRemoveDate = dateTimeProvider.getCurrentDate().minusYears(1);
+        final LocalDate blockRemoveDate = dateTimeProvider.getLocalDateUtc().minusYears(1);
         LOGGER.debug("Removing permanent bans before {}", blockRemoveDate);
         accessControlListDao.removePermanentBlocksBefore(blockRemoveDate);
     }

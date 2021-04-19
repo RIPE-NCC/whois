@@ -12,7 +12,8 @@ import java.time.ZonedDateTime;
 @Profile({WhoisProfile.TEST})
 @Component
 public class TestDateTimeProvider implements DateTimeProvider, Stub {
-    private LocalDateTime localDateTime = LocalDateTime.now();
+    private LocalDateTime localDateTime = LocalDateTime.now(ZoneOffset.UTC);
+    private LocalDateTime localAmsDateTime = LocalDateTime.now();
 
     @Override
     public void reset() {
@@ -20,18 +21,24 @@ public class TestDateTimeProvider implements DateTimeProvider, Stub {
     }
 
     @Override
-    public LocalDate getCurrentDate() {
-        return localDateTime.toLocalDate();
+    public LocalDate getLocalDateUtc() {
+        return getZoneDateTimeUtc().toLocalDate();
     }
 
     @Override
-    public LocalDateTime getCurrentDateTime() {
-        return localDateTime;
+    public LocalDateTime getLocalDateTimeUtc() {
+        return getZoneDateTimeUtc().toLocalDateTime();
     }
 
     @Override
-    public ZonedDateTime getCurrentDateTimeUtc() {
-        return getCurrentDateTime().atZone(ZoneOffset.UTC);
+    public LocalDateTime getDateTimeAms() {
+        return localAmsDateTime;
+    }
+
+
+    @Override
+    public ZonedDateTime getZoneDateTimeUtc() {
+        return localDateTime.atZone(ZoneOffset.UTC);
     }
 
     public long getElapsedTime() {

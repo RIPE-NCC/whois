@@ -41,7 +41,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
                 "where status is null " +
                 "limit 1 ",
                 DequeueStatus.CLAIMED.name(),
-                Timestamp.from(dateTimeProvider.getCurrentDateTime()).getValue(),
+                Timestamp.from(dateTimeProvider.getLocalDateTimeUtc()).getValue(),
                 Hosts.getInstanceName(),
                 uuid);
 
@@ -96,7 +96,7 @@ class MailMessageDaoJdbc implements MailMessageDao {
         final int rows = jdbcTemplate.update(
                 "update mailupdates set status = ?, changed = ? where claim_uuid = ?",
                 status.name(),
-                Timestamp.from(dateTimeProvider.getCurrentDateTime()).getValue(),
+                Timestamp.from(dateTimeProvider.getLocalDateTimeUtc()).getValue(),
                 messageUuid);
 
         if (rows != 1) {

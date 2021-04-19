@@ -29,7 +29,7 @@ public class X509CertificateWrapperTest {
 
     @Before
     public void setup() throws IOException {
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2014-01-02T00:00:00"));
+        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.parse("2014-01-02T00:00:00"));
         x509Keycert = RpslObject.parse(getResource("keycerts/X509-3465.TXT"));
         anotherX509Keycert = RpslObject.parse(getResource("keycerts/X509-1.TXT"));
         pgpKeycert = RpslObject.parse(getResource("keycerts/PGPKEY-28F6CD6C.TXT"));
@@ -78,7 +78,7 @@ public class X509CertificateWrapperTest {
 
         assertThat(subject.isNotYetValid(dateTimeProvider), is(false));
 
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now().minusYears(100));
+        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.now().minusYears(100));
         assertThat(subject.isNotYetValid(dateTimeProvider), is(true));
     }
 
@@ -88,7 +88,7 @@ public class X509CertificateWrapperTest {
 
         assertThat(subject.isExpired(dateTimeProvider), is(false));
 
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now().plusYears(100));
+        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.now().plusYears(100));
         assertThat(subject.isExpired(dateTimeProvider), is(true));
     }
 

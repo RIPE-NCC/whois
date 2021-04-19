@@ -4316,7 +4316,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void use_override_to_skip_updating_last_modified() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
 
-        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final ZonedDateTime oldDateTime = testDateTimeProvider.getZoneDateTimeUtc();
         final ZonedDateTime newDateTime = oldDateTime.plusDays(10);
         testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 
@@ -4347,7 +4347,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void use_override_explicit_not_skip_updating_last_modified() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
 
-        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final ZonedDateTime oldDateTime = testDateTimeProvider.getZoneDateTimeUtc();
         final ZonedDateTime newDateTime = oldDateTime.plusDays(10);
         testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 

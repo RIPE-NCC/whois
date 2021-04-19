@@ -183,7 +183,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         if (validSeconds > 0) {
             final int days = Long.valueOf(Long.divideUnsigned(validSeconds, SECONDS_IN_ONE_DAY)).intValue();
             final LocalDateTime expired = (DateUtil.fromDate(masterKey.getCreationTime())).plusDays(days);
-            return expired.isBefore(dateTimeProvider.getCurrentDateTime());
+            return expired.isBefore(dateTimeProvider.getLocalDateTimeUtc());
         }
 
         return false;

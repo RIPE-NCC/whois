@@ -117,7 +117,7 @@ public class AccessControlListManager {
         } else {
             maskedAddress = Ipv4Resource.asIpInterval(hostAddress);
         }
-        accessControlListDao.saveAclEvent(maskedAddress, dateTimeProvider.getCurrentDate(), limit, BlockEvent.Type.BLOCK_TEMPORARY);
+        accessControlListDao.saveAclEvent(maskedAddress, dateTimeProvider.getLocalDateUtc(), limit, BlockEvent.Type.BLOCK_TEMPORARY);
     }
 
 

@@ -25,7 +25,7 @@ public class SyncUpdateTest {
 
     @Before
     public void setUp() throws Exception {
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC));
+        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC));
         subject = new SyncUpdate(dateTimeProvider, LOCALHOST);
     }
 

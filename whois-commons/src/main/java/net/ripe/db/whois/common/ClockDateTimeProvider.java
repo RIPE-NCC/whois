@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
@@ -13,18 +14,24 @@ import java.time.ZonedDateTime;
 @Primary
 @Component
 public class ClockDateTimeProvider implements DateTimeProvider {
+
     @Override
-    public LocalDate getCurrentDate() {
-        return LocalDate.now();
+    public LocalDate getLocalDateUtc() {
+        return getZoneDateTimeUtc().toLocalDate();
     }
 
     @Override
-    public LocalDateTime getCurrentDateTime() {
-        return LocalDateTime.now();
+    public LocalDateTime getLocalDateTimeUtc() {
+        return getZoneDateTimeUtc().toLocalDateTime();
     }
 
     @Override
-    public ZonedDateTime getCurrentDateTimeUtc() {
+    public LocalDateTime getDateTimeAms() {
+        return LocalDateTime.now(ZoneId.of("Europe/Amsterdam"));
+    }
+
+    @Override
+    public ZonedDateTime getZoneDateTimeUtc() {
         return ZonedDateTime.now(ZoneOffset.UTC);
     }
 

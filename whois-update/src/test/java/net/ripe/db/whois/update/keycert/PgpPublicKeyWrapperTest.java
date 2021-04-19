@@ -35,7 +35,7 @@ public class PgpPublicKeyWrapperTest {
 
     @Before
     public void setup() throws Exception {
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.now());
         pgpKeycert = RpslObject.parse(getResource("keycerts/PGPKEY-A8D16B70.TXT"));
         anotherPgpKeycert = RpslObject.parse(getResource("keycerts/PGPKEY-28F6CD6C.TXT"));
         x509Keycert = RpslObject.parse(getResource("keycerts/X509-1.TXT"));

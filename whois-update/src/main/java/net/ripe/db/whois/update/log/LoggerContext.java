@@ -78,7 +78,7 @@ public class LoggerContext {
     }
 
     public void init(final String folderName) {
-        final LocalDateTime now = dateTimeProvider.getCurrentDateTime();
+        final LocalDateTime now = dateTimeProvider.getLocalDateTimeUtc();
         final File dir = getCreatedDir(baseDir + FILE_SEPARATOR + DATE_FORMAT.format(now) + FILE_SEPARATOR + trim(TIME_FORMAT.format(now) + "." + sanitize(folderName), MAXIMUM_FILENAME_LENGTH));
         init(dir);
     }

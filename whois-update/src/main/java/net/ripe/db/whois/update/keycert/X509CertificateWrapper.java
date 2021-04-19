@@ -133,12 +133,12 @@ public final class X509CertificateWrapper implements KeyWrapper {
 
     public boolean isNotYetValid(final DateTimeProvider dateTimeProvider) {
         final LocalDateTime notBefore = DateUtil.fromDate(certificate.getNotBefore());
-        return notBefore.isAfter(dateTimeProvider.getCurrentDateTime());
+        return notBefore.isAfter(dateTimeProvider.getLocalDateTimeUtc());
     }
 
     public boolean isExpired(final DateTimeProvider dateTimeProvider) {
         final LocalDateTime notAfter = DateUtil.fromDate(certificate.getNotAfter());
-        return notAfter.isBefore(dateTimeProvider.getCurrentDateTime());
+        return notAfter.isBefore(dateTimeProvider.getLocalDateTimeUtc());
     }
 
 }

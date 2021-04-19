@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -15,12 +16,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AttributeSanitizerTest {
-    @Mock DateTimeProvider dateTimeProvider;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS) DateTimeProvider dateTimeProvider;
     @Mock ObjectMessages objectMessages;
     @InjectMocks AttributeSanitizer attributeSanitizer;
 
@@ -493,7 +493,7 @@ public class AttributeSanitizerTest {
 
     @Test
     public void transform_changed() {
-        when(dateTimeProvider.getCurrentDate()).thenReturn(LocalDate.of(2013, 02, 25));
+        when(dateTimeProvider.getLocalDateUtc()).thenReturn(LocalDate.of(2013, 02, 25));
         final RpslObject rpslObject = RpslObject.parse("inet6num: 2001::/16\n" +
                 "changed: user@host.org 20120601\n" +
                 "changed: user@host.org\n" +

@@ -7,14 +7,14 @@ import java.time.ZonedDateTime;
 
 public interface DateTimeProvider {
 
-    /** Return the current date */
-    LocalDate getCurrentDate();
+    /** Return the current date time in Amsterdam  */
+    LocalDateTime getDateTimeAms();
 
-    /** Return the current date time (in current system timezone) */
-    LocalDateTime getCurrentDateTime();
+    LocalDate getLocalDateUtc();
 
-    /** Return the current date time in UTC */
-    ZonedDateTime getCurrentDateTimeUtc();
+    LocalDateTime getLocalDateTimeUtc();
+
+    ZonedDateTime getZoneDateTimeUtc();
 
     /** returns elapsed time (with nanosecond precision). N.B. not related to system time */
     long getElapsedTime();
