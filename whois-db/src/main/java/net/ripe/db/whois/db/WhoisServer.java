@@ -110,12 +110,17 @@ public class WhoisServer {
             LOGGER.warn("security.overridePropertiesFile is false, cannot override security values");
         }
 
-        final String networdkAddrCacheTtl = Security.getProperty("networkaddress.cache.ttl");
-        LOGGER.info("networkaddress.cache.ttl: {}", networdkAddrCacheTtl);
-        LOGGER.info("networkaddress.cache.negative.ttl: {}", Security.getProperty("networkaddress.cache.negative.ttl"));
+        final String networkAddrCacheTtl = Security.getProperty("networkaddress.cache.ttl");
+        final String networkAddrNegativeCacheTtl = Security.getProperty("networkaddress.cache.negative.ttl");
+        LOGGER.info("networkaddress.cache.ttl: {}", networkAddrCacheTtl);
+        LOGGER.info("networkaddress.cache.negative.ttl: {}", networkAddrNegativeCacheTtl);
 
-        if(networdkAddrCacheTtl == null || networdkAddrCacheTtl.equals("-1")) {
-            LOGGER.warn("Networkaddress.cache.ttl is not set properly");
+        if(networkAddrCacheTtl == null || networkAddrCacheTtl.equals("-1")) {
+            LOGGER.warn("networkaddress.cache.ttl is not set properly");
+        }
+
+        if(networkAddrNegativeCacheTtl == null || networkAddrNegativeCacheTtl.equals("-1")) {
+            LOGGER.warn("networkaddress.cache.negative.ttl is not set properly");
         }
     }
 }
