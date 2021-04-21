@@ -1,6 +1,6 @@
 package net.ripe.db.whois.scheduler.task.acl;
 
-import net.javacrumbs.shedlock.core.SchedulerLock;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.BlockEvents;
@@ -36,7 +36,7 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = runTimezone)
     @SchedulerLock(name = "AutomaticPermanentBlocks")
     public void run() {
         final LocalDate now = dateTimeProvider.getLocalDateUtc();

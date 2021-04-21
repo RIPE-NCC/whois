@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.grs;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
-import net.javacrumbs.shedlock.core.SchedulerLock;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +50,7 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
      * Run every 15 minutes.
      */
     @Override
-    @Scheduled(cron = "0 5/15 * * * *")
+    @Scheduled(cron = "0 5/15 * * * *", zone = runTimezone)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         doImport(Sets.newHashSet(SOURCE_NAME_RIPE));

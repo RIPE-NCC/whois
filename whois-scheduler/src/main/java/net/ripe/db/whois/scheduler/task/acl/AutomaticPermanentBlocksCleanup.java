@@ -1,6 +1,6 @@
 package net.ripe.db.whois.scheduler.task.acl;
 
-import net.javacrumbs.shedlock.core.SchedulerLock;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
@@ -26,7 +26,7 @@ public class AutomaticPermanentBlocksCleanup implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = runTimezone)
     @SchedulerLock(name = "AutomaticPermanentBlocksCleanup")
     public void run() {
         final LocalDate eventRemoveDate = dateTimeProvider.getLocalDateUtc().minusMonths(3);

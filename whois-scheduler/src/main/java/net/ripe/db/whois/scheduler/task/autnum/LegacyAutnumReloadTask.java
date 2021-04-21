@@ -20,7 +20,7 @@ public class LegacyAutnumReloadTask implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 1/15 * * * *")
+    @Scheduled(cron = "0 1/15 * * * *", zone = runTimezone)
     public void run() {
         LOGGER.info("Reloading legacy autnums");
         final int previousTotal = legacyAutnum.getTotal();
