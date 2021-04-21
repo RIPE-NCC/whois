@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -30,12 +31,11 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -174,7 +174,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                         .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                         .get(Response.class)
                         .getStatus(),
-                is(400)
+                is(HttpStatus.BAD_REQUEST_400)
         );
     }
 
@@ -186,8 +186,8 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .get(Response.class);
 
-        assertEquals(response.getStatus(), 302);
-        assertEquals(response.getHeaderString("Location"), "https://github.com/RIPE-NCC/whois/wiki/WHOIS-REST-API");
+        assertThat(response.getStatus(), is(HttpStatus.FOUND_302));
+        assertThat(response.getHeaderString("Location"), is("https://github.com/RIPE-NCC/whois/wiki/WHOIS-REST-API"));
 
     }
 
@@ -225,7 +225,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .options();
 
-        assertThat(response.getStatus(), is(200));
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
     }
 
     // helper methods
