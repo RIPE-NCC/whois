@@ -63,6 +63,7 @@ public class WhoisServer {
                 .distinct()
                 .forEach(prop -> LOGGER.info("{}: {}", prop, (prop.contains("credentials") || prop.contains("password")) ? "*****" :  applicationContext.getEnvironment().getProperty(prop)));
 
+        printJvmSecurityProperties();
         LOGGER.info("Whois server started in {}", stopwatch.stop());
     }
 
