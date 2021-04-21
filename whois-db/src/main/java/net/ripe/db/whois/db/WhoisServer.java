@@ -16,6 +16,7 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
+import java.security.Security;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -100,6 +101,20 @@ public class WhoisServer {
             if (forced) LOGGER.info("Stopped {} in {}", applicationService, stopwatch.stop());
         } catch (RuntimeException e) {
             LOGGER.error("Stopping: {}", applicationService, e);
+        }
+    }
+
+    private static void printJvmSecurityProperties() {
+        if(!Boolean.valueOf(Security.getProperty("security.overridePropertiesFile"))) {
+            LOGGER.warn("security.overridePropertiesFile is false, cannot override security values");
+        }
+
+        final String networdkAddrCacheTtl = Security.getProperty("networkaddress.cache.ttl");
+        LOGGER.info("networkaddress.cache.ttl: {}", networdkAddrCacheTtl);
+        LOGGER.info("networkaddress.cache.negative.ttl: {}", Security.getProperty("networkaddress.cache.negative.ttl"));
+
+        if(networdkAddrCacheTtl == null || networdkAddrCacheTtl.equals("-1")) {
+            LOGGER.warn("Networkaddress.cache.ttl is not sert properly");
         }
     }
 }
