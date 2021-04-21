@@ -7,7 +7,6 @@ import net.ripe.db.whois.changedphase3.util.Context;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.nrtm.AccessControlList;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.scheduler.task.export.DatabaseTextExport;
 import net.ripe.db.whois.update.mail.MailSenderStub;
@@ -39,7 +38,6 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST");
 
-    @Autowired protected AccessControlList accessControlList;
     protected Context context;
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private WhoisObjectMapper whoisObjectMapper;
@@ -60,11 +58,6 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
 
     @Before
     public void setup() {
-        // Allow nrtm from localhost
-        databaseHelper.insertAclMirror("127.0.0.1/32");
-        databaseHelper.insertAclMirror("0:0:0:0:0:0:0:1");
-        accessControlList.reload();
-
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject(OWNER_MNTNER);
         databaseHelper.updateObject(TEST_PERSON);

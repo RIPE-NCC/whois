@@ -7,15 +7,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -153,6 +154,6 @@ public class X509CertificateWrapperTest {
     }
 
     private String getResource(final String resourceName) throws IOException {
-        return IOUtils.toString(new ClassPathResource(resourceName).getInputStream());
+        return IOUtils.toString(new ClassPathResource(resourceName).getInputStream(), Charset.defaultCharset());
     }
 }

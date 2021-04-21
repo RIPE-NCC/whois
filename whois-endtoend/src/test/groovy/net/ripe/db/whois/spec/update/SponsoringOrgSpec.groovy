@@ -942,11 +942,11 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
     }
 
 
-    def "create inetnum with disallowed statuses, with sponsoring org, with override"() {
+    def "create inetnum with disallowed status ALLOCATED PA, with sponsoring org, with override"() {
         given:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
-        def message = syncUpdate(sprintf("""\
+        def message = syncUpdate("""\
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -954,7 +954,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 org:          ORG-OFA10-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       %s
+                status:       ALLOCATED PA
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
@@ -962,7 +962,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent(), status));
+                """.stripIndent());
 
         expect:
         def ack = new AckResponse("", message)
@@ -975,26 +975,174 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The \"sponsoring-org:\" attribute is not allowed with status value \"" + status + "\""]
+                ["The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED PA\""]
         ack.infoMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Authorisation override used"]
 
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-        where:
-        status << [
-                "ALLOCATED PA",
-                "ALLOCATED PI",
-                "ALLOCATED UNSPECIFIED",
-                "LIR-PARTITIONED PA",
-                "LIR-PARTITIONED PI",
-                "SUB-ALLOCATED PA",
-                "ASSIGNED PA",
-                "EARLY-REGISTRATION",
-                "NOT-SET"
-        ]
     }
 
+    def "create inetnum with disallowed status ALLOCATED UNSPECIFIED, with sponsoring org, with override"() {
+        given:
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                org:          ORG-OFA10-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED UNSPECIFIED
+                sponsoring-org: ORG-OFA10-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                source:       TEST
+                override:     denis,override1
+
+                """.stripIndent());
+
+        expect:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED UNSPECIFIED\""]
+        ack.infoMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Authorisation override used"]
+
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create inetnum with disallowed status LIR-PARTITIONED PA, with sponsoring org, with override"() {
+        given:
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                org:          ORG-OFA10-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PA
+                sponsoring-org: ORG-OFA10-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                source:       TEST
+                override:     denis,override1
+
+                """.stripIndent());
+
+        expect:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["The \"sponsoring-org:\" attribute is not allowed with status value \"LIR-PARTITIONED PA\""]
+        ack.infoMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Authorisation override used"]
+
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create inetnum with disallowed status SUB-ALLOCATED PA, with sponsoring org, with override"() {
+        given:
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                org:          ORG-OFA10-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       SUB-ALLOCATED PA
+                sponsoring-org: ORG-OFA10-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                source:       TEST
+                override:     denis,override1
+
+                """.stripIndent());
+
+        expect:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(2, 0, 1)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED",
+                 "The \"sponsoring-org:\" attribute is not allowed with status value \"SUB-ALLOCATED PA\""]
+        ack.infoMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Authorisation override used"]
+
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create inetnum with disallowed status ASSIGNED PA, with sponsoring org, with override"() {
+        given:
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                org:          ORG-OFA10-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                sponsoring-org: ORG-OFA10-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                source:       TEST
+                override:     denis,override1
+
+                """.stripIndent());
+
+        expect:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(2, 0, 1)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED",
+                 "The \"sponsoring-org:\" attribute is not allowed with status value \"ASSIGNED PA\""]
+        ack.infoMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Authorisation override used"]
+
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
 
     def "create inet6num with disallowed statuses, with sponsoring org, with override"() {
         given:
@@ -2779,10 +2927,11 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The \"sponsoring-org:\" attribute is not allowed with status value \"ASSIGNED PA\""]
+                ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED",
+                 "The \"sponsoring-org:\" attribute is not allowed with status value \"ASSIGNED PA\""]
 
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }

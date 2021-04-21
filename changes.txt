@@ -1,5 +1,126 @@
 # next
 
+# 1.100
+
+[query] Use AWS instance name (#781)
+[update] Use status index during validation (#725)
+[api] Fixed aut-num attribute managed flag (#749)
+[api] Added client flag to API for proxying requests (#728)
+[all] Java 11 support (#673)
+[rdap] nameserver not implemented (#711)
+[update] Delete object bug (#723)
+[all] Removed Travis integration (#724)
+[all] Updated dependencies
+[all] Merged AWS profile (#721)
+[update] Separate email address and leading/trailing space during Punycode conversion (#782)
+
+# 1.99
+
+[update] Require -mnt suffix when creating an MNTNER object (#667)
+[nrtm] Enable TCP_NODELAY in NRTM and query connections (#693)
+[api] Filter out sensitive information in API response on exception (#664)
+[query] Return 'invalid option supplied' on invalid version number given to --diff-version (#662)
+[rdap] Allow *any* CORS origin on RDAP GET requests by default (as recommended by RFC7480). (#661)
+[all] New dummifier for RC environment
+[all] Updated dependent libraries
+[all] Java 11 support
+
+# 1.98
+
+[update] NWI-11 Punycode Internationalized Domain Names in email addresses. (#643)
+[all] Prevent race condition when updating authoritative resources. (#652)
+[rdap] Return remark in rdap response when abuse mailbox validation has failed. (#651)
+[rdap] Rdap CORS changes (#648)
+[rdap] Rdap invalid syntax exception (#647)
+[rdap] An deleted object may be matched by an RDAP lookup (#645)
+[api] An deleted object may not be removed from the fulltextsearch index and matched in a search (#644)
+[all] Refresh legacy autnums list every 15 minutes (#641)
+
+# 1.97.2
+
+[api] Client cert authentication (#637)
+[query] ignore case in RDAP query (#638)
+[query] Optimised finding first managed resource. (#635)
+[update] Cleanup status hierarchy (#633)
+[update] Fixed 500 internal error on domain object update (#636)
+[api] Fulltext search optimize (#631)
+[all] Add daily scheduled job for reloading legacy autnums. (#634)
+[all] More frequent ripe authoritative resource refresh (#627)
+[update] Poetic form should be maintained by RIPE-DBM-MNT (#629)
+
+
+# 1.97.1
+
+[query] Detect a CTRL-C and interrupt (interpret as a delimiter) (#442)
+[update] Fix support for Signed messages with Elliptic Curve Algorithm (#605)
+[all] Updated dependencies
+
+
+# 1.97
+
+[all] Use CI build for releases (#610)
+[nrtm] Apply ACL limit in NRTM (#612)
+[api] Added rate-limiting filter (#609)
+[nrtm] NRTM connection limit (#594)
+[update] Don't allow inconsistent "org-name:" values on create (#607)
+[api] Include build timestamp and commit id in Whois lookup and search responses (#598)
+[nrtm] Open NRTM to non-members (#596)
+[update] Restrict maximum size of object (#601)
+[query] Related irt objects are not returned by default
+[api] Use https in URLs (#604)
+[query] Use local datasource for abuse-c finder (#600)
+
+
+# 1.96.3
+
+[all] Also use grs.import.enabled to disable authoritative resource downloading. (#597)
+[query] Increase maximum pool size per datasource, to allow for spikes in long-running queries.
+
+# 1.96.2
+
+[rdap] Rdap fixes to output UTC time and to support additional roles.
+
+# 1.96.1
+
+# 1.96
+
+[all] Refactor SSO auth pattern matching (#588)
+[all] Rebuild index status sponsoring org (#590)
+[all] Added country code to organisation. (#589)
+[all] Fixed bug in Ipv6Resource.parseFromStrings() (#593)
+
+# 1.95.6
+
+[all] Deprecate mnt-lower in autnum (#585)
+[query] Abuse-c validation comment must refer to the LIR organisation (#573)
+[query] Don't allow more than maximum result rows in fulltextsearch request (#580)
+[update] Use trusted ip instead of override for changing mntner sso attribute (#576)
+
+[all] Update Mariadb JDBC dependency to latest. (#583)
+[all] Update Jetty Dependency to Latest (#579)
+[all] Update Jackson Dependency to Latest (#578)
+[all] Gitlab (#582)
+
+# 1.95.5
+
+# 1.95.4
+[all] Updated commons-compress to 1.19 to mitigate CVE-2019-12402.
+[all] Replace Guava methods with (built-in) Java 8 Alternatives (#577)
+[query] Use slave datasource for query (#581)
+[all] Create status index (#586)
+
+# 1.95.3
+[api] Jetty request log
+[all] Support optional milliseconds in Crowd response. (#571)
+
+# 1.95.2
+[all] Refactored refreshing main and grs sources. (#574)
+[api] Apply ACL for version queries (#572)
+
+# 1.95.1
+[update] Don't perform SSO auth translation in Batch API
+[all] Use a Timestamp class (#569)
+
 # 1.95
 
 [update] Don't allow inet6nums smaller than a /64 to be created. (#562)
@@ -12,6 +133,7 @@
 # 1.94.2
 
 [query] Filter personal data (address, email and notify attributes) from historical object versions (#556)
+[query] Filter personal data from historic versions (#553)
 [update] Support custom delete reason in Batch API. (#558)
 [rdap] Return IP parent handle as pkey (#554)
 [rdap] Return org contact (#557)

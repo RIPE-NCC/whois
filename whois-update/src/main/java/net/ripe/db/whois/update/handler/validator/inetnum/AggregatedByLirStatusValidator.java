@@ -25,10 +25,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.AGGREGATED_BY_LIR;
+import static net.ripe.db.whois.update.domain.Action.CREATE;
+
 @Component
 public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INET6NUM);
 
     private static final int MAX_ALLOWED_AGGREGATED_BY_LIR = 2;
@@ -45,7 +48,7 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (update.getAction().equals(Action.CREATE)) {
+        if (update.getAction()== CREATE) {
             validateCreate(update, updateContext);
         } else {
             validateModify(update, updateContext);
@@ -57,7 +60,7 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
         final Ipv6Resource ipv6Resource = Ipv6Resource.parse(object.getKey());
 
         final Inet6numStatus status = Inet6numStatus.getStatusFor(object.getValueForAttribute(AttributeType.STATUS));
-        if (status.equals(Inet6numStatus.AGGREGATED_BY_LIR)) {
+        if (AGGREGATED_BY_LIR == status) {
             validateRequiredAssignmentSize(update, updateContext, object, ipv6Resource);
             validTotalNrAggregatedByLirInHierarchy(update, updateContext, ipv6Resource);
         } else {
@@ -93,12 +96,8 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
         final RpslObject parent = rpslObjectDao.getById(parents.get(0).getObjectId());
 
         final InetStatus parentStatus = InetStatusHelper.getStatus(parent);
-        if (parentStatus == null) {
-            updateContext.addMessage(update, UpdateMessages.objectHasInvalidStatus("Parent", parent.getKey(), parent.getValueForAttribute(AttributeType.STATUS)));
-            return;
-        }
 
-        if (parentStatus.equals(Inet6numStatus.AGGREGATED_BY_LIR)) {
+        if (AGGREGATED_BY_LIR == parentStatus) {
             final int parentAssignmentSize = parent.getValueForAttribute(AttributeType.ASSIGNMENT_SIZE).toInt();
             final int prefixLength = ipv6Resource.getPrefixLength();
             if (prefixLength != parentAssignmentSize) {
@@ -135,7 +134,7 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
     private boolean isAggregatedByLir(final Ipv6Entry entry) {
         final RpslObject object = rpslObjectDao.getById(entry.getObjectId());
         final Inet6numStatus status = Inet6numStatus.getStatusFor(object.getValueForAttribute(AttributeType.STATUS));
-        return Inet6numStatus.AGGREGATED_BY_LIR.equals(status);
+        return AGGREGATED_BY_LIR == status;
     }
 
     private void validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -143,7 +142,7 @@ public class AggregatedByLirStatusValidator implements BusinessRuleValidator {
 
         final Inet6numStatus inet6numStatus = Inet6numStatus.getStatusFor(updatedStatus.getCleanValue());
         if (assignmentSizeHasChanged(update)) {
-            if(inet6numStatus.equals(Inet6numStatus.AGGREGATED_BY_LIR)) {
+            if(AGGREGATED_BY_LIR == inet6numStatus) {
                 updateContext.addMessage(update, UpdateMessages.cantChangeAssignmentSize());
             } else {
                 addMessagesForAttributeAssignmentSizeNotAllowed(update.getUpdatedObject(), update, updateContext);

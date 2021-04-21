@@ -14,12 +14,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MustKeepAbuseMailboxIfReferencedValidatorTest {
@@ -47,7 +49,7 @@ public class MustKeepAbuseMailboxIfReferencedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -60,7 +62,7 @@ public class MustKeepAbuseMailboxIfReferencedValidatorTest {
         when(updateDao.getReferences(updatedObject)).thenReturn(Sets.<RpslObjectInfo>newHashSet());
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -70,12 +72,10 @@ public class MustKeepAbuseMailboxIfReferencedValidatorTest {
 
         when(update.getReferenceObject()).thenReturn(originalObject);
         when(update.getUpdatedObject()).thenReturn(updatedObject);
-        when(updateDao.getReferences(updatedObject)).thenReturn(Sets.newHashSet(new RpslObjectInfo(1, ObjectType.ORGANISATION, "ORG-TEST1")));
-        when(objectDao.getById(1)).thenReturn(RpslObject.parse("organisation: ORG-TEST1\nabuse-c: TEST-NIC"));
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test

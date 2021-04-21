@@ -1,7 +1,5 @@
 package net.ripe.db.whois.query.planner;
 
-
-import com.google.common.base.Function;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -9,9 +7,12 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.function.Function;
 
+@ThreadSafe
 class SyntaxFilterFunction implements Function<ResponseObject, Iterable<? extends ResponseObject>> {
     private final boolean isValidSyntaxQuery;
 

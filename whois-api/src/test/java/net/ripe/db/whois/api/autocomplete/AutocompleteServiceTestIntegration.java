@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -26,12 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -350,6 +349,23 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         assertThat(keys.size(), is(3));
         assertThat(keys.get(0), is("AUTH"));
+    }
+
+    @Test
+    public void mntner_key_exact_match_lowercase() {
+        databaseHelper.addObject("mntner:  AB-TELECOM-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  ADM-RUS-TELECOM\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  AIRNET-TELECOM-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  telecom\nsource:  TEST\n");
+        rebuildIndex();
+
+        final List<String> keys = getValues(query("telecom", "mnt-by"), "key");
+
+        assertThat(keys.size(), is(4));
+        assertThat(keys.get(0), is("telecom"));
+        assertThat(keys.get(1), is("AB-TELECOM-MNT"));
+        assertThat(keys.get(2), is("ADM-RUS-TELECOM"));
+        assertThat(keys.get(3), is("AIRNET-TELECOM-MNT"));
     }
 
     @Test
@@ -729,7 +745,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(new GenericType<List<Map<String, Object>>>(){});
         } catch( UnsupportedEncodingException exc) {
-            Assert.fail();
+            fail();
             return null;
         }
     }

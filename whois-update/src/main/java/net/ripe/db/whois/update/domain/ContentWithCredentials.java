@@ -1,9 +1,8 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Charsets;
-
 import javax.annotation.concurrent.Immutable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,7 +13,7 @@ public class ContentWithCredentials {
     final Charset charset;
 
     public ContentWithCredentials(final String content) {
-        this(content, Charsets.ISO_8859_1);
+        this(content, StandardCharsets.ISO_8859_1);
     }
 
     public ContentWithCredentials(final String content, final Charset charset) {
@@ -24,7 +23,7 @@ public class ContentWithCredentials {
     }
 
     public ContentWithCredentials(final String content, final List<Credential> credentials) {
-        this(content, credentials, Charsets.ISO_8859_1);
+        this(content, credentials, StandardCharsets.ISO_8859_1);
     }
 
     public ContentWithCredentials(final String content, final List<Credential> credentials, final Charset charset) {

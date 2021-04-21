@@ -9,21 +9,23 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
-
-    private static final int SECONDS_PER_DAY = 60 * 60 * 24;
 
     @Autowired JdbcSerialDao subject;
     @Value("${whois.source}") protected String source;
@@ -38,6 +40,8 @@ public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
         sourceContext.removeCurrentSource();
     }
 
+    // getSerials()
+
     @Test
     public void getSerials() {
         databaseHelper.addObject("aut-num:AS4294967207");
@@ -50,18 +54,24 @@ public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
         assertThat(range.getEnd(), is(3));
     }
 
+    // getById()
+
     @Test
-    public void getSerialEntryById() {
-        final RpslObject inetnum = RpslObject.parse("mntner:DEV-MNT");
-        databaseHelper.addObject(inetnum);
+    public void getById_create_inetnum() {
+        final RpslObject inetnum = databaseHelper.addObject(RpslObject.parse("mntner:DEV-MNT"));
 
-        final SerialEntry entry = subject.getById(1);
-
-        assertThat(entry.getRpslObject(), is(inetnum));
+        assertThat(subject.getById(1).getRpslObject(), is(inetnum));
     }
 
     @Test
-    public void getSerialCreateDelete() {
+    public void getById_create_autnum() {
+        final RpslObject autnum = databaseHelper.addObject("aut-num: AS1\ndescr: first");
+
+        assertThat(subject.getById(1).getRpslObject(), is(autnum));
+    }
+
+    @Test
+    public void getById_create_delete_create() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS1");
         final RpslObject object = databaseHelper.addObject(autnum);
         databaseHelper.deleteObject(object);
@@ -81,14 +91,7 @@ public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
     }
 
     @Test
-    public void getSerialEntry_just_created_object() {
-        final RpslObject object1 = databaseHelper.addObject("aut-num: AS1\ndescr: first");
-
-        assertThat(subject.getById(1).getRpslObject(), is(object1));
-    }
-
-    @Test
-    public void getSerialEntry_deleted_object() {
+    public void getById_delete() {
         final RpslObject object1 = databaseHelper.addObject("aut-num: AS1\ndescr: first");
         final RpslObject object2 = databaseHelper.updateObject("aut-num: AS1\ndescr: second");
         databaseHelper.deleteObject(object2);
@@ -102,7 +105,7 @@ public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
     }
 
     @Test
-    public void getSerialEntry_object_still_in_last() {
+    public void getById_create_update_update() {
         databaseHelper.addObject("aut-num: AS1\ndescr: first");
         databaseHelper.updateObject("aut-num: AS1\ndescr: second");
         final RpslObject object3 = databaseHelper.updateObject("aut-num: AS1\ndescr: third");
@@ -112,8 +115,10 @@ public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
         assertThat(subject.getById(3).getRpslObject(), is(object3));
     }
 
+    // getByIdForNrtm()
+
     @Test
-    public void getSerialEntryForNrtm_just_created_object() {
+    public void getByIdForNrtm_just_created_object() {
         final RpslObject object = databaseHelper.addObject("aut-num: AS1\ndescr: first");
 
         assertThat(subject.getByIdForNrtm(1).getRpslObject(), is(object));
@@ -134,7 +139,7 @@ public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
     }
 
     @Test
-    public void getSerialEntryForNrtm_object_still_in_last() {
+    public void getByIdForNrtm_object_still_in_last() {
         final RpslObject object1 = databaseHelper.addObject("aut-num: AS1\ndescr: first");
         final RpslObject object2 = databaseHelper.updateObject("aut-num: AS1\ndescr: second");
         final RpslObject object3 = databaseHelper.updateObject("aut-num: AS1\ndescr: third");
@@ -145,82 +150,70 @@ public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
     }
 
     @Test
-    public void getAgeOfExactOrNextExistingSerial_normal_scenario() {
-        //10 mins error range to give build machine enough time to run
-        final LocalDateTime event1 = LocalDateTime.now();
-        final LocalDateTime event2 = event1.plusDays(1).plusMinutes(10);
-        final LocalDateTime event3 = event1.plusDays(2).plusMinutes(20);
-        final LocalDateTime event4 = event1.plusDays(3).plusMinutes(30);
-        final LocalDateTime event5 = event1.plusDays(4).plusMinutes(40);
-        final LocalDateTime queryTime = event1.plusDays(5).plusMinutes(50);
+    public void getAgeOfExactOrNextExistingSerial_create_and_multiple_updates() {
+        final LocalDateTime createTimestamp = LocalDateTime.parse("2001-02-04T17:00:00");
 
-        testDateTimeProvider.setTime(event1);
+        testDateTimeProvider.setTime(createTimestamp);
+
         databaseHelper.addObject("aut-num: AS1\ndescr: first");
 
-        testDateTimeProvider.setTime(event2);
+        testDateTimeProvider.setTime(createTimestamp.plusDays(1).plusMinutes(10));
         databaseHelper.updateObject("aut-num: AS1\ndescr: second");
 
-        testDateTimeProvider.setTime(event3);
+        testDateTimeProvider.setTime(createTimestamp.plusDays(2).plusMinutes(20));
         databaseHelper.updateObject("aut-num: AS1\ndescr: third");
 
-        testDateTimeProvider.setTime(event4);
+        testDateTimeProvider.setTime(createTimestamp.plusDays(3).plusMinutes(30));
         databaseHelper.addObject("aut-num: AS2\ndescr: first");
 
-        testDateTimeProvider.setTime(event5);
+        testDateTimeProvider.setTime(createTimestamp.plusDays(4).plusMinutes(40));
         databaseHelper.deleteObject(RpslObject.parse("aut-num: AS2\ndescr: first"));
 
-        testDateTimeProvider.setTime(queryTime);
+        final LocalDateTime queryTimestamp = createTimestamp.plusDays(5).plusMinutes(50);
+        testDateTimeProvider.setTime(queryTimestamp);
 
-
-
-        final int expectedAge1 = Long.valueOf(java.time.Duration.between(event1, queryTime).toDays()).intValue();
-        final int expectedAge2 = Long.valueOf(java.time.Duration.between(event2, queryTime).toDays()).intValue();
-        final int expectedAge3 = Long.valueOf(java.time.Duration.between(event3, queryTime).toDays()).intValue();
-        final int expectedAge4 = Long.valueOf(java.time.Duration.between(event4, queryTime).toDays()).intValue();
-        final int expectedAge5 = Long.valueOf(java.time.Duration.between(event5, queryTime).toDays()).intValue();
-
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(1) / SECONDS_PER_DAY, is(expectedAge1));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(2) / SECONDS_PER_DAY, is(expectedAge2));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(3) / SECONDS_PER_DAY, is(expectedAge3));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(4) / SECONDS_PER_DAY, is(expectedAge4));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(5) / SECONDS_PER_DAY, is(expectedAge5));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(1), is(duration(createTimestamp, queryTimestamp)));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(2), is(duration(createTimestamp.plusDays(1).plusMinutes(10), queryTimestamp)));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(3), is(duration(createTimestamp.plusDays(2).plusMinutes(20), queryTimestamp)));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(4), is(duration(createTimestamp.plusDays(3).plusMinutes(30), queryTimestamp)));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(5), is(duration(createTimestamp.plusDays(4).plusMinutes(40), queryTimestamp)));
     }
 
     @Test
     public void getAgeOfExactOrNextExistingSerial_gap_in_serial() {
-        //10 mins error range to give build machine enough time to run
-        final LocalDateTime event1 = LocalDateTime.now();
-        final LocalDateTime event2 = event1.plusDays(1).plusMinutes(10);
-        final LocalDateTime event3 = event1.plusDays(2).plusMinutes(20);
-        final LocalDateTime queryTime = event1.plusDays(3).plusMinutes(30);
+        final LocalDateTime createTimestamp = LocalDateTime.parse("2001-02-04T17:00:00");
 
-        testDateTimeProvider.setTime(event1);
+        testDateTimeProvider.setTime(createTimestamp);
         databaseHelper.addObject("aut-num: AS1\ndescr: first");
 
-        testDateTimeProvider.setTime(event2);
+        testDateTimeProvider.setTime(createTimestamp.plusDays(1).plusMinutes(10));
         databaseHelper.updateObject("aut-num: AS1\ndescr: second");
 
-        testDateTimeProvider.setTime(event3);
+        testDateTimeProvider.setTime(createTimestamp.plusDays(2).plusMinutes(20));
         databaseHelper.updateObject("aut-num: AS1\ndescr: third");
 
-        testDateTimeProvider.setTime(queryTime);
+        final LocalDateTime queryTimestamp = createTimestamp.plusDays(3).plusMinutes(30);
+        testDateTimeProvider.setTime(queryTimestamp);
 
+        // create a gap in the serials table
         databaseHelper.getWhoisTemplate().update("delete from serials where serial_id = ?", 2);
 
-
-        final int expectedAge1 = Long.valueOf(java.time.Duration.between(event1, queryTime).toDays()).intValue();
-        final int expectedAge3 = Long.valueOf(java.time.Duration.between(event3, queryTime).toDays()).intValue();
-
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(1)/ SECONDS_PER_DAY, is(expectedAge1));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(2)/ SECONDS_PER_DAY, is(expectedAge3));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(3)/ SECONDS_PER_DAY, is(expectedAge3));
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(10), is(nullValue()));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(1), is(duration(createTimestamp, queryTimestamp)));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(2), is(duration(createTimestamp.plusDays(2).plusMinutes(20), queryTimestamp)));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(3), is(duration(createTimestamp.plusDays(2).plusMinutes(20), queryTimestamp)));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(4), is(nullValue()));
     }
 
     @Test
     public void getAgeOfExactOrNextExistingSerial_non_existent_serial() {
-        databaseHelper.addObject("aut-num: AS1\ndescr: first");
-
-        assertThat(subject.getAgeOfExactOrNextExistingSerial(10), is(nullValue()));
+        assertThat(subject.getAgeOfExactOrNextExistingSerial(12345), is(nullValue()));
     }
+
+    // helper methods
+
+    // get duration in seconds between two timestamps
+    private Integer duration(final Temporal start, final Temporal end) {
+        return Long.valueOf(Duration.between(start, end).get(ChronoUnit.SECONDS)).intValue();
+    }
+
 }

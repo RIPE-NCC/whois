@@ -1,6 +1,7 @@
 package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.domain.SyncUpdate
@@ -513,9 +514,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         notify:         noreply@ripe.net
-                        mnt-lower:      _UPD-MNT-MNT-MNT
                         mnt-routes:     UPD-MNT
-                        mnt-by:         UPD-MNT
+                        mnt-by:         _UPD-MNT-MNT-MNT
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -1265,4 +1265,86 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Modify FAILED: \[aut-num\] AS103/
         response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
     }
+
+    def "warn mnt-lower deprecated for aut-num create"() {
+        when:
+            def response = syncUpdate new SyncUpdate(data: """\
+                aut-num:        AS102
+                as-name:        End-User-1
+                descr:          description
+                org:            ORG-NCC1-RIPE
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                notify:         noreply@ripe.net
+                mnt-lower:      UPD-MNT
+                mnt-by:         UPD-MNT
+                source:         TEST
+                password: update
+                """.stripIndent())
+
+        then:
+            response =~ /Create SUCCEEDED: \[aut-num] AS102/
+            response =~ /Deprecated attribute "mnt-lower". This attribute has been removed./
+            def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+            !autnum.containsAttribute(AttributeType.MNT_LOWER)
+    }
+
+    def "warn mnt-lower deprecated for aut-num update"() {
+        when:
+            def response = syncUpdate new SyncUpdate(data: """\
+                            aut-num:        AS101
+                            as-name:        End-User-1
+                            descr:          description
+                            import:         from AS1 accept ANY
+                            export:         to AS1 announce AS2
+                            mp-import:      afi ipv6.unicast from AS1 accept ANY
+                            import-via:     AS6777 from AS5580 accept AS-ATRATO
+                            export-via:     AS6777 to AS5580 announce AS2
+                            remarks:        remarkable
+                            org:            ORG-NCC1-RIPE
+                            admin-c:        AP1-TEST
+                            tech-c:         AP1-TEST
+                            notify:         noreply@ripe.net
+                            mnt-lower:      UPD-MNT
+                            mnt-by:         UPD-MNT
+                            source:         TEST
+                            password:       update
+                            """.stripIndent())
+
+        then:
+            response =~ /Modify SUCCEEDED: \[aut-num] AS101/
+            response =~ /Deprecated attribute "mnt-lower". This attribute has been removed./
+            def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS101")
+            !autnum.containsAttribute(AttributeType.MNT_LOWER)
+    }
+
+    def "delete aut-num with mnt-lower"() {
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-lower:      UPD-MNT
+            mnt-by:         UPD-MNT
+            source:         TEST
+            password:       update
+            delete:         reason
+            """.stripIndent())
+
+        then:
+        response =~ /Delete SUCCEEDED: \[aut-num] AS101/
+        !response.contains("Deprecated attribute \"mnt-lower\". This attribute has been removed.")
+    }
+
 }

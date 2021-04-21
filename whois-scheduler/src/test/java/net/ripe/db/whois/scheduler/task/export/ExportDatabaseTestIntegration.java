@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -15,12 +14,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationTest {
@@ -431,9 +438,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         final boolean isDumpFile = name.endsWith(".gz");
 
         if (isDumpFile) {
-            reader = new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))), Charsets.ISO_8859_1);
+            reader = new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))), StandardCharsets.ISO_8859_1);
         } else {
-            reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), Charsets.ISO_8859_1);
+            reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), StandardCharsets.ISO_8859_1);
         }
 
         final String contents = FileCopyUtils.copyToString(reader);

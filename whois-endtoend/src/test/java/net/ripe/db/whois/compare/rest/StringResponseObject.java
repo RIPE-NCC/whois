@@ -1,10 +1,10 @@
 package net.ripe.db.whois.compare.rest;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.domain.ResponseObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class StringResponseObject implements ResponseObject{
@@ -17,7 +17,7 @@ public class StringResponseObject implements ResponseObject{
 
     @Override
     public void writeTo(OutputStream out) throws IOException {
-        byte[] bytes = string.getBytes(Charsets.UTF_8);
+        byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
         for (byte b : bytes) {
             out.write(b);
         }
@@ -25,7 +25,7 @@ public class StringResponseObject implements ResponseObject{
 
     @Override
     public byte[] toByteArray() {
-        return string.getBytes(Charsets.UTF_8);
+        return string.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override

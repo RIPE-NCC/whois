@@ -3,31 +3,29 @@ package net.ripe.db.whois.update.keycert;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
-import java.time.LocalDateTime;
+import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PgpPublicKeyWrapperTest {
-
-    // copied from GnuPG source ./common/openpgpdefs.h
-    private static final int PUBKEY_ALGO_ECDSA = 19;
-    private static final int PUBKEY_ALGO_EDDSA = 22;
 
     @Mock DateTimeProvider dateTimeProvider;
 
@@ -150,7 +148,17 @@ public class PgpPublicKeyWrapperTest {
     }
 
     @Test
-    public void curve_25519() {
+    public void rsaPublicKey() {
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(anotherPgpKeycert);
+
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.RSA_GENERAL));
+        assertThat(subject.getFingerprint(), is("1C40 500A 1DC4 A8D8 D3EA  ABF9 EE99 1EE2 28F6 CD6C"));
+        assertThat(subject.getMethod(), is("PGP"));
+        assertThat(subject.getOwners(), contains("Ed Shryane <eshryane@ripe.net>"));
+    }
+
+    @Test
+    public void curve25519PublicKey() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
                 "key-cert:        PGPKEY-2424420B\n" +
@@ -176,17 +184,49 @@ public class PgpPublicKeyWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST"));
 
-        assertThat(subject.getPublicKey().getAlgorithm(), is(PUBKEY_ALGO_EDDSA));
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.EDDSA));
         assertThat(subject.getFingerprint(), is("3F0D 878A 9352 5F7C 4BED  F475 A72E FF2A 2424 420B"));
         assertThat(subject.getMethod(), is("PGP"));
         assertThat(subject.getOwners(), contains("Test User <noreply@ripe.net>"));
     }
 
     @Test
-    public void secp256k1() {
+    public void anotherCurve25519PublicKey() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
-                "key-cert:        PGPKEY-2424420B\n" +
+                "key-cert:        PGPKEY-90FF806A\n" +
+                "method:          PGP\n" +
+                "owner:           Test User <noreply@ripe.net>\n" +
+                "certif:          -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                "certif:          Comment: GPGTools - http://gpgtools.org\n" +
+                "certif:          \n" +
+                "certif:          mDMEXlRJ3RYJKwYBBAHaRw8BAQdA5HkKu1joqw1Nkz09DHk/QK4+xaqe73kUwl7A\n" +
+                "certif:          kwdA7Vm0IUN1cnZlIDI1NTE5IDxDdXJ2ZTI1NTE5QHJpcGUubmV0PoiQBBMWCAA4\n" +
+                "certif:          FiEEswGlPGBl8/+lpUkmpsCAmZD/gGoFAl5USd0CGwMFCwkIBwIGFQoJCAsCBBYC\n" +
+                "certif:          AwECHgECF4AACgkQpsCAmZD/gGrXFAD8CVFCVHMh+fI3a2t+II+AyKKK6zqX2b/s\n" +
+                "certif:          iFhJQSk10CoA/iIi/sDgNm1YfTuTriH52HHB7cNW90ao4mwiH1xnuMQCuDgEXlRJ\n" +
+                "certif:          3RIKKwYBBAGXVQEFAQEHQNJavQL0KPfih0TzXrtODNJgQetBHA8zQLTzYQjScvdx\n" +
+                "certif:          AwEIB4h4BBgWCAAgFiEEswGlPGBl8/+lpUkmpsCAmZD/gGoFAl5USd0CGwwACgkQ\n" +
+                "certif:          psCAmZD/gGoYQwEAkNdtT0FrfNaTeOy3vll7nGMJ8lNQA8kCXxVlKvFzH1sA/3Zl\n" +
+                "certif:          z4uJvVBmPtjN0kHRkj0KAF7TOC/GMlnI6wPofacF\n" +
+                "certif:          =6ovf\n" +
+                "certif:          -----END PGP PUBLIC KEY BLOCK-----\n" +
+                "admin-c:         AA1-RIPE\n" +
+                "tech-c:          AA1-RIPE\n" +
+                "mnt-by:          UPD-MNT\n" +
+                "source:          TEST"));
+
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.EDDSA));
+        assertThat(subject.getFingerprint(), is("B301 A53C 6065 F3FF A5A5  4926 A6C0 8099 90FF 806A"));
+        assertThat(subject.getMethod(), is("PGP"));
+        assertThat(subject.getOwners(), contains("Curve 25519 <Curve25519@ripe.net>"));
+    }
+
+    @Test
+    public void secp256k1PublicKey() {
+        final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
+            RpslObject.parse(
+                "key-cert:        PGPKEY-B9FD9E0E\n" +
                 "method:          PGP\n" +
                 "owner:           Test User <noreply@ripe.net>\n" +
                 "fingerpr:        33A3 9E9F 3515 31CE 6990  4F66 BAA5 1A80 B9FD 9E0E\n" +
@@ -206,17 +246,17 @@ public class PgpPublicKeyWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST"));
 
-        assertThat(subject.getPublicKey().getAlgorithm(), is(PUBKEY_ALGO_ECDSA));
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.ECDSA));
         assertThat(subject.getFingerprint(), is("33A3 9E9F 3515 31CE 6990  4F66 BAA5 1A80 B9FD 9E0E"));
         assertThat(subject.getMethod(), is("PGP"));
         assertThat(subject.getOwners(), contains("Test User <noreply@ripe.net>"));
     }
 
     @Test
-    public void brainpoolP512r1() {
+    public void brainpoolP512r1PublicKey() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
-                "key-cert:        PGPKEY-2424420B\n" +
+                "key-cert:        PGPKEY-34A607E5\n" +
                 "method:          PGP\n" +
                 "owner:           Test User <noreply@ripe.net>\n" +
                 "fingerpr:        5F36 A717 5CE1 76D3 2564  A822 2FF6 9819 34A6 07E5\n" +
@@ -239,17 +279,17 @@ public class PgpPublicKeyWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST"));
 
-        assertThat(subject.getPublicKey().getAlgorithm(), is(PUBKEY_ALGO_ECDSA));
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.ECDSA));
         assertThat(subject.getFingerprint(), is("5F36 A717 5CE1 76D3 2564  A822 2FF6 9819 34A6 07E5"));
         assertThat(subject.getMethod(), is("PGP"));
         assertThat(subject.getOwners(), contains("Test User <noreply@ripe.net>"));
     }
 
     @Test
-    public void nistp521() {
+    public void nistp521PublicKey() {
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
             RpslObject.parse(
-                "key-cert:        PGPKEY-2424420B\n" +
+                "key-cert:        PGPKEY-725D9FA9\n" +
                 "method:          PGP\n" +
                 "owner:           Test User <noreply@ripe.net>\n" +
                 "fingerpr:        75B5 6A59 4D66 C09D E50A  183B 0862 8883 725D 9FA9\n" +
@@ -272,14 +312,14 @@ public class PgpPublicKeyWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST"));
 
-        assertThat(subject.getPublicKey().getAlgorithm(), is(PUBKEY_ALGO_ECDSA));
+        assertThat(subject.getPublicKey().getAlgorithm(), is(PublicKeyAlgorithmTags.ECDSA));
         assertThat(subject.getFingerprint(), is("75B5 6A59 4D66 C09D E50A  183B 0862 8883 725D 9FA9"));
         assertThat(subject.getMethod(), is("PGP"));
         assertThat(subject.getOwners(), contains("Test User <noreply@ripe.net>"));
     }
 
     @Test
-    public void unreadable_keyring() {
+    public void unreadableKeyring() {
         try {
             PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
@@ -348,7 +388,9 @@ public class PgpPublicKeyWrapperTest {
         assertThat(subject.isRevoked(), is(true));
     }
 
+    // helper methods
+
     private String getResource(final String resourceName) throws IOException {
-        return IOUtils.toString(new ClassPathResource(resourceName).getInputStream());
+        return IOUtils.toString(new ClassPathResource(resourceName).getInputStream(), Charset.defaultCharset());
     }
 }

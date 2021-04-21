@@ -1,10 +1,7 @@
 package net.ripe.db.whois.api.rdap;
 
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
@@ -26,6 +23,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
@@ -34,7 +32,9 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 public class DelegatedStatsService implements EmbeddedValueResolverAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(DelegatedStatsService.class);
 
+    private static final Splitter COMMA_SPLITTER = Splitter.on(',');
     private static final Set<ObjectType> ALLOWED_OBJECTTYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INET6NUM, ObjectType.INETNUM);
+
     private final Map<CIString, String> sourceToPathMap = Maps.newHashMap();
     private final Set<CIString> sources;
     private final AuthoritativeResourceData resourceData;
@@ -43,7 +43,7 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
     @Autowired
     public DelegatedStatsService(@Value("${rdap.sources:}") String rdapSourceNames,
                                  final AuthoritativeResourceData resourceData) {
-        this.sources = ciSet(Splitter.on(',').split(rdapSourceNames));
+        this.sources = ciSet(COMMA_SPLITTER.split(rdapSourceNames));
         this.resourceData = resourceData;
     }
 
@@ -65,12 +65,9 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
     }
 
     public URI getUriForRedirect(final String requestPath, final Query query) {
-        final Optional<ObjectType> objectType = Iterables.tryFind(query.getObjectTypes(), new Predicate<ObjectType>() {
-            @Override
-            public boolean apply(ObjectType input) {
-                return ALLOWED_OBJECTTYPES.contains(input);
-            }
-        });
+        final Optional<ObjectType> objectType = query.getObjectTypes().stream()
+            .filter(ALLOWED_OBJECTTYPES::contains)
+            .findFirst();
 
         if (objectType.isPresent()) {
             for (Map.Entry<CIString, String> entry : sourceToPathMap.entrySet()) {

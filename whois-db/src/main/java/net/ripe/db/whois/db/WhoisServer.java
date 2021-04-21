@@ -2,19 +2,23 @@ package net.ripe.db.whois.db;
 
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.ApplicationService;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 @Component
 public class WhoisServer {
@@ -22,20 +26,23 @@ public class WhoisServer {
 
     private final ApplicationContext applicationContext;
     private final List<ApplicationService> applicationServices;
-
-    @Value("${application.version:}") private String version;
+    private final ApplicationVersion applicationVersion;
 
     @Autowired
-    public WhoisServer(final ApplicationContext applicationContext, final List<ApplicationService> applicationServices) {
+    public WhoisServer(
+            final ApplicationContext applicationContext,
+            final List<ApplicationService> applicationServices,
+            final ApplicationVersion applicationVersion) {
         this.applicationContext = applicationContext;
         this.applicationServices = applicationServices;
+        this.applicationVersion = applicationVersion;
     }
 
     public static void main(final String[] args) {
         Slf4JLogConfiguration.init();
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.DEPLOYED);
+        final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.RIPE_DEPLOYED);
 
         final WhoisServer whoisServer = applicationContext.getBean(WhoisServer.class);
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -47,6 +54,14 @@ public class WhoisServer {
 
         whoisServer.start();
 
+        final MutablePropertySources sources = applicationContext.getEnvironment().getPropertySources();
+        StreamSupport.stream(sources.spliterator(), false)
+                .filter(ps -> ps instanceof EnumerablePropertySource)
+                .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
+                .flatMap(Arrays::stream)
+                .distinct()
+                .forEach(prop -> LOGGER.info("{}: {}", prop, (prop.contains("credentials") || prop.contains("password")) ? "*****" :  applicationContext.getEnvironment().getProperty(prop)));
+
         LOGGER.info("Whois server started in {}", stopwatch.stop());
     }
 
@@ -56,7 +71,7 @@ public class WhoisServer {
             applicationService.start();
         }
 
-        LOGGER.info("Running version: {}", version);
+        LOGGER.info("Running version: {} (commit: {})", applicationVersion.getVersion(), applicationVersion.getCommitId());
     }
 
     public void stop() {

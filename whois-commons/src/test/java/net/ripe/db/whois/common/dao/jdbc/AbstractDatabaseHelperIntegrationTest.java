@@ -51,6 +51,9 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
         System.setProperty("grs.sources.dummify", "TEST-GRS");
         System.setProperty("api.rest.baseurl", "http://rest-test.db.ripe.net");
 
+        // default commit-id
+        System.setProperty("git.commit.id.abbrev", "0");
+
         // allow setting Origin header
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
     }

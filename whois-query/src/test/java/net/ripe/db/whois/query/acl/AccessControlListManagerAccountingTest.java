@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -71,7 +71,6 @@ public class AccessControlListManagerAccountingTest {
 
     private void setPersonalLimit(int count) {
         when(ipResourceConfiguration.getLimit(ipv4Address)).thenReturn(count);
-        when(ipResourceConfiguration.getLimit(ipv6Address)).thenReturn(count);
         personalObjectAccounting.resetAccounting();
     }
 }

@@ -609,9 +609,9 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     def "create route, exact+parent route and exact+parent inet exist with mb, exact route pw supplied"() {
       given:
-        syncUpdate(getTransient("PARENT-INET") + "password: mbi-parent\npassword: hm")
+        dbfixture(getTransient("PARENT-INET"))
         queryObject("-rGBT inetnum 20.0.0.0 - 20.255.255.255", "inetnum", "20.0.0.0 - 20.255.255.255")
-        syncUpdate(getTransient("EXACT-INET") + "password: mbi-exact\npassword: mbi-parent")
+        dbfixture(getTransient("EXACT-INET"))
         queryObject("-rGBT inetnum 20.13.0.0 - 20.13.255.255", "inetnum", "20.13.0.0 - 20.13.255.255")
 
       expect:
@@ -648,11 +648,11 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     def "create route, parent route and exact+parent inet exist with mb, parent route pw supplied"() {
       given:
-        syncUpdate(getTransient("PARENT-INET2") + "password: mbi-parent\npassword: hm")
+        dbfixture(getTransient("PARENT-INET2"))
         queryObject("-rGBT inetnum 20.128.0.0 - 20.255.255.255", "inetnum", "20.128.0.0 - 20.255.255.255")
-        syncUpdate(getTransient("EXACT-INET2") + "password: mbi-exact\npassword: mbi-parent")
+        dbfixture(getTransient("EXACT-INET2"))
         queryObject("-rGBT inetnum 20.130.0.0 - 20.130.255.255", "inetnum", "20.130.0.0 - 20.130.255.255")
-        syncUpdate(getTransient("PARENT-ROUTE") + "password: mb-parent\npassword: mbi-parent")
+        dbfixture(getTransient("PARENT-ROUTE"))
         query_object_matches("-rGBT route 20.128.0.0/9", "route", "20.128.0.0/9", "AS1000")
 
       expect:
@@ -687,9 +687,9 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     def "create route, exact+parent inet exist with mb, exact inet pw supplied"() {
       given:
-        syncUpdate(getTransient("PARENT-INET3") + "password: mbi-parent\npassword: hm")
+        dbfixture(getTransient("PARENT-INET3"))
         queryObject("-rGBT inetnum 21.128.0.0 - 21.255.255.255", "inetnum", "21.128.0.0 - 21.255.255.255")
-        syncUpdate(getTransient("EXACT-INET3") + "password: mbi-exact\npassword: mbi-parent")
+        dbfixture(getTransient("EXACT-INET3"))
         queryObject("-rGBT inetnum 21.130.0.0 - 21.130.255.255", "inetnum", "21.130.0.0 - 21.130.255.255")
 
       expect:
@@ -724,7 +724,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     def "create route, parent inet exist with mb, parent inet pw supplied"() {
       given:
-        syncUpdate(getTransient("PARENT-INET3") + "password: mbi-parent\npassword: hm")
+        dbfixture(getTransient("PARENT-INET3"))
         queryObject("-rGBT inetnum 21.128.0.0 - 21.255.255.255", "inetnum", "21.128.0.0 - 21.255.255.255")
 
       expect:
@@ -759,7 +759,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     def "create route, single IP parent inet, parent inet pw supplied"() {
         given:
-        syncUpdate(getTransient("PARENT-INET5") + "password: mbi-parent\npassword: hm")
+        dbfixture(getTransient("PARENT-INET5"))
 
         expect:
         queryObject("-rGBT inetnum 21.128.255.255 - 21.128.255.255", "inetnum", "21.128.255.255 - 21.128.255.255")

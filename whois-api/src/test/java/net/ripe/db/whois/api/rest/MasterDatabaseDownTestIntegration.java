@@ -26,10 +26,13 @@ import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -62,10 +65,16 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 
     @BeforeClass
     public static void proxyMasterDatabaseConnections() {
-        proxy = new Proxy("localhost", 3306);
-        proxy.start();
         final String url = System.getProperty("whois.db.master.url");
-        System.setProperty("whois.db.master.url", url.replace("localhost", String.format("localhost:%d", proxy.getPort())));
+        Matcher matcher = Pattern.compile("(jdbc:log:mariadb://)(.+)(/.+)").matcher(url);
+        if (matcher.find()) {
+            final String dbHost = matcher.group(2);
+
+            proxy = new Proxy(dbHost, 3306);
+            proxy.start();
+
+            System.setProperty("whois.db.master.url", url.replace("/" + dbHost + "/", "/" + String.format("localhost:%d", proxy.getPort()) + "/"));
+        }
     }
 
     @Before

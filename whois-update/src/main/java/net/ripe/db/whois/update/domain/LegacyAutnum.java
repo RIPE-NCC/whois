@@ -19,11 +19,16 @@ public class LegacyAutnum {
     }
 
     @PostConstruct
-    void init() {
+    public synchronized void init() {
         cachedLegacyAutnums = legacyAutnumDao.load();
     }
 
     public boolean contains(final CIString autnum) {
         return cachedLegacyAutnums.contains(autnum);
     }
+
+    public int getTotal() {
+        return cachedLegacyAutnums.size();
+    }
+
 }

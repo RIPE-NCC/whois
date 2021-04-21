@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.keycert;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.Provider;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -59,7 +59,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(object).getBytes(Charsets.ISO_8859_1);
+            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(object).getBytes(StandardCharsets.ISO_8859_1);
             final ArmoredInputStream armoredInputStream = (ArmoredInputStream) PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));
             PGPPublicKey masterKey = null;
             List<PGPPublicKey> subKeys = Lists.newArrayList();
@@ -153,7 +153,12 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
 
     @Override
     public List<String> getOwners() {
-        return Lists.newArrayList(Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString));
+        try {
+            return Lists.newArrayList(Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString));
+        } catch (IllegalArgumentException e) {
+            // Invalid UTF-8 input
+            return Lists.newArrayList(Iterators.transform(masterKey.getRawUserIDs(), bytes -> Latin1Conversion.convertString(new String(bytes))));
+        }
     }
 
     @Override

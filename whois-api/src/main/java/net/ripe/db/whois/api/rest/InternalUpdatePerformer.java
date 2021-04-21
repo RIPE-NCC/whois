@@ -17,6 +17,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -73,10 +74,11 @@ public class InternalUpdatePerformer {
         this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
-    public UpdateContext initContext(final Origin origin, final String ssoToken) {
+    public UpdateContext initContext(final Origin origin, final String ssoToken, final HttpServletRequest request) {
         loggerContext.init(getRequestId(origin.getFrom()));
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
+        updateContext.setClientCertificate(ClientCertificateExtractor.getClientCertificate(request, dateTimeProvider));
         return updateContext;
     }
 
@@ -201,6 +203,8 @@ public class InternalUpdatePerformer {
         if (updateContext.getUserSession() != null) {
             credentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
+
+        updateContext.getClientCertificate().ifPresent(x509 -> credentials.add(ClientCertificateCredential.createOfferedCredential(x509)));
 
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));
     }

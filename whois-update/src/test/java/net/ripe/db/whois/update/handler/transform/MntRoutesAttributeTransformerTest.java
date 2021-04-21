@@ -11,11 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -85,7 +85,7 @@ public class MntRoutesAttributeTransformerTest {
         final RpslObject updatedAutnum = subject.transform(autnum, update, updateContext, Action.MODIFY);
 
         assertThat(updatedAutnum.containsAttribute(AttributeType.MNT_ROUTES), is(false));
-        assertThat(diff(autnum, updatedAutnum), isEmptyString());
+        assertThat(diff(autnum, updatedAutnum), is(emptyString()));
         verifyMessageNotAdded();
     }
 
@@ -108,7 +108,7 @@ public class MntRoutesAttributeTransformerTest {
         final RpslObject updatedInetnum = subject.transform(inetnum, update, updateContext, Action.MODIFY);
 
         assertThat(updatedInetnum.containsAttribute(AttributeType.MNT_ROUTES), is(true));
-        assertThat(diff(inetnum, updatedInetnum), isEmptyString());
+        assertThat(diff(inetnum, updatedInetnum), is(emptyString()));
         verifyMessageNotAdded();
     }
 

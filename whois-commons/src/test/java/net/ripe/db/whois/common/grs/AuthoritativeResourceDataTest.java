@@ -10,15 +10,15 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,7 +45,7 @@ public class AuthoritativeResourceDataTest {
 
         authoritativeResourceData.init();
 
-        verify(resourceDataDao).load(eq("test"));
+        verify(resourceDataDao, times(2)).load(eq("test"));
         assertThat(authoritativeResourceData.getAuthoritativeResource(ciString("test")), isA(AuthoritativeResource.class));
     }
 
@@ -53,8 +53,8 @@ public class AuthoritativeResourceDataTest {
     public void refresh_on_change() {
         when(resourceDataDao.getState("test")).thenReturn(new ResourceDataDao.State("test", 1, 1)).thenReturn(new ResourceDataDao.State("test", 2, 2));
 
-        subject.refreshAuthoritativeResourceCacheOnChange();
-        subject.refreshAuthoritativeResourceCacheOnChange();
+        subject.refreshMainAuthoritativeResourceCache();
+        subject.refreshMainAuthoritativeResourceCache();
 
         verify(resourceDataDao, times(2)).load(eq("test"));
     }
@@ -63,8 +63,8 @@ public class AuthoritativeResourceDataTest {
     public void no_refresh_if_unchanged() {
         when(resourceDataDao.getState("test")).thenReturn(new ResourceDataDao.State("test", 1, 1)).thenReturn(new ResourceDataDao.State("test", 1, 1));
 
-        subject.refreshAuthoritativeResourceCacheOnChange();
-        subject.refreshAuthoritativeResourceCacheOnChange();
+        subject.refreshMainAuthoritativeResourceCache();
+        subject.refreshMainAuthoritativeResourceCache();
 
         verify(resourceDataDao, times(1)).load("test");
     }

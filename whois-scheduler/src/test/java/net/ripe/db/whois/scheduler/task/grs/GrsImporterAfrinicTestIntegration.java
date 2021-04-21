@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
 @DirtiesContext
@@ -115,7 +115,7 @@ public class GrsImporterAfrinicTestIntegration extends AbstractSchedulerIntegrat
     public void setUp() throws Exception {
         // initialize authoritativeresource
         authoritativeResourceImportTask.run();
-        authoritativeResourceData.refreshAllSources();
+        authoritativeResourceData.refreshGrsSources();
 
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();

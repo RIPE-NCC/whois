@@ -16,7 +16,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static net.ripe.db.whois.compare.common.ComparisonExecutorConfig.PRE1;
 import static net.ripe.db.whois.compare.common.ComparisonExecutorConfig.PRE2;
 

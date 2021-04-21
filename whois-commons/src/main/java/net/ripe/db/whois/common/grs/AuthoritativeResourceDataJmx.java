@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.grs;
 
 import net.ripe.db.whois.common.jmx.JmxBase;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ public class AuthoritativeResourceDataJmx extends JmxBase {
     })
     public String refreshCache(final String comment) {
         return invokeOperation("Refresh authoritative resource cache", comment, () -> {
-            authoritativeResourceRefreshTask.refreshAuthoritativeResourceCache();
+            authoritativeResourceRefreshTask.refreshGrsAuthoritativeResourceCaches();
             return "Refreshed caches";
         });
     }
@@ -53,19 +52,17 @@ public class AuthoritativeResourceDataJmx extends JmxBase {
             final String absolutePath = output.getAbsolutePath();
 
 
-            BufferedWriter writer = null;
             try {
                 if (!output.createNewFile()) {
                     return String.format("Abort, file already exists: %s", absolutePath);
                 }
 
-                writer = new BufferedWriter(new FileWriter(output));
-                authoritativeResourceDataValidator.checkOverlaps(writer);
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(output))) {
+                    authoritativeResourceDataValidator.checkOverlaps(writer);
+                }
             } catch (IOException e) {
                 LOGGER.error("Checking overlaps", e);
                 return String.format("Failed writing to: %s, %s", absolutePath, e.getMessage());
-            } finally {
-                IOUtils.closeQuietly(writer);
             }
 
             return String.format("Overlaps written to: %s", absolutePath);

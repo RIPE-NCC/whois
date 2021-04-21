@@ -1,7 +1,8 @@
 package net.ripe.db.whois.common;
 
-import org.jboss.netty.logging.InternalLoggerFactory;
-import org.jboss.netty.logging.Slf4JLoggerFactory;
+
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.util.logging.Level;
@@ -18,6 +19,6 @@ public final class Slf4JLogConfiguration {
         LogManager.getLogManager().reset();
         Logger.getLogger("global").setLevel(Level.WARNING);
 
-        InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
+        InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
     }
 }

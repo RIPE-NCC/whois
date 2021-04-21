@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.io.ByteArrayOutputStream;
@@ -40,10 +40,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
@@ -67,6 +67,12 @@ public class RpslResponseDecoratorTest {
 
     RpslResponseDecorator subject;
 
+    RpslObject ABUSE_ROLE = RpslObject.parse(
+            "role: Abuse Role\n" +
+            "nic-hdl: AA1-TEST\n" +
+            "abuse-mailbox: abuse@ripe.net"
+    );
+
     @Before
     public void setup() {
         subject = new RpslResponseDecorator(rpslObjectDaoMock,
@@ -80,7 +86,6 @@ public class RpslResponseDecoratorTest {
                 ssoTokenTranslator,
                 crowdClient,
                 decorator);
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
         when(sourceContext.isMain()).thenReturn(true);
@@ -201,7 +206,6 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void shouldNotFilterForGrsSources() {
-        when(sourceContext.getCurrentSource()).thenReturn(Source.slave("APNIC-GRS"));
         when(sourceContext.isAcl()).thenReturn(false);
         when(sourceContext.isMain()).thenReturn(false);
 
@@ -277,7 +281,7 @@ public class RpslResponseDecoratorTest {
     public void non_grouping_and_recursive_no_recursive_objects() {
         final RpslObject inetnum = RpslObject.parse(1, "inetnum: 10.0.0.0\norg:ORG1-TEST\nstatus:OTHER");
 
-        when(abuseCFinder.getAbuseContact(inetnum)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(inetnum)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
 
         String result = execute("-G -B -T inetnum 10.0.0.0", inetnum);
 
@@ -293,7 +297,7 @@ public class RpslResponseDecoratorTest {
     public void non_grouping_and_recursive_with_recursive_objects() {
         RpslObject rpslObject = RpslObject.parse("inetnum: 10.0.0.0\ntech-c:NICHDL\norg:ORG1-TEST\nstatus:OTHER");
         when(decorator.appliesToQuery(any(Query.class))).thenReturn(true);
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
 
         String result = execute("-G -B -T inetnum 10.0.0.0", rpslObject);
 
@@ -324,8 +328,8 @@ public class RpslResponseDecoratorTest {
             }
         });
 
-        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
-        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
 
         String result = execute("-G -B -T inetnum 10.0.0.0", object1, object2);
 
@@ -368,8 +372,8 @@ public class RpslResponseDecoratorTest {
             }
         });
 
-        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
-        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
 
         String result = execute("-B -T inetnum 10.0.0.0", object1, object2);
 
@@ -421,8 +425,6 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void dummify_response() {
-        when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
-        when(sourceContext.isDummificationRequired()).thenReturn(true);
         when(sourceContext.isMain()).thenReturn(false);
         when(dummifyDecorator.decorate(any(Query.class), any(Iterable.class))).thenReturn(Collections.EMPTY_LIST);
 
@@ -436,8 +438,6 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void dummify_filter() {
-        when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
-        when(sourceContext.isDummificationRequired()).thenReturn(true);
         when(dummifyDecorator.decorate(any(Query.class), any(Iterable.class))).thenReturn(Collections.EMPTY_LIST);
 
         final RpslObject inetnum = RpslObject.parse(1, "inetnum: 10.0.0.0\norg:ORG1-TEST");

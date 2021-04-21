@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.response;
 
 import com.google.common.base.Splitter;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.Hosts;
@@ -31,17 +32,17 @@ public class ResponseFactory {
 
     private final VelocityEngine velocityEngine;
     private final DateTimeProvider dateTimeProvider;
-
-    @Value("${application.version}")
-    private String version;
-
-    @Value("${whois.source}")
-    private String source;
+    private final ApplicationVersion applicationVersion;
+    private final String source;
 
     @Autowired
-    public ResponseFactory(final DateTimeProvider dateTimeProvider) {
+    public ResponseFactory(
+        final DateTimeProvider dateTimeProvider,
+        final ApplicationVersion applicationVersion,
+        @Value("${whois.source}") final String source) {
         this.dateTimeProvider = dateTimeProvider;
-
+        this.applicationVersion = applicationVersion;
+        this.source = source;
         velocityEngine = new VelocityEngine();
         velocityEngine.setProperty(RuntimeConstants.SPACE_GOBBLING, "bc");
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
@@ -91,8 +92,8 @@ public class ResponseFactory {
     private String createResponse(final String templateName, final UpdateContext updateContext, final VelocityContext velocityContext, final Origin origin) {
         velocityContext.put("globalMessages", updateContext.printGlobalMessages());
         velocityContext.put("origin", origin);
-        velocityContext.put("version", version);
-        velocityContext.put("hostName", Hosts.getLocalHostName());
+        velocityContext.put("version", applicationVersion.getVersion());
+        velocityContext.put("hostName", Hosts.getInstanceName());
         velocityContext.put("source", source);
         velocityContext.put("timestamp", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
 

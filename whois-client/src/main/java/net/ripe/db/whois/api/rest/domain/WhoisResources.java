@@ -24,7 +24,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "errorMessages",
         "geolocationAttributes",
         "versions",
-        "termsAndConditions"
+        "termsAndConditions",
+        "version",
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "whois-resources")
@@ -33,6 +34,8 @@ public class WhoisResources {
 
     private Parameters parameters;
 
+    @XmlElement
+    private Version version;
     @XmlElement
     private Service service;
     @XmlElement(name = "objects", required = true)

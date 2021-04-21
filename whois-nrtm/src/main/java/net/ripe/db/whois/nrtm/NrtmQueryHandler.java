@@ -1,7 +1,15 @@
 package net.ripe.db.whois.nrtm;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelException;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.AttributeKey;
 import joptsimple.OptionException;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
@@ -11,16 +19,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelException;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelLocal;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,7 +31,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
+public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmQueryHandler.class);
 
@@ -45,7 +43,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private final TaskScheduler clientSynchronisationScheduler;
 
     private final NrtmLog nrtmLog;
-    private final String applicationVersion;
+    private final ApplicationVersion applicationVersion;
     private final String source;
     private final String nonAuthSource;
     private final long updateInterval;
@@ -53,16 +51,12 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
     private volatile ScheduledFuture<?> scheduledFuture;
 
-    static final String TERMS_AND_CONDITIONS = "" +
-            "% The RIPE Database is subject to Terms and Conditions.\n" +
-            "% See http://www.ripe.net/db/support/db-terms-conditions.pdf";
-
     public NrtmQueryHandler(
             @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
             @Qualifier("dummifierNrtm") final Dummifier dummifier,
             @Qualifier("clientSynchronisationScheduler") final TaskScheduler clientSynchronisationScheduler,
             final NrtmLog nrtmLog,
-            @Value("${application.version}") final String applicationVersion,
+            final ApplicationVersion applicationVersion,
             @Value("${whois.source}") final String source,
             @Value("${whois.nonauth.source}") final String nonAuthSource,
             @Value("${nrtm.update.interval:60}") final long updateInterval,
@@ -79,18 +73,18 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (isKeepAlive()) {
             return;
         }
 
-        final String queryString = e.getMessage().toString().trim();
+        final String queryString = msg.toString().trim();
 
-        nrtmLog.log(ChannelUtil.getRemoteAddress(ctx.getChannel()), queryString);
+        nrtmLog.log(ChannelUtil.getRemoteAddress(ctx.channel()), queryString);
         LOGGER.debug("Received query: {}", queryString);
 
         final Query query = parseQueryString(queryString);
-        final Channel channel = ctx.getChannel();
+        final Channel channel = ctx.channel();
 
         if (query.isMirrorQuery()) {
             final SerialRange range = serialDao.getSerials();
@@ -118,7 +112,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             ));
 
             if (version < NrtmServer.NRTM_VERSION) {
-                writeMessage(channel, String.format("%%WARNING: NRTM version %d is deprecated, please consider migrating to version %d!", version, NrtmServer.NRTM_VERSION));
+                writeMessage(channel, NrtmMessages.deprecatedVersion(version));
             }
 
             if (query.isKeepalive()) {
@@ -138,7 +132,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             }
         }
 
-        channel.write(ChannelBuffers.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
     private boolean isKeepAlive() {
@@ -187,7 +181,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             }
         }
 
-        writeMessage(channel, String.format("%%END %s", query.getSource()));
+        writeMessage(channel, NrtmMessages.end(query.getSource()));
     }
 
     private int writeSerials(final int begin, final int end, final Query query, final Channel channel) {
@@ -224,7 +218,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         }
 
         if (written && query.isKeepalive() && keepaliveEndOfStream) {
-            writeMessage(channel, String.format("%%END %d - %d", begin, end));
+            writeMessage(channel, NrtmMessages.end(begin, end));
         }
 
         return serial;
@@ -261,75 +255,71 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     private void handleVersionQuery(final Channel channel) {
-        writeMessage(channel, "% nrtm-server-" + applicationVersion);
+        writeMessage(channel, NrtmMessages.version(applicationVersion.getVersion()));
     }
 
     @Override
-    public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        PendingWrites.add(ctx.getChannel());
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+        PendingWrites.add(ctx.channel());
 
-        writeMessage(ctx.getChannel(), TERMS_AND_CONDITIONS);
+        writeMessage(ctx.channel(),  NrtmMessages.termsAndConditions());
 
-        super.channelConnected(ctx, e);
+        ctx.fireChannelActive();
     }
 
     @Override
-    public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
 
-        PendingWrites.remove(ctx.getChannel());
-
-        super.channelDisconnected(ctx, e);
+        PendingWrites.remove(ctx.channel());
+        ctx.fireChannelInactive();
     }
 
-    private void writeMessage(final Channel channel, final String message) {
+    private void writeMessage(final Channel channel, final Object message) {
         if (!channel.isOpen()) {
             throw new ChannelException();
         }
 
         PendingWrites.increment(channel);
 
-        channel.write(message + "\n\n").addListener(LISTENER);
+        channel.writeAndFlush(message + "\n\n").addListener(LISTENER);
     }
 
-    private static final ChannelFutureListener LISTENER = new ChannelFutureListener() {
-        @Override
-        public void operationComplete(ChannelFuture future) throws Exception {
-            PendingWrites.decrement(future.getChannel());
-        }
-    };
+    private static final ChannelFutureListener LISTENER = future -> PendingWrites.decrement(future.channel());
 
     static final class PendingWrites {
 
-        private static final ChannelLocal<AtomicInteger> PENDING_WRITES = new ChannelLocal<>();
+        private static final AttributeKey<AtomicInteger> PENDING_WRITE_KEY = AttributeKey.newInstance("pending_write_key");
+
         private static final int MAX_PENDING_WRITES = 16;
 
         static void add(final Channel channel) {
-            PENDING_WRITES.set(channel, new AtomicInteger());
+            channel.attr(PENDING_WRITE_KEY).set(new AtomicInteger());
         }
 
         static void remove(final Channel channel) {
-            PENDING_WRITES.remove(channel);
+            channel.attr(PENDING_WRITE_KEY).set(null);
         }
 
+
         static void increment(final Channel channel) {
-            final AtomicInteger pending = PENDING_WRITES.get(channel);
+            final AtomicInteger pending = channel.attr(PENDING_WRITE_KEY).get();
             if (pending != null) {
                 pending.incrementAndGet();
             }
         }
 
         static void decrement(final Channel channel) {
-            final AtomicInteger pending = PENDING_WRITES.get(channel);
+            final AtomicInteger pending = channel.attr(PENDING_WRITE_KEY).get();
             if (pending != null) {
                 pending.decrementAndGet();
             }
         }
 
         static boolean isPending(final Channel channel) {
-            final AtomicInteger pending = PENDING_WRITES.get(channel);
+            final AtomicInteger pending = channel.attr(PENDING_WRITE_KEY).get();
             if (pending == null) {
                 throw new ChannelException("channel removed");
             }

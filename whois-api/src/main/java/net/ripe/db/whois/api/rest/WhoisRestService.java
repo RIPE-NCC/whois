@@ -106,7 +106,7 @@ public class WhoisRestService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {
                 return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
@@ -165,7 +165,7 @@ public class WhoisRestService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {
                 return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
@@ -220,7 +220,7 @@ public class WhoisRestService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
 
             auditLogRequest(request);
 

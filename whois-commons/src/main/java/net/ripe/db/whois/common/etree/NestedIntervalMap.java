@@ -5,7 +5,12 @@ import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.ip.Interval;
 import org.apache.commons.lang.Validate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A map with intervals as keys. Intervals are only allowed to intersect if they

@@ -12,17 +12,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.anyCollection;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -88,12 +88,12 @@ public class AutnumAuthenticationTest {
 
         final ArrayList<RpslObject> parentMaintainers = Lists.newArrayList(RpslObject.parse("mntner: LOW-MNT"));
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
-        when(authenticationModule.authenticate(update, updateContext, parentMaintainers)).thenReturn(parentMaintainers);
+        when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(parentMaintainers);
 
         final List<RpslObject> authenticatedBy = subject.authenticate(update, updateContext);
 
         assertThat(authenticatedBy.equals(parentMaintainers), is(true));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test(expected = AuthenticationFailedException.class)
@@ -103,7 +103,7 @@ public class AutnumAuthenticationTest {
 
         final ArrayList<RpslObject> parentMaintainers = Lists.newArrayList(RpslObject.parse("mntner: LOW-MNT"));
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
-        when(authenticationModule.authenticate(update, updateContext, parentMaintainers)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
     }
@@ -123,12 +123,12 @@ public class AutnumAuthenticationTest {
 
         final ArrayList<RpslObject> parentMaintainers = Lists.newArrayList(RpslObject.parse("mntner: TEST-MNT"));
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
-        when(authenticationModule.authenticate(update, updateContext, parentMaintainers)).thenReturn(parentMaintainers);
+        when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(parentMaintainers);
 
         final List<RpslObject> authenticatedBy = subject.authenticate(update, updateContext);
 
         assertThat(authenticatedBy.equals(parentMaintainers), is(true));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test(expected = AuthenticationFailedException.class)
@@ -138,7 +138,7 @@ public class AutnumAuthenticationTest {
 
         final ArrayList<RpslObject> parentMaintainers = Lists.newArrayList(RpslObject.parse("mntner: TEST-MNT"));
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
-        when(authenticationModule.authenticate(update, updateContext, parentMaintainers)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
     }
@@ -154,10 +154,10 @@ public class AutnumAuthenticationTest {
 
         final ArrayList<RpslObject> parentMaintainers = Lists.newArrayList(RpslObject.parse("mntner: TEST-MNT"));
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
-        when(authenticationModule.authenticate(update, updateContext, parentMaintainers)).thenReturn(parentMaintainers);
+        when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(parentMaintainers);
 
         subject.authenticate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 }

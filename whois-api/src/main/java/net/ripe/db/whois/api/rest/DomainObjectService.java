@@ -8,7 +8,7 @@ import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -90,12 +90,12 @@ public class DomainObjectService {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
 
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
             updateContext.setBatchUpdate();
 
             auditlogRequest(request);
 
-            final Credentials credentials = createCredentials(updateContext.getUserSession(), passwords);
+            final Credentials credentials = createCredentials(updateContext, passwords);
 
             final List<Update> updates = extractUpdates(resources, credentials);
 
@@ -110,10 +110,15 @@ public class DomainObjectService {
 
         } catch (UpdateFailedException e) {
             return createResponse(e.status, e.whoisResources);
+
+        } catch (IllegalArgumentException e) {
+            return createResponse(BAD_REQUEST, e.getMessage());
+
         } catch (Exception e) {
             updatePerformer.logError(e);
             LOGGER.error("Unexpected", e);
-            return createResponse(INTERNAL_SERVER_ERROR, resources);
+            return createResponse(INTERNAL_SERVER_ERROR, e.getMessage());
+
         } finally {
             updatePerformer.closeContext();
         }
@@ -181,7 +186,7 @@ public class DomainObjectService {
         return result;
     }
 
-    private Credentials createCredentials(final UserSession userSession, final List<String> passwords) {
+    private Credentials createCredentials(final UpdateContext updateContext, final List<String> passwords) {
 
         final Set<Credential> credentials = Sets.newHashSet();
 
@@ -189,14 +194,21 @@ public class DomainObjectService {
             credentials.add(new PasswordCredential(password));
         }
 
-        if (userSession != null) {
-            credentials.add(SsoCredential.createOfferedCredential(userSession));
+        if (updateContext.getUserSession() != null) {
+            credentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
+
+        updateContext.getClientCertificate().ifPresent(x509 -> credentials.add(ClientCertificateCredential.createOfferedCredential(x509)));
+
         return new Credentials(credentials);
     }
 
     private Response createResponse(Response.Status status, WhoisResources updatedResources) {
         return Response.status(status).entity(updatedResources).build();
+    }
+
+    private Response createResponse(Response.Status status, String message) {
+        return Response.status(status).entity(message).build();
     }
 
     private void auditlogRequest(final HttpServletRequest request) {

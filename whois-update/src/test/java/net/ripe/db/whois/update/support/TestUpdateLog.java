@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Profile({WhoisProfile.ENDTOEND, WhoisProfile.TEST})
+@Profile({WhoisProfile.TEST})
 public class TestUpdateLog extends UpdateLog implements Stub {
 
     List<String> messages = new ArrayList<>();

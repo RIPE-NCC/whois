@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.source.IllegalSourceException;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,10 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         if (exception instanceof QueryException) {
+            if (((QueryException) exception).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+                return Response.status(Response.Status.TOO_MANY_REQUESTS).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
+            }
+
             return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
         }
 

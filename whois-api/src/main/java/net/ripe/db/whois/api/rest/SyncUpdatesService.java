@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -10,7 +9,6 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
@@ -50,6 +48,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Iterator;
 import java.util.Map;
@@ -68,7 +67,6 @@ public class SyncUpdatesService {
     private final UpdatesParser updatesParser;
     private final LoggerContext loggerContext;
     private final SourceContext sourceContext;
-    private final IpRanges ipRanges;
     private final SsoTokenTranslator ssoTokenTranslator;
 
     @Autowired
@@ -77,14 +75,12 @@ public class SyncUpdatesService {
                               final UpdatesParser updatesParser,
                               final LoggerContext loggerContext,
                               final SourceContext sourceContext,
-                              final IpRanges ipRanges,
                               final SsoTokenTranslator ssoTokenTranslator) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
         this.updatesParser = updatesParser;
         this.loggerContext = loggerContext;
         this.sourceContext = sourceContext;
-        this.ipRanges = ipRanges;
         this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
@@ -195,6 +191,7 @@ public class SyncUpdatesService {
             final UpdateContext updateContext = new UpdateContext(loggerContext);
 
             setSsoSessionToContext(updateContext, request.getSsoToken());
+            updateContext.setClientCertificate(ClientCertificateExtractor.getClientCertificate(httpServletRequest, dateTimeProvider));
 
             final String content = request.hasParam("DATA") ? request.getParam("DATA") : "";
 
@@ -280,7 +277,7 @@ public class SyncUpdatesService {
         }
 
         // application/x-www-form-urlencoded is UTF-8 by default
-        return Charsets.UTF_8;
+        return StandardCharsets.UTF_8;
     }
 
     @Nullable

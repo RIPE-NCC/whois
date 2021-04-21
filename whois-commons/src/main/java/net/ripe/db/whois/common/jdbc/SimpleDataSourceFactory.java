@@ -28,7 +28,7 @@ public class SimpleDataSourceFactory implements DataSourceFactory {
             cpds.setPassword(password);
 
             cpds.setMinPoolSize(0);
-            cpds.setMaxPoolSize(20);
+            cpds.setMaxPoolSize(100);
             cpds.setMaxIdleTime(7200);
             cpds.setPreferredTestQuery("SELECT 1");
             cpds.setIdleConnectionTestPeriod(15);

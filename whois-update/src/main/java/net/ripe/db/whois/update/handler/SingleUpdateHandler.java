@@ -88,11 +88,13 @@ public class SingleUpdateHandler {
             updateContext.addMessage(update, UpdateMessages.dryRunNotice());
         }
 
+        updateContext.setOrigin(update, origin);
+
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
         RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
 
-        Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
+        Action action = getAction(originalObject, updatedObject, update, updateContext, keyword, overrideOptions);
         updateContext.setAction(update, action);
 
         if (action == Action.NOOP) {
@@ -100,7 +102,7 @@ public class SingleUpdateHandler {
         }
 
         if (action == Action.DELETE && originalObject == null) {
-            updateContext.addMessage(update, UpdateMessages.objectNotFound(updatedObject.getFormattedKey()));
+            updateContext.addMessage(update, UpdateMessages.objectNotFound(update.getSubmittedObject().getFormattedKey()));
         }
 
         // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...), bail out if so
@@ -127,7 +129,7 @@ public class SingleUpdateHandler {
         }
 
         // need to recalculate action after attributegenerators
-        action = getAction(originalObject, updatedObjectWithAutoKeys, update, updateContext, keyword);
+        action = getAction(originalObject, updatedObjectWithAutoKeys, update, updateContext, keyword, overrideOptions);
         updateContext.setAction(update, action);
         if (action == Action.NOOP) {
             updatedObjectWithAutoKeys = originalObject;
@@ -203,6 +205,8 @@ public class SingleUpdateHandler {
             if (update.getDeleteReasons().size() > 1) {
                 updateContext.addMessage(update, UpdateMessages.multipleReasonsSpecified(update.getOperation()));
             }
+
+            updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
@@ -214,7 +218,12 @@ public class SingleUpdateHandler {
         return updatedObject;
     }
 
-    private Action getAction(@Nullable final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final Keyword keyword) {
+    private Action getAction(@Nullable final RpslObject originalObject,
+                             final RpslObject updatedObject,
+                             final Update update,
+                             final UpdateContext updateContext,
+                             final Keyword keyword,
+                             final OverrideOptions overrideOptions) {
         if (Operation.DELETE.equals(update.getOperation())) {
             return Action.DELETE;
         }
@@ -223,7 +232,9 @@ public class SingleUpdateHandler {
             return Action.CREATE;
         }
 
-        if (RpslObjectFilter.ignoreGeneratedAttributesEqual(originalObject, updatedObject) && !updateContext.hasErrors(update)) {
+        if (RpslObjectFilter.ignoreGeneratedAttributesEqual(originalObject, updatedObject)
+                && !overrideOptions.isUpdateOnNoop()
+                && !updateContext.hasErrors(update)) {
             return Action.NOOP;
         }
 

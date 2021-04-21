@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rdap.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -32,7 +32,7 @@ import java.util.List;
     Domain.class
 })
 @XmlRootElement
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RdapObject implements Serializable {
     protected List<Object> status;
     protected List<Entity> entities;

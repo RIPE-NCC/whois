@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -26,7 +27,6 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
-    private static final CIString LIR = CIString.ciString("LIR");
     private static final List<AttributeType> RIPE_NCC_MANAGED_ATTRIBUTES = ImmutableList.of(
             AttributeType.MNT_BY,
             AttributeType.ORG,
@@ -40,7 +40,7 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
         }
 
         final RpslObject originalObject = update.getReferenceObject();
-        if (!LIR.equals(originalObject.getValueForAttribute(AttributeType.ORG_TYPE))) {
+        if (!isLir(originalObject)) {
             return;
         }
 
@@ -50,6 +50,10 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
                 updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(attributeType));
             }
         });
+    }
+
+    private boolean isLir(final RpslObject organisation) {
+        return OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR;
     }
 
     private boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType) {

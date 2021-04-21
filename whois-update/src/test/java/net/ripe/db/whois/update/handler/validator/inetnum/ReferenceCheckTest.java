@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.mockito.Mockito.any;
@@ -197,14 +197,14 @@ public class ReferenceCheckTest {
     @Test
     public void create_wrong_orgtype_on_found_org_direct_assignment() {
         when(update.getAction()).thenReturn(Action.CREATE);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ALLOCATED PI\norg: ORG1"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ALLOCATED PA\norg: ORG1"));
         when(rpslObjectUpdateDao.getAttributeReference(AttributeType.ORG, ciString("ORG1"))).thenReturn(rpslObjectInfo);
         when(rpslObjectInfo.getKey()).thenReturn("ORG1");
         when(rpslObjectDao.getByKey(ObjectType.ORGANISATION, "ORG1")).thenReturn(RpslObject.parse("organisation: ORG1\norg-type: DIRECT_ASSIGNMENT"));
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.wrongOrgType(InetnumStatus.ALLOCATED_PI.getAllowedOrgTypes()));
+        verify(updateContext).addMessage(update, UpdateMessages.wrongOrgType(InetnumStatus.ALLOCATED_PA.getAllowedOrgTypes()));
     }
 
     @Test

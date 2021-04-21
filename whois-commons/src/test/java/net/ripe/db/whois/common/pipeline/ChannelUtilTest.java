@@ -1,7 +1,19 @@
 package net.ripe.db.whois.common.pipeline;
 
 import com.google.common.net.InetAddresses;
-import org.jboss.netty.channel.*;
+import io.netty.buffer.ByteBufAllocator;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelConfig;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelId;
+import io.netty.channel.ChannelMetadata;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelProgressivePromise;
+import io.netty.channel.ChannelPromise;
+import io.netty.channel.EventLoop;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import org.junit.Test;
 
 import java.net.Inet6Address;
@@ -10,7 +22,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ChannelUtilTest {
 
@@ -50,7 +62,52 @@ public class ChannelUtilTest {
         }
 
         @Override
-        public SocketAddress getRemoteAddress() {
+        public ChannelId id() {
+            return null;
+        }
+
+        @Override
+        public EventLoop eventLoop() {
+            return null;
+        }
+
+        @Override
+        public Channel parent() {
+            return null;
+        }
+
+        @Override
+        public ChannelConfig config() {
+            return null;
+        }
+
+        @Override
+        public boolean isOpen() {
+            return false;
+        }
+
+        @Override
+        public boolean isRegistered() {
+            return false;
+        }
+
+        @Override
+        public boolean isActive() {
+            return false;
+        }
+
+        @Override
+        public ChannelMetadata metadata() {
+            return null;
+        }
+
+        @Override
+        public SocketAddress localAddress() {
+            return null;
+        }
+
+        @Override
+        public SocketAddress remoteAddress() {
             InetAddress inetAddress = InetAddresses.forString(ipAddress);
 
             if (withInterface) {
@@ -65,53 +122,8 @@ public class ChannelUtilTest {
         }
 
         @Override
-        public ChannelConfig getConfig() {
+        public ChannelFuture closeFuture() {
             return null;
-        }
-
-        @Override
-        public boolean isBound() {
-            return false;
-        }
-
-        @Override
-        public boolean isConnected() {
-            return false;
-        }
-
-        @Override
-        public SocketAddress getLocalAddress() {
-            return null;
-        }
-
-        @Override
-        public int compareTo(Channel o) {
-            return 0;
-        }
-
-        @Override
-        public Integer getId() {
-            return null;
-        }
-
-        @Override
-        public ChannelFactory getFactory() {
-            return null;
-        }
-
-        @Override
-        public Channel getParent() {
-            return null;
-        }
-
-        @Override
-        public ChannelPipeline getPipeline() {
-            return null;
-        }
-
-        @Override
-        public boolean isOpen() {
-            return false;
         }
 
         @Override
@@ -120,7 +132,7 @@ public class ChannelUtilTest {
         }
 
         @Override
-        public ChannelFuture write(Object message, SocketAddress remoteAddress) {
+        public ChannelFuture write(Object o, ChannelPromise channelPromise) {
             return null;
         }
 
@@ -135,12 +147,12 @@ public class ChannelUtilTest {
         }
 
         @Override
-        public ChannelFuture disconnect() {
+        public ChannelFuture connect(SocketAddress socketAddress, SocketAddress socketAddress1) {
             return null;
         }
 
         @Override
-        public ChannelFuture unbind() {
+        public ChannelFuture disconnect() {
             return null;
         }
 
@@ -150,18 +162,38 @@ public class ChannelUtilTest {
         }
 
         @Override
-        public ChannelFuture getCloseFuture() {
+        public ChannelFuture deregister() {
             return null;
         }
 
         @Override
-        public int getInterestOps() {
-            return 0;
+        public ChannelFuture bind(SocketAddress socketAddress, ChannelPromise channelPromise) {
+            return null;
         }
 
         @Override
-        public boolean isReadable() {
-            return false;
+        public ChannelFuture connect(SocketAddress socketAddress, ChannelPromise channelPromise) {
+            return null;
+        }
+
+        @Override
+        public ChannelFuture connect(SocketAddress socketAddress, SocketAddress socketAddress1, ChannelPromise channelPromise) {
+            return null;
+        }
+
+        @Override
+        public ChannelFuture disconnect(ChannelPromise channelPromise) {
+            return null;
+        }
+
+        @Override
+        public ChannelFuture close(ChannelPromise channelPromise) {
+            return null;
+        }
+
+        @Override
+        public ChannelFuture deregister(ChannelPromise channelPromise) {
+            return null;
         }
 
         @Override
@@ -170,33 +202,88 @@ public class ChannelUtilTest {
         }
 
         @Override
-        public ChannelFuture setInterestOps(int interestOps) {
+        public long bytesBeforeUnwritable() {
+            return 0;
+        }
+
+        @Override
+        public long bytesBeforeWritable() {
+            return 0;
+        }
+
+        @Override
+        public Unsafe unsafe() {
             return null;
         }
 
         @Override
-        public ChannelFuture setReadable(boolean readable) {
+        public ChannelPipeline pipeline() {
             return null;
         }
 
         @Override
-        public boolean getUserDefinedWritability(int i) {
+        public ByteBufAllocator alloc() {
+            return null;
+        }
+
+        @Override
+        public Channel read() {
+            return null;
+        }
+
+        @Override
+        public Channel flush() {
+            return null;
+        }
+
+        @Override
+        public ChannelFuture writeAndFlush(Object o, ChannelPromise channelPromise) {
+            return null;
+        }
+
+        @Override
+        public ChannelFuture writeAndFlush(Object o) {
+            return null;
+        }
+
+        @Override
+        public ChannelPromise newPromise() {
+            return null;
+        }
+
+        @Override
+        public ChannelProgressivePromise newProgressivePromise() {
+            return null;
+        }
+
+        @Override
+        public ChannelFuture newSucceededFuture() {
+            return null;
+        }
+
+        @Override
+        public ChannelFuture newFailedFuture(Throwable throwable) {
+            return null;
+        }
+
+        @Override
+        public ChannelPromise voidPromise() {
+            return null;
+        }
+
+        @Override
+        public <T> Attribute<T> attr(AttributeKey<T> attributeKey) {
+            return null;
+        }
+
+        @Override
+        public <T> boolean hasAttr(AttributeKey<T> attributeKey) {
             return false;
         }
 
         @Override
-        public void setUserDefinedWritability(int i, boolean b) {
-
-        }
-
-        @Override
-        public Object getAttachment() {
-            return null;
-        }
-
-        @Override
-        public void setAttachment(Object o) {
-
+        public int compareTo(Channel o) {
+            return 0;
         }
     }
 }

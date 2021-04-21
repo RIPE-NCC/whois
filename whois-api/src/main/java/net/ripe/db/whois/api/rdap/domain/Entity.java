@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rdap.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
 
@@ -23,7 +23,7 @@ import java.util.Objects;
     "publicIds"
 })
 @XmlRootElement
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Entity extends RdapObject implements Serializable, Comparable<Entity> {
     @XmlElement(required = true)
     protected String handle;

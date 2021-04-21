@@ -1,9 +1,9 @@
 package net.ripe.db.whois.nrtm.integration;
 
-import com.jayway.awaitility.Awaitility;
-import com.jayway.awaitility.Duration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,6 +16,9 @@ import org.springframework.test.annotation.DirtiesContext;
 public class NrtmClientInvalidHostTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Autowired protected NrtmImporter nrtmImporter;
+    private static final RpslObject mntner = RpslObject.parse("" +
+            "mntner: TEST-MNT\n" +
+            "source: TEST");
 
     @BeforeClass
     public static void beforeClass() {
@@ -33,10 +36,14 @@ public class NrtmClientInvalidHostTestIntegration extends AbstractNrtmIntegratio
     @Test
     public void invalid_host() {
         try {
+            databaseHelper.addObject(mntner);
+            nrtmServer.start();
+
             nrtmImporter.start();
-            Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(() -> countThreads("NrtmClient") > 0);
+            objectExists(ObjectType.MNTNER, "TEST-MNT", false);
         } finally {
             nrtmImporter.stop(false);
+            nrtmServer.stop(false);
         }
     }
 }

@@ -1243,4 +1243,82 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
     }
+
+    def "inconsistent org-name not allowed on create OTHER organisation"() {
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: AUTO-1
+                org-name:     Inconsistent  Org\tName
+                org-type:     OTHER
+                address:      Stationsplein 11
+                e-mail:       bitbucket@ripe.net
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password: update
+                """.stripIndent())
+
+        then:
+        response =~ /Create FAILED: \[organisation\] AUTO-1/
+        response =~ """
+            \\*\\*\\*Error:   Tab characters, multiple lines, or multiple whitespaces are not
+                        allowed in the "org-name:" value.
+            """.stripIndent()
+    }
+
+    def "inconsistent org-name not allowed on create LIR organisation"() {
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: AUTO-1
+                org-name:     Inconsistent  Org\tName
+                org-type:     LIR
+                address:      Stationsplein 11
+                e-mail:       bitbucket@ripe.net
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                override:   denis,override1
+                """.stripIndent())
+
+        then:
+        response =~ /Create FAILED: \[organisation\] AUTO-1/
+        response =~ """
+            \\*\\*\\*Error:   Tab characters, multiple lines, or multiple whitespaces are not
+                        allowed in the "org-name:" value.
+            """.stripIndent()
+    }
+
+    def "inconsistent org-name not allowed on modify OTHER organisation"() {
+        given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-ION1-TEST\n" +
+                "org-name:     Inconsistent Org Name\n" +
+                "org-type:     OTHER\n" +
+                "address:      Stationsplein 11\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                organisation: ORG-ION1-TEST
+                org-name:     Inconsistent  Org\tName
+                remarks:      Updated # only changing org-name: formatting is a NOOP
+                org-type:     OTHER
+                address:      Stationsplein 11
+                e-mail:       bitbucket@ripe.net
+                mnt-by:       TST-MNT
+                mnt-ref:      TST-MNT
+                source:       TEST
+                password: update
+                """.stripIndent())
+
+        then:
+        response =~ /Modify FAILED: \[organisation\] ORG-ION1-TEST/
+        response =~ """
+            \\*\\*\\*Error:   Tab characters, multiple lines, or multiple whitespaces are not
+                        allowed in the "org-name:" value.
+            """.stripIndent()
+    }
+
 }

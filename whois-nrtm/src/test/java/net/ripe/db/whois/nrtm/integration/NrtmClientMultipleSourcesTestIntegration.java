@@ -1,8 +1,5 @@
 package net.ripe.db.whois.nrtm.integration;
 
-
-import com.jayway.awaitility.Awaitility;
-import com.jayway.awaitility.Duration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -11,9 +8,11 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +81,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
     }
 
     private void objectExists(final ObjectType type, final String key, final String source, final boolean exists) {
-        Awaitility.waitAtMost(Duration.FOREVER).until(new Callable<Boolean>() {
+        Awaitility.await().until(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 try {

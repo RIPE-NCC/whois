@@ -75,7 +75,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 org:          ORG-END1-TEST
                 """,
-                "LIR-FIRST-PART-PA": """\
+                "SUB-ALLOC-FIRST-PART-PA": """\
                 inetnum:      192.168.0.0 - 192.168.127.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -83,12 +83,12 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR2-TEST
                 admin-c:      SR1-TEST
                 tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PA
+                status:       SUB-ALLOCATED PA
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
                 source:       TEST
                 """,
-                "LIR-PART-PA": """\
+                "SUB-ALLOC-PART-PA": """\
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -96,19 +96,19 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR2-TEST
                 admin-c:      SR1-TEST
                 tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PA
+                status:       SUB-ALLOCATED PA
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
                 source:       TEST
                 """,
-                "LIR-PART-PA-A": """\
+                "SUB-ALLOC-PART-PA-A": """\
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
                 admin-c:      SR1-TEST
                 tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PA
+                status:       SUB-ALLOCATED PA
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
                 source:       TEST
@@ -195,17 +195,17 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 """,
                 "ABUSE-ROLE":"""\
-                role:    Abuse Me
-                address: St James Street
-                address: Burnley
-                address: UK
-                e-mail:  dbtest@ripe.net
-                admin-c: AB-TEST
-                tech-c:  AB-TEST
-                nic-hdl: AB-TEST
-                abuse-mailbox: abuse@test.net
-                mnt-by:  TST-MNT2
-                source:  TEST
+                role:           Abuse Me
+                address:        St James Street
+                address:        Burnley
+                address:        UK
+                e-mail:         dbtest@ripe.net
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                nic-hdl:        AM1-TEST
+                abuse-mailbox:  abuse@test.net
+                mnt-by:         TST-MNT2
+                source:         TEST
                 """,
                 "ANOTHER-ABUSE-ROLE": """\
                 role:           Another Abuse Contact
@@ -225,32 +225,44 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:         TST-MNT2
                 source:         TEST
                 """,
-                "ORG-W-ABUSE_C": """\
-                organisation:    ORG-FO1-TEST
-                org-type:        other
-                org-name:        First Org
-                org:             ORG-FO1-TEST
-                address:         RIPE NCC
-                                 Singel 258
-                                 1016 AB Amsterdam
-                                 Netherlands
-                e-mail:          dbtest@ripe.net
-                abuse-c:         AB-TEST
-                mnt-ref:         owner3-mnt
-                mnt-by:          owner2-mnt
-                source:          TEST
-                """,
-                "AUTNUM": """\
+                "AUTNUM_LIR_ORG": """\
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                org:            ORG-FO1-TEST
+                org:            ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                """,
+                "AUTNUM_WITHOUT_ABUSEC": """\
+                aut-num:        AS200
+                as-name:        ASTEST
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                """,
+                "AUTNUM_WITH_ABUSEC": """\
+                aut-num:        AS200
+                as-name:        ASTEST
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                abuse-c:        AM1-TEST
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 """
@@ -493,11 +505,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "% Abuse contact for '192.168.200.0 - 192.168.200.255' is 'abuse@lir.net'")
     }
 
-    def "query ASSIGNED PA with org, no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & LIR-PARTITIONED in between with no abuse-c"() {
+    def "query ASSIGNED PA with org, no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & SUB-ALLOCATED in between with no abuse-c"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A-ORG") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -505,7 +517,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA"
+        // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-NO-A-ORG"
         query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OR1-TEST")
@@ -516,11 +528,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
     }
 
-    def "query LIR-PARTITIONED PA, ASSIGNED PA with org, no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & LIR-PARTITIONED in between with no abuse-c"() {
+    def "query SUB-ALLOCATED PA, ASSIGNED PA with org, no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & SUB-ALLOCATED in between with no abuse-c"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A-ORG") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -528,7 +540,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA"
+        // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-NO-A-ORG"
         query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OR1-TEST")
@@ -539,11 +551,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "% Abuse contact for '192.168.128.0 - 192.168.255.255' is 'abuse@lir.net'")
     }
 
-    def "query SUB-ALLOCATED, ASSIGNED PA with org, no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & LIR-PARTITIONED in between with no abuse-c"() {
+    def "query SUB-ALLOCATED, ASSIGNED PA with org, no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & SUB-ALLOCATED in between with no abuse-c"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A-ORG") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -551,7 +563,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA"
+        // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-NO-A-ORG"
         query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OR1-TEST")
@@ -562,11 +574,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "% Abuse contact for '192.168.0.0 - 192.168.255.255' is 'abuse@lir.net'")
     }
 
-    def "query ASSIGNED PA with org, with abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & LIR-PARTITIONED in between with no abuse-c"() {
+    def "query ASSIGNED PA with org, with abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & SUB-ALLOCATED in between with no abuse-c"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -574,7 +586,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA"
+        // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-A"
         query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-END1-TEST")
@@ -586,11 +598,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "% Abuse contact for '192.168.200.0 - 192.168.200.255' is 'my_abuse@lir.net'")
     }
 
-    def "query LIR-PARTITIONED PA, ASSIGNED PA with org, with abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & LIR-PARTITIONED in between with no abuse-c"() {
+    def "query SUB-ALLOCATED PA, ASSIGNED PA with org, with abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & SUB-ALLOCATED in between with no abuse-c"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -598,7 +610,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA"
+        // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-A"
         query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-END1-TEST")
@@ -610,11 +622,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "% Abuse contact for '192.168.128.0 - 192.168.255.255' is 'abuse@lir.net'")
     }
 
-    def "query SUB-ALLOCATED, ASSIGNED PA with org, with abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & LIR-PARTITIONED in between with no abuse-c"() {
+    def "query SUB-ALLOCATED, ASSIGNED PA with org, with abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED & SUB-ALLOCATED in between with no abuse-c"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -622,7 +634,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA"
+        // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-A"
         query_object_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-END1-TEST")
@@ -634,11 +646,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "% Abuse contact for '192.168.0.0 - 192.168.255.255' is 'abuse@lir.net'")
     }
 
-    def "query ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with abuse-c & LIR-PARTITIONED with no abuse-c in between"() {
+    def "query ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with abuse-c & SUB-ALLOCATED with no abuse-c in between"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA-A") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -646,7 +658,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA-A"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-END1-TEST")
-        // "LIR-PART-PA"
+        // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-NO-A"
         query_object_not_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "org:")
@@ -657,11 +669,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "% Abuse contact for '192.168.200.0 - 192.168.200.255' is 'my_abuse@lir.net'")
     }
 
-    def "query LIR-PARTITIONED PA, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with abuse-c & LIR-PARTITIONED with no abuse-c in between"() {
+    def "query SUB-ALLOCATED PA, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with abuse-c & SUB-ALLOCATED with no abuse-c in between"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA-A") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -669,7 +681,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA-A"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-END1-TEST")
-        // "LIR-PART-PA"
+        // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-NO-A"
         query_object_not_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "org:")
@@ -680,11 +692,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "% Abuse contact for '192.168.128.0 - 192.168.255.255' is 'my_abuse@lir.net'")
     }
 
-    def "query SUB-ALLOCATED, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with abuse-c & LIR-PARTITIONED with no abuse-c in between"() {
+    def "query SUB-ALLOCATED, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with abuse-c & SUB-ALLOCATED with no abuse-c in between"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA-A") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -692,7 +704,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA-A"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-END1-TEST")
-        // "LIR-PART-PA"
+        // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-NO-A"
         query_object_not_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "org:")
@@ -703,11 +715,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "% Abuse contact for '192.168.0.0 - 192.168.255.255' is 'my_abuse@lir.net'")
     }
 
-    def "query ALLOCATED, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with abuse-c & LIR-PARTITIONED with no abuse-c in between"() {
+    def "query ALLOCATED, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with abuse-c & SUB-ALLOCATED with no abuse-c in between"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA-A") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -715,7 +727,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA-A"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-END1-TEST")
-        // "LIR-PART-PA"
+        // "SUB-ALLOC-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-LIR2-TEST")
         // "ASS-END-NO-A"
         query_object_not_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "org:")
@@ -726,11 +738,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
     }
 
-    def "query ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with no abuse-c & LIR-PARTITIONED with abuse-c in between"() {
+    def "query ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with no abuse-c & SUB-ALLOCATED with abuse-c in between"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA-A") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA-A") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -738,7 +750,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA-A"
+        // "SUB-ALLOC-PART-PA-A"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-END1-TEST")
         // "ASS-END-NO-A"
         query_object_not_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "org:")
@@ -749,11 +761,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "% Abuse contact for '192.168.200.0 - 192.168.200.255' is 'my_abuse@lir.net'")
     }
 
-    def "query LIR-PARTITIONED PA, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with no abuse-c & LIR-PARTITIONED with abuse-c in between"() {
+    def "query SUB-ALLOCATED PA, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with no abuse-c & SUB-ALLOCATED with abuse-c in between"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA-A") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA-A") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -761,7 +773,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA-A"
+        // "SUB-ALLOC-PART-PA-A"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-END1-TEST")
         // "ASS-END-NO-A"
         query_object_not_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "org:")
@@ -772,11 +784,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "% Abuse contact for '192.168.128.0 - 192.168.255.255' is 'my_abuse@lir.net'")
     }
 
-    def "query SUB-ALLOCATED, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with no abuse-c & LIR-PARTITIONED with abuse-c in between"() {
+    def "query SUB-ALLOCATED, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with no abuse-c & SUB-ALLOCATED with abuse-c in between"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA-A") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA-A") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -784,7 +796,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA-A"
+        // "SUB-ALLOC-PART-PA-A"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-END1-TEST")
         // "ASS-END-NO-A"
         query_object_not_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "org:")
@@ -795,11 +807,11 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "% Abuse contact for '192.168.0.0 - 192.168.255.255' is 'abuse@lir.net'")
     }
 
-    def "query ALLOCATED, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with no abuse-c & LIR-PARTITIONED with abuse-c in between"() {
+    def "query ALLOCATED, ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with no abuse-c & SUB-ALLOCATED with abuse-c in between"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA-A") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA-A") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A") + "password: lir2\npassword: end\npassword: owner3")
 
       expect:
@@ -807,7 +819,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA-A"
+        // "SUB-ALLOC-PART-PA-A"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-END1-TEST")
         // "ASS-END-NO-A"
         query_object_not_matches("-rBG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "org:")
@@ -818,12 +830,12 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
     }
 
-    def "query 2 ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with no abuse-c & 2 LIR-PARTITIONED 1 with 1 without abuse-c in between"() {
+    def "query 2 ASSIGNED PA with no abuse-c, parent ALLOCATED PA with abuse-c, SUB-ALLOCATED with no abuse-c & 2 SUB-ALLOCATED 1 with 1 without abuse-c in between"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        syncUpdate(getTransient("LIR-PART-PA-A") + "password: owner3\npassword: lir\npassword: lir2")
-        syncUpdate(getTransient("LIR-FIRST-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-PART-PA-A") + "password: owner3\npassword: lir\npassword: lir2")
+        syncUpdate(getTransient("SUB-ALLOC-FIRST-PART-PA") + "password: owner3\npassword: lir\npassword: lir2")
         syncUpdate(getTransient("ASS-END-NO-A") + "password: lir2\npassword: end\npassword: owner3")
         syncUpdate(getTransient("ASS-END2-NO-A") + "password: lir2\npassword: end\npassword: owner3")
 
@@ -832,7 +844,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "ORG-LIRA-TEST")
         // "SUB-ALLOC-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-LIR2-TEST")
-        // "LIR-PART-PA-A"
+        // "SUB-ALLOC-PART-PA-A"
         query_object_matches("-rBG -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "ORG-END1-TEST")
         // "LIR-FIRST-PART-PA"
         query_object_matches("-rBG -T inetnum 192.168.0.0 - 192.168.127.255", "inetnum", "192.168.0.0 - 192.168.127.255", "ORG-LIR2-TEST")
@@ -850,6 +862,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
     def "query -b ALLOCATED PA, with abuse-c"() {
       given:
+        syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
         syncUpdate(getTransient("SUB-ALLOC-PA-A") + "override: denis,override1")
         syncUpdate(getTransient("ROUTE") + "override: denis,override1")
 
@@ -869,30 +882,17 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
     def "query -b aut-num with abuse-c"() {
         given:
-            databaseHelper.addObject(getTransient("ABUSE-ROLE"))
-            databaseHelper.addObject(getTransient("ORG-W-ABUSE_C"))
-            databaseHelper.addObject(getTransient("AUTNUM"))
+            syncUpdate(getTransient("AUTNUM_LIR_ORG") + "override: denis,override1")
 
         expect:
             queryObject("--abuse-contact AS200", "aut-num", "AS200")
-            queryObject("--abuse-contact AS200", "abuse-mailbox", "abuse@test.net")
+            queryObject("--abuse-contact AS200", "abuse-mailbox", "abuse@lir.net")
             !(query("--abuse-contact AS200") =~ "%WARNING:902: useless IP flag passed")
     }
 
     def "query -b aut-num without abuse-c"() {
         given:
-            databaseHelper.addObject("" +
-                    "aut-num:        AS200\n" +
-                    "as-name:        ASTEST\n" +
-                    "descr:          description\n" +
-                    "import:         from AS1 accept ANY\n" +
-                    "export:         to AS1 announce AS2\n" +
-                    "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
-                    "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
-                    "admin-c:        TP1-TEST\n" +
-                    "tech-c:         TP1-TEST\n" +
-                    "mnt-by:         OWNER-MNT\n" +
-                    "source:         TEST")
+            syncUpdate(getTransient("AUTNUM_WITHOUT_ABUSEC") + "override: denis,override1")
 
         expect:
             queryObject("--abuse-contact AS200", "aut-num", "AS200")
@@ -901,72 +901,34 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
     def "query -b aut-num with abuse-c on resource"() {
         given:
-        databaseHelper.addObject("" +
-                "role:           Another Abuse Contact\n" +
-                "nic-hdl:        AH2-TEST\n" +
-                "abuse-mailbox:  more_abuse@test.net\n" +
-                "mnt-by:         TST-MNT2\n" +
-                "source:         TEST")
-        databaseHelper.addObject("" +
-                "aut-num:        AS200\n" +
-                "as-name:        ASTEST\n" +
-                "descr:          description\n" +
-                "import:         from AS1 accept ANY\n" +
-                "export:         to AS1 announce AS2\n" +
-                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
-                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "abuse-c:        AH2-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST")
+        syncUpdate(getTransient("ABUSE-ROLE") + "override: denis,override1")
+        syncUpdate(getTransient("AUTNUM_WITH_ABUSEC") + "override: denis,override1")
 
         expect:
         queryObject("--abuse-contact AS200", "aut-num", "AS200")
-        queryObject("--abuse-contact AS200", "abuse-mailbox", "more_abuse@test.net")
+        queryObject("--abuse-contact AS200", "abuse-mailbox", "abuse@test.net")
     }
 
     def "inverse query for organisation using person"() {
-        given:
-        databaseHelper.addObject(getTransient("ABUSE-ROLE"))
-        databaseHelper.addObject(getTransient("ORG-W-ABUSE_C"))
-
         expect:
-        queryObject("-i pn AB-TEST", "organisation", "ORG-FO1-TEST")
+        queryObject("-i pn AH1-TEST", "organisation", "ORG-LIRA-TEST")
     }
 
     def "inverse query for aut-num using person"() {
         given:
-        databaseHelper.addObject("" +
-                "role:           Another Abuse Contact\n" +
-                "nic-hdl:        AH2-TEST\n" +
-                "abuse-mailbox:  more_abuse@test.net\n" +
-                "mnt-by:         TST-MNT2\n" +
-                "source:         TEST")
-        databaseHelper.addObject("" +
-                "aut-num:        AS200\n" +
-                "as-name:        ASTEST\n" +
-                "descr:          description\n" +
-                "import:         from AS1 accept ANY\n" +
-                "export:         to AS1 announce AS2\n" +
-                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
-                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "abuse-c:        AH2-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST")
+        syncUpdate(getTransient("ABUSE-ROLE") + "override: denis,override1")
+        syncUpdate(getTransient("AUTNUM_WITH_ABUSEC") + "override: denis,override1")
 
         expect:
-        queryObject("-i pn AH2-TEST", "aut-num", "AS200")
+        queryObject("-i pn AM1-TEST", "aut-num", "AS200")
     }
 
     def "assignments with different abuse-c overrides org reference"() {
       given:
-            databaseHelper.addObject(getTransient("ANOTHER-ABUSE-ROLE"))
-            databaseHelper.addObject(getTransient("YET-ANOTHER-ABUSE-ROLE"))
-            databaseHelper.addObject(getTransient("ALLOC-PA-A"))
-            databaseHelper.addObject("" +
+            syncUpdate(getTransient("ANOTHER-ABUSE-ROLE") + "override: denis,override1")
+            syncUpdate(getTransient("YET-ANOTHER-ABUSE-ROLE") + "override: denis,override1")
+            syncUpdate(getTransient("ALLOC-PA-A") + "override: denis,override1")
+            syncUpdate(
                 "inetnum:      192.168.100.0 - 192.168.100.255\n" +
                 "netname:      RIPE-NET1\n" +
                 "descr:        /24 assigned\n" +
@@ -977,8 +939,9 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 "tech-c:       TP1-TEST\n" +
                 "status:       ASSIGNED PA\n" +
                 "mnt-by:       LIR2-MNT\n" +
-                "source:       TEST\n")
-            databaseHelper.addObject("" +
+                "source:       TEST\n" +
+                "override: denis,override1")
+            syncUpdate(
                 "inetnum:      192.168.200.0 - 192.168.200.255\n" +
                 "netname:      RIPE-NET2\n" +
                 "descr:        /24 assigned\n" +
@@ -989,7 +952,9 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 "tech-c:       TP1-TEST\n" +
                 "status:       ASSIGNED PA\n" +
                 "mnt-by:       LIR2-MNT\n" +
-                "source:       TEST\n")
+                "source:       TEST\n" +
+                "override: denis,override1")
+
       expect:
         // Allocation
         queryLineMatches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
@@ -1003,14 +968,15 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
     def "query aut-num with suspect abuse-c without responsible org"() {
         given:
-        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
-        databaseHelper.addObject("" +
+        insertAbusec("more_abuse@test.net", "SUSPECT")
+        syncUpdate(
                 "role:           Another Abuse Contact\n" +
                 "nic-hdl:        AH2-TEST\n" +
                 "abuse-mailbox:  more_abuse@test.net\n" +
                 "mnt-by:         TST-MNT2\n" +
-                "source:         TEST")
-        databaseHelper.addObject("" +
+                "source:         TEST\n" +
+                "override: denis,override1")
+        syncUpdate(
                 "aut-num:        AS200\n" +
                 "as-name:        ASTEST\n" +
                 "descr:          description\n" +
@@ -1022,25 +988,29 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 "tech-c:         TP1-TEST\n" +
                 "abuse-c:        AH2-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST")
+                "source:         TEST\n" +
+                "override: denis,override1")
 
         expect:
         !queryLineMatches("AS200", "% Abuse-mailbox validation failed.")
 
         cleanup:
-        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+            clearAbusec()
     }
 
     def "query aut-num with suspect abuse-c with responsible org"() {
         given:
-        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
-        databaseHelper.addObject("" +
+        insertAbusec("more_abuse@test.net", "SUSPECT")
+        syncUpdate(
                 "role:           Another Abuse Contact\n" +
+                "address:        Amsterdam\n" +
+                "e-mail:         dbtest@ripe.net\n" +
                 "nic-hdl:        AH2-TEST\n" +
                 "abuse-mailbox:  more_abuse@test.net\n" +
                 "mnt-by:         TST-MNT2\n" +
-                "source:         TEST")
-        databaseHelper.addObject("" +
+                "source:         TEST\n" +
+                "override: denis,override1")
+        syncUpdate(
                 "aut-num:        AS200\n" +
                 "as-name:        ASTEST\n" +
                 "descr:          description\n" +
@@ -1053,25 +1023,29 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 "abuse-c:        AH2-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "org:            ORG-LIR2-TEST\n" +
-                "source:         TEST")
+                "source:         TEST\n" +
+                "override: denis,override1")
 
         expect:
         queryLineMatches("AS200", "% Abuse-mailbox validation failed. Please refer to ORG-LIR2-TEST for further information.")
 
         cleanup:
-        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+            clearAbusec()
     }
 
     def "query aut-num with suspect abuse-c with sponsoring org"() {
         given:
-        databaseHelper.getInternalsTemplate().update("insert into abuse_email (address, status, created_at) values ('more_abuse@test.net', 'SUSPECT', now())")
-        databaseHelper.addObject("" +
+        insertAbusec("more_abuse@test.net", "SUSPECT")
+        syncUpdate(
                 "role:           Another Abuse Contact\n" +
+                "address:        Amsterdam\n" +
+                "e-mail:         dbtest@ripe.net\n" +
                 "nic-hdl:        AH2-TEST\n" +
                 "abuse-mailbox:  more_abuse@test.net\n" +
                 "mnt-by:         TST-MNT2\n" +
-                "source:         TEST")
-        databaseHelper.addObject("" +
+                "source:         TEST\n" +
+                "override: denis,override1")
+        syncUpdate(
                 "aut-num:        AS200\n" +
                 "as-name:        ASTEST\n" +
                 "descr:          description\n" +
@@ -1084,13 +1058,142 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 "abuse-c:        AH2-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "sponsoring-org: ORG-LIR2-TEST\n" +
-                "source:         TEST")
+                "source:         TEST\n" +
+                "override: denis,override1")
 
         expect:
         queryLineMatches("AS200", "% Abuse-mailbox validation failed. Please refer to ORG-LIR2-TEST for further information.")
 
         cleanup:
-        databaseHelper.getInternalsTemplate().update("delete from abuse_email")
+            clearAbusec()
     }
+
+    def "query aut-num with suspect abuse-c with end user org and sponsoring org"() {
+        given:
+        insertAbusec("more_abuse@test.net", "SUSPECT")
+        syncUpdate(
+                "role:           Another Abuse Contact\n" +
+                "address:        Amsterdam\n" +
+                "e-mail:         dbtest@ripe.net\n" +
+                "nic-hdl:        AH2-TEST\n" +
+                "abuse-mailbox:  more_abuse@test.net\n" +
+                "mnt-by:         TST-MNT2\n" +
+                "source:         TEST\n" +
+                "override: denis,override1")
+        syncUpdate(
+                "aut-num:        AS200\n" +
+                "as-name:        ASTEST\n" +
+                "descr:          description\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "abuse-c:        AH2-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "org:            ORG-END1-TEST\n" +
+                "sponsoring-org: ORG-LIR2-TEST\n" +
+                "source:         TEST\n" +
+                "override: denis,override1")
+
+        expect:
+        queryLineMatches("AS200", "% Abuse-mailbox validation failed. Please refer to ORG-LIR2-TEST for further information.")
+
+        cleanup:
+            clearAbusec()
+    }
+
+    def "query assignment with suspect end user abuse-c refers to LIR organisation"() {
+        given:
+            syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
+            syncUpdate(getTransient("ASS-END-A") + "password: lir\npassword: end\npassword: owner3")
+            insertAbusec("my_abuse@lir.net", "SUSPECT")     // end user abuse-c is suspect
+        expect:
+            // Allocation
+            queryLineMatches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
+            // Assignment
+            queryLineMatches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "% Abuse contact for '192.168.200.0 - 192.168.200.255' is 'my_abuse@lir.net'")
+            // Comment must refer to LIR not the End User org
+            queryLineMatches("192.168.200.0 - 192.168.200.255", "% Abuse-mailbox validation failed. Please refer to ORG-LIRA-TEST for further information.")
+        cleanup:
+            clearAbusec()
+    }
+
+    def "query assignment with suspect LIR abuse-c refers to LIR organisation"() {
+        given:
+            syncUpdate(getTransient("ALLOC-PA-A") + "password: owner3\npassword: hm")
+            insertAbusec("abuse@lir.net", "SUSPECT")     // LIR abuse-c is suspect
+        expect:
+            // Allocation
+            queryLineMatches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "% Abuse contact for '192.168.0.0 - 192.169.255.255' is 'abuse@lir.net'")
+            // Comment must refer to LIR
+            queryLineMatches("192.168.0.0 - 192.169.255.255", "% Abuse-mailbox validation failed. Please refer to ORG-LIRA-TEST for further information.")
+        cleanup:
+            clearAbusec()
+    }
+
+    def "query assignment with suspect abuse-c and end user organisation"() {
+        given:
+            syncUpdate(
+                    "inetnum:         193.0.1.0 - 193.0.1.255\n" +
+                    "netname:         TEST\n" +
+                    "descr:           Test Assignment\n" +
+                    "country:         NL\n" +
+                    "org:             ORG-END1-TEST\n" +
+                    "admin-c:         TP1-TEST\n" +
+                    "tech-c:          TP1-TEST\n" +
+                    "status:          ASSIGNED PI\n" +
+                    "mnt-by:          RIPE-NCC-HM-MNT\n" +
+                    "mnt-by:          OWNER-MNT\n" +
+                    "source:          TEST\n" +
+                    "override: denis,override1")
+            insertAbusec("my_abuse@lir.net", "SUSPECT")     // end user abuse-c is suspect
+        expect:
+            // Assignment
+            queryLineMatches("-r -T inetnum 193.0.1.0 - 193.0.1.255", "% Abuse contact for '193.0.1.0 - 193.0.1.255' is 'my_abuse@lir.net'")
+            // Comment must refer to End User organisation
+            queryLineMatches("193.0.1.0 - 193.0.1.255", "% Abuse-mailbox validation failed. Please refer to ORG-END1-TEST for further information.")
+        cleanup:
+            clearAbusec()
+    }
+
+    def "query assignment with suspect abuse-c and sponsoring LIR organisation"() {
+        given:
+            syncUpdate(
+                    "inetnum:         193.0.1.0 - 193.0.1.255\n" +
+                    "netname:         TEST\n" +
+                    "descr:           Test Assignment\n" +
+                    "country:         NL\n" +
+                    "org:             ORG-END1-TEST\n" +
+                    "sponsoring-org:  ORG-LIRA-TEST\n" +
+                    "admin-c:         TP1-TEST\n" +
+                    "tech-c:          TP1-TEST\n" +
+                    "status:          ASSIGNED PI\n" +
+                    "mnt-by:          RIPE-NCC-HM-MNT\n" +
+                    "mnt-by:          OWNER-MNT\n" +
+                    "source:          TEST\n" +
+                    "override: denis,override1")
+            insertAbusec("my_abuse@lir.net", "SUSPECT")     // end user abuse-c is suspect
+        expect:
+            // Assignment
+            queryLineMatches("-r -T inetnum 193.0.1.0 - 193.0.1.255", "% Abuse contact for '193.0.1.0 - 193.0.1.255' is 'my_abuse@lir.net'")
+            // Comment must refer to the sponsoring LIR organisation
+            queryLineMatches("193.0.1.0 - 193.0.1.255", "% Abuse-mailbox validation failed. Please refer to ORG-LIRA-TEST for further information.")
+        cleanup:
+            clearAbusec()
+    }
+
+    // helper methods
+
+    private void insertAbusec(final String address, final String status) {
+        databaseHelper.getInternalsTemplate().update("INSERT INTO abuse_email (address, status, created_at) VALUES ('" + address + "', '" + status + "', now())")
+    }
+
+    private void clearAbusec() {
+        databaseHelper.getInternalsTemplate().update("DELETE FROM abuse_email")
+    }
+
+
 
 }

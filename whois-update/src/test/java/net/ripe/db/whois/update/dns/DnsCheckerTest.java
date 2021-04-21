@@ -16,10 +16,8 @@ import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.util.Collections;
@@ -27,12 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -43,11 +41,11 @@ public class DnsCheckerTest {
     @Mock DnsGateway dnsGateway;
     @Mock LoggerContext loggerContext;
 
-    @InjectMocks
     DnsChecker subject;
 
     @Before
     public void setup() {
+        subject = new DnsChecker(dnsGateway, loggerContext, "zonemaster");
         when(updateRequest.getUpdates()).thenReturn(Collections.singletonList(update));
     }
 
@@ -56,7 +54,7 @@ public class DnsCheckerTest {
         when(update.getOperation()).thenReturn(Operation.DELETE);
         subject.checkAll(updateRequest, updateContext);
 
-        verifyZeroInteractions(dnsGateway);
+        verifyNoMoreInteractions(dnsGateway);
     }
 
     @Test
@@ -64,7 +62,7 @@ public class DnsCheckerTest {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         subject.checkAll(updateRequest, updateContext);
 
-        verifyZeroInteractions(dnsGateway);
+        verifyNoMoreInteractions(dnsGateway);
     }
 
     @Test
@@ -72,7 +70,7 @@ public class DnsCheckerTest {
         when(update.isOverride()).thenReturn(true);
         subject.checkAll(updateRequest, updateContext);
 
-        verifyZeroInteractions(dnsGateway);
+        verifyNoMoreInteractions(dnsGateway);
     }
 
     @Test
@@ -131,16 +129,29 @@ public class DnsCheckerTest {
                 "domain:          36.84.80.in-addr.arpa\n"
         ));
 
-        when(dnsGateway.performDnsChecks(any(Set.class))).thenAnswer(new Answer<Map<DnsCheckRequest, DnsCheckResponse>>() {
-            @Override
-            public Map<DnsCheckRequest, DnsCheckResponse> answer(InvocationOnMock invocation) throws Throwable {
-                DnsCheckRequest arg = (DnsCheckRequest)(((Set)invocation.getArguments()[0]).iterator().next());
-                return Collections.singletonMap(arg, new DnsCheckResponse(UpdateMessages.dnsCheckTimeout()));
-            }
+        when(dnsGateway.performDnsChecks(any(Set.class))).thenAnswer((Answer<Map<DnsCheckRequest, DnsCheckResponse>>) invocation -> {
+            DnsCheckRequest arg = (DnsCheckRequest)(((Set)invocation.getArguments()[0]).iterator().next());
+            return Collections.singletonMap(arg, new DnsCheckResponse(UpdateMessages.dnsCheckTimeout()));
         });
 
         subject.checkAll(updateRequest, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.dnsCheckTimeout());
+    }
+
+    @Test
+    public void check_disabled() {
+        subject = new DnsChecker(dnsGateway, loggerContext, "");
+
+        when(update.getOperation()).thenReturn(Operation.UNSPECIFIED);
+        when(update.getType()).thenReturn(ObjectType.DOMAIN);
+        when(update.isOverride()).thenReturn(false);
+        when(update.getSubmittedObject()).thenReturn(RpslObject.parse("" +
+                "domain:          36.84.80.in-addr.arpa\n"
+        ));
+
+        subject.checkAll(updateRequest, updateContext);
+
+        verifyNoMoreInteractions(dnsGateway);
     }
 }

@@ -1,16 +1,19 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.channel.Channel;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import org.jboss.netty.channel.Channel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueryCompletedEventTest {
@@ -23,7 +26,7 @@ public class QueryCompletedEventTest {
         subject = new QueryCompletedEvent(channel);
 
         assertThat(subject.getChannel(), is(channel));
-        assertThat(subject.getFuture().getChannel(), is(channel));
+        assertThat(subject.getFuture().channel(), is(channel));
         assertThat(subject.isForceClose(), is(false));
         assertNull(subject.getCompletionInfo());
         assertThat(subject.toString(), containsString("null"));

@@ -63,36 +63,6 @@ CREATE TABLE `acl_limit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `acl_mirror`
---
-
-DROP TABLE IF EXISTS `acl_mirror`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acl_mirror` (
-  `prefix` varchar(50) NOT NULL,
-  `comment` text,
-  PRIMARY KEY (`prefix`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `acl_mirror_delete_log`
---
-
-DROP TABLE IF EXISTS `acl_mirror_delete_log`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `acl_mirror_delete_log` (
-  `prefix` varchar(50) NOT NULL,
-  `comment` text,
-  `delete_comment` text,
-  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`prefix`,`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `acl_proxy`
 --
 

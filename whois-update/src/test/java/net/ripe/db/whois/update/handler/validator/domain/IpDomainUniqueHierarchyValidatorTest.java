@@ -16,11 +16,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IpDomainUniqueHierarchyValidatorTest {
@@ -48,7 +50,7 @@ public class IpDomainUniqueHierarchyValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(ipv4DomainTree, ipv6DomainTree);
+        verifyNoMoreInteractions(ipv4DomainTree, ipv6DomainTree);
     }
 
     @Test
@@ -61,7 +63,7 @@ public class IpDomainUniqueHierarchyValidatorTest {
         verify(ipv4DomainTree).findFirstLessSpecific(Ipv4Resource.parse("193.193.200.0/24"));
         verify(ipv4DomainTree).findFirstMoreSpecific(Ipv4Resource.parse("193.193.200.0/24"));
 
-        verifyZeroInteractions(ipv6DomainTree);
+        verifyNoMoreInteractions(ipv6DomainTree);
     }
 
     @Test
@@ -74,7 +76,7 @@ public class IpDomainUniqueHierarchyValidatorTest {
         verify(ipv6DomainTree).findFirstLessSpecific(Ipv6Resource.parse("2001:7f8::/48"));
         verify(ipv6DomainTree).findFirstMoreSpecific(Ipv6Resource.parse("2001:7f8::/48"));
 
-        verifyZeroInteractions(ipv4DomainTree);
+        verifyNoMoreInteractions(ipv4DomainTree);
     }
 
     @Test
@@ -89,7 +91,7 @@ public class IpDomainUniqueHierarchyValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.lessSpecificDomainFound(lessSpecific.toString()));
-        verifyZeroInteractions(ipv6DomainTree);
+        verifyNoMoreInteractions(ipv6DomainTree);
     }
 
     @Test
@@ -104,6 +106,6 @@ public class IpDomainUniqueHierarchyValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.moreSpecificDomainFound(moreSpecific.toString()));
-        verifyZeroInteractions(ipv6DomainTree);
+        verifyNoMoreInteractions(ipv6DomainTree);
     }
 }

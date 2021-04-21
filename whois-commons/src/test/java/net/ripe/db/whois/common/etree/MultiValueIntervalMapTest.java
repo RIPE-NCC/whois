@@ -8,7 +8,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MultiValueIntervalMapTest {
     private MultiValueIntervalMap<Ipv4Resource, String> subject;

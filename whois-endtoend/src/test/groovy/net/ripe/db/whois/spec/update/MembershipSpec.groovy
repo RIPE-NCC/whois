@@ -374,12 +374,13 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.errorMessagesFor("Modify", "[aut-num] AS352") == [
                 "Membership claim is not supported by mbrs-by-ref: attribute of the referenced set [AS-TEST]"]
         ack.warningMessagesFor("Modify", "[aut-num] AS352") ==
-              ["Supplied attribute 'status' has been replaced with a generated value",
+              ["Deprecated attribute \"mnt-lower\". This attribute has been removed.",
+               "Supplied attribute 'status' has been replaced with a generated value",
               "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "mnt-by:\\s*LIR-MNT")
@@ -530,13 +531,14 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.errors.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.errorMessagesFor("Modify", "[aut-num] AS352") == [
                 "Membership claim is not supported by mbrs-by-ref: attribute of the referenced set [AS-TEST]"]
       ack.warningMessagesFor("Modify", "[aut-num] AS352") ==
-              ["Supplied attribute 'status' has been replaced with a generated value",
+              ["Deprecated attribute \"mnt-lower\". This attribute has been removed.",
+               "Supplied attribute 'status' has been replaced with a generated value",
                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "member-of:\\s*AS-TEST")
@@ -593,11 +595,12 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS352") ==
-              ["Supplied attribute 'status' has been replaced with a generated value",
+              ["Deprecated attribute \"mnt-lower\". This attribute has been removed.",
+               "Supplied attribute 'status' has been replaced with a generated value",
                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_not_matches("-rBT aut-num AS352", "aut-num", "AS352", "member-of:\\s*AS-TEST")
@@ -663,12 +666,13 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 0, 2, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS352") ==
-              ["Supplied attribute 'status' has been replaced with a generated value",
+              ["Deprecated attribute \"mnt-lower\". This attribute has been removed.",
+               "Supplied attribute 'status' has been replaced with a generated value",
                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_not_matches("-rBT aut-num AS352", "aut-num", "AS352", "member-of:\\s*AS-TEST")
@@ -931,11 +935,12 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS352"}
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS352") ==
-              ["Supplied attribute 'status' has been replaced with a generated value",
+              ["Deprecated attribute \"mnt-lower\". This attribute has been removed.",
+               "Supplied attribute 'status' has been replaced with a generated value",
                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-r -T as-set AS-TEST", "as-set", "AS-TEST", "mbrs-by-ref:\\s*ANY")
@@ -1044,13 +1049,14 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS-TEST"}
         ack.errors.any {it.operation == "Modify" && it.key == "[aut-num] AS1309"}
         ack.errorMessagesFor("Modify", "[aut-num] AS1309") == [
                 "Membership claim is not supported by mbrs-by-ref: attribute of the referenced set [AS-TEST]"]
         ack.warningMessagesFor("Modify", "[aut-num] AS1309") ==
-              ["Supplied attribute 'status' has been replaced with a generated value",
+              ["Deprecated attribute \"mnt-lower\". This attribute has been removed.",
+               "Supplied attribute 'status' has been replaced with a generated value",
                "Supplied attribute 'source' has been replaced with a generated value"]
 
         query_object_matches("-rBT aut-num AS1309", "aut-num", "AS1309", "member-of:\\s*AS-TEST")

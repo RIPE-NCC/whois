@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -77,7 +76,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
         Set<Integer> differences = loadObjects(proxy, loadedObjects);
         if (!differences.isEmpty()) {
             final Source originalSource = sourceContext.getCurrentSource();
-            LOGGER.info("Objects in source {} not found for ids: {}", originalSource, differences);
+            LOGGER.warn("Objects in source {} not found for ids: {}", originalSource, differences);
 
             if (originalSource.getType().equals(Source.Type.SLAVE)) {
                 final Source masterSource = Source.master(originalSource.getName());
@@ -85,7 +84,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                     sourceContext.setCurrent(masterSource);
                     differences = loadObjects(proxy, loadedObjects);
                     if (!differences.isEmpty()) {
-                        LOGGER.info("Objects in source {} not found for ids: {}", masterSource, differences);
+                        LOGGER.warn("Objects in source {} not found for ids: {}", masterSource, differences);
                     }
                 } catch (IllegalSourceException e) {
                     LOGGER.debug("Source not configured: {}", masterSource, e);
@@ -97,12 +96,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
         final List<RpslObject> rpslObjects = Lists.newArrayList(loadedObjects.values());
         Collections.sort(rpslObjects, new Comparator<RpslObject>() {
-            final List<Integer> requestedIds = Lists.newArrayList(Iterables.transform(proxy, new Function<Identifiable, Integer>() {
-                @Override
-                public Integer apply(final Identifiable input) {
-                    return input.getObjectId();
-                }
-            }));
+            final List<Integer> requestedIds = Lists.newArrayList(Iterables.transform(proxy, input -> input.getObjectId()));
 
             @Override
             public int compare(final RpslObject o1, final RpslObject o2) {
@@ -179,7 +173,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public LocalDateTime getLastUpdated(int objectId) {
-        final long timestamp = jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", new Object[]{objectId}, Long.class);
+        final long timestamp = jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", Long.class, new Object[]{objectId});
         return (Timestamp.fromSeconds(timestamp)).toLocalDateTime();
     }
 

@@ -12,7 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 
-import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.*;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.copyToHistoryAndUpdateSerials;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.deleteFromLastAndSetSerials;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.deleteFromTables;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndSetSerials;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTables;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.updateLastAndSetSerials;
 
 @Repository
 @Transactional

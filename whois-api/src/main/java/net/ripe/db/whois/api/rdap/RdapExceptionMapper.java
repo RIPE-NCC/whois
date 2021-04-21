@@ -16,11 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-
-import static java.util.Collections.emptyList;
 
 @Provider
 @Component
@@ -61,8 +60,7 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         if (exception instanceof WebApplicationException) {
-            LOGGER.warn("unexpected error " + exception.getMessage());
-            return ((WebApplicationException) exception).getResponse();
+            return createErrorResponse(((WebApplicationException) exception).getResponse().getStatus(), exception.getMessage());
         }
 
         if (exception instanceof JsonProcessingException) {
@@ -90,9 +88,13 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
     }
 
     private Response createErrorResponse(final Response.Status status, final String errorTitle) {
+        return createErrorResponse(status.getStatusCode(), errorTitle);
+    }
+
+    private Response createErrorResponse(final int status, final String errorTitle) {
         return Response.status(status)
-                .entity(createErrorEntity(status.getStatusCode(), errorTitle))
-                .header("Content-Type", "application/rdap+json")
+                .entity(createErrorEntity(status, errorTitle))
+                .header(HttpHeaders.CONTENT_TYPE, "application/rdap+json")
                 .build();
     }
 }

@@ -18,15 +18,15 @@ public class JdbcAbuseValidationStatusDao implements AbuseValidationStatusDao {
     private final JdbcTemplate internalsTemplate;
 
     @Autowired
-    public JdbcAbuseValidationStatusDao(@Qualifier("internalsDataSource") final DataSource dataSource) {
-        this.internalsTemplate = new JdbcTemplate(dataSource);
+    public JdbcAbuseValidationStatusDao(@Qualifier("internalsSlaveDataSource") final DataSource internalsDataSource) {
+        this.internalsTemplate = new JdbcTemplate(internalsDataSource);
     }
 
     @Override
-    public boolean isSuspect(CIString email) {
+    public boolean isSuspect(final CIString address) {
         return internalsTemplate.queryForObject(
-                "select count(*) from abuse_email where address = ? and status = ?",
-                new String[] { email.toLowerCase(), "SUSPECT" },
-                Integer.class) > 0;
+                "SELECT count(*) FROM abuse_email WHERE address = ? AND status = ?",
+                Integer.class,
+                new Object[] { address.toString(), "SUSPECT" }) > 0;
     }
 }

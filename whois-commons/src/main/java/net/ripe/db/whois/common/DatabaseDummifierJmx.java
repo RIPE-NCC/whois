@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.DummifierCurrent;
+import net.ripe.db.whois.common.rpsl.DummifierRC;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -59,7 +59,7 @@ public class DatabaseDummifierJmx extends JmxBase {
     private static TransactionTemplate transactionTemplate;
     private static JdbcTemplate jdbcTemplate;
 
-    private static final DummifierCurrent dummifier = new DummifierCurrent();
+    private static final DummifierRC dummifier = new DummifierRC();
 
     private static final AtomicInteger jobsAdded = new AtomicInteger();
     private static final AtomicInteger jobsDone = new AtomicInteger();

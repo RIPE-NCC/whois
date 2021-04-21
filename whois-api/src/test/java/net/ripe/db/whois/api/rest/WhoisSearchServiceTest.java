@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +37,6 @@ public class WhoisSearchServiceTest {
     @Before
     public void setup() {
         when(sourceContext.getAllSourceNames()).thenReturn(CIString.ciSet("TEST", "TEST-GRS"));
-        when(whoisResources.getErrorMessages()).thenReturn(Lists.newArrayList(new ErrorMessage(new Message(Messages.Type.ERROR, "Disallowed search flag '%s'"))));
         when(request.getRequestURL()).thenReturn(new StringBuffer());
     }
 
@@ -52,6 +51,7 @@ public class WhoisSearchServiceTest {
                         Sets.newHashSet("TEST"),
                         "AARDVARK-MNT",
                         Collections.EMPTY_SET,
+                        null,
                         Collections.EMPTY_SET,
                         Collections.EMPTY_SET,
                         Collections.EMPTY_SET,

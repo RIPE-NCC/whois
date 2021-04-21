@@ -10,10 +10,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static net.ripe.db.whois.common.rpsl.ObjectType.*;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AS_SET;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
+import static net.ripe.db.whois.common.rpsl.ObjectType.FILTER_SET;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET_RTR;
+import static net.ripe.db.whois.common.rpsl.ObjectType.IRT;
+import static net.ripe.db.whois.common.rpsl.ObjectType.KEY_CERT;
+import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
+import static net.ripe.db.whois.common.rpsl.ObjectType.PEERING_SET;
+import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
+import static net.ripe.db.whois.common.rpsl.ObjectType.POEM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.POETIC_FORM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE_SET;
+import static net.ripe.db.whois.common.rpsl.ObjectType.RTR_SET;
+import static net.ripe.db.whois.common.rpsl.ObjectType.values;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RpslObjectInfoTest {
     private RpslObjectInfo subject;

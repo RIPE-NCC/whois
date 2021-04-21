@@ -3,15 +3,21 @@ package net.ripe.db.whois.update.log;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Credentials;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateResult;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import static org.mockito.Matchers.matches;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

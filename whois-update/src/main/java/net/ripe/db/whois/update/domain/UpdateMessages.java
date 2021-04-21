@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.Message;
@@ -125,12 +124,7 @@ public final class UpdateMessages {
     // NOTE: this errormessage is being used by webupdates.
     public static Message authenticationFailed(final RpslObject object, final AttributeType attributeType, final Iterable<RpslObject> candidates) {
         final CharSequence joined = LIST_JOINED.join(
-                Iterables.transform(candidates, new Function<RpslObject, CharSequence>() {
-                    @Override
-                    public CharSequence apply(final RpslObject input) {
-                        return input == null ? "" : input.getKey();
-                    }
-                }));
+                Iterables.transform(candidates,input -> input == null ? "" : input.getKey()));
 
         return new Message(Type.ERROR, "" +
                 "Authorisation for [%s] %s failed\n" +
@@ -147,12 +141,7 @@ public final class UpdateMessages {
     // NOTE: this errormessage is being used by webupdates.
     public static Message parentAuthenticationFailed(final RpslObject object, final AttributeType attributeType, final Iterable<RpslObject> candidates) {
         final CharSequence joined = LIST_JOINED.join(
-                Iterables.transform(candidates, new Function<RpslObject, CharSequence>() {
-                    @Override
-                    public CharSequence apply(final RpslObject input) {
-                        return input == null ? "" : input.getKey();
-                    }
-                }));
+                Iterables.transform(candidates, input -> input == null ? "" : input.getKey()));
 
         return new Message(Type.ERROR, "" +
                 "Authorisation for parent [%s] %s failed\n" +
@@ -185,6 +174,10 @@ public final class UpdateMessages {
 
     public static Message invalidMaintainerForOrganisationType(final CharSequence orgType) {
         return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
+    }
+
+    public static Message invalidMaintainerName() {
+        return new Message(Type.ERROR, "When creating a MNTNER the name must end with an -MNT suffix");
     }
 
     public static Message cantChangeOrgAttribute() {
@@ -278,20 +271,12 @@ public final class UpdateMessages {
                 "Allowed values are %s", allowedOrgTypes);
     }
 
-    public static Message incorrectParentStatus(final ObjectType type, final CharSequence parentStatus) {
-        return new Message(Messages.Type.ERROR, "%s parent has incorrect status: %s", type.getName(), parentStatus);
+    public static Message incorrectParentStatus(final Messages.Type messageType, final ObjectType type, final CharSequence parentStatus) {
+        return new Message(messageType, "%s parent has incorrect status: %s", type.getName(), parentStatus);
     }
 
-    public static Message incorrectChildStatus(final CharSequence givenStatus, final CharSequence childStatus, final CharSequence moreSpecificObject) {
-        return new Message(Type.ERROR, "Status %s not allowed when more specific object '%s' has status %s", givenStatus, moreSpecificObject, childStatus);
-    }
-
-    public static Message objectLacksStatus(final CharSequence familyMember, final CharSequence parentInetnum) {
-        return new Message(Type.ERROR, "%s %s does not have \"status:\"", familyMember, parentInetnum);
-    }
-
-    public static Message objectHasInvalidStatus(final CharSequence familyMember, final CharSequence parentInetnum, final CharSequence status) {
-        return new Message(Type.ERROR, "%s %s has invalid status: %s", familyMember, parentInetnum, status);
+    public static Message incorrectChildStatus(final Messages.Type messageType, final CharSequence givenStatus, final CharSequence childStatus, final CharSequence moreSpecificObject) {
+        return new Message(messageType, "Status %s not allowed when more specific object '%s' has status %s", givenStatus, moreSpecificObject, childStatus);
     }
 
     public static Message intersectingRange(final Interval<?> intersectingRange) {
@@ -415,6 +400,10 @@ public final class UpdateMessages {
 
     public static Message poemRequiresPublicMaintainer() {
         return new Message(Type.ERROR, "Poem must be maintained by 'LIM-MNT', which has a public password");
+    }
+
+    public static Message poeticFormRequiresDbmMaintainer() {
+        return new Message(Type.ERROR, "Poetic-form must only be maintained by 'RIPE-DBM-MNT'");
     }
 
     public static Message tooManyPasswordsSpecified() {
@@ -621,6 +610,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Invalid character(s) were substituted in attribute \"%s\" value", attributeName);
     }
 
+    public static Message valueChangedDueToPunycodeConversion() {
+        return new Message(Type.WARNING, "Value changed due to conversion of IDN email address(es) into Punycode");
+    }
+
     public static Message oldPasswordsRemoved() {
         return new Message(Type.WARNING, "MD5 passwords older than November 2011 were removed for one or more maintainers of this object, see: https://www.ripe.net/removed2011pw");
     }
@@ -631,6 +624,10 @@ public final class UpdateMessages {
 
     public static Message updatingRipeMaintainerSSOForbidden() {
         return new Message(Type.ERROR, "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
+    }
+
+    public static Message originIsMissing() {
+        return new Message(Type.ERROR, "Origin of the request is missing");
     }
 
     public static Message netnameCannotBeChanged() {
@@ -649,6 +646,10 @@ public final class UpdateMessages {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"mnt-routes\". This attribute has been removed.");
     }
 
+    public static Message mntLowerAttributeRemoved() {
+        return new Message(Messages.Type.WARNING, "Deprecated attribute \"mnt-lower\". This attribute has been removed.");
+    }
+
     public static Message emailAddressCannotBeUsed(final CIString value) {
         return new Message(Type.ERROR, "The email address \"%s\" cannot be used.", value);
     }
@@ -664,4 +665,9 @@ public final class UpdateMessages {
     public static Message bogonPrefixNotAllowed(final String prefix) {
         return new Message(Type.ERROR, "Bogon prefix %s is not allowed.", prefix);
     }
+
+    public static Message maximumObjectSizeExceeded(final long size, final long maximumSize) {
+        return new Message(Type.ERROR, "Ignored object with size %d, exceeds maximum object size %d.", size, maximumSize);
+    }
+
 }

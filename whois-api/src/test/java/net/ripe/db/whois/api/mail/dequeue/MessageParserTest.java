@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.common.Message;
@@ -16,25 +15,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.ContentType;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -171,7 +171,7 @@ public class MessageParserTest {
 
         MailMessage result = subject.parse(messageWithInvalidReplyTo, updateContext);
 
-        assertThat(result.getReplyTo(), isEmptyString());
+        assertThat(result.getReplyTo(), is(emptyString()));
     }
 
     @Test
@@ -765,7 +765,7 @@ public class MessageParserTest {
 
     @Test
     public void illegal_charset() throws Exception {
-        assertThat(subject.getCharset(new ContentType("text/plain;\n\tcharset=\"_iso-2022-jp$ESC\"")), is(Charsets.ISO_8859_1));
+        assertThat(subject.getCharset(new ContentType("text/plain;\n\tcharset=\"_iso-2022-jp$ESC\"")), is(StandardCharsets.ISO_8859_1));
     }
 
     @Test

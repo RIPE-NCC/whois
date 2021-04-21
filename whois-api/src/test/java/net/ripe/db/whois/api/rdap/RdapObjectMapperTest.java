@@ -18,24 +18,27 @@ import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import java.time.LocalDateTime;
+import net.ripe.db.whois.query.planner.AbuseContact;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.nullValue;
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,34 +69,41 @@ public class RdapObjectMapperTest {
 
     @Test
     public void ip() {
+
+        final AbuseContact abuseContact = new AbuseContact(
+                RpslObject.parse(
+                    "role:           Abuse Contact\n" +
+                    "nic-hdl:        AB-TEST\n" +
+                    "mnt-by:         TEST-MNT\n" +
+                    "admin-c:        TP1-TEST\n" +
+                    "tech-c:         TP2-TEST\n" +
+                    "phone:          +31 12345678\n" +
+                    "source:         TEST"
+                ),
+                false,
+                ciString("")
+        );
+
         final Ip result = (Ip) map(
                 RpslObject.parse(
                         "inetnum:        10.0.0.0 - 10.255.255.255\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          some descr\n" +
-                        "country:        NL\n" +
-                        "admin-c:        TP1-TEST\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         OTHER\n" +
-                        "language:       EN\n" +
-                        "language:       DK\n" +
-                        "mnt-by:         TST-MNT\n" +
-                        "mnt-lower:      TST-MNT\n" +
-                        "mnt-domains:    TST-MNT\n" +
-                        "mnt-routes:     TST-MNT\n" +
-                        "mnt-irt:        irt-IRT1\n" +
-                        "notify:         notify@test.net\n" +
-                        "org:            ORG-TOL1-TEST\n" +
-                        "source:         TEST"),
-                RpslObject.parse(
-                        "role:           Abuse Contact\n" +
-                        "nic-hdl:        AB-TEST\n" +
-                        "mnt-by:         TEST-MNT\n" +
-                        "admin-c:        TP1-TEST\n" +
-                        "tech-c:         TP2-TEST\n" +
-                        "phone:          +31 12345678\n" +
-                        "source:         TEST"
-                ));
+                                "netname:        RIPE-NCC\n" +
+                                "descr:          some descr\n" +
+                                "country:        NL\n" +
+                                "admin-c:        TP1-TEST\n" +
+                                "tech-c:         TP1-TEST\n" +
+                                "status:         OTHER\n" +
+                                "language:       EN\n" +
+                                "language:       DK\n" +
+                                "mnt-by:         TST-MNT\n" +
+                                "mnt-lower:      TST-MNT\n" +
+                                "mnt-domains:    TST-MNT\n" +
+                                "mnt-routes:     TST-MNT\n" +
+                                "mnt-irt:        irt-IRT1\n" +
+                                "notify:         notify@test.net\n" +
+                                "org:            ORG-TOL1-TEST\n" +
+                                "source:         TEST"),
+                Optional.of(abuseContact));
 
         assertThat(result.getHandle(), is("10.0.0.0 - 10.255.255.255"));
         assertThat(result.getStartAddress(), is("10.0.0.0"));
@@ -344,25 +354,25 @@ public class RdapObjectMapperTest {
 
         assertThat(result.getNameservers(), hasSize(3));
         assertThat(result.getNameservers(), containsInAnyOrder(
-            new Nameserver(null, "ns1.test.com.au", null, new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), Lists.newArrayList("2001:10::1/128"))),
-            new Nameserver(null, "ns2.test.com.au", null, new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.2/32"), Lists.newArrayList("2001:10::2/128"))),
-            new Nameserver(null, "ns3.test.com.au", null, null)
+                new Nameserver(null, "ns1.test.com.au", null, new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), Lists.newArrayList("2001:10::1/128"))),
+                new Nameserver(null, "ns2.test.com.au", null, new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.2/32"), Lists.newArrayList("2001:10::2/128"))),
+                new Nameserver(null, "ns3.test.com.au", null, null)
         ));
 
         final Domain.SecureDNS secureDNS = result.getSecureDNS();
         assertThat(secureDNS.isDelegationSigned(), is(true));
         assertThat(secureDNS.getDsData(), hasSize(3));
         assertThat(secureDNS.getDsData(), containsInAnyOrder(
-            new Domain.SecureDNS.DsData(52151L, 1, "13ee60f7499a70e5aadaf05828e7fc59e8e70bc1", 1, null),
-            new Domain.SecureDNS.DsData(17881L, 5, "2e58131e5fe28ec965a7b8e4efb52d0a028d7a78", 1, null),
-            new Domain.SecureDNS.DsData(17881L, 5, "8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e", 2, null)
+                new Domain.SecureDNS.DsData(52151L, 1, "13ee60f7499a70e5aadaf05828e7fc59e8e70bc1", 1, null),
+                new Domain.SecureDNS.DsData(17881L, 5, "2e58131e5fe28ec965a7b8e4efb52d0a028d7a78", 1, null),
+                new Domain.SecureDNS.DsData(17881L, 5, "8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e", 2, null)
         ));
 
         final List<Entity> entities = result.getEntitySearchResults();
         assertThat(entities, hasSize(2));
         assertThat(entities, containsInAnyOrder(
-            new Entity("OWNER-MNT", null, Lists.newArrayList(Role.REGISTRANT), null),
-            new Entity("TP1-TEST", null, Lists.newArrayList(Role.TECHNICAL, Role.ADMINISTRATIVE, Role.ZONE), null)
+                new Entity("OWNER-MNT", null, Lists.newArrayList(Role.REGISTRANT), null),
+                new Entity("TP1-TEST", null, Lists.newArrayList(Role.TECHNICAL, Role.ADMINISTRATIVE, Role.ZONE), null)
         ));
 
         assertThat(result.getPort43(), is("whois.ripe.net"));
@@ -591,18 +601,126 @@ public class RdapObjectMapperTest {
         assertThat(result.getPort43(), is("whois.ripe.net"));
     }
 
+    @Test
+    public void abuse_validation_failed() {
+        final AbuseContact abuseContact = new AbuseContact(
+            RpslObject.parse(
+                "role:           Abuse Contact\n" +
+                "nic-hdl:        AB-TEST\n" +
+                "mnt-by:         TEST-MNT\n" +
+                "abuse-mailbox:  abuse@test.com\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP2-TEST\n" +
+                "phone:          +31 12345678\n" +
+                "source:         TEST"
+            ),
+            true,
+            ciString("ORG-NCC1-RIPE")
+        );
+
+        final Autnum result = (Autnum) map(
+                RpslObject.parse("" +
+                    "aut-num:        AS102\n" +
+                    "as-name:        End-User-2\n" +
+                    "org:            ORG-NCC1-RIPE\n" +
+                    "admin-c:        AP1-TEST\n" +
+                    "tech-c:         AP1-TEST\n" +
+                    "abuse-c:        AB-TEST\n" +
+                    "notify:         noreply@ripe.net\n" +
+                    "mnt-by:         UPD-MNT\n" +
+                    "source:         TEST\n"
+                ),
+                Optional.of(abuseContact)
+        );
+
+        assertThat(
+            result.getRemarks().get(0).getDescription().get(0),
+            is("Abuse contact for 'AS102' is 'abuse@test.com'\nAbuse-mailbox validation failed. Please refer to ORG-NCC1-RIPE for further information.\n")
+        );
+    }
+
+    @Test
+    public void abuse_validation_passed() {
+        final AbuseContact abuseContact = new AbuseContact(
+            RpslObject.parse(
+                "role:           Abuse Contact\n" +
+                "nic-hdl:        AB-TEST\n" +
+                "mnt-by:         TEST-MNT\n" +
+                "abuse-mailbox:  abuse@test.com\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP2-TEST\n" +
+                "phone:          +31 12345678\n" +
+                "source:         TEST"
+            ),
+            false,
+            ciString("ORG-NCC1-RIPE")
+        );
+
+        final Autnum result = (Autnum) map(
+            RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "org:            ORG-NCC1-RIPE\n" +
+                "admin-c:        AP1-TEST\n" +
+                "tech-c:         AP1-TEST\n" +
+                "abuse-c:        AB-TEST\n" +
+                "notify:         noreply@ripe.net\n" +
+                "mnt-by:         UPD-MNT\n" +
+                "source:         TEST\n"
+            ),
+            Optional.of(abuseContact)
+        );
+
+        assertThat(result.getRemarks(), hasSize(0));
+    }
+
+    @Test
+    public void abuse_validation_failed_no_responsible_org() {
+        final AbuseContact abuseContact = new AbuseContact(
+                RpslObject.parse(
+                        "role:           Abuse Contact\n" +
+                                "nic-hdl:        AB-TEST\n" +
+                                "mnt-by:         TEST-MNT\n" +
+                                "abuse-mailbox:  abuse@test.com\n" +
+                                "admin-c:        TP1-TEST\n" +
+                                "tech-c:         TP2-TEST\n" +
+                                "phone:          +31 12345678\n" +
+                                "source:         TEST"
+                ),
+                true,
+                null
+        );
+
+        final Autnum result = (Autnum) map(
+                RpslObject.parse("" +
+                        "aut-num:        AS102\n" +
+                        "as-name:        End-User-2\n" +
+                        "org:            ORG-NCC1-RIPE\n" +
+                        "admin-c:        AP1-TEST\n" +
+                        "tech-c:         AP1-TEST\n" +
+                        "abuse-c:        AB-TEST\n" +
+                        "notify:         noreply@ripe.net\n" +
+                        "mnt-by:         UPD-MNT\n" +
+                        "source:         TEST\n"
+                ),
+                Optional.of(abuseContact)
+        );
+
+        assertThat(result.getRemarks(), hasSize(0));
+    }
+
     // helper methods
 
     private Object map(final RpslObject rpslObject) {
-        return map(rpslObject, null);
+        return map(rpslObject, Optional.empty());
     }
 
-    private Object map(final RpslObject rpslObject, final RpslObject abuseContact) {
-        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, abuseContact);
+    private Object map(final RpslObject rpslObject, final Optional<AbuseContact> optionalAbuseContact) {
+        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, optionalAbuseContact);
     }
 
     private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
-        return mapper.mapSearch(REQUEST_URL, objects, lastUpdateds);
+        return mapper.mapSearch(REQUEST_URL, objects, lastUpdateds, 10);
     }
 
     private Notice getTnCNotice() {

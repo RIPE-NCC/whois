@@ -2,8 +2,6 @@ package net.ripe.db.whois.api.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
@@ -18,69 +16,48 @@ import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
-import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
-import org.hamcrest.Matchers;
-import java.time.LocalDateTime;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
+public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired
     FullTextIndex fullTextIndex;
     @Autowired
     TestWhoisLog queryLog;
-
-    @BeforeClass
-    public static void rdapSetProperties() {
-        System.setProperty("rdap.sources", "TEST-GRS");
-        System.setProperty("rdap.redirect.test", "https://rdap.test.net");
-        System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
-
-        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
-    }
-
-    @AfterClass
-    public static void rdapClearProperties() {
-        System.clearProperty("rdap.sources");
-        System.clearProperty("rdap.redirect.test");
-        System.clearProperty("rdap.public.baseUrl");
-        System.clearProperty("dir.fulltext.index");
-    }
 
     @Before
     public void setup() {
@@ -267,6 +244,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
+
         assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
         assertThat(ip.getIpVersion(), is("v4"));
         assertThat(ip.getCountry(), is("NL"));
@@ -276,6 +254,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getLang(), is(nullValue()));
         assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
     }
+
 
     @Test
     public void lookup_inetnum_multiple_country_codes() {
@@ -388,6 +367,33 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(notices.get(3).getTitle(), is("Terms and Conditions"));
 
     }
+
+    @Test
+    public void lookup_entity_case_insensitive_person() {
+        databaseHelper.addObject("" +
+                "person:        Test Person case\n" +
+                "nic-hdl:       gruk-RIPE\n" +
+                "source:        TEST");
+
+        final Entity upperCaseEntity = createResource("entity/GRUK-RIPE")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(upperCaseEntity.getHandle(), equalTo("gruk-RIPE"));
+
+        final Entity exactSearchEntity = createResource("entity/gruk-RIPE")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(exactSearchEntity.getHandle(), equalTo("gruk-RIPE"));
+
+        final Entity mixedCaseEntity = createResource("entity/gRuk-RIpE")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(mixedCaseEntity.getHandle(), equalTo("gruk-RIPE"));
+    }
+
 
     @Test
     public void lookup_inetnum_not_found() {
@@ -573,6 +579,31 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_inet6num_is_case_insensitive() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:200a::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/2001:200A::")      // uppercase key in request
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:200a::/48"));
+        assertThat(ip.getIpVersion(), is("v6"));
+        assertThat(ip.getStartAddress(), is("2001:200a::"));
+        assertThat(ip.getEndAddress(), is("2001:200a:0:ffff:ffff:ffff:ffff:ffff"));
+        assertThat(ip.getName(), is("RIPE-NCC"));
+        assertThat(ip.getParentHandle(), is("::/0"));
+    }
+
+    @Test
     public void lookup_inet6num_not_found() {
         try {
             createResource("ip/2001:2002:2003::/48")
@@ -644,9 +675,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (BadRequestException e) {
+        } catch (NotFoundException e) {
             final Entity response = e.getResponse().readEntity(Entity.class);
-            assertThat(response.getErrorCode(), is(400));
+            assertThat(response.getErrorCode(), is(404));
             assertThat(response.getErrorTitle(), is("Invalid syntax."));
         }
     }
@@ -765,6 +796,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
         assertCopyrightLink(domain.getLinks(), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
+    }
+
+    @Test
+    public void lookup_domain_object_is_case_insensitive() {
+        final Domain domain = createResource("domain/31.12.202.IN-AddR.ARPA")       // mixed case in request
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertCommon(domain);
+        assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getObjectClassName(), is("domain"));
     }
 
     @Test
@@ -1085,6 +1128,44 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
+    @Test
+    public void lookup_autnum_has_invalid_abuse_contact() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 358\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AB-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.updateObject("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "abuse-c:       AB-TEST\n" +
+                "source:        TEST");
+
+        databaseHelper.getInternalsTemplate().update(
+           "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
+        );
+
+        final Autnum autnum = createResource("autnum/102")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(
+            autnum.getRemarks().get(0).getDescription(),
+            contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
+                    "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
+        );
+    }
+
     // general
 
     @Test
@@ -1218,7 +1299,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (BadRequestException e) {
+        } catch (NotFoundException e) {
             assertErrorTitle(e, "Invalid syntax.");
         }
     }
@@ -1392,10 +1473,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_domain_with_wildcard() {
+    public void search_domain_is_case_insensitive() {
         fullTextIndex.rebuild();
 
-        final SearchResult response = createResource("domains?name=*.in-addr.arpa")
+        final SearchResult response = createResource("domains?name=31.12.202.IN-AddR.arpa")     // mixed case in request
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1412,42 +1493,26 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (NotFoundException e) {
-            assertErrorTitle(e, "nameservers not found");
+        } catch (ServerErrorException e) {
+            final Entity entity = e.getResponse().readEntity(Entity.class);
+            assertThat(entity.getErrorTitle(), is("Nameserver not supported"));
+            assertThat(entity.getErrorCode(), is(501));
         }
     }
 
     @Test
-    public void search_nameservers_empty_name() {
+    public void lookup_nameserver_not_found() {
         try {
-            fullTextIndex.rebuild();
-            createResource("nameservers?name=")
+              createResource("nameserver/test")
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
+                    .get(Autnum.class);
             fail();
-        } catch (BadRequestException e) {
-            assertErrorTitle(e, "empty lookup key");
+        } catch (ServerErrorException e) {
+            final Entity entity = e.getResponse().readEntity(Entity.class);
+            assertThat(entity.getErrorTitle(), is("Nameserver not supported"));
+            assertThat(entity.getErrorCode(), is(501));
         }
     }
-
-    @Test
-    public void search_nameservers_bad_request_links() {
-        try {
-            createResource("nameservers?ip=caf?")
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .get(String.class);
-            fail();
-        } catch (BadRequestException e) {
-            final Entity response = e.getResponse().readEntity(Entity.class);
-            assertThat(response.getLinks(), hasSize(1));
-            assertThat(response.getLinks().get(0).getRel(), is("copyright"));
-            assertThat(response.getLinks().get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-            assertThat(response.getNotices(), hasSize(1));
-            assertTnCNotice(response.getNotices().get(0),null);
-        }
-    }
-
-    // search - entities
 
     // search - entities - person
 
@@ -1463,10 +1528,27 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_person_by_name_lowercase() {
+    public void search_entity_person_object_deleted_before_index_updated() {
+        final RpslObject person = RpslObject.parse("person: Lost Person\nnic-hdl: LP1-TEST\nsource: TEST");
+        databaseHelper.addObject(person);
+        fullTextIndex.rebuild();
+        databaseHelper.deleteObject(person);
+
+        try {
+            createResource("entities?fn=Lost%20Person")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+            fail();
+        } catch (NotFoundException e) {
+            assertErrorTitle(e, "not found");
+        }
+    }
+
+    @Test
+    public void search_entity_person_by_name_is_case_insensitive() {
         fullTextIndex.rebuild();
 
-        final SearchResult response = createResource("entities?fn=test%20person")
+        final SearchResult response = createResource("entities?fn=tESt%20PeRSOn")       // mixed case in request
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1475,7 +1557,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_person_umlaut() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=Tëst%20Person3")
@@ -1502,7 +1584,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_person_umlaut_utf8_encoded() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=T%C3%ABst%20Person3")
@@ -1514,7 +1596,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_entity_person_umlaut_substitution() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
         fullTextIndex.rebuild();
 
         try {
@@ -1545,6 +1627,17 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=TP2-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP2-TEST"));
+    }
+
+    @Test
+    public void search_entity_person_by_handle_is_case_insensitive() {
+        fullTextIndex.rebuild();
+
+        final SearchResult response = createResource("entities?handle=Tp2-tESt")       // mixed case in request
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1602,21 +1695,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_entity_organisation_by_name_mixed_case() {
+    public void search_entity_organisation_by_name_is_case_insensitive() {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=ORGanisAtioN")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_name_with_wildcard() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?fn=organis*tion")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1628,50 +1710,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?handle=ORG-TEST1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_handle_with_wildcard_prefix() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=*TEST1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_handle_with_wildcard_middle() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=ORG*TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_handle_with_wildcard_suffix() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=ORG*")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
-
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST1-TEST"));
-    }
-
-    @Test
-    public void search_entity_organisation_by_handle_with_wildcard_prefix_middle_and_suffix() {
-        fullTextIndex.rebuild();
-
-        final SearchResult response = createResource("entities?handle=*ORG*TEST*")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -1764,7 +1802,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -1776,11 +1814,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
-    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_allowed() {
+    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_not_allowed() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header(HttpHeaders.ORIGIN, "http://www.foo.net")
@@ -1788,8 +1826,37 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
                 .options();
 
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS), is(nullValue()));
+        assertThat(response.getHeaderString(HttpHeaders.ALLOW), containsString("GET"));
+        assertThat(response.getHeaderString(HttpHeaders.ALLOW), not(containsString("POST")));
+    }
+
+    @Test
+    public void cross_origin_preflight_get_request_from_outside_ripe_net_is_allowed() {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET)
+                .options();
+
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), Matchers.arrayContainingInAnyOrder("GET","POST","HEAD"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET","OPTIONS"));
+    }
+
+    @Test
+    public void cross_origin_preflight_options_request_from_outside_ripe_net_is_allowed() {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET)
+                .get();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
     @Test
@@ -1801,7 +1868,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .get();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
@@ -1814,9 +1881,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .get();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
-
     }
 
     @Test
@@ -1852,6 +1918,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net:8443"));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
+    }
+
+    @Test
+    public void cross_origin_get_request_without_origin() {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .get();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
     }
 
     @Test
@@ -1899,28 +1975,4 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(notice.getLinks().get(0).getValue(), is(value));
     }
 
-    // helper methods
-
-    private WebTarget createResource(final String path) {
-        return RestTest.target(getPort(), String.format("rdap/%s", path));
-    }
-
-    private String syncupdate(String data) {
-        WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
-        return resource.request()
-                .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
-                        MediaType.APPLICATION_FORM_URLENCODED),
-                        String.class);
-
-    }
-
-    private void assertErrorTitle(final ClientErrorException exception, final String title) {
-        final Entity entity = exception.getResponse().readEntity(Entity.class);
-        assertThat(entity.getErrorTitle(), is(title));
-    }
-
-    private void assertErrorStatus(final ClientErrorException exception, final int status) {
-        final Entity entity = exception.getResponse().readEntity(Entity.class);
-        assertThat(entity.getErrorCode(), is(status));
-    }
 }

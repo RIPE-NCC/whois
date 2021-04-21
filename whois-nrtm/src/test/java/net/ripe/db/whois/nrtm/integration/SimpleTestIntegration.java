@@ -10,19 +10,19 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Value;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
-    @Value("${nrtm.update.interval}") private String updateIntervalString;
+    @Value("${nrtm.update.interval:15}") private String updateIntervalString;
 
     private int updateInterval;
 
     @Before
-    public void before() {
+    public void before() throws InterruptedException {
         updateInterval = Integer.valueOf(updateIntervalString);
         nrtmServer.start();
     }
@@ -227,7 +227,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void mirror_query_abuse_contact() {
+    public void mirror_query_abuse_mailbox() {
         databaseHelper.addObject("" +
                 "role:          Denis Walker\n" +
                 "nic-hdl:       DW-RIPE\n" +
@@ -238,7 +238,6 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
-
         assertThat(response, containsString("" +
                 "role:           Denis Walker\n" +
                 "nic-hdl:        DW-RIPE\n" +
@@ -246,6 +245,38 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
                 "address:        Dummy address for DW-RIPE\n" +
                 "e-mail:         unread@ripe.net\n" +
                 "source:         TEST"));
+        assertThat(response, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
+    }
+
+    @Test
+    public void mirror_query_abuse_contact() {
+        databaseHelper.addObject("" +
+                "role:          Denis Walker\n" +
+                "nic-hdl:       DW-RIPE\n" +
+                "abuse-mailbox: abuse@ripe.net\n" +
+                "address:       Test address\n" +
+                "e-mail:        test@ripe.net\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "organisation:   ORG1-TEST\n" +
+                "org-name:       Wasp Corp\n" +
+                "abuse-c:        DW-RIPE\n" +
+                "org-type:       OTHER\n" +
+                "created:        2001-02-04T17:00:00Z\n" +
+                "last-modified:  2001-02-04T17:00:00Z\n" +
+                "source:         TEST\n");
+
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:2-2");
+
+        assertThat(response, containsString("" +
+                "organisation:   ORG1-TEST\n" +
+                "org-name:       Wasp Corp\n" +
+                "abuse-c:        DW-RIPE\n" +
+                "org-type:       OTHER\n" +
+                "created:        2001-02-04T17:00:00Z\n" +
+                "last-modified:  2001-02-04T17:00:00Z\n" +
+                "source:         TEST"));
+
         assertThat(response, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
     }
 

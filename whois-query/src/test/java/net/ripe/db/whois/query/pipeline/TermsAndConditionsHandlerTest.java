@@ -1,36 +1,36 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import net.ripe.db.whois.query.QueryMessages;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TermsAndConditionsHandlerTest {
 
-    @Mock private ChannelStateEvent channelStateEventMock;
     @Mock private Channel channelMock;
     @Mock private ChannelHandlerContext ctxMock;
     @InjectMocks private TermsAndConditionsHandler subject;
 
     @Before
     public void setup() {
-        when(channelStateEventMock.getChannel()).thenReturn(channelMock);
+        when(ctxMock.channel()).thenReturn(channelMock);
     }
 
     @Test
     public void test_terms_and_conditions() {
-        subject.channelConnected(ctxMock, channelStateEventMock);
+        subject.channelActive(ctxMock);
 
-        verify(ctxMock, times(1)).sendUpstream(channelStateEventMock);
+        verify(ctxMock, times(1)).channel();
         verify(channelMock, times(1)).write(QueryMessages.termsAndConditions());
     }
 }

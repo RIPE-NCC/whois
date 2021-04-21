@@ -21,29 +21,32 @@ import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
-import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static net.ripe.db.whois.common.domain.CIString.ciSet;
-import java.time.LocalDateTime;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
+import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RdapResponseJsonTest {
 
-    private static final String DATE_TIME = "2013-06-26T04:48:44Z";
-    private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse("2013-06-26T04:48:44");
+    private static final String DATE_TIME_UTC = "2013-06-26T02:48:44Z";
+    private static final LocalDateTime LOCAL_DATE_TIME =
+        ZonedDateTime.of(2013, 6, 26, 4, 48, 44, 0, ZoneId.of("Europe/Amsterdam"))
+                .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
 
     @Test
     public void entity() throws Exception {
@@ -167,10 +170,10 @@ public class RdapResponseJsonTest {
                 "  } ],\n" +
                 "  \"events\" : [ {\n" +
                 "    \"eventAction\" : \"registration\",\n" +
-                "    \"eventDate\" : \"" + DATE_TIME + "\"\n" +
+                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
                 "  }, {\n" +
                 "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \"" + DATE_TIME + "\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
                 "  \"port43\" : \"whois.example.net\",\n" +
@@ -287,10 +290,10 @@ public class RdapResponseJsonTest {
                 "    } ],\n" +
                 "    \"events\" : [ {\n" +
                 "      \"eventAction\" : \"registration\",\n" +
-                "      \"eventDate\" : \"2013-06-26T04:48:44Z\"\n" +
+                "      \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
                 "    }, {\n" +
                 "      \"eventAction\" : \"last changed\",\n" +
-                "      \"eventDate\" : \"2013-06-26T04:48:44Z\",\n" +
+                "      \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
                 "      \"eventActor\" : \"joe@example.com\"\n" +
                 "    } ],\n" +
                 "    \"objectClassName\" : \"entity\"\n" +
@@ -305,10 +308,10 @@ public class RdapResponseJsonTest {
                 "  } ],\n" +
                 "  \"events\" : [ {\n" +
                 "    \"eventAction\" : \"registration\",\n" +
-                "    \"eventDate\" : \"2013-06-26T04:48:44Z\"\n" +
+                "    \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
                 "  }, {\n" +
                 "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \"2013-06-26T04:48:44Z\",\n" +
+                "    \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
                 "  \"objectClassName\" : \"domain\"\n" +
@@ -406,10 +409,10 @@ public class RdapResponseJsonTest {
                 "    } ],\n" +
                 "    \"events\" : [ {\n" +
                 "      \"eventAction\" : \"registration\",\n" +
-                "      \"eventDate\" : \"" + DATE_TIME + "\"\n" +
+                "      \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
                 "    }, {\n" +
                 "      \"eventAction\" : \"last changed\",\n" +
-                "      \"eventDate\" : \"" + DATE_TIME + "\",\n" +
+                "      \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
                 "      \"eventActor\" : \"joe@example.com\"\n" +
                 "    } ],\n" +
                 "    \"objectClassName\" : \"entity\"\n" +
@@ -428,10 +431,10 @@ public class RdapResponseJsonTest {
                 "  } ],\n" +
                 "  \"events\" : [ {\n" +
                 "    \"eventAction\" : \"registration\",\n" +
-                "    \"eventDate\" : \"" + DATE_TIME + "\"\n" +
+                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
                 "  }, {\n" +
                 "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \"" + DATE_TIME + "\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
                 "  \"objectClassName\" : \"ip network\"\n" +

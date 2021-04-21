@@ -2,14 +2,13 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.collect.Lists;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
-import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
-import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterGraphFilter;
 
-import java.io.Reader;
 import java.util.List;
 
 public class FullTextAnalyzer extends Analyzer {
@@ -29,23 +28,23 @@ public class FullTextAnalyzer extends Analyzer {
     }
 
     @Override
-    protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-        final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(reader);
+    protected TokenStreamComponents createComponents(final String fieldName) {
+        final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer();
 
         final CharArraySet stopSet = new CharArraySet(STOP_WORDS.size(), true);
         stopSet.addAll(STOP_WORDS);
 
         TokenStream tok = new StopFilter(tokenizer, stopSet);
 
-        tok = new WordDelimiterFilter(
+        tok = new WordDelimiterGraphFilter(
                 tok,
                 operation.equals(Operation.QUERY) ?
-                        (WordDelimiterFilter.PRESERVE_ORIGINAL) :
-                        (WordDelimiterFilter.GENERATE_WORD_PARTS |
-                                WordDelimiterFilter.CATENATE_WORDS |
-                                WordDelimiterFilter.CATENATE_NUMBERS |
-                                WordDelimiterFilter.SPLIT_ON_CASE_CHANGE |
-                                WordDelimiterFilter.PRESERVE_ORIGINAL),
+                        (WordDelimiterGraphFilter.PRESERVE_ORIGINAL) :
+                        (WordDelimiterGraphFilter.GENERATE_WORD_PARTS |
+                                WordDelimiterGraphFilter.CATENATE_WORDS |
+                                WordDelimiterGraphFilter.CATENATE_NUMBERS |
+                                WordDelimiterGraphFilter.SPLIT_ON_CASE_CHANGE |
+                                WordDelimiterGraphFilter.PRESERVE_ORIGINAL),
                 CharArraySet.EMPTY_SET);
 
         tok = new LowerCaseFilter(tok);

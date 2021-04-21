@@ -19,14 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(ManualTest.class)
 @DirtiesContext
@@ -43,7 +42,7 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
     private static final File tempDirectory = Files.createTempDir();
 
     @BeforeClass
-    public static void setup_database() throws IOException {
+    public static void setup_database() {
         DatabaseHelper.addGrsDatabases("LACNIC-GRS");
 
         System.setProperty("grs.import.lacnic.source", "LACNIC-GRS");
@@ -55,14 +54,14 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
     }
 
     @AfterClass
-    public static void cleanup() throws Exception {
+    public static void cleanup() {
         FileHelper.delete(tempDirectory);
     }
 
     @Before
     public void setUp() throws Exception {
         authoritativeResourceImportTask.run();
-        authoritativeResourceData.refreshAllSources();
+        authoritativeResourceData.refreshGrsSources();
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();
     }
@@ -76,7 +75,7 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
     }
 
     @Test
-    public void import_lacnic_grs_use_downloaded_dump() throws Exception {
+    public void import_lacnic_grs_use_downloaded_dump() {
         grsSourceImporter.grsImport(lacnicGrsSource, false);
 
         assertThat(query("-s LACNIC-GRS SOME-MNT"), containsString("mntner:         SOME-MNT"));
@@ -90,7 +89,7 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
         }
     }
 
-    private String query(final String query) throws Exception {
+    private String query(final String query) {
         return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
 }

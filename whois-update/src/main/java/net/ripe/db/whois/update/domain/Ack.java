@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -52,30 +51,15 @@ public class Ack {
     }
 
     public int getNrCreate() {
-        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
-            @Override
-            public boolean apply(final UpdateResult input) {
-                return Action.CREATE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
-            }
-        }));
+        return Iterables.size(Iterables.filter(succeededUpdates, input -> Action.CREATE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus())));
     }
 
     public int getNrUpdate() {
-        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
-            @Override
-            public boolean apply(final UpdateResult input) {
-                return Action.MODIFY.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
-            }
-        }));
+        return Iterables.size(Iterables.filter(succeededUpdates, input -> Action.MODIFY.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus())));
     }
 
     public int getNrDelete() {
-        return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
-            @Override
-            public boolean apply(final UpdateResult input) {
-                return Action.DELETE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
-            }
-        }));
+        return Iterables.size(Iterables.filter(succeededUpdates, input -> Action.DELETE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus())));
     }
 
     public int getNrNoop() {

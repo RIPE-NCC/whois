@@ -1,10 +1,10 @@
 package net.ripe.db.whois.common.jdbc.driver;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -52,9 +52,9 @@ class ResultSetInvocationHandler implements InvocationHandler {
                 row.add("<null>");
             } else if (object instanceof Blob) {
                 final Blob blob = (Blob) object;
-                row.add(new String(blob.getBytes(0, (int) blob.length()), Charsets.ISO_8859_1));
+                row.add(new String(blob.getBytes(0, (int) blob.length()), StandardCharsets.ISO_8859_1));
             } else if (object instanceof byte[]) {
-                row.add(new String((byte[]) object, Charsets.ISO_8859_1));
+                row.add(new String((byte[]) object, StandardCharsets.ISO_8859_1));
             } else {
                 row.add(object.toString());
             }

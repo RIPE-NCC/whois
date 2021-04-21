@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class SynchronizedIntervalMapConcurrencyTest {
     private final IntervalMap<Ipv4Resource, Ipv4Entry> subject = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv4Resource, Ipv4Entry>());

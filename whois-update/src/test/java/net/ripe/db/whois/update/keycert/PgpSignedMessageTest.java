@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.keycert;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -9,13 +8,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PgpSignedMessageTest {
@@ -80,7 +80,7 @@ public class PgpSignedMessageTest {
     }
 
     @Test
-    public void multiple_dashes_in_signed_message() throws Exception {
+    public void multiple_dashes_in_signed_message() {
         final String signedMessage =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
@@ -144,6 +144,7 @@ public class PgpSignedMessageTest {
                 "RuoAPlts+k6fPx/BjVUvY47N65jQOg0AF0dquMgybc9zdOvo1x+18rTtt/t5Amw=\n" +
                 "=qtOc\n" +
                 "-----END PGP SIGNATURE-----");
+
         assertThat(pgpSignedMessage.getKeyId(), is("5763950D"));
     }
 
@@ -251,6 +252,7 @@ public class PgpSignedMessageTest {
                 "RuoAPlts+k6fPx/BjVUvY47N65jQOg0AF0dquMgybc9zdOvo1x+18rTtt/t5Amw=\n" +
                 "=qtOc\n" +
                 "-----END PGP SIGNATURE-----").replace("Admin Person", "Some Text"));
+
         assertThat(pgpSignedMessage.getKeyId(), is("5763950D"));
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(false));
     }
@@ -282,6 +284,7 @@ public class PgpSignedMessageTest {
                 "-----END PGP SIGNATURE-----";
 
         final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(message);
+
         assertThat(pgpSignedMessage.getKeyId(), is("5763950D"));
         assertThat(pgpSignedMessage.verify(getPublicKey_28F6CD6C()), is(false));
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
@@ -339,7 +342,7 @@ public class PgpSignedMessageTest {
     }
 
     @Test
-    public void verify_multipart_plain_text_message() throws Exception {
+    public void verify_multipart_plain_text_message() {
         final String signedData =
                 "Content-Transfer-Encoding: 7bit\n" +
                 "Content-Type: text/plain;\n" +
@@ -354,12 +357,13 @@ public class PgpSignedMessageTest {
                 "3fIZWxWJJtBjzdFxvgLN7KqPFLI6tcBFB5oW5V5RAI+4zLJUg7goLLZRe3CYkDc=\n" +
                 "=8tAB\n";
 
-        PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
+        final PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
+
         assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
     }
 
     @Test
-    public void verify_multipart_alternative_message() throws Exception {
+    public void verify_multipart_alternative_message() {
         final String signedData =
                 "Content-Type: multipart/alternative;\n" +
                 "\tboundary=\"Apple-Mail=_CA96AAFD-E7AD-465B-804B-ADE6C5D1A1B3\"\n" +
@@ -389,7 +393,8 @@ public class PgpSignedMessageTest {
                 "40N9PpN3W9m96pl2m3mI6UwRtW3GZzasup4FnsdkXRpt73rFwUmn5UyiWFbK1Xo=\n" +
                 "=IifW\n";
 
-        PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
+        final PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
+
         assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
     }
 
@@ -418,7 +423,7 @@ public class PgpSignedMessageTest {
                 "1rHkHnYy6gEcaO37/M9GsbKP7xoGJfzabw9xoU/hVoEXvBl+NSbDgVbfol4hkVQb\n" +
                 "/uMu1kyTSjDpuQX8iOsorW7w+cAFGN3pS6mUo+5qIJI5SjnU8XZLl6SRe5FDnuc=\n" +
                 "=Cqk0\n" +
-                "-----END PGP SIGNATURE-----", Charsets.ISO_8859_1);
+                "-----END PGP SIGNATURE-----", StandardCharsets.ISO_8859_1);
 
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
     }
@@ -476,15 +481,178 @@ public class PgpSignedMessageTest {
                 "QuSCFQpkwx56H3B4emnILLWp0l/19AFkQXdbFJNfB9xndBwzhgfOobz9RpuF5pBI\n" +
                 "DBXkWzwkb/+qHTcixxaQQrjC5EH6hJKFF0YBuF4pfCC2bU81zSEXHIaEwBf7CQA=\n" +
                 "=/8Rc\n" +
-                "-----END PGP SIGNATURE-----", Charsets.UTF_8);
+                "-----END PGP SIGNATURE-----", StandardCharsets.UTF_8);
 
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
+    }
+
+    @Test
+    public void verify_signed_message_with_ed25519_key() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA256\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iHUEARYIAB0WIQRiNGNQyuJDPiQAHXKU+mLDZIGuNAUCXiWfSQAKCRCU+mLDZIGu\n" +
+                "NIiqAQD+sksm61T9mYmoLRPhV+D3jSg2IE19id3WyjaH0vCwXQEA6v5xpZQ7AXQe\n" +
+                "vbSHvSrRBNBSAUuJfIYQLsAf6l80MAI=\n" +
+                "=pQ32\n" +
+                "-----END PGP SIGNATURE-----");
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_6481AE34()), is(true));
+    }
+
+    @Test
+    public void verify_signed_message_with_ed25519_key_failure() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse((
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA256\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iHUEARYIAB0WIQRiNGNQyuJDPiQAHXKU+mLDZIGuNAUCXiWfSQAKCRCU+mLDZIGu\n" +
+                "NIiqAQD+sksm61T9mYmoLRPhV+D3jSg2IE19id3WyjaH0vCwXQEA6v5xpZQ7AXQe\n" +
+                "vbSHvSrRBNBSAUuJfIYQLsAf6l80MAI=\n" +
+                "=pQ32\n" +
+                "-----END PGP SIGNATURE-----").replace("First Person", "Some Text"));
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_6481AE34()), is(false));
+    }
+
+    @Test
+    public void verify_signed_message_with_secp256k1_key() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA256\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iHUEARMIAB0WIQQ7RfTn72Mdc2l9Aav3GMatIVqZBwUCXkqQdQAKCRD3GMatIVqZ\n" +
+                "B4ShAP41vMvnEFhIUJvN0y2BHsx6LB4ylYFlFzSsLdkelkFVFQEAkczm6p0qspbA\n" +
+                "cko6u8eVYQmLAAVynDrQWn4dyA0FEvQ=\n" +
+                "=EvW6\n" +
+                "-----END PGP SIGNATURE-----");
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_215A9907()), is(true));
+    }
+
+    @Test
+    public void verify_signed_message_with_brainpoolP512r1_key() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA512\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iLUEARMKAB0WIQS30GIf4g8snLtgdtd3rpGRAB6CqgUCXkqSkQAKCRB3rpGRAB6C\n" +
+                "qm2OAgCHH5M+Vyo+BmPqT9e5nOf+YYXkGtgnhFDLKFF+DMrjRDG6Q150LhY42EgY\n" +
+                "hAcnoH0oThPhGCKvdaBdxTKJ0t1oAf4rvIVFytqEwl73Tn0PD5iwJ8Ki8Rqr2ptL\n" +
+                "6Gb9RkBPezZGEN1M4hC/jr9bcKlp21uqHSL5QsJ188AeRO3W8Lyf\n" +
+                "=RaCS\n" +
+                "-----END PGP SIGNATURE-----");
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_001E82AA()), is(true));
+    }
+
+    @Test
+    public void verify_signed_message_with_nistp521_key() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA512\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iLcEARMKAB0WIQSsayBVEoskhWqOe7G1vmXacE4NUgUCXkqVYgAKCRC1vmXacE4N\n" +
+                "Uj7IAgYk8+VQaxr3nUMu4z+0Pi0PZF6EG7YoqP+mVyWt4q0lGaqDThzn+/hR6KDa\n" +
+                "CCRcc2LgeHHIvJmNvZ2B6f6C6cNDYQIIsr+mZTKN62CMj38DD2eG7uU9tT73pPcZ\n" +
+                "lnN26BW7En8DDMC9bQKc5NhMLV/x8jKMvYQeDub8fL7e2F32C8ue1SY=\n" +
+                "=fPfs\n" +
+                "-----END PGP SIGNATURE-----");
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_704E0D52()), is(true));
+    }
+
+    @Ignore("TODO: [ES] headers in signature block should not be required")
+    @Test
+    public void headers_in_signature_are_mandatory() {
+        final PgpSignedMessage signedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                //                "Version: GnuPG v1.4.12 (Darwin)\n" +             // TODO: if no headers found, parsing fails,
+                //                "Comment: GPGTools - http://gpgtools.org\n" +     // TODO: as ArmoredInputStream hasHeaders = true by default
+                //                "\n" +
+                "iQEcBAEBAgAGBQJWTcPDAAoJELvMuy1XY5UNd50IAKLecIhQCMaUu8hVUW68uXGO\n" +
+                "uWqnkI3/C3CzgNai438xlKqtYNmyhgzCh3LbJSiNkJqRg6QK9G+egcpf9wtlLJJl\n" +
+                "1N72OBV1IS+yWSmkscNuihJNZBwlYrkG7SXAite5wjaY++nVjkNqqCVkHPwD6dr8\n" +
+                "AcPN0lxdhFbnvVlcFJVZPWrEXKEZbRxBr2BosF48IiKDskfu/2wiUWiBwF5QkuTB\n" +
+                "GX/pLJwQ40J79jVhRkiVbJ0YvAcHKbE/ftgw3ZBwjUJk2X2Ck1pv+HOTurhgXRvh\n" +
+                "gr8cbqpXlg1D0FNl3jWe/RTQ/U465ZZiMyUodI93LMZQNPtR7xh3+T8r1gVORMI=\n" +
+                "=D3U7\n" +
+                "-----END PGP SIGNATURE-----");
+
+        assertThat(signedMessage.getKeyId(), is("5763950D"));
     }
 
     // helper methods
 
     private PGPPublicKey getPublicKey_28F6CD6C() {
-        PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
                         "key-cert:       PGPKEY-28F6CD6C\n" +
                         "method:         PGP\n" +
@@ -541,11 +709,11 @@ public class PgpSignedMessageTest {
     }
 
     private PGPPublicKey getPublicKey_5763950D() {
-        PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
                         "key-cert:       PGPKEY-5763950D\n" +
                         "method:         PGP\n" +
-                        "owner:          No Reply <noreply@ripe.net>\n" +
+                        "owner:          noreply@ripe.net <noreply@ripe.net>\n" +
                         "fingerpr:       884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D\n" +
                         "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
                         "certif:         Version: GnuPG v1.4.12 (Darwin)\n" +
@@ -584,41 +752,26 @@ public class PgpSignedMessageTest {
         return wrapper.getPublicKey();
     }
 
-    private PGPPublicKey getPublicKey_81CCF97D() {
-        PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+    private PGPPublicKey getPublicKey_6481AE34() {
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
-                        "key-cert:       PGPKEY-81CCF97D\n" +
+                        "key-cert:       PGPKEY-6481AE34\n" +
                         "method:         PGP\n" +
-                        "owner:          Unknown <unread@ripe.net>\n" +
-                        "fingerpr:       EDDF 375A B830 D1BB 26E5  ED3B 76CA 91EF 81CC F97D\n" +
+                        "owner:          Test User <test@ripe.net>\n" +
+                        "fingerpr:       6234 6350 CAE2 433E 2400  1D72 94FA 62C3 6481 AE34\n" +
                         "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                        "certif:         Comment: GPGTools - http://gpgtools.org\n" +
                         "certif:\n" +
-                        "certif:         mQENBFC0yfkBCAC/zYZw2vDpNF2Q7bfoTeTmhEPERzUX3y1y0jJhGEdbp3re4v0i\n" +
-                        "certif:         XWDth4lp9Rr8RimoqQFN2JNFuUWvohiDAT91J+vAG/A67xuTWXACyAPhRtRIFhxS\n" +
-                        "certif:         tBu8h/qEv8yhudhjYfVHu8rUbm59BXzO80KQA4UP5fQeDVwGFbvB+73nF1Pwbg3n\n" +
-                        "certif:         RzgLvKZlxdgV2RdU+DvxabkHgiN0ybcJx3nntL3Do2uZEdkkDDKkN6hkUJY0cFbQ\n" +
-                        "certif:         Oge3AK84huZKnIFq8+NA/vsE3dg3XhbCYUlS4yMe0cvnZrH23lnu4Ubp1KBILHVW\n" +
-                        "certif:         K4vWnMEXcx/T2k4/vpXogZNUH6E3OjtlyjX5ABEBAAG0GVVua25vd24gPHVucmVh\n" +
-                        "certif:         ZEByaXBlLm5ldD6JATgEEwECACIFAlC0yfkCGwMGCwkIBwMCBhUIAgkKCwQWAgMB\n" +
-                        "certif:         Ah4BAheAAAoJEHbKke+BzPl9UasH/1Tc2YZiJHw3yaKvZ8jSXDmZKmO69C7YvgsX\n" +
-                        "certif:         B72w4K6d92vy8dLLreqEpzXKtWB1+K6bLZv6MEdNbvQReG3rw1i2Io7kdsKFn9QC\n" +
-                        "certif:         OeY4OwpzBMZIJGWWXxOLz9Auo9a43xU+wL92/oCqFJrLuuppgOIVkL0pBWRDQYqp\n" +
-                        "certif:         3MqyHdsUOEdd7pwUlGJlfLqa7wmO+r04EG1OBRLBg5p4gVARqDrVMA3ym9KF750T\n" +
-                        "certif:         78Il1eWrceLglI5F0h4RYEmQ3amF/ukbPyzf26+J6MnWeDSO3Q8P/aDO3L7ccNoC\n" +
-                        "certif:         VwyHxUumWgfQVEnt6IaKLSjxVPhhAFO0wLd2tgaUH1y/ug1RgJe5AQ0EULTJ+QEI\n" +
-                        "certif:         APgAjb0YCTRvIdlYFfKQfLCcIbifwFkBjaH9fN8A9ZbeXSWtO7RXEvWF70/ZX69s\n" +
-                        "certif:         1SfQyL4cnIUN7hEd7/Qgx63IXUfNijolbXOUkh+S41tht+4IgJ7iZsELuugvbDEb\n" +
-                        "certif:         VynMXFEtqCXm1zLfd0g2AsWPFRczkj7hWE0gNs7iKvEiGrjFy0eSd/q07oWLxJfq\n" +
-                        "certif:         n4GBBPMGkfKxWhy5AXAkPZp1mc7mlYuNP9xrn76bl69T0E69kDPS3JetSaVWj0Uh\n" +
-                        "certif:         NSJSjP1Zc8g+rvkeum3HKLoW0svRo2XsldjNMlSuWb/oxeaTdGZV6SxTJ+T1oHAi\n" +
-                        "certif:         tovyQHusvGu3D9dfvTcW3QsAEQEAAYkBHwQYAQIACQUCULTJ+QIbDAAKCRB2ypHv\n" +
-                        "certif:         gcz5fe7cB/9PrDR7ybLLmNAuoafsVQRevKG8DfVzDrgThgJz0jJhb1t74qy5xXn+\n" +
-                        "certif:         zW8d/f/JZ8jr7roWA64HKvdvo8ZXuGEf6H20p1+HbjYpT52zteNU/8ljaqIzJBes\n" +
-                        "certif:         tl8ecFB7qg3qUSDQseNaA1uHkZdxGybzgI69QlOyh8fRfOCh/ln9vAiL0tW+Kzjg\n" +
-                        "certif:         8VMY0N3HzBcAPSB7U8wDf1qMzS5Lb1yNunD0Ut5qxCq3fxcdLBk/ZagHmtXoelhH\n" +
-                        "certif:         Bng8TRND/cDUWWH7Rhv64NxUiaKsrM/EmrHFOpJlXuMRRx4FtRPZeXTOln7zTmIL\n" +
-                        "certif:         qqHWqaQHNMKDq0pf24NFrIMLc2iXCSh+\n" +
-                        "certif:         =FPEl\n" +
+                        "certif:         mDMEXiWeSRYJKwYBBAHaRw8BAQdAEo+4wi/WI0xtbQF+PoIGxaDFJw23d+3w/ov+\n" +
+                        "certif:         go85qdi0GVRlc3QgVXNlciA8dGVzdEByaXBlLm5ldD6IkAQTFggAOBYhBGI0Y1DK\n" +
+                        "certif:         4kM+JAAdcpT6YsNkga40BQJeJZ5JAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheA\n" +
+                        "certif:         AAoJEJT6YsNkga40WLEBAKGMQaC1zKbmuD5Pav0ssuhxaznoMbuZqJ45VNiGKzLE\n" +
+                        "certif:         AQCGFbH+9pAvcEuorOa180+GLDZOpVYgQy40KsGaQgC5Drg4BF4lnkkSCisGAQQB\n" +
+                        "certif:         l1UBBQEBB0DFLFEhV9RSM92t1LwC/ClmND/Yw9P0a3paC2XGzTNTAwMBCAeIeAQY\n" +
+                        "certif:         FggAIBYhBGI0Y1DK4kM+JAAdcpT6YsNkga40BQJeJZ5JAhsMAAoJEJT6YsNkga40\n" +
+                        "certif:         LbQBALZ5BaNX5OxdS++mzwdWAVLZXAPRDFr6Q2otdxbnR0FTAP4ok4PiOpe1BfdF\n" +
+                        "certif:         itv84V9zda3NL6zJLhR3kewd30UDCA==\n" +
+                        "certif:         =Dxc9\n" +
                         "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                         "notify:         unread@ripe.net\n" +
                         "mnt-by:         ADMIN-MNT\n" +
@@ -626,36 +779,84 @@ public class PgpSignedMessageTest {
         return wrapper.getPublicKey();
     }
 
-    @Ignore("TODO: [ES] headers in signature block should not be required")
-    @Test
-    public void headers_in_signature_are_mandatory() {
-    final PgpSignedMessage signedMessage = PgpSignedMessage.parse(
-            "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-            "Hash: SHA1\n" +
-            "\n" +
-            "person:  First Person\n" +
-            "address: St James Street\n" +
-            "address: Burnley\n" +
-            "address: UK\n" +
-            "phone:   +44 282 420469\n" +
-            "nic-hdl: FP1-TEST\n" +
-            "mnt-by:  OWNER-MNT\n" +
-            "source:  TEST\n" +
-            "-----BEGIN PGP SIGNATURE-----\n" +
-//                "Version: GnuPG v1.4.12 (Darwin)\n" +             // TODO: if no headers found, parsing fails,
-//                "Comment: GPGTools - http://gpgtools.org\n" +     // TODO: as ArmoredInputStream hasHeaders = true by default
-//                "\n" +
-            "iQEcBAEBAgAGBQJWTcPDAAoJELvMuy1XY5UNd50IAKLecIhQCMaUu8hVUW68uXGO\n" +
-            "uWqnkI3/C3CzgNai438xlKqtYNmyhgzCh3LbJSiNkJqRg6QK9G+egcpf9wtlLJJl\n" +
-            "1N72OBV1IS+yWSmkscNuihJNZBwlYrkG7SXAite5wjaY++nVjkNqqCVkHPwD6dr8\n" +
-            "AcPN0lxdhFbnvVlcFJVZPWrEXKEZbRxBr2BosF48IiKDskfu/2wiUWiBwF5QkuTB\n" +
-            "GX/pLJwQ40J79jVhRkiVbJ0YvAcHKbE/ftgw3ZBwjUJk2X2Ck1pv+HOTurhgXRvh\n" +
-            "gr8cbqpXlg1D0FNl3jWe/RTQ/U465ZZiMyUodI93LMZQNPtR7xh3+T8r1gVORMI=\n" +
-            "=D3U7\n" +
-            "-----END PGP SIGNATURE-----");
-
-        assertThat(signedMessage.getKeyId(), is("5763950D"));
+    private PGPPublicKey getPublicKey_215A9907() {
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+                RpslObject.parse(
+                        "key-cert:       PGPKEY-215A9907\n" +
+                        "method:         PGP\n" +
+                        "owner:          Test User <test@ripe.net>\n" +
+                        "fingerpr:       3B45 F4E7 EF63 1D73 697D 01AB  F718 C6AD 215A 9907\n" +
+                        "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                        "certif:         Comment: GPGTools - http://gpgtools.org\n" +
+                        "certif:         \n" +
+                        "certif:         mE8EXkqPvhMFK4EEAAoCAwQQaiqFZJZGmjNyB/JJsGUzo7F9OZz+IvT+nAJ3+vwS\n" +
+                        "certif:         ekKY3fQZH+vvjAacDufoEmOp6s5toJaOdzqgTJPhqesTtBlUZXN0IFVzZXIgPHRl\n" +
+                        "certif:         c3RAcmlwZS5uZXQ+iJAEExMIADgWIQQ7RfTn72Mdc2l9Aav3GMatIVqZBwUCXkqP\n" +
+                        "certif:         vgIbAwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgAAKCRD3GMatIVqZBx0rAQD9JT7t\n" +
+                        "certif:         aIb5Svu9O4I5ul48gLv066uMAkgpDjhzh0I66gEA1H+i90jn/FiSbeWIJn0txrMF\n" +
+                        "certif:         UYrkRLbRLTvSr+FegKQ=\n" +
+                        "certif:         =8JQz\n" +
+                        "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
+                        "notify:         unread@ripe.net\n" +
+                        "mnt-by:         ADMIN-MNT\n" +
+                        "source:         TEST"));
+        return wrapper.getPublicKey();
     }
+
+    private PGPPublicKey getPublicKey_001E82AA() {
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+                RpslObject.parse(
+                        "key-cert:       PGPKEY-001E82AA\n" +
+                        "method:         PGP\n" +
+                        "owner:          Test User <test@ripe.net>\n" +
+                        "fingerpr:       B7D0 621F E20F 2C9C BB60  76D7 77AE 9191 001E 82AA\n" +
+                        "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                        "certif:         Comment: GPGTools - http://gpgtools.org\n" +
+                        "certif:         \n" +
+                        "certif:         mJMEXkqR1BMJKyQDAwIIAQENBAMEB2us/Zj4mEbbIZbeEs3RMJUqtRxLxLNxjKpf\n" +
+                        "certif:         FoinFzYUbvMnA2Mef21WuWjZbvyMB9PEsMdiHsv3P5n09YOIPTMs6XITLknds6Sd\n" +
+                        "certif:         tLU6+ix6rODq2bc/4Fm+02ZSYpSeHMiwudQ15WD8p3zwVxebf8VHpYuXbCmJgguN\n" +
+                        "certif:         T6NuRCS0GVRlc3QgVXNlciA8dGVzdEByaXBlLm5ldD6I0AQTEwoAOBYhBLfQYh/i\n" +
+                        "certif:         Dyycu2B213eukZEAHoKqBQJeSpHUAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheA\n" +
+                        "certif:         AAoJEHeukZEAHoKqHboB/Ai08OxAm0mB9gWeurK8ofiKgsGGao6LwwPyUi8nwfxx\n" +
+                        "certif:         S2Si1tXYkpTylU92E9lDwKVDYbI/AEoKEx4ED1li/5QCAJWls2+isQgbTj07Anrr\n" +
+                        "certif:         9F81yL3/N86fUaHxA+FhnWKFtL5FTIRptQ5bqVJ3NnbthrYZQnjyGS+ZCuxMycZn\n" +
+                        "certif:         mVM=\n" +
+                        "certif:         =Jh8f\n" +
+                        "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
+                        "notify:         unread@ripe.net\n" +
+                        "mnt-by:         ADMIN-MNT\n" +
+                        "source:         TEST"));
+        return wrapper.getPublicKey();
+    }
+
+    private PGPPublicKey getPublicKey_704E0D52() {
+        final PgpPublicKeyWrapper wrapper = PgpPublicKeyWrapper.parse(
+                RpslObject.parse(
+                        "key-cert:       PGPKEY-704E0D52\n" +
+                        "method:         PGP\n" +
+                        "owner:          Test User <test@ripe.net>\n" +
+                        "fingerpr:       AC6B 2055 128B 2485 6A8E  7BB1 B5BE 65DA 704E 0D52\n" +
+                        "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+                        "certif:         Comment: GPGTools - http://gpgtools.org\n" +
+                        "certif:\n" +
+                        "certif:         mJMEXkqUQRMFK4EEACMEIwQAyrzxEQCYGYZZwy672NlWG7sk5l7YwR6OzVAwxjc2\n" +
+                        "certif:         8qRxEeCx5OqtBEmuzLoEBRuC8iY7/mFVDMurxrCWM8OQMhYA6SAtlY7rXC6USafc\n" +
+                        "certif:         cUOQAUk4QdmwtA+jj0PhApq+6Rz9bkVUoXnzYZzSlOOQi7Py5hrCEsTki/MEcVIR\n" +
+                        "certif:         ZAZqga60GVRlc3QgVXNlciA8dGVzdEByaXBlLm5ldD6I0wQTEwoAOBYhBKxrIFUS\n" +
+                        "certif:         iySFao57sbW+ZdpwTg1SBQJeSpRBAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheA\n" +
+                        "certif:         AAoJELW+ZdpwTg1SFt4CB2zuJuNnHRQAKRTnDa12tOCsLYEvgDjzIv6pEzi0WTcI\n" +
+                        "certif:         msAOdhIkqTzKox+297zJKGg+4zyTHq+1CB28DfKYM2biAgkBe+ouMw1IBbsuO3Vx\n" +
+                        "certif:         IUuZVvZzGOLAEDWRcA5cM2j1H+XMCttDeHBOV8wZtTT99KsVh11TiWSOoN1TJ//e\n" +
+                        "certif:         lYbdFpc=\n" +
+                        "certif:         =Vr8M\n" +
+                        "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
+                        "notify:         unread@ripe.net\n" +
+                        "mnt-by:         ADMIN-MNT\n" +
+                        "source:         TEST"));
+        return wrapper.getPublicKey();
+    }
+
 }
 
 

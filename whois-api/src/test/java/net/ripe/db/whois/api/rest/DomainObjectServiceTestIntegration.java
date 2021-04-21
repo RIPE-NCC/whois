@@ -21,7 +21,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -228,7 +228,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error", "JSON processing exception: %s (line: %s, column: %s)",
-                    "Unrecognized token 'bad': was expecting", "1", "28");
+                    "Unrecognized token 'bad': was expecting", "1", "32");
         }
     }
 

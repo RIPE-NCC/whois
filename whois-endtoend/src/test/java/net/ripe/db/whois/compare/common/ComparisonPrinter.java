@@ -1,6 +1,5 @@
 package net.ripe.db.whois.compare.common;
 
-import com.google.common.base.Charsets;
 import difflib.Chunk;
 import difflib.Delta;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -11,6 +10,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class ComparisonPrinter {
@@ -37,12 +37,12 @@ public class ComparisonPrinter {
 
         try {
             os = new BufferedOutputStream(new FileOutputStream(file));
-            os.write(query.getBytes(Charsets.UTF_8));
-            os.write("\n\n".getBytes(Charsets.UTF_8));
+            os.write(query.getBytes(StandardCharsets.UTF_8));
+            os.write("\n\n".getBytes(StandardCharsets.UTF_8));
 
             for (final ResponseObject responseObject : result) {
                 responseObject.writeTo(os);
-                os.write("\n".getBytes(Charsets.UTF_8));
+                os.write("\n".getBytes(StandardCharsets.UTF_8));
             }
         } finally {
             if (os != null) {
@@ -58,8 +58,8 @@ public class ComparisonPrinter {
 
         try {
             os = new BufferedOutputStream(new FileOutputStream(file));
-            os.write(query.getBytes(Charsets.UTF_8));
-            os.write("\n\n".getBytes(Charsets.UTF_8));
+            os.write(query.getBytes(StandardCharsets.UTF_8));
+            os.write("\n\n".getBytes(StandardCharsets.UTF_8));
 
             for (final Delta delta : deltas) {
                 final Chunk original = delta.getOriginal();
@@ -74,7 +74,7 @@ public class ComparisonPrinter {
                         revised.getPosition(),
                         revised.size(),
                         revised.getLines()
-                ).getBytes(Charsets.UTF_8));
+                ).getBytes(StandardCharsets.UTF_8));
             }
         } finally {
             if (os != null) {

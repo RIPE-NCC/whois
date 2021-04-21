@@ -1,7 +1,5 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -17,28 +15,26 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.impl.client.HttpClients;
+import org.glassfish.jersey.client.ClientProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
@@ -49,6 +45,8 @@ class LacnicGrsSource extends GrsSource {
 
     private final String userId;
     private final String password;
+
+    private Client client;
 
     @Autowired
     LacnicGrsSource(
@@ -63,12 +61,17 @@ class LacnicGrsSource extends GrsSource {
 
         this.userId = userId;
         this.password = password;
+
+        this.client = ClientBuilder.newBuilder()
+                .property(ClientProperties.CONNECT_TIMEOUT, TIMEOUT)
+                .property(ClientProperties.READ_TIMEOUT, TIMEOUT)
+                .build();
     }
 
     @Override
     public void acquireDump(final Path path) throws IOException {
-        final Document loginPage = parse(get("http://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
-        final String loginAction = "http://lacnic.net" + loginPage.select("form").attr("action");
+        final Document loginPage = parse(get("https://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
+        final String loginAction = "https://lacnic.net" + loginPage.select("form").attr("action");
 
         post(loginAction);
 
@@ -77,38 +80,16 @@ class LacnicGrsSource extends GrsSource {
         downloader.downloadTo(logger, new URL(downloadAction), path);
     }
 
-    private String get(final String url) throws IOException {
-        final HttpClient client = HttpClients
-                .custom()
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(TIMEOUT).build())
-                .build();
-        final HttpUriRequest request = RequestBuilder
-                .get()
-                .setUri(url)
-                .setConfig(RequestConfig.custom().setConnectTimeout(TIMEOUT).build())
-                .build();
-        return IOUtils.toString(
-                client.execute(request)
-                        .getEntity()
-                        .getContent());
+    private String get(final String url) {
+        return client.target(url).request().get(String.class);
     }
 
-    private String post(final String url) throws IOException {
-        final HttpClient client = HttpClients
-                .custom()
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(TIMEOUT).build())
-                .build();
-        final HttpUriRequest request = RequestBuilder
-                .post()
-                .addParameter("handle", userId)
-                .addParameter("passwd", password)
-                .setUri(url)
-                .setConfig(RequestConfig.custom().setConnectTimeout(TIMEOUT).build())
-                .build();
-        return IOUtils.toString(
-                client.execute(request)
-                        .getEntity()
-                        .getContent());
+    private String post(final String url) {
+        return client.target(url)
+                .queryParam("handle", userId)
+                .queryParam("passwd", password)
+                .request()
+                .post(null, String.class);
     }
 
     private static Document parse(final String data) {
@@ -117,35 +98,27 @@ class LacnicGrsSource extends GrsSource {
 
     @Override
     public void handleObjects(final File file, final ObjectHandler handler) throws IOException {
-        FileInputStream is = null;
-        try {
-            is = new FileInputStream(file);
+        try (FileInputStream is = new FileInputStream(file)) {
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            handleLines(reader, lines -> {
+                final String rpslObjectString = Joiner.on("").join(lines);
+                final RpslObject rpslObjectBase = RpslObject.parse(rpslObjectString);
 
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
-            handleLines(reader, new LineHandler() {
-                @Override
-                public void handleLines(final List<String> lines) {
-                    final String rpslObjectString = Joiner.on("").join(lines);
-                    final RpslObject rpslObjectBase = RpslObject.parse(rpslObjectString);
+                final List<RpslAttribute> newAttributes = Lists.newArrayList();
+                for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
 
-                    final List<RpslAttribute> newAttributes = Lists.newArrayList();
-                    for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
-
-                        final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
-                        if (transformFunction != null) {
-                            attribute = transformFunction.apply(attribute);
-                        }
-
-                        if (attribute.getType() != null) {
-                            newAttributes.add(attribute);
-                        }
+                    final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
+                    if (transformFunction != null) {
+                        attribute = transformFunction.apply(attribute);
                     }
 
-                    handler.handle(FILTER_CHANGED_FUNCTION.apply(new RpslObject(newAttributes)));
+                    if (attribute.getType() != null) {
+                        newAttributes.add(attribute);
+                    }
                 }
+
+                handler.handle(FILTER_CHANGED_FUNCTION.apply(new RpslObject(newAttributes)));
             });
-        } finally {
-            IOUtils.closeQuietly(is);
         }
     }
 
@@ -158,41 +131,25 @@ class LacnicGrsSource extends GrsSource {
     }
 
     static {
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                return new RpslAttribute(AttributeType.AUT_NUM, "AS" + input.getCleanValue());
-            }
-        }, "aut-num");
+        addTransformFunction(input -> new RpslAttribute(AttributeType.AUT_NUM, "AS" + input.getCleanValue()), "aut-num");
 
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                final String date = input.getCleanValue().toString().replaceAll("-", "");
-                final String value = String.format("%s", date);
-                return new RpslAttribute(AttributeType.CREATED, value);
-            }
+        addTransformFunction(input -> {
+            final String date = input.getCleanValue().toString().replaceAll("-", "");
+            final String value = String.format("%s", date);
+            return new RpslAttribute(AttributeType.CREATED, value);
         }, "created");
 
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                final IpInterval<?> ipInterval = IpInterval.parse(input.getCleanValue());
-                if (ipInterval instanceof Ipv4Resource) {
-                    return new RpslAttribute(AttributeType.INETNUM, input.getValue());
-                } else if (ipInterval instanceof Ipv6Resource) {
-                    return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
-                } else {
-                    throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
-                }
+        addTransformFunction(input -> {
+            final IpInterval<?> ipInterval = IpInterval.parse(input.getCleanValue());
+            if (ipInterval instanceof Ipv4Resource) {
+                return new RpslAttribute(AttributeType.INETNUM, input.getValue());
+            } else if (ipInterval instanceof Ipv6Resource) {
+                return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
+            } else {
+                throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
             }
         }, "inetnum");
 
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                return new RpslAttribute(AttributeType.DESCR, input.getValue());
-            }
-        }, "owner");
+        addTransformFunction(input -> new RpslAttribute(AttributeType.DESCR, input.getValue()), "owner");
     }
 }

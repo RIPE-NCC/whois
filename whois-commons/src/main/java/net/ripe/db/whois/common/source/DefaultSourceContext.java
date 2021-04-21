@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.source;
 
-import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -56,8 +54,8 @@ public class DefaultSourceContext implements SourceContext {
             @Value("${whois.source}") final String mainSourceNameString,
             @Value("${whois.nonauth.source}") final String nonauthRipeSourceNameString,
             @Value("${whois.additional.sources}") final String additionalSourceNames,
-            @Value("${grs.sources}") final String grsSourceNames,
-            @Value("${nrtm.import.sources}") final String nrtmSourceNames,
+            @Value("${grs.sources:}") final String grsSourceNames,
+            @Value("${nrtm.import.sources:}") final String nrtmSourceNames,
             @Value("${grs.sources.dummify:}") final String grsSourceNamesForDummification,
             @Value("${grs.import.sources.tagRoutes:}") final String grsSourceNamesToTagRoutes,
             @Value("${whois.db.grs.master.baseurl}") final String grsMasterBaseUrl,
@@ -84,21 +82,9 @@ public class DefaultSourceContext implements SourceContext {
         sourceConfigurations.put(mainMasterSource, new SourceConfiguration(mainMasterSource, whoisMasterDataSource));
         sourceConfigurations.put(mainSlaveSource, new SourceConfiguration(mainSlaveSource, whoisSlaveDataSource));
 
-        final Iterable<CIString> grsSourceNameIterable = Iterables.transform(COMMA_SPLITTER.split(grsSourceNames), new Function<String, CIString>() {
-            @Nullable
-            @Override
-            public CIString apply(final String input) {
-                return ciString(input);
-            }
-        });
+        final Iterable<CIString> grsSourceNameIterable = Iterables.transform(COMMA_SPLITTER.split(grsSourceNames), input -> ciString(input));
 
-        final Iterable<CIString> nrtmSourceNameIterable = Iterables.transform(COMMA_SPLITTER.split(nrtmSourceNames), new Function<String, CIString>() {
-            @Nullable
-            @Override
-            public CIString apply(final String input) {
-                return ciString(input);
-            }
-        });
+        final Iterable<CIString> nrtmSourceNameIterable = Iterables.transform(COMMA_SPLITTER.split(nrtmSourceNames), input -> ciString(input));
 
         for (final CIString grsSourceName : Iterables.concat(grsSourceNameIterable, nrtmSourceNameIterable)) {
             if (!grsSourceName.endsWith("-grs")) {
@@ -136,13 +122,7 @@ public class DefaultSourceContext implements SourceContext {
         this.grsSourceNamesForDummification = ciSet(COMMA_SPLITTER.split(grsSourceNamesForDummification));
         this.grsSourceNamesToTagRoutes = ciSet(COMMA_SPLITTER.split(grsSourceNamesToTagRoutes));
         this.aliases = Collections.unmodifiableMap(newAliases);
-        this.allSourceNames = Collections.unmodifiableSet(Sets.newLinkedHashSet(Iterables.transform(sourceConfigurations.keySet(), new Function<Source, CIString>() {
-            @Nullable
-            @Override
-            public CIString apply(final Source source) {
-                return source.getName();
-            }
-        })));
+        this.allSourceNames = Collections.unmodifiableSet(Sets.newLinkedHashSet(Iterables.transform(sourceConfigurations.keySet(), source -> source.getName())));
 
         for (final CIString sourceName : CIString.ciSet(COMMA_SPLITTER.split(additionalSourceNames))) {
             if (this.allSourceNames.contains(sourceName)) {

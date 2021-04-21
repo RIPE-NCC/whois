@@ -10,10 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.springframework.util.StringValueResolver;
 
@@ -22,10 +19,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
@@ -46,12 +43,12 @@ public class AuthoritativeResourceImportTaskTest {
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getRoot().getAbsolutePath());
+        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getRoot().getAbsolutePath(), true, "");
         subject.setEmbeddedValueResolver(valueResolver);
     }
 
     @Test
-    public void init_url_not_defined() throws IOException {
+    public void init_url_not_defined() {
         subject.run();
         verify(resourceDataDao).store(eq("test"), resourceCaptor.capture());
         assertThat(resourceCaptor.getValue().getNrAutNums(), is(0));
@@ -60,10 +57,10 @@ public class AuthoritativeResourceImportTaskTest {
     }
 
     @Test
-    public void download_not_resource_data() throws IOException {
+    public void download_not_resource_data() {
         when(valueResolver.resolveStringValue(anyString())).thenReturn("http://www.ripe.net/download");
         subject.run();
-        verify(resourceDataDao, never()).store(anyString(), Mockito.<AuthoritativeResource>anyObject());
+        verify(resourceDataDao, never()).store(anyString(), any());
     }
 
     @Test
@@ -78,13 +75,10 @@ public class AuthoritativeResourceImportTaskTest {
     public void download() throws IOException {
         when(valueResolver.resolveStringValue(anyString())).thenReturn("http://www.ripe.net/download");
 
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(final InvocationOnMock invocation) throws Throwable {
-                final Path path = (Path) invocation.getArguments()[2];
-                Files.createFile(path);
-                return null;
-            }
+        doAnswer(invocation -> {
+            final Path path = (Path) invocation.getArguments()[2];
+            Files.createFile(path);
+            return null;
         }).when(downloader).downloadToWithMd5Check(any(Logger.class), any(URL.class), any(Path.class));
 
         subject.run();

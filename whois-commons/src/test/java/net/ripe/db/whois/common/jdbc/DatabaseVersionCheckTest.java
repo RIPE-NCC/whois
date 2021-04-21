@@ -1,12 +1,12 @@
 package net.ripe.db.whois.common.jdbc;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Assert;
 import org.junit.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
 
 public class DatabaseVersionCheckTest {
 
@@ -34,10 +34,10 @@ public class DatabaseVersionCheckTest {
 
     @Test
     public void testResourceMatcher() {
-        Assert.assertTrue(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("whois-1.52.12").matches());
-        Assert.assertTrue(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("acl-2").matches());
-        Assert.assertFalse(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("lee7-2.5.4").matches());
-        Assert.assertFalse(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("lee7-2.5.4-1.2").matches());
+        assertThat(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("whois-1.52.12").matches(), is(true));
+        assertThat(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("acl-2").matches(), is(true));
+        assertThat(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("lee7-2.5.4").matches(), is(false));
+        assertThat(DatabaseVersionCheck.RESOURCE_MATCHER.matcher("lee7-2.5.4-1.2").matches(), is(false));
     }
 
     @Test

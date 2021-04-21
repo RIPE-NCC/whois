@@ -11,10 +11,27 @@
 
     <context:component-scan base-package="net.ripe.db.whois.update"/>
 
-    <beans profile="DEPLOYED">
+    <beans profile="RIPE_DEPLOYED,AWS_DEPLOYED">
         <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" primary="true">
             <property name="host" value="${mail.smtp.host}"/>
-            <property name="port" value="25"/>
+            <property name="port" value="${mail.smtp.port:25}"/>
+            <property name="javaMailProperties" ref="javaMailProperties"/>
         </bean>
     </beans>
+    <beans>
+        <!-- Ref. https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html -->
+        <bean id="javaMailProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties">
+                <props>
+                    <!-- Socket connection timeout value in milliseconds. Default is infinite timeout. -->
+                    <prop key="mail.smtp.connectiontimeout">10000</prop>
+                    <!-- Socket read timeout value in milliseconds. Default is infinite timeout. -->
+                    <prop key="mail.smtp.timeout">10000</prop>
+                    <!-- Socket write timeout value in milliseconds. The overhead of using this timeout is one thread per connection. Default is infinite timeout.-->
+                    <prop key="mail.smtp.writetimeout">10000</prop>
+                </props>
+            </property>
+        </bean>
+    </beans>
+
 </beans>

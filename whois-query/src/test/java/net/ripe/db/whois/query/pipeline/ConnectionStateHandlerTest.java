@@ -1,23 +1,26 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelPromise;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.query.Query;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.MessageEvent;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyObject;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,110 +28,110 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionStateHandlerTest {
 
-    @Mock private MessageEvent messageMock;
     @Mock private Channel channelMock;
     @Mock private ChannelPipeline pipelineMock;
     @Mock private ChannelFuture futureMock;
+    @Mock private ChannelPromise promiseMock;
     @Mock private ChannelHandlerContext contextMock;
     @InjectMocks private ConnectionStateHandler subject;
 
     @Before
     public void setup() {
-        when(messageMock.getChannel()).thenReturn(channelMock);
-        when(messageMock.getFuture()).thenReturn(futureMock);
-        when(channelMock.isOpen()).thenReturn(true);
-        when(channelMock.write(anyObject())).thenReturn(futureMock);
-        when(channelMock.getPipeline()).thenReturn(pipelineMock);
+        when(contextMock.write(any())).thenReturn(futureMock);
+        when(contextMock.channel()).thenReturn(channelMock);
+        when(channelMock.pipeline()).thenReturn(pipelineMock);
     }
 
     @Test
-    public void sendingNoKFlagShouldNotEnableKeepAlive() throws Exception {
-        when(messageMock.getMessage()).thenReturn(Query.parse("help"));
+    public void sendingNoKFlagShouldNotEnableKeepAlive() {
+        Query msg = Query.parse("help");
 
-        subject.handleUpstream(contextMock, messageMock);
-        verify(contextMock, times(1)).sendUpstream(messageMock);
+        subject.channelRead(contextMock, msg);
+        verify(contextMock, times(1)).fireChannelRead(msg);
 
-        subject.handleDownstream(contextMock, new QueryCompletedEvent(channelMock));
-        verify(channelMock, times(1)).write(ConnectionStateHandler.NEWLINE);
+        subject.write(contextMock, new QueryCompletedEvent(channelMock), promiseMock);
+        verify(contextMock, times(1)).write(ConnectionStateHandler.NEWLINE);
         verify(futureMock, times(1)).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Test
     public void sendingNoKFlagButConnectionStateIsKeepAliveKeepItThatWay() throws Exception {
-        when(messageMock.getMessage()).thenReturn(Query.parse("-k"));
-        subject.handleUpstream(contextMock, messageMock);
+        Query msg = Query.parse("-k");
+        subject.channelRead(contextMock, msg);
 
-        when(messageMock.getMessage()).thenReturn(Query.parse("help"));
-        subject.handleUpstream(contextMock, messageMock);
-        verify(contextMock, times(1)).sendUpstream(messageMock);
+        subject.channelRead(contextMock, msg);
+        verify(pipelineMock, atLeastOnce()).write(new QueryCompletedEvent(channelMock));
 
 
-        subject.handleDownstream(contextMock, new QueryCompletedEvent(channelMock));
-        verify(channelMock, times(1)).write(QueryMessages.termsAndConditions());
+        subject.write(contextMock, new QueryCompletedEvent(channelMock), promiseMock);
+        verify(contextMock, atLeastOnce()).channel();
+        verify(contextMock, atLeastOnce()).write(any(QueryCompletedEvent.class));
+        verify(channelMock, atLeastOnce()).write(any(byte[].class));
+        verify(channelMock, atLeastOnce()).write(QueryMessages.termsAndConditions());
         verify(futureMock, times(0)).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Test
     public void firstSingleKShouldKeepConnectionOpen() throws Exception {
-        when(messageMock.getMessage()).thenReturn(Query.parse("-k"));
+        Query msg = Query.parse("-k");
 
-        subject.handleUpstream(contextMock, messageMock);
-        verify(contextMock, times(0)).sendUpstream(messageMock);
+        subject.channelRead(contextMock, msg);
+        verify(contextMock, times(0)).write(msg);
 
-        subject.handleDownstream(contextMock, new QueryCompletedEvent(channelMock));
+        subject.write(contextMock, new QueryCompletedEvent(channelMock), promiseMock);
         verify(futureMock, times(0)).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Test
     public void firstKWithArgumentsShouldKeepConnectionOpen() throws Exception {
-        when(messageMock.getMessage()).thenReturn(Query.parse("-k -r -T inetnum 10.0.0.0"));
+        Query msg = Query.parse("-k -r -T inetnum 10.0.0.0");
 
-        subject.handleUpstream(contextMock, messageMock);
-        verify(contextMock, times(1)).sendUpstream(messageMock);
+        subject.channelRead(contextMock, msg);
+        verify(contextMock, times(1)).fireChannelRead(msg);
 
-        when(contextMock.getAttachment()).thenReturn(Boolean.TRUE);
-        subject.handleDownstream(contextMock, new QueryCompletedEvent(channelMock));
+        subject.write(contextMock, new QueryCompletedEvent(channelMock), promiseMock);
         verify(futureMock, times(0)).addListener(ChannelFutureListener.CLOSE);
         verify(channelMock, times(2)).write(any());
     }
 
     @Test
     public void secondSingleKShouldCloseConnection() throws Exception {
-        when(messageMock.getMessage()).thenReturn(Query.parse("-k"));
-        subject.handleUpstream(contextMock, messageMock);
+        Query msg = Query.parse("-k");
+
+        subject.channelRead(contextMock, msg);
         verify(channelMock, times(0)).close();
 
-        subject.handleUpstream(contextMock, messageMock);
+        subject.channelRead(contextMock, msg);
         verify(channelMock, times(1)).close();
     }
 
     @Test
     public void secondKWithArgumentsShouldKeepConnectionOpen() throws Exception {
-        when(messageMock.getMessage()).thenReturn(Query.parse("-k -r -T inetnum 10.0.0.0"));
+        Query msg = Query.parse("-k -r -T inetnum 10.0.0.0");
 
-        subject.handleUpstream(contextMock, messageMock);
-        verify(contextMock, times(1)).sendUpstream(messageMock);
+        subject.channelRead(contextMock, msg);
+        verify(contextMock, times(1)).fireChannelRead(msg);
 
-        subject.handleDownstream(contextMock, new QueryCompletedEvent(channelMock));
+        subject.write(contextMock, new QueryCompletedEvent(channelMock), promiseMock);
         verify(futureMock, times(0)).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Test
     public void forceCloseShouldCloseConnection() throws Exception {
-        when(messageMock.getMessage()).thenReturn(Query.parse("-k -r -T inetnum 10.0.0.0"));
+        Query msg = Query.parse("-k -r -T inetnum 10.0.0.0");
 
-        subject.handleUpstream(contextMock, messageMock);
-        verify(contextMock, times(1)).sendUpstream(messageMock);
+        subject.channelRead(contextMock, msg);
+        verify(contextMock, times(1)).fireChannelRead(msg);
 
-        subject.handleDownstream(contextMock, new QueryCompletedEvent(channelMock, QueryCompletionInfo.DISCONNECTED));
+        subject.write(contextMock, new QueryCompletedEvent(channelMock, QueryCompletionInfo.DISCONNECTED), promiseMock);
         verify(channelMock, times(0)).write(QueryMessages.termsAndConditions());
-        verify(channelMock, times(1)).write(ConnectionStateHandler.NEWLINE);
+        verify(contextMock, times(1)).write(ConnectionStateHandler.NEWLINE);
         verify(futureMock, times(1)).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Test
-    public void dontActOnDownstreamNonQueryCompletedEvents() throws Exception {
-        subject.handleDownstream(contextMock, null);
+    public void dontActOnDownstreamNonQueryCompletedEvents() {
+        subject.write(contextMock, null, promiseMock);
 
         verify(channelMock, times(0)).write(any());
     }

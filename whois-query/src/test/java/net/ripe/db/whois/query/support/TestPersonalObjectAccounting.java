@@ -9,7 +9,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
+@Profile({WhoisProfile.TEST})
 @Component
 public class TestPersonalObjectAccounting implements PersonalObjectAccounting {
     private Map<InetAddress, Integer> queriedPersonalObjects = new HashMap<>();

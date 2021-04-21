@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
@@ -26,9 +26,12 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class RpslObjectsToTextExporterTest {
@@ -158,8 +161,8 @@ public class RpslObjectsToTextExporterTest {
     public void export_check_files() {
         subject.export();
 
-        Assert.assertThat(exportDir.exists(), Matchers.is(true));
-        Assert.assertThat(tmpDir.exists(), Matchers.is(false));
+        assertThat(exportDir.exists(), Matchers.is(true));
+        assertThat(tmpDir.exists(), Matchers.is(false));
     }
 
     @Test

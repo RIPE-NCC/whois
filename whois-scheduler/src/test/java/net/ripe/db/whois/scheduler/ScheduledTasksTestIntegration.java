@@ -1,10 +1,10 @@
 package net.ripe.db.whois.scheduler;
 
-import com.jayway.awaitility.Awaitility;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.iptree.IpTreeCacheManager;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
+import org.awaitility.Awaitility;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.kubek2k.springockito.annotations.ReplaceWithMock;
@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
@@ -30,7 +30,7 @@ public class ScheduledTasksTestIntegration extends AbstractSchedulerIntegrationT
 
     @Test
     public void testIpResourceConfiguration() throws Exception {
-        Awaitility.await().atMost(1, TimeUnit.SECONDS).until(new Callable<Boolean>() {
+        Awaitility.await().atMost(1L, TimeUnit.SECONDS).until(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 try {

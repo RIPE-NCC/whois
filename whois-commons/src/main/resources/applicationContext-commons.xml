@@ -23,11 +23,10 @@
         <property name="dataSource" ref="sourceAwareDataSource"/>
     </bean>
 
-    <bean id="abstractDataSource" abstract="true" class="com.mchange.v2.c3p0.ComboPooledDataSource"
-          destroy-method="close">
+    <bean id="abstractDataSource" abstract="true" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
         <property name="driverClass" value="org.mariadb.jdbc.Driver"/>
         <property name="minPoolSize" value="0"/>
-        <property name="maxPoolSize" value="20"/>
+        <property name="maxPoolSize" value="100"/>
         <property name="maxIdleTime" value="7200"/>
         <property name="preferredTestQuery" value="SELECT 1"/>
         <property name="idleConnectionTestPeriod" value="15"/>
@@ -50,6 +49,12 @@
         <property name="jdbcUrl" value="${internals.database.url}"/>
         <property name="user" value="${internals.database.username}"/>
         <property name="password" value="${internals.database.password}"/>
+    </bean>
+
+    <bean id="internalsSlaveDataSource" parent="abstractDataSource">
+        <property name="jdbcUrl" value="${internals.slave.database.url}"/>
+        <property name="user" value="${internals.slave.database.username}"/>
+        <property name="password" value="${internals.slave.database.password}"/>
     </bean>
 
     <bean id="whoisMasterDataSource" parent="abstractDataSource" depends-on="loggingDriver">

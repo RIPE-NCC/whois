@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rdap.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -21,7 +21,7 @@ import java.util.List;
         "media",
         "type"
 })
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Link implements Serializable, Comparable<Link> {
     @XmlElement(required = true)
     protected String value;

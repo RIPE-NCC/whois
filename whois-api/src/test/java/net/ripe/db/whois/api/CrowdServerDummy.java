@@ -43,18 +43,25 @@ public class CrowdServerDummy implements Stub {
     }
 
     private class CrowdTestHandler extends AbstractHandler {
-        final Map<String, String> usermap;
+        final Map<String, CrowdUser> usermap;
+
         {
             usermap = Maps.newHashMap();
-            usermap.put("db-test@ripe.net", "ed7cd420-6402-11e3-949a-0800200c9a66");
-            usermap.put("random@ripe.net", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503");
-            usermap.put("test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5");
-            usermap.put("person@net.net", "906635c2-0405-429a-800b-0602bd716124");
+            usermap.put("db-test@ripe.net", new CrowdUser("db-test@ripe.net","Db User","ed7cd420-6402-11e3-949a-0800200c9a66"));
+            usermap.put("random@ripe.net", new CrowdUser("random@ripe.net", "Random User", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503"));
+            usermap.put("test@ripe.net", new CrowdUser("test@ripe.net", "Ripe  User", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5"));
+            usermap.put("person@net.net", new CrowdUser("person@net.net", "Test User", "906635c2-0405-429a-800b-0602bd716124"));
 
-            usermap.put("ed7cd420-6402-11e3-949a-0800200c9a66", "db-test@ripe.net");
-            usermap.put("017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", "random@ripe.net");
-            usermap.put("8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "test@ripe.net");
-            usermap.put("906635c2-0405-429a-800b-0602bd716124", "person@net.net");
+            usermap.put("ed7cd420-6402-11e3-949a-0800200c9a66", new CrowdUser("db-test@ripe.net","Db User","ed7cd420-6402-11e3-949a-0800200c9a66"));
+            usermap.put("017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", new CrowdUser("random@ripe.net", "Random User", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503"));
+            usermap.put("8ffe29be-89ef-41c8-ba7f-0e1553a623e5", new CrowdUser("test@ripe.net", "Ripe  User", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5"));
+            usermap.put("906635c2-0405-429a-800b-0602bd716124", new CrowdUser("person@net.net", "Test User", "906635c2-0405-429a-800b-0602bd716124"));
+
+            // for e2e integration test
+            usermap.put("aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef", new CrowdUser("db_e2e_1@ripe.net", "DB E2E_1", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef"));
+            usermap.put("db_e2e_1@ripe.net", new CrowdUser("db_e2e_1@ripe.net", "DB E2E_1", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef"));
+            usermap.put("e74ccc29-75f9-4ce1-aee0-690345a56c96", new CrowdUser("db_e2e_2@ripe.net", "DB E2E_2", "e74ccc29-75f9-4ce1-aee0-690345a56c96"));
+            usermap.put("db_e2e_2@ripe.net", new CrowdUser("db_e2e_2@ripe.net", "DB E2E_2", "e74ccc29-75f9-4ce1-aee0-690345a56c96"));
         }
 
         final Map<String, UserSession> crowdSessionMap;
@@ -62,6 +69,9 @@ public class CrowdServerDummy implements Stub {
             crowdSessionMap = Maps.newHashMap();
             crowdSessionMap.put("valid-token", new UserSession("person@net.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
             crowdSessionMap.put("invalid-token", null);
+            // for e2e integration test
+            crowdSessionMap.put("db_e2e_1", new UserSession("db_e2e_1@ripe.net", "DB E2E_1", true, "2033-01-30T16:38:27.369+11:00"));
+            crowdSessionMap.put("db_e2e_2", new UserSession("db_e2e_2@ripe.net", "DB E2E_2", true, "2033-01-30T16:38:27.369+11:00"));
         }
 
         @Override
@@ -72,32 +82,33 @@ public class CrowdServerDummy implements Stub {
             final Map<String, String[]> parameterMap = request.getParameterMap();
 
             if (parameterMap.get("username") != null) {
-                final String uuid = usermap.get(parameterMap.get("username")[0]);
+                final String uuid = usermap.get(parameterMap.get("username")[0]).getUuid();
                 if (uuid == null) {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 } else {
                     response.setStatus(HttpServletResponse.SC_OK);
-                    response.getWriter().println(getUuid(uuid));
+                    response.getWriter().println(serializeUuid(uuid));
                 }
             }
             else if (parameterMap.get("restriction") != null) {
-                final String username = usermap.get(parameterMap.get("restriction")[0].split("=")[1]);
+                final String username = usermap.get(parameterMap.get("restriction")[0].split("=")[1]).getName();
+                final String displayName = usermap.get(parameterMap.get("restriction")[0].split("=")[1]).getDisplayName();
                 if (username == null) {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 } else {
                     response.setStatus(HttpServletResponse.SC_OK);
-                    response.getWriter().println(getUsername(username));
+                    response.getWriter().println(serializeUserName(username, displayName));
                 }
             }
             else if (request.getRequestURI().contains("session")) {
-                Splitter SPACE_SPLITTER = Splitter.on('/');
-                String ssoToken= Iterables.getLast(SPACE_SPLITTER.split(request.getRequestURI()));
+                final Splitter SLASH_SPLITTER = Splitter.on('/');
+                String ssoToken= Iterables.getLast(SLASH_SPLITTER.split(request.getRequestURI()));
                 final UserSession userSession = crowdSessionMap.get(ssoToken);
                 if (userSession == null){
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST);
                 } else {
                     response.setStatus(HttpServletResponse.SC_OK);
-                    response.getWriter().print(getUserSessionResponse(userSession));
+                    response.getWriter().print(serializeUserSessionResponse(userSession));
                 }
             }
             else {
@@ -105,27 +116,29 @@ public class CrowdServerDummy implements Stub {
             }
         }
 
-        private String getUserSessionResponse(final UserSession userSession){
+        private String serializeUserSessionResponse(final UserSession userSession){
             return String.format(
                     "<session expand=\"user\">" +
-                        "<user name=\"%s\">" +
+                            "<user name=\"%s\">" +
                             "<active>%s</active>" +
-                        "</user>" +
-                        "<expiry-date>2033-01-30T16:38:27.369+11:00</expiry-date>" +
-                    "</session>", userSession.getUsername(), userSession.isActive());
+                            "</user>" +
+                            "<expiry-date>2033-01-30T16:38:27.369+11:00</expiry-date>" +
+                            "</session>", userSession.getUsername(), userSession.isActive());
         }
 
-        private String getUuid(final String username) {
+        private String serializeUuid(final String username) {
             return String.format("<attributes><attribute name=\"uuid\"><values><value>%s</value></values></attribute></attributes>", username);
         }
 
-        private String getUsername(final String uuid) {
+        private String serializeUserName(final String uuid, final String displayName) {
             return String.format("" +
                     "<users expand=\"user\">\n" +
                     "   <user name=\"%s\">\n" +
+                    "   <display-name>%s</display-name>" +
                     "   </user>\n" +
-                    "</users>", uuid);
+                    "</users>", uuid, displayName);
         }
+
     }
 
     @PostConstruct
@@ -158,4 +171,33 @@ public class CrowdServerDummy implements Stub {
     @Override
     public void reset() {
     }
+
+    static class CrowdUser {
+        private String name;
+        private String displayName;
+        private String uuid;
+
+        public CrowdUser() {
+            // required no-arg constructor
+        }
+
+        public CrowdUser(final String name, final String displayName, final String uuid) {
+            this.name = name;
+            this.displayName = displayName;
+            this.uuid = uuid;
+        }
+
+        public String getUuid() {
+            return uuid;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+
 }

@@ -19,17 +19,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -83,13 +83,13 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> lowerMaintainers = Lists.newArrayList(lowerMaintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_LOWER))).thenReturn(lowerMaintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, lowerMaintainers)).thenReturn(lowerMaintainers);
+        when(authenticationModule.authenticate(update, updateContext, lowerMaintainers, InetnumAuthentication.class)).thenReturn(lowerMaintainers);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(lowerMaintainer));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -105,13 +105,13 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> maintainers = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(maintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, maintainers)).thenReturn(maintainers);
+        when(authenticationModule.authenticate(update, updateContext, maintainers, InetnumAuthentication.class)).thenReturn(maintainers);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(maintainer));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test(expected = AuthenticationFailedException.class)
@@ -127,7 +127,7 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> maintainers = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_LOWER))).thenReturn(maintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, maintainers)).thenReturn(Lists.<RpslObject>newArrayList());
+        when(authenticationModule.authenticate(update, updateContext, maintainers, InetnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
     }
@@ -145,13 +145,13 @@ public class InetnumAuthenticationTest {
         final ArrayList<RpslObject> maintainers = Lists.newArrayList(maintainer);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, parent.getValuesForAttribute(AttributeType.MNT_LOWER))).thenReturn(maintainers);
 
-        when(authenticationModule.authenticate(update, updateContext, maintainers)).thenReturn(Lists.<RpslObject>newArrayList(maintainer));
+        when(authenticationModule.authenticate(update, updateContext, maintainers, InetnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList(maintainer));
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(maintainer));
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test

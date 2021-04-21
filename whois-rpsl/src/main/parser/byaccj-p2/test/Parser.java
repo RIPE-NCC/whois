@@ -18,7 +18,6 @@
 
 //#line 2 "bug.y"
 
-import java.io.*;
 import java.util.StringTokenizer;
 //#line 21 "Parser.java"
 
@@ -73,7 +72,7 @@ final int state_pop()
 }
 final void state_drop(int cnt)
 {
-  stateptr -= cnt; 
+  stateptr -= cnt;
 }
 final int state_peek(int relative)
 {
@@ -246,7 +245,7 @@ final static String yyrule[] = {
 //#line 36 "bug.y"
 
 
-// Code cut from the byacc demo page and modified to take 
+// Code cut from the byacc demo page and modified to take
 // first arg as input file name
 
  String ins;
@@ -311,7 +310,7 @@ final static String yyrule[] = {
 
  {
 
-   
+
    BufferedReader in = new BufferedReader(new FileReader(filepath));
 
    // AS per the calculator demo
@@ -322,10 +321,10 @@ final static String yyrule[] = {
    while (true)
 
      {
-       
+
        System.out.print("example item:");
-       
-       try       
+
+       try
          {
            ins = in.readLine();
          }
@@ -335,7 +334,7 @@ final static String yyrule[] = {
        }
 
      st = new StringTokenizer(ins);
-     
+
      newline=false;
 
      yyparse();
@@ -353,12 +352,12 @@ java.io.FileNotFoundException
 
    parser par = new parser();
    par.yydebug = true;
-   System.out.println( "parse input file: " + args[0] ); 
+   System.out.println( "parse input file: " + args[0] );
    par.dotest(args[0]);
 
  }
 
-// Invoke this code with 
+// Invoke this code with
 // java parser test.input
 // where test.input is the file containing the input text
 
@@ -404,7 +403,7 @@ boolean doaction;
   while (true) //until parsing is done, either correctly, or w/error
     {
     doaction=true;
-    if (yydebug) debug("loop"); 
+    if (yydebug) debug("loop");
     //#### NEXT ACTION (from reduction table)
     for (yyn=yydefred[yystate];yyn==0;yyn=yydefred[yystate])
       {

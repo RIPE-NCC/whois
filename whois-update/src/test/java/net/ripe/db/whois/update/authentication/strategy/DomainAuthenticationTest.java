@@ -21,19 +21,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DomainAuthenticationTest {
@@ -91,7 +94,7 @@ public class DomainAuthenticationTest {
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated, hasSize(0));
 
-        verifyZeroInteractions(ipv4Tree, ipv6Tree, objectDao);
+        verifyNoMoreInteractions(ipv4Tree, ipv6Tree, objectDao);
     }
 
     @Test
@@ -108,7 +111,7 @@ public class DomainAuthenticationTest {
         }
 
         verify(ipv4Tree).findExactOrFirstLessSpecific(any(Ipv4Resource.class));
-        verifyZeroInteractions(ipv6Tree, objectDao);
+        verifyNoMoreInteractions(ipv6Tree, objectDao);
     }
 
     @Test
@@ -125,7 +128,7 @@ public class DomainAuthenticationTest {
         }
 
         verify(ipv6Tree).findExactOrFirstLessSpecific(any(Ipv6Resource.class));
-        verifyZeroInteractions(ipv4Tree, objectDao);
+        verifyNoMoreInteractions(ipv4Tree, objectDao);
     }
 
     @Test
@@ -145,7 +148,7 @@ public class DomainAuthenticationTest {
         }
 
         verify(ipv6Tree).findExactOrFirstLessSpecific(any(Ipv6Resource.class));
-        verifyZeroInteractions(ipv4Tree, objectDao);
+        verifyNoMoreInteractions(ipv4Tree, objectDao);
     }
 
     @Test
@@ -216,12 +219,12 @@ public class DomainAuthenticationTest {
                 Lists.newArrayList(new Ipv6Entry(Ipv6Resource.parse(ipObject.getKey()), 1)));
 
         when(objectDao.getById(1)).thenReturn(ipObject);
-        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(candidates);
+        when(authenticationModule.authenticate(update, updateContext, candidates, DomainAuthentication.class)).thenReturn(candidates);
 
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated.containsAll(candidates), is(true));
 
-        verifyZeroInteractions(ipv4Tree);
+        verifyNoMoreInteractions(ipv4Tree);
     }
 
     @Test
@@ -300,7 +303,7 @@ public class DomainAuthenticationTest {
             assertThat(ignored.getAuthenticationMessages(), contains(UpdateMessages.authenticationFailed(ipObject, attributeType, candidates)));
         }
 
-        verify(authenticationModule).authenticate(update, updateContext, candidates);
-        verifyZeroInteractions(ipv4Tree);
+        verify(authenticationModule).authenticate(update, updateContext, candidates, DomainAuthentication.class);
+        verifyNoMoreInteractions(ipv4Tree);
     }
 }

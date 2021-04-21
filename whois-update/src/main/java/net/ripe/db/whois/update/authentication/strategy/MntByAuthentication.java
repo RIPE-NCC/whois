@@ -99,7 +99,7 @@ public class MntByAuthentication extends AuthenticationStrategyBase {
             }
         }
 
-        final List<RpslObject> authenticatedBy = authenticationModule.authenticate(update, updateContext, candidates);
+        final List<RpslObject> authenticatedBy = authenticationModule.authenticate(update, updateContext, candidates, getClass());
         if (authenticatedBy.isEmpty()) {
             throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(authenticationObject, AttributeType.MNT_BY, candidates), candidates);
         }
@@ -148,7 +148,7 @@ public class MntByAuthentication extends AuthenticationStrategyBase {
             for (final IpEntry ipEntry : exact) {
                 final RpslObject ipObject = rpslObjectDao.getById(ipEntry.getObjectId());
                 final List<RpslObject> candidates = rpslObjectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_DOMAINS));
-                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates, getClass());
                 if (!authenticated.isEmpty()) {
                     return authenticated;
                 }
@@ -213,7 +213,7 @@ public class MntByAuthentication extends AuthenticationStrategyBase {
         candidates.addAll(mntLowerCandidates);
         candidates.addAll(mntByCandidates);
 
-        final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+        final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates, getClass());
         if (authenticated.isEmpty()) {
             final List<Message> messages = Lists.newArrayList(originalAuthenticationException.getAuthenticationMessages());
             messages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_LOWER, mntLowerCandidates));

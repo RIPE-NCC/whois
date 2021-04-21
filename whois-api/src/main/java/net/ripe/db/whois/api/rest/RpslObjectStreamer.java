@@ -5,9 +5,12 @@ import net.ripe.db.whois.api.rest.client.StreamingException;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.Service;
+import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.common.ApplicationVersion;
+import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -42,13 +45,19 @@ public class RpslObjectStreamer {
 
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
+    private final Version version;
 
     @Autowired
     public RpslObjectStreamer(
             final QueryHandler queryHandler,
-            final WhoisObjectServerMapper whoisObjectServerMapper) {
+            final WhoisObjectServerMapper whoisObjectServerMapper,
+            final ApplicationVersion applicationVersion) {
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
+        this.version = new Version(
+            applicationVersion.getVersion(),
+            applicationVersion.getTimestamp(),
+            applicationVersion.getCommitId());
     }
 
     public Response handleQueryAndStreamResponse(final Query query,
@@ -107,6 +116,8 @@ public class RpslObjectStreamer {
                     default:
                         throw createWebApplicationException(queryException, responseHandler);
                 }
+            } catch (IllegalArgumentExceptionMessage e) {
+                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, e.getExceptionMessage());
             } catch (RuntimeException e) {
                 throw createWebApplicationException(e, responseHandler);
             }
@@ -220,6 +231,7 @@ public class RpslObjectStreamer {
                 }
 
                 streamingMarshal.write("terms-and-conditions", Link.create(WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.write("version", version);
                 streamingMarshal.end("whois-resources");
                 streamingMarshal.close();
                 return errors;

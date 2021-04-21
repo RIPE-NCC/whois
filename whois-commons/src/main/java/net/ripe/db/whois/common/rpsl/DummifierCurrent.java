@@ -39,9 +39,8 @@ public class DummifierCurrent implements Dummifier {
     private static final Set<AttributeType> PHONE_FAX_ATTRIBUTES = Sets.immutableEnumSet(PHONE, FAX_NO);
     private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
 
+    @Override
     public RpslObject dummify(final int version, final RpslObject rpslObject) {
-
-
         final ObjectType objectType = rpslObject.getType();
         Validate.isTrue(isAllowed(version, rpslObject), "The version is not supported by this dummifier", version);
 
@@ -127,6 +126,7 @@ public class DummifierCurrent implements Dummifier {
         return attribute;
     }
 
+    @Override
     public boolean isAllowed(final int version, final RpslObject object) {
         return version >= 3;
     }

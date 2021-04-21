@@ -2,10 +2,12 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -15,13 +17,18 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.SortedDocValuesField;
+import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.facet.FacetField;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.util.Version;
+import org.apache.lucene.util.BytesRef;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,12 +39,14 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +54,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -65,9 +75,11 @@ public class FullTextIndex extends RebuildableIndex {
     private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
     private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
 
-    private static final FieldType INDEXED_AND_TOKENIZED;
-    private static final FieldType INDEXED_NOT_TOKENIZED;
-    private static final FieldType NOT_INDEXED_NOT_TOKENIZED;
+    private static final FieldType OBJECT_TYPE_FIELD_TYPE;
+    private static final FieldType LOOKUP_KEY_FIELD_TYPE;
+    private static final FieldType FILTERED_ATTRIBUTE_FIELD_TYPE;
+    private static final FieldType ATTRIBUTE_FIELD_TYPE;
+
 
     static {
         final List<String> names = newArrayListWithExpectedSize(AttributeType.values().length);
@@ -79,33 +91,39 @@ public class FullTextIndex extends RebuildableIndex {
 
         FIELD_NAMES = names.toArray(new String[names.size()]);
 
-        // field can be used for searching (including partial matches) but NOT sorting
-        INDEXED_AND_TOKENIZED = new FieldType();
-        INDEXED_AND_TOKENIZED.setIndexed(true);
-        INDEXED_AND_TOKENIZED.setStored(true);
-        INDEXED_AND_TOKENIZED.setTokenized(true);
-        INDEXED_AND_TOKENIZED.freeze();
+        OBJECT_TYPE_FIELD_TYPE = new FieldType();
+        OBJECT_TYPE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        OBJECT_TYPE_FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
+        OBJECT_TYPE_FIELD_TYPE.setStored(false);
+        OBJECT_TYPE_FIELD_TYPE.setTokenized(false);
+        OBJECT_TYPE_FIELD_TYPE.freeze();
 
-        // field can be used for sorting, and searching (but no partial matches)
-        INDEXED_NOT_TOKENIZED = new FieldType();
-        INDEXED_NOT_TOKENIZED.setIndexed(true);
-        INDEXED_NOT_TOKENIZED.setStored(true);
-        INDEXED_NOT_TOKENIZED.setTokenized(false);
-        INDEXED_NOT_TOKENIZED.freeze();
+        LOOKUP_KEY_FIELD_TYPE = new FieldType();
+        LOOKUP_KEY_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        LOOKUP_KEY_FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
+        LOOKUP_KEY_FIELD_TYPE.setStored(true);
+        LOOKUP_KEY_FIELD_TYPE.setTokenized(false);
+        LOOKUP_KEY_FIELD_TYPE.freeze();
 
-        // field can be used for sorting, but not for searching
-        NOT_INDEXED_NOT_TOKENIZED = new FieldType();
-        NOT_INDEXED_NOT_TOKENIZED.setIndexed(false);
-        NOT_INDEXED_NOT_TOKENIZED.setStored(true);
-        NOT_INDEXED_NOT_TOKENIZED.setTokenized(false);
-        NOT_INDEXED_NOT_TOKENIZED.freeze();
+        FILTERED_ATTRIBUTE_FIELD_TYPE = new FieldType();
+        FILTERED_ATTRIBUTE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
+        FILTERED_ATTRIBUTE_FIELD_TYPE.setStored(false);
+        FILTERED_ATTRIBUTE_FIELD_TYPE.setTokenized(false);      // no partial matches
+        FILTERED_ATTRIBUTE_FIELD_TYPE.freeze();
+
+        ATTRIBUTE_FIELD_TYPE = new FieldType();
+        ATTRIBUTE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
+        ATTRIBUTE_FIELD_TYPE.setStored(false);
+        ATTRIBUTE_FIELD_TYPE.setTokenized(true);
+        ATTRIBUTE_FIELD_TYPE.freeze();
     }
 
     private final JdbcTemplate jdbcTemplate;
     private final String source;
     private final FacetsConfig facetsConfig;
 
-    @Autowired FullTextIndex(
+    @Autowired
+    FullTextIndex(
             @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
             @Value("${whois.source}") final String source,
             @Value("${dir.fulltext.index:}") final String indexDir,
@@ -122,24 +140,22 @@ public class FullTextIndex extends RebuildableIndex {
             return;
         }
 
-        super.init(new IndexWriterConfig(Version.LUCENE_4_10_4, INDEX_ANALYZER)
+        super.init(new IndexWriterConfig(INDEX_ANALYZER)
                         .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
                 new IndexTemplate.WriteCallback() {
                     @Override
                     public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                        if (indexWriter.numDocs() == 0) {
+                        if (indexWriter.getDocStats().numDocs == 0) {
                             rebuild(indexWriter, taxonomyWriter);
                         } else {
-                            final Map<String, String> commitData = indexWriter.getCommitData();
-                            final String committedSource = commitData.get("source");
-
+                            final String committedSource = getCommitData(indexWriter, "source");
                             if (!source.equals(committedSource)) {
                                 LOGGER.warn("Index {} has invalid source: {}, rebuild", indexDir, committedSource);
                                 rebuild(indexWriter, taxonomyWriter);
                                 return;
                             }
 
-                            if (!commitData.containsKey("serial")) {
+                            if (getCommitData(indexWriter, "serial") == null) {
                                 LOGGER.warn("Index {} is missing serial, rebuild", indexDir);
                                 rebuild(indexWriter, taxonomyWriter);
                                 return;
@@ -205,7 +221,7 @@ public class FullTextIndex extends RebuildableIndex {
         updateMetadata(indexWriter, source, maxSerial);
     }
 
-    @Scheduled(fixedDelayString = "${fulltext.index.update.interval.msecs:60000}" )
+    @Scheduled(fixedDelayString = "${fulltext.index.update.interval.msecs:60000}")
     public void scheduledUpdate() {
         if (!isEnabled()) {
             return;
@@ -220,10 +236,8 @@ public class FullTextIndex extends RebuildableIndex {
 
     @Override
     protected void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-        final Map<String, String> metadata = indexWriter.getCommitData();
         final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
-        final int last = Integer.parseInt(metadata.get("serial"));
-
+        final int last = Integer.parseInt(getCommitData(indexWriter, "serial"));
         if (last > end) {
             LOGGER.warn("Index serial ({}) higher than database serial ({}), rebuilding", last, end);
             rebuild(indexWriter, taxonomyWriter);
@@ -261,26 +275,55 @@ public class FullTextIndex extends RebuildableIndex {
         final Map<String, String> metadata = Maps.newHashMap();
         metadata.put("serial", Integer.toString(serial));
         metadata.put("source", source);
-        indexWriter.setCommitData(metadata);
+        indexWriter.setLiveCommitData(new HashMap<>(metadata).entrySet(), true);
     }
 
     private void addEntry(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter, final RpslObject rpslObject) throws IOException {
         final Document document = new Document();
-        document.add(new Field(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId()), INDEXED_NOT_TOKENIZED));
-        document.add(new Field(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName(), INDEXED_AND_TOKENIZED));
-        document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_NOT_TOKENIZED));
 
-        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
-              document.add(new Field(attribute.getKey(), sanitise(filterAttribute(attribute.getValue().trim())), NOT_INDEXED_NOT_TOKENIZED));
-            } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                document.add(new Field(attribute.getKey(), sanitise(attribute.getValue().trim()), INDEXED_AND_TOKENIZED));
-            }
+        // primary key
+        document.add(new IntPoint(PRIMARY_KEY_FIELD_NAME, rpslObject.getObjectId()));
+        document.add(new StoredField(PRIMARY_KEY_FIELD_NAME, rpslObject.getObjectId()));
+
+        // object type
+        document.add(new Field(OBJECT_TYPE_FIELD_NAME, new BytesRef(rpslObject.getType().getName()), OBJECT_TYPE_FIELD_TYPE));
+        document.add(new StoredField(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));
+
+        // lookup key
+        document.add(new SortedDocValuesField(LOOKUP_KEY_FIELD_NAME, new BytesRef(rpslObject.getKey().toString())));
+        document.add(new StringField(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), Field.Store.YES));
+
+        for (final RpslAttribute attribute : filterRpslObject(rpslObject).getAttributes()) {
+            document.add(new Field(attribute.getKey(), attribute.getValue().trim(), FILTERED_ATTRIBUTES.contains(attribute.getType()) ? FILTERED_ATTRIBUTE_FIELD_TYPE : ATTRIBUTE_FIELD_TYPE));
         }
 
         document.add(new FacetField(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));
 
         indexWriter.addDocument(facetsConfig.build(taxonomyWriter, document));
+    }
+
+    public RpslObject filterRpslObject(final RpslObject rpslObject) {
+
+        List<RpslAttribute> attributes = Lists.newArrayList();
+
+        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
+            if (SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
+                continue;
+            }
+
+            attributes.add(new RpslAttribute(attribute.getKey(), filterRpslAttribute(attribute.getType(), attribute.getValue())));
+        }
+
+        return new RpslObject(rpslObject.getObjectId(), attributes);
+    }
+    
+    public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
+
+        if (FILTERED_ATTRIBUTES.contains(attributeType)) {
+            return sanitise(filterAttribute(attributeValue.trim()));
+        }
+
+        return sanitise(attributeValue.trim());
     }
 
     private static String sanitise(final String value) {
@@ -289,7 +332,10 @@ public class FullTextIndex extends RebuildableIndex {
     }
 
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
-        indexWriter.deleteDocuments(new Term(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId())));
+        indexWriter.deleteDocuments(
+                IntPoint.newExactQuery(
+                        PRIMARY_KEY_FIELD_NAME,
+                        rpslObject.getObjectId()));
     }
 
     private String filterAttribute(final String value) {
@@ -338,4 +384,19 @@ public class FullTextIndex extends RebuildableIndex {
     private boolean isEnabled() {
         return !StringUtils.isBlank(indexDir);
     }
+
+    @Nullable
+    private String getCommitData(final IndexWriter indexWriter, final String key) {
+        final Iterable<Map.Entry<String, String>> commitData = indexWriter.getLiveCommitData();
+        if (commitData != null) {
+            for (Map.Entry<String, String> entry : commitData) {
+                if (entry.getKey().equals(key)) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return null;
+    }
 }
+
+

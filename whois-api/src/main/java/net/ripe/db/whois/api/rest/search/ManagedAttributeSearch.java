@@ -2,8 +2,7 @@ package net.ripe.db.whois.api.rest.search;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.jdbc.JdbcManagedAttributeDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -17,12 +16,9 @@ import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @Component
 public class ManagedAttributeSearch {
@@ -33,28 +29,25 @@ public class ManagedAttributeSearch {
     private static final ImmutableSet<AttributeType> ASSIGNMENT_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
     private static final ImmutableSet<AttributeType> LEGACY_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.INETNUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
 
-    private static final ImmutableSet<AttributeType> ORG_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.ORGANISATION, AttributeType.ORG, AttributeType.ORG_NAME, AttributeType.ORG_TYPE, AttributeType.SOURCE);
+    private static final ImmutableSet<AttributeType> ORG_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.ORGANISATION, AttributeType.ORG, AttributeType.ORG_NAME, AttributeType.ORG_TYPE, AttributeType.COUNTRY, AttributeType.SOURCE);
     private static final ImmutableSet<AttributeType> AUT_NUM_ATTRIBUTES = Sets.immutableEnumSet(AttributeType.AUT_NUM, AttributeType.ORG, AttributeType.SPONSORING_ORG, AttributeType.STATUS, AttributeType.SOURCE);
 
     private static final ImmutableSet<InetnumStatus> INETNUM_ASSIGNMENT_STATUSES = Sets.immutableEnumSet(InetnumStatus.ASSIGNED_PI, InetnumStatus.ASSIGNED_ANYCAST);
-    private static final ImmutableSet<InetnumStatus> INETNUM_ALLOCATION_STATUSES = Sets.immutableEnumSet(InetnumStatus.ALLOCATED_PA, InetnumStatus.ALLOCATED_PI, InetnumStatus.ALLOCATED_UNSPECIFIED);
+    private static final ImmutableSet<InetnumStatus> INETNUM_ALLOCATION_STATUSES = Sets.immutableEnumSet(InetnumStatus.ALLOCATED_PA, InetnumStatus.ALLOCATED_UNSPECIFIED);
     private static final ImmutableSet<InetnumStatus> INETNUM_LEGACY_STATUSES = Sets.immutableEnumSet(InetnumStatus.LEGACY);
     private static final ImmutableSet<Inet6numStatus> INET6NUM_ALLOCATION_STATUSES = Sets.immutableEnumSet(Inet6numStatus.ALLOCATED_BY_RIR);
     private static final ImmutableSet<Inet6numStatus> INET6NUM_ASSIGNMENT_STATUSES = Sets.immutableEnumSet(Inet6numStatus.ASSIGNED_PI, Inet6numStatus.ASSIGNED_ANYCAST);
     private static final ImmutableSet<AutnumStatus> AUT_NUM_STATUSES = Sets.immutableEnumSet(AutnumStatus.ASSIGNED, AutnumStatus.LEGACY);
 
     private final Maintainers maintainers;
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
-    private final RpslObjectDao rpslObjectDao;
+    private final JdbcManagedAttributeDao managedAttributeDao;
 
     @Autowired
     public ManagedAttributeSearch(
             final Maintainers maintainers,
-            final RpslObjectUpdateDao rpslObjectUpdateDao,
-            final RpslObjectDao rpslObjectDao) {
+            final JdbcManagedAttributeDao managedAttributeDao) {
         this.maintainers = maintainers;
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
-        this.rpslObjectDao = rpslObjectDao;
+        this.managedAttributeDao = managedAttributeDao;
     }
 
     /**
@@ -185,7 +178,7 @@ public class ManagedAttributeSearch {
 
     @Nullable
     private AutnumStatus getAutNumStatus(final RpslObject rpslObject) {
-        if (rpslObject.getType() != ObjectType.INET6NUM) {
+        if (rpslObject.getType() != ObjectType.AUT_NUM) {
             return null;
         }
 
@@ -248,24 +241,10 @@ public class ManagedAttributeSearch {
         }
 
         if (orgType == OrgType.OTHER) {
-            // is this org referenced by a resource which is RIPE maintained?
-            final Optional<RpslObject> match = findReferences(rpslObject)
-                                                    .filter(this::hasRipeNccMntner)
-                                                    .findFirst();
-            return match.isPresent();
+            return managedAttributeDao.hasManagedResource(rpslObject.getKey());
         }
 
         return false;
-    }
-
-    private Stream<RpslObject> findReferences(final RpslObject rpslObject) {
-        try {
-            return rpslObjectUpdateDao.getReferences(rpslObject)
-                        .stream()
-                        .map(rpslObjectInfo -> rpslObjectDao.getById(rpslObjectInfo.getObjectId()));
-        } catch (DataAccessException e) {
-            return Stream.empty();
-        }
     }
 
     private boolean hasRipeNccMntner(final RpslObject rpslObject) {

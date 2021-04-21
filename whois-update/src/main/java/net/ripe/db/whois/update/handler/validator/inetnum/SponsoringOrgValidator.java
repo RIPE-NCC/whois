@@ -28,7 +28,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_TYPE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
@@ -96,7 +95,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         if (updSponsoringOrg != null) {
             final RpslObject sponsoringOrganisation = objectDao.getByKeyOrNull(ORGANISATION, updSponsoringOrg);
 
-            if (sponsoringOrganisation != null && !sponsoringOrganisation.getValueForAttribute(ORG_TYPE).equals("LIR")) {
+            if (sponsoringOrganisation != null && !isLir(sponsoringOrganisation)) {
                 updateContext.addMessage(update, updatedObject.findAttribute(AttributeType.SPONSORING_ORG), sponsoringOrgNotLIR());
             }
         }
@@ -148,7 +147,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
                 hasEndUserMntner(updatedObject)) {
             final RpslObject organisation = objectDao.getByKeyOrNull(ObjectType.ORGANISATION, updatedObject.getValueForAttribute(ORG));
             if (organisation != null &&
-                    (OrgType.OTHER == OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)))) {
+                    (isOther(organisation))) {
                 return true;
             }
         }
@@ -178,6 +177,14 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     private boolean hasEndUserMntner(final RpslObject object) {
         final Set<CIString> mntBy = object.getValuesForAttribute(AttributeType.MNT_BY);
         return maintainers.isEnduserMaintainer(mntBy);
+    }
+
+    private boolean isLir(final RpslObject organisation) {
+        return OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR;
+    }
+
+    private boolean isOther(final RpslObject organisation) {
+        return OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.OTHER;
     }
 
     @Override

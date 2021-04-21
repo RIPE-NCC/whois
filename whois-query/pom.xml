@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.96-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
+            <artifactId>netty-all</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -42,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
+            <artifactId>hazelcast-all</artifactId>
         </dependency>
 
         <!-- testing -->
@@ -57,11 +57,12 @@
             <type>test-jar</type>
         </dependency>
 
+
     </dependencies>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>io.starter</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
                 <configuration>
                     <aspectLibraries>
@@ -97,7 +98,7 @@
                     <dependency>
                         <groupId>commons-net</groupId>
                         <artifactId>commons-net</artifactId>
-                        <version>3.1</version>
+                        <version>3.8.0</version>
                     </dependency>
                 </dependencies>
             </plugin>

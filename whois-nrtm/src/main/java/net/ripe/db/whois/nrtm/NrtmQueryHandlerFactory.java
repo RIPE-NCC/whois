@@ -1,5 +1,6 @@
 package net.ripe.db.whois.nrtm;
 
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ public class NrtmQueryHandlerFactory {
     private final Dummifier dummifier;
     private final TaskScheduler clientSynchronisationScheduler;
     private final NrtmLog nrtmLog;
-    private final String version;
+    final ApplicationVersion applicationVersion;
     private final String source;
     private final String nonAuthSource;
     private final long updateInterval;
@@ -27,7 +28,7 @@ public class NrtmQueryHandlerFactory {
             final NrtmLog nrtmLog,
             @Qualifier("dummifierNrtm") final Dummifier dummifier,
             @Qualifier("clientSynchronisationScheduler") final TaskScheduler clientSynchronisationScheduler,
-            @Value("${application.version}") final String version,
+            final ApplicationVersion applicationVersion,
             @Value("${whois.source}") final String source,
             @Value("${whois.nonauth.source}") final String nonAuthSource,
             @Value("${nrtm.update.interval:60}") final long updateInterval,
@@ -36,7 +37,7 @@ public class NrtmQueryHandlerFactory {
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;
         this.nrtmLog = nrtmLog;
-        this.version = version;
+        this.applicationVersion = applicationVersion;
         this.source = source;
         this.nonAuthSource = nonAuthSource;
         this.updateInterval = updateInterval;
@@ -49,7 +50,7 @@ public class NrtmQueryHandlerFactory {
             dummifier,
             clientSynchronisationScheduler,
             nrtmLog,
-            version,
+            applicationVersion,
             source,
             nonAuthSource,
             updateInterval,

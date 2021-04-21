@@ -1,12 +1,12 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -27,27 +27,29 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String MNTNER_TEST_MNTNER = "" +
-            "mntner:        mntner\n" +
+            "mntner:        mntner-mnt\n" +
             "descr:         description\n" +
             "admin-c:       TP1-TEST\n" +
             "upd-to:        noreply@ripe.net\n" +
             "notify:        noreply@ripe.net\n" +
             "auth:          MD5-PW $1$TTjmcwVq$zvT9UcvASZDQJeK8u9sNU.    # emptypassword\n" +
-            "mnt-by:        mntner\n" +
+            "mnt-by:        mntner-mnt\n" +
             "source:        TEST";
 
     private static final String PERSON_ANY1_TEST = "" +
@@ -92,7 +94,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     public void get_help_parameter_only_compressed() {
         final Response response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes")
                 .request()
-                .header("Accept-Encoding","gzip, deflate")
+                .header(HttpHeaders.ACCEPT_ENCODING,"gzip, deflate")
                 .get(Response.class);
 
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_ENCODING), is("gzip"));
@@ -313,7 +315,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
-                "mnt-by:        mntner\n" +
+                "mnt-by:        mntner-mnt\n" +
                 "source:        TEST";
 
         final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
@@ -337,14 +339,14 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "address:       Amsterdam\n" +
                 "phone:         +31\n" +
                 "nic-hdl:       FP1-TEST\n" +
-                "mnt-by:        mntner\n" +
+                "mnt-by:        mntner-mnt\n" +
                 "source:        TEST\n";
         final String secondPerson =
                 "person:        Second Person\n" +
                 "address:       Amsterdam\n" +
                 "phone:         +31\n" +
                 "nic-hdl:       SP1-TEST\n" +
-                "mnt-by:        mntner\n" +
+                "mnt-by:        mntner-mnt\n" +
                 "source:        TEST\n";
 
         final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
@@ -416,7 +418,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "address:       Amsterdam\n" +
                                 "phone:         +31\n" +
                                 "nic-hdl:       TP2-RIPE\n" +
-                                "mnt-by:        mntner\n" +
+                                "mnt-by:        mntner-mnt\n" +
                                 "changed:       user@host.org 20171025\n" +
                                 "source:        TEST\n" +
                                 "password: emptypassword\n"),
@@ -439,7 +441,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "address:       Amsterdam\n" +
                                 "phone:         +31\n" +
                                 "nic-hdl:       TP2-RIPE\n" +
-                                "mnt-by:        mntner\n" +
+                                "mnt-by:        mntner-mnt\n" +
                                 "changed:       user@host.org 20171025\n" +
                                 "changed:       user1@host.org 20171026\n" +
                                 "changed:       user2@host.org 20171027\n" +
@@ -451,6 +453,48 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("Create SUCCEEDED: [person] TP2-RIPE   Test Person"));
         assertThat(response, containsString("***Warning: Deprecated attribute \"changed\". This attribute has been removed."));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-RIPE").containsAttribute(AttributeType.CHANGED), is(false));
+    }
+
+    @Test
+    public void modify_generated_attributes_changes_last_modified_attribute() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.AUT_NUM));
+
+        final String AUTNUM_TEST = "" +
+                "aut-num:        AS104\n" +
+                "status:         ASSIGNED\n" +
+                "as-name:        End-User-2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         mntner-mnt\n" +
+                "created:         2001-02-04T17:00:00Z\n" +
+                "last-modified:   2001-02-04T17:00:00Z\n" +
+                "source:         TEST\n";
+
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+        databaseHelper.addObject(AUTNUM_TEST);
+
+        final CIString orginialModifiedDate = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104").getValueForAttribute(AttributeType.LAST_MODIFIED);
+
+        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode("aut-num:        AS104\n" +
+                "status:         OTHER\n" +
+                "as-name:        End-User-2\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         mntner-mnt\n" +
+                "source:         TEST-NONAUTH\n" +
+                "override:       agoston,zoh\n"))
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("Modify SUCCEEDED: [aut-num] AS104"));
+        assertThat(databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104").getValueForAttribute(AttributeType.LAST_MODIFIED), is(not(orginialModifiedDate)));
+        assertThat(databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104").getValueForAttribute(AttributeType.STATUS), is("OTHER"));
+        assertThat(databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104").getValueForAttribute(AttributeType.SOURCE), is("TEST-NONAUTH"));
     }
 
     @Test
@@ -635,7 +679,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "nic-hdl:    TP1-TEST\n" +
                                 "mnt-by:     mntner\n" +
                                 "source:     INVALID\n" +
-                                "password:   emptypassword", "ISO-8859-1"),
+                                "password:   emptypassword", StandardCharsets.ISO_8859_1),
                         MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
@@ -655,9 +699,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "phone:      +49 282 411141\n" +
                                 "fax-no:     +49 282 411140\n" +
                                 "nic-hdl:    TP1-TEST\n" +
-                                "mnt-by:     mntner\n" +
+                                "mnt-by:     mntner-mnt\n" +
                                 "source:     TEST\n" +
-                                "password:   emptypassword", "ISO-8859-1"),
+                                "password:   emptypassword", StandardCharsets.ISO_8859_1),
                         MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("Modify SUCCEEDED: [person] TP1-TEST"));
@@ -677,7 +721,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "address:   Тверская улица,москва\n" +
                     "phone:     +31-6-123456\n" +
                     "nic-hdl:   TP2-TEST\n" +
-                    "mnt-by:    mntner\n" +
+                    "mnt-by:    mntner-mnt\n" +
                     "source:    INVALID\n" +
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
@@ -698,7 +742,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "address:   Тверская улица,москва\n" +
                     "phone:     +31-6-123456\n" +
                     "nic-hdl:   TP2-TEST\n" +
-                    "mnt-by:    mntner\n" +
+                    "mnt-by:    mntner-mnt\n" +
                     "source:    TEST\n" +
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
@@ -719,13 +763,59 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "address:   Test\u000B\u000c\u007F\u008F Address\n" +
                     "phone:     +31-6-123456\n" +
                     "nic-hdl:   TP2-TEST\n" +
-                    "mnt-by:    mntner\n" +
+                    "mnt-by:    mntner-mnt\n" +
                     "source:    TEST\n" +
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
                 containsString("address:        Test???? Address"));
+    }
+
+    @Test
+    public void post_url_encoded_data_with_latin1_email_address_converted_to_punycode() {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
+                    "person:    Test Person\n" +
+                    "address:   Zürich\n" +
+                    "e-mail:    no-reply@zürich.example\n" +
+                    "phone:     +31-6-123456\n" +
+                    "nic-hdl:   TP2-TEST\n" +
+                    "mnt-by:    mntner-mnt\n" +
+                    "source:    TEST\n" +
+                    "password:  emptypassword"),
+                  MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
+
+        assertThat(response, containsString("***Warning: Value changed due to conversion of IDN email address(es) into\n            Punycode\n"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("e-mail:         no-reply@xn--zrich-kva.example"));
+    }
+
+    @Test
+    public void post_url_encoded_data_with_cyrillic_email_address_converted_to_punycode() {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
+                    "person:    Test Person\n" +
+                    "address:   Moscow\n" +
+                    "e-mail:    no-reply@москва.ru\n" +
+                    "phone:     +31-6-123456\n" +
+                    "nic-hdl:   TP2-TEST\n" +
+                    "mnt-by:    mntner-mnt\n" +
+                    "source:    TEST\n" +
+                    "password:  emptypassword"),
+                  MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
+
+        assertThat(response, containsString("***Warning: Value changed due to conversion of IDN email address(es) into\n            Punycode\n"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("e-mail:         no-reply@xn--80adxhks.ru"));
     }
 
     @Test
@@ -739,7 +829,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "address:        Тверская улица,москва\n" +
                         "phone:          +31 6 12345678\n" +
                         "nic-hdl:        TP2-TEST\n" +
-                        "mnt-by:         mntner\n" +
+                        "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
@@ -762,7 +852,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "address:        Test\u000b\u000c\u007F\u008f Address\n" +
                         "phone:          +31 6 12345678\n" +
                         "nic-hdl:        TP2-TEST\n" +
-                        "mnt-by:         mntner\n" +
+                        "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
@@ -786,7 +876,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "address:        ÅçÅç\n" +
                         "phone:          +31 6 12345678\n" +
                         "nic-hdl:        TP2-TEST\n" +
-                        "mnt-by:         mntner\n" +
+                        "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
@@ -809,15 +899,38 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "address:        ÅçÅç\n" +
                         "phone:          +31 6 12345678\n" +
                         "nic-hdl:        TP2-TEST\n" +
-                        "mnt-by:         mntner\n" +
+                        "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
         RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", Charsets.ISO_8859_1.displayName())), String.class);
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", StandardCharsets.ISO_8859_1.displayName())), String.class);
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ÅçÅç"));
+    }
+
+    @Test
+    public void post_multipart_data_with_latin1_email_address_converted_to_punycode() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                        "address:        Zürich\n" +
+                        "e-mail:         no-reply@zürich.example\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner-mnt\n" +
+                        "source:         TEST\n" +
+                        "password: emptypassword")
+                .field("NEW", "yes");
+        RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", StandardCharsets.ISO_8859_1.displayName())), String.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("e-mail:         no-reply@xn--zrich-kva.example"));
     }
 
     @Test
@@ -831,7 +944,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "address:        Home\n" +
                         "phone:          +31 6 12345678\n" +
                         "nic-hdl:        TP2-TEST\n" +
-                        "mnt-by:         mntner\n" +
+                        "mnt-by:         mntner-mnt\n" +
                         "source:         TEST #Filtered\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
@@ -855,7 +968,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "address:        Home\n" +
                         "phone:          +31 6 12345678\n" +
                         "nic-hdl:        TP1-TEST\n" +
-                        "mnt-by:         mntner\n" +
+                        "mnt-by:         mntner-mnt\n" +
                         "remarks:         test remark\n" +
                         "remarks:         another test remark\n" +
                         "source:         TEST #Filtered\n" +
@@ -884,7 +997,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "address:        Home\n" +
                         "phone:          +31 6 12345678\n" +
                         "nic-hdl:        TP1-TEST\n" +
-                        "mnt-by:         mntner\n" +
+                        "mnt-by:         mntner-mnt\n" +
                         "remarks:         test remark\n" +
                         "remarks:         another test remark\n" +
                         "source:         test\n" +
@@ -908,7 +1021,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "address:        ÅçÅç\n" +
                         "phone:          +31 6 12345678\n" +
                         "nic-hdl:        TP2-TEST\n" +
-                        "mnt-by:         mntner\n" +
+                        "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
                         "created:       2016-03-31T09:10:52Z\n" +
                         "created:       2016-03-31T09:11:52Z\n" +
@@ -919,7 +1032,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", Charsets.ISO_8859_1.displayName())), String.class);
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", StandardCharsets.ISO_8859_1.displayName())), String.class);
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ÅçÅç"));
         assertThat(response, containsString("Create SUCCEEDED"));

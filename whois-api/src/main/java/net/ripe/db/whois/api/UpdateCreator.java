@@ -2,6 +2,7 @@ package net.ripe.db.whois.api;
 
 import net.ripe.db.whois.common.Latin1Conversion;
 import net.ripe.db.whois.common.Latin1ConversionResult;
+import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
@@ -18,14 +19,21 @@ public class UpdateCreator {
                                       final String rpslObject,
                                       final UpdateContext updateContext) {
 
-        final Latin1ConversionResult conversionResult = Latin1Conversion.convert(rpslObject);
-        final Update update = new Update(paragraph, operation, deleteReasons, conversionResult.getRpslObject());
+        final String punycodeResult = PunycodeConversion.convert(rpslObject);
 
-        if (conversionResult.isGlobalSubstitution()) {
+        final Latin1ConversionResult latin1ConversionResult = Latin1Conversion.convert(punycodeResult);
+
+        final Update update = new Update(paragraph, operation, deleteReasons, latin1ConversionResult.getRpslObject());
+
+        if (!punycodeResult.equals(rpslObject)) {
+            updateContext.addMessage(update, UpdateMessages.valueChangedDueToPunycodeConversion());
+        }
+
+        if (latin1ConversionResult.isGlobalSubstitution()) {
             updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion());
         }
 
-        conversionResult.getSubstitutedAttributes().forEach(attr -> updateContext.addMessage(update, attr, UpdateMessages.valueChangedDueToLatin1Conversion(attr.getKey())));
+        latin1ConversionResult.getSubstitutedAttributes().forEach(attr -> updateContext.addMessage(update, attr, UpdateMessages.valueChangedDueToLatin1Conversion(attr.getKey())));
 
         return update;
     }

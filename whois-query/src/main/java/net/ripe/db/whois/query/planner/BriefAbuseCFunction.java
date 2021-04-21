@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.planner;
 
-import com.google.common.base.Function;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -8,11 +7,14 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.query.Query;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
+@ThreadSafe
 class BriefAbuseCFunction implements Function<ResponseObject, ResponseObject> {
     private static final EnumSet<AttributeType> BRIEF_ATTRIBUTES = EnumSet.of(AttributeType.INETNUM, AttributeType.INET6NUM, AttributeType.AUT_NUM, AttributeType.ABUSE_MAILBOX);
     private final AbuseCFinder abuseCFinder;

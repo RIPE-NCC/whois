@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.planner;
 
-import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.io.ByteArrayOutput;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -8,6 +7,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 // TODO: [AH] this should be moved to RpslObjectBuilder
 public class RpslAttributes implements ResponseObject {
@@ -19,7 +19,7 @@ public class RpslAttributes implements ResponseObject {
 
     @Override
     public void writeTo(final OutputStream out) throws IOException {
-        final OutputStreamWriter writer = new OutputStreamWriter(out, Charsets.ISO_8859_1);
+        final OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.ISO_8859_1);
 
         for (final RpslAttribute attribute : attributes) {
             attribute.writeTo(writer);
@@ -41,7 +41,7 @@ public class RpslAttributes implements ResponseObject {
 
     @Override
     public String toString() {
-        return new String(toByteArray(), Charsets.ISO_8859_1);
+        return new String(toByteArray(), StandardCharsets.ISO_8859_1);
     }
 
     public Iterable<RpslAttribute> getAttributes() {

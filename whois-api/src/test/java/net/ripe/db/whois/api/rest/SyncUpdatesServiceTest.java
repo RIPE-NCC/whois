@@ -20,10 +20,9 @@ import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -37,9 +36,9 @@ import java.util.Collections;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -65,7 +64,6 @@ public class SyncUpdatesServiceTest {
     public void setUp() {
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
         when(request.getHeaderNames()).thenReturn(Iterators.asEnumeration(Collections.emptyIterator()));
-        when(request.getCookies()).thenReturn(new Cookie[]{});
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
         when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
@@ -264,7 +262,6 @@ public class SyncUpdatesServiceTest {
         final String contentType = "UTF-8";
         final String ssoToken = null;
 
-        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
         final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
@@ -310,22 +307,14 @@ public class SyncUpdatesServiceTest {
         subject.doMultipartPost(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         verify(messageHandler).handle(
-                argThat(new ArgumentMatcher<UpdateRequest>() {
-                    @Override
-                    public boolean matches(final Object argument) {
-                        final UpdateRequest updateRequest = (UpdateRequest) argument;
+                argThat(updateRequest -> {
                         assertThat(updateRequest.getKeyword(), is(Keyword.NONE));
                         return true;
-                    }
-                }),
-                argThat(new ArgumentMatcher<UpdateContext>() {
-                    @Override
-                    public boolean matches(final Object argument) {
-                        final UpdateContext updateContext = (UpdateContext)argument;
+                    }),
+                argThat(updateContext -> {
                         assertThat(updateContext.getUserSession().getUsername(), is("test@ripe.net"));
                         return true;
-                    }
-                }));
+                    }));
     }
 
     @Test
@@ -350,21 +339,13 @@ public class SyncUpdatesServiceTest {
         subject.doMultipartPost(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         verify(messageHandler).handle(
-                argThat(new ArgumentMatcher<UpdateRequest>() {
-                    @Override
-                    public boolean matches(final Object argument) {
-                        final UpdateRequest updateRequest = (UpdateRequest) argument;
-                        assertThat(updateRequest.getKeyword(), is(Keyword.NONE));
-                        return true;
-                    }
+                argThat(updateRequest -> {
+                    assertThat(updateRequest.getKeyword(), is(Keyword.NONE));
+                    return true;
                 }),
-                argThat(new ArgumentMatcher<UpdateContext>() {
-                    @Override
-                    public boolean matches(final Object argument) {
-                        final UpdateContext updateContext = (UpdateContext)argument;
-                        assertThat(updateContext.getUserSession(), is(nullValue()));
-                        return true;
-                    }
+                argThat(updateContext -> {
+                    assertThat(updateContext.getUserSession(), is(nullValue()));
+                    return true;
                 }));
     }
 

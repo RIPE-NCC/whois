@@ -7,7 +7,7 @@ import org.junit.Test;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DomainTest {
 
@@ -82,6 +82,12 @@ public class DomainTest {
         assertThat(domain.getValue(), is(ciString("0.0.0.0.8.f.7.0.1.0.0.2.ip6.arpa")));
         assertThat((Ipv6Resource) domain.getReverseIp(), is(Ipv6Resource.parse("2001:7f8::/48")));
         assertThat(domain.getType(), is(Domain.Type.IP6));
+    }
+
+    @Test
+    public void valid_ipv6_leading_zeros() {
+        final Domain domain = Domain.parse("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.a.0.0.a.2.ip6.arpa");
+        assertThat(domain.getReverseIp().toString(), is("2a00:a800::/124"));
     }
 
     @Test

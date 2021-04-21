@@ -28,6 +28,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -57,10 +58,10 @@ public class MessageDequeue implements ApplicationService {
     private ExecutorService handlerExecutor;
     private ScheduledExecutorService pollerExecutor;
 
-    @Value("${mail.update.threads}")
+    @Value("${mail.update.threads:2}")
     private int nrThreads;
 
-    @Value("${mail.dequeue.interval}")
+    @Value("${mail.dequeue.interval:1000}")
     private int intervalMs;
 
     @Autowired
@@ -220,6 +221,7 @@ public class MessageDequeue implements ApplicationService {
         mailMessageDao.setStatus(messageId, DequeueStatus.LOGGED);
 
         final UpdateContext updateContext = new UpdateContext(loggerContext);
+        updateContext.setClientCertificate(Optional.empty());
         final MailMessage mailMessage = messageParser.parse(message, updateContext);
         mailMessageDao.setStatus(messageId, DequeueStatus.PARSED);
 

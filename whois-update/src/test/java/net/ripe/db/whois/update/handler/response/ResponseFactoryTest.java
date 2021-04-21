@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.response;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -19,12 +20,13 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateResult;
 import net.ripe.db.whois.update.domain.UpdateStatus;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
@@ -36,7 +38,7 @@ import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatches
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -52,6 +54,7 @@ public class ResponseFactoryTest {
 
     @Mock DateTimeProvider dateTimeProvider;
     @Mock UpdateContext updateContext;
+    @Mock ApplicationVersion applicationVersion;
     @InjectMocks ResponseFactory subject;
 
     private Origin origin;
@@ -60,6 +63,7 @@ public class ResponseFactoryTest {
 
     @Before
     public void setUp() throws Exception {
+        System.setProperty("instance.name", "10.0.0.0");
         origin = new Origin() {
             @Override
             public boolean isDefaultOverride() {
@@ -108,9 +112,14 @@ public class ResponseFactoryTest {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC));
         when(updateContext.printGlobalMessages()).thenReturn("");
         when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+        when(applicationVersion.getVersion()).thenReturn("1.2.3");
 
-        ReflectionTestUtils.setField(subject, "version", "1.2.3");
         ReflectionTestUtils.setField(subject, "source", "TEST");
+    }
+
+    @After
+    public void after() {
+        System.clearProperty("instance.name");
     }
 
     @Test

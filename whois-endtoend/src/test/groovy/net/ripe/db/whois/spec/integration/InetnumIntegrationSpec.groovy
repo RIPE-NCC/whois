@@ -148,13 +148,13 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                 """,
             "INET3"    : """\
-                    inetnum: 195.0.0.0 - 195.255.255.255
+                    inetnum: 10.0.0.0 - 10.255.255.255
                     netname: TEST-NET
                     descr: description
                     country: NL
                     admin-c: TEST-PN
                     tech-c: TEST-PN
-                    status: ALLOCATED PI
+                    status: ALLOCATED PA
                     mnt-by: TEST-MNT
                     mnt-lower: TEST-MNT
                     source: TEST
@@ -300,7 +300,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     country: DK
                     admin-c: TEST-PN
                     tech-c: TEST-PN
-                    status: ALLOCATED PI
+                    status: ALLOCATED PA
                     mnt-by: RIPE-NCC-HM-MNT
                     org: ORG-TOL5-TEST
                     source: TEST
@@ -332,7 +332,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create FAILED: \[inetnum\] 192.0.0.1\/24/
     }
 
-    def "modify status ALLOCATED PI has reference to RIR organisation"() {
+    def "modify status ALLOCATED PA has reference to RIR organisation"() {
     given:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
                             inetnum: 192.0.0.0 - 192.0.0.255
@@ -342,7 +342,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             admin-c: TEST-PN
                             tech-c: TEST-PN
                             org: ORG-TOL1-TEST
-                            status: ALLOCATED PI
+                            status: ALLOCATED PA
                             mnt-by:RIPE-NCC-HM-MNT
                             source: TEST
                             password: hm
@@ -360,7 +360,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     mnt-by: RIPE-NCC-HM-MNT
                     org: ORG-TOL5-TEST
-                    status: ALLOCATED PI
+                    status: ALLOCATED PA
                     source: TEST
                     password: hm
                     password: update
@@ -370,7 +370,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
-  def "create status ALLOCATED PI no alloc maintainer"() {
+  def "create status ALLOCATED PA no alloc maintainer"() {
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255
@@ -379,7 +379,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             country: DK
             admin-c: TEST-PN
             tech-c: TEST-PN
-            status: ALLOCATED PI
+            status: ALLOCATED PA
             mnt-by: TEST-MNT
             org: ORG-TOL1-TEST
             source: TEST
@@ -391,7 +391,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
-  def "modify status ALLOCATED PI override"() {
+  def "modify status ALLOCATED PA override"() {
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255
@@ -400,7 +400,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             country: DK
             admin-c: TEST-PN
             tech-c: TEST-PN
-            status: ALLOCATED PI
+            status: ALLOCATED PA
             mnt-by: TEST-MNT
             org: ORG-TOL1-TEST
             source: TEST
@@ -410,7 +410,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
-  def "modify status ALLOCATED PI has reference to non-RIR organisation"() {
+  def "modify status ALLOCATED PA has reference to non-RIR organisation"() {
     given:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255
@@ -419,7 +419,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             country: DK
             admin-c: TEST-PN
             tech-c: TEST-PN
-            status: ALLOCATED PI
+            status: ALLOCATED PA
             mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL1-TEST
             source: TEST
@@ -436,7 +436,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             country: DK
             admin-c: TEST-PN
             tech-c: TEST-PN
-            status: ALLOCATED PI
+            status: ALLOCATED PA
             mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL2-TEST
             source: TEST
@@ -447,7 +447,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /Allowed values are \[IANA, RIR, LIR\]/
   }
 
-  def "modify status ALLOCATED PI has reference to non-RIR organisation with override"() {
+  def "modify status ALLOCATED PA has reference to non-RIR organisation with override"() {
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255
@@ -456,7 +456,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             country: DK
             admin-c: TEST-PN
             tech-c: TEST-PN
-            status: ALLOCATED PI
+            status: ALLOCATED PA
             mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL1-TEST
             source: TEST
@@ -470,7 +470,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             country: DK
             admin-c: TEST-PN
             tech-c: TEST-PN
-            status: ALLOCATED PI
+            status: ALLOCATED PA
             mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL2-TEST
             source: TEST
@@ -480,7 +480,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
-  def "modify status ALLOCATED PI has no reference to organisation"() {
+  def "modify status ALLOCATED PA has no reference to organisation"() {
     given:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
                             inetnum: 192.0.0.0 - 192.0.0.255
@@ -489,7 +489,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             country: DK
                             admin-c: TEST-PN
                             tech-c: TEST-PN
-                            status: ALLOCATED PI
+                            status: ALLOCATED PA
                             org: ORG-TOL1-TEST
                             mnt-by: RIPE-NCC-HM-MNT
                             source: TEST
@@ -506,7 +506,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             country: DK
                             admin-c: TEST-PN
                             tech-c: TEST-PN
-                            status: ALLOCATED PI
+                            status: ALLOCATED PA
                             mnt-by: RIPE-NCC-HM-MNT
                             source: TEST
                             password: hm
@@ -514,64 +514,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
     then:
       response =~ /FAIL/
       response =~ /Missing required "org:" attribute/
-  }
-
-  def "status EARLY-REGISTRATION is allowed for an RS maintainer"() {
-    when:
-      def insertResponse = syncUpdate(new SyncUpdate(data: """\
-                    inetnum: 10.0.0.0 - 10.0.0.255
-                    netname: RIPE-NCC
-                    descr: description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: EARLY-REGISTRATION
-                    mnt-by: RIPE-NCC-HM-MNT
-                    org: ORG-TOL5-TEST
-                    source: TEST
-                    password: update
-                    password: hm
-                    """.stripIndent()))
-    then:
-      insertResponse =~ /Create SUCCEEDED: \[inetnum\] 10.0.0.0 - 10.0.0.255/
-  }
-
-  def "status EARLY-REGISTRATION is not allowed for regular maintainer"() {
-    when:
-      def insertResponse = syncUpdate(new SyncUpdate(data: """\
-                    inetnum: 10.0.0.0 - 10.0.0.255
-                    netname: RIPE-NCC
-                    descr: description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: EARLY-REGISTRATION
-                    mnt-by: TEST2-MNT
-                    org: ORG-TOL6-TEST
-                    source: TEST
-                    password:emptypassword
-                    """.stripIndent()))
-    then:
-      insertResponse =~ /Status EARLY-REGISTRATION can only be created by the database\n\s+administrator/
-  }
-
-  def "status EARLY-REGISTRATION with override"() {
-    when:
-      def insertResponse = syncUpdate(new SyncUpdate(data: """\
-                    inetnum: 10.0.0.0 - 10.0.0.255
-                    netname: RIPE-NCC
-                    descr: description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: EARLY-REGISTRATION
-                    mnt-by: RIPE-NCC-HM-MNT
-                    org: ORG-TOL5-TEST
-                    source: TEST
-                    override:denis,override1
-                    """.stripIndent()))
-    then:
-      insertResponse =~ /Create SUCCEEDED: \[inetnum\] 10.0.0.0 - 10.0.0.255/
   }
 
   def "modify status ASSIGNED PA does not reference organisation of type LIR or OTHER"() {
@@ -752,42 +694,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-  }
-
-  def "modify status ALLOCATED PA has no reference to organisation"() {
-    given:
-      def insertResponse = syncUpdate(new SyncUpdate(data: """\
-                    inetnum: 192.0.0.0 - 192.0.0.255
-                    netname: RIPE-NCC
-                    descr: description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: ALLOCATED PA
-                    org: ORG-TOL1-TEST
-                    mnt-by: RIPE-NCC-HM-MNT
-                    source: TEST
-                    password: hm
-                    password: update
-                """.stripIndent()))
-    expect:
-      insertResponse =~ /SUCCESS/
-    when:
-      def response = syncUpdate new SyncUpdate(data: """\
-                    inetnum: 192.0.0.0 - 192.0.0.255
-                    netname: RIPE-NCC
-                    descr: description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: ALLOCATED PA
-                    mnt-by: RIPE-NCC-HM-MNT
-                    source: TEST
-                    password:update
-                """.stripIndent())
-    then:
-      response =~ /FAIL/
-      response =~ /Missing required "org:" attribute/
   }
 
   def "create status ALLOCATED PA requires alloc with multiple maintainer"() {
@@ -1341,7 +1247,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source:     TEST
                     override:denis,override1
                 """.stripIndent()))
-      syncUpdate(new SyncUpdate(data: """\
+      addObject("""\
                     inetnum:    192.0.0.0 - 192.0.0.255
                     netname:    RIPE-NCC
                     descr:      description
@@ -1353,7 +1259,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     TEST-MNT
                     source:     TEST
                     override:denis,override1
-                """.stripIndent()))
+                """.stripIndent())
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.0.0.255
@@ -1863,7 +1769,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 override:     denis,override1
                 """.stripIndent()))
     then:
-      response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+      response =~ /inetnum parent has incorrect status: ALLOCATED UNSPECIFIED/
   }
 
   def "create, assigned pi can have other mntby's than rs maintainer"() {
