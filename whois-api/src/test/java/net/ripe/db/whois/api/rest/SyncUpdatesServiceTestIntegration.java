@@ -463,15 +463,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.ACCEPT_ENCODING,"none")
-                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                .post(Entity.entity(
+                        "DATA=" + SyncUpdateUtils.encode(
                                 "person:        Test Person\n" +
                                 "address:       Amsterdam\n" +
                                 "phone:         +31\n" +
                                 "nic-hdl:       TP2-RIPE\n" +
                                 "mnt-by:        mntner-mnt\n" +
                                 "source:        TEST\n" +
-                                "password: emptypassword\n"),
-                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+                                "password: emptypassword\n"), MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [person] TP2-RIPE   Test Person"));
     }
