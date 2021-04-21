@@ -115,7 +115,7 @@ public class WhoisServer {
         LOGGER.info("networkaddress.cache.negative.ttl: {}", Security.getProperty("networkaddress.cache.negative.ttl"));
 
         if(networdkAddrCacheTtl == null || networdkAddrCacheTtl.equals("-1")) {
-            LOGGER.warn("Networkaddress.cache.ttl is not sert properly");
+            LOGGER.warn("Networkaddress.cache.ttl is not set properly");
         }
     }
 }
