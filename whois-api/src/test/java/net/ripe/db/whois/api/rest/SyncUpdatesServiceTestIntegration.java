@@ -456,6 +456,27 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_person_accept_encoding_none() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .header(HttpHeaders.ACCEPT_ENCODING,"none")
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                                "person:        Test Person\n" +
+                                "address:       Amsterdam\n" +
+                                "phone:         +31\n" +
+                                "nic-hdl:       TP2-RIPE\n" +
+                                "mnt-by:        mntner-mnt\n" +
+                                "source:        TEST\n" +
+                                "password: emptypassword\n"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-RIPE   Test Person"));
+    }
+
+    @Test
     public void modify_generated_attributes_changes_last_modified_attribute() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.AUT_NUM));
 
