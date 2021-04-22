@@ -50,7 +50,7 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
      * Run every 15 minutes.
      */
     @Override
-    @Scheduled(cron = "0 5/15 * * * *", zone = runTimezone)
+    @Scheduled(cron = "0 5/15 * * * *", zone = RUN_TIMEZONE)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         doImport(Sets.newHashSet(SOURCE_NAME_RIPE));

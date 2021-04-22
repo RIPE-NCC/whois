@@ -26,7 +26,7 @@ public class AutomaticPermanentBlocksCleanup implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *", zone = runTimezone)
+    @Scheduled(cron = "0 0 0 * * *", zone = RUN_TIMEZONE)
     @SchedulerLock(name = "AutomaticPermanentBlocksCleanup")
     public void run() {
         final LocalDate eventRemoveDate = dateTimeProvider.getLocalDateUtc().minusMonths(3);

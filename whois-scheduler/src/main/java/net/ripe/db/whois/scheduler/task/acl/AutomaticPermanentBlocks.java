@@ -36,7 +36,7 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *", zone = runTimezone)
+    @Scheduled(cron = "0 0 0 * * *", zone = RUN_TIMEZONE)
     @SchedulerLock(name = "AutomaticPermanentBlocks")
     public void run() {
         final LocalDate now = dateTimeProvider.getLocalDateUtc();
