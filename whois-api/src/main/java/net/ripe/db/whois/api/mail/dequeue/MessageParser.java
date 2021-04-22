@@ -38,6 +38,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
@@ -69,7 +70,7 @@ public class MessageParser {
         if (deliveryDate != null && deliveryDate.length > 0 && deliveryDate[0].length() > 0) {
             messageBuilder.date(deliveryDate[0]);
         } else {
-            messageBuilder.date(DATE_FORMAT.format(ZonedDateTime.now()));
+            messageBuilder.date(DATE_FORMAT.format(ZonedDateTime.now(ZoneOffset.UTC)));
         }
 
         parseReplyTo(messageBuilder, message);

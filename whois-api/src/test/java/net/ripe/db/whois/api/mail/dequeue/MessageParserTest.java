@@ -23,6 +23,7 @@ import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -44,7 +45,6 @@ import static org.mockito.Mockito.when;
 public class MessageParserTest {
     @Mock MimeMessage mimeMessage;
     @Mock UpdateContext updateContext;
-    @Mock LoggerContext loggerContext;
     @InjectMocks MessageParser subject;
 
     @Before
@@ -99,9 +99,9 @@ public class MessageParserTest {
         final MailMessage message = subject.parse(mimeMessage, updateContext);
 
         assertThat(message.getDate().length(), not(is(0)));
-        final String timezone = DateTimeFormatter.ofPattern("zzz").format(ZonedDateTime.now());
+        final String timezone = DateTimeFormatter.ofPattern("zzz").format(ZonedDateTime.now(ZoneOffset.UTC));
         assertThat(message.getDate(), containsString(timezone));
-        final String year = DateTimeFormatter.ofPattern("yyyy").format(ZonedDateTime.now());
+        final String year = DateTimeFormatter.ofPattern("yyyy").format(ZonedDateTime.now(ZoneOffset.UTC));
         assertThat(message.getDate(), containsString(year));
     }
 

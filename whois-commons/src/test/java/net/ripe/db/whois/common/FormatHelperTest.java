@@ -40,4 +40,9 @@ public class FormatHelperTest {
         assertThat(FormatHelper.dateTimeToString(LocalDateTime.of(2001, 10, 1, 12, 13, 14)), is("2001-10-01 12:13:14"));
     }
 
+    @Test
+    public void testDayDateTimeToString_dateTime() throws Exception {
+        assertThat(FormatHelper.dayDateTimeToUtcString(LocalDateTime.of(2001, 10, 1, 12, 13, 14)), is("Mon Oct 1 12:13:14 2001Z"));
+    }
+
 }
