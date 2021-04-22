@@ -13,7 +13,6 @@ import java.time.ZonedDateTime;
 @Component
 public class TestDateTimeProvider implements DateTimeProvider, Stub {
     private LocalDateTime localDateTime = LocalDateTime.now(ZoneOffset.UTC);
-    private LocalDateTime localAmsDateTime = LocalDateTime.now();
 
     @Override
     public void reset() {
@@ -29,12 +28,6 @@ public class TestDateTimeProvider implements DateTimeProvider, Stub {
     public LocalDateTime getLocalDateTimeUtc() {
         return getZoneDateTimeUtc().toLocalDateTime();
     }
-
-    @Override
-    public LocalDateTime getDateTimeAms() {
-        return localAmsDateTime;
-    }
-
 
     @Override
     public ZonedDateTime getZoneDateTimeUtc() {

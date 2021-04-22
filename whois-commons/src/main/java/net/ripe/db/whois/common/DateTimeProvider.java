@@ -7,9 +7,6 @@ import java.time.ZonedDateTime;
 
 public interface DateTimeProvider {
 
-    /** Return the current date time in Amsterdam  */
-    LocalDateTime getDateTimeAms();
-
     LocalDate getLocalDateUtc();
 
     LocalDateTime getLocalDateTimeUtc();

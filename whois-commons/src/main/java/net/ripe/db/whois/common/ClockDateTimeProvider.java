@@ -26,11 +26,6 @@ public class ClockDateTimeProvider implements DateTimeProvider {
     }
 
     @Override
-    public LocalDateTime getDateTimeAms() {
-        return LocalDateTime.now(ZoneId.of("Europe/Amsterdam"));
-    }
-
-    @Override
     public ZonedDateTime getZoneDateTimeUtc() {
         return ZonedDateTime.now(ZoneOffset.UTC);
     }
