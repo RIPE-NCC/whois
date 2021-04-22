@@ -45,6 +45,7 @@ import static org.mockito.Mockito.when;
 public class MessageParserTest {
     @Mock MimeMessage mimeMessage;
     @Mock UpdateContext updateContext;
+    @Mock LoggerContext loggerContext;
     @InjectMocks MessageParser subject;
 
     @Before
