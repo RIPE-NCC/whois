@@ -16,6 +16,7 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
+import java.security.Security;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -62,6 +63,7 @@ public class WhoisServer {
                 .distinct()
                 .forEach(prop -> LOGGER.info("{}: {}", prop, (prop.contains("credentials") || prop.contains("password")) ? "*****" :  applicationContext.getEnvironment().getProperty(prop)));
 
+        printJvmSecurityProperties();
         LOGGER.info("Whois server started in {}", stopwatch.stop());
     }
 
@@ -100,6 +102,25 @@ public class WhoisServer {
             if (forced) LOGGER.info("Stopped {} in {}", applicationService, stopwatch.stop());
         } catch (RuntimeException e) {
             LOGGER.error("Stopping: {}", applicationService, e);
+        }
+    }
+
+    private static void printJvmSecurityProperties() {
+        if(!Boolean.valueOf(Security.getProperty("security.overridePropertiesFile"))) {
+            LOGGER.warn("security.overridePropertiesFile is false, cannot override security values");
+        }
+
+        final String networkAddrCacheTtl = Security.getProperty("networkaddress.cache.ttl");
+        final String networkAddrNegativeCacheTtl = Security.getProperty("networkaddress.cache.negative.ttl");
+        LOGGER.info("networkaddress.cache.ttl: {}", networkAddrCacheTtl);
+        LOGGER.info("networkaddress.cache.negative.ttl: {}", networkAddrNegativeCacheTtl);
+
+        if(networkAddrCacheTtl == null || networkAddrCacheTtl.equals("-1")) {
+            LOGGER.warn("networkaddress.cache.ttl is not set properly");
+        }
+
+        if(networkAddrNegativeCacheTtl == null || networkAddrNegativeCacheTtl.equals("-1")) {
+            LOGGER.warn("networkaddress.cache.negative.ttl is not set properly");
         }
     }
 }
