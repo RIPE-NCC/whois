@@ -5,6 +5,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,19 +18,17 @@ import java.io.IOException;
 public class NrtmExceptionHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmExceptionHandler.class);
 
-    static final String MESSAGE = "internal error occurred.";
-
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable exception) throws Exception {
         final Channel channel = ctx.channel();
 
         if (!channel.isOpen()) {
+            LOGGER.debug("Channel closed", exception);
             return;
         }
 
-        if (exception instanceof IllegalArgumentException) {
-            // expected query exception
-            channel.writeAndFlush(exception.getMessage() + "\n\n").addListener(ChannelFutureListener.CLOSE);
+        if (exception instanceof NrtmException) {
+            handleException(channel, exception.getMessage() + "\n\n");
         } else if (exception instanceof IOException) {
             LOGGER.debug("IO exception", exception);
         } else {
@@ -38,8 +37,16 @@ public class NrtmExceptionHandler extends ChannelInboundHandlerAdapter {
                     ChannelUtil.getRemoteAddress(channel),
                     exception
             );
-
-            channel.write(MESSAGE).addListener(ChannelFutureListener.CLOSE);
+            handleException(channel, NrtmMessages.internalError());
         }
     }
+
+    private void handleException(final Channel channel, final String message) {
+        channel.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    private void handleException(final Channel channel, final Message message) {
+        handleException(channel, message.toString());
+    }
+
 }

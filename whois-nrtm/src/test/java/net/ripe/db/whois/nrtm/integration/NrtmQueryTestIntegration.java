@@ -3,16 +3,24 @@ package net.ripe.db.whois.nrtm.integration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
+import net.ripe.db.whois.query.acl.IpResourceConfiguration;
+import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 @Category(IntegrationTest.class)
 public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
+
+    @Autowired
+    private IpResourceConfiguration ipResourceConfiguration;
+    @Autowired
+    private TestPersonalObjectAccounting testPersonalObjectAccounting;
 
     @Before
     public void before() throws InterruptedException {
@@ -83,6 +91,22 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
                         "TEST-NONAUTH:3:X:0-0\n" +
                         "\n"
         ));
+    }
+
+    @Test
+    public void display_acl_blocked_error() {
+        try {
+            databaseHelper.insertAclIpDenied("127.0.0.1/32");
+            ipResourceConfiguration.reload();
+
+            final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
+
+            assertThat(response, containsString("ERROR:201: access denied"));
+        } finally {
+            databaseHelper.unban("127.0.0.1/32");
+            ipResourceConfiguration.reload();
+            testPersonalObjectAccounting.resetAccounting();
+        }
     }
 
 }
