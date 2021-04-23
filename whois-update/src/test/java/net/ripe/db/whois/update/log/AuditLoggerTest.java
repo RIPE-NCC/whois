@@ -52,10 +52,10 @@ public class AuditLoggerTest {
         final String log = outputStream.toString("UTF-8");
         assertThat(log, containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
+                "        <update attempt=\"1\" time=\"2012-12-01T00:00:00Z\">\n" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason>reason</reason>\n" +
@@ -80,10 +80,10 @@ public class AuditLoggerTest {
         final String log = outputStream.toString("UTF-8");
         assertThat(log, is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates>\n" +
-                "        <update attempt=\"2\" time=\"2012-12-01 00:00:00\">\n" +
+                "        <update attempt=\"2\" time=\"2012-12-01T00:00:00Z\">\n" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason>reason</reason>\n" +
@@ -108,10 +108,10 @@ public class AuditLoggerTest {
         final String log = outputStream.toString("UTF-8");
         assertThat(log, containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
+                "        <update attempt=\"1\" time=\"2012-12-01T00:00:00Z\">\n" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason>reason</reason>\n" +
@@ -140,10 +140,10 @@ public class AuditLoggerTest {
         final String log = outputStream.toString("UTF-8");
         assertThat(log, containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
+                "        <update attempt=\"1\" time=\"2012-12-01T00:00:00Z\">\n" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason>reason</reason>\n" +
@@ -180,10 +180,10 @@ public class AuditLoggerTest {
         final String log = outputStream.toString("UTF-8");
         assertThat(log, containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates>\n" +
-                "        <update attempt=\"1\" time=\"2012-12-01 00:00:00\">\n" +
+                "        <update attempt=\"1\" time=\"2012-12-01T00:00:00Z\">\n" +
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason>reason</reason>\n" +
@@ -232,7 +232,7 @@ public class AuditLoggerTest {
 
         assertThat(outputStream.toString("UTF-8"), is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates/>\n" +
                 "</dbupdate>\n"

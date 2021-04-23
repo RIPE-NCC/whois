@@ -61,7 +61,7 @@ class AuditLogger {
 
             doc = documentBuilder.newDocument();
             dbupdate = doc.createElement("dbupdate");
-            dbupdate.setAttribute("created", FormatHelper.dateTimeToString(dateTimeProvider.getLocalDateTimeUtc()));
+            dbupdate.setAttribute("created", FormatHelper.dateTimeToUtcString(dateTimeProvider.getLocalDateTimeUtc()));
             doc.appendChild(dbupdate);
 
             messages = doc.createElement("messages");
@@ -127,7 +127,7 @@ class AuditLogger {
         }
 
         updateElement.setAttribute("attempt", String.valueOf(attempt));
-        updateElement.setAttribute("time", FormatHelper.dateTimeToString(dateTimeProvider.getLocalDateTimeUtc()));
+        updateElement.setAttribute("time", FormatHelper.dateTimeToUtcString(dateTimeProvider.getLocalDateTimeUtc()));
 
         final RpslObject updatedObject = update.getSubmittedObject();
         updateElement.appendChild(keyValue("key", updatedObject.getFormattedKey()));
