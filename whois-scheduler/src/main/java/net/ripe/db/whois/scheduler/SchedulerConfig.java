@@ -52,6 +52,7 @@ public class SchedulerConfig {
     public LockProvider lockProvider(@Qualifier("internalsDataSource") DataSource dataSource) {
         return new JdbcTemplateLockProvider(
                 JdbcTemplateLockProvider.Configuration.builder()
+                        .usingDbTime()
                         .withJdbcTemplate(new JdbcTemplate(dataSource))
                         .withTimeZone(TimeZone.getTimeZone("Europe/Amsterdam"))
                 .build()
