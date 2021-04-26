@@ -43,12 +43,12 @@ public class NrtmServerChannelInitializer extends ChannelInitializer<Channel> {
     private final boolean proxyProtocolEnabled;
 
     protected NrtmServerChannelInitializer(final NrtmChannelsRegistry nrtmChannelsRegistry,
-                                               final NrtmExceptionHandler exceptionHandler,
-                                               final MaintenanceHandler maintenanceHandler,
-                                               final NrtmQueryHandlerFactory nrtmQueryHandlerFactory,
-                                               final NrtmAclLimitHandler nrtmAclLimitHandler,
-                                               final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler,
-                                               final @Value("${proxy.protocol.enabled:false}") boolean proxyProtocolEnabled) {
+                                           final NrtmExceptionHandler exceptionHandler,
+                                           final MaintenanceHandler maintenanceHandler,
+                                           final NrtmQueryHandlerFactory nrtmQueryHandlerFactory,
+                                           final NrtmAclLimitHandler nrtmAclLimitHandler,
+                                           final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler,
+                                           final @Value("${proxy.protocol.enabled:false}") boolean proxyProtocolEnabled) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.exceptionHandler = exceptionHandler;
         this.maintenanceHandler = maintenanceHandler;

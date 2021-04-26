@@ -132,6 +132,13 @@
                                     <jvmFlag>-Dlog4j.configurationFile=file:/export/services/whois/log4j2.xml</jvmFlag>
                                     <jvmFlag>-Dbase.dir=/export/services/whois</jvmFlag>
                                     <jvmFlag>-Dinstance.name.prefix=whois-aws-</jvmFlag>
+                                    <jvmFlag>-Dcom.sun.management.jmxremote=true</jvmFlag>
+                                    <jvmFlag>-Dcom.sun.management.jmxremote.port=6001</jvmFlag>
+                                    <jvmFlag>-Dcom.sun.management.jmxremote.rmi.port=6001</jvmFlag>
+                                    <jvmFlag>-Dcom.sun.management.jmxremote.authenticate=false</jvmFlag>
+                                    <jvmFlag>-Dcom.sun.management.jmxremote.ssl=false</jvmFlag>
+                                    <jvmFlag>-Djava.rmi.server.useLocalHostname=true</jvmFlag>
+                                    <jvmFlag>-Djava.security.properties=file:/export/services/whois/whois.java.security</jvmFlag>
                                 </jvmFlags>
                                 <mainClass>net.ripe.db.whois.db.WhoisServer</mainClass>
                             </container>

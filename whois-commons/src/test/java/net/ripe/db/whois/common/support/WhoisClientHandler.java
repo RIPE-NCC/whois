@@ -71,7 +71,7 @@ public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
 
 
     public ChannelFuture connectAndWait() throws InterruptedException {
-        ChannelFuture future = bootstrap.connect(host).sync();
+        ChannelFuture future = bootstrap.connect(host);
         success = future.await(5, TimeUnit.SECONDS);
         return future;
     }
@@ -82,6 +82,10 @@ public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
 
     public ChannelFuture sendLine(String query) throws InterruptedException {
         Assert.assertTrue(success);
+
+        // Ensures the channelActive has been fired and channel set before continuing with test
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (channel != null));
+
         ChannelFuture future = channel.writeAndFlush(query + "\n");
         success = future.await(3, TimeUnit.SECONDS);
         return future;

@@ -65,7 +65,7 @@ public class ConnectionStateHandlerTest {
 
         subject.write(contextMock, new QueryCompletedEvent(channelMock), promiseMock);
         verify(contextMock, atLeastOnce()).channel();
-        verify(contextMock, atLeastOnce()).writeAndFlush(any(QueryCompletedEvent.class));
+        verify(contextMock, atLeastOnce()).write(any(QueryCompletedEvent.class));
         verify(channelMock, atLeastOnce()).write(any(byte[].class));
         verify(channelMock, atLeastOnce()).write(QueryMessages.termsAndConditions());
         verify(futureMock, times(0)).addListener(ChannelFutureListener.CLOSE);

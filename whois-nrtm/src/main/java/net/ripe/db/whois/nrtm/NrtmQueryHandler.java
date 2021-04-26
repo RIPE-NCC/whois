@@ -265,7 +265,7 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
         if (!ctx.channel().hasAttr(TERMS_CONDITIONS)) {
             PendingWrites.add(ctx.channel());
 
-            writeMessage(ctx.channel(), NrtmMessages.termsAndConditions());
+            writeMessage(ctx.channel(),  NrtmMessages.termsAndConditions());
 
             ctx.channel().attr(TERMS_CONDITIONS).set(true);
 

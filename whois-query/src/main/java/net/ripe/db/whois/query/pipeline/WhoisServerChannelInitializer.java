@@ -77,7 +77,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
 
     @Override
     public void initChannel(Channel channel) {
-        final ChannelPipeline pipeline = channel.pipeline();
+        ChannelPipeline pipeline = channel.pipeline();
 
         pipeline.addLast("maintenanceHandler", maintenanceHandler);
         pipeline.addLast("connectionPerIpLimit", connectionPerIpLimitHandler);
@@ -86,7 +86,6 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("read-timeout", new KeepChannelOpenOnReadTimeoutHandler(TIMEOUT_SECONDS, TimeUnit.SECONDS));
         pipeline.addLast("write-timeout", new WriteTimeoutHandler(TIMEOUT_SECONDS, TimeUnit.SECONDS));
 
-        pipeline.addLast(executorGroup, "whois-encoder", whoisEncoder);
         pipeline.addLast("terms-conditions", termsAndConditionsHandler);
 
         if (proxyProtocolEnabled) {
@@ -96,7 +95,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(1024, LINE_DELIMITER, INTERRUPT_DELIMITER));
 
         pipeline.addLast("string-decoder", stringDecoder);
-
+        pipeline.addLast(executorGroup, "whois-encoder", whoisEncoder);
 
         pipeline.addLast(executorGroup, "query-decoder", queryDecoder);
         pipeline.addLast(executorGroup, "connection-state", new ConnectionStateHandler());
