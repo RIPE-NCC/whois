@@ -34,6 +34,8 @@
         <!-- TODO: awaitility 4.0.3+ depends on Groovy 3 -->
         <awaitility.version>4.0.2</awaitility.version>
 
+        <aws-java-sdk.version>1.11.327</aws-java-sdk.version>
+
         <bouncycastle.version>1.68</bouncycastle.version>
 
         <c3po.version>0.9.5.5</c3po.version>
@@ -66,7 +68,7 @@
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.13.1</jsoup.version>
         <junit.version>4.13.1</junit.version>
-        <jetty.version>10.0.0</jetty.version>
+        <jetty.version>10.0.2</jetty.version>
         <jersey.version>2.32</jersey.version>
         <jackson.version>2.11.3</jackson.version>
 
@@ -82,13 +84,14 @@
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.30</slf4j.version>
-        <spring.version>5.3.4</spring.version>
+        <spring.version>5.3.6</spring.version>
         <springockito.version>1.0.9</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>1.3-groovy-2.5</spock.version>
         <shedlock.version>2.5.0</shedlock.version>
 
+        <validation.version>2.0.1.Final</validation.version>
         <velocity.version>2.2</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
@@ -342,10 +345,12 @@
                 <artifactId>javax.mail</artifactId>
                 <version>${mail.version}</version>
             </dependency>
+
+            <!-- Hazelcast -->
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast-all</artifactId>
-                <version>4.1.1</version>
+                <version>${hazelcast.version}</version>
             </dependency>
 
             <!-- bouncy castle -->
@@ -484,7 +489,7 @@
                 <!-- don't use the Validation API in our code, use the static checks (JSR305) instead -->
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
-                <version>2.0.1.Final</version>
+                <version>${validation.version}</version>
                 <!-- set scope to prevent compile-time checks but Jersey can use at runtime -->
                 <scope>runtime</scope>
             </dependency>

@@ -138,6 +138,7 @@
                                     <jvmFlag>-Dcom.sun.management.jmxremote.authenticate=false</jvmFlag>
                                     <jvmFlag>-Dcom.sun.management.jmxremote.ssl=false</jvmFlag>
                                     <jvmFlag>-Djava.rmi.server.useLocalHostname=true</jvmFlag>
+                                    <jvmFlag>-Djava.security.properties=file:/export/services/whois/whois.java.security</jvmFlag>
                                 </jvmFlags>
                                 <mainClass>net.ripe.db.whois.db.WhoisServer</mainClass>
                             </container>
