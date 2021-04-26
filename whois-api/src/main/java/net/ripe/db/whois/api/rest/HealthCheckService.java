@@ -3,6 +3,8 @@ package net.ripe.db.whois.api.rest;
 import net.ripe.db.whois.common.iptree.IpTreeCacheManager;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class HealthCheckService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HealthCheckService.class);
 
     private final static String DB_HEALTH_CHECK_QUERY = "select object_id from last limit 1";
 
@@ -63,15 +67,20 @@ public class HealthCheckService {
             writeTemplate.queryForObject(DB_HEALTH_CHECK_QUERY, Integer.class);
             databaseHealthy.set(true);
         } catch (DataAccessException e) {
+            LOGGER.info("Database connection failed health check: {}", e.getMessage());
             databaseHealthy.set(false);
         }
 
         ipTreeHealthy.set(ipTreeCacheManager.check(sourceContext));
+        if (!ipTreeHealthy.get()) {
+            LOGGER.info("IP Tree failed health check");
+        }
 
         try {
             FileUtils.touch(checkFile);
             filesystemHealthy.set(true);
         } catch (IOException ioe) {
+            LOGGER.info("Failed to touch check file: {}", ioe.getMessage());
             filesystemHealthy.set(false);
         }
     }
