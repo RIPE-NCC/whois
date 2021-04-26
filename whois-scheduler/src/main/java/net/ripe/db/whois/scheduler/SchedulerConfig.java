@@ -26,25 +26,14 @@ import java.util.concurrent.Executor;
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor="23h")
-@ImportResource(value = {
-        "classpath:applicationContext-api.xml",
-        "classpath:applicationContext-commons.xml"
-})
+@ImportResource(value = "classpath:applicationContext-api.xml")
 @ComponentScan(basePackages="net.ripe.db.whois.scheduler")
 public class SchedulerConfig {
 
-    @Bean
-    public Executor taskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.initialize();
-        return executor;
-    }
-
     @Bean("scheduler")
     public TaskScheduler taskScheduler() {
-        // set properties if required
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(2);
+        scheduler.setPoolSize(10);
         return scheduler;
     }
 
