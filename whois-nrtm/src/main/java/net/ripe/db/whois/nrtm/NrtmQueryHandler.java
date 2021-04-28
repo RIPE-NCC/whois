@@ -35,6 +35,8 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmQueryHandler.class);
 
+    private static final AttributeKey<Boolean> TERMS_CONDITIONS = AttributeKey.newInstance("terms_conditions");
+
     static final int SECONDS_PER_DAY = 60 * 60 * 24;
     static final int HISTORY_AGE_LIMIT = 14 * SECONDS_PER_DAY;
 
@@ -260,11 +262,15 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
-        PendingWrites.add(ctx.channel());
+        if (!ctx.channel().hasAttr(TERMS_CONDITIONS)) {
+            PendingWrites.add(ctx.channel());
 
-        writeMessage(ctx.channel(),  NrtmMessages.termsAndConditions());
+            writeMessage(ctx.channel(),  NrtmMessages.termsAndConditions());
 
-        ctx.fireChannelActive();
+            ctx.channel().attr(TERMS_CONDITIONS).set(true);
+
+            ctx.fireChannelActive();
+        }
     }
 
     @Override

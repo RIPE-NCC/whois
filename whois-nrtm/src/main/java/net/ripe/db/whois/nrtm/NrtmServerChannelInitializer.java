@@ -11,12 +11,18 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
+import net.ripe.db.whois.query.pipeline.ProxyProtocolChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 
 @Component
 public class NrtmServerChannelInitializer extends ChannelInitializer<Channel> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmServerChannelInitializer.class);
 
     private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
     private static final int DELIMITER_MAX_FRAME_LENGTH = 128;
@@ -34,19 +40,26 @@ public class NrtmServerChannelInitializer extends ChannelInitializer<Channel> {
     private final NrtmQueryHandlerFactory nrtmQueryHandlerFactory;
     private final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler;
     private final NrtmAclLimitHandler nrtmAclLimitHandler;
+    private final boolean proxyProtocolEnabled;
 
     protected NrtmServerChannelInitializer(final NrtmChannelsRegistry nrtmChannelsRegistry,
-                                               final NrtmExceptionHandler exceptionHandler,
-                                               final MaintenanceHandler maintenanceHandler,
-                                               final NrtmQueryHandlerFactory nrtmQueryHandlerFactory,
-                                               final NrtmAclLimitHandler nrtmAclLimitHandler,
-                                               final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler) {
+                                           final NrtmExceptionHandler exceptionHandler,
+                                           final MaintenanceHandler maintenanceHandler,
+                                           final NrtmQueryHandlerFactory nrtmQueryHandlerFactory,
+                                           final NrtmAclLimitHandler nrtmAclLimitHandler,
+                                           final NrtmConnectionPerIpLimitHandler nrtmConnectionPerIpLimitHandler,
+                                           final @Value("${proxy.protocol.enabled:false}") boolean proxyProtocolEnabled) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.exceptionHandler = exceptionHandler;
         this.maintenanceHandler = maintenanceHandler;
         this.nrtmQueryHandlerFactory = nrtmQueryHandlerFactory;
         this.nrtmConnectionPerIpLimitHandler = nrtmConnectionPerIpLimitHandler;
         this.nrtmAclLimitHandler = nrtmAclLimitHandler;
+        this.proxyProtocolEnabled = proxyProtocolEnabled;
+
+        if (proxyProtocolEnabled) {
+            LOGGER.info("Proxy protocol handler enabled");
+        }
     }
 
     @Override
@@ -58,6 +71,10 @@ public class NrtmServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("connectionPerIpLimit", nrtmConnectionPerIpLimitHandler);
 
         pipeline.addLast("U-channels", nrtmChannelsRegistry);
+
+        if (proxyProtocolEnabled) {
+            pipeline.addLast(ProxyProtocolChannelHandler.NAME, new ProxyProtocolChannelHandler());
+        }
 
         pipeline.addLast("U-delimiter", new DelimiterBasedFrameDecoder(DELIMITER_MAX_FRAME_LENGTH, STRIP_DELIMITER, LINE_DELIMITER));
         pipeline.addLast("U-string-decoder", stringDecoder);
