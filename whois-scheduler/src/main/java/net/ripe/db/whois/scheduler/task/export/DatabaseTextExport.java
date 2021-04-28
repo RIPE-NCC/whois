@@ -16,7 +16,7 @@ public class DatabaseTextExport implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 19 * * *", zone = RUN_TIMEZONE)
+    @Scheduled(cron = "0 0 0 * * *", zone = RUN_TIMEZONE)
     @SchedulerLock(name = "DatabaseTextExport")
     public void run() {
         rpslObjectsExporter.export();
