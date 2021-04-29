@@ -70,9 +70,9 @@ Example:
 * Request: http://rdap.db.ripe.net/entity/ORG-RIEN1-RIPE
  * Response: Should include "networks" element with referenced networks, including 193.0.0.0 - 193.0.23.255
 
-Nameserver queries always return Not Found
--------------------------------------------
-The RIPE database doesn't contain any forward domain objects, consequently a nameserver query will always return Not Found.
+Nameserver queries always return Not Implemented
+-------------------------------------------------
+The RIPE database doesn't contain any forward domain objects, consequently a nameserver query will always return Not Implemented.
 
 Only "mnt-by:" Maintainers are Listed as Registrants
 -----------------------------------------------------
