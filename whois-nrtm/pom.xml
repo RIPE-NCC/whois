@@ -70,6 +70,12 @@
             <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.amazonaws.proprot</groupId>
+            <artifactId>proprot</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>
