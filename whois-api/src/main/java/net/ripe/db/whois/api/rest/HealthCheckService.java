@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import net.ripe.db.whois.common.iptree.IpTreeCacheManager;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,13 @@ import javax.sql.DataSource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
+@Path("/healthcheck")
 public class HealthCheckService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HealthCheckService.class);
@@ -44,20 +47,26 @@ public class HealthCheckService {
                               @Qualifier("sourceAwareDataSource") final DataSource writeDataSource,
                               final IpTreeCacheManager ipTreeCacheManager,
                               final SourceContext sourceContext,
-                              @Value("${dir.var") final String filesystemRoot) {
+                              @Value("${dir.var:}") final String filesystemRoot) {
         this.readTemplate = new JdbcTemplate(readDataSource);
         this.writeTemplate = new JdbcTemplate(writeDataSource);
         this.ipTreeCacheManager = ipTreeCacheManager;
         this.sourceContext = sourceContext;
-        this.checkFile = new File(filesystemRoot, "check");
+
+        if (StringUtils.isNotBlank(filesystemRoot)) {
+            this.checkFile = new File(filesystemRoot, "lock");
+            LOGGER.info("File system health check file {}", checkFile);
+        } else {
+            this.checkFile = null;
+            LOGGER.info("File system health check is disabled");
+        }
     }
 
     @GET
-    @Path("/healthcheck")
     public Response check() {
         return databaseHealthy.get() && filesystemHealthy.get() && ipTreeHealthy.get()?
                 Response.ok().build() :
-                Response.serverError().build();
+                Response.status(Status.SERVICE_UNAVAILABLE).build();
     }
 
     @Scheduled(fixedDelay = 60 * 1_000)
@@ -76,12 +85,14 @@ public class HealthCheckService {
             LOGGER.info("IP Tree failed health check");
         }
 
-        try {
-            FileUtils.touch(checkFile);
-            filesystemHealthy.set(true);
-        } catch (IOException ioe) {
-            LOGGER.info("Failed to touch check file: {}", ioe.getMessage());
-            filesystemHealthy.set(false);
+        if (checkFile != null) {
+            try {
+                FileUtils.touch(checkFile);
+                filesystemHealthy.set(true);
+            } catch (IOException ioe) {
+                LOGGER.info("Failed to touch check file: {}", ioe.getMessage());
+                filesystemHealthy.set(false);
+            }
         }
     }
 
