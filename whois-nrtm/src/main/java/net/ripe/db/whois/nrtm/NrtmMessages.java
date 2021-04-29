@@ -31,6 +31,10 @@ public class NrtmMessages {
         return new Message(Messages.Type.WARNING, "%%WARNING: NRTM version %d is deprecated, please consider migrating to version %d!", version, NrtmServer.NRTM_VERSION);
     }
 
+    public static Message internalError() {
+        return new Message(Messages.Type.ERROR, "internal error occurred.");
+    }
+
     public static Message notAuthorised(final String remoteAddress) {
         return new Message(Messages.Type.ERROR, "%%ERROR:402: not authorised to mirror the database from IP address %s\n", remoteAddress);
     }

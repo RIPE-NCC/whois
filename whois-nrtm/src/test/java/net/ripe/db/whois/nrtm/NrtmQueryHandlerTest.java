@@ -14,7 +14,6 @@ import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -30,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.ripe.db.whois.nrtm.NrtmQueryHandlerTest.StringMatcher.instanceofString;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -205,8 +204,8 @@ public class NrtmQueryHandlerTest {
 
         try {
             subject.channelRead(contextMock, msg);
-            fail("Didn't catch IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
+            fail("Didn't catch NrtmException");
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("%ERROR:401: invalid range: Not within 1-2"));
         }
     }
@@ -231,8 +230,8 @@ public class NrtmQueryHandlerTest {
 
         try {
             subject.channelRead(contextMock, msg);
-            fail("expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
+            fail("expected NrtmException");
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("%ERROR:401: (Requesting serials older than " +
                     (NrtmQueryHandler.HISTORY_AGE_LIMIT / NrtmQueryHandler.SECONDS_PER_DAY) +
                     " days will be rejected)"));
