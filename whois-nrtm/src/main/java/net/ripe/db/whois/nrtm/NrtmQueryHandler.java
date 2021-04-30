@@ -96,13 +96,13 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
             }
 
             if (!isRequestedSerialInRange(query, range)) {
-                throw new IllegalArgumentException("%ERROR:401: invalid range: Not within " + range.getBegin() + "-" + range.getEnd());
+                throw new NrtmException("%ERROR:401: invalid range: Not within " + range.getBegin() + "-" + range.getEnd());
             }
 
             final Integer serialAge = serialDao.getAgeOfExactOrNextExistingSerial(query.getSerialBegin());
 
             if (serialAge == null || serialAge > HISTORY_AGE_LIMIT) {
-                throw new IllegalArgumentException(String.format("%%ERROR:401: (Requesting serials older than %d days will be rejected)", HISTORY_AGE_LIMIT / SECONDS_PER_DAY));
+                throw new NrtmException(String.format("%%ERROR:401: (Requesting serials older than %d days will be rejected)", HISTORY_AGE_LIMIT / SECONDS_PER_DAY));
             }
 
             final int version = query.getVersion();
@@ -145,7 +145,7 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
         try {
             return new Query(source, nonAuthSource, queryString);
         } catch (OptionException e) {
-            throw new IllegalArgumentException("%ERROR:405: syntax error: " + e.getMessage());
+            throw new NrtmException("%ERROR:405: syntax error: " + e.getMessage());
         }
     }
 

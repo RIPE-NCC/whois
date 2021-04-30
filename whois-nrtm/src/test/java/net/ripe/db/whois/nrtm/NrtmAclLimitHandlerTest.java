@@ -15,12 +15,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class NrtmAclLimitHandlerTest {
@@ -38,8 +41,6 @@ public class NrtmAclLimitHandlerTest {
         this.subject = new NrtmAclLimitHandler(accessControlListManager, nrtmLog);
 
         when(ctx.channel()).thenReturn(channel);
-
-        when(channel.write(any())).thenReturn(channelFuture);
     }
 
     @Test
@@ -49,12 +50,13 @@ public class NrtmAclLimitHandlerTest {
         when(channel.remoteAddress()).thenReturn(remoteAddress);
         when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(true);
 
-        subject.channelActive(ctx);
-
-        verify(channel, times(1)).write(eq(QueryMessages.accessDeniedPermanently(remoteAddress.getAddress())));
-
-        verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
-        verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
+        try {
+            subject.channelActive(ctx);
+            fail();
+        } catch (NrtmException e) {
+            assertThat(e.getMessage(), is(QueryMessages.accessDeniedPermanently(remoteAddress.getAddress()).toString()));
+            verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
+        }
     }
 
     @Test
@@ -65,12 +67,13 @@ public class NrtmAclLimitHandlerTest {
         when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
         when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(false);
 
-        subject.channelActive(ctx);
-
-        verify(channel, times(1)).write(eq(QueryMessages.accessDeniedTemporarily(remoteAddress.getAddress())));
-
-        verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
-        verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
+        try {
+            subject.channelActive(ctx);
+            fail();
+        } catch (NrtmException e) {
+            assertThat(e.getMessage(), is(QueryMessages.accessDeniedTemporarily(remoteAddress.getAddress()).toString()));
+            verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
+        }
     }
 
     @Test

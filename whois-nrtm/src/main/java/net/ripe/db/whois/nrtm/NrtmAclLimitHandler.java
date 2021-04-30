@@ -1,7 +1,6 @@
 package net.ripe.db.whois.nrtm;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -37,15 +36,13 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
         if (accessControlListManager.isDenied(remoteAddress)) {
-            channel.write(QueryMessages.accessDeniedPermanently(remoteAddress)).addListener(ChannelFutureListener.CLOSE);
             nrtmLog.log(remoteAddress, REJECTED);
-            return;
+            throw new NrtmException(QueryMessages.accessDeniedPermanently(remoteAddress));
         }
 
         if (!accessControlListManager.canQueryPersonalObjects(remoteAddress)) {
-            channel.write(QueryMessages.accessDeniedTemporarily(remoteAddress)).addListener(ChannelFutureListener.CLOSE);
             nrtmLog.log(remoteAddress, REJECTED);
-            return;
+            throw new NrtmException(QueryMessages.accessDeniedTemporarily(remoteAddress));
         }
 
         ctx.fireChannelActive();
