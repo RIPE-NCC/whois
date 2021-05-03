@@ -23,6 +23,15 @@ public class PhoneticDummifier {
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
     private static final Pattern LETTER_PATTERN = Pattern.compile("^([a-zA-Z])");
 
+    // limit the dummified name to maximum 4 words (one character from the beginning of each word)
+    private static final long MAXIMUM_CHARACTERS = 4L;
+
+    // pad the dummified name with a specific character to be mapped to a word
+    private static final String PADDING_STRING = "A";
+
+    // pad the dummified name with a minimum number of characters (which is mapped to words)
+    private static final int PADDING_SIZE = 2;
+
     private static final Map<String, String> MAP = Maps.newHashMap();
     static {
         MAP.put("A", "Alpha");
@@ -60,16 +69,19 @@ public class PhoneticDummifier {
     }
 
     private String dummify(final String input) {
-        return map(StringUtils.rightPad(
-            StreamSupport.stream(SPACE_SPLITTER.split(input).spliterator(), false)
-                .map(word -> {
-                    final Matcher matcher = LETTER_PATTERN.matcher(word);
-                    return matcher.find() ? Optional.of(matcher.group(1)) : Optional.empty();
-                })
-                .filter(Optional::isPresent)
-                .map(optional -> optional.get().toString())
-                .limit(4L)
-                .collect(Collectors.joining()), 2, "A"));
+        return map(
+            StringUtils.rightPad(
+                StreamSupport.stream(SPACE_SPLITTER.split(input).spliterator(), false)
+                    .map(word -> {
+                        final Matcher matcher = LETTER_PATTERN.matcher(word);
+                        return matcher.find() ? Optional.of(matcher.group(1)) : Optional.empty();
+                    })
+                    .filter(Optional::isPresent)
+                    .map(optional -> optional.get().toString())
+                    .limit(MAXIMUM_CHARACTERS)
+                    .collect(Collectors.joining()),
+                PADDING_SIZE,
+                PADDING_STRING));
     }
 
     private String map(final String input) {
