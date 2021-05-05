@@ -66,7 +66,7 @@ public class AccessControlListManagerTest {
 
     @Before
     public void setup() throws UnknownHostException {
-        when(dateTimeProvider.getLocalDateUtc()).thenReturn(now);
+        when(dateTimeProvider.getCurrentDate()).thenReturn(now);
 
         ipv4Restricted = InetAddress.getByName("127.1.0.0");
         ipv4Unrestricted = InetAddress.getByName("127.0.0.0");

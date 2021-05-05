@@ -39,7 +39,7 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
     @Scheduled(cron = "0 0 0 * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "AutomaticPermanentBlocks")
     public void run() {
-        final LocalDate now = dateTimeProvider.getLocalDateUtc();
+        final LocalDate now = dateTimeProvider.getCurrentDate();
         final LocalDate checkTemporaryBlockTime = now.minusDays(30);
         final List<BlockEvents> temporaryBlocks = accessControlListDao.getTemporaryBlocks(checkTemporaryBlockTime);
         for (final BlockEvents blockEvents : temporaryBlocks) {

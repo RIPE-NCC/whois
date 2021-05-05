@@ -38,7 +38,7 @@ public class AuditLoggerTest {
 
     @Before
     public void setUp() throws Exception {
-        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.of(2012, 12, 1, 0, 0));
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.of(2012, 12, 1, 0, 0));
         update = new Update(new Paragraph("paragraph"), Operation.DELETE, Arrays.asList("reason"), RpslObject.parse("mntner:DEV-ROOT-MNT"));
 
         subject = new AuditLogger(dateTimeProvider, outputStream);

@@ -7,11 +7,11 @@ import java.time.ZonedDateTime;
 
 public interface DateTimeProvider {
 
-    LocalDate getLocalDateUtc();
+    LocalDate getCurrentDate();
 
-    LocalDateTime getLocalDateTimeUtc();
+    LocalDateTime getCurrentDateTime();
 
-    ZonedDateTime getZoneDateTimeUtc();
+    ZonedDateTime getCurrentDateTimeUtc();
 
     /** returns elapsed time (with nanosecond precision). N.B. not related to system time */
     long getElapsedTime();

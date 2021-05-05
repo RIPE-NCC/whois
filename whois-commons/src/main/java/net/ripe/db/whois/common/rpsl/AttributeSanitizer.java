@@ -226,7 +226,7 @@ public class AttributeSanitizer {
         public String sanitize(final RpslAttribute attribute) {
             final Changed changed = Changed.parse(attribute.getCleanValue());
             if (changed.getDate() == null) {
-                return new Changed(changed.getEmail(), dateTimeProvider.getLocalDateUtc()).toString();
+                return new Changed(changed.getEmail(), dateTimeProvider.getCurrentDate()).toString();
             }
             return null;
         }

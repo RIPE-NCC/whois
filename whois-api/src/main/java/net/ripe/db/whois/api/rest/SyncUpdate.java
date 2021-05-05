@@ -48,7 +48,7 @@ public class SyncUpdate implements Origin {
                 " - From-Host: %s\n" +
                 " - Date/Time: %s\n",
                 remoteAddress,
-                FormatHelper.dayDateTimeToUtcString(dateTimeProvider.getLocalDateTimeUtc()));
+                FormatHelper.dayDateTimeToUtcString(dateTimeProvider.getCurrentDateTime()));
     }
 
     @Override
