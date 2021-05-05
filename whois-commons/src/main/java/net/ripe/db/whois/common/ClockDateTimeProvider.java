@@ -16,16 +16,16 @@ public class ClockDateTimeProvider implements DateTimeProvider {
 
     @Override
     public LocalDate getCurrentDate() {
-        return getCurrentDateTimeUtc().toLocalDate();
+        return getCurrentZonedDateTime().toLocalDate();
     }
 
     @Override
     public LocalDateTime getCurrentDateTime() {
-        return getCurrentDateTimeUtc().toLocalDateTime();
+        return getCurrentZonedDateTime().toLocalDateTime();
     }
 
     @Override
-    public ZonedDateTime getCurrentDateTimeUtc() {
+    public ZonedDateTime getCurrentZonedDateTime() {
         return ZonedDateTime.now(ZoneOffset.UTC);
     }
 
