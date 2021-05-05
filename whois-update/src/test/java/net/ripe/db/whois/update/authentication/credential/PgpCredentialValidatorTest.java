@@ -20,7 +20,6 @@ import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -91,7 +90,7 @@ public class PgpCredentialValidatorTest {
 
     @Before
     public void setup() {
-        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.now());
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         when(preparedUpdate.getUpdate()).thenReturn(update);
     }
 

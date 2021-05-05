@@ -70,7 +70,7 @@ public class DailySchedulerJmx extends JmxBase {
     public String runDailyScheduledTasks() {
         return invokeOperation("runMaintenance", "", () -> {
             scheduledTasks.values().stream()
-                    .map(task -> taskScheduler.schedule(task, toDate(dateTimeProvider.getLocalDateTimeUtc())))
+                    .map(task -> taskScheduler.schedule(task, toDate(dateTimeProvider.getCurrentDateTime())))
                     .collect(Collectors.toList())
                     .forEach(this::runSilently);
             return "Daily scheduled tasks executed";
@@ -94,7 +94,7 @@ public class DailySchedulerJmx extends JmxBase {
             ScheduledMethodRunnable scheduledTask = scheduledTasks.get(className);
 
             if (scheduledTask != null) {
-                runSilently(taskScheduler.schedule(scheduledTask, toDate(dateTimeProvider.getLocalDateTimeUtc())));
+                runSilently(taskScheduler.schedule(scheduledTask, toDate(dateTimeProvider.getCurrentDateTime())));
                 return "Daily scheduled tasks executed";
             } else {
                 return "Class " + className +" not found";

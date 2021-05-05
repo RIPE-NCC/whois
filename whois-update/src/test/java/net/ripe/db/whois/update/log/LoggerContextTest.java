@@ -51,7 +51,7 @@ public class LoggerContextTest {
         } catch (IllegalStateException ignored) {}
         subject.init(folder.getRoot());
 
-        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.now());
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         when(update.getUpdate()).thenReturn(update);
     }
 

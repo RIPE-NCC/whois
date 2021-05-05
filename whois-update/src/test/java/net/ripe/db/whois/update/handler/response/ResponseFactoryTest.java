@@ -109,7 +109,7 @@ public class ResponseFactoryTest {
         updateResults = Lists.newArrayList();
         ignoredParagraphs = Lists.newArrayList();
 
-        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC));
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC));
         when(updateContext.printGlobalMessages()).thenReturn("");
         when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
         when(applicationVersion.getVersion()).thenReturn("1.2.3");

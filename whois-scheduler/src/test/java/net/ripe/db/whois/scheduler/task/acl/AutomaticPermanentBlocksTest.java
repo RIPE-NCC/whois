@@ -49,7 +49,7 @@ public class AutomaticPermanentBlocksTest {
     @Before
     public void setUp() throws Exception {
         now = LocalDate.now();
-        when(dateTimeProvider.getLocalDateUtc()).thenReturn(now);
+        when(dateTimeProvider.getCurrentDate()).thenReturn(now);
         when(ipResourceConfiguration.getLimit(any(InetAddress.class))).thenReturn(QUERY_LIMIT);
     }
 

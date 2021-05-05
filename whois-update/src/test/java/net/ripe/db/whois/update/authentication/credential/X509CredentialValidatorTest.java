@@ -41,7 +41,7 @@ public class X509CredentialValidatorTest {
 
     @Before
     public void setup() {
-        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.now());
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenAnswer(invocation ->
                     RpslObject.parse("" +
                         "key-cert:       AUTO-1\n" +

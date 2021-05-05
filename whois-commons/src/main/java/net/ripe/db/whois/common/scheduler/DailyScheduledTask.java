@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.scheduler;
 
 public interface DailyScheduledTask extends Runnable {
-    String RUN_TIMEZONE = "Europe/Amsterdam";
+    String EUROPE_AMSTERDAM = "Europe/Amsterdam";
     void run();
 }

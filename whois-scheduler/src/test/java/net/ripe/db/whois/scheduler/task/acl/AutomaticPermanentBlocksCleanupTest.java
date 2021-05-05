@@ -25,7 +25,7 @@ public class AutomaticPermanentBlocksCleanupTest {
     public void run() {
         final LocalDate now = LocalDate.now();
 
-        when(dateTimeProvider.getLocalDateUtc()).thenReturn(now);
+        when(dateTimeProvider.getCurrentDate()).thenReturn(now);
 
         subject.run();
 

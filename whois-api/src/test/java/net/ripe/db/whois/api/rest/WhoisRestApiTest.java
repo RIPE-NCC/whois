@@ -41,14 +41,14 @@ public class WhoisRestApiTest {
 
     @Test
     public void response_header_for_any_request() {
-        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.of(2013, 3, 3, 12, 55));
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.of(2013, 3, 3, 12, 55));
 
         assertThat(subject.getResponseHeader(), is(" - From-Host: 127.0.0.1\n - Date/Time: Sun Mar 3 12:55:00 2013Z\n"));
     }
 
     @Test
     public void notification_header_for_any_request() {
-        when(dateTimeProvider.getLocalDateTimeUtc()).thenReturn(LocalDateTime.of(2013, 3, 3, 12, 55));
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.of(2013, 3, 3, 12, 55));
 
         assertThat(subject.getNotificationHeader(), is(" - From-Host: 127.0.0.1\n - Date/Time: Sun Mar 3 12:55:00 2013Z\n"));
     }

@@ -320,7 +320,7 @@ public class JdbcRpslObjectOperations {
     }
 
     public static int now(final DateTimeProvider dateTimeProvider) {
-        return (int) Timestamp.from(dateTimeProvider.getLocalDateTimeUtc()).getValue();
+        return (int) Timestamp.from(dateTimeProvider.getCurrentDateTime()).getValue();
     }
 
     public static void truncateTables(final JdbcTemplate... jdbcTemplates) {

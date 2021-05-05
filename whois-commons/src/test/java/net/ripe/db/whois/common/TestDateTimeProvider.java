@@ -20,17 +20,17 @@ public class TestDateTimeProvider implements DateTimeProvider, Stub {
     }
 
     @Override
-    public LocalDate getLocalDateUtc() {
-        return getZoneDateTimeUtc().toLocalDate();
+    public LocalDate getCurrentDate() {
+        return getCurrentZonedDateTime().toLocalDate();
     }
 
     @Override
-    public LocalDateTime getLocalDateTimeUtc() {
-        return getZoneDateTimeUtc().toLocalDateTime();
+    public LocalDateTime getCurrentDateTime() {
+        return getCurrentZonedDateTime().toLocalDateTime();
     }
 
     @Override
-    public ZonedDateTime getZoneDateTimeUtc() {
+    public ZonedDateTime getCurrentZonedDateTime() {
         return localDateTime.atZone(ZoneOffset.UTC);
     }
 

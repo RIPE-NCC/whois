@@ -54,7 +54,7 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
     }
 
     def getTimeUtcString() {
-        return FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.zoneDateTimeUtc)
+        return FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentZonedDateTime)
     }
 
     def resetTime() {

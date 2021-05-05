@@ -493,7 +493,7 @@ public class AttributeSanitizerTest {
 
     @Test
     public void transform_changed() {
-        when(dateTimeProvider.getLocalDateUtc()).thenReturn(LocalDate.of(2013, 02, 25));
+        when(dateTimeProvider.getCurrentDate()).thenReturn(LocalDate.of(2013, 02, 25));
         final RpslObject rpslObject = RpslObject.parse("inet6num: 2001::/16\n" +
                 "changed: user@host.org 20120601\n" +
                 "changed: user@host.org\n" +

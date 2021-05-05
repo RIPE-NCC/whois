@@ -66,7 +66,7 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
      * Run at 00.15 so we don't miss the the delegated stats file which is normally published around midnight.
      */
     @Override
-    @Scheduled(cron = "0 15 0 * * *", zone = RUN_TIMEZONE)
+    @Scheduled(cron = "0 15 0 * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         doImport(sourceNames);

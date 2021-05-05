@@ -662,7 +662,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     }
 
     public static int now(final DateTimeProvider dateTimeProvider) {
-        return (int) Timestamp.from(dateTimeProvider.getLocalDateTimeUtc()).getValue();
+        return (int) Timestamp.from(dateTimeProvider.getCurrentDateTime()).getValue();
     }
 
     @Test
