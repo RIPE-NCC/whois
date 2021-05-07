@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AttributeSanitizerTest {
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS) DateTimeProvider dateTimeProvider;
+    @Mock DateTimeProvider dateTimeProvider;
     @Mock ObjectMessages objectMessages;
     @InjectMocks AttributeSanitizer attributeSanitizer;
 
