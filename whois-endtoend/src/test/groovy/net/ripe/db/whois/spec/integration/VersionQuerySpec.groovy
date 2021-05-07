@@ -822,7 +822,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Version 1 of object \"" + pkey + "\""
-        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+ \d+:\d+/
+        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+T\d+:\d+:\d+Z/
         response =~ "% You can use \"--list-versions\" to get a list of versions for an object."
 
       where:
@@ -839,7 +839,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Version 1 of object \"" + pkey + "\""
-        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+ \d+:\d+/
+        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+T\d+:\d+:\d+Z/
         response =~ "% You can use \"--list-versions\" to get a list of versions for an object."
 
       where:
