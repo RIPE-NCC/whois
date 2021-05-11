@@ -90,7 +90,9 @@ public class MessageParserTest {
 
         final MailMessage result = subject.parse(simpleTextUnsignedMessage, updateContext);
 
-        assertThat(result.getDate(), is("Mon, 28 May 2012 00:04:45 +0200"));
+        // delivery date in message header Mon, 28 May 2012 00:04:45 +0200
+        // Now should be in UTC
+        assertThat(result.getDate(), is("Sun May 27 22:04:45 Z 2012"));
     }
 
     @Test

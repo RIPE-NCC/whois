@@ -44,6 +44,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.List;
 
+import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
+
 /**
  * Ref: http://www.ripe.net/data-tools/support/documentation/update-ref-manual#section-47
  */
@@ -68,7 +70,10 @@ public class MessageParser {
 
         String[] deliveryDate = message.getHeader("Delivery-date");
         if (deliveryDate != null && deliveryDate.length > 0 && deliveryDate[0].length() > 0) {
-            messageBuilder.date(deliveryDate[0]);
+            ZonedDateTime deliveryDateInUTC = ZonedDateTime
+                    .parse(deliveryDate[0], RFC_1123_DATE_TIME).withZoneSameInstant(ZoneOffset.UTC);
+
+            messageBuilder.date(DATE_FORMAT.format(deliveryDateInUTC));
         } else {
             messageBuilder.date(DATE_FORMAT.format(ZonedDateTime.now(ZoneOffset.UTC)));
         }
