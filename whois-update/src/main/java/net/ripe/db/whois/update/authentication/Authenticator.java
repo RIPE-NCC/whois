@@ -95,8 +95,6 @@ public class Authenticator {
 
         if (!origin.allowAdminOperations()) {
             authenticationMessages.add(UpdateMessages.overrideNotAllowedForOrigin(origin));
-        } else if (!ipRanges.isTrusted(IpInterval.parse(origin.getFrom()))) {
-            authenticationMessages.add(UpdateMessages.overrideOnlyAllowedByDbAdmins());
         }
 
         if (overrideCredentials.size() != 1) {
@@ -109,9 +107,16 @@ public class Authenticator {
         }
 
         final OverrideCredential overrideCredential = overrideCredentials.iterator().next();
-        if (overrideCredential.getOverrideValues().isPresent()){
+        if (overrideCredential.getOverrideValues().isPresent()) {
             OverrideCredential.OverrideValues overrideValues = overrideCredential.getOverrideValues().get();
             final String username = overrideValues.getUsername();
+
+            if (!isAllowedToUseOverride(origin, updateContext, username)) {
+                authenticationMessages.add(UpdateMessages.overrideOnlyAllowedByDbAdmins());
+                handleFailure(update, updateContext, authenticationMessages);
+                return Subject.EMPTY;
+            }
+
             try {
                 final User user = userDao.getOverrideUser(username);
                 if (user.isValidPassword(overrideValues.getPassword()) && user.getObjectTypes().contains(update.getType())) {
@@ -126,6 +131,18 @@ public class Authenticator {
         authenticationMessages.add(UpdateMessages.overrideAuthenticationFailed());
         handleFailure(update, updateContext, authenticationMessages);
         return Subject.EMPTY;
+    }
+
+    private boolean isAllowedToUseOverride(final Origin origin, final UpdateContext updateContext, final String overrideUsername) {
+        if(ipRanges.isTrusted(IpInterval.parse(origin.getFrom()))) {
+            return true;
+        }
+
+        if (updateContext.getUserSession() == null || updateContext.getUserSession().getUsername() == null || overrideUsername == null) {
+            return false;
+        }
+
+        return (updateContext.getUserSession().getUsername()).equals(overrideUsername.concat("@ripe.net"));
     }
 
     private Subject performAuthentication(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
