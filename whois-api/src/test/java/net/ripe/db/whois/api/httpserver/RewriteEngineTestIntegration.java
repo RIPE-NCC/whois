@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.httpserver;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -58,6 +59,9 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
     @Autowired
     WhoisObjectMapper whoisObjectMapper;
 
+    @Autowired
+    FullTextIndex fullTextIndex;
+
     final RpslObject person = RpslObject.parse(
             "person:        Pauleth Palthen\n" +
                     "address:       Singel 258\n" +
@@ -67,6 +71,18 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                     "nic-hdl:       PP1-TEST\n" +
                     "remarks:       remark\n" +
                     "source:        TEST\n");
+
+    @BeforeClass
+    public static void setProperty() {
+        // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
+        System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
+        System.setProperty("fulltext.search.max.results", "3");
+    }
+
+    @AfterClass
+    public static void clearProperty() {
+        System.clearProperty("dir.fulltext.index");
+    }
 
     @Before
     public void setup() {
@@ -224,6 +240,18 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .options();
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+    }
+
+    @Test
+    public void fulltext_search() {
+        fullTextIndex.rebuild();
+
+        Response response = RestTest.target(getPort(), "fulltextsearch/select?facet=true&format=xml&hl=true&q=(test)&start=0&wt=json")
+                .request()
+                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
+                .get();
 
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
     }
