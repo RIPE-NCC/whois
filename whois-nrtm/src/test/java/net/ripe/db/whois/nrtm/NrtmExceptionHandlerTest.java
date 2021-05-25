@@ -1,12 +1,5 @@
 package net.ripe.db.whois.nrtm;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.net.InetSocketAddress;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -19,6 +12,13 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.InetSocketAddress;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NrtmExceptionHandlerTest {
@@ -42,8 +42,8 @@ public class NrtmExceptionHandlerTest {
     }
 
     @Test
-    public void handle_illegal_argument_exception() throws Exception {
-        subject.exceptionCaught(channelHandlerContextMock, new IllegalArgumentException(QUERY));
+    public void handle_nrtm_exception() throws Exception {
+        subject.exceptionCaught(channelHandlerContextMock, new NrtmException(QUERY));
 
         verify(channelMock, times(1)).writeAndFlush(QUERY + "\n\n");
         verify(channelFutureMock, times(1)).addListener(ChannelFutureListener.CLOSE);
@@ -53,7 +53,7 @@ public class NrtmExceptionHandlerTest {
     public void handle_exception() throws Exception {
         subject.exceptionCaught(channelHandlerContextMock, new Exception());
 
-        verify(channelMock, times(1)).write(NrtmExceptionHandler.MESSAGE);
+        verify(channelMock, times(1)).writeAndFlush(NrtmMessages.internalError().toString());
         verify(channelFutureMock, times(1)).addListener(ChannelFutureListener.CLOSE);
     }
 }

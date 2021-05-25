@@ -35,6 +35,8 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmQueryHandler.class);
 
+    private static final AttributeKey<Boolean> TERMS_CONDITIONS = AttributeKey.newInstance("terms_conditions");
+
     static final int SECONDS_PER_DAY = 60 * 60 * 24;
     static final int HISTORY_AGE_LIMIT = 14 * SECONDS_PER_DAY;
 
@@ -94,13 +96,13 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
             }
 
             if (!isRequestedSerialInRange(query, range)) {
-                throw new IllegalArgumentException("%ERROR:401: invalid range: Not within " + range.getBegin() + "-" + range.getEnd());
+                throw new NrtmException("%ERROR:401: invalid range: Not within " + range.getBegin() + "-" + range.getEnd());
             }
 
             final Integer serialAge = serialDao.getAgeOfExactOrNextExistingSerial(query.getSerialBegin());
 
             if (serialAge == null || serialAge > HISTORY_AGE_LIMIT) {
-                throw new IllegalArgumentException(String.format("%%ERROR:401: (Requesting serials older than %d days will be rejected)", HISTORY_AGE_LIMIT / SECONDS_PER_DAY));
+                throw new NrtmException(String.format("%%ERROR:401: (Requesting serials older than %d days will be rejected)", HISTORY_AGE_LIMIT / SECONDS_PER_DAY));
             }
 
             final int version = query.getVersion();
@@ -143,7 +145,7 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
         try {
             return new Query(source, nonAuthSource, queryString);
         } catch (OptionException e) {
-            throw new IllegalArgumentException("%ERROR:405: syntax error: " + e.getMessage());
+            throw new NrtmException("%ERROR:405: syntax error: " + e.getMessage());
         }
     }
 
@@ -260,11 +262,15 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
-        PendingWrites.add(ctx.channel());
+        if (!ctx.channel().hasAttr(TERMS_CONDITIONS)) {
+            PendingWrites.add(ctx.channel());
 
-        writeMessage(ctx.channel(),  NrtmMessages.termsAndConditions());
+            writeMessage(ctx.channel(),  NrtmMessages.termsAndConditions());
 
-        ctx.fireChannelActive();
+            ctx.channel().attr(TERMS_CONDITIONS).set(true);
+
+            ctx.fireChannelActive();
+        }
     }
 
     @Override
