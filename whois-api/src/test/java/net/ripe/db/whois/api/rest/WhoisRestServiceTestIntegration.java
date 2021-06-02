@@ -77,6 +77,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
@@ -4033,6 +4034,38 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void update_with_override_trusted_ip_with_sso_succeeds() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("db_e2e_1", "zoh", ObjectType.PERSON));
+
+        final RpslObject TEST_PERSON_2 = RpslObject.parse("" +
+                "person:    Test Person2\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31 6 12345678\n" +
+                "nic-hdl:   TP2-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        databaseHelper.addObject(TEST_PERSON_2);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(TEST_PERSON_2).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST")
+                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
+                .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "db_e2e_1")
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertInfoCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Info", "Authorisation override used");
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getPrimaryKey(), contains(new Attribute("nic-hdl", "TP2-TEST")));
+        assertThat(object.getAttributes().stream().filter( (attribute) -> attribute.getName().equals("remarks")).collect(Collectors.toSet()), contains(new Attribute("remarks", "updated")));
+
     }
 
     @Test
