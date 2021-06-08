@@ -71,7 +71,9 @@ public class ResponseFactory {
     }
 
     public ResponseMessage createNotification(final UpdateContext updateContext, final Origin origin, final Notification notification) {
-        final String ssoUserEmail = updateContext.getUserSession() != null ? updateContext.getUserSession().getUsername() : "";
+        final String ssoUserEmail = updateContext.getUserSession() != null && !notification.isOverrideUsed()?
+                updateContext.getUserSession().getUsername() : "";
+
         final VelocityContext velocityContext = new VelocityContext();
 
         velocityContext.put("failedAuthentication", notification.getUpdates(Notification.Type.FAILED_AUTHENTICATION));

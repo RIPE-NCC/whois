@@ -431,7 +431,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return rpslObjectDao.getByKey(type, pkey);
     }
 
-    public void unban(final String prefix) throws InterruptedException {
+    public void unban(final String prefix) {
         aclTemplate.update("INSERT INTO acl_event (prefix, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
                 prefix,
                 new Date(),

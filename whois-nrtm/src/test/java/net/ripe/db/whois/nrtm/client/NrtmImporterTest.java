@@ -2,6 +2,7 @@ package net.ripe.db.whois.nrtm.client;
 
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.nrtm.NrtmException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +32,7 @@ public class NrtmImporterTest {
         subject.setEmbeddedValueResolver(valueResolver);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NrtmException.class)
     public void invalid_source() {
         when(sourceContext.isVirtual(CIString.ciString("1-GRS"))).thenReturn(true);
 
