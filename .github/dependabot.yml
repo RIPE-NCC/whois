@@ -40,3 +40,12 @@ updates:
         versions: ["3.x"]
       # More recent versions of awaitility depend on Groovy 3
       - dependency-name: "org.awaitility:awaitility"
+      # Don't update SolrJ (provides API for full text search)
+      - dependency-name: "org.apache.solr:solr-solrj"
+      # Don't update Lucene (breaking changes)
+      - dependency-name: "org.apache.lucene:lucene-core"
+      - dependency-name: "org.apache.lucene:lucene-queries"
+      - dependency-name: "org.apache.lucene:lucene-queryparser"
+      - dependency-name: "org.apache.lucene:lucene-analyzers-common"
+      - dependency-name: "org.apache.lucene:lucene-highlighter"
+      - dependency-name: "org.apache.lucene:lucene-facet"
