@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.grs;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Asn;
 import net.ripe.commons.ip.AsnRange;
 import net.ripe.commons.ip.Ipv4;
@@ -53,6 +54,10 @@ public class AuthoritativeResource {
 
     public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
         return new AuthoritativeResourceLoader(logger, name, scanner).load();
+    }
+
+    public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner, final Set<String> statuses) {
+        return new AuthoritativeResourceLoader(logger, name, scanner, statuses).load();
     }
 
     public AuthoritativeResource(final SortedRangeSet<Asn, AsnRange> autNums, final SortedRangeSet<Ipv4, Ipv4Range> inetRanges, final SortedRangeSet<Ipv6, Ipv6Range> inet6Ranges) {
@@ -195,10 +200,19 @@ public class AuthoritativeResource {
     public List<String> getResources() {
         return Lists.newArrayList(
             Iterables.concat(
-                Iterables.transform(autNums, input -> input.toString()),
-                Iterables.transform(inetRanges, input -> input.toStringInRangeNotation()),
-                Iterables.transform(Iterables.<Ipv6Range>concat(Iterables.transform(inet6Ranges, input -> input.splitToPrefixes())), input -> input.toStringInCidrNotation())
+                Iterables.transform(autNums, AsnRange::toString),
+                Iterables.transform(inetRanges, AbstractIpRange::toStringInRangeNotation),
+                Iterables.transform(Iterables.concat(Iterables.transform(inet6Ranges, AbstractIpRange::splitToPrefixes)), AbstractIpRange::toStringInCidrNotation)
             ));
     }
+
+    public Set<Ipv4Range> getIpv4Resources() {
+        return inetRanges.unmodifiableSet();
+    }
+
+    public Set<Ipv6Range> getIpv6Resources() {
+        return inet6Ranges.unmodifiableSet();
+    }
+
 }
 

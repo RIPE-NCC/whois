@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.grs;
 
-import com.google.common.collect.Sets;
 import net.ripe.commons.ip.Asn;
 import net.ripe.commons.ip.AsnRange;
 import net.ripe.commons.ip.Ipv4;
@@ -15,7 +14,7 @@ import java.util.Set;
 
 abstract class AbstractAuthoritativeResourceLoader {
 
-    private final static Set<String> ALLOWED_STATUSES = Sets.newHashSet("allocated", "assigned", "available", "reserved");
+    private final Set<String> statuses;
 
     protected final Logger logger;
 
@@ -25,6 +24,12 @@ abstract class AbstractAuthoritativeResourceLoader {
 
     AbstractAuthoritativeResourceLoader(final Logger logger) {
         this.logger = logger;
+        this.statuses = Set.of("allocated", "assigned", "available", "reserved");
+    }
+
+    AbstractAuthoritativeResourceLoader(final Logger logger, final Set<String> statuses) {
+        this.logger = logger;
+        this.statuses = statuses;
     }
 
     void handleResource(final String source,
@@ -45,7 +50,7 @@ abstract class AbstractAuthoritativeResourceLoader {
             return;
         }
 
-        if (!ALLOWED_STATUSES.contains(status)) {
+        if (!statuses.contains(status)) {
             logger.debug("Ignoring status '{}'", status);
             return;
         }

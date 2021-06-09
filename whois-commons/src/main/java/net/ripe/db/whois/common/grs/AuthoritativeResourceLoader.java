@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class AuthoritativeResourceLoader extends AbstractAuthoritativeResourceLoader {
 
@@ -15,6 +16,12 @@ public class AuthoritativeResourceLoader extends AbstractAuthoritativeResourceLo
 
     public AuthoritativeResourceLoader(final Logger logger, final String name, final Scanner scanner) {
         super(logger);
+        this.name = name;
+        this.scanner = scanner;
+    }
+
+    public AuthoritativeResourceLoader(final Logger logger, final String name, final Scanner scanner, final Set<String> statuses) {
+        super(logger, statuses);
         this.name = name;
         this.scanner = scanner;
     }
