@@ -206,12 +206,18 @@ public class AuthoritativeResource {
             ));
     }
 
-    public Set<Ipv4Range> getIpv4Resources() {
-        return inetRanges.unmodifiableSet();
-    }
+    public static AuthoritativeResource merge(final List<AuthoritativeResource> authoritativeResources) {
+        final SortedRangeSet<Asn, AsnRange> asns = new SortedRangeSet<>();
+        final SortedRangeSet<Ipv4, Ipv4Range> ipv4s = new SortedRangeSet<>();
+        final SortedRangeSet<Ipv6, Ipv6Range> ipv6s = new SortedRangeSet<>();
 
-    public Set<Ipv6Range> getIpv6Resources() {
-        return inet6Ranges.unmodifiableSet();
+        authoritativeResources.forEach(authoritativeResource -> {
+            asns.addAll(authoritativeResource.autNums);
+            ipv4s.addAll(authoritativeResource.inetRanges);
+            ipv6s.addAll(authoritativeResource.inet6Ranges);
+        });
+
+        return new AuthoritativeResource(asns, ipv4s, ipv6s);
     }
 
 }
