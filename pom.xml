@@ -79,6 +79,7 @@
         <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
         <mockito.version>3.6.28</mockito.version>
 
+        <!-- Test aws-java-sdk with updated Netty -->
         <netty.version>4.1.60.Final</netty.version>
 
         <persistence.version>1.0.2</persistence.version>
