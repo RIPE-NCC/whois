@@ -67,7 +67,7 @@
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.13.1</jsoup.version>
-        <junit.version>4.13.1</junit.version>
+        <junit.version>4.13.2</junit.version>
         <jetty.version>10.0.4</jetty.version>
         <jersey.version>2.32</jersey.version>
         <jackson.version>2.11.3</jackson.version>
@@ -79,6 +79,7 @@
         <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
         <mockito.version>3.6.28</mockito.version>
 
+        <!-- Test aws-java-sdk with updated Netty -->
         <netty.version>4.1.60.Final</netty.version>
 
         <persistence.version>1.0.2</persistence.version>
@@ -995,7 +996,7 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.3</version>
+                <version>4.0.5</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
