@@ -12,9 +12,14 @@ import org.slf4j.Logger;
 
 import java.util.Set;
 
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.ALLOCATED;
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.ASSIGNED;
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.AVAILABLE;
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.RESERVED;
+
 abstract class AbstractAuthoritativeResourceLoader {
 
-    private final Set<String> statuses;
+    private final Set<AuthoritativeResourceStatus> statuses;
 
     protected final Logger logger;
 
@@ -24,10 +29,10 @@ abstract class AbstractAuthoritativeResourceLoader {
 
     AbstractAuthoritativeResourceLoader(final Logger logger) {
         this.logger = logger;
-        this.statuses = Set.of("allocated", "assigned", "available", "reserved");
+        this.statuses = Set.of(ALLOCATED, ASSIGNED, AVAILABLE, RESERVED);
     }
 
-    AbstractAuthoritativeResourceLoader(final Logger logger, final Set<String> statuses) {
+    AbstractAuthoritativeResourceLoader(final Logger logger, final Set<AuthoritativeResourceStatus> statuses) {
         this.logger = logger;
         this.statuses = statuses;
     }
@@ -37,7 +42,7 @@ abstract class AbstractAuthoritativeResourceLoader {
                         final String type,
                         final String start,
                         final String value,
-                        final String status,
+                        final AuthoritativeResourceStatus status,
                         final String expectedSource) {
 
         if (!source.toLowerCase().contains(expectedSource)) {

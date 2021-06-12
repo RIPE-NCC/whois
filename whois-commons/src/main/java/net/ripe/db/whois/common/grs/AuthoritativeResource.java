@@ -56,7 +56,7 @@ public class AuthoritativeResource {
         return new AuthoritativeResourceLoader(logger, name, scanner).load();
     }
 
-    public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner, final Set<String> statuses) {
+    public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner, final Set<AuthoritativeResourceStatus> statuses) {
         return new AuthoritativeResourceLoader(logger, name, scanner, statuses).load();
     }
 
