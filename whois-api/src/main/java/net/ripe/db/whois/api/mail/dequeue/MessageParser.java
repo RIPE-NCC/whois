@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import net.ripe.db.whois.api.mail.MailMessage;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
@@ -56,10 +57,12 @@ public class MessageParser {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
 
     private final LoggerContext loggerContext;
+    private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    public MessageParser(final LoggerContext loggerContext) {
+    public MessageParser(final LoggerContext loggerContext, final DateTimeProvider dateTimeProvider) {
         this.loggerContext = loggerContext;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException {
@@ -75,7 +78,7 @@ public class MessageParser {
 
             messageBuilder.date(DATE_FORMAT.format(deliveryDateInUTC));
         } else {
-            messageBuilder.date(DATE_FORMAT.format(ZonedDateTime.now(ZoneOffset.UTC)));
+            messageBuilder.date(DATE_FORMAT.format(dateTimeProvider.getCurrentZonedDateTime()));
         }
 
         parseReplyTo(messageBuilder, message);

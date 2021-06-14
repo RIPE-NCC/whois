@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.MailMessage;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -46,12 +47,14 @@ public class MessageParserTest {
     @Mock MimeMessage mimeMessage;
     @Mock UpdateContext updateContext;
     @Mock LoggerContext loggerContext;
+    @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks MessageParser subject;
 
     @Before
     public void setUp() throws Exception {
         when(mimeMessage.getContentType()).thenReturn("text/plain");
         when(mimeMessage.getContent()).thenReturn("1234");
+        when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(ZonedDateTime.now(ZoneOffset.UTC));
     }
 
     @Test

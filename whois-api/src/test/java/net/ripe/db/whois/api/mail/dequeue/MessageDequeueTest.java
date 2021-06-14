@@ -32,6 +32,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -68,6 +70,7 @@ public class MessageDequeueTest {
         ReflectionTestUtils.setField(subject, "nrThreads", 1);
         ReflectionTestUtils.setField(subject, "intervalMs", 1);
         when(maintenanceMode.allowUpdate()).thenReturn(true);
+        when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(ZonedDateTime.now(ZoneOffset.UTC));
     }
 
     @After
@@ -223,7 +226,7 @@ public class MessageDequeueTest {
             @Override
             public MailMessage answer(InvocationOnMock invocation) throws Throwable {
                 final Object[] arguments = invocation.getArguments();
-                return new MessageParser(loggerContext).parse(((MimeMessage) arguments[0]), ((UpdateContext) arguments[1]));
+                return new MessageParser(loggerContext, dateTimeProvider).parse(((MimeMessage) arguments[0]), ((UpdateContext) arguments[1]));
             }
         });
 
