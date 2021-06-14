@@ -36,7 +36,7 @@
                      ignoreExceptions="false">
             <ThresholdFilter level="debug"/>
             <PatternLayout>
-                <Pattern>%d{yyyy-MM-dd'T'HH:mm:ss'Z'} %m%n</Pattern>
+                <Pattern>%d{yyyyMMdd HH:mm:ss} %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
@@ -49,7 +49,7 @@
                      ignoreExceptions="false">
             <ThresholdFilter level="debug"/>
             <PatternLayout>
-                <Pattern>%d{yyyy-MM-dd'T'HH:mm:ss'Z'} %m%n</Pattern>
+                <Pattern>%d{yyyyMMdd HH:mm:ss} %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
@@ -62,7 +62,7 @@
                      ignoreExceptions="false">
             <ThresholdFilter level="debug"/>
             <PatternLayout>
-                <Pattern>%d{yyyy-MM-dd'T'HH:mm:ss'Z'} %m%n</Pattern>
+                <Pattern>%d{yyyyMMdd HH:mm:ss} %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
@@ -75,7 +75,7 @@
                      ignoreExceptions="false">
             <ThresholdFilter level="debug"/>
             <PatternLayout>
-                <Pattern>%d{yyyy-MM-dd'T'HH:mm:ss'Z'} %m%n</Pattern>
+                <Pattern>%d{yyyyMMdd HH:mm:ss} %m%n</Pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
@@ -91,7 +91,7 @@
               bufferSize="1">
             <ThresholdFilter level="error"/>
             <PatternLayout>
-                <Pattern>%d{yyyy-MM-dd'T'HH:mm:ss'Z'} whois_rdp PW-I-%p %m%n</Pattern>
+                <Pattern>%d{yyyyMMdd HH:mm:ss} whois_rdp PW-I-%p %m%n</Pattern>
             </PatternLayout>
         </SMTP>
 
