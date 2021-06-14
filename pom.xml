@@ -36,7 +36,7 @@
 
         <aws-java-sdk.version>1.11.327</aws-java-sdk.version>
 
-        <bouncycastle.version>1.68</bouncycastle.version>
+        <bouncycastle.version>1.69</bouncycastle.version>
 
         <c3po.version>0.9.5.5</c3po.version>
         <commons-compress.version>1.20</commons-compress.version>
@@ -57,7 +57,7 @@
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <guava.version>30.1-jre</guava.version>
+        <guava.version>30.1.1-jre</guava.version>
         <groovy.version>2.5.14</groovy.version>
 
         <hazelcast.version>4.1.1</hazelcast.version>
@@ -67,18 +67,19 @@
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.13.1</jsoup.version>
-        <junit.version>4.13.1</junit.version>
-        <jetty.version>10.0.2</jetty.version>
+        <junit.version>4.13.2</junit.version>
+        <jetty.version>10.0.4</jetty.version>
         <jersey.version>2.32</jersey.version>
-        <jackson.version>2.11.3</jackson.version>
+        <jackson.version>2.12.3</jackson.version>
 
-        <log4j.version>2.14.0</log4j.version>
+        <log4j.version>2.14.1</log4j.version>
         <lucene.version>7.7.2</lucene.version>
 
         <mail.version>1.6.2</mail.version>
         <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
         <mockito.version>3.6.28</mockito.version>
 
+        <!-- Test aws-java-sdk with updated Netty -->
         <netty.version>4.1.60.Final</netty.version>
 
         <persistence.version>1.0.2</persistence.version>
@@ -984,7 +985,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>6.1.0</version>
+                <version>6.2.2</version>
                 <executions>
                     <execution>
                         <id>not-by-default</id>
@@ -995,7 +996,7 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.3</version>
+                <version>4.0.5</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
