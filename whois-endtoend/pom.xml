@@ -3,7 +3,7 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>utc-switch-version-2</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
