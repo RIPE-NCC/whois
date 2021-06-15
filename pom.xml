@@ -76,7 +76,7 @@
         <lucene.version>7.7.2</lucene.version>
 
         <mail.version>1.6.2</mail.version>
-        <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
+        <mariadb-java-client.version>2.7.3</mariadb-java-client.version>
         <mockito.version>3.6.28</mockito.version>
 
         <!-- Test aws-java-sdk with updated Netty -->
