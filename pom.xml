@@ -63,7 +63,7 @@
         <hazelcast.version>4.1.1</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
-        <jaxb.version>2.3.3</jaxb.version>
+        <jaxb.version>3.0.1</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.13.1</jsoup.version>
