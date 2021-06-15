@@ -15,6 +15,11 @@ public class DatabaseTextExport implements DailyScheduledTask {
         this.rpslObjectsExporter = rpslObjectsExporter;
     }
 
+    /**
+     * The time zone for this job is set to EUROPE_AMSTERDAM.
+     * This ensures the files it generates on the FTP server remains
+     * being generated at midnight, Amsterdam time regardless of switch to UTC
+     */
     @Override
     @Scheduled(cron = "0 0 0 * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "DatabaseTextExport")
