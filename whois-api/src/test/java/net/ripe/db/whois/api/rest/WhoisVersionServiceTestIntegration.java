@@ -52,7 +52,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
             "mnt-by:    OWNER-MNT\n" +
             "source:    TEST\n");
 
-    private static final String VERSION_DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}";
+    private static final String VERSION_DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z";
 
     @Autowired
     private MaintenanceMode maintenanceMode;

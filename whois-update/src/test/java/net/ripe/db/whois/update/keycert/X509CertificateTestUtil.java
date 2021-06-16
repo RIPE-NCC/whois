@@ -71,7 +71,7 @@ public class X509CertificateTestUtil {
         keyGen.initialize(2048);
         KeyPair keyPair = keyGen.generateKeyPair();
 
-        final Instant now = dateTimeProvider.getCurrentDateTimeUtc().minusDays(1).toInstant();
+        final Instant now = dateTimeProvider.getCurrentZonedDateTime().minusDays(1).toInstant();
         final Date notBefore = Date.from(now);
         final Date notAfter = Date.from(now.plus(Duration.ofDays(365)));
 
