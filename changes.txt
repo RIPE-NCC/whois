@@ -1,5 +1,14 @@
 # next
 
+# 1.101
+
+[all] Switch RIPE database to UTC timezone
+[nrtm] Display an error on NRTM if client is blocked by ACL limit (#812)
+[api] Added rewrite rules to embedded Jetty (#801)
+[rdap] RDAP nameserver queries always return Not Implemented (#811)
+[update] Don't use sso as reply-to when override was used. (#818)
+[all] Updated dependencies
+
 # 1.100
 
 [query] Use AWS instance name (#781)
