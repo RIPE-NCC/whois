@@ -9,7 +9,8 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <import resource="applicationContext-scheduler.xml"/>
+    <context:annotation-config />
+    <bean class="net.ripe.db.whois.scheduler.SchedulerConfig" />
 
     <context:component-scan base-package="net.ripe.db.whois"/>
 

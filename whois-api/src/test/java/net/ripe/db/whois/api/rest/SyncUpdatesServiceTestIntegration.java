@@ -476,7 +476,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         final CIString orginialModifiedDate = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS104").getValueForAttribute(AttributeType.LAST_MODIFIED);
 
-        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentZonedDateTime();
         testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 
         final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +

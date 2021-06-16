@@ -63,7 +63,6 @@ public class VersionQueryExecutorTest {
 
     @Test
     public void notFoundList() {
-        when(versionDao.findByKey(ObjectType.IRT, "IRT-THISONE")).thenReturn(null);
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(Query.parse("--list-versions IRT-THISONE"), responseHandler);
@@ -89,9 +88,9 @@ public class VersionQueryExecutorTest {
 
         assertThat(result.next().toString(), matchesPattern("rev#\\s+Date\\s+Op.*"));
 
-        assertThat(result.next().toString(), matchesPattern("1\\s+2011-08-01 14:56\\s+ADD/UPD"));
-        assertThat(result.next().toString(), matchesPattern("2\\s+2012-04-10 13:58\\s+ADD/UPD"));
-        assertThat(result.next().toString(), matchesPattern("3\\s+2012-04-25 06:55\\s+ADD/UPD"));
+        assertThat(result.next().toString(), matchesPattern("1\\s+2011-08-01T14:56:25Z\\s+ADD/UPD"));
+        assertThat(result.next().toString(), matchesPattern("2\\s+2012-04-10T13:58:02Z\\s+ADD/UPD"));
+        assertThat(result.next().toString(), matchesPattern("3\\s+2012-04-25T06:55:16Z\\s+ADD/UPD"));
 
         assertThat(result.next().toString(), is(""));
         assertThat(result.hasNext(), is(false));
@@ -113,7 +112,7 @@ public class VersionQueryExecutorTest {
 
         final List<ResponseObject> responseObjects = responseHandler.getResponseObjects();
         assertThat(new String(responseObjects.get(0).toByteArray()), is(QueryMessages.versionListStart(ObjectType.AUT_NUM.getName().toUpperCase(), "AS2050").toString()));
-        assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-25 06:55").toString()));
+        assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-25T06:55:16Z").toString()));
     }
 
     @Test
@@ -132,7 +131,7 @@ public class VersionQueryExecutorTest {
 
         final List<ResponseObject> responseObjects = responseHandler.getResponseObjects();
         assertThat(new String(responseObjects.get(0).toByteArray()), is(QueryMessages.versionListStart(ObjectType.AUT_NUM.getName().toUpperCase(), "AS2050").toString()));
-        assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-10 13:58").toString()));
+        assertThat(new String(responseObjects.get(1).toByteArray()), is(QueryMessages.versionDeleted("2012-04-10T13:58:02Z").toString()));
     }
 
     @Test
@@ -186,7 +185,6 @@ public class VersionQueryExecutorTest {
         setupVersionMock(versionInfo3, 1, "2012-04-10T13:58:12");
         final VersionLookupResult versionLookupResultPerson = new VersionLookupResult(Lists.newArrayList(versionInfo1, versionInfo2), ObjectType.PERSON, "TP1-TEST");
         final VersionLookupResult versionLookupResultMntner = new VersionLookupResult(Lists.newArrayList(versionInfo3), ObjectType.MNTNER, "TP1-TEST");
-        when(versionDao.findByKey(ObjectType.PERSON, "TP1-TEST")).thenReturn(versionLookupResultPerson);
         when(versionDao.findByKey(ObjectType.MNTNER, "TP1-TEST")).thenReturn(versionLookupResultMntner);
 
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
@@ -208,11 +206,6 @@ public class VersionQueryExecutorTest {
         final VersionLookupResult tp1 = new VersionLookupResult(Lists.newArrayList(versionInfo1, versionInfo2), ObjectType.PERSON, "TP1-TEST");
         when(versionDao.findByKey(ObjectType.PERSON, "TP1-TEST")).thenReturn(tp1);
 
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "person: Tom Post\n" +
-                "nic-hdl: TP1-TEST");
-        when(versionDao.getRpslObject(any(VersionInfo.class))).thenReturn(rpslObject);
-
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(Query.parse("--show-version 1 TP1-TEST"), responseHandler);
 
@@ -222,10 +215,8 @@ public class VersionQueryExecutorTest {
     }
 
     private void setupVersionMock(final VersionInfo mock, final int objectId, final String timestamp) {
-        when(mock.getObjectId()).thenReturn(objectId);
         when(mock.getOperation()).thenReturn(Operation.UPDATE);
         when(mock.getTimestamp()).thenReturn(new VersionDateTime(mapTimestampToUtc(timestamp)));
-        when(mock.getSequenceId()).thenReturn(objectId - 1);
     }
 
     // convert timestamp to UTC for consistency (i.e. ignore the timezone difference for testing)

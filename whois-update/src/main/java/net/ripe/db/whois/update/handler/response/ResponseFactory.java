@@ -95,7 +95,7 @@ public class ResponseFactory {
         velocityContext.put("version", applicationVersion.getVersion());
         velocityContext.put("hostName", Hosts.getInstanceName());
         velocityContext.put("source", source);
-        velocityContext.put("timestamp", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
+        velocityContext.put("timestamp", FormatHelper.dateTimeToUtcString(dateTimeProvider.getCurrentDateTime()));
 
         final Template template = velocityEngine.getTemplate(templateName);
         final StringWriter writer = new StringWriter();

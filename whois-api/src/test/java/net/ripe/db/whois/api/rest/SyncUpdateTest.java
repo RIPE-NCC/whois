@@ -48,13 +48,13 @@ public class SyncUpdateTest {
     public void response_header_for_any_request() {
         assertThat(subject.getResponseHeader(), containsString("" +
                 " - From-Host: 127.0.0.1\n" +
-                " - Date/Time: Thu Jan 1 00:00:00 1970\n"));
+                " - Date/Time: Thu Jan 1 00:00:00 1970Z\n"));
     }
 
     @Test
     public void notification_header_for_any_request() {
         assertThat(subject.getNotificationHeader(), containsString("" +
                 " - From-Host: 127.0.0.1\n" +
-                " - Date/Time: Thu Jan 1 00:00:00 1970\n"));
+                " - Date/Time: Thu Jan 1 00:00:00 1970Z\n"));
     }
 }
