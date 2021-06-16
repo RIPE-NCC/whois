@@ -13,12 +13,9 @@ updates:
       interval: "daily"
     # N.B. ignore here overwrites any ignores created using `@dependabot ignore` commands
     ignore:
-      # Hazelcast 3+ has breaking changes
-      - dependency-name: "com.hazelcast:hazelcast"
-        versions: ["3.x", "4.x"]
-      # Netty 4 has breaking changes, 5.0.0 is deprecated
+      # Netty 5.x is deprecated
       - dependency-name: "io.netty:netty"
-        versions: ["4.x", "5.x"]
+        versions: ["5.x"]
       # Don't update to Spock 2 until we update to JUnit 5
       - dependency-name: "org.spockframework:spock-core"
         versions: ["2.x"]
@@ -40,3 +37,12 @@ updates:
         versions: ["3.x"]
       # More recent versions of awaitility depend on Groovy 3
       - dependency-name: "org.awaitility:awaitility"
+      # Don't update SolrJ (provides API for full text search)
+      - dependency-name: "org.apache.solr:solr-solrj"
+      # Don't update Lucene (breaking changes)
+      - dependency-name: "org.apache.lucene:lucene-core"
+      - dependency-name: "org.apache.lucene:lucene-queries"
+      - dependency-name: "org.apache.lucene:lucene-queryparser"
+      - dependency-name: "org.apache.lucene:lucene-analyzers-common"
+      - dependency-name: "org.apache.lucene:lucene-highlighter"
+      - dependency-name: "org.apache.lucene:lucene-facet"

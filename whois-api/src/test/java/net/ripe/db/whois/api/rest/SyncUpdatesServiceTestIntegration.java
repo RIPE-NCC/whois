@@ -9,7 +9,9 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.junit.Ignore;
@@ -17,6 +19,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.BadRequestException;
@@ -29,8 +32,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -59,6 +66,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private MailSenderStub mailSender;
+
     @Autowired
     private IpRanges ipRanges;
 
@@ -453,6 +461,27 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("Create SUCCEEDED: [person] TP2-RIPE   Test Person"));
         assertThat(response, containsString("***Warning: Deprecated attribute \"changed\". This attribute has been removed."));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-RIPE").containsAttribute(AttributeType.CHANGED), is(false));
+    }
+
+    @Test
+    public void create_person_accept_encoding_none() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .header(HttpHeaders.ACCEPT_ENCODING,"none")
+                .post(Entity.entity(
+                        "DATA=" + SyncUpdateUtils.encode(
+                                "person:        Test Person\n" +
+                                "address:       Amsterdam\n" +
+                                "phone:         +31\n" +
+                                "nic-hdl:       TP2-RIPE\n" +
+                                "mnt-by:        mntner-mnt\n" +
+                                "source:        TEST\n" +
+                                "password: emptypassword\n"), MediaType.APPLICATION_FORM_URLENCODED), String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-RIPE   Test Person"));
     }
 
     @Test
@@ -1040,6 +1069,72 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("***Warning: Supplied attribute 'last-modified' has been replaced with"));
     }
 
+    @Test
+    public void notify_from_sso() throws MessagingException, IOException {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                "descr:         description\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        test@test.nl\n" +
+                "notify:        test@test.nl\n" +
+                "auth:          SSO person@net.net\n" +
+                "mnt-by:        mntner-mnt\n" +
+                "source:        TEST";
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(mntner + "\npassword: emptypassword"))
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        final MimeMessage message = getMessage("test@test.nl");
+        assertThat(message.getContent().toString(), containsString("You can reply to this message to contact the person who made this change."));
+        assertThat(message.getContent().toString(), not(containsString("Please DO NOT reply to this message.")));
+        assertThat(getAddressesAsString(message.getReplyTo()), containsInAnyOrder("person@net.net"));
+
+        assertThat(response, containsString("Create SUCCEEDED: [mntner] SSO-MNT"));
+        assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT"), not(nullValue()));
+    }
+
+    @Test
+    public void no_notify_from_sso_when_override_used() throws MessagingException, IOException {
+
+        databaseHelper.insertUser(User.createWithPlainTextPassword("user", "password", ObjectType.PERSON));
+
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final RpslObject person = new RpslObjectBuilder(PERSON_ANY1_TEST)
+                .addAttributeSorted(new RpslAttribute(AttributeType.NOTIFY, "test@test.net"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "address"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.PHONE, "+123456789"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.MNT_BY, "mntner-mnt"))
+                .get();
+
+        databaseHelper.updateObject(person);
+
+        final String updatedPerson = new RpslObjectBuilder(databaseHelper.lookupObject(ObjectType.PERSON, person.getKey().toString()))
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "test"))
+                .get()
+                .toString();
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(updatedPerson + "override: user,password\n"))
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        final MimeMessage message = getMessage("test@test.net");
+        assertThat(message.getContent().toString(), not(containsString("You can reply to this message to contact the person who made this change.")));
+        assertThat(message.getContent().toString(), containsString("Please DO NOT reply to this message."));
+        assertThat(getAddressesAsString(message.getReplyTo()), not(containsInAnyOrder("person@net.net")));
+
+        assertThat(response, containsString("Modify SUCCEEDED: [person] TP1-TEST   Test Person"));
+    }
+
     // helper methods
 
     private MimeMessage getMessage(final String to) throws MessagingException {
@@ -1048,6 +1143,12 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     private boolean anyMoreMessages() {
         return mailSender.anyMoreMessages();
+    }
+
+    private Set<String> getAddressesAsString(final Address[] addresses) {
+        return Arrays.stream(addresses)
+            .map(Address::toString)
+            .collect(Collectors.toSet());
     }
 
     private String postWithoutContentType() throws IOException {

@@ -40,7 +40,7 @@ public class DummifierRCTest {
 
         assertThat(after.toString(), is(
             "organisation:   ORG-RIEN1-TEST\n" +
-            "org-name:       Dummy org-name for ORG-RIEN1-TEST\n" +
+            "org-name:       Romeo India Echo November\n" +
             "org-type:       LIR\n" +
             "descr:          ***\n" +
             "address:        ***\n" +

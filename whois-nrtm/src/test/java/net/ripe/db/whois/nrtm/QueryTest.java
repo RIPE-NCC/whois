@@ -20,17 +20,17 @@ public class QueryTest {
         new Query(SOURCE, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NrtmException.class)
     public void empty() {
         new Query(SOURCE, "");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NrtmException.class)
     public void all_args() {
         new Query(SOURCE, "-q -g -k");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NrtmException.class)
     public void flag_k_no_flag_g() {
         new Query(SOURCE, "-k");
     }
@@ -40,7 +40,7 @@ public class QueryTest {
         new Query(SOURCE, "-q");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NrtmException.class)
     public void flag_q_unknown() {
         new Query(SOURCE, "-q foo");
     }
@@ -66,7 +66,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, NONAUTH_SOURCE, "-g FOO");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:403"));
         }
     }
@@ -76,7 +76,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE:0");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:406"));
         }
     }
@@ -86,7 +86,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:405"));
         }
     }
@@ -96,7 +96,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE:3:FOO");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:405"));
         }
     }
@@ -106,7 +106,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE:3:1-FOO");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:405"));
         }
     }
@@ -116,7 +116,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE:3:2-1");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:405"));
         }
     }
@@ -126,7 +126,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE:3:-1");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:405"));
         }
     }

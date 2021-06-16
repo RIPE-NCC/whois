@@ -2,7 +2,6 @@ package net.ripe.db.whois.query.pipeline;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.ResponseObject;
