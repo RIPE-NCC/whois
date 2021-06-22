@@ -40,6 +40,8 @@ public class AuthoritativeResourceWorker {
     }
 
     public AuthoritativeResource load() {
+        logger.info("calling rsng : ");
+        
         CompletableFuture<String> asnDelegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/asn-delegations?page-size=200000&page-number=1"), executorService);
         CompletableFuture<String> ipv4Delegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv4-delegations?page-size=200000&page-number=1"), executorService);
         CompletableFuture<String> ipv6Delegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv6-delegations?page-size=200000&page-number=1"), executorService);
@@ -51,6 +53,7 @@ public class AuthoritativeResourceWorker {
                     getResponse(ipv6Delegations).forEach(ipv6Delegation -> ipv6Space.add( Ipv6Range.parse(ipv6Delegation.get("range").asText())));
 
                 } catch (IOException e) {
+                    logger.info("failure after calls  {}", e.getCause() );
                     throw new CompletionException(e);
                 }
             });
@@ -74,11 +77,12 @@ public class AuthoritativeResourceWorker {
         return  response;
     }
 
-    public static CompletableFuture allOfTerminateOnFailure(CompletableFuture<?>... futures) {
+    public  CompletableFuture allOfTerminateOnFailure(CompletableFuture<?>... futures) {
         CompletableFuture<?> failure = new CompletableFuture();
         for (CompletableFuture<?> f: futures) {
             f.exceptionally(ex -> {
                 failure.completeExceptionally(ex);
+                logger.info("failure {}", ex.getCause() );
                 return null;
             });
         }
