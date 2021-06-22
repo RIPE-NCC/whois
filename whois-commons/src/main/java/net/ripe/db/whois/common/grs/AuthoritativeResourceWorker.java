@@ -69,6 +69,8 @@ public class AuthoritativeResourceWorker {
     private String getRsngDelegations(final String url) {
         final String response =  client.target(rsngBaseUrl)
                 .path(url)
+                .queryParam("page-size", "200000")
+                .queryParam("page-number", "1")
                 .request()
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .header("X-API_KEY", apiKey)
