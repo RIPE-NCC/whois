@@ -12,6 +12,7 @@ import net.ripe.commons.ip.SortedRangeSet;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -40,11 +41,11 @@ public class AuthoritativeResourceWorker {
     }
 
     public AuthoritativeResource load() {
-        logger.info("calling rsng : ");
-        
-        CompletableFuture<String> asnDelegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/asn-delegations?page-size=200000&page-number=1"), executorService);
-        CompletableFuture<String> ipv4Delegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv4-delegations?page-size=200000&page-number=1"), executorService);
-        CompletableFuture<String> ipv6Delegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv6-delegations?page-size=200000&page-number=1"), executorService);
+        logger.info("calling rsng : {} ", rsngBaseUrl);
+
+        CompletableFuture<String> asnDelegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/asn-delegations"), executorService);
+        CompletableFuture<String> ipv4Delegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv4-delegations"), executorService);
+        CompletableFuture<String> ipv6Delegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv6-delegations"), executorService);
 
         allOfTerminateOnFailure(asnDelegations, ipv4Delegations, ipv6Delegations).thenRun(() -> {
                 try {
@@ -69,7 +70,7 @@ public class AuthoritativeResourceWorker {
         final String response =  client.target(rsngBaseUrl)
                 .path(url)
                 .request()
-                //.header(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate")
+                .header(HttpHeaders.ACCEPT, "application/json")
                 .header("X-API_KEY", apiKey)
                 .get(String.class);
 
