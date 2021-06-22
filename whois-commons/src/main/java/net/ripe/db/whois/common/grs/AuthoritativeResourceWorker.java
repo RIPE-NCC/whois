@@ -12,7 +12,6 @@ import net.ripe.commons.ip.SortedRangeSet;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -72,6 +71,7 @@ public class AuthoritativeResourceWorker {
                 .get(String.class);
 
         logger.info("response form rsng for {}, {}", url, response);
+        return  response;
     }
 
     public static CompletableFuture allOfTerminateOnFailure(CompletableFuture<?>... futures) {
