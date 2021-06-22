@@ -64,12 +64,14 @@ public class AuthoritativeResourceWorker {
     }
 
     private String getRsngDelegations(final String url) {
-        return client.target(rsngBaseUrl)
+        final String response =  client.target(rsngBaseUrl)
                 .path(url)
                 .request()
-                .header(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate")
+                //.header(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate")
                 .header("X-API_KEY", apiKey)
                 .get(String.class);
+
+        logger.info("response form rsng for {}, {}", url, response);
     }
 
     public static CompletableFuture allOfTerminateOnFailure(CompletableFuture<?>... futures) {
