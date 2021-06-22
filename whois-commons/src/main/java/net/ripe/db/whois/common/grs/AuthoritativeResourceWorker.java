@@ -41,7 +41,6 @@ public class AuthoritativeResourceWorker {
     }
 
     public AuthoritativeResource load() {
-        logger.info("calling rsng : {} ", rsngBaseUrl);
 
         CompletableFuture<String> asnDelegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/asn-delegations"), executorService);
         CompletableFuture<String> ipv4Delegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv4-delegations"), executorService);
@@ -52,13 +51,14 @@ public class AuthoritativeResourceWorker {
                     getResponse(asnDelegations).forEach(asnDelegation -> autNums.add( AsnRange.parse(asnDelegation.get("range").asText())));
                     getResponse(ipv4Delegations).forEach(ipv4Delegation -> ipv4Space.add( Ipv4Range.parse(ipv4Delegation.get("range").asText())));
                     getResponse(ipv6Delegations).forEach(ipv6Delegation -> ipv6Space.add( Ipv6Range.parse(ipv6Delegation.get("range").asText())));
-
+                    logger.info("completed the process " );
                 } catch (IOException e) {
-                    logger.info("failure after calls  {}", e.getCause() );
+                    logger.warn("failure after calls  {}", e.getCause() );
                     throw new CompletionException(e);
                 }
             });
 
+        logger.info("returning" );
         return  new AuthoritativeResource(autNums, ipv4Space, ipv6Space);
     }
 
@@ -67,17 +67,14 @@ public class AuthoritativeResourceWorker {
     }
 
     private String getRsngDelegations(final String url) {
-        final String response =  client.target(rsngBaseUrl)
+        return client.target(rsngBaseUrl)
                 .path(url)
-                .queryParam("page-size", "200000")
+                .queryParam("page-size", "200000")  //Rsng does not have an api without pagination. So putting maximum allowed page size
                 .queryParam("page-number", "1")
                 .request()
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .header("X-API_KEY", apiKey)
                 .get(String.class);
-
-        logger.info("response form rsng for {}, {}", url, response);
-        return  response;
     }
 
     public  CompletableFuture allOfTerminateOnFailure(CompletableFuture<?>... futures) {
@@ -85,7 +82,7 @@ public class AuthoritativeResourceWorker {
         for (CompletableFuture<?> f: futures) {
             f.exceptionally(ex -> {
                 failure.completeExceptionally(ex);
-                logger.info("failure {}", ex.getCause() );
+                logger.warn("failure {}", ex.getCause() );
                 return null;
             });
         }

@@ -84,7 +84,6 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
                             JsonNode.class)
             );
         } else {
-            LOGGER.info("using individual calls: ");
             authoritativeResource = new AuthoritativeResourceWorker(LOGGER, rsngBaseUrl, client, executorService, apiKey).load();
         }
 
