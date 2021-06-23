@@ -42,28 +42,46 @@ public class AuthoritativeResourceWorker {
 
     public AuthoritativeResource load() {
 
-        CompletableFuture<String> asnDelegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/asn-delegations"), executorService);
-        CompletableFuture<String> ipv4Delegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv4-delegations"), executorService);
-        CompletableFuture<String> ipv6Delegations  = CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv6-delegations"), executorService);
+        CompletableFuture.allOf(
 
-        allOfTerminateOnFailure(asnDelegations, ipv4Delegations, ipv6Delegations).thenRun(() -> {
-                try {
-                    getResponse(asnDelegations).forEach(asnDelegation -> autNums.add( AsnRange.parse(asnDelegation.get("range").asText())));
-                    getResponse(ipv4Delegations).forEach(ipv4Delegation -> ipv4Space.add( Ipv4Range.parse(ipv4Delegation.get("range").asText())));
-                    getResponse(ipv6Delegations).forEach(ipv6Delegation -> ipv6Space.add( Ipv6Range.parse(ipv6Delegation.get("range").asText())));
-                    logger.info("completed the process " );
-                } catch (IOException e) {
-                    logger.warn("failure after calls  {}", e.getCause() );
-                    throw new CompletionException(e);
-                }
-            });
+                CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/asn-delegations"), executorService).
+                        thenAccept( asnDelegations -> {
+                            try {
+                                getResponse(asnDelegations).forEach(asnDelegation -> autNums.add(AsnRange.parse(asnDelegation.get("range").asText())));
+                                logger.info("asn delegations count {}", autNums.size());
+                            } catch (IOException e) {
+                                logger.warn("failure in fetching asn delegations  {}", e.getCause() );
+                                throw new CompletionException(e);
+                            }
+                        }),
+                CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv4-delegations"), executorService).
+                        thenAccept( ipv4Delegations -> {
+                            try {
+                                getResponse(ipv4Delegations).forEach(ipv4Delegation -> ipv4Space.add( Ipv4Range.parse(ipv4Delegation.get("range").asText())));
+                                logger.info("ipv4 delegations count {}", ipv4Space.size());
+                            } catch (IOException e) {
+                                logger.warn("failure in fetching ipv4 delegations {}", e.getCause() );
+                                throw new CompletionException(e);
+                            }
+                        }),
+                CompletableFuture.supplyAsync(() -> getRsngDelegations("/resource-services/ipv6-delegations"), executorService).
+                        thenAccept( ipv6Delegations -> {
+                            try {
+                                getResponse(ipv6Delegations).forEach(ipv6Delegation -> ipv6Space.add( Ipv6Range.parse(ipv6Delegation.get("range").asText())));
+                                logger.info("ipv6 delegations count {}", ipv6Space.size());
+                            } catch (IOException e) {
+                                logger.warn("failure in fetching ipv6 delegations {}", e.getCause() );
+                                throw new CompletionException(e);
+                            }
+                        })
+        ).join();
 
         logger.info("returning" );
         return  new AuthoritativeResource(autNums, ipv4Space, ipv6Space);
     }
 
-    private JsonNode getResponse(CompletableFuture<String> rsngDelegations) throws IOException {
-        return OBJECT_MAPPER.readValue(rsngDelegations.join(), JsonNode.class).get("response").get("results");
+    private JsonNode getResponse(String rsngDelegations) throws IOException {
+        return OBJECT_MAPPER.readValue(rsngDelegations, JsonNode.class).get("response").get("results");
     }
 
     private String getRsngDelegations(final String url) {
