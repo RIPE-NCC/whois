@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.MailMessage;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -23,6 +24,7 @@ import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -45,12 +47,14 @@ public class MessageParserTest {
     @Mock MimeMessage mimeMessage;
     @Mock UpdateContext updateContext;
     @Mock LoggerContext loggerContext;
+    @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks MessageParser subject;
 
     @Before
     public void setUp() throws Exception {
         when(mimeMessage.getContentType()).thenReturn("text/plain");
         when(mimeMessage.getContent()).thenReturn("1234");
+        when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(ZonedDateTime.now(ZoneOffset.UTC));
     }
 
     @Test
@@ -89,7 +93,9 @@ public class MessageParserTest {
 
         final MailMessage result = subject.parse(simpleTextUnsignedMessage, updateContext);
 
-        assertThat(result.getDate(), is("Mon, 28 May 2012 00:04:45 +0200"));
+        // delivery date in message header Mon, 28 May 2012 00:04:45 +0200
+        // Now should be in UTC
+        assertThat(result.getDate(), is("Sun May 27 22:04:45 Z 2012"));
     }
 
     @Test
@@ -99,9 +105,9 @@ public class MessageParserTest {
         final MailMessage message = subject.parse(mimeMessage, updateContext);
 
         assertThat(message.getDate().length(), not(is(0)));
-        final String timezone = DateTimeFormatter.ofPattern("zzz").format(ZonedDateTime.now());
+        final String timezone = DateTimeFormatter.ofPattern("zzz").format(ZonedDateTime.now(ZoneOffset.UTC));
         assertThat(message.getDate(), containsString(timezone));
-        final String year = DateTimeFormatter.ofPattern("yyyy").format(ZonedDateTime.now());
+        final String year = DateTimeFormatter.ofPattern("yyyy").format(ZonedDateTime.now(ZoneOffset.UTC));
         assertThat(message.getDate(), containsString(year));
     }
 

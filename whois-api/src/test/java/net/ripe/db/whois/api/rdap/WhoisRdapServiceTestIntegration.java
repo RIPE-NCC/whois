@@ -455,7 +455,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Ip.class);
             fail();
         } catch (final BadRequestException e) {
-            assertErrorTitle(e, "Invalid syntax.");
+            assertThat(e.getResponse().readEntity(String.class), containsString("reason: Ambiguous empty segment in URI"));
         }
     }
 

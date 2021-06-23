@@ -68,16 +68,16 @@
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.13.1</jsoup.version>
         <junit.version>4.13.2</junit.version>
-        <jetty.version>10.0.4</jetty.version>
+        <jetty.version>10.0.5</jetty.version>
         <jersey.version>2.32</jersey.version>
-        <jackson.version>2.11.3</jackson.version>
+        <jackson.version>2.12.3</jackson.version>
 
         <log4j.version>2.14.1</log4j.version>
         <lucene.version>7.7.2</lucene.version>
 
         <mail.version>1.6.2</mail.version>
-        <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
-        <mockito.version>3.6.28</mockito.version>
+        <mariadb-java-client.version>2.7.3</mariadb-java-client.version>
+        <mockito.version>3.11.1</mockito.version>
 
         <!-- Test aws-java-sdk with updated Netty -->
         <netty.version>4.1.60.Final</netty.version>
@@ -90,7 +90,7 @@
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>1.3-groovy-2.5</spock.version>
-        <shedlock.version>2.5.0</shedlock.version>
+        <shedlock.version>4.24.0</shedlock.version>
 
         <validation.version>2.0.1.Final</validation.version>
         <velocity.version>2.2</velocity.version>

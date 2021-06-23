@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import net.ripe.db.whois.api.mail.MailMessage;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
@@ -38,10 +39,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.List;
+
+import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 
 /**
  * Ref: http://www.ripe.net/data-tools/support/documentation/update-ref-manual#section-47
@@ -53,10 +57,12 @@ public class MessageParser {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
 
     private final LoggerContext loggerContext;
+    private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    public MessageParser(final LoggerContext loggerContext) {
+    public MessageParser(final LoggerContext loggerContext, final DateTimeProvider dateTimeProvider) {
         this.loggerContext = loggerContext;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException {
@@ -67,9 +73,12 @@ public class MessageParser {
 
         String[] deliveryDate = message.getHeader("Delivery-date");
         if (deliveryDate != null && deliveryDate.length > 0 && deliveryDate[0].length() > 0) {
-            messageBuilder.date(deliveryDate[0]);
+            ZonedDateTime deliveryDateInUTC = ZonedDateTime
+                    .parse(deliveryDate[0], RFC_1123_DATE_TIME).withZoneSameInstant(ZoneOffset.UTC);
+
+            messageBuilder.date(DATE_FORMAT.format(deliveryDateInUTC));
         } else {
-            messageBuilder.date(DATE_FORMAT.format(ZonedDateTime.now()));
+            messageBuilder.date(DATE_FORMAT.format(dateTimeProvider.getCurrentZonedDateTime()));
         }
 
         parseReplyTo(messageBuilder, message);
