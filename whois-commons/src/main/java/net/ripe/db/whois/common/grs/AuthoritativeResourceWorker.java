@@ -48,7 +48,6 @@ public class AuthoritativeResourceWorker {
                         thenAccept( asnDelegations -> {
                             try {
                                 getResponse(asnDelegations).forEach(asnDelegation -> autNums.add(AsnRange.parse(asnDelegation.get("range").asText())));
-                                logger.info("asn delegations count {}", autNums.size());
                             } catch (IOException e) {
                                 logger.warn("failure in fetching asn delegations  {}", e.getCause() );
                                 throw new CompletionException(e);
@@ -58,7 +57,6 @@ public class AuthoritativeResourceWorker {
                         thenAccept( ipv4Delegations -> {
                             try {
                                 getResponse(ipv4Delegations).forEach(ipv4Delegation -> ipv4Space.add( Ipv4Range.parse(ipv4Delegation.get("range").asText())));
-                                logger.info("ipv4 delegations count {}", ipv4Space.size());
                             } catch (IOException e) {
                                 logger.warn("failure in fetching ipv4 delegations {}", e.getCause() );
                                 throw new CompletionException(e);
@@ -68,7 +66,6 @@ public class AuthoritativeResourceWorker {
                         thenAccept( ipv6Delegations -> {
                             try {
                                 getResponse(ipv6Delegations).forEach(ipv6Delegation -> ipv6Space.add( Ipv6Range.parse(ipv6Delegation.get("range").asText())));
-                                logger.info("ipv6 delegations count {}", ipv6Space.size());
                             } catch (IOException e) {
                                 logger.warn("failure in fetching ipv6 delegations {}", e.getCause() );
                                 throw new CompletionException(e);
@@ -76,7 +73,6 @@ public class AuthoritativeResourceWorker {
                         })
         ).join();
 
-        logger.info("returning" );
         return  new AuthoritativeResource(autNums, ipv4Space, ipv6Space);
     }
 
@@ -93,17 +89,5 @@ public class AuthoritativeResourceWorker {
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .header("X-API_KEY", apiKey)
                 .get(String.class);
-    }
-
-    public  CompletableFuture allOfTerminateOnFailure(CompletableFuture<?>... futures) {
-        CompletableFuture<?> failure = new CompletableFuture();
-        for (CompletableFuture<?> f: futures) {
-            f.exceptionally(ex -> {
-                failure.completeExceptionally(ex);
-                logger.warn("failure {}", ex.getCause() );
-                return null;
-            });
-        }
-        return CompletableFuture.anyOf(failure, CompletableFuture.allOf(futures));
     }
 }
