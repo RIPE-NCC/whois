@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AuthoritativeResourceWorkerTest {
+public class RsngAuthoritativeResourceWorkerTest {
 
     @Mock Client client;
     @Mock WebTarget webTarget;
@@ -41,7 +41,7 @@ public class AuthoritativeResourceWorkerTest {
     @Mock WebTarget webTargetIpv6;
     @Mock Invocation.Builder builderIpv6;
 
-    static Logger logger = LoggerFactory.getLogger(AuthoritativeResourceWorkerTest.class);
+    static Logger logger = LoggerFactory.getLogger(RsngAuthoritativeResourceWorkerTest.class);
 
     @Before
     public void setup() {
@@ -77,7 +77,7 @@ public class AuthoritativeResourceWorkerTest {
 
     @Test
     public void load()  {
-        final AuthoritativeResource authoritativeResource = new AuthoritativeResourceWorker(logger, "rsngBaseUrl", client, Executors.newCachedThreadPool(), "apikey").load();
+        final AuthoritativeResource authoritativeResource = new RsngAuthoritativeResourceWorker(logger, "rsngBaseUrl", client, Executors.newCachedThreadPool(), "apikey").load();
 
         assertFalse(authoritativeResource.isEmpty());
         assertThat(authoritativeResource.getNrAutNums(), is(1));

@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 
-public class AuthoritativeResourceWorker {
+public class RsngAuthoritativeResourceWorker {
 
     protected final Logger logger;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -32,7 +32,7 @@ public class AuthoritativeResourceWorker {
     private final String apiKey;
     private final ExecutorService executorService;
 
-    AuthoritativeResourceWorker(final Logger logger, final String rsngBaseUrl, final Client client, final ExecutorService executorService, final String apiKey) {
+        RsngAuthoritativeResourceWorker(final Logger logger, final String rsngBaseUrl, final Client client, final ExecutorService executorService, final String apiKey) {
         this.logger = logger;
         this.client = client;
         this.rsngBaseUrl = rsngBaseUrl;
