@@ -19,6 +19,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeResourceImportTask implements DailyScheduledTask {
@@ -29,11 +31,17 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
 
     private final String rsngBaseUrl;
     private final Client client;
+    private final boolean useSingleApi;
+    private final String apiKey;
+    private final ExecutorService executorService;
 
     @Autowired
     public RipeAuthoritativeResourceImportTask(final ResourceDataDao resourceDataDao,
                                                @Value("${grs.import.enabled:false}") final boolean enabled,
-                                               @Value("${rsng.base.url:}") final String rsngBaseUrl) {
+                                               @Value("${rsng.base.url:}") final String rsngBaseUrl,
+                                               @Value("${rsng.use.single.api:true}") final boolean useSingleApi,
+                                               @Value("${rsng.stats.api.key:}") final String apiKey) {
+
         super(enabled && !StringUtils.isBlank(rsngBaseUrl), resourceDataDao);
         this.rsngBaseUrl = rsngBaseUrl;
         this.client = ClientBuilder.newBuilder()
@@ -42,6 +50,11 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
                 .register(GZipEncoder.class)
                 .register(DeflateEncoder.class)
                 .build();
+
+        // there are 3 separate api calls
+        this.executorService = Executors.newFixedThreadPool(3);
+        this.useSingleApi = useSingleApi;
+        this.apiKey = apiKey;
 
         LOGGER.info("Authoritative resource RSNG import task is {}abled", enabled && !StringUtils.isBlank(rsngBaseUrl)? "en" : "dis");
     }
@@ -58,18 +71,23 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
 
     @Override
     protected AuthoritativeResource fetchAuthoritativeResource(String sourceName) throws IOException {
-        final AuthoritativeResource authoritativeResource = new AuthoritativeResourceJsonLoader(LOGGER).load(
-            OBJECT_MAPPER.readValue(
-                client.target(rsngBaseUrl)
-                .path("/rsng-stat/stat/rirstats")
-                .request()
-                .header(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate")
-                .get(String.class),
-            JsonNode.class)
-        );
+        final AuthoritativeResource authoritativeResource;
+
+        if (useSingleApi) {
+            authoritativeResource  = new AuthoritativeResourceJsonLoader(LOGGER).load(
+                    OBJECT_MAPPER.readValue(
+                            client.target(rsngBaseUrl)
+                                    .path("/rsng-stat/stat/rirstats")
+                                    .request()
+                                    .header(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate")
+                                    .get(String.class),
+                            JsonNode.class)
+            );
+        } else {
+            authoritativeResource = new RsngAuthoritativeResourceWorker(LOGGER, rsngBaseUrl, client, executorService, apiKey).load();
+        }
 
         LOGGER.info("Downloaded {}; asn: {}, ipv4: {}, ipv6: {}", sourceName, authoritativeResource.getNrAutNums(), authoritativeResource.getNrInetnums(), authoritativeResource.getNrInet6nums());
         return authoritativeResource;
     }
-
 }
