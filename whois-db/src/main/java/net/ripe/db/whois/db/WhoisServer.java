@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
 import java.security.Security;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -40,6 +41,11 @@ public class WhoisServer {
     }
 
     public static void main(final String[] args) {
+
+        if (!ZoneId.systemDefault().equals(ZoneId.of("UTC"))) {
+            throw new RuntimeException(String.format("Illegal timezone: %s. Application timezone should be UTC", ZoneId.systemDefault()));
+        }
+
         Slf4JLogConfiguration.init();
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
