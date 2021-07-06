@@ -208,7 +208,7 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-xjc-plugin</artifactId>
-                <version>2.6.1</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <phase>none</phase>
