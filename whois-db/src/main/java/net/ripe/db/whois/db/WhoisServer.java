@@ -43,7 +43,7 @@ public class WhoisServer {
     public static void main(final String[] args) {
 
         if (!ZoneId.systemDefault().equals(ZoneId.of("UTC"))) {
-            throw new RuntimeException(String.format("Illegal timezone: %s. Application timezone should be UTC", ZoneId.systemDefault()));
+            throw new IllegalStateException(String.format("Illegal timezone: %s. Application timezone should be UTC", ZoneId.systemDefault()));
         }
 
         Slf4JLogConfiguration.init();
