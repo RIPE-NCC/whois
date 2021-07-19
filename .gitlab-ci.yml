@@ -17,8 +17,6 @@ include:
   - project: 'swe-database-team/gitlab-ci'
     file: '/templates/deployment-template.yml'
 
-  - project: 'swe-database-team/gitlab-ci'
-    file: '/templates/aws-deployment-template.yml'
 
 stages:
   - build
