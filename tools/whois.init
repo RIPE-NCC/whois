@@ -167,12 +167,20 @@ case "$1" in
                         exit 1
                 fi
                 ;;
+        disable)
+          PID=$(pgrep -f "$COMMAND_REGEXP")
+          echo -e "bean net.ripe.db.whois:name=Loadbalancer && run setLoadbalancerEnabled false" | java -jar $JMXTERMPATH --url $PID
+          ;;
+        enable)
+          PID=$(pgrep -f "$COMMAND_REGEXP")
+          echo -e "bean net.ripe.db.whois:name=Loadbalancer && run setLoadbalancerEnabled true" | java -jar $JMXTERMPATH --url $PID
+          ;;
 	restart)
 		$0 stop
 		$0 start
 		;;
 	*)
-		echo "Usage: $0 {start|stop|restart|jmx|threaddump}"
+		echo "Usage: $0 {start|stop|restart|jmx|threaddump|disable|enable}"
 		exit 1
 		;;
 esac
