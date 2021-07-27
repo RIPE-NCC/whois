@@ -169,11 +169,11 @@ case "$1" in
                 ;;
         disable)
           PID=$(pgrep -f "$COMMAND_REGEXP")
-          echo -e "bean net.ripe.db.whois:name=Loadbalancer && run setLoadbalancerEnabled false" | java -jar $JMXTERMPATH --url $PID
+          echo -e "bean net.ripe.db.whois:name=LoadBalancer && run setLoadBalancerEnabled false" | java -jar $JMXTERMPATH --url $PID
           ;;
         enable)
           PID=$(pgrep -f "$COMMAND_REGEXP")
-          echo -e "bean net.ripe.db.whois:name=Loadbalancer && run setLoadbalancerEnabled true" | java -jar $JMXTERMPATH --url $PID
+          echo -e "bean net.ripe.db.whois:name=LoadBalancer && run setLoadBalancerEnabled true" | java -jar $JMXTERMPATH --url $PID
           ;;
 	restart)
 		$0 stop

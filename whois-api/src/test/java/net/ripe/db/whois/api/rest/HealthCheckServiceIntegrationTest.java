@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.LoadBalancerState;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,11 @@ public class HealthCheckServiceIntegrationTest extends AbstractIntegrationTest {
     RestClient restClient;
 
     @Autowired
-    HealthCheckService service;
+    LoadBalancerState loadbalancerState;
 
     @Test
     public void testHealthyLBEnabled() {
-        service.setLoadbalancerEnabled(true);
+        loadbalancerState.setLoadBalancerEnabled(true);
         Response response = RestTest.target(getPort(), "whois/healthcheck")
                 .request()
                 .get(Response.class);
@@ -36,7 +37,7 @@ public class HealthCheckServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void testHealthyLBDisabled() {
-        service.setLoadbalancerEnabled(false);
+        loadbalancerState.setLoadBalancerEnabled(false);
         Response response = RestTest.target(getPort(), "whois/healthcheck")
                 .request()
                 .get(Response.class);
