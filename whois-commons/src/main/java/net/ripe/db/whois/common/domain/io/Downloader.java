@@ -71,7 +71,7 @@ public class Downloader {
         if ("https".equals(url.getProtocol()) && !Strings.isNullOrEmpty(url.getUserInfo())) {
             uc.setRequestProperty(
                 HttpHeaders.AUTHORIZATION,
-                String.format("Basic: %s",
+                String.format("Basic %s",
                     Base64.getEncoder().encodeToString(url.getUserInfo().getBytes(StandardCharsets.UTF_8))));
         }
 
