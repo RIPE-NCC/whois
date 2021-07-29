@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
-import net.ripe.db.whois.common.LoadBalancerState;
+import net.ripe.db.whois.common.ReadinessUpdater;
 import net.ripe.db.whois.common.iptree.IpTreeCacheManager;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.FileUtils;
@@ -40,14 +40,14 @@ public class HealthCheckService {
     private final JdbcTemplate writeTemplate;
     private final IpTreeCacheManager ipTreeCacheManager;
     private final SourceContext sourceContext;
-    private final LoadBalancerState loadbalancerState;
+    private final ReadinessUpdater readinessUpdater;
 
     private final File checkFile;
 
     @Autowired
     public HealthCheckService(@Qualifier("whoisSlaveDataSource") final DataSource readDataSource,
                               @Qualifier("sourceAwareDataSource") final DataSource writeDataSource,
-                              final LoadBalancerState loadbalancerState,
+                              final ReadinessUpdater readinessUpdater,
                               final IpTreeCacheManager ipTreeCacheManager,
                               final SourceContext sourceContext,
                               @Value("${dir.var:}") final String filesystemRoot) {
@@ -56,7 +56,7 @@ public class HealthCheckService {
         this.writeTemplate = new JdbcTemplate(writeDataSource);
         this.ipTreeCacheManager = ipTreeCacheManager;
         this.sourceContext = sourceContext;
-        this.loadbalancerState = loadbalancerState;
+        this.readinessUpdater = readinessUpdater;
 
         if (StringUtils.isNotBlank(filesystemRoot)) {
             this.checkFile = new File(filesystemRoot, "lock");
@@ -69,7 +69,7 @@ public class HealthCheckService {
 
     @GET
     public Response check() {
-        boolean isHealthy = loadbalancerState.isLoadBalancerEnabled() && databaseHealthy.get() && filesystemHealthy.get() && ipTreeHealthy.get();
+        boolean isHealthy = readinessUpdater.isLoadBalancerEnabled() && databaseHealthy.get() && filesystemHealthy.get() && ipTreeHealthy.get();
 
         return isHealthy ?
                 Response.ok().entity("OK").build() :
