@@ -1,12 +1,14 @@
 package net.ripe.db.whois.common.domain.io;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
+import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,12 +21,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // downloader is tested in whois-api integration tests, so that tests run without internet access
 @Component
 public class Downloader {
+
     private static final Pattern MD5_CAPTURE_PATTERN = Pattern.compile("([a-fA-F0-9]{32})");
 
     private static final int CONNECT_TIMEOUT = 60_000;
@@ -63,6 +67,13 @@ public class Downloader {
         final URLConnection uc = url.openConnection();
         uc.setConnectTimeout(CONNECT_TIMEOUT);
         uc.setReadTimeout(READ_TIMEOUT);
+
+        if ("https".equals(url.getProtocol()) && !Strings.isNullOrEmpty(url.getUserInfo())) {
+            uc.setRequestProperty(
+                HttpHeaders.AUTHORIZATION,
+                String.format("Basic %s",
+                    Base64.getEncoder().encodeToString(url.getUserInfo().getBytes(StandardCharsets.UTF_8))));
+        }
 
         try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
