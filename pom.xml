@@ -29,7 +29,7 @@
 
         <!-- dependencies -->
 
-        <aspectj.version>1.9.6</aspectj.version>
+        <aspectj.version>1.9.7</aspectj.version>
 
         <!-- TODO: awaitility 4.0.3+ depends on Groovy 3 -->
         <awaitility.version>4.0.2</awaitility.version>
