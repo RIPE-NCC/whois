@@ -80,11 +80,11 @@ public class MailGatewaySmtp implements MailGateway {
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String to, final String replyTo, final String subject, final String text) {
         try {
-            final String punyCodedTo = PunycodeConversion.toAscii(to);
-            final String puncyCodedReplyTo = !StringUtils.isEmpty(replyTo)?
-                    PunycodeConversion.toAscii(replyTo) : "";
-
             mailSender.send(mimeMessage -> {
+                final String punyCodedTo = PunycodeConversion.toAscii(to);
+                final String puncyCodedReplyTo = !StringUtils.isEmpty(replyTo)?
+                        PunycodeConversion.toAscii(replyTo) : "";
+
                 final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
                 message.setFrom(mailConfiguration.getFrom());
                 message.setTo(punyCodedTo);

@@ -94,10 +94,10 @@ public class MailGatewaySmtpTest {
 
         when(mailConfiguration.getFrom()).thenReturn("from@from.to");
 
-        mailGatewaySmtp.sendEmail("to@to.to", "subject", "test", "fredrik.egerstad@Åownit.se");
+        mailGatewaySmtp.sendEmail("to@to.to", "subject", "test", "email@Åidn.org");
 
         final MimeMessage message = mailSenderStub.getMessage("to@to.to");
-        assertThat(message.getReplyTo()[0].toString(), is("fredrik.egerstad@xn--ownit-lra.se"));
+        assertThat(message.getReplyTo()[0].toString(), is("email@xn--idn-tla.org"));
     }
 
     private void setExpectReplyToField(final String replyToAddress) {
