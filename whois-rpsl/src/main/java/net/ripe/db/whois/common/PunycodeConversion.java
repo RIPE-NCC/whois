@@ -46,7 +46,7 @@ public class PunycodeConversion {
         return value;
     }
 
-    private static String toAscii(final String address) {
+    public static String toAscii(final String address) {
         try {
             return CONVERTER.toASCII(address);
         } catch (Exception e) {
