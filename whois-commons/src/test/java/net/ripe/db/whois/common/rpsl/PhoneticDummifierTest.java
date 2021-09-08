@@ -17,6 +17,7 @@ public class PhoneticDummifierTest {
         assertThat(dummify("Hilkaltex Sh. Y. (1988) Ltd."), is("Hotel Sierra Yankee Lima"));
         assertThat(dummify("\"Fregat TV\" Ltd."), is("Tango Lima"));
         assertThat(dummify("SHAHRNET"), is("Sierra Alpha"));
+        assertThat(dummify("3D Fashion Operations B.V."), is("Foxtrot Oscar Bravo"));
     }
 
     private String dummify(final String input) {

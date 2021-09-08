@@ -59,7 +59,7 @@ public class DailySchedulerJmx extends JmxBase {
             Class<?> clazz = AopUtils.getTargetClass(scheduledTask);
             for (Method method : clazz.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(Scheduled.class)) {
-                    scheduled.put(scheduledTask.getClass().getSimpleName(), new ScheduledMethodRunnable(scheduledTask, method));
+                    scheduled.put(clazz.getSimpleName(), new ScheduledMethodRunnable(scheduledTask, method));
                 }
             }
         }
