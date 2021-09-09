@@ -13,15 +13,18 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.mail.SendFailedException;
+import javax.mail.internet.MimeMessage;
 import java.lang.reflect.Field;
 
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MailGatewaySmtpTest {
@@ -81,6 +84,20 @@ public class MailGatewaySmtpTest {
         setExpectReplyToField(replyToAddress);
 
         subject.sendEmail("to", "subject", "test", "");
+    }
+
+    @Test
+    public void checkRecipientAddressesArePunycoded() throws Exception {
+        MailSenderStub mailSenderStub = new MailSenderStub();
+        MailGatewaySmtp mailGatewaySmtp = new MailGatewaySmtp(loggerContext, mailConfiguration, mailSenderStub);
+        ReflectionTestUtils.setField(mailGatewaySmtp, "outgoingMailEnabled", true);
+
+        when(mailConfiguration.getFrom()).thenReturn("from@from.to");
+
+        mailGatewaySmtp.sendEmail("to@to.to", "subject", "test", "email@Åidn.org");
+
+        final MimeMessage message = mailSenderStub.getMessage("to@to.to");
+        assertThat(message.getReplyTo()[0].toString(), is("email@xn--idn-tla.org"));
     }
 
     private void setExpectReplyToField(final String replyToAddress) {
