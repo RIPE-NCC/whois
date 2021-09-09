@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.httpserver;
 
-import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.jmx.ObjectMBean;
@@ -31,7 +30,6 @@ import java.lang.management.ManagementFactory;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class JettyBootstrap implements ApplicationService {
@@ -55,8 +53,6 @@ public class JettyBootstrap implements ApplicationService {
     private final boolean dosFilterEnabled;
 
     private final DelayShutdownHook delayShutdownHook;
-    @Value("${shutdown.pause.sec:10}")
-    private int preShutdownPause;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -186,8 +182,6 @@ public class JettyBootstrap implements ApplicationService {
 
     @Override
     public void stop(final boolean force) {
-        // This sleep is needed to prevent shutdown before the jetty server does.
-        Uninterruptibles.sleepUninterruptibly(preShutdownPause, TimeUnit.SECONDS);
         new Thread(() -> {
             try {
                 if (ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {

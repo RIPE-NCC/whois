@@ -34,6 +34,9 @@ public class WhoisServer {
     private final List<ApplicationService> applicationServices;
     private final ApplicationVersion applicationVersion;
 
+    @Value("${shutdown.pause.sec:10}")
+    private int preShutdownPause;
+
     @Autowired
     public WhoisServer(
             final ApplicationContext applicationContext,
@@ -87,6 +90,7 @@ public class WhoisServer {
     }
 
     public void stop() {
+        Uninterruptibles.sleepUninterruptibly(preShutdownPause, TimeUnit.SECONDS);
 
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
