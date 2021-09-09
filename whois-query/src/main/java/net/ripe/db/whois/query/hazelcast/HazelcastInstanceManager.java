@@ -71,6 +71,7 @@ public class HazelcastInstanceManager {
 
         config.setProperty("hazelcast.jmx", "true")
                 .setProperty("hazelcast.version.check.enabled", "false")
+                .setProperty("hazelcast.phone.home.enabled", "false")
                 .setProperty("hazelcast.memcache.enabled","false")
                 .setProperty("hazelcast.redo.giveup.threshold","10")
                 .setProperty("hazelcast.logging.type","slf4j");
