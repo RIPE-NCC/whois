@@ -1,11 +1,14 @@
 package net.ripe.db.whois.api.httpserver;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.ReadinessUpdater;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.thread.ShutdownThread;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class DelayShutdownHook extends AbstractLifeCycle {
@@ -40,7 +43,7 @@ public class DelayShutdownHook extends AbstractLifeCycle {
     @Override
     protected void doStop() throws Exception {
         readinessUpdater.down();
-        Thread.sleep(preShutdownPause * 1000);
+        Uninterruptibles.sleepUninterruptibly(preShutdownPause, TimeUnit.SECONDS);
         super.doStop();
     }
 }

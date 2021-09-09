@@ -1,6 +1,7 @@
 package net.ripe.db.whois.db;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.ReadinessUpdater;
@@ -22,6 +23,7 @@ import java.security.Security;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
 @Component
@@ -88,11 +90,7 @@ public class WhoisServer {
     }
 
     public void stop() {
-        try {
-            Thread.sleep(preShutdownPause * 1000);
-        } catch (InterruptedException e) {
-            LOGGER.info("Delaying shutdown for {} failed", preShutdownPause * 1000);
-        }
+        Uninterruptibles.sleepUninterruptibly(preShutdownPause, TimeUnit.SECONDS);
 
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
