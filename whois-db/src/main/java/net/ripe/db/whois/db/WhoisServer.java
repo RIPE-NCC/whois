@@ -90,6 +90,8 @@ public class WhoisServer {
     }
 
     public void stop() {
+        // This sleep is needed to also prevent other applicationServices from shutting
+        // within the grace period the jetty server indicates to be taken out of the loadbalancer pool
         Uninterruptibles.sleepUninterruptibly(preShutdownPause, TimeUnit.SECONDS);
 
         final Stopwatch stopwatch = Stopwatch.createStarted();
