@@ -17,7 +17,7 @@ public class SentryConfigurations {
 
     private final ApplicationVersion applicationVersion;
     private final String sentryDsn;
-    final String environment;
+    private final String environment;
 
     @Autowired
     public SentryConfigurations(
