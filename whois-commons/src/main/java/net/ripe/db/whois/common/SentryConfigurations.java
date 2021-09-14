@@ -31,7 +31,7 @@ public class SentryConfigurations {
 
     @PostConstruct
     public void init() {
-        if(StringUtils.isEmpty(sentryDsn)) {
+        if(StringUtils.isEmpty(sentryDsn) || StringUtils.isEmpty(environment)) {
             LOGGER.info("Sentry is not enabled");
             return;
         }
