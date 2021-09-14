@@ -82,8 +82,7 @@ public class MailGatewaySmtp implements MailGateway {
         try {
             mailSender.send(mimeMessage -> {
                 final String punyCodedTo = PunycodeConversion.toAscii(to);
-                final String puncyCodedReplyTo = !StringUtils.isEmpty(replyTo)?
-                        PunycodeConversion.toAscii(replyTo) : "";
+                final String puncyCodedReplyTo = !StringUtils.isEmpty(replyTo)? PunycodeConversion.toAscii(replyTo) : "";
 
                 final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
                 message.setFrom(mailConfiguration.getFrom());
