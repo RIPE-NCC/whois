@@ -35,6 +35,7 @@
         <awaitility.version>4.0.2</awaitility.version>
 
         <aws-java-sdk.version>1.12.17</aws-java-sdk.version>
+        <sentry.version>5.1.2</sentry.version>
 
         <bouncycastle.version>1.69</bouncycastle.version>
 
@@ -89,7 +90,7 @@
         <springockito.version>1.0.9</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
-        <spock.version>2.0-groovy-2.5</spock.version>
+        <spock.version>1.3-groovy-2.5</spock.version>
         <shedlock.version>4.24.0</shedlock.version>
 
         <validation.version>2.0.1.Final</validation.version>

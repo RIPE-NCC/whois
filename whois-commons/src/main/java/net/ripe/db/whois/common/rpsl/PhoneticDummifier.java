@@ -43,7 +43,7 @@ public class PhoneticDummifier {
         MAP.put("G", "Golf");
         MAP.put("H", "Hotel");
         MAP.put("I", "India");
-        MAP.put("J", "Juliett");
+        MAP.put("J", "Juliet");
         MAP.put("K", "Kilo");
         MAP.put("L", "Lima");
         MAP.put("M", "Mike");
