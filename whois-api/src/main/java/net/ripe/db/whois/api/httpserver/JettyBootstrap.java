@@ -52,11 +52,14 @@ public class JettyBootstrap implements ApplicationService {
 
     private final boolean dosFilterEnabled;
 
+    private final DelayShutdownHook delayShutdownHook;
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
+                          final DelayShutdownHook delayShutdownHook,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled) throws MalformedObjectNameException {
@@ -64,6 +67,7 @@ public class JettyBootstrap implements ApplicationService {
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
         this.rewriteEngine = rewriteEngine;
+        this.delayShutdownHook = delayShutdownHook;
         this.trustedIpRanges = trustedIpRanges;
         this.rewriteEngineEnabled = rewriteEngineEnabled;
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled? "en" : "dis");
@@ -164,6 +168,7 @@ public class JettyBootstrap implements ApplicationService {
 
     @RetryFor(attempts = 5, value = Exception.class)
     private Server createAndStartServer(int port, HandlerList handlers) throws Exception {
+        delayShutdownHook.register();
         final Server server = new Server(port);
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
