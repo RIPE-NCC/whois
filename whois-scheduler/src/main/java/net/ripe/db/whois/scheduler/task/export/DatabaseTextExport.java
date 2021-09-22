@@ -21,7 +21,7 @@ public class DatabaseTextExport implements DailyScheduledTask {
      * being generated at midnight, Amsterdam time regardless of switch to UTC
      */
     @Override
-    @Scheduled(cron = "0 0 0 * * *", zone = EUROPE_AMSTERDAM)
+    @Scheduled(cron = "@midnight", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "DatabaseTextExport")
     public void run() {
         rpslObjectsExporter.export();

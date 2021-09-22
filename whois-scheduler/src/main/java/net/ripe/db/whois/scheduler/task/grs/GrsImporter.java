@@ -84,7 +84,7 @@ public class GrsImporter implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *", zone = EUROPE_AMSTERDAM)
+    @Scheduled(cron = "@midnight", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "GrsImporter")
     public void run() {
         if (!grsImportEnabled) {
