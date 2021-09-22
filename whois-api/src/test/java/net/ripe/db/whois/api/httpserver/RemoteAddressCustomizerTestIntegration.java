@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(IntegrationTest.class)
-public class RemoteAddressTestIntegration extends AbstractIntegrationTest {
+public class RemoteAddressCustomizerTestIntegration extends AbstractIntegrationTest {
     @Autowired IpRanges ipRanges;
 
     @Test

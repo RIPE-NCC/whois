@@ -6,9 +6,12 @@ import org.eclipse.jetty.jmx.ObjectMBean;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.Slf4jRequestLogWriter;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -173,6 +176,17 @@ public class JettyBootstrap implements ApplicationService {
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
         server.setRequestLog(createRequestLog());
+
+        final HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.addCustomizer( new RemoteAddressCustomizer() );
+
+        final HttpConnectionFactory connectionFactory = new HttpConnectionFactory( httpConfig );
+        final ServerConnector connector = new ServerConnector(server, connectionFactory);
+
+        //the port in the Server constructor is overridden by the new connector
+        connector.setPort(port);
+
+        server.setConnectors( new ServerConnector[] { connector } );
 
         server.start();
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
