@@ -22,9 +22,8 @@ public class RemoteAddressCustomizer  implements HttpConfiguration.Customizer {
 
     @Override
     public void customize(Connector connector, HttpConfiguration httpConfiguration, Request request) {
-        LOGGER.info("initial remote Addr is {}",  request.getRemoteAddr());
         request.setRemoteAddr(InetSocketAddress.createUnresolved(getRemoteAddress(request), request.getRemotePort()));
-        LOGGER.info("Remote Addr is changed to {}", request.getRemoteAddr());
+        LOGGER.debug("Received client ip is {}", request.getRemoteAddr());
     }
 
     @Nullable
