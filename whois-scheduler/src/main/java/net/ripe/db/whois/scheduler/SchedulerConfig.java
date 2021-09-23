@@ -25,7 +25,7 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableScheduling
-@EnableSchedulerLock(defaultLockAtMostFor="23h")
+@EnableSchedulerLock(defaultLockAtMostFor="23h", defaultLockAtLeastFor = "1h")
 @ImportResource(value = "classpath:applicationContext-api.xml")
 @ComponentScan(basePackages="net.ripe.db.whois.scheduler")
 public class SchedulerConfig {
