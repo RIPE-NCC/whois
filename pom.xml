@@ -33,8 +33,6 @@
 
         <!-- TODO: awaitility 4.0.3+ depends on Groovy 3 -->
         <awaitility.version>4.0.2</awaitility.version>
-
-        <aws-java-sdk.version>1.12.17</aws-java-sdk.version>
         <sentry.version>5.1.2</sentry.version>
 
         <bouncycastle.version>1.69</bouncycastle.version>
