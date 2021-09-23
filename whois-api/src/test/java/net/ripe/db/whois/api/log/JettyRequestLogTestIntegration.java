@@ -18,10 +18,10 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.eclipse.jetty.server.RequestLog;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,8 +50,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST");
 
-    @Value("target/log/jetty")
-    String requestLogDirectory;
+    private final static String requestLogDirectory = "target/log/jetty";
 
     @Before
     public void setup() {
@@ -60,8 +59,12 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         removeLog4jAppender();
+    }
+    
+    @AfterClass
+    public static void cleanUp() throws Exception {
         cleanupRequestLogDirectory();
     }
 
@@ -91,7 +94,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
     // helper methods
 
-    private void cleanupRequestLogDirectory() throws IOException {
+    private static void cleanupRequestLogDirectory() throws IOException {
         for (File next : new File(requestLogDirectory).listFiles()) {
             if (next.isDirectory()) {
                 FileUtils.deleteDirectory(next);
