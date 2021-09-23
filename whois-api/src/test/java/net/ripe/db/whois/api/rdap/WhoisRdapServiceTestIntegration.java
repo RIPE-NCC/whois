@@ -455,7 +455,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Ip.class);
             fail();
         } catch (final BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("reason: Ambiguous empty segment in URI"));
+            assertThat(e.getResponse().readEntity(String.class), containsString("reason: Ambiguous URI empty segment"));
         }
     }
 
