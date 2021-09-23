@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
+import static java.time.Instant.now;
+
 @Component
 public class Bootstrap implements DailyScheduledTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
@@ -82,11 +84,10 @@ public class Bootstrap implements DailyScheduledTask {
     }
 
     @Override
-//    @Scheduled(cron = "@midnight", zone = EUROPE_AMSTERDAM)
-    @Scheduled(cron = "0 */1 * * * *", zone = EUROPE_AMSTERDAM)
+    @Scheduled(cron = "0 */1 * * * *")
     @SchedulerLock(name = "Bootstrap")
     public void run() {
-        LOGGER.info("Debugging");
+        LOGGER.info("Debugging " + now().toString());
         try {
             final String bootstrap = bootstrap();
             if (!StringUtils.isBlank(bootstrap)) {
