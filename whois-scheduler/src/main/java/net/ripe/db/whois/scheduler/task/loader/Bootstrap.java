@@ -86,6 +86,7 @@ public class Bootstrap implements DailyScheduledTask {
     @Scheduled(cron = "0 0/1 * * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "Bootstrap")
     public void run() {
+        LOGGER.info("Debugging");
         try {
             final String bootstrap = bootstrap();
             if (!StringUtils.isBlank(bootstrap)) {
