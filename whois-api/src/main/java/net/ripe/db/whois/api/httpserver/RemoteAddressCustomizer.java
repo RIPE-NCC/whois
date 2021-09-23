@@ -14,6 +14,10 @@ import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
 import java.util.Enumeration;
 
+/**
+ * X-Forwarded-For address will replace the request address.
+ * In case of multiple (comma separated) ip address in X-Forwarded-For, rightmost will replace the request address.
+ */
 public class RemoteAddressCustomizer  implements HttpConfiguration.Customizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAddressCustomizer.class);
