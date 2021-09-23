@@ -82,7 +82,8 @@ public class Bootstrap implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "@midnight", zone = EUROPE_AMSTERDAM)
+//    @Scheduled(cron = "@midnight", zone = EUROPE_AMSTERDAM)
+    @Scheduled(cron = "0 0/1 * * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "Bootstrap")
     public void run() {
         try {
