@@ -75,7 +75,7 @@
         <lucene.version>7.7.2</lucene.version>
 
         <mail.version>1.6.2</mail.version>
-        <mariadb-java-client.version>2.7.3</mariadb-java-client.version>
+        <mariadb-java-client.version>2.7.4</mariadb-java-client.version>
         <mockito.version>3.11.2</mockito.version>
 
         <!-- Test aws-java-sdk with updated Netty -->
@@ -84,7 +84,7 @@
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.32</slf4j.version>
-        <spring.version>5.3.8</spring.version>
+        <spring.version>5.3.10</spring.version>
         <springockito.version>1.0.9</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
