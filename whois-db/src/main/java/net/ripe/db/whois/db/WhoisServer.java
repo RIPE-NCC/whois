@@ -4,7 +4,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.ApplicationVersion;
-import net.ripe.db.whois.common.ReadinessUpdater;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.io.IOUtils;
@@ -56,7 +55,7 @@ public class WhoisServer {
         Slf4JLogConfiguration.init();
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.RIPE_DEPLOYED);
+        final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.DEPLOYED);
         final WhoisServer whoisServer = applicationContext.getBean(WhoisServer.class);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.log;
 
+import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -17,17 +18,17 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.eclipse.jetty.server.RequestLog;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 @Category(IntegrationTest.class)
 public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
@@ -49,8 +50,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST");
 
-    @Value("target/log/jetty")
-    String requestLogDirectory;
+    private final static String requestLogDirectory = "target/log/jetty";
 
     @Before
     public void setup() {
@@ -59,8 +59,12 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         removeLog4jAppender();
+    }
+    
+    @AfterClass
+    public static void cleanUp() throws Exception {
         cleanupRequestLogDirectory();
     }
 
@@ -76,9 +80,21 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         assertThat(fileToString(getRequestLogFilename()), containsString("\"GET /whois/test/person/TP1-TEST HTTP/1.1\" 200"));
     }
 
+    @Test
+    public void log_request_x_forwarded_for() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST")
+                .request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .get(WhoisResources.class);
+
+        final String requestLongContent = fileToString(getRequestLogFilename());
+        assertThat(requestLongContent, containsString("10.20.30.40"));
+    }
+
+
     // helper methods
 
-    private void cleanupRequestLogDirectory() throws IOException {
+    private static void cleanupRequestLogDirectory() throws IOException {
         for (File next : new File(requestLogDirectory).listFiles()) {
             if (next.isDirectory()) {
                 FileUtils.deleteDirectory(next);
