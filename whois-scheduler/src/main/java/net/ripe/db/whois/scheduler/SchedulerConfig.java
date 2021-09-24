@@ -12,15 +12,10 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 
 import javax.sql.DataSource;
-import java.time.Duration;
-import java.time.ZoneId;
-import java.util.TimeZone;
-import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
@@ -33,7 +28,7 @@ public class SchedulerConfig {
     @Bean("scheduler")
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(10);
+        scheduler.setPoolSize(20);
         return scheduler;
     }
 
