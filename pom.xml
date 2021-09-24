@@ -33,7 +33,7 @@
 
         <!-- TODO: awaitility 4.0.3+ depends on Groovy 3 -->
         <awaitility.version>4.0.2</awaitility.version>
-        <sentry.version>5.1.2</sentry.version>
+        <sentry.version>5.2.0</sentry.version>
 
         <bouncycastle.version>1.69</bouncycastle.version>
 
@@ -75,7 +75,7 @@
         <lucene.version>7.7.2</lucene.version>
 
         <mail.version>1.6.2</mail.version>
-        <mariadb-java-client.version>2.7.3</mariadb-java-client.version>
+        <mariadb-java-client.version>2.7.4</mariadb-java-client.version>
         <mockito.version>3.11.2</mockito.version>
 
         <!-- Test aws-java-sdk with updated Netty -->
