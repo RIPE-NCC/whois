@@ -35,12 +35,8 @@ build:
   tags:
     - whois
   stage: build
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - mvn $MAVEN_OPTS clean install -Prelease
-    - docker tag whois:${CI_COMMIT_SHA} $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
-    - docker push $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
   artifacts:
     paths:
       - "*/target/*.jar"
