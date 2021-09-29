@@ -37,7 +37,7 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
 
     @Override
     @Scheduled(cron = "@midnight")
-    @SchedulerLock(name = "AutomaticPermanentBlocks", lockAtLeastFor = "7h")
+    @SchedulerLock(name = "AutomaticPermanentBlocks", lockAtLeastFor = "23h")
     public void run() {
         final LocalDate now = dateTimeProvider.getCurrentDate();
         final LocalDate checkTemporaryBlockTime = now.minusDays(30);
