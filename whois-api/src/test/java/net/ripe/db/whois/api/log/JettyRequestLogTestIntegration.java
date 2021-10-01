@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
@@ -91,6 +92,18 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         assertThat(requestLongContent, containsString("10.20.30.40"));
     }
 
+
+    @Test
+    public void password_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=some-api_key-123")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLogFilename());
+        assertThat(actual, containsString("password=FILTERED"));
+        assertThat(actual, not(containsString("some-api_key-123")));
+    }
 
     // helper methods
 
