@@ -33,7 +33,7 @@
 
         <!-- TODO: awaitility 4.0.3+ depends on Groovy 3 -->
         <awaitility.version>4.0.2</awaitility.version>
-        <sentry.version>5.1.2</sentry.version>
+        <sentry.version>5.2.1</sentry.version>
 
         <bouncycastle.version>1.69</bouncycastle.version>
 
