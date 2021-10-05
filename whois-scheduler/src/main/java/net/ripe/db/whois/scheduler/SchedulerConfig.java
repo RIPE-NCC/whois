@@ -22,10 +22,10 @@ import javax.sql.DataSource;
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor="23h")
 @ImportResource(value = "classpath:applicationContext-api.xml")
-@ComponentScan(basePackages="net.ripe.db.whois.scheduler")
 public class SchedulerConfig {
 
-    @Bean("scheduler")
+    // Note, keep the bean named taskScheduler to have it used for scheduling.
+    @Bean("taskScheduler")
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(20);
