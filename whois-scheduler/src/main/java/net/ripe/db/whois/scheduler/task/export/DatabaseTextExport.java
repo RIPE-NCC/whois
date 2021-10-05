@@ -22,7 +22,7 @@ public class DatabaseTextExport implements DailyScheduledTask {
      */
     @Override
     @Scheduled(cron = "@midnight", zone = EUROPE_AMSTERDAM)
-    @SchedulerLock(name = "DatabaseTextExport", lockAtLeastFor = "23h")
+    @SchedulerLock(name = "DatabaseTextExport", lockAtLeastFor = "1h")
     public void run() {
         rpslObjectsExporter.export();
     }

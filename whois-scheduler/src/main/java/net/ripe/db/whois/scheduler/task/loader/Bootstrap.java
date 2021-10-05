@@ -83,7 +83,7 @@ public class Bootstrap implements DailyScheduledTask {
 
     @Override
     @Scheduled(cron = "@midnight", zone = EUROPE_AMSTERDAM)
-    @SchedulerLock(name = "Bootstrap", lockAtLeastFor = "23h")
+    @SchedulerLock(name = "Bootstrap", lockAtLeastFor = "1h")
     public void run() {
         try {
             final String bootstrap = bootstrap();

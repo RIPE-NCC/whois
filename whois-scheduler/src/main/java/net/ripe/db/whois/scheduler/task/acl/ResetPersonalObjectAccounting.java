@@ -18,7 +18,7 @@ public class ResetPersonalObjectAccounting implements DailyScheduledTask {
 
     @Override
     @Scheduled(cron = "@midnight")
-    @SchedulerLock(name = "ResetPersonalObjectAccounting", lockAtLeastFor = "23h")
+    @SchedulerLock(name = "ResetPersonalObjectAccounting", lockAtLeastFor = "1h")
     public void run() {
         personalObjectAccounting.resetAccounting();
     }
