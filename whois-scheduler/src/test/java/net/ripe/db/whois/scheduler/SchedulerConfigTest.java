@@ -1,8 +1,10 @@
 package net.ripe.db.whois.scheduler;
 
+import net.ripe.db.whois.common.IntegrationTest;
 import org.hamcrest.MatcherAssert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.GenericApplicationContext;
@@ -14,13 +16,8 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 
-@Ignore
+@Category(IntegrationTest.class)
 public class SchedulerConfigTest extends AbstractSchedulerIntegrationTest {
-
-    @Autowired
-    @Qualifier("internalsDataSource")
-    private DataSource dataSource;
-    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     GenericApplicationContext context;
