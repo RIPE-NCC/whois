@@ -3,14 +3,22 @@ package net.ripe.db.whois.scheduler;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.TaskScheduler;
 
+import javax.sql.DataSource;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 
 public class SchedulerConfigTest extends AbstractSchedulerIntegrationTest {
+
+    @Autowired
+    @Qualifier("internalsDataSource")
+    private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     GenericApplicationContext context;
