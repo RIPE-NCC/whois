@@ -1,6 +1,7 @@
 package net.ripe.db.whois.scheduler;
 
 import org.hamcrest.MatcherAssert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +14,7 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 
+@Ignore
 public class SchedulerConfigTest extends AbstractSchedulerIntegrationTest {
 
     @Autowired
