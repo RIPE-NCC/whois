@@ -36,7 +36,7 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "@midnight")
+    @Scheduled(cron = "0 0 0 * * *")
     @SchedulerLock(name = "AutomaticPermanentBlocks")
     public void run() {
         final LocalDate now = dateTimeProvider.getCurrentDate();
