@@ -105,6 +105,31 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         assertThat(actual, not(containsString("some-api_key-123")));
     }
 
+    @Test
+    public void multiple_password_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=pass1&password=pass2")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLogFilename());
+        assertThat(actual, containsString("password=FILTERED"));
+        assertThat(actual, not(containsString("pass1")));
+        assertThat(actual, not(containsString("pass2")));
+    }
+
+    @Test
+    public void password_filtered_case_insensitive() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?PassWord=pass1")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLogFilename());
+        assertThat(actual.toLowerCase(), containsString("password=FILTERED".toLowerCase()));
+        assertThat(actual, not(containsString("pass1")));
+    }
+
     // helper methods
 
     private static void cleanupRequestLogDirectory() throws IOException {
