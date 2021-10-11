@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@Ignore
 public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest {
 
     private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
