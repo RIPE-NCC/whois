@@ -434,4 +434,9 @@ public class Ipv6ResourceTest {
         Ipv6Resource.parse("[2001:67c:2e8:1::c100:13b/64]");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void test_brackets_with_port_number() {
+        Ipv6Resource.parse("[2001:db8::1]:80");
+    }
+
 }
