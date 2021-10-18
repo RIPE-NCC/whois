@@ -38,7 +38,7 @@ public class DailySchedulerJmx extends JmxBase {
     private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    public DailySchedulerJmx(@Qualifier("scheduler") final TaskScheduler taskScheduler,
+    public DailySchedulerJmx(@Qualifier("taskScheduler") final TaskScheduler taskScheduler,
                              final DateTimeProvider dateTimeProvider,
                              final List<DailyScheduledTask> scheduledTasks) {
         super(LOGGER);
