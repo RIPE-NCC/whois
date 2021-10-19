@@ -71,6 +71,7 @@ public class FullTextIndex extends RebuildableIndex {
     public static final Analyzer INDEX_ANALYZER = new FullTextAnalyzer(FullTextAnalyzer.Operation.INDEX);
 
     static final String[] FIELD_NAMES;
+    static final String[] SEARCH_FIELD_NAMES;
 
     private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
     private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
@@ -90,6 +91,18 @@ public class FullTextIndex extends RebuildableIndex {
         }
 
         FIELD_NAMES = names.toArray(new String[names.size()]);
+
+        SEARCH_FIELD_NAMES = new String[]{
+                AttributeType.INETNUM.getName(),
+                AttributeType.INET6NUM.getName(),
+                AttributeType.DOMAIN.getName(),
+                AttributeType.ROUTE.getName(),
+                AttributeType.ROUTE6.getName(),
+                AttributeType.ORGANISATION.getName(),
+                AttributeType.PERSON.getName(),
+                AttributeType.ROLE.getName(),
+                AttributeType.MNTNER.getName(),
+        };
 
         OBJECT_TYPE_FIELD_TYPE = new FieldType();
         OBJECT_TYPE_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);

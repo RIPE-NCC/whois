@@ -101,7 +101,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
 
         String actual = fileToString(getRequestLogFilename());
-        assertThat(actual, containsString("password=FILTERED"));
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED"));
         assertThat(actual, not(containsString("some-api_key-123")));
     }
 
@@ -113,9 +113,35 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
 
         String actual = fileToString(getRequestLogFilename());
-        assertThat(actual, containsString("password=FILTERED"));
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&password=FILTERED"));
         assertThat(actual, not(containsString("pass1")));
         assertThat(actual, not(containsString("pass2")));
+    }
+
+    @Test
+    public void multiple_query_password_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=pass1&key=value")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLogFilename());
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&key=value"));
+        assertThat(actual, containsString("key=value"));
+        assertThat(actual, not(containsString("pass1")));
+    }
+
+    @Test
+    public void multiple_query_password_last_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?key=value&password=pass1")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLogFilename());
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?key=value&password=FILTERED"));
+        assertThat(actual, containsString("key=value"));
+        assertThat(actual, not(containsString("pass1")));
     }
 
     @Test

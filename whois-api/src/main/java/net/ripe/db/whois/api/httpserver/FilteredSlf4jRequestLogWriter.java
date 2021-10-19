@@ -9,7 +9,7 @@ public class FilteredSlf4jRequestLogWriter extends Slf4jRequestLogWriter {
     private final String keyToFilter;
     // Replace value passed to apikey with "FILTERED" but leave the last 3 characters if its API keys
     private static final Pattern ApiKeyPattern = Pattern.compile("(?<=(?i)(apikey=))(.+?(?=\\\\S{3}\\\\s))");
-    private static final Pattern PasswordPattern = Pattern.compile("(?<=(?i)(password=))(\\S*)");
+    private static final Pattern PasswordPattern = Pattern.compile("(?<=(?i)(password=))([^&]*)");
 
     public FilteredSlf4jRequestLogWriter(String keyToFilter) {
         this.keyToFilter = keyToFilter;
