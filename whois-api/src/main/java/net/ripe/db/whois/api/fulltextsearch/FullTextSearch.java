@@ -109,7 +109,6 @@ public class FullTextSearch {
         @QueryParam("hl.simple.post") @DefaultValue("</b>") final String highlightPost,
         @QueryParam("wt") @DefaultValue("xml") final String writerType,
         @QueryParam("facet") @DefaultValue("false") final String facet,
-        @QueryParam("autocomplete") @DefaultValue("no") final Boolean autocomplete,
         @Context final HttpServletRequest request) {
         try {
             return ok(search(
@@ -155,7 +154,7 @@ public class FullTextSearch {
             throw new IllegalArgumentException("Too many rows");
         }
 
-        final QueryParser queryParser = new MultiFieldQueryParser(FullTextIndex.SEARCH_FIELD_NAMES, FullTextIndex.QUERY_ANALYZER);
+        final QueryParser queryParser = new MultiFieldQueryParser(FullTextIndex.FIELD_NAMES, FullTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
 
         final Query query;
@@ -166,7 +165,8 @@ public class FullTextSearch {
         }
 
         try {
-            return fullTextIndex.search(new IndexTemplate.AccountingSearchCallback<SearchResponse>(accessControlListManager, request.getRemoteAddr(), source) {
+            return fullTextIndex.search(
+                    new IndexTemplate.AccountingSearchCallback<SearchResponse>(accessControlListManager, request.getRemoteAddr(), source) {
 
                 @Override
                 protected SearchResponse doSearch(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
