@@ -64,7 +64,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>io.starter</groupId>
+                <groupId>dev.aspectj</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
                 <configuration>
                     <aspectLibraries>
