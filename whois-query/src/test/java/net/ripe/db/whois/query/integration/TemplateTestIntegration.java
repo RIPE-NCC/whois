@@ -181,9 +181,9 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "   The location coordinates for the resource.\n" +
                 "\n" +
-                "     Location coordinates of the resource. Can take one of the following forms:\n" +
-                "     \n" +
-                "     [-90,90][-180,180]\n" +
+                "     Location coordinates of the resource, in decimal degrees notation.\n" +
+                "     Format is latitude followed by longitude, separated by a space.\n" +
+                "     Latitude ranges from [-90,+90] and longitude from [-180,+180]\n" +
                 "\n" +
                 "language\n" +
                 "\n" +
