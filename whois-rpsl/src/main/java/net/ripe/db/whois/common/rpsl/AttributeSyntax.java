@@ -607,9 +607,9 @@ public interface AttributeSyntax extends Documented {
         @Override
         public String getDescription(final ObjectType objectType) {
             return "" +
-                    "Location coordinates of the resource. Can take one of the following forms:\n" +
-                    "\n" +
-                    "[-90,90][-180,180]\n";
+                    "Location coordinates of the resource, in decimal degrees notation.\n" +
+                    "Format is latitude followed by longitude, separated by a space.\n" +
+                    "Latitude ranges from [-90,+90] and longitude from [-180,+180]\n";
         }
     }
 
