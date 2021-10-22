@@ -40,7 +40,7 @@
         <c3po.version>0.9.5.5</c3po.version>
         <commons-compress.version>1.21</commons-compress.version>
         <commons-net.version>3.8.0</commons-net.version>
-        <commons-io.version>2.10.0</commons-io.version>
+        <commons-io.version>2.11.0</commons-io.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-email.version>1.5</commons-email.version>
         <commons-collections.version>3.2.2</commons-collections.version>
@@ -52,24 +52,26 @@
 
         <diffutils.version>1.3.0</diffutils.version>
 
-        <ezvcard.version>0.11.2</ezvcard.version>
+        <ezvcard.version>0.11.3</ezvcard.version>
 
         <findbugs.version>3.0.2</findbugs.version>
 
         <guava.version>30.1.1-jre</guava.version>
+
+        <!-- TODO: [ES] Upgrade to Groovy 3 -->
         <groovy.version>2.5.14</groovy.version>
 
-        <hazelcast.version>4.1.4</hazelcast.version>
+        <hazelcast.version>4.1.5</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
         <jaxb.version>2.3.3</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
-        <jsoup.version>1.14.2</jsoup.version>
+        <jsoup.version>1.14.3</jsoup.version>
         <junit.version>4.13.2</junit.version>
-        <jetty.version>10.0.6</jetty.version>
-        <jersey.version>2.32</jersey.version>
-        <jackson.version>2.12.3</jackson.version>
+        <jetty.version>10.0.7</jetty.version>
+        <jersey.version>2.35</jersey.version>
+        <jackson.version>2.12.5</jackson.version>
 
         <log4j.version>2.14.1</log4j.version>
         <lucene.version>7.7.3</lucene.version>
@@ -78,13 +80,12 @@
         <mariadb-java-client.version>2.7.4</mariadb-java-client.version>
         <mockito.version>3.11.2</mockito.version>
 
-        <!-- Test aws-java-sdk with updated Netty -->
-        <netty.version>4.1.65.Final</netty.version>
+        <netty.version>4.1.69.Final</netty.version>
 
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.32</slf4j.version>
-        <spring.version>5.3.10</spring.version>
+        <spring.version>5.3.12</spring.version>
         <springockito.version>1.0.9</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
@@ -92,7 +93,7 @@
         <shedlock.version>4.24.0</shedlock.version>
 
         <validation.version>2.0.1.Final</validation.version>
-        <velocity.version>2.2</velocity.version>
+        <velocity.version>2.3</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
     </properties>
@@ -1009,7 +1010,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M3</version>
+                <version>3.0.0</version>
                 <configuration>
                     <rules>
                         <dependencyConvergence/>
