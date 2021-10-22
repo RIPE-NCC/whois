@@ -5,11 +5,11 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class Ipv6ResourceTest {
@@ -418,4 +418,25 @@ public class Ipv6ResourceTest {
     public void invalid_prefix_length() {
         Ipv6Resource.parse("2001::/129");
     }
+
+    @Test
+    public void test_brackets_no_prefix_length() {
+        assertThat(Ipv6Resource.parse("[2001:67c:2e8:1::c100:13b]"), is(Ipv6Resource.parse("2001:67c:2e8:1::c100:13b")));
+    }
+
+    @Test
+    public void test_brackets_with_prefix_length() {
+        assertThat(Ipv6Resource.parse("[2001:67c:2e8:1::c100:13b]/64"), is(Ipv6Resource.parse("2001:67c:2e8:1::c100:13b/64")));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_brackets_invalid_prefix_length() {
+        Ipv6Resource.parse("[2001:67c:2e8:1::c100:13b/64]");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_brackets_with_port_number() {
+        Ipv6Resource.parse("[2001:db8::1]:80");
+    }
+
 }
