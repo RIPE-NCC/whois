@@ -60,7 +60,7 @@ public class IndexTemplateTest {
             addDoc(indexWriter, "Managing Gigabytes", "55063554A");
             addDoc(indexWriter, "The Art of Computer Science", "9900333X");
 
-            assertThat(indexWriter.getPendingNumDocs(), is(4));
+            assertThat(indexWriter.getPendingNumDocs(), is(4L));
         });
 
         final Query query = new QueryParser("title", analyzer).parse("Lucene");
@@ -110,7 +110,7 @@ public class IndexTemplateTest {
 
     @Test
     public void search_concurrent() throws Exception {
-        final int nrDocs = 1000;
+        final long nrDocs = 1000;
         final int nrThreads = 100;
 
         subject.write((indexWriter, taxonomyWriter) -> {
