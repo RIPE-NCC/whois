@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.fulltextsearch;
 import com.google.common.collect.Lists;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringReader;

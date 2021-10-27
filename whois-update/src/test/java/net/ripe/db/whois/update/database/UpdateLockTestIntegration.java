@@ -3,9 +3,9 @@ package net.ripe.db.whois.update.database;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.ExecutorService;
@@ -23,7 +23,7 @@ public class UpdateLockTestIntegration extends AbstractUpdateDaoIntegrationTest 
     @Autowired
     private UpdateLockHelper updateLockHelper;
 
-    @Before
+    @BeforeEach
     public void setup() {
         whoisTemplate.update("INSERT INTO mntner (object_id, mntner) VALUES (1, ?)", MNTNER);
     }

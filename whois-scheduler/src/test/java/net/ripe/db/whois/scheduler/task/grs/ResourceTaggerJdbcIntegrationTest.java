@@ -14,10 +14,10 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,17 +47,17 @@ public class ResourceTaggerJdbcIntegrationTest extends AbstractSchedulerIntegrat
     AuthoritativeResource authoritativeResource;
     AuthoritativeResourceData authoritativeResourceData;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("grs.import.sources.tagRoutes", "TEST-GRS");
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         System.clearProperty("grs.import.sources.tagRoutes");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         authoritativeResource = mock(AuthoritativeResource.class);
         when(authoritativeResource.getResourceTypes()).thenReturn(Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM));

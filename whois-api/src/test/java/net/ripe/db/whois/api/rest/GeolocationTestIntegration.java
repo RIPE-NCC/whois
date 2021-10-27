@@ -4,8 +4,8 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,7 +24,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private IpTreeUpdater ipTreeUpdater;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject(
                 "mntner:        OWNER-MNT\n" +

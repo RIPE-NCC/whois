@@ -11,12 +11,12 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -27,9 +27,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FilterPlaceholderDecoratorTest {
 
     @Mock
@@ -44,11 +45,11 @@ public class FilterPlaceholderDecoratorTest {
     @InjectMocks
     FilterPlaceholdersDecorator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         source = Source.slave("TEST-GRS");
-        when(sourceContext.getCurrentSource()).thenReturn(source);
-        when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
+        lenient().when(sourceContext.getCurrentSource()).thenReturn(source);
+        lenient().when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
         subject = new FilterPlaceholdersDecorator(sourceContext, authoritativeResourceData);
     }
 

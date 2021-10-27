@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query;
 
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;

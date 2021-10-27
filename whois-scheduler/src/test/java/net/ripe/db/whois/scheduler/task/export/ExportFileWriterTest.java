@@ -6,14 +6,15 @@ import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryMessages;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.util.FileCopyUtils;
 
@@ -32,7 +33,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ExportFileWriterTest {
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
@@ -42,7 +43,7 @@ public class ExportFileWriterTest {
 
     ExportFileWriter subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(filenameStrategy.getFilename(any(ObjectType.class))).thenAnswer(new Answer<String>() {
             @Override
@@ -108,8 +109,11 @@ public class ExportFileWriterTest {
         assertThat(content, is(QueryMessages.termsAndConditionsDump() + "\n" + expectedContents));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void unexisting_folder() {
-        new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, exportFilter);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, exportFilter);
+
+        });
     }
 }

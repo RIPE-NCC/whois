@@ -4,14 +4,16 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.QueryMessages;
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -23,7 +25,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -320,9 +321,11 @@ public class QueryTest {
         assertEquals("clientId,10.0.0.0", subject.getProxy());
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void proxied_for_invalid() {
-        parse("-VclientId,ipAddress");
+        Assertions.assertThrows(QueryException.class, () -> {
+            parse("-VclientId,ipAddress");
+        });
     }
 
     @Test
@@ -342,14 +345,18 @@ public class QueryTest {
         assertTrue(subject.hasProxyWithIp());
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void proxy_with_invalid_ip() {
-        parse("-Vone,two");
+        Assertions.assertThrows(QueryException.class, () -> {
+            parse("-Vone,two");
+        });
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void proxy_with_more_than_two_elements() {
-        parse("-Vone,two,10.1.1.1");
+        Assertions.assertThrows(QueryException.class, () -> {
+            parse("-Vone,two,10.1.1.1");
+        });
     }
 
     @Test
@@ -380,9 +387,11 @@ public class QueryTest {
         assertThat(subject.getSearchValue(), is("192.168.200.0 - 192.168.200.255"));
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void invalidProxyShouldThrowException() {
-        Query.parse("-Vone,two,three -Tperson DW-RIPE");
+        Assertions.assertThrows(QueryException.class, () -> {
+            Query.parse("-Vone,two,three -Tperson DW-RIPE");
+        });
     }
 
     @Test
@@ -491,9 +500,11 @@ public class QueryTest {
         }
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void multiple_proxies() {
-        Query.parse("-V ripews,188.111.4.162   -V 85.25.132.61");
+        Assertions.assertThrows(QueryException.class, () -> {
+            Query.parse("-V ripews,188.111.4.162   -V 85.25.132.61");
+        });
     }
 
     @Test
@@ -588,22 +599,28 @@ public class QueryTest {
         assertFalse(query.isPrimaryObjectsOnly());
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void system_info_invalid_option() {
-        Query query = Query.parse("-q invalid");
-        query.getSystemInfoOption();
+        Assertions.assertThrows(QueryException.class, () -> {
+            Query query = Query.parse("-q invalid");
+            query.getSystemInfoOption();
+        });
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void system_info_with_multiple_arguments() {
-        Query query = Query.parse("-q version -q invalid");
-        query.getSystemInfoOption();
+        Assertions.assertThrows(QueryException.class, () -> {
+            Query query = Query.parse("-q version -q invalid");
+            query.getSystemInfoOption();
+        });
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void system_info_multiple_flags_no_arguments() {
-        Query query = Query.parse("-q -q");
-        query.getSystemInfoOption();
+        Assertions.assertThrows(QueryException.class, () -> {
+            Query query = Query.parse("-q -q");
+            query.getSystemInfoOption();
+        });
     }
 
     @Test
@@ -706,10 +723,13 @@ public class QueryTest {
         assertThat(query.getTemplateOption(), is("person"));
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void templateQueryMultipleArguments() {
-        Query query = Query.parse("-t person -t role");
-        query.getTemplateOption();
+        Assertions.assertThrows(QueryException.class, () -> {
+            Query query = Query.parse("-t person -t role");
+            query.getTemplateOption();
+        });
+
     }
 
     @Test
@@ -720,10 +740,12 @@ public class QueryTest {
         assertThat(query.getVerboseOption(), is("person"));
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void verboseTemplateQueryMultipleArguments() {
-        Query query = Query.parse("-v person -v role");
-        query.getVerboseOption();
+        Assertions.assertThrows(QueryException.class, () -> {
+            Query query = Query.parse("-v person -v role");
+            query.getVerboseOption();
+        });
     }
 
     @Test

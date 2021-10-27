@@ -5,8 +5,8 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import java.util.Map;
@@ -42,7 +42,7 @@ public class IndexWithAuthIntegrationTest extends IndexIntegrationTestBase {
     Map<RpslObject,RpslObjectUpdateInfo> objectUpdateInfoMap;
     IndexWithAuth subject;
 
-    @Before
+    @BeforeEach
     public void startupWhoisServer() throws Exception {
         subject = new IndexWithAuth(AttributeType.AUTH, "auth", "auth");
         objectUpdateInfoMap = databaseHelper.addObjects(PAULETH_PALTHEN, OWNER_MNT);

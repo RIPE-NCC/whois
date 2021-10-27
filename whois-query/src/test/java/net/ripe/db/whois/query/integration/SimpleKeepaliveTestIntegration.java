@@ -8,12 +8,11 @@ import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -28,18 +27,18 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
     private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
     private static final String READ_TIMEOUT_FRAGMENT = "has been closed after a period of inactivity";
 
-    @BeforeClass
+    @BeforeAll
     public static void setProperty() {
         System.setProperty("whois.read.timeout.sec", "3");
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearProperty() {
         System.clearProperty("whois.read.timeout.sec");
     }
 
     // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
-    @Before
+    @BeforeEach
     public void startupWhoisServer() {
         final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST\nsource: TEST");
         final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST\nsource: TEST");
@@ -54,7 +53,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }

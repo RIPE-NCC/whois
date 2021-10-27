@@ -1,14 +1,15 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GrsImporterTest {
 
     @Rule
@@ -48,7 +49,7 @@ public class GrsImporterTest {
 
     GrsImporter subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(grsSourceRipe.getName()).thenReturn(ciString("RIPE-GRS"));
         when(grsSourceRipe.getLogger()).thenReturn(logger);
@@ -68,7 +69,7 @@ public class GrsImporterTest {
         subject.startImportThreads();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         subject.shutdownImportThreads();
     }

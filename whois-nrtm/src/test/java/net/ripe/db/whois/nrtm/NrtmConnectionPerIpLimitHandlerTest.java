@@ -4,11 +4,11 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NrtmConnectionPerIpLimitHandlerTest {
 
     private static final int MAX_CONNECTIONS_PER_IP = 1;
@@ -32,13 +32,11 @@ public class NrtmConnectionPerIpLimitHandlerTest {
 
     private NrtmConnectionPerIpLimitHandler subject;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.subject = new NrtmConnectionPerIpLimitHandler(MAX_CONNECTIONS_PER_IP, nrtmLog);
 
         when(ctx.channel()).thenReturn(channel);
-
-        when(channel.write(any())).thenReturn(channelFuture);
     }
 
     @Test
@@ -57,6 +55,7 @@ public class NrtmConnectionPerIpLimitHandlerTest {
 
     @Test
     public void multiple_connected_same_ip() throws Exception {
+        when(channel.write(any())).thenReturn(channelFuture);
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
         when(channel.remoteAddress()).thenReturn(remoteAddress);
 

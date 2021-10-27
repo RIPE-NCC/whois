@@ -2,8 +2,8 @@ package net.ripe.db.whois.update.dao;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.IntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -17,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class LegacyAutnumDaoIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired LegacyAutnumDao subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.getInternalsTemplate().execute("DELETE FROM legacy_autnums");
     }

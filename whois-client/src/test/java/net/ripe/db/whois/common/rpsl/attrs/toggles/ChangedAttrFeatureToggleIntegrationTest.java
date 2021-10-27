@@ -1,9 +1,9 @@
 package net.ripe.db.whois.common.rpsl.attrs.toggles;
 
 import net.ripe.db.whois.common.IntegrationTest;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
@@ -15,7 +15,7 @@ public class ChangedAttrFeatureToggleIntegrationTest extends AbstractJUnit4Sprin
 
     private static final Boolean TOGGLE_VALUE = Boolean.TRUE;
 
-    @BeforeClass
+    @BeforeAll
     public synchronized static void beforeClass() {
         System.setProperty("feature.toggle.changed.attr.available", TOGGLE_VALUE.toString());
     }

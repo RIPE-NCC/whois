@@ -9,8 +9,8 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,7 +33,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
     @Autowired
     private DnsGatewayStub dnsGatewayStub;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("" +
                 "person:        Jaap Knasterhuis\n" +

@@ -19,13 +19,13 @@ import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.executor.decorators.ResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.io.ByteArrayOutputStream;
@@ -34,23 +34,23 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RpslResponseDecoratorTest {
 
     @Mock SourceContext sourceContext;
@@ -73,7 +73,7 @@ public class RpslResponseDecoratorTest {
             "abuse-mailbox: abuse@ripe.net"
     );
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new RpslResponseDecorator(rpslObjectDaoMock,
                 filterPersonalDecorator,
@@ -86,9 +86,9 @@ public class RpslResponseDecoratorTest {
                 ssoTokenTranslator,
                 crowdClient,
                 decorator);
-        when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
+        lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
-        when(sourceContext.isMain()).thenReturn(true);
+        lenient().when(sourceContext.isMain()).thenReturn(true);
         Fixture.mockRpslObjectDaoLoadingBehavior(rpslObjectDaoMock);
 
         decoratorPassthrough(filterPersonalDecorator, filterPlaceholdersDecorator, filterTagsDecorator, dummifyDecorator);
@@ -96,7 +96,7 @@ public class RpslResponseDecoratorTest {
 
     private static void decoratorPassthrough(ResponseDecorator... responseDecorator) {
         for (ResponseDecorator decorator : responseDecorator) {
-            when(decorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
+            lenient().when(decorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
                 @Override
                 public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                     return invocationOnMock.getArguments()[1];

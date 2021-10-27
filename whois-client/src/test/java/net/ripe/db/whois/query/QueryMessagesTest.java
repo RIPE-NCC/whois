@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query;
 
 import net.ripe.db.whois.common.Message;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

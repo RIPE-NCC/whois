@@ -7,8 +7,8 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,7 +35,7 @@ public class RipeMaintainerAuthenticationMailTestIntegration extends AbstractInt
             "source:    TEST\n" +
             "password:  emptypassword";
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         databaseHelper.addObjects(Lists.newArrayList(
                 RpslObject.parse(

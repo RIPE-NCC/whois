@@ -9,12 +9,11 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -32,7 +31,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
     @Autowired protected NrtmImporter nrtmImporter;
     @Autowired protected SourceContext sourceContext;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         DatabaseHelper.addGrsDatabases("1-GRS", "2-GRS", "3-GRS");
         System.setProperty("nrtm.update.interval", "1");
@@ -41,7 +40,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
         System.setProperty("nrtm.import.enabled", "true");
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         databaseHelper.addObject(MNTNER);
         databaseHelper.addObjectToSource("1-GRS", MNTNER);
@@ -60,7 +59,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
         nrtmImporter.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);

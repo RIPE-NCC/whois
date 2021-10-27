@@ -2,11 +2,12 @@ package net.ripe.db.whois.scheduler.task.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 
@@ -15,7 +16,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AutomaticPermanentBlocksCleanupTest {
     @Mock DateTimeProvider dateTimeProvider;
     @Mock AccessControlListDao accessControlListDao;

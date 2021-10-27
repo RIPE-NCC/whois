@@ -11,11 +11,11 @@ import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -43,7 +43,7 @@ public class GrsImporterJpirrTestIntegration extends AbstractSchedulerIntegratio
 
     private static final File tempDirectory = Files.createTempDir();
 
-    @BeforeClass
+    @BeforeAll
     public static void setup_database() throws IOException {
         DatabaseHelper.addGrsDatabases("JPIRR-GRS");
 
@@ -73,12 +73,12 @@ public class GrsImporterJpirrTestIntegration extends AbstractSchedulerIntegratio
         System.setProperty("dir.grs.import.download", getPath(tempDirectory));
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanup() throws Exception {
         FileHelper.delete(tempDirectory);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         // initialize authoritativeresource
         authoritativeResourceImportTask.run();

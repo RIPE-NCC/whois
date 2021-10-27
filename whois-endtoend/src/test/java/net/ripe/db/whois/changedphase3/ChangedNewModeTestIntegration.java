@@ -1,9 +1,9 @@
 package net.ripe.db.whois.changedphase3;
 
 import net.ripe.db.whois.common.IntegrationTest;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import static net.ripe.db.whois.changedphase3.util.Scenario.Builder.given;
@@ -32,12 +32,12 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
 @Category(IntegrationTest.class)
 public class ChangedNewModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("feature.toggle.changed.attr.available", "false");
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         System.clearProperty("feature.toggle.changed.attr.available");
     }

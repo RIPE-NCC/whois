@@ -13,10 +13,9 @@ import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.kubek2k.springockito.annotations.ReplaceWithMock;
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
@@ -47,14 +46,14 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
     @Autowired @ReplaceWithMock private QueryHandler queryHandler;
     @Autowired @ReplaceWithMock private AccessControlListManager accessControlListManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(accessControlListManager.canQueryPersonalObjects(any(InetAddress.class))).thenReturn(true);
 
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         queryServer.stop(true);
     }

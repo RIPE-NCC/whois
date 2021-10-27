@@ -8,10 +8,10 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import java.time.LocalDateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -46,7 +46,7 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
             "description: second\n" +
             "source: TEST");
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         DatabaseHelper.addGrsDatabases("1-GRS");
         System.setProperty("nrtm.update.interval", "1");
@@ -55,7 +55,7 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
         System.setProperty("nrtm.import.enabled", "true");
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         databaseHelper.addObject(MNTNER);
         databaseHelper.updateObject(MNTNER_UPDATED);
@@ -72,7 +72,7 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
         nrtmImporter.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);

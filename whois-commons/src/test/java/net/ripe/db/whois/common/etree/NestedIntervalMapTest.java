@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common.etree;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +39,7 @@ public class NestedIntervalMapTest {
     private Ipv4Resource N11_12 = new Ipv4Resource(11, 12);
     private List<Ipv4Resource> all = new ArrayList<>();
 
-    @Before
+    @BeforeEach
     public void setup() {
         all.add(N1_12);
         all.add(N1_4);

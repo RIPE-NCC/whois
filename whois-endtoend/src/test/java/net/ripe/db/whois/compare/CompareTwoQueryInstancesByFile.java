@@ -6,7 +6,7 @@ import net.ripe.db.whois.compare.common.QueryReader;
 import net.ripe.db.whois.compare.common.TargetInterface;
 import net.ripe.db.whois.compare.common.ComparisonRunnerFactory;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -4,9 +4,9 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.common.IntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 @Category(IntegrationTest.class)
 public class AbuseContactTestIntegration extends AbstractIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject(
                 "person:        Test Person\n" +

@@ -5,8 +5,8 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.WebTarget;
@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void rdapSetProperties() {
         System.setProperty("rdap.sources", "TEST-GRS");
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
@@ -28,7 +28,7 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
         System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
-    @AfterClass
+    @AfterAll
     public static void rdapClearProperties() {
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.test");

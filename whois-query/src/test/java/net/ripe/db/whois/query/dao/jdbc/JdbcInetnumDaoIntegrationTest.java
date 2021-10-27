@@ -4,8 +4,8 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.query.dao.InetnumDao;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +22,7 @@ public class JdbcInetnumDaoIntegrationTest extends AbstractQueryDaoIntegrationTe
     private Ipv4Resource ipv4Resource1;
     private Ipv4Resource ipv4Resource2;
 
-    @Before
+    @BeforeEach
     public void setup() {
         ipv4Resource1 = Ipv4Resource.parse("81.80.117.237/32");
         ipv4Resource2 = Ipv4Resource.parse("194.206.65.37/32");

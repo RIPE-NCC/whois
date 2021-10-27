@@ -6,9 +6,9 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,7 +53,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
     private final static Set<ObjectType> NON_AUTH_TYPES = Sets.immutableEnumSet(ObjectType.AUT_NUM, ObjectType.ROUTE, ObjectType.ROUTE6);
 
-    @Before
+    @BeforeEach
     public void setupServer() {
         objects = Sets.newHashSet();
 
@@ -88,7 +88,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void tearDownServer() {
         queryServer.stop(true);
     }

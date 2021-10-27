@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.etree;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;

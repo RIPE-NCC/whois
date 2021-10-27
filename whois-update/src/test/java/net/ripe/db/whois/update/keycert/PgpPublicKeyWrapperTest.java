@@ -4,27 +4,27 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PgpPublicKeyWrapperTest {
 
     @Mock DateTimeProvider dateTimeProvider;
@@ -33,9 +33,8 @@ public class PgpPublicKeyWrapperTest {
     private RpslObject anotherPgpKeycert;
     private RpslObject x509Keycert;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         pgpKeycert = RpslObject.parse(getResource("keycerts/PGPKEY-A8D16B70.TXT"));
         anotherPgpKeycert = RpslObject.parse(getResource("keycerts/PGPKEY-28F6CD6C.TXT"));
         x509Keycert = RpslObject.parse(getResource("keycerts/X509-1.TXT"));
@@ -107,6 +106,7 @@ public class PgpPublicKeyWrapperTest {
 
     @Test
     public void isExpired() {
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         final PgpPublicKeyWrapper subject = PgpPublicKeyWrapper.parse(
                 RpslObject.parse(
                         "key-cert:       PGPKEY-C88CA438\n" +

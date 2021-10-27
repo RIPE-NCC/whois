@@ -2,9 +2,9 @@ package net.ripe.db.whois.common.aspects;
 
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileNotFoundException;
@@ -24,7 +24,7 @@ public class RetryForAspectIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired RetryForAspectMethod retryForAspectMethod;
     @Autowired RetryForAspectType retryForAspectType;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         attemptCounter = new AtomicInteger();
     }

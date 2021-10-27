@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.hamcrest.Matchers.hasSize;

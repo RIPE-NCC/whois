@@ -1,8 +1,8 @@
 package net.ripe.db.whois.update.domain;
 
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
 
 public class UpdateStatusTest {
     @Test

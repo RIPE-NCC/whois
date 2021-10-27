@@ -3,8 +3,8 @@ package net.ripe.db.whois.api.mail.dequeue;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Keyword;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -14,7 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class MailMessageBuilderTest {
     private MailMessageBuilder subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new MailMessageBuilder();
     }

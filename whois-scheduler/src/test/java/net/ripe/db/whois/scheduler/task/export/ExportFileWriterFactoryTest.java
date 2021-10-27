@@ -3,13 +3,14 @@ package net.ripe.db.whois.scheduler.task.export;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
@@ -21,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ExportFileWriterFactoryTest {
     private static final int LAST_SERIAL = 1234;
 
@@ -32,15 +33,18 @@ public class ExportFileWriterFactoryTest {
     @Mock DummifierCurrent dummifierCurrent;
     ExportFileWriterFactory subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new ExportFileWriterFactory(dummifierNrtm, dummifierCurrent, "internal", "dbase_new", "dbase", "test", "test-nonauth");
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void createExportFileWriters_existing_dir() throws IOException {
-        folder.newFolder("dbase");
-        subject.createExportFileWriters(folder.getRoot(), LAST_SERIAL);
+    @Test
+    public void createExportFileWriters_existing_dir() {
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            folder.newFolder("dbase");
+            subject.createExportFileWriters(folder.getRoot(), LAST_SERIAL);
+        });
+
     }
 
     @Test

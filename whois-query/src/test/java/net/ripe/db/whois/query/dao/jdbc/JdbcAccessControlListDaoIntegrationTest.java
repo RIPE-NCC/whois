@@ -8,8 +8,8 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,7 +33,7 @@ public class JdbcAccessControlListDaoIntegrationTest extends AbstractQueryDaoInt
     private InetAddress inetAddress1;
     private InetAddress inetAddress2;
 
-    @Before
+    @BeforeEach
     public void setup() throws UnknownHostException {
         inetAddress1 = InetAddress.getByName("128.0.0.1");
         inetAddress2 = InetAddress.getByName("128.0.0.2");

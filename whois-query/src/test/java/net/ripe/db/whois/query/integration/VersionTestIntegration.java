@@ -14,9 +14,9 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
@@ -29,7 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @Category(IntegrationTest.class)
 public class VersionTestIntegration extends AbstractQueryIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void startup() {
         loadScripts(databaseHelper.getWhoisTemplate(), "broken.sql");
 
@@ -38,7 +38,7 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         queryServer.stop(true);
     }

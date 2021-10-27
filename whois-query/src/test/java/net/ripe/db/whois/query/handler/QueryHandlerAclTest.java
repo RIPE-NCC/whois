@@ -14,13 +14,13 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.executor.QueryExecutor;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.net.InetAddress;
@@ -34,13 +34,14 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class QueryHandlerAclTest {
     @Mock WhoisLog whoisLog;
     @Mock AccessControlListManager accessControlListManager;
@@ -53,7 +54,7 @@ public class QueryHandlerAclTest {
     ResponseObject message, maintainer, personTest, roleTest, roleAbuse;
     @Mock ResponseHandler responseHandler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new QueryHandler(whoisLog, accessControlListManager, sourceContext, queryExecutor);
 
@@ -79,9 +80,9 @@ public class QueryHandlerAclTest {
             }
         }).when(queryExecutor).execute(any(Query.class), any(ResponseHandler.class));
 
-        when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
+        lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(accessControlListManager.canQueryPersonalObjects(remoteAddress)).thenReturn(true);
-        when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenAnswer(new Answer<Object>() {
+        lenient().when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenAnswer(new Answer<Object>() {
             @Override
             @SuppressWarnings("SuspiciousMethodCalls")
             public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {

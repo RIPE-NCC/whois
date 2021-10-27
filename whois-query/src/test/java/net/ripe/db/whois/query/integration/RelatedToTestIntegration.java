@@ -5,9 +5,9 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.Matchers.containsString;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 @Category(IntegrationTest.class)
 public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void startupWhoisServer() throws Exception {
         databaseHelper.addObject(RpslObject.parse("mntner:RIPE-NCC-MNT\nnic-hdl:AP111-RIPE"));
         databaseHelper.addObject(RpslObject.parse("" +
@@ -35,7 +35,7 @@ public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }

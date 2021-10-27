@@ -7,11 +7,11 @@ import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,18 +39,18 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
     @Autowired AutocompleteService autocompleteService;
 
-    @BeforeClass
+    @BeforeAll
     public static void setProperty() {
         // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
         System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearProperty() {
         System.clearProperty("dir.fulltext.index");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         databaseHelper.addObject("mntner: AA1-MNT");
         databaseHelper.addObject("mntner: AB1-MNT");
@@ -135,7 +135,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
     // TODO: [ES] Unexpected error in log: "Caught Cannot parse '81.26.54.100 \- *': '*' or '?' not allowed as first character in WildcardQuery on 81.26.54.100 -"
     //            Causes empty response (no match).
-    @Ignore
+    @Disabled
     @Test
     public void wildcard_not_allowed_as_first_character() {
         databaseHelper.addObject("inetnum: 0.0.0.0 - 255.255.255.255\nsource: TEST");

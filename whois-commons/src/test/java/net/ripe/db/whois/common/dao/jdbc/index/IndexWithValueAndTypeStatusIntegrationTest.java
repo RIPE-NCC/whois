@@ -5,8 +5,8 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public class IndexWithValueAndTypeStatusIntegrationTest extends IndexIntegration
             "mnt-by:         OWNER-MNT\n" +
             "source:         TEST\n");
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");

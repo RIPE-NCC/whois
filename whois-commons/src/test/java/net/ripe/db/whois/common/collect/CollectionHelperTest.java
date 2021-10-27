@@ -5,7 +5,8 @@ import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -37,9 +38,11 @@ public class CollectionHelperTest {
         assertThat(result, is(1));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void uniqueResult_multiple_results() {
-        CollectionHelper.uniqueResult(Arrays.asList(1, 2));
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            CollectionHelper.uniqueResult(Arrays.asList(1, 2));
+        });
     }
 
     @Test

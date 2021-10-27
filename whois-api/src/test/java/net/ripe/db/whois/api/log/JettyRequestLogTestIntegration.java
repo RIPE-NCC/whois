@@ -17,10 +17,10 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.eclipse.jetty.server.RequestLog;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
@@ -52,18 +52,18 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
     private final static String requestLogDirectory = "target/log/jetty";
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
         addLog4jAppender();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         removeLog4jAppender();
     }
     
-    @AfterClass
+    @AfterAll
     public static void cleanUp() throws Exception {
         cleanupRequestLogDirectory();
     }

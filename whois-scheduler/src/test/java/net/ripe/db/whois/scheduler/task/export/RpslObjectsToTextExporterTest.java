@@ -8,15 +8,15 @@ import net.ripe.db.whois.scheduler.task.export.dao.ExportCallbackHandler;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportDao;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
@@ -26,16 +26,16 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
-
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RpslObjectsToTextExporterTest {
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
     @Mock ExportFileWriterFactory exportFileWriterFactory;
     @Mock ExportDao exportDao;
@@ -45,10 +45,10 @@ public class RpslObjectsToTextExporterTest {
     File exportDir;
     File tmpDir;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        exportDir = folder.newFolder("export");
-        tmpDir = folder.newFolder("export_tmp");
+        exportDir = new File(folder, "export");
+        tmpDir = new File(folder, "export_tmp");
 
         final String exportdirName = exportDir.getAbsolutePath();
         final String tmpDirName = tmpDir.getAbsolutePath();
@@ -58,11 +58,13 @@ public class RpslObjectsToTextExporterTest {
         subject = new RpslObjectsExporter(exportFileWriterFactory, exportDao, tagsDao, exportdirName, tmpDirName, true);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void export_invalid_dir() {
-        Mockito.reset(exportFileWriterFactory);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            Mockito.reset(exportFileWriterFactory);
 
-        subject.export();
+            subject.export();
+        });
     }
 
     @Test

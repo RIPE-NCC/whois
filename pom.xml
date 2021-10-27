@@ -57,7 +57,7 @@
         <findbugs.version>3.0.2</findbugs.version>
 
         <guava.version>30.1.1-jre</guava.version>
-        <groovy.version>3.0.9</groovy.version>
+        <groovy.version>2.5.14</groovy.version>
 
         <hazelcast.version>4.1.4</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
@@ -66,7 +66,7 @@
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.14.2</jsoup.version>
-        <junit.version>4.13.2</junit.version>
+        <junit.version>5.7.2</junit.version>
         <jetty.version>10.0.6</jetty.version>
         <jersey.version>2.32</jersey.version>
         <jackson.version>2.12.3</jackson.version>
@@ -76,7 +76,7 @@
 
         <mail.version>1.6.2</mail.version>
         <mariadb-java-client.version>2.7.4</mariadb-java-client.version>
-        <mockito.version>3.11.2</mockito.version>
+        <mockito.version>4.0.0</mockito.version>
 
         <!-- Test aws-java-sdk with updated Netty -->
         <netty.version>4.1.65.Final</netty.version>
@@ -622,9 +622,15 @@
 
         <!-- common test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.7.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -654,6 +660,12 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>

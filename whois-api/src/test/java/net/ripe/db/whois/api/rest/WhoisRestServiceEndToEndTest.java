@@ -21,8 +21,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.support.TestUpdateLog;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -131,7 +131,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     @Autowired TestUpdateLog updateLog;
     @Value("${dir.update.audit.log}") String auditLog;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObjects(baseFixtures.values());
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-06T17:00:00"));

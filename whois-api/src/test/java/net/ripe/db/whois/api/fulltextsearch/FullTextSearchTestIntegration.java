@@ -12,10 +12,10 @@ import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -51,19 +51,19 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
     private JdbcTemplate aclJdbcTemplate;
 
-    @BeforeClass
+    @BeforeAll
     public static void setProperty() {
         // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
         System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
         System.setProperty("fulltext.search.max.results", "3");
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearProperty() {
         System.clearProperty("dir.fulltext.index");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         fullTextIndex.rebuild();
         testPersonalObjectAccounting.resetAccounting();

@@ -10,8 +10,8 @@ import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,7 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class JdbcVersionDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired VersionDao subject;
 
-    @Before
+    @BeforeEach
     public void before() {
         loadScripts(databaseHelper.getWhoisTemplate(), "broken.sql");
     }

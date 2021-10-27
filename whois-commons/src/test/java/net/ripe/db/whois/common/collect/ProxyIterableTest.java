@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.collect;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
@@ -40,18 +41,23 @@ public class ProxyIterableTest {
         testWithPrefetch(1);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void test_remove() throws Exception {
-        ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
-        subject = new ProxyIterable<>(Collections.<Integer>emptyList(), proxyLoader, 1);
-        subject.iterator().remove();
+    @Test
+    public void test_remove() {
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
+            subject = new ProxyIterable<>(Collections.<Integer>emptyList(), proxyLoader, 1);
+            subject.iterator().remove();
+        });
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void test_empty_next() {
-        ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
-        subject = new ProxyIterable<>(Collections.<Integer>emptyList(), proxyLoader, 1);
-        subject.iterator().next();
+        Assertions.assertThrows(NoSuchElementException.class, () -> {
+            ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
+            subject = new ProxyIterable<>(Collections.<Integer>emptyList(), proxyLoader, 1);
+            subject.iterator().next();
+        });
+
     }
 
     @Test

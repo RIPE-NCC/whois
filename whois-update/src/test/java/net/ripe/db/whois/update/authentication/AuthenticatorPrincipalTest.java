@@ -24,12 +24,12 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collections;
@@ -41,13 +41,14 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthenticatorPrincipalTest {
     @Mock IpRanges ipRanges;
     @Mock UserDao userDao;
@@ -62,16 +63,14 @@ public class AuthenticatorPrincipalTest {
     Authenticator subject;
     ArgumentCaptor<Subject> subjectCapture;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(authenticationStrategy1.getName()).thenReturn("authenticationStrategy1");
-        when(authenticationStrategy2.getName()).thenReturn("authenticationStrategy2");
         when(authenticationStrategy2.compareTo(authenticationStrategy1)).thenReturn(1);
 
         when(maintainers.getEnduserMaintainers()).thenReturn(ciSet("RIPE-NCC-END-MNT"));
         when(maintainers.getAllocMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT", "AARDVARK-MNT"));
         when(maintainers.getLegacyMaintainers()).thenReturn(ciSet("RIPE-NCC-LEGACY-MNT"));
-        when(update.getCredentials()).thenReturn(new Credentials());
+        lenient().when(update.getCredentials()).thenReturn(new Credentials());
 
         subjectCapture = ArgumentCaptor.forClass(Subject.class);
         subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2});
@@ -123,6 +122,7 @@ public class AuthenticatorPrincipalTest {
 
     @Test
     public void authentication_fails() {
+        when(authenticationStrategy2.getName()).thenReturn("authenticationStrategy2");
         when(authenticationStrategy1.supports(update)).thenReturn(false);
         when(authenticationStrategy2.supports(update)).thenReturn(true);
         when(authenticationStrategy2.authenticate(update, updateContext)).thenThrow(new AuthenticationFailedException(UpdateMessages.unexpectedError(), Collections.<RpslObject>emptyList()));

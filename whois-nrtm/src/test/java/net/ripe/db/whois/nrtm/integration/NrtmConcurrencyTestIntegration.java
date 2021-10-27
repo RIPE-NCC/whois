@@ -6,13 +6,13 @@ import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -41,31 +41,31 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
     private CountDownLatch countDownLatch;
 
-    @BeforeClass
+    @BeforeAll
     public static void setNrtmProperties() {
         System.setProperty("whois.limit.connectionsPerIp", "100");
         System.setProperty("nrtm.update.interval", "1");
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearNrtmProperties() {
         System.clearProperty("nrtm.update.interval");
         System.clearProperty("whois.limit.connectionsPerIp");
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         loadSerials(0, Integer.MAX_VALUE);
         nrtmServer.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         nrtmServer.stop(true);
     }
 
     @Test
-    @Ignore // FIXME [SB] fix this test
+    @Disabled // FIXME [SB] fix this test
     public void dontHangOnHugeAutNumObject() {
         String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), String.format("-g TEST:3:%d-%d", MIN_RANGE, MAX_RANGE), 5 * 1000);
 
@@ -74,7 +74,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     }
 
     @Test
-    @Ignore // FIXME [SB] fix this test
+    @Disabled // FIXME [SB] fix this test
     public void dontHangOnHugeAutNumObjectKeepalive() throws Exception {
         countDownLatch = new CountDownLatch(1);
 

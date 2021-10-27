@@ -4,9 +4,9 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.pipeline.QueryChannelsRegistry;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.kubek2k.springockito.annotations.WrapWithSpy;
@@ -28,12 +28,12 @@ import static org.junit.Assert.fail;
 public class WhoisShutdownTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired @WrapWithSpy private QueryChannelsRegistry queryChannelsRegistry;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         queryServer.stop(true);
     }

@@ -4,8 +4,9 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class IndexWithMemberOfIntegrationTest extends IndexIntegrationTestBase {
 
     RpslObject asSet;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = IndexStrategies.get(AttributeType.MEMBER_OF);
 
@@ -43,25 +44,31 @@ public class IndexWithMemberOfIntegrationTest extends IndexIntegrationTestBase {
         assertThat(getNrMemberOf(), is(1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void add_route() {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "route:     193.0.0.0/8\n" +
-                "origin:    AS100\n" +
-                "member-of: AS-BOGUS");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            final RpslObject rpslObject = RpslObject.parse("" +
+                    "route:     193.0.0.0/8\n" +
+                    "origin:    AS100\n" +
+                    "member-of: AS-BOGUS");
 
-        final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
-        subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MEMBER_OF));
+            final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
+            subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MEMBER_OF));
+
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void add_autnum_invalid_reference() {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "aut-num:         AS5404\n" +
-                "member-of:       AS-UNKNOWN");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            final RpslObject rpslObject = RpslObject.parse("" +
+                    "aut-num:         AS5404\n" +
+                    "member-of:       AS-UNKNOWN");
 
-        final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
-        subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MEMBER_OF));
+            final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
+            subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MEMBER_OF));
+
+        });
     }
 
     @Test

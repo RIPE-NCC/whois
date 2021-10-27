@@ -1,10 +1,10 @@
 package net.ripe.db.whois.update.domain;
 
+import org.junit.jupiter.api.Test;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-
-import org.junit.Test;
 
 public class KeywordTest {
 

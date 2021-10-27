@@ -28,9 +28,9 @@ import net.ripe.db.whois.update.mail.MailSenderStub;
 import net.ripe.db.whois.update.support.TestUpdateLog;
 import org.apache.commons.io.FileUtils;
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -94,7 +94,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private RestClient restClient;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T13:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
@@ -103,7 +103,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         ReflectionTestUtils.setField(restClient, "sourceName", "TEST");
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         cleanupAuditLogDirectory();
     }

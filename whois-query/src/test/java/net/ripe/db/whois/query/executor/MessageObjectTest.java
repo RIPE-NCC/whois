@@ -3,7 +3,7 @@ package net.ripe.db.whois.query.executor;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;

@@ -6,11 +6,12 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -19,8 +20,8 @@ import javax.ws.rs.RedirectionException;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -30,7 +31,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     @Autowired AuthoritativeResourceData authoritativeResourceData;
     @Autowired DailySchedulerDao dailySchedulerDao;
 
-    @BeforeClass
+    @BeforeAll
     public static void setProperties() throws IOException {
         System.setProperty("rdap.sources", "ONE-GRS,TWO-GRS,THREE-GRS");
         System.setProperty("rdap.redirect.one", "https://rdap.one.net");
@@ -40,7 +41,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
         DatabaseHelper.addGrsDatabases("ONE-GRS", "TWO-GRS", "THREE-GRS");
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearProperties() throws IOException {
         System.clearProperty("rdap.sources");
         System.clearProperty("rdap.redirect.one");
@@ -48,7 +49,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
         System.clearProperty("rdap.public.baseUrl");
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("" +
                 "inetnum:       0.0.0.0 - 255.255.255.255\n" +
@@ -87,25 +88,31 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void autnum_resource_not_found() {
-        RestTest.target(getPort(), String.format("rdap/%s", "autnum/101"))
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), String.format("rdap/%s", "autnum/101"))
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(String.class);
+        });
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void autnum_empty_redirect_property() {
-        RestTest.target(getPort(), String.format("rdap/%s", "autnum/200"))
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), String.format("rdap/%s", "autnum/200"))
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(String.class);
+        });
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void autnum_no_redirect_property() {
-        RestTest.target(getPort(), String.format("rdap/%s", "autnum/300"))
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), String.format("rdap/%s", "autnum/300"))
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(String.class);
+        });
     }
 
     // inetnum

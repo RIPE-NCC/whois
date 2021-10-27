@@ -17,12 +17,11 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.hamcrest.core.Is;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.nio.charset.Charset;
@@ -39,7 +38,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PgpCredentialValidatorTest {
     @Mock private PreparedUpdate preparedUpdate;
     @Mock private Update update;
@@ -88,14 +87,11 @@ public class PgpCredentialValidatorTest {
             "mnt-by:         TEST-MNT\n" +
             "source:         RIPE\n");
 
-    @Before
-    public void setup() {
+    @Test
+    public void authenticateExistingRpslObject() {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         when(preparedUpdate.getUpdate()).thenReturn(update);
-    }
 
-    @Test
-    public void authenticateExistingRpslObject() throws Exception {
         final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
@@ -135,6 +131,9 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void authenticateExistingRpslObjectGreekEncoding() throws Exception {
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        when(preparedUpdate.getUpdate()).thenReturn(update);
+
         final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
@@ -171,6 +170,9 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void setsEffectiveCredential() {
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        when(preparedUpdate.getUpdate()).thenReturn(update);
+
         final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                         "Hash: SHA1\n" +
@@ -341,6 +343,8 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void knownCredentialIsInvalid() {
+        when(preparedUpdate.getUpdate()).thenReturn(update);
+
         final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +

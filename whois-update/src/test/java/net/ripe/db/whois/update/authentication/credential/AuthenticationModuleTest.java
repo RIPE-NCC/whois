@@ -9,12 +9,13 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.util.Collections;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationModuleTest {
     @Mock private PreparedUpdate update;
     @Mock private UpdateContext updateContext;
@@ -40,7 +41,7 @@ public class AuthenticationModuleTest {
 
     private AuthenticationModule subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(credentialValidator.getSupportedCredentials()).thenReturn(PasswordCredential.class);
         when(ssoCredentialValidator.getSupportedCredentials()).thenReturn(SsoCredential.class);

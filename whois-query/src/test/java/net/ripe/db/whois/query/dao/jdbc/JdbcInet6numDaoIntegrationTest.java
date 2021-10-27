@@ -4,9 +4,9 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import net.ripe.db.whois.query.dao.Inet6numDao;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.UnknownHostException;
@@ -24,7 +24,7 @@ public class JdbcInet6numDaoIntegrationTest extends AbstractQueryDaoIntegrationT
     private Ipv6Resource ipv6Resource1;
     private Ipv6Resource ipv6Resource2;
 
-    @Before
+    @BeforeEach
     public void setup() throws UnknownHostException {
         ipv6Resource1 = Ipv6Resource.parse("2A02:758:500::/48");
         ipv6Resource2 = Ipv6Resource.parse("2a01:198:200:397::/64");

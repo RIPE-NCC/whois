@@ -19,8 +19,8 @@ import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -59,7 +59,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Autowired
     TestWhoisLog queryLog;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("" +
                 "person:        Test Person\n" +

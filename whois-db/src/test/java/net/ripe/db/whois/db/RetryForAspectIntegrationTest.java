@@ -3,8 +3,8 @@ package net.ripe.db.whois.db;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -32,7 +32,7 @@ public class RetryForAspectIntegrationTest extends AbstractDaoIntegrationTest {
 
     @Autowired RetryForAspectOnClass retryForAspectOnClass;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         attemptCounter = new AtomicInteger();
     }

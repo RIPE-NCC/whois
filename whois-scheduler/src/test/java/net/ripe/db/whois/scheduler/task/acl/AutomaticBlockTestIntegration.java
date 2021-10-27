@@ -8,9 +8,9 @@ import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.PersonalObjectAccounting;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,7 +32,7 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     @Autowired AutomaticPermanentBlocks automaticPermanentBlocks;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
 
-    @Before
+    @BeforeEach
     public void startupServer() throws Exception {
         localHost = InetAddress.getByName("127.0.0.1");
 
@@ -49,7 +49,7 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownServer() {
         queryServer.stop(true);
     }

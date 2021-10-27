@@ -7,9 +7,9 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import java.util.Map;
@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @Category(IntegrationTest.class)
 public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void setup() {
         final RpslObject inetnum = RpslObject.parse("inetnum:18.0.0.0 - 18.255.255.255\nnetname: NN\nmnt-by: RIPE-NCC-HM-MNT\nadmin-c:TP1-TEST\nstatus:ASSIGNED PI");
         final RpslObject root = RpslObject.parse("inetnum:0.0.0.0 - 255.255.255.255\nnetname: NN\nmnt-by: RIPE-NCC-HM-MNT");
@@ -44,7 +44,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdown() {
         queryServer.stop(true);
     }

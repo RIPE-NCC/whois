@@ -7,10 +7,9 @@ import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,12 +29,12 @@ public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired JdbcSerialDao subject;
     @Value("${whois.source}") protected String source;
 
-    @Before
+    @BeforeEach
     public void setup() {
         sourceContext.setCurrent(Source.slave(source));
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         sourceContext.removeCurrentSource();
     }

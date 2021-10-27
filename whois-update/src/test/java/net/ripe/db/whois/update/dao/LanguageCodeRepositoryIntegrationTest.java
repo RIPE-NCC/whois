@@ -1,8 +1,9 @@
 package net.ripe.db.whois.update.dao;
 
 import net.ripe.db.whois.common.IntegrationTest;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -22,8 +23,10 @@ public class LanguageCodeRepositoryIntegrationTest extends AbstractUpdateDaoInte
         assertThat(subject.getLanguageCodes(), hasSize(183));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void getLanguageCodes_immutable() {
-        subject.getLanguageCodes().add(ciString("vq"));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            subject.getLanguageCodes().add(ciString("vq"));
+        });
     }
 }

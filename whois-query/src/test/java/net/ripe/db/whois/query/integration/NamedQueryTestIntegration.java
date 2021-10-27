@@ -5,9 +5,9 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.Matchers.containsString;
@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @Category(IntegrationTest.class)
 public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void startupWhoisServer() {
         databaseHelper.addObject("organisation:ORG-ZV1-RIPE");
         databaseHelper.addObject("person:Denis Walker\nnotify:someone@ripe.net\ne-mail:someone@ripe.net\nnic-hdl:DH3037-RIPE");
@@ -27,7 +27,7 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }

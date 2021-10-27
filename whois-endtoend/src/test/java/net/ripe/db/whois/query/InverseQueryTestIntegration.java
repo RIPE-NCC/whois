@@ -5,9 +5,9 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -71,14 +71,14 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Autowired IpRanges ipRanges;
 
-    @Before
+    @BeforeEach
     public void startupWhoisServer() throws Exception {
         databaseHelper.addObjects(PAULETH_PALTHEN, KEYCERT, OWNER_MNT);
 
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }

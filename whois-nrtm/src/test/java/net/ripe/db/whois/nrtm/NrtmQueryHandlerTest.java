@@ -13,14 +13,14 @@ import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.scheduling.TaskScheduler;
 
@@ -37,15 +37,15 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NrtmQueryHandlerTest {
 
     @Mock private SerialDao serialDaoMock;
@@ -69,23 +69,23 @@ public class NrtmQueryHandlerTest {
 
     private NrtmQueryHandler subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(contextMock.channel()).thenReturn(channelMock);
-        when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(0));
-        when(channelMock.isOpen()).thenReturn(true);
-        when(channelMock.writeAndFlush(any())).thenReturn(channelFutureMock);
-        when(channelMock.attr(any())).thenReturn(attributeMock);
-        doNothing().when(attributeMock).set(any());
-        when(serialDaoMock.getSerials()).thenReturn(new SerialRange(1, 2));
-        when(serialDaoMock.getByIdForNrtm(1)).thenReturn(new SerialEntry(Operation.UPDATE, true, 1, 1000, 1000, inetnum.toByteArray()));
-        when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, inetnum)).thenReturn(true);
-        when(dummifierMock.dummify(NrtmServer.NRTM_VERSION, inetnum)).thenReturn(inetnum);
-        when(serialDaoMock.getByIdForNrtm(2)).thenReturn(new SerialEntry(Operation.UPDATE, true, 2, 1000, 1000, person.toByteArray()));
-        when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, person)).thenReturn(false);
-        when(applicationVersion.getVersion()).thenReturn("1.0-SNAPSHOT");
+        lenient().when(contextMock.channel()).thenReturn(channelMock);
+        lenient().when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(0));
+        lenient().when(channelMock.isOpen()).thenReturn(true);
+        lenient().when(channelMock.writeAndFlush(any())).thenReturn(channelFutureMock);
+        lenient().when(channelMock.attr(any())).thenReturn(attributeMock);
+        lenient().doNothing().when(attributeMock).set(any());
+        lenient().when(serialDaoMock.getSerials()).thenReturn(new SerialRange(1, 2));
+        lenient().when(serialDaoMock.getByIdForNrtm(1)).thenReturn(new SerialEntry(Operation.UPDATE, true, 1, 1000, 1000, inetnum.toByteArray()));
+        lenient().when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, inetnum)).thenReturn(true);
+        lenient().when(dummifierMock.dummify(NrtmServer.NRTM_VERSION, inetnum)).thenReturn(inetnum);
+        lenient().when(serialDaoMock.getByIdForNrtm(2)).thenReturn(new SerialEntry(Operation.UPDATE, true, 2, 1000, 1000, person.toByteArray()));
+        lenient().when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, person)).thenReturn(false);
+        lenient().when(applicationVersion.getVersion()).thenReturn("1.0-SNAPSHOT");
 
-        when(mySchedulerMock.scheduleAtFixedRate(any(Runnable.class), anyLong())).thenAnswer(invocation -> {
+        lenient().when(mySchedulerMock.scheduleAtFixedRate(any(Runnable.class), anyLong())).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
             ((Runnable) args[0]).run();
             return null;

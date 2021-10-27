@@ -4,9 +4,9 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -21,13 +21,13 @@ public class NrtmKeepaliveQueryTestIntegration extends AbstractNrtmIntegrationBa
 
     private int updateInterval;
 
-    @Before
+    @BeforeEach
     public void before() throws InterruptedException {
         updateInterval = Integer.valueOf(updateIntervalString);
         nrtmServer.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         nrtmServer.stop(true);
     }

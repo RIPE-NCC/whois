@@ -9,9 +9,9 @@ import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.kubek2k.springockito.annotations.ReplaceWithMock;
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.mockito.invocation.InvocationOnMock;
@@ -40,7 +40,7 @@ public class MessageDequeueTestIntegration extends AbstractIntegrationTest {
     @Autowired private MailUpdatesTestSupport mailUpdatesTestSupport;
     @Autowired @ReplaceWithMock private UpdateRequestHandler messageHandler;
 
-    @BeforeClass
+    @BeforeAll
     public static void setNumberOfThreads() {
         System.setProperty("mail.update.threads", String.valueOf(CLIENTS));
     }

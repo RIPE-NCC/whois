@@ -6,10 +6,11 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @DirtiesContext
 @Category(IntegrationTest.class)
@@ -32,21 +33,23 @@ public class GrsDaoIntegrationTest extends AbstractSchedulerIntegrationTest {
     Logger logger = LoggerFactory.getLogger(GrsDao.class);
     GrsDao subject;
 
-    @BeforeClass
+    @BeforeAll
     public static void setupGrsDatabase() {
         System.setProperty("grs.sources", "TEST-GRS");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new GrsDao(logger, testDateTimeProvider, ciString("TEST-GRS"), sourceContext);
         subject.cleanDatabase();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void no_grs_datasource() {
-        subject = new GrsDao(logger, testDateTimeProvider, ciString("UNKNOWN"), sourceContext);
-        subject.cleanDatabase();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            subject = new GrsDao(logger, testDateTimeProvider, ciString("UNKNOWN"), sourceContext);
+            subject.cleanDatabase();
+        });
     }
 
     @Test

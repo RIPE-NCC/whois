@@ -6,8 +6,8 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class IndexWithInet6numIntegrationTest extends IndexIntegrationTestBase {
 
     private IndexWithInet6num subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new IndexWithInet6num(AttributeType.INET6NUM);
         rpslObjectInfo = new RpslObjectInfo(1, ObjectType.INET6NUM, "2001::/64");

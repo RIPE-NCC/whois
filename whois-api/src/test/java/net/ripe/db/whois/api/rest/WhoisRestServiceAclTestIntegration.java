@@ -10,9 +10,9 @@ import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,7 +39,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
     @Autowired
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject(
                 "person:    Test Person\n" +
@@ -51,7 +51,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("aut-num:   AS102\n" + "source:    TEST\n");
     }
 
-    @After
+    @AfterEach
     public void reset() throws Exception {
         databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
         databaseHelper.getAclTemplate().update("DELETE FROM acl_event");

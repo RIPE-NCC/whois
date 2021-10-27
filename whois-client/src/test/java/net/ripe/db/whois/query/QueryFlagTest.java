@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query;
 
-import net.ripe.db.whois.query.QueryFlag;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;

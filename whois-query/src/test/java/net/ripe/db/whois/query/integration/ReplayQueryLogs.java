@@ -8,9 +8,9 @@ import net.ripe.db.whois.common.support.QueryLogEntry;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.support.QueryExecutor;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -37,7 +37,7 @@ public class ReplayQueryLogs {
     private static int delayBetweenQueries;
     private static int nrThreads;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         whoisHost = "whois-pre";
         whoisPort = 43;

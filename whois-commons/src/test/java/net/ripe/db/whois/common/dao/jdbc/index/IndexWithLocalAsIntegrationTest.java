@@ -5,9 +5,9 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class IndexWithLocalAsIntegrationTest extends IndexIntegrationTestBase {
 
     private IndexWithLocalAs subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new IndexWithLocalAs(AttributeType.LOCAL_AS);
     }

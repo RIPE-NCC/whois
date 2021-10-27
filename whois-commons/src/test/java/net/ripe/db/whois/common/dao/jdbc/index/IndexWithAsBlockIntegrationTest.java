@@ -4,9 +4,9 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class IndexWithAsBlockIntegrationTest extends IndexIntegrationTestBase {
     private RpslObject asBlock;
     private RpslObjectInfo asBlockInfo;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new IndexWithAsBlock(AttributeType.AS_BLOCK);
 

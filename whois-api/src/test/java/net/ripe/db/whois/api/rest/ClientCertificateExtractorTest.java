@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.rest;
 import net.ripe.db.whois.common.ClockDateTimeProvider;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.update.keycert.X509CertificateTestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.HttpServletRequest;
 

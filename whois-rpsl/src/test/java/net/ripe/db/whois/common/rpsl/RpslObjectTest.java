@@ -4,7 +4,8 @@ import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -33,54 +34,75 @@ public class RpslObjectTest {
 
     private RpslObject subject;
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseNullFails() {
-        RpslObject.parse((byte[]) null);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            RpslObject.parse((byte[]) null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseEmptyFails() {
-        RpslObject.parse(new byte[]{});
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            RpslObject.parse(new byte[]{});
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseEmptyStringFails() {
-        parseAndAssign("");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("");
+        });
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseNullSizedKey() {
-        parseAndAssign(":");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign(":");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseInvalidCharacterInKey() {
-        parseAndAssign(" :");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign(" :");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseEmptyLineBeforeObject() {
-        parseAndAssign("\nk:");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("\nk:");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseEmptyLineAfterObject() {
-        parseAndAssign("k:\n\n");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("k:\n\n");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void attributeKeyCannotBeNull() {
-        new RpslAttribute((String)null, "");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new RpslAttribute((String)null, "");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void attributeValueCannotBeNull() {
-        new RpslAttribute("", (String)null);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new RpslAttribute("", (String)null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void checkAllowedCharactersInKey() {
-        parseAndAssign("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-:");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-:");
+        });
     }
 
     @Test
@@ -117,9 +139,11 @@ public class RpslObjectTest {
         assertThat(addresses.get(0).getValue(), containsString("???????? ?????,??????"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseInValidMultiKeyObject() {
-        parseAndAssign("k:\nk");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("k:\nk");
+        });
     }
 
     @Test
@@ -292,10 +316,12 @@ public class RpslObjectTest {
         assertThat(subject.getKey().toString(), is("VM1-DEV"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void test_get_key_person_empty() {
-        parseAndAssign("person: foo # Comment \n");
-        subject.getKey();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            parseAndAssign("person: foo # Comment \n");
+            subject.getKey();
+        });
     }
 
     @Test
@@ -394,9 +420,11 @@ public class RpslObjectTest {
         assertThat(object.getKey().toString(), is("DEV-MNT"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void getValueForAttributeNone() {
-        RpslObject.parse("mntner: DEV-MNT\n").getValueForAttribute(AttributeType.MNT_BY);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            RpslObject.parse("mntner: DEV-MNT\n").getValueForAttribute(AttributeType.MNT_BY);
+        });
     }
 
     @Test
@@ -404,16 +432,18 @@ public class RpslObjectTest {
         assertThat(RpslObject.parse("mntner: DEV-MNT\n").getValueForAttribute(AttributeType.MNTNER).toString(), is("DEV-MNT"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void getValueForAttributeMultiple() {
-        final RpslObject object = RpslObject.parse("" +
-                "mntner: DEV-MNT\n" +
-                "mnt-by: DEV-MNT5\n" +
-                "mnt-by: DEV-MNT4, DEV-MNT4\n" +
-                "mnt-by: DEV-MNT3, DEV-MNT2\n" +
-                "mnt-by: DEV-MNT1, DEV-MNT2\n");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            final RpslObject object = RpslObject.parse("" +
+                    "mntner: DEV-MNT\n" +
+                    "mnt-by: DEV-MNT5\n" +
+                    "mnt-by: DEV-MNT4, DEV-MNT4\n" +
+                    "mnt-by: DEV-MNT3, DEV-MNT2\n" +
+                    "mnt-by: DEV-MNT1, DEV-MNT2\n");
 
-        object.getValueForAttribute(AttributeType.MNT_BY);
+            object.getValueForAttribute(AttributeType.MNT_BY);
+        });
     }
 
     @Test

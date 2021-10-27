@@ -5,8 +5,8 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.ReadinessUpdater;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.core.Response;

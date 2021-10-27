@@ -17,10 +17,10 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,12 +43,12 @@ import static org.junit.Assert.fail;
 @Category(IntegrationTest.class)
 public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void enableRewriteEngine() {
         System.setProperty("rewrite.engine.enabled", "true");
     }
 
-    @AfterClass
+    @AfterAll
     public static void disableRewriteEngine() {
         System.clearProperty("rewrite.engine.enabled");
     }
@@ -72,19 +72,19 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                     "remarks:       remark\n" +
                     "source:        TEST\n");
 
-    @BeforeClass
+    @BeforeAll
     public static void setProperty() {
         // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
         System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
         System.setProperty("fulltext.search.max.results", "3");
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearProperty() {
         System.clearProperty("dir.fulltext.index");
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST\nsource: TEST\n");
         final RpslObject mntner = RpslObject.parse(

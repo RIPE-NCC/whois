@@ -2,16 +2,12 @@ package net.ripe.db.whois.scheduler;
 
 import net.ripe.db.whois.common.IntegrationTest;
 import org.hamcrest.MatcherAssert;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.TaskScheduler;
 
-import javax.sql.DataSource;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;

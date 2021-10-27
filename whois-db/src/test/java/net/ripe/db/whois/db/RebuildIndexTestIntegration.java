@@ -15,9 +15,9 @@ import net.ripe.db.whois.common.support.database.diff.Database;
 import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.common.support.database.diff.Row;
 import net.ripe.db.whois.common.support.database.diff.Table;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 
-@Ignore("[ES] TODO fix integration build [SB] build hangs when this integration test runs, we'll have to figure out why")
+@Disabled("[ES] TODO fix integration build [SB] build hangs when this integration test runs, we'll have to figure out why")
 @Category(IntegrationTest.class)
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
@@ -46,7 +46,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     TestDateTimeProvider dateTimeProvider;
 
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "person:    Test Person\n" +
@@ -1867,7 +1867,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
     tech_c:
      {object_id=6, pe_ro_id=5, object_type=9}
      */
-    @Ignore("TODO: [ES] references to syntactically incorrect values are removed by rebuild")
+    @Disabled("TODO: [ES] references to syntactically incorrect values are removed by rebuild")
     @Test
     public void invalid_nic_hdl() {
         databaseHelper.addObject(
