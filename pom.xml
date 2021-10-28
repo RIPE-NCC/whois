@@ -874,7 +874,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.0.0-M1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
@@ -883,6 +883,7 @@
                     </includes>
                     <excludes>
                         <exclude>${test.files.integration}</exclude>
+                        <exclude>**/*Spec*.class,**/*Integration*.class</exclude>
                     </excludes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
@@ -900,12 +901,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.0.0-M1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml ${failsafe.jacoco.args}</argLine>
                     <includes>
-                        <include>${test.files.integration}</include>
+                        <include>**/*Spec*.class,**/*Integration*.class</include>
                     </includes>
                     <!-- doesnt work (breaks tests)
                     <forkCount>1C</forkCount>
@@ -916,7 +917,9 @@
                     <groups>${test.groups}</groups>
                     <runOrder>random</runOrder> -->
                     <!-- works (tests pass) -->
+<!--
                     <groups>${test.groups}</groups>
+-->
                     <forkCount>3</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
