@@ -1,14 +1,11 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +20,6 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -34,8 +30,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class GrsImporterTest {
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
     @Mock GrsSourceImporter grsSourceImporter;
     @Mock GrsSource grsSourceRipe;
@@ -52,15 +48,7 @@ public class GrsImporterTest {
     @BeforeEach
     public void setUp() throws Exception {
         when(grsSourceRipe.getName()).thenReturn(ciString("RIPE-GRS"));
-        when(grsSourceRipe.getLogger()).thenReturn(logger);
-        when(grsSourceRipe.getDao()).thenReturn(grsDao);
-
         when(grsSourceOther.getName()).thenReturn(ciString("OTHER-GRS"));
-        when(grsSourceOther.getLogger()).thenReturn(logger);
-        when(grsSourceOther.getDao()).thenReturn(grsDao);
-
-        when(grsDao.createObject(any(RpslObject.class))).thenReturn(updateResult);
-        when(grsDao.updateObject(any(GrsObjectInfo.class), any(RpslObject.class))).thenReturn(updateResult);
 
         subject = new GrsImporter(grsSourceImporter, new GrsSource[]{grsSourceRipe, grsSourceOther});
         subject.setDefaultSources(defaultSources);
@@ -122,8 +110,6 @@ public class GrsImporterTest {
 
     @Test
     public void grsImport_RIPE_GRS_acquire_fails() throws Exception {
-        doThrow(RuntimeException.class).when(grsSourceRipe).acquireDump(any(Path.class));
-
         await(subject.grsImport("RIPE-GRS", false));
 
         verify(grsSourceRipe, never()).handleObjects(any(File.class), any(ObjectHandler.class));

@@ -6,12 +6,11 @@ import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryMessages;
-import org.junit.Rule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,7 +34,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ExportFileWriterTest {
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
     @Mock FilenameStrategy filenameStrategy;
     @Mock DecorationStrategy decorationStrategy;
@@ -52,21 +52,20 @@ public class ExportFileWriterTest {
             }
         });
 
+        subject = new ExportFileWriter(folder.getAbsoluteFile(), filenameStrategy, decorationStrategy, exportFilter);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void write() throws IOException {
         when(decorationStrategy.decorate(any(RpslObject.class))).thenAnswer(new Answer<RpslObject>() {
             @Override
             public RpslObject answer(InvocationOnMock invocation) throws Throwable {
                 return (RpslObject) invocation.getArguments()[0];
             }
         });
-
         when(exportFilter.shouldExport(any(RpslObject.class))).thenReturn(true);
 
-        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy, exportFilter);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void write() throws IOException {
         subject.write(RpslObject.parse("mntner: DEV-MNT1"), Collections.EMPTY_LIST);
         subject.write(RpslObject.parse("mntner: DEV-MNT2"), Collections.EMPTY_LIST);
         subject.write(RpslObject.parse("mntner: DEV-MNT3"), Collections.EMPTY_LIST);
@@ -75,7 +74,7 @@ public class ExportFileWriterTest {
         subject.write(RpslObject.parse("route: 193.0.0.0 - 193.0.0.10\norigin: AS12"), Lists.newArrayList(new Tag(CIString.ciString("foo"), 3, "bar")));
         subject.close();
 
-        final File[] files = folder.getRoot().listFiles();
+        final File[] files = folder.listFiles();
         assertThat(files, is(not(nullValue())));
         assertThat(files.length, is(21));
 
@@ -112,7 +111,7 @@ public class ExportFileWriterTest {
     @Test
     public void unexisting_folder() {
         Assertions.assertThrows(RuntimeException.class, () -> {
-            new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, exportFilter);
+            new ExportFileWriter(new File(folder.getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, exportFilter);
 
         });
     }

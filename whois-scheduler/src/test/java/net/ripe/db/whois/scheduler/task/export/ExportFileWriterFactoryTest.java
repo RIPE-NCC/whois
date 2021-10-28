@@ -3,12 +3,11 @@ package net.ripe.db.whois.scheduler.task.export;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.FileCopyUtils;
@@ -26,7 +25,8 @@ import static org.junit.Assert.assertNotNull;
 public class ExportFileWriterFactoryTest {
     private static final int LAST_SERIAL = 1234;
 
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
     @Mock
     DummifierNrtm dummifierNrtm;
@@ -40,19 +40,18 @@ public class ExportFileWriterFactoryTest {
 
     @Test
     public void createExportFileWriters_existing_dir() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            folder.newFolder("dbase");
-            subject.createExportFileWriters(folder.getRoot(), LAST_SERIAL);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new File(folder, "export");
+            subject.createExportFileWriters(folder.toPath().getRoot().toFile(), LAST_SERIAL);
         });
-
     }
 
     @Test
     public void createExportFileWriters() {
-        final List<ExportFileWriter> exportFileWriters = subject.createExportFileWriters(folder.getRoot(), LAST_SERIAL);
+        final List<ExportFileWriter> exportFileWriters = subject.createExportFileWriters(folder, LAST_SERIAL);
         assertThat(exportFileWriters.isEmpty(), is(false));
 
-        final File[] files = folder.getRoot().listFiles();
+        final File[] files = folder.listFiles();
         assertNotNull(files);
         assertThat(files.length, is(3));
 
@@ -77,26 +76,26 @@ public class ExportFileWriterFactoryTest {
 
     @Test
     public void isExportDir_empty() {
-        assertThat(subject.isExportDir(folder.getRoot()), is(true));
+        assertThat(subject.isExportDir(folder), is(true));
     }
 
     @Test
     public void isExportDir_created() {
-        subject.createExportFileWriters(folder.getRoot(), LAST_SERIAL);
-        assertThat(subject.isExportDir(folder.getRoot()), is(true));
+        subject.createExportFileWriters(folder, LAST_SERIAL);
+        assertThat(subject.isExportDir(folder), is(true));
     }
 
     @Test
     public void isLastSerialFile_created() throws IOException {
-        subject.createExportFileWriters(folder.getRoot(), LAST_SERIAL);
+        subject.createExportFileWriters(folder, LAST_SERIAL);
 
-        final File currentSerialFile = new File(folder.getRoot(), "dbase/RIPE.CURRENTSERIAL");
+        final File currentSerialFile = new File(folder, "dbase/RIPE.CURRENTSERIAL");
         assertThat(currentSerialFile.exists(), is(true));
 
         final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);
         assertThat(savedSerial, is(String.valueOf(LAST_SERIAL)));
 
-        final File newSerialFile = new File(folder.getRoot(), "dbase_new/RIPE.CURRENTSERIAL");
+        final File newSerialFile = new File(folder, "dbase_new/RIPE.CURRENTSERIAL");
         assertThat(newSerialFile.exists(), is(true));
 
         final String newSavedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);
