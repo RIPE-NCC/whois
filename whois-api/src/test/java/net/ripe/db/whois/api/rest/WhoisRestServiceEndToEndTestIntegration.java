@@ -52,7 +52,7 @@ import static org.junit.Assert.fail;
 
 @ActiveProfiles(profiles = WhoisProfile.TEST, inheritProfiles = false)
 @Category(IntegrationTest.class)
-public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
+public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegrationTest {
 
     public static final String USER1 = "db_e2e_1@ripe.net";
     public static final String USER2 = "db_e2e_2@ripe.net";
