@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override

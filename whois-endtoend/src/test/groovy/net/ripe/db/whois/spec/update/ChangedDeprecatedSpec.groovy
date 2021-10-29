@@ -9,7 +9,7 @@ import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
     private static final String PERSON_WITHOUT_CHANGED = "PERSON_WITHOUT_CHANGED";
     private static final String PERSON_WITHOUT_CHANGED_ADJUSTED = "PERSON_WITHOUT_CHANGED_ADJUSTED";

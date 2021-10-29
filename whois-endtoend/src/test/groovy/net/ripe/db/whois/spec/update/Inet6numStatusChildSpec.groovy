@@ -4,7 +4,7 @@ import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {

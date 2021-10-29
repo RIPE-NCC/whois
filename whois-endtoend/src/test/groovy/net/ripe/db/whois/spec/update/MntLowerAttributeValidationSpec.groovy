@@ -1,8 +1,7 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
-import org.junit.experimental.categories.Category
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {

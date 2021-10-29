@@ -7,7 +7,7 @@ import java.nio.charset.Charset
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
