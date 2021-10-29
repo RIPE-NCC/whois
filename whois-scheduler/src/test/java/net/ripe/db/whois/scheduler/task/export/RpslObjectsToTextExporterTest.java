@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportCallbackHandler;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportDao;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -154,7 +153,7 @@ public class RpslObjectsToTextExporterTest {
 
         try {
             subject.export();
-            Assert.fail("Expected exception");
+            Assertions.fail("Expected exception");
         } catch (RuntimeException ignored) {
         }
 
@@ -197,7 +196,7 @@ public class RpslObjectsToTextExporterTest {
         try {
             startLatch.await(5, TimeUnit.SECONDS);
             subject.export();
-            Assert.fail("Expected exception");
+            Assertions.fail("Expected exception");
         } catch (IllegalStateException ignored) {
         } finally {
             waitLatch.countDown();

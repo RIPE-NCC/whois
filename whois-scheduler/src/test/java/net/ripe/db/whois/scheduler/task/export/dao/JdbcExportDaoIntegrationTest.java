@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 public class JdbcExportDaoIntegrationTest extends AbstractSchedulerIntegrationTest {

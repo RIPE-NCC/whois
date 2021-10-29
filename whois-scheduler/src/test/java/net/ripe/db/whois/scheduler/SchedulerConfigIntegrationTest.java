@@ -1,8 +1,6 @@
 package net.ripe.db.whois.scheduler;
 
-import net.ripe.db.whois.common.IntegrationTest;
 import org.hamcrest.MatcherAssert;
-import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;

@@ -1,15 +1,16 @@
 package net.ripe.db.whois.common.ip;
 
 import org.hamcrest.Matcher;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class Ipv4ResourceTest {
 
@@ -251,7 +252,7 @@ public class Ipv4ResourceTest {
         assertFalse(subject.intersects(new Ipv4Resource(9, 9)));
         assertTrue(subject.intersects(new Ipv4Resource(9, 10)));
         assertTrue(subject.intersects(new Ipv4Resource(10, 11)));
-        assertTrue(subject.intersects(new Ipv4Resource(5, 15)));
+        Assertions.assertTrue(subject.intersects(new Ipv4Resource(5, 15)));
 
         assertFalse(subject.intersects(new Ipv4Resource(21, 21)));
         assertTrue(subject.intersects(new Ipv4Resource(19, 20)));

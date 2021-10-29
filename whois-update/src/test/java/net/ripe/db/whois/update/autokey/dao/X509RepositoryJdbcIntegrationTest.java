@@ -4,7 +4,7 @@ package net.ripe.db.whois.update.autokey.dao;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
 import net.ripe.db.whois.update.domain.X509KeycertId;
-import org.junit.experimental.categories.Category;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

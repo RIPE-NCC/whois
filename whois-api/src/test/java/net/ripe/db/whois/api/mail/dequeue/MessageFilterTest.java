@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;

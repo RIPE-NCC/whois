@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.query.dao.InetnumDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

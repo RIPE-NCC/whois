@@ -10,7 +10,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.hamcrest.Matcher;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +81,7 @@ public class WhoisClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     public ChannelFuture sendLine(String query) throws InterruptedException {
-        Assert.assertTrue(success);
+        Assertions.assertTrue(success);
 
         // Ensures the channelActive has been fired and channel set before continuing with test
         Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (channel != null));

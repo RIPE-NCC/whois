@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,8 +25,6 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -66,8 +65,8 @@ public class FilterPlaceholderDecoratorTest {
 
         Iterator<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter).iterator();
 
-        assertSame(result.next(), toFilter.get(1));
-        assertSame(result.next(), toFilter.get(2));
+        Assertions.assertSame(result.next(), toFilter.get(1));
+        Assertions.assertSame(result.next(), toFilter.get(2));
         assertThat(result.hasNext(), is(false));
     }
 
@@ -84,8 +83,8 @@ public class FilterPlaceholderDecoratorTest {
 
         Iterator<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter).iterator();
 
-        assertSame(result.next(), toFilter.get(0));
-        assertSame(result.next(), toFilter.get(3));
+        Assertions.assertSame(result.next(), toFilter.get(0));
+        Assertions.assertSame(result.next(), toFilter.get(3));
         assertThat(result.hasNext(), is(false));
     }
 
@@ -96,7 +95,7 @@ public class FilterPlaceholderDecoratorTest {
 
         Iterable<? extends ResponseObject> result = subject.decorate(Query.parse("10.10.10.10"), toFilter);
 
-        assertNotSame(result, toFilter);
+        Assertions.assertNotSame(result, toFilter);
     }
 
     @Test
@@ -106,6 +105,6 @@ public class FilterPlaceholderDecoratorTest {
 
         Iterable<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter);
 
-        assertSame(result, toFilter);
+        Assertions.assertSame(result, toFilter);
     }
 }

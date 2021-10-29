@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.acl;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;

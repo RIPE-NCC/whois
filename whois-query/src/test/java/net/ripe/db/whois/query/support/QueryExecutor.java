@@ -21,7 +21,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class QueryExecutor {
     private static final byte[] DOUBLE_NEWLINE = new byte[]{'\n', '\n'};

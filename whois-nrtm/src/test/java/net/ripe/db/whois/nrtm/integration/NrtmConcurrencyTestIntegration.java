@@ -1,17 +1,15 @@
 package net.ripe.db.whois.nrtm.integration;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -26,10 +24,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase {
@@ -69,8 +67,8 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     public void dontHangOnHugeAutNumObject() {
         String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), String.format("-g TEST:3:%d-%d", MIN_RANGE, MAX_RANGE), 5 * 1000);
 
-        assertTrue(response, response.contains(String.format("ADD %d", MIN_RANGE)));  // serial 21486000 is a huge aut-num
-        assertTrue(response, response.contains(String.format("DEL %d", MIN_RANGE + 1)));
+        assertTrue(response.contains(String.format("ADD %d", MIN_RANGE)), response);  // serial 21486000 is a huge aut-num
+        assertTrue(response.contains(String.format("DEL %d", MIN_RANGE + 1)), response);
     }
 
     @Test

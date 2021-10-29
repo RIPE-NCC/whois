@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.experimental.categories.Category;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

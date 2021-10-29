@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class RpslObjectTest {
     private final String maintainer = "" +
@@ -246,8 +246,8 @@ public class RpslObjectTest {
         assertThat(subject, is(subject));
         assertThat(subject.hashCode(), is(subject.hashCode()));
 
-        Assert.assertFalse(subject.equals(null));
-        Assert.assertFalse(subject.equals(1));
+        assertFalse(subject.equals(null));
+        assertFalse(subject.equals(1));
 
         final RpslObject subject2 = parse(subject.toString());
         assertThat(subject, is(subject2));

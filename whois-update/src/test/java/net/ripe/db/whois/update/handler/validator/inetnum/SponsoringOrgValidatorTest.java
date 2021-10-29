@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+
 import org.mockito.InjectMocks;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

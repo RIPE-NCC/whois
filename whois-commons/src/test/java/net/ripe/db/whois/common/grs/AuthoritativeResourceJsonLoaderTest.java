@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AuthoritativeResourceJsonLoaderTest {
 

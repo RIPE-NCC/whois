@@ -1,10 +1,8 @@
 package net.ripe.db.whois.changedphase3;
 
-import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
 
 import static net.ripe.db.whois.changedphase3.util.Scenario.Builder.given;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.CREATE;

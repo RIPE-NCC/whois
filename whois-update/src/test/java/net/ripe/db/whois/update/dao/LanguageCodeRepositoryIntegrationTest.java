@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.dao;
 
 import net.ripe.db.whois.common.IntegrationTest;
-import org.junit.experimental.categories.Category;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

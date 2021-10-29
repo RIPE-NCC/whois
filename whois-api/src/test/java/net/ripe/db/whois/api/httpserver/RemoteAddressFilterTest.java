@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.httpserver;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+
 import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

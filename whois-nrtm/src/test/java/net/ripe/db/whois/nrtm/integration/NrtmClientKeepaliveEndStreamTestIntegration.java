@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+
 import org.springframework.test.annotation.DirtiesContext;
 
 @org.junit.jupiter.api.Tag("IntegrationTest")

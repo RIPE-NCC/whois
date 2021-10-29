@@ -6,7 +6,7 @@ import net.ripe.db.whois.query.QueryMessages;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MessageObjectTest {
@@ -20,9 +20,9 @@ public class MessageObjectTest {
 
         assertThat("self", subject, is(subject));
         assertThat("same", subject, is(same));
-        assertFalse("null", subject.equals(null));
-        assertFalse("type", subject.equals(1));
-        assertFalse("other", subject.equals(other));
+        assertFalse(subject.equals(null), "null");
+        assertFalse( subject.equals(1), "type");
+        assertFalse(subject.equals(other), "other");
 
         final Message message = QueryMessages.timeout();
         assertThat("fromMessage", new MessageObject(message), is(new MessageObject(message)));

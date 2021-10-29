@@ -1,10 +1,10 @@
 package net.ripe.db.whois.query;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class QueryFlagTest {
@@ -22,7 +22,7 @@ public class QueryFlagTest {
     public void getLongFlag() {
         for (QueryFlag queryFlag : QueryFlag.values()) {
             final String longFlag = queryFlag.getLongFlag();
-            assertNotNull(queryFlag.toString(), longFlag);
+            Assertions.assertNotNull(queryFlag.toString(), longFlag);
             assertThat(queryFlag.toString(), longFlag, startsWith("-"));
         }
     }

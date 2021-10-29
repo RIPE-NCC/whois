@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TelnetQueryExecutor implements ComparisonExecutor {
     final QueryExecutorConfiguration configuration;

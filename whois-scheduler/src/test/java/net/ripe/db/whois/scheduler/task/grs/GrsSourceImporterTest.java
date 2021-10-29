@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;

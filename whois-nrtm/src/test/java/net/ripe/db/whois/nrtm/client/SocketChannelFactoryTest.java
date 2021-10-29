@@ -1,7 +1,7 @@
 package net.ripe.db.whois.nrtm.client;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.junit.jupiter.api.extension.ExtendWith;

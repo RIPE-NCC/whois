@@ -3,9 +3,7 @@ package net.ripe.db.whois.nrtm;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.nrtm.integration.AbstractNrtmIntegrationBase;
-import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -17,9 +15,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 public class NrtmServerChannelInitializerIntegrationTest extends AbstractNrtmIntegrationBase {
@@ -50,9 +48,9 @@ public class NrtmServerChannelInitializerIntegrationTest extends AbstractNrtmInt
             final ChannelHandler.Sharable annotation = AnnotationUtils.findAnnotation(channelHandler.getClass(), ChannelHandler.Sharable.class);
             final boolean handlerIsShared = pipeline2.get(channelHandler.getClass()) == channelHandler;
             if (annotation == null) {
-                assertFalse("Handler is not sharable, but reused: " + channelHandler, handlerIsShared);
+                assertFalse(handlerIsShared, "Handler is not sharable, but reused: " + channelHandler);
             } else {
-                assertTrue("Handler is sharable, but not reused: " + channelHandler, handlerIsShared);
+                assertTrue(handlerIsShared, "Handler is sharable, but not reused: " + channelHandler);
             }
 
             if (channelHandler.getClass().getName().contains("ripe")) {

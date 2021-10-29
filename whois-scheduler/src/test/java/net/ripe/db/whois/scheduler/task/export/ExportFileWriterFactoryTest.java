@@ -2,7 +2,6 @@ package net.ripe.db.whois.scheduler.task.export;
 
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -20,7 +19,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class ExportFileWriterFactoryTest {
@@ -62,7 +61,7 @@ public class ExportFileWriterFactoryTest {
             if (! (file.getAbsolutePath().endsWith("internal")
                     || file.getAbsolutePath().endsWith("dbase")
                     || file.getAbsolutePath().endsWith("dbase_new"))) {
-                Assert.fail("Unexpected folder: " + file.getAbsolutePath());
+                Assertions.fail("Unexpected folder: " + file.getAbsolutePath());
             }
         }
     }

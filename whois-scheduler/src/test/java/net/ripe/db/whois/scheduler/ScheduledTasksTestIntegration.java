@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+
 import org.kubek2k.springockito.annotations.ReplaceWithMock;
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.springframework.beans.factory.annotation.Autowired;

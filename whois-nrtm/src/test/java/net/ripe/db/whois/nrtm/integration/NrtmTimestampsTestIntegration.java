@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.experimental.categories.Category;
+
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.containsString;
