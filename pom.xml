@@ -905,7 +905,7 @@
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml ${failsafe.jacoco.args}</argLine>
                     <includes>
-                        <include>**/*Spec*.class,**/*Integration*.class</include>
+                        <include>${test.files.integration}</include>
                     </includes>
                     <!-- doesnt work (breaks tests)
                     <forkCount>1C</forkCount>
@@ -916,7 +916,7 @@
                     <groups>${test.groups}</groups>
                     <runOrder>random</runOrder> -->
                     <!-- works (tests pass) -->
-                    <!--<groups>${test.groups}</groups>-->
+                   <!-- <groups>${test.groups}</groups>-->
                     <forkCount>3</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
