@@ -13,7 +13,7 @@ import java.util.Set;
 import static org.hamcrest.CoreMatchers.hasItem;
 
 @Category(IntegrationTest.class)
-public class SchedulerConfigTest extends AbstractSchedulerIntegrationTest {
+public class SchedulerConfigIntegrationTest extends AbstractSchedulerIntegrationTest {
 
     @Autowired
     GenericApplicationContext context;
