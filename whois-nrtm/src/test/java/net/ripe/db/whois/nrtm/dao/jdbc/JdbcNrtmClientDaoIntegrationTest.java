@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm-test.xml"})
 public class JdbcNrtmClientDaoIntegrationTest extends AbstractDaoIntegrationTest {
 

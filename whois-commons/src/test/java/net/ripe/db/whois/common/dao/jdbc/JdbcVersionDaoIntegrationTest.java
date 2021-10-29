@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class JdbcVersionDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired VersionDao subject;
 

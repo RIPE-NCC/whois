@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrationTest {
     @Autowired
     private Bootstrap bootstrap;

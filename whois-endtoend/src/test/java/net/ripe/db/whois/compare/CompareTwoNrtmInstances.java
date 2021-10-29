@@ -20,7 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static net.ripe.db.whois.compare.common.ComparisonExecutorConfig.PRE1;
 import static net.ripe.db.whois.compare.common.ComparisonExecutorConfig.PRE2;
 
-@Category(ManualTest.class)
+@org.junit.jupiter.api.Tag("ManualTest")
 public class CompareTwoNrtmInstances {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompareTwoNrtmInstances.class);
 

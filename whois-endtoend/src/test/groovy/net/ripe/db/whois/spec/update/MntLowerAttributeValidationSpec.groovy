@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import org.junit.experimental.categories.Category
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override

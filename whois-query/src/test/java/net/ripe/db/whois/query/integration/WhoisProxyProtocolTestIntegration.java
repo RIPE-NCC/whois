@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationTest {
 
     @Autowired

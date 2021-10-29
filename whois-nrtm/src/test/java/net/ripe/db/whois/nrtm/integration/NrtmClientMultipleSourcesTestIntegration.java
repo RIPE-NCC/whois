@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 
 import static org.hamcrest.Matchers.is;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegrationBase {
 
     private static final RpslObject MNTNER = RpslObject.parse("" +

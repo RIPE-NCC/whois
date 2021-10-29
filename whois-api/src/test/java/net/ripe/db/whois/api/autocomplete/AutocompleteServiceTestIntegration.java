@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired FullTextIndex fullTextIndex;
 

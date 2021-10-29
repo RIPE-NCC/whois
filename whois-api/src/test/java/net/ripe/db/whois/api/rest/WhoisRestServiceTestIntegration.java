@@ -102,7 +102,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +

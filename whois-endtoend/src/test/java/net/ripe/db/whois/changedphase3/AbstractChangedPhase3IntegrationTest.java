@@ -17,7 +17,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-endtoend-test.xml"})
 public abstract class AbstractChangedPhase3IntegrationTest extends AbstractIntegrationTest {
 

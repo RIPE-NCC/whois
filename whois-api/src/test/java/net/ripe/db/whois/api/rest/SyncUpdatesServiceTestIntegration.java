@@ -46,7 +46,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String MNTNER_TEST_MNTNER = "" +

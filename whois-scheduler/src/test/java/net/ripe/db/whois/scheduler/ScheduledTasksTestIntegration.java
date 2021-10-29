@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-scheduler-test.xml"}, inheritLocations = false)
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class ScheduledTasksTestIntegration extends AbstractSchedulerIntegrationTest {
     @ReplaceWithMock @Autowired private AccessControlListDao jdbcAccessControlListDao;
     @ReplaceWithMock @Autowired private IpTreeCacheManager ipTreeCacheManager;

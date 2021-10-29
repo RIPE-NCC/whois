@@ -13,7 +13,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class IndexWithMbrsByRefIntegrationTest extends IndexIntegrationTestBase {
     private IndexStrategy subject;
 

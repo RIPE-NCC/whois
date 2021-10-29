@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 // TODO: [AH] this should be in whois-query; however, crowdserverdummy is tied to whois-api because of jetty references
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
 public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
 

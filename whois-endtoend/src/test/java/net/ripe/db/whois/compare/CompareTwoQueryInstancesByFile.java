@@ -14,7 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 
-@Category(ManualTest.class)
+@org.junit.jupiter.api.Tag("ManualTest")
 public class CompareTwoQueryInstancesByFile {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompareTwoQueryInstancesByFile.class);
 

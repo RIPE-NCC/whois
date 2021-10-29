@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class WhoisShutdownTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired @WrapWithSpy private QueryChannelsRegistry queryChannelsRegistry;
 

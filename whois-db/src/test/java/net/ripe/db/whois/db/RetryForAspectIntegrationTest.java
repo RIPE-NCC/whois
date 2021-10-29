@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
  * This test also fails running in your IDE if AspectJ is not configured correctly.
  */
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 public class RetryForAspectIntegrationTest extends AbstractDaoIntegrationTest {
     static final int ATTEMPTS = 5;

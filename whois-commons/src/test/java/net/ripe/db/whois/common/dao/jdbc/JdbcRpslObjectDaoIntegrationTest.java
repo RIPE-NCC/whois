@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired RpslObjectDao subject;
     @Value("${whois.source}") protected String source;

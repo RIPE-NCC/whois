@@ -16,7 +16,7 @@ import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
 // TODO: [AH] make this rely on downloader (or make it more visible if those files are missing and no tests are actually run)
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class AttributeParserTestIntegration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributeParserTestIntegration.class);

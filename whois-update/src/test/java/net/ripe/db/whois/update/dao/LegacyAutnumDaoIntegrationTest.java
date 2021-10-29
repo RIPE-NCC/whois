@@ -13,7 +13,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class LegacyAutnumDaoIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired LegacyAutnumDao subject;
 

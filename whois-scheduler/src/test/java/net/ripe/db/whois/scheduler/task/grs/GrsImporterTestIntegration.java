@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @DirtiesContext
 public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest {
 

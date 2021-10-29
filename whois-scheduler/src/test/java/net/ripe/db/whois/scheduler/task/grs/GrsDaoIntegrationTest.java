@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 
 @DirtiesContext
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class GrsDaoIntegrationTest extends AbstractSchedulerIntegrationTest {
     @Autowired SourceContext sourceContext;
 

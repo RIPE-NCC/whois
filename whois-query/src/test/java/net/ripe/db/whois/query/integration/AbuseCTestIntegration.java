@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     private static final String[] BASE_OBJECTS = {

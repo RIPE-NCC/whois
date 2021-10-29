@@ -17,7 +17,7 @@ import javax.mail.internet.MimeMessage;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class RipeMaintainerAuthenticationMailTestIntegration extends AbstractIntegrationTest {
     //regardless the trusted range, email is never trusted.
 

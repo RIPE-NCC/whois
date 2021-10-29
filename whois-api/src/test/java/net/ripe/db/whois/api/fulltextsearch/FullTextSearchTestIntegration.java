@@ -41,7 +41,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
     @Autowired FullTextIndex fullTextIndex;

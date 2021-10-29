@@ -21,7 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class NrtmServerChannelInitializerIntegrationTest extends AbstractNrtmIntegrationBase {
     @Autowired private NrtmServerChannelInitializer nrtmServerPipelineFactory;
     @Autowired private List<ChannelHandler> channelHandlers;

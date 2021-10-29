@@ -878,19 +878,16 @@
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
-                    <includes>
+                   <!-- <includes>
                         <include>${test.files.unit}</include>
                     </includes>
                     <excludes>
                         <exclude>**/*Spec*.class,**/*Integration*.class</exclude>
-                    </excludes>
+                    </excludes>-->
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
                     <reuseForks>true</reuseForks>
-                    <excludedGroups>
-                        net.ripe.db.whois.common.IntegrationTest,
-                        net.ripe.db.whois.common.ManualTest
-                    </excludedGroups>
+                    <excludedGroups>IntegrationTest,ManualTest</excludedGroups>
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
                         <hazelcast.phone.home.enabled>false</hazelcast.phone.home.enabled>
@@ -907,6 +904,7 @@
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
+                    <excludedGroups>ManualTest</excludedGroups>
                     <!-- doesnt work (breaks tests)
                     <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
@@ -1066,7 +1064,7 @@
             <id>integration</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.groups>IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>
@@ -1075,7 +1073,7 @@
             <id>comparison</id>
             <properties>
                 <test.redirectOutput>false</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
+                <test.groups>ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>
                     **/CompareTwoQueryInstancesByFile.class,

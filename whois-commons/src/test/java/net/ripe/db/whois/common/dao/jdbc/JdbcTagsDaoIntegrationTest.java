@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class JdbcTagsDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired TagsDao subject;
     @Value("${whois.source}") protected String source;

@@ -60,7 +60,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     private static final String PASSWORD = "team-red4321";
     private static final String OVERRIDE_PASSWORD = "team-red1234";

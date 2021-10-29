@@ -9,7 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import static org.junit.Assert.assertEquals;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-toggles-test.xml"})
 public class ChangedAttrFeatureToggleIntegrationTest extends AbstractJUnit5SpringContextTests {
 

@@ -53,7 +53,7 @@ import static org.junit.Assert.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired

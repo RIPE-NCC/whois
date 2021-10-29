@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class ResourceDataDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired @Qualifier("internalsDataSource")
     DataSource dataSource;

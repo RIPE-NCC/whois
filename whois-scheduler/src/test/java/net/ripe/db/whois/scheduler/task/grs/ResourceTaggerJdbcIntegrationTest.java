@@ -35,7 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class ResourceTaggerJdbcIntegrationTest extends AbstractSchedulerIntegrationTest {
     @Autowired ResourceTagger subject;
     @Autowired SourceContext sourceContext;

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertNotNull;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class MailConfigurationTestIntegration extends AbstractUpdateDaoIntegrationTest {
     @Autowired private MailConfiguration subject;
 

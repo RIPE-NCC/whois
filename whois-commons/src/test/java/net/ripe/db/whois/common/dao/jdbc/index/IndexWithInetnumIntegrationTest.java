@@ -16,7 +16,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class IndexWithInetnumIntegrationTest extends IndexIntegrationTestBase {
     private RpslObjectInfo rpslObjectInfo;
 

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-@Category(ManualTest.class)
+@org.junit.jupiter.api.Tag("ManualTest")
 public class CompareTwoRestInstancesByFile {
 
     @Test

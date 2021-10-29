@@ -37,7 +37,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 
 @Disabled("[ES] TODO fix integration build [SB] build hangs when this integration test runs, we'll have to figure out why")
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 

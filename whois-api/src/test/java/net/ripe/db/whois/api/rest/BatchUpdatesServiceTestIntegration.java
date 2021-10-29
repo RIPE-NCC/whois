@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired

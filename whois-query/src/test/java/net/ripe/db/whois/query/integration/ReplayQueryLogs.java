@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Category(ManualTest.class)
+@org.junit.jupiter.api.Tag("ManualTest")
 public class ReplayQueryLogs {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReplayQueryLogs.class);
     private static String whoisHost;

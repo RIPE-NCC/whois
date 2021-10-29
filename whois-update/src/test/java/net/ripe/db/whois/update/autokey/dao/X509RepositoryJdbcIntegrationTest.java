@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @Transactional
 public class X509RepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired X509Repository subject;

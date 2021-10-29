@@ -12,7 +12,7 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class SchedulerConfigIntegrationTest extends AbstractSchedulerIntegrationTest {
 
     @Autowired

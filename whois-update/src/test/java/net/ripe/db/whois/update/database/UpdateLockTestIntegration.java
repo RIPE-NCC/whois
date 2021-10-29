@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class UpdateLockTestIntegration extends AbstractUpdateDaoIntegrationTest {
 
     private static final String MNTNER = "Dot: ";

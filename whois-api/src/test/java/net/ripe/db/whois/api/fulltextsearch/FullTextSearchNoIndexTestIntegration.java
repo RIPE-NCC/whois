@@ -11,7 +11,7 @@ import javax.ws.rs.NotFoundException;
 
 import static org.junit.Assert.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class FullTextSearchNoIndexTestIntegration extends AbstractIntegrationTest {
 
     @BeforeAll
