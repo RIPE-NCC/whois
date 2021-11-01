@@ -80,8 +80,7 @@
         <mariadb-java-client.version>2.7.4</mariadb-java-client.version>
         <mockito.version>3.11.2</mockito.version>
 
-        <!-- TODO: Netty 4.1.69 breaks application startup -->
-        <netty.version>4.1.65.Final</netty.version>
+        <netty.version>4.1.69.Final</netty.version>
 
         <persistence.version>1.0.2</persistence.version>
 
