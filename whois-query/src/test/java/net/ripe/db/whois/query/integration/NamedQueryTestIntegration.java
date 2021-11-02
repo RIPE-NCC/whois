@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.integration;
 
 import com.google.common.base.Strings;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;

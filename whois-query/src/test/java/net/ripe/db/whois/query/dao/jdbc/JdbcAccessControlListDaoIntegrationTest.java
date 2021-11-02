@@ -1,6 +1,6 @@
 package net.ripe.db.whois.query.dao.jdbc;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.domain.IpResourceEntry;

@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import org.junit.jupiter.api.BeforeAll;
 
 import org.junit.jupiter.api.Test;

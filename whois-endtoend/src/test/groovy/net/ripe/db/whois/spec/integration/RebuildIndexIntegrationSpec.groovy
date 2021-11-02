@@ -1,7 +1,7 @@
 package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.ClockDateTimeProvider
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.rpsl.RpslObject
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials

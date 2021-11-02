@@ -10,7 +10,6 @@ import io.netty.handler.timeout.ReadTimeoutException;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -93,12 +92,9 @@ public class ExceptionHandlerTest {
     }
 
     @Test
-    @Disabled
-    //TODO: Junit 5 migration
     public void no_write_if_channel_closed() {
         when(channelMock.isOpen()).thenReturn(false);
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
-        when(channelMock.isOpen()).thenReturn(true);
         subject.exceptionCaught(channelHandlerContextMock, ReadTimeoutException.INSTANCE);
 
         verify(channelMock, times(0)).write(QueryMessages.timeout());

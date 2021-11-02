@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.ObjectType;

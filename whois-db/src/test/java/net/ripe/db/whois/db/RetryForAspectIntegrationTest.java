@@ -1,6 +1,6 @@
 package net.ripe.db.whois.db;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;

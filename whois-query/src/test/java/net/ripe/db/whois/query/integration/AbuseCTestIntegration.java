@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.integration;
 
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;

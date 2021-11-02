@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.update.lireditable
 
-import net.ripe.db.whois.common.IntegrationTest
+
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttributeValidation {

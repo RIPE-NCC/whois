@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.mail.dao;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

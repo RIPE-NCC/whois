@@ -171,8 +171,7 @@ public class RpslObjectsToTextExporterTest {
     }
 
     @Test
-    @Disabled
-    //TODO: junit5 Migration fix it
+    @Disabled("TODO: [MA] Junit 5 migration")
     public void execute_multiple_simultaneous() throws Exception {
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch waitLatch = new CountDownLatch(1);

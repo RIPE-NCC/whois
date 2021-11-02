@@ -1,6 +1,6 @@
 package net.ripe.db.whois.scheduler;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.iptree.IpTreeCacheManager;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.query.dao.AccessControlListDao;

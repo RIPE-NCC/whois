@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.mail;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
 import org.junit.jupiter.api.Test;
 

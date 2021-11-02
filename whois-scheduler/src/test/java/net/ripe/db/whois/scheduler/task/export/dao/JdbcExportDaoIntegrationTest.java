@@ -1,7 +1,7 @@
 package net.ripe.db.whois.scheduler.task.export.dao;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.awaitility.Awaitility;

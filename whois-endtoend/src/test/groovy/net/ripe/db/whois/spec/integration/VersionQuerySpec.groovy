@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.source.Source
 import net.ripe.db.whois.spec.domain.SyncUpdate
 

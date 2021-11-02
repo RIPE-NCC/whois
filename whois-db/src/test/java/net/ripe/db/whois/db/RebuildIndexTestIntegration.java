@@ -2,7 +2,7 @@ package net.ripe.db.whois.db;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.jdbc.IndexDao;

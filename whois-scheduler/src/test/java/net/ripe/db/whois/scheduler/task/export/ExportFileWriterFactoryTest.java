@@ -39,8 +39,7 @@ public class ExportFileWriterFactoryTest {
     }
 
     @Test
-    @Disabled
-    //TODO: works on local machine, not in gitlab. Junit5 Migration
+    @Disabled("TODO: [MA] Junit 5 migration, works on local machine, not in gitlab.")
     public void createExportFileWriters_existing_dir() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             new File(folder, "export");

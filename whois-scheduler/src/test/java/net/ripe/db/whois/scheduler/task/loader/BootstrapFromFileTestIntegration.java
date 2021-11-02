@@ -4,7 +4,7 @@ import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
 import net.ripe.db.whois.api.fulltextsearch.SearchRequest;
 import net.ripe.db.whois.api.fulltextsearch.SearchResponse;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.database.diff.Database;

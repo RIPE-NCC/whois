@@ -6,7 +6,7 @@ import com.amazonaws.proprot.ProxyProtocolSpec.AddressFamily;
 import com.amazonaws.proprot.ProxyProtocolSpec.Command;
 import com.amazonaws.proprot.ProxyProtocolSpec.TransportProtocol;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;

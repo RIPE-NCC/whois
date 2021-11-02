@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.integration;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;

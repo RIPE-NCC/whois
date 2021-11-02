@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.query.QueryMessages
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 

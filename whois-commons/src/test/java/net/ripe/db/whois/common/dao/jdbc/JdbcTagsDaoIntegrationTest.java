@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;

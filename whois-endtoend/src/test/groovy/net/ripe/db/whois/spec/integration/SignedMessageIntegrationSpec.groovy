@@ -1,5 +1,5 @@
 package net.ripe.db.whois.spec.integration
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import java.time.LocalDateTime

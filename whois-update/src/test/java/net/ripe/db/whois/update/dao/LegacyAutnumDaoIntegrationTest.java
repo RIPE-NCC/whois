@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.dao;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

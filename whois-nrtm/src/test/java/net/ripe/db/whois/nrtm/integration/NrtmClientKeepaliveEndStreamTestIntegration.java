@@ -1,6 +1,6 @@
 package net.ripe.db.whois.nrtm.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

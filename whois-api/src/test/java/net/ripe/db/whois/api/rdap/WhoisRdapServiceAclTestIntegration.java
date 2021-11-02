@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.rdap.domain.Entity;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 

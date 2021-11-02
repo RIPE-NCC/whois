@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.rest;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import org.junit.jupiter.api.BeforeEach;
 
 import org.junit.jupiter.api.Test;

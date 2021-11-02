@@ -964,8 +964,6 @@
                         <exclude>**/net/ripe/db/whois/common/IllegalArgumentExceptionMessage.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
-                        <exclude>**/net/ripe/db/whois/common/IntegrationTest.java</exclude>
-                        <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>
                     </excludes>
 
                     <Xlint>warning</Xlint>
@@ -1086,7 +1084,7 @@
             <id>all</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.groups>IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>

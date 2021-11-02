@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.mail.dao;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 
 import org.kubek2k.springockito.annotations.ReplaceWithMock;

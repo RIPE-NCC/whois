@@ -1,13 +1,11 @@
 package net.ripe.db.whois.compare;
 
-import net.ripe.db.whois.common.ManualTest;
 import net.ripe.db.whois.compare.common.ComparisonExecutorConfig;
+import net.ripe.db.whois.compare.common.ComparisonRunnerFactory;
 import net.ripe.db.whois.compare.common.QueryReader;
 import net.ripe.db.whois.compare.common.TargetInterface;
-import net.ripe.db.whois.compare.common.ComparisonRunnerFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;

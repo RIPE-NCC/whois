@@ -1,7 +1,7 @@
 package net.ripe.db.whois.nrtm.integration;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;

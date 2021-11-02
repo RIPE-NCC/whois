@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.database;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;

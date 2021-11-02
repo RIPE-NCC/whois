@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.integration;
 
-import net.ripe.db.whois.common.ManualTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
@@ -9,7 +8,6 @@ import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.support.QueryExecutor;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
-
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

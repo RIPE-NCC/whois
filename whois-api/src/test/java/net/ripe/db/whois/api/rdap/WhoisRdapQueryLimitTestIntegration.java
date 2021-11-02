@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;

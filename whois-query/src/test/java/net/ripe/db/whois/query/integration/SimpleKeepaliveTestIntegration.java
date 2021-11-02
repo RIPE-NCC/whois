@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.integration;
 
 import com.google.common.collect.Lists;
 import io.netty.channel.ChannelFuture;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;

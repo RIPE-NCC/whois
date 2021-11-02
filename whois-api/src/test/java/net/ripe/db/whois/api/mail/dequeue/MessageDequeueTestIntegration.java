@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
