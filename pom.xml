@@ -878,12 +878,6 @@
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
-                   <!-- <includes>
-                        <include>${test.files.unit}</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/*Spec*.class,**/*Integration*.class</exclude>
-                    </excludes>-->
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
                     <reuseForks>true</reuseForks>
