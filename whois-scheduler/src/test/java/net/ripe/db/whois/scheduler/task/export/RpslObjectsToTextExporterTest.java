@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportCallbackHandler;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportDao;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class RpslObjectsToTextExporterTest {
     @TempDir
-    static Path folder;
+    Path folder;
 
     @Mock ExportFileWriterFactory exportFileWriterFactory;
     @Mock ExportDao exportDao;
@@ -48,12 +49,19 @@ public class RpslObjectsToTextExporterTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        exportDir = Files.createTempDirectory(folder, "export").toFile();
-        tmpDir = Files.createTempDirectory(folder, "export_tmp").toFile();
+        exportDir = Files.createDirectories(folder.resolve("export")).toFile();
+        tmpDir = Files.createDirectories(folder.resolve( "export_tmp")).toFile();
 
         when(exportFileWriterFactory.isExportDir(any(File.class))).thenReturn(true);
 
         subject = new RpslObjectsExporter(exportFileWriterFactory, exportDao, tagsDao, exportDir.toPath().toString(), tmpDir.toPath().toString(), true);
+    }
+
+    //TempDir is not cleaned up properly after each test run.
+    @AfterEach
+    public void cleanUp()  {
+        exportDir.delete();
+        tmpDir.delete();
     }
 
     @Test
