@@ -40,10 +40,11 @@ public class ExportFileWriterFactoryTest {
     }
 
     @Test
-    public void createExportFileWriters_existing_dir() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            Files.createDirectories(folder.resolve("dbase"));
-            subject.createExportFileWriters(folder.getRoot().toFile(), LAST_SERIAL);
+    public void createExportFileWriters_existing_dir() throws IOException {
+        Files.createDirectories(folder.resolve("dbase"));
+
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            subject.createExportFileWriters(folder.toFile(), LAST_SERIAL);
         });
     }
 
