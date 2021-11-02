@@ -9,7 +9,6 @@ import net.ripe.db.whois.scheduler.task.export.dao.ExportDao;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -21,6 +20,8 @@ import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class RpslObjectsToTextExporterTest {
     @TempDir
-    public File folder;
+    static Path folder;
 
     @Mock ExportFileWriterFactory exportFileWriterFactory;
     @Mock ExportDao exportDao;
@@ -47,18 +48,12 @@ public class RpslObjectsToTextExporterTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        exportDir = new File(folder, "export");
-        tmpDir = new File(folder, "export_tmp");
-
-        exportDir.mkdirs();
-        tmpDir.mkdirs();
-
-        final String exportdirName = exportDir.getAbsolutePath();
-        final String tmpDirName = tmpDir.getAbsolutePath();
+        exportDir = Files.createTempDirectory(folder, "export").toFile();
+        tmpDir = Files.createTempDirectory(folder, "export_tmp").toFile();
 
         when(exportFileWriterFactory.isExportDir(any(File.class))).thenReturn(true);
 
-        subject = new RpslObjectsExporter(exportFileWriterFactory, exportDao, tagsDao, exportdirName, tmpDirName, true);
+        subject = new RpslObjectsExporter(exportFileWriterFactory, exportDao, tagsDao, exportDir.toPath().toString(), tmpDir.toPath().toString(), true);
     }
 
     @Test
@@ -171,7 +166,6 @@ public class RpslObjectsToTextExporterTest {
     }
 
     @Test
-    @Disabled("TODO: [MA] Junit 5 migration")
     public void execute_multiple_simultaneous() throws Exception {
         final CountDownLatch startLatch = new CountDownLatch(1);
         final CountDownLatch waitLatch = new CountDownLatch(1);
