@@ -32,13 +32,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.api.fulltextsearch.FullTextSolrUtils.parseResponse;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -378,7 +378,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         final Map<String, Map<String, List<String>>> highlighting = queryResponse.getHighlighting();
         assertThat(highlighting.keySet(), hasSize(1));
         assertThat(highlighting.get("2").keySet(), contains("descr"));
-        assertThat(highlighting.get("2").values(), contains(Lists.newArrayList("<b>T.E.S.T<\\/b>. Ltd")));
+        assertThat(highlighting.get("2").values(), contains(Lists.newArrayList("<b>T.E.S.T.<\\/b> Ltd")));
     }
 
     @Test
@@ -880,8 +880,8 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getResults(), hasSize(1));
         assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
         assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(3));
-        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV<\\/b>-MNT"));
-        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
+        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV-MNT<\\/b>"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV-MNT<\\/b>"));
         assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("<b>DEV<\\/b> mntner"));
     }
 
@@ -918,7 +918,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getName(), is("1"));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("lookup-key"));
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV</b>-MNT"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV-MNT</b>"));
         assertThat(searchResponse.getLsts().get(2).getName(), is("version"));
     }
 
@@ -938,9 +938,9 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getResults(), hasSize(1));
         assertThat(queryResponse.getHighlighting().keySet(), contains("1"));
         assertThat(queryResponse.getHighlighting().get("1").keySet(), hasSize(3));
-        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV<\\/b>-MNT"));
-        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV<\\/b>-MNT"));
-        assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("\"<b>DEV<\\/b> mntner\""));
+        assertThat(queryResponse.getHighlighting().get("1").get("lookup-key"), contains("<b>DEV-MNT<\\/b>"));
+        assertThat(queryResponse.getHighlighting().get("1").get("mntner"), contains("<b>DEV-MNT<\\/b>"));
+        assertThat(queryResponse.getHighlighting().get("1").get("remarks"), contains("<b>\"DEV<\\/b> mntner\""));
     }
 
     @Test
@@ -968,7 +968,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getName(), is("1"));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(3));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getName(), is("remarks"));
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getStr().getValue(), is("\"<b>DEV</b> mntner\""));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(2).getStr().getValue(), is("<b>\"DEV</b> mntner\""));
         assertThat(searchResponse.getLsts().get(2).getName(), is("version"));
     }
 
