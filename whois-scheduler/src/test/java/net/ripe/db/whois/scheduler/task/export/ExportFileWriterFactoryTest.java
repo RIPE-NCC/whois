@@ -42,7 +42,7 @@ public class ExportFileWriterFactoryTest {
     @Test
     public void createExportFileWriters_existing_dir() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            Files.createTempDirectory(folder, "dbase").toFile();
+            Files.createDirectories(folder.resolve("dbase"));
             subject.createExportFileWriters(folder.getRoot().toFile(), LAST_SERIAL);
         });
     }
