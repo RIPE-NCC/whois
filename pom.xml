@@ -74,6 +74,7 @@
         <jackson.version>2.12.5</jackson.version>
 
         <log4j.version>2.14.1</log4j.version>
+        <!-- Needs to be in sync with the version of Lucene used by the ElasticSearch client -->
         <lucene.version>8.9.0</lucene.version>
 
         <mail.version>1.6.2</mail.version>
