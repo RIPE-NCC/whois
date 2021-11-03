@@ -30,9 +30,7 @@
         <!-- dependencies -->
 
         <aspectj.version>1.9.7</aspectj.version>
-
-        <!-- TODO: awaitility 4.0.3+ depends on Groovy 3 -->
-        <awaitility.version>4.0.2</awaitility.version>
+        <awaitility.version>4.1.1</awaitility.version>
         <sentry.version>5.1.2</sentry.version>
 
         <bouncycastle.version>1.69</bouncycastle.version>
@@ -1049,7 +1047,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>None</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Integration*.class</test.files.integration>
+                <test.files.integration>None</test.files.integration>
             </properties>
         </profile>
         <profile>
