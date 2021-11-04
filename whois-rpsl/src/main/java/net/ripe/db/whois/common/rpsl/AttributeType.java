@@ -35,6 +35,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FILTER_SET_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FILTER_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FREE_FORM_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GENERATED_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GEOFEED_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GEOLOC_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.HOLES_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IFADDR_SYNTAX;
@@ -232,6 +233,10 @@ public enum AttributeType implements Documented {
             .syntax(POETIC_FORM_SYNTAX)
             .references(ObjectType.POETIC_FORM)
             .listValue()),
+
+    GEOFEED(new Builder("geofeed",  "gf")
+            .doc("")// TODO
+            .syntax(GEOFEED_SYNTAX)),
 
     GEOLOC(new Builder("geoloc", "gl")
             .doc("The location coordinates for the resource.")

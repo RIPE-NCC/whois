@@ -670,4 +670,7 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Ignored object with size %d, exceeds maximum object size %d.", size, maximumSize);
     }
 
+    public static Message geofeedTooSpecific(int maxPrefixAllowed) {
+        return new Message(Type.ERROR, "Adding a geofeed: attribute to object with a prefix greater than %d is not allowed", maxPrefixAllowed);
+    }
 }
