@@ -19,10 +19,10 @@ include:
 
 stages:
   - build
+  - release
   - test
   - integration-test
   - code_quality
-  - release
   - deploy
 
 cache:
@@ -46,11 +46,13 @@ build:
 
 release:
   stage: release
-  when: manual
+  when: always
   script:
     - if [ "$CI_COMMIT_TAG" ]; then NEW_VERSION="$CI_COMMIT_SHORT_SHA"; else NEW_VERSION="$CI_COMMIT_SHORT_SHA-SNAPSHOT"; fi
     - mvn versions:set -DnewVersion=$NEW_VERSION
     - mvn -DskipTests -DskipITs -Prelease deploy
+  needs:
+    - build
   extends: .release_template
 
 .it_template: &it_env
