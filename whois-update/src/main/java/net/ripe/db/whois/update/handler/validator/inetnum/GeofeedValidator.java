@@ -22,7 +22,7 @@ public class GeofeedValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);
     private static final int IPV4_MAXIMUM_PREFIX_SIZE = 24;
-    private static final int IPV6_MAXIMUM_PREFIX_SIZE = 24; //TODO add correct value
+    private static final int IPV6_MAXIMUM_PREFIX_SIZE = 32;
 
     @Override
     public void validate(PreparedUpdate update, UpdateContext updateContext) {

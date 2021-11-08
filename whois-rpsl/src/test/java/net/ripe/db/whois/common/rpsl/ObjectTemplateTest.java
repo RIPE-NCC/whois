@@ -139,6 +139,7 @@ public class ObjectTemplateTest {
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
                 "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
+                "geofeed:        [optional]   [single]     [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
@@ -172,6 +173,7 @@ public class ObjectTemplateTest {
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
                 "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
+                "geofeed:        [optional]   [single]     [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +

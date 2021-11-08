@@ -595,7 +595,7 @@ public interface AttributeSyntax extends Documented {
 
         @Override
         public String getDescription(ObjectType objectType) {
-            return null; //TODO
+            return ""; //TODO
         }
     }
 
