@@ -22,9 +22,6 @@ public abstract class AbstractJUnit5SpringContextTests implements ApplicationCon
     @Nullable
     protected ApplicationContext applicationContext;
 
-    public AbstractJUnit5SpringContextTests() {
-    }
-
     public final void setApplicationContext(final ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
