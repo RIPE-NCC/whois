@@ -2251,4 +2251,131 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
 
+    def "create with geofeed"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:0600::/25
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                geofeed:      https://www.example.com
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent())
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+        ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/25") ==
+                ["Value 2001:0600::/25 converted to 2001:600::/25"]
+
+        queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+    }
+
+    def "create with invalid geofeed"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:0600::/25
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                geofeed:      not an url
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent())
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
+                ["Syntax error in not an url"]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+    }
+
+    def "create with not secure url as geofeed"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:0600::/25
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                geofeed:      http://unsecure.com
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent())
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
+                ["Syntax error in http://unsecure.com"]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+    }
+
+    def "create with geofeed and inet6num too specific"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:0600::/48
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                geofeed:      https://example.com
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent())
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/48") ==
+                ["Adding a geofeed: attribute to object with a prefix greater than 32 is not allowed"]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/48", "inet6num", "2001:600::/48")
+    }
 }
