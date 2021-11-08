@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.fulltextsearch.FullTextAnalyzer.Operation;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,7 +26,7 @@ public class FullTextAnalyzerTest {
 
     FullTextAnalyzer subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new FullTextAnalyzer(Operation.INDEX);
     }
