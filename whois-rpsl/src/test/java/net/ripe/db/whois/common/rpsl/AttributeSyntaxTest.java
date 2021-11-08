@@ -361,6 +361,18 @@ public class AttributeSyntaxTest {
     }
 
     @Test
+    public void geoFeed() {
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "random text");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "http://unsafe.url.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://localhost");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://not an url");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://notanurl");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "");
+
+        verifySuccess(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://safe.url.com");
+    }
+
+    @Test
     public void geoLoc() {
         verifyFailure(ObjectType.INETNUM, AttributeType.GEOLOC, "90.90 90.90");
         verifyFailure(ObjectType.INETNUM, AttributeType.GEOLOC, "abc 90 90");
