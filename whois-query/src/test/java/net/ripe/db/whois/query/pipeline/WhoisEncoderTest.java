@@ -6,11 +6,12 @@ import io.netty.channel.ChannelHandlerContext;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.query.QueryMessages;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WhoisEncoderTest {
 
     @Mock private ChannelHandlerContext contextMock;

@@ -30,9 +30,7 @@
         <!-- dependencies -->
 
         <aspectj.version>1.9.7</aspectj.version>
-
-        <!-- TODO: awaitility 4.0.3+ depends on Groovy 3 -->
-        <awaitility.version>4.0.2</awaitility.version>
+        <awaitility.version>4.1.1</awaitility.version>
         <sentry.version>5.1.2</sentry.version>
 
         <bouncycastle.version>1.69</bouncycastle.version>
@@ -57,9 +55,7 @@
         <findbugs.version>3.0.2</findbugs.version>
 
         <guava.version>30.1.1-jre</guava.version>
-
-        <!-- TODO: [ES] Upgrade to Groovy 3 -->
-        <groovy.version>2.5.14</groovy.version>
+        <groovy.version>3.0.9</groovy.version>
 
         <hazelcast.version>4.1.5</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
@@ -68,7 +64,7 @@
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.14.3</jsoup.version>
-        <junit.version>4.13.2</junit.version>
+        <junit.version>5.7.2</junit.version>
         <jetty.version>10.0.7</jetty.version>
         <jersey.version>2.35</jersey.version>
         <jackson.version>2.12.5</jackson.version>
@@ -90,7 +86,7 @@
         <springockito.version>1.0.9</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
-        <spock.version>1.3-groovy-2.5</spock.version>
+        <spock.version>2.0-groovy-3.0</spock.version>
         <shedlock.version>4.24.0</shedlock.version>
 
         <validation.version>2.0.1.Final</validation.version>
@@ -624,8 +620,14 @@
 
         <!-- common test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -656,6 +658,12 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
@@ -868,19 +876,10 @@
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
-                    <includes>
-                        <include>${test.files.unit}</include>
-                    </includes>
-                    <excludes>
-                        <exclude>${test.files.integration}</exclude>
-                    </excludes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
                     <reuseForks>true</reuseForks>
-                    <excludedGroups>
-                        net.ripe.db.whois.common.IntegrationTest,
-                        net.ripe.db.whois.common.ManualTest
-                    </excludedGroups>
+                    <excludedGroups>IntegrationTest,ManualTest</excludedGroups>
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
                         <hazelcast.phone.home.enabled>false</hazelcast.phone.home.enabled>
@@ -897,6 +896,7 @@
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
+                    <excludedGroups>ManualTest</excludedGroups>
                     <!-- doesnt work (breaks tests)
                     <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
@@ -906,7 +906,7 @@
                     <groups>${test.groups}</groups>
                     <runOrder>random</runOrder> -->
                     <!-- works (tests pass) -->
-                    <groups>${test.groups}</groups>
+                   <!-- <groups>${test.groups}</groups>-->
                     <forkCount>3</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
@@ -956,8 +956,6 @@
                         <exclude>**/net/ripe/db/whois/common/IllegalArgumentExceptionMessage.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
-                        <exclude>**/net/ripe/db/whois/common/IntegrationTest.java</exclude>
-                        <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>
                     </excludes>
 
                     <Xlint>warning</Xlint>
@@ -1049,14 +1047,14 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>None</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Integration*.class</test.files.integration>
+                <test.files.integration>None</test.files.integration>
             </properties>
         </profile>
         <profile>
             <id>integration</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.groups>IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>
@@ -1065,7 +1063,7 @@
             <id>comparison</id>
             <properties>
                 <test.redirectOutput>false</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
+                <test.groups>ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>
                     **/CompareTwoQueryInstancesByFile.class,
@@ -1078,7 +1076,7 @@
             <id>all</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.groups>IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>

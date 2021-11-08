@@ -7,7 +7,6 @@ import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -17,11 +16,10 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -37,18 +35,18 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void enableRewriteEngine() {
         System.setProperty("rewrite.engine.enabled", "true");
     }
 
-    @AfterClass
+    @AfterAll
     public static void disableRewriteEngine() {
         System.clearProperty("rewrite.engine.enabled");
     }
@@ -72,19 +70,19 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                     "remarks:       remark\n" +
                     "source:        TEST\n");
 
-    @BeforeClass
+    @BeforeAll
     public static void setProperty() {
         // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
         System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
         System.setProperty("fulltext.search.max.results", "3");
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearProperty() {
         System.clearProperty("dir.fulltext.index");
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST\nsource: TEST\n");
         final RpslObject mntner = RpslObject.parse(

@@ -5,11 +5,12 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.util.List;
@@ -18,7 +19,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ApnicGrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
@@ -28,7 +29,7 @@ public class ApnicGrsSourceTest {
     ApnicGrsSource subject;
     CaptureInputObjectHandler objectHandler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
         subject = new ApnicGrsSource("APNIC-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader, "");

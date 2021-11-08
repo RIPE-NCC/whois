@@ -17,7 +17,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.common.ApplicationVersion;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -30,10 +30,11 @@ import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
@@ -57,10 +58,10 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
@@ -132,7 +133,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private ApplicationVersion applicationVersion;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
@@ -143,7 +144,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
 
-    @After
+    @AfterEach
     public void reset() {
         databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
         databaseHelper.getAclTemplate().update("DELETE FROM acl_event");
@@ -433,7 +434,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         ));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void search_include_tag_param_no_results() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -444,13 +445,15 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n"));
 
-        RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&include-tag=foobar")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(),
+                            "whois/search?source=TEST&query-string=AS102&include-tag=foobar")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void search_include_and_exclude_tags_params_no_results() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -466,10 +469,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
         whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
 
-        RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&exclude-tag=foobar&include-tag=unref&include-tag=other")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(),
+                            "whois/search?source=TEST&query-string=AS102&exclude-tag=foobar&include-tag=unref&include-tag=other")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
     }
 
     @Test
@@ -903,14 +908,16 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = FileNotFoundException.class)
+    @Test
     public void search_illegal_character_encoding_in_query_param() throws Exception {
-        try (
-                final InputStream inputStream = new URL(
-                        String.format("http://localhost:%d/whois/search?flags=rB&source=TEST&type-filter=mntner&query-string=AA1-MNT+{+192.168.0.0/16+}",
-                                getPort())).openStream()) {
-            fail();
-        }
+        Assertions.assertThrows(FileNotFoundException.class, () -> {
+            try (
+                    final InputStream inputStream = new URL(
+                            String.format("http://localhost:%d/whois/search?flags=rB&source=TEST&type-filter=mntner&query-string=AA1-MNT+{+192.168.0.0/16+}",
+                                    getPort())).openStream()) {
+                fail();
+            }
+        });
     }
 
     @Test
@@ -1252,11 +1259,13 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\"/>"));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void search_huge_query_string() {
-        RestTest.target(getPort(), String.format("whois/search?query-string=%s&source=TEST", Strings.repeat("X", 5900)))
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), String.format("whois/search?query-string=%s&source=TEST", Strings.repeat("X", 5900)))
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
     }
 
     @Test
@@ -1988,7 +1997,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         ));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void search_route_by_sources_auth_given() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "route:           193.4.0.0/16\n" +
@@ -1999,9 +2008,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&source=TEST")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&source=TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
     }
 
     @Test

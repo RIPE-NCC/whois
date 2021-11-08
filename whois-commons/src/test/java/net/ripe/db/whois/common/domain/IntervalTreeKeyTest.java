@@ -2,11 +2,11 @@ package net.ripe.db.whois.common.domain;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IntervalTreeKeyTest {
 
@@ -14,8 +14,8 @@ public class IntervalTreeKeyTest {
 
     @Test
     public void should_contain_inetnum_and_object_id() {
-        assertEquals("key", Ipv4Resource.parse("127.0.0.0/8"), subject.getKey());
-        assertEquals("objectId", 1, subject.getObjectId());
+        assertEquals(Ipv4Resource.parse("127.0.0.0/8"), subject.getKey(), "key");
+        assertEquals(1, subject.getObjectId(), "objectId");
     }
 
     @Test
@@ -25,15 +25,15 @@ public class IntervalTreeKeyTest {
         Ipv4Entry c = new Ipv4Entry(Ipv4Resource.parse("10.0.0.0/8"), 1);
         Ipv4Entry d = new Ipv4Entry(Ipv4Resource.parse("10.0.0.0/8"), 7);
 
-        assertEquals("same", a, a);
-        assertEquals("equal", a, b);
-        assertFalse("null", a.equals(null));
-        assertFalse("different class", a.equals(new Object()));
-        assertFalse("different key", a.equals(c));
-        assertTrue("same key", c.equals(d));
+        assertEquals(a, a, "same");
+        assertEquals(a, b, "equal");
+        assertFalse(a.equals(null), "null");
+        assertFalse(a.equals(new Object()), "different class");
+        assertFalse(a.equals(c), "different key");
+        assertTrue(c.equals(d), "same key");
 
-        assertTrue("same", a.hashCode() == b.hashCode());
-        assertTrue("same", c.hashCode() == d.hashCode());
-        assertFalse("different hashcode", a.hashCode() == c.hashCode());
+        assertTrue( a.hashCode() == b.hashCode(), "same");
+        assertTrue(c.hashCode() == d.hashCode(), "same");
+        assertFalse(a.hashCode() == c.hashCode(), "different hashcode");
     }
 }

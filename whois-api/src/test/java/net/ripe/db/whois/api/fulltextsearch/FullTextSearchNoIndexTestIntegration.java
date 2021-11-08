@@ -2,19 +2,19 @@ package net.ripe.db.whois.api.fulltextsearch;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.common.IntegrationTest;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.BeforeAll;
+
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.NotFoundException;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class FullTextSearchNoIndexTestIntegration extends AbstractIntegrationTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void clearProperty() {
         System.setProperty("dir.fulltext.index", "");
     }

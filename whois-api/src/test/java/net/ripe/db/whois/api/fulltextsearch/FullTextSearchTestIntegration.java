@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.fulltextsearch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
@@ -12,11 +12,11 @@ import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,16 +32,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.api.fulltextsearch.FullTextSolrUtils.parseResponse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
     @Autowired FullTextIndex fullTextIndex;
@@ -51,19 +51,19 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
     private JdbcTemplate aclJdbcTemplate;
 
-    @BeforeClass
+    @BeforeAll
     public static void setProperty() {
         // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
         System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
         System.setProperty("fulltext.search.max.results", "3");
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearProperty() {
         System.clearProperty("dir.fulltext.index");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         fullTextIndex.rebuild();
         testPersonalObjectAccounting.resetAccounting();

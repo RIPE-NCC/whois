@@ -1,21 +1,20 @@
 package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.rdap.domain.Entity;
-import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
+
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.MediaType;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
 

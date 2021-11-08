@@ -12,12 +12,12 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collections;
@@ -27,10 +27,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AbuseValidatorTest {
 
     private static final RpslObject LIR_ORG_WITH_ABUSE_C = RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: LIR\nsource: TEST");
@@ -53,10 +52,9 @@ public class AbuseValidatorTest {
 
     @InjectMocks AbuseValidator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")))).thenReturn(true);
     }
 
 
@@ -170,6 +168,8 @@ public class AbuseValidatorTest {
 
     @Test
     public void do_not_allow_remove_abuse_contact_when_a_referencing_resource_is_rs_maintained() {
+        when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")))).thenReturn(true);
+
         final RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.AUT_NUM, "AS6");
         when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);

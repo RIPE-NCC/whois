@@ -1,26 +1,26 @@
 package net.ripe.db.whois.query.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void startupWhoisServer() {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }

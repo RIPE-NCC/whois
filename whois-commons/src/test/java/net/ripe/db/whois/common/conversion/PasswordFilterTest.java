@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.conversion;
 
 import org.glassfish.jersey.uri.UriComponent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;

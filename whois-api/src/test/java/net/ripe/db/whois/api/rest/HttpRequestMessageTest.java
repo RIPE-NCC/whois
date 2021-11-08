@@ -1,10 +1,10 @@
 package net.ripe.db.whois.api.rest;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -15,19 +15,20 @@ import java.util.Vector;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HttpRequestMessageTest {
 
     @Mock
     private HttpServletRequest request;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(request.getMethod()).thenReturn("GET");
         when(request.getRequestURI()).thenReturn("/some/path");
-        when(request.getHeaders(any(String.class))).thenReturn(Collections.emptyEnumeration());
+        lenient().when(request.getHeaders(any(String.class))).thenReturn(Collections.emptyEnumeration());
         when(request.getHeaderNames()).thenReturn(Collections.emptyEnumeration());
     }
 

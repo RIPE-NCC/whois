@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common.domain;
 
 import org.awaitility.Awaitility;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,7 +11,7 @@ public class ConcurrentStateTest {
 
     private ConcurrentState subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new ConcurrentState();
     }

@@ -3,13 +3,15 @@ package net.ripe.db.whois.common.grs;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.source.IllegalSourceException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.io.File;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,16 +22,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthoritativeResourceDataTest {
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
     @Mock DailySchedulerDao dailySchedulerDao;
     @Mock ResourceDataDao resourceDataDao;
     AuthoritativeResourceRefreshTask subject;
     AuthoritativeResourceData authoritativeResourceData;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         authoritativeResourceData = new AuthoritativeResourceData("test", "test", resourceDataDao);
         subject = new AuthoritativeResourceRefreshTask(dailySchedulerDao, authoritativeResourceData, resourceDataDao, "test");
@@ -65,9 +68,11 @@ public class AuthoritativeResourceDataTest {
         verify(resourceDataDao, times(1)).load("test");
     }
 
-    @Test(expected = IllegalSourceException.class)
+    @Test
     public void nonexistant_source_throws_exception() {
-        authoritativeResourceData.getAuthoritativeResource(ciString("BLAH"));
+        Assertions.assertThrows(IllegalSourceException.class, () -> {
+            authoritativeResourceData.getAuthoritativeResource(ciString("BLAH"));
+        });
     }
 
 }

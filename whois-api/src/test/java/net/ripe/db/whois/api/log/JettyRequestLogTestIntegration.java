@@ -4,7 +4,7 @@ import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Level;
@@ -17,11 +17,11 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.eclipse.jetty.server.RequestLog;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
@@ -53,18 +53,18 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
     private final static String requestLogDirectory = "target/log/jetty";
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
         addLog4jAppender();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         removeLog4jAppender();
     }
     
-    @AfterClass
+    @AfterAll
     public static void cleanUp() throws Exception {
         cleanupRequestLogDirectory();
     }

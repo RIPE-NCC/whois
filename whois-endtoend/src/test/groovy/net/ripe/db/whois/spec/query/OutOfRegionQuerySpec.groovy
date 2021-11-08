@@ -1,13 +1,13 @@
 package net.ripe.db.whois.spec.query
 
 import com.google.common.collect.Sets
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseEndToEndSpec
 import net.ripe.db.whois.spec.BasicFixtures
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class OutOfRegionQuerySpec extends BaseEndToEndSpec {
 
     def setupSpec() {

@@ -4,8 +4,8 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -19,14 +19,14 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
     @Autowired JettyBootstrap jettyBootstrap;
     @Autowired protected List<ApplicationService> applicationServices;
 
-    @Before
+    @BeforeEach
     public void startServer() {
         for (final ApplicationService applicationService : applicationServices) {
             applicationService.start();
         }
     }
 
-    @After
+    @AfterEach
     public void stopServer() {
         for (final ApplicationService applicationService : applicationServices) {
             applicationService.stop(true);
