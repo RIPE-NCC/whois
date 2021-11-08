@@ -585,17 +585,19 @@ public interface AttributeSyntax extends Documented {
 
     class GeofeedSyntax implements AttributeSyntax {
 
+        private static final UrlValidator validator = new UrlValidator(new String[] {"https"});
+
         @Override
         public boolean matches(ObjectType objectType, String value) {
-            final String[] validProtocol = new String[] {"https"};
-            final UrlValidator validator = new UrlValidator(validProtocol);
-
             return validator.isValid(value);
         }
 
         @Override
         public String getDescription(ObjectType objectType) {
-            return ""; //TODO
+            return "" +
+                "An URL referencing a csv file containing location data for the resource.\n" +
+                "The URL must be valid and it must specify the https protocol.\n" +
+                "Only one between the \"geofeed:\" attribute and the format \"remarks: geofeed:\" can be used at the same time.";
         }
     }
 

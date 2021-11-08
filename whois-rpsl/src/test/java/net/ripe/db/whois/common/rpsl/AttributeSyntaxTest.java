@@ -364,6 +364,8 @@ public class AttributeSyntaxTest {
     public void geoFeed() {
         verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "random text");
         verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "http://unsafe.url.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "ftp://::::@example.com");
         verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://localhost");
         verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://not an url");
         verifyFailure(ObjectType.INETNUM,  AttributeType.GEOFEED, "https://notanurl");

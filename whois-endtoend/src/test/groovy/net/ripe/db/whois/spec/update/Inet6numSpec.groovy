@@ -2350,7 +2350,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
     def "create with geofeed and inet6num too specific"() {
         when:
         def ack = syncUpdateWithResponse("""
-                inet6num:     2001:0600::/48
+                inet6num:     2001:0600::/64
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -2372,9 +2372,42 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+                ["Adding the \"geofeed:\" attribute to an object with a prefix length greater than 48 is not allowed"]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+    }
+
+    def "create with geofeed and remarks geofeed"() {
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001:0600::/48
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                geofeed:      https://example.com
+                remarks:      geofeed: https://example.com
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent())
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/48") ==
-                ["Adding a geofeed: attribute to object with a prefix greater than 32 is not allowed"]
+                ["Adding the \"geofeed:\" attribute to an object containing a \"remark: geofeed:\" attribute is not allowed"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/48", "inet6num", "2001:600::/48")
     }
