@@ -2374,7 +2374,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 1)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
-                ["Adding the \"geofeed:\" attribute to an object with a prefix length greater than 48 is not allowed"]
+                ["Adding or modifying the \"geofeed:\" attribute of an object with a prefix length greater than 48 is not allowed."]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
     }
@@ -2407,7 +2407,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 1)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/48") ==
-                ["Adding the \"geofeed:\" attribute to an object containing a \"remark: geofeed:\" attribute is not allowed"]
+                ["Only one between the \"geofeed:\" and \"remark: geofeed:\" attributes is allowed."]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/48", "inet6num", "2001:600::/48")
     }

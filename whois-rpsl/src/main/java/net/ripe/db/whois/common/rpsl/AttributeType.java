@@ -235,7 +235,7 @@ public enum AttributeType implements Documented {
             .listValue()),
 
     GEOFEED(new Builder("geofeed",  "gf")
-            .doc("An URL referencing a csv file containing location data for the resource.")
+            .doc("An URL referencing a csv file containing geolocation data for the resource.")
             .syntax(GEOFEED_SYNTAX)),
 
     GEOLOC(new Builder("geoloc", "gl")

@@ -180,10 +180,10 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "geofeed\n" +
                 "\n" +
-                "   An URL referencing a csv file containing location data for the\n" +
+                "   An URL referencing a csv file containing geolocation data for the\n" +
                 "   resource.\n" +
                 "\n" +
-                "     An URL referencing a csv file containing location data for the resource.\n" +
+                "     Geofeed is a self-published format for IP geolocation data.\n" +
                 "     The URL must be valid and it must specify the https protocol.\n" +
                 "     Only one between the \"geofeed:\" attribute and the format \"remarks: geofeed:\" can be used at the same time.\n" +
                 "\n" +
