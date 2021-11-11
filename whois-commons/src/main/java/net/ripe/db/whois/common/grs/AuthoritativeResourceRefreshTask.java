@@ -3,10 +3,12 @@ package net.ripe.db.whois.common.grs;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.Timestamp;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ import java.util.Optional;
 import static net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask.TASK_NAME;
 
 @Component
+@Profile({WhoisProfile.DEPLOYED})
 public class AuthoritativeResourceRefreshTask {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceRefreshTask.class);
