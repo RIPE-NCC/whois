@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
@@ -12,6 +13,7 @@ import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Component
+@Profile({WhoisProfile.DEPLOYED})
 public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeResourceImportTask implements DailyScheduledTask {
 
     protected static final String TASK_NAME = "RipeAuthoritativeResourceImport";

@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EmbeddedValueResolverAware;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
@@ -23,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
+@Profile({WhoisProfile.DEPLOYED})
 public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourceImportTask implements DailyScheduledTask, EmbeddedValueResolverAware {
 
     static final String TASK_NAME = "AuthoritativeResourceImport";
