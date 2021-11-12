@@ -3,12 +3,11 @@ package net.ripe.db.whois.common.grs;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.Timestamp;
-import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -18,18 +17,18 @@ import java.util.Optional;
 import static net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask.TASK_NAME;
 
 @Component
-@Profile({WhoisProfile.DEPLOYED})
 public class AuthoritativeResourceRefreshTask {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceRefreshTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceRefreshTask.class);
 
-    private final static int REFRESH_DELAY_EVERY_HOUR = 60 * 60 * 1000;
-    private final static int REFRESH_DELAY_EVERY_MINUTE = 60 * 1000;
+    private static final int REFRESH_DELAY_EVERY_HOUR = 60 * 60 * 1000;
+    private static final int REFRESH_DELAY_EVERY_MINUTE = 60 * 1000;
 
     private final DailySchedulerDao dailySchedulerDao;
     private final AuthoritativeResourceData authoritativeResourceData;
     private final ResourceDataDao resourceDataDao;
     private final String source;
+    private final boolean enabled;
 
     private ResourceDataDao.State state = null;
     private LocalDateTime lastRefresh = null;
@@ -38,16 +37,24 @@ public class AuthoritativeResourceRefreshTask {
     public AuthoritativeResourceRefreshTask(final DailySchedulerDao dailySchedulerDao,
                                             final AuthoritativeResourceData authoritativeResourceData,
                                             final ResourceDataDao resourceDataDao,
-                                            @Value("${whois.source}") final String source) {
+                                           @Value("${grs.import.enabled:false}") final boolean grsImportEnabled,
+                                           @Value("${rsng.base.url:}") final String rsngBaseUrl,
+                                           @Value("${whois.source}") final String source) {
         this.dailySchedulerDao = dailySchedulerDao;
         this.authoritativeResourceData = authoritativeResourceData;
         this.resourceDataDao = resourceDataDao;
         this.source = source;
+        this.enabled = grsImportEnabled || ! StringUtils.isBlank(rsngBaseUrl);
+
+        LOGGER.info("Authoritative resource refresh task is {}abled", enabled ? "en" : "dis");
     }
 
-    // TODO: [ES] This refresh depends on AuthoritativeResourceImportTask completing, but can take up to an hour to detect it.
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_HOUR)
-    synchronized public void refreshGrsAuthoritativeResourceCaches() {
+    public synchronized void refreshGrsAuthoritativeResourceCaches() {
+        if (!enabled) {
+            return;
+        }
+
         final LocalDateTime lastImportTime;
         try {
             final Optional<Timestamp> optional = dailySchedulerDao.getDailyTaskFinishTime(TASK_NAME);
@@ -71,7 +78,11 @@ public class AuthoritativeResourceRefreshTask {
     }
 
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_MINUTE)
-    synchronized public void refreshMainAuthoritativeResourceCache() {
+    public synchronized void refreshMainAuthoritativeResourceCache() {
+        if (!enabled) {
+            return;
+        }
+
         final ResourceDataDao.State latestState;
         try {
             latestState = resourceDataDao.getState(source);
