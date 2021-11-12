@@ -281,13 +281,13 @@ public class MessageParser {
         try (final InputStream inputStream = ((MimeBodyPart) part).getRawInputStream()) {
             final String rawContent = new String(ByteStreams.toByteArray(inputStream), getCharset(new ContentType(part.getContentType())));
 
-            return decodeBase64(rawContent, boundary);
+            return getDecodedContent(rawContent, boundary);
         } catch (IOException e) {
             throw new MessagingException("Unable to read body part", e);
         }
     }
 
-    private String decodeBase64(final String rawContent, final String boundary) {
+    private String getDecodedContent(final String rawContent, final String boundary) {
         if(boundary == null || !rawContent.contains(HEADER_BASE_64)) {
             return rawContent;
         }
