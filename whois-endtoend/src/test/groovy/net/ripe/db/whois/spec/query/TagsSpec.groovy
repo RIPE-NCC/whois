@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class TagsSpec extends BaseQueryUpdateSpec {
 
     @Override

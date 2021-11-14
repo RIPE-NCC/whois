@@ -3,11 +3,12 @@ package net.ripe.db.whois.nrtm.client;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.StringValueResolver;
 
 import static org.mockito.Mockito.any;
@@ -16,7 +17,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NrtmImporterTest {
 
     @Mock private NrtmClientFactory nrtmClientFactory;
@@ -24,7 +25,7 @@ public class NrtmImporterTest {
     @Mock private StringValueResolver valueResolver;
     private NrtmImporter subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         final boolean enabled = true;
         final String sources = "1-GRS";
@@ -32,11 +33,14 @@ public class NrtmImporterTest {
         subject.setEmbeddedValueResolver(valueResolver);
     }
 
-    @Test(expected = NrtmException.class)
+    @Test
     public void invalid_source() {
-        when(sourceContext.isVirtual(CIString.ciString("1-GRS"))).thenReturn(true);
+        Assertions.assertThrows(NrtmException.class, () -> {
+            when(sourceContext.isVirtual(CIString.ciString("1-GRS"))).thenReturn(true);
 
-        subject.checkSources();
+            subject.checkSources();
+        });
+
     }
 
     @Test

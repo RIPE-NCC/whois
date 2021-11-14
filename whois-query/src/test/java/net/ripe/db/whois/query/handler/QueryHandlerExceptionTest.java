@@ -8,15 +8,16 @@ import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.executor.QueryExecutor;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetAddress;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class QueryHandlerExceptionTest {
     @Mock WhoisLog whoisLog;
     @Mock AccessControlListManager accessControlListManager;
@@ -38,7 +39,7 @@ public class QueryHandlerExceptionTest {
     InetAddress remoteAddress = InetAddresses.forString("193.0.0.10");
     @Mock ResponseHandler responseHandler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new QueryHandler(whoisLog, accessControlListManager, sourceContext, queryExecutor);
     }

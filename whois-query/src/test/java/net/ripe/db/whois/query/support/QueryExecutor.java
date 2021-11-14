@@ -13,7 +13,7 @@ import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.domain.MessageObject;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class QueryExecutor {
     private static final byte[] DOUBLE_NEWLINE = new byte[]{'\n', '\n'};

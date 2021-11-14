@@ -12,7 +12,7 @@ import java.util.concurrent.FutureTask;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class NrtmRunner extends AbstractScenarioRunner {
 

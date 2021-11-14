@@ -19,29 +19,30 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InternalUpdatePerformerTest {
 
     @Mock private UpdateRequestHandler updateRequestHandlerMock;
@@ -53,9 +54,9 @@ public class InternalUpdatePerformerTest {
     @Mock private UpdateContext updateContextMock;
     @InjectMocks private InternalUpdatePerformer subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(updateContextMock.getClientCertificate()).thenReturn(Optional.empty());
+        lenient().when(updateContextMock.getClientCertificate()).thenReturn(Optional.empty());
     }
 
     @Test

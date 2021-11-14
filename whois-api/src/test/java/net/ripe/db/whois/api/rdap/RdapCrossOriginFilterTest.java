@@ -2,11 +2,12 @@ package net.ripe.db.whois.api.rdap;
 
 import com.google.common.net.HttpHeaders;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +18,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RdapCrossOriginFilterTest {
 
     @Mock
@@ -30,7 +31,7 @@ public class RdapCrossOriginFilterTest {
     private RdapCrossOriginFilter subject;
 
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.subject = new RdapCrossOriginFilter();
     }

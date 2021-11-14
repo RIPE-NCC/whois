@@ -2,18 +2,18 @@ package net.ripe.db.whois.common.grs;
 
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.io.Downloader;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.springframework.util.StringValueResolver;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -30,10 +30,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthoritativeResourceImportTaskTest {
 
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
     @Captor ArgumentCaptor<AuthoritativeResource> resourceCaptor;
     @Mock Downloader downloader;
@@ -41,9 +42,9 @@ public class AuthoritativeResourceImportTaskTest {
     @Mock StringValueResolver valueResolver;
     AuthoritativeResourceImportTask subject;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getRoot().getAbsolutePath(), true, "");
+        subject = new AuthoritativeResourceImportTask("TEST", resourceDataDao, downloader, folder.getAbsolutePath(), true, "");
         subject.setEmbeddedValueResolver(valueResolver);
     }
 

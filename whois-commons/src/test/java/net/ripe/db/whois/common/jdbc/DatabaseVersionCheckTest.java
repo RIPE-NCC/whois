@@ -1,7 +1,8 @@
 package net.ripe.db.whois.common.jdbc;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -46,10 +47,13 @@ public class DatabaseVersionCheckTest {
         subject.checkDatabase(ImmutableList.of("whois-1.51", "whois-1.4", "whois-2.15.4"), "TEST", "whois-2.16");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testCheckDatabaseFail() {
-        DatabaseVersionCheck subject = new DatabaseVersionCheck(null);
-        subject.checkDatabase(ImmutableList.of("whois-1.51", "whois-1.4", "whois-2.15.4"), "TEST", "whois-1.16");
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            DatabaseVersionCheck subject = new DatabaseVersionCheck(null);
+            subject.checkDatabase(ImmutableList.of("whois-1.51", "whois-1.4", "whois-2.15.4"), "TEST", "whois-1.16");
+
+        });
     }
 
     @Test

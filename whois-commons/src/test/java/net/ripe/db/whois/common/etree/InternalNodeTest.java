@@ -1,11 +1,12 @@
 package net.ripe.db.whois.common.etree;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class InternalNodeTest {
 
@@ -15,7 +16,7 @@ public class InternalNodeTest {
     private InternalNode<Ipv4Resource, String> d = new InternalNode<>(new Ipv4Resource(1, 4), "1-4");
     private InternalNode<Ipv4Resource, String> e = new InternalNode<>(new Ipv4Resource(2, 5), "2-5");
 
-    @Before
+    @BeforeEach
     public void setup() {
         d.addChild(a);
     }
@@ -37,14 +38,18 @@ public class InternalNodeTest {
         assertFalse(c.hashCode() == d.hashCode());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void test_intersect_insert_fails() {
-        c.addChild(e);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            c.addChild(e);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void test_intersect_remove_fails() {
-        c.removeChild(e.getInterval());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            c.removeChild(e.getInterval());
+        });
     }
 
 }

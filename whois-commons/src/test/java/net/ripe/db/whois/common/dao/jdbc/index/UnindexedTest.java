@@ -2,8 +2,8 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class UnindexedTest {
     Unindexed subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new Unindexed(AttributeType.ALIAS);
     }

@@ -9,23 +9,20 @@ import io.netty.channel.ChannelPromise;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.query.Query;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ConnectionStateHandlerTest {
 
     @Mock private Channel channelMock;
@@ -35,11 +32,11 @@ public class ConnectionStateHandlerTest {
     @Mock private ChannelHandlerContext contextMock;
     @InjectMocks private ConnectionStateHandler subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(contextMock.write(any())).thenReturn(futureMock);
-        when(contextMock.channel()).thenReturn(channelMock);
-        when(channelMock.pipeline()).thenReturn(pipelineMock);
+        lenient().when(contextMock.write(any())).thenReturn(futureMock);
+        lenient().when(contextMock.channel()).thenReturn(channelMock);
+        lenient().when(channelMock.pipeline()).thenReturn(pipelineMock);
     }
 
     @Test

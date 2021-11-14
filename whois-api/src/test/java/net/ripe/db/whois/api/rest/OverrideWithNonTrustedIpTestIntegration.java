@@ -7,7 +7,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -16,11 +16,11 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.glassfish.jersey.uri.UriComponent;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -33,9 +33,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
@@ -70,7 +70,7 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
 
@@ -82,12 +82,12 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("ipranges.trusted", "");
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearProperty() {
         System.clearProperty("ipranges.trusted");
     }

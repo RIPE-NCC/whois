@@ -18,12 +18,12 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +33,13 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RouteIpAddressAuthenticationTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -53,7 +54,7 @@ public class RouteIpAddressAuthenticationTest {
     RpslObject routeObject;
     Ipv4Resource routeResource;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         routeObject = RpslObject.parse("" +
                 "route: 192.91.244.0/23\n" +
@@ -62,7 +63,7 @@ public class RouteIpAddressAuthenticationTest {
 
         routeResource = Ipv4Resource.parse(routeObject.getTypeAttribute().getCleanValue());
 
-        when(update.getUpdatedObject()).thenReturn(routeObject);
+        lenient().when(update.getUpdatedObject()).thenReturn(routeObject);
     }
 
     @Test

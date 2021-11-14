@@ -1,23 +1,21 @@
 package net.ripe.db.whois.update.autokey.dao;
 
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
 import net.ripe.db.whois.update.domain.OrganisationId;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @Transactional
 public class OrganisationIdRepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired OrganisationIdRepository subject;
@@ -49,7 +47,7 @@ public class OrganisationIdRepositoryJdbcIntegrationTest extends AbstractUpdateD
 
         for (final Map<String, Object> objectMap : list) {
             for (final Map.Entry<String, Object> entry : objectMap.entrySet()) {
-                assertNotNull(entry.getKey(), entry.getValue());
+                assertNotNull(entry.getValue(), entry.getKey());
             }
 
             final String source = objectMap.get("source").toString();

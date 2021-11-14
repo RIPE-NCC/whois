@@ -4,20 +4,20 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultChannelId;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class QueryChannelsRegistryTest {
 
     @Mock private ChannelHandlerContext contextMock;
@@ -25,11 +25,11 @@ public class QueryChannelsRegistryTest {
     @Mock private ChannelFuture futureMock;
     @InjectMocks private QueryChannelsRegistry subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(contextMock.channel()).thenReturn(channelMock);
         when(channelMock.closeFuture()).thenReturn(futureMock);
-        when(channelMock.close()).thenReturn(futureMock);
+
         when(channelMock.id()).thenReturn(DefaultChannelId.newInstance());
     }
 
@@ -43,6 +43,7 @@ public class QueryChannelsRegistryTest {
 
     @Test
     public void service_stop_closes_channels() {
+        when(channelMock.close()).thenReturn(futureMock);
         subject.channelActive(contextMock);
 
         subject.closeChannels();

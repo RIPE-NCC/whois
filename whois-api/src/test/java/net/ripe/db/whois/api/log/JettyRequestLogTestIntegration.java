@@ -4,7 +4,7 @@ import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Level;
@@ -17,20 +17,21 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.eclipse.jetty.server.RequestLog;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
@@ -52,18 +53,18 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
     private final static String requestLogDirectory = "target/log/jetty";
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
         addLog4jAppender();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         removeLog4jAppender();
     }
     
-    @AfterClass
+    @AfterAll
     public static void cleanUp() throws Exception {
         cleanupRequestLogDirectory();
     }
@@ -91,6 +92,69 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         assertThat(requestLongContent, containsString("10.20.30.40"));
     }
 
+
+    @Test
+    public void password_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=some-api_key-123")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLogFilename());
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED"));
+        assertThat(actual, not(containsString("some-api_key-123")));
+    }
+
+    @Test
+    public void multiple_password_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=pass1&password=pass2")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLogFilename());
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&password=FILTERED"));
+        assertThat(actual, not(containsString("pass1")));
+        assertThat(actual, not(containsString("pass2")));
+    }
+
+    @Test
+    public void multiple_query_password_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=pass1&key=value")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLogFilename());
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&key=value"));
+        assertThat(actual, containsString("key=value"));
+        assertThat(actual, not(containsString("pass1")));
+    }
+
+    @Test
+    public void multiple_query_password_last_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?key=value&password=pass1")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLogFilename());
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?key=value&password=FILTERED"));
+        assertThat(actual, containsString("key=value"));
+        assertThat(actual, not(containsString("pass1")));
+    }
+
+    @Test
+    public void password_filtered_case_insensitive() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?PassWord=pass1")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLogFilename());
+        assertThat(actual.toLowerCase(), containsString("password=FILTERED".toLowerCase()));
+        assertThat(actual, not(containsString("pass1")));
+    }
 
     // helper methods
 

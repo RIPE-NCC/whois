@@ -1,13 +1,13 @@
 package net.ripe.db.whois.spec.integration
 import com.google.common.io.Resources
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
 import java.nio.charset.Charset
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override

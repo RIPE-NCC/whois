@@ -8,11 +8,12 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OrgRefAuthenticationTest {
     @Mock private PreparedUpdate update;
     @Mock private UpdateContext updateContext;
@@ -40,25 +41,18 @@ public class OrgRefAuthenticationTest {
     @Test
     public void supports_update_with_new_org_references() {
         when(update.getNewValues(AttributeType.ORG)).thenReturn(ciSet("ORG2"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG1\norg: ORG1"));
 
         assertThat(subject.supports(update), is(true));
     }
 
     @Test
     public void no_difference_in_org_refs_is_not_supported() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG1\norg: ORG1"));
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG1\norg: ORG1"));
-
         assertThat(subject.supports(update), is(false));
     }
 
     @Test
     public void authentication_succeeds() {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\norg: ORG1"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\norg: ORG2"));
-
         final RpslObject organisation = RpslObject.parse("organisation: ORG1\nmnt-ref: REF-MNT");
         final List<RpslObject> organisations = Lists.newArrayList(organisation);
         when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(organisations);
@@ -76,25 +70,23 @@ public class OrgRefAuthenticationTest {
         verifyNoMoreInteractions(updateContext);
     }
 
-    @Test(expected = AuthenticationFailedException.class)
+    @Test
     public void no_mntnerref_found() {
         when(update.getType()).thenReturn(ObjectType.PERSON);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("person: Some One\nnetname: NETNAME\nnic-hdl: TEST-NIC\norg: ORG1"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("person: Some One\nnetname: NETNAME\nnic-hdl: TEST-NIC\norg: ORG2"));
 
         final List<RpslObject> organisations = Lists.newArrayList(RpslObject.parse("organisation: ORG2"));
         when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn((organisations));
 
         when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(emptyList());
 
-        subject.authenticate(update, updateContext);
+        Assertions.assertThrows(AuthenticationFailedException.class, () -> {
+            subject.authenticate(update, updateContext);
+        });
     }
 
-    @Test(expected = AuthenticationFailedException.class)
+    @Test
     public void mntnerref_does_not_exist() {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\norg: ORG1"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\norg: ORG2"));
 
         final List<RpslObject> organisations = Lists.newArrayList(RpslObject.parse("organisation: ORG1\nmnt-ref: REF-MNT"));
         when(rpslObjectDao.getByKeys(eq(ObjectType.ORGANISATION), anyCollection())).thenReturn(organisations);
@@ -103,6 +95,8 @@ public class OrgRefAuthenticationTest {
 
         when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(emptyList());
 
-        subject.authenticate(update, updateContext);
+        Assertions.assertThrows(AuthenticationFailedException.class, () -> {
+            subject.authenticate(update, updateContext);
+        });
     }
 }

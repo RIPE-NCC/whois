@@ -9,14 +9,14 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -24,16 +24,17 @@ import java.net.UnknownHostException;
 import java.time.LocalDate;
 
 import static net.ripe.db.whois.query.acl.AccessControlListManager.mask;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AccessControlListManagerTest {
 
     private final RpslObject role = RpslObject.parse("role: Test Role\nnic-hdl: TR1-TEST");
@@ -64,9 +65,9 @@ public class AccessControlListManagerTest {
 
     private final LocalDate now = LocalDate.now();
 
-    @Before
+    @BeforeEach
     public void setup() throws UnknownHostException {
-        when(dateTimeProvider.getCurrentDate()).thenReturn(now);
+       lenient().when(dateTimeProvider.getCurrentDate()).thenReturn(now);
 
         ipv4Restricted = InetAddress.getByName("127.1.0.0");
         ipv4Unrestricted = InetAddress.getByName("127.0.0.0");
@@ -83,9 +84,9 @@ public class AccessControlListManagerTest {
     }
 
     private void mockResourceConfiguration(InetAddress address, boolean denied, boolean proxy, int limit) throws UnknownHostException {
-        when(ipResourceConfiguration.isDenied(address)).thenReturn(denied);
-        when(ipResourceConfiguration.isProxy(address)).thenReturn(proxy);
-        when(ipResourceConfiguration.getLimit(address)).thenReturn(limit);
+        lenient().when(ipResourceConfiguration.isDenied(address)).thenReturn(denied);
+        lenient().when(ipResourceConfiguration.isProxy(address)).thenReturn(proxy);
+        lenient().when(ipResourceConfiguration.getLimit(address)).thenReturn(limit);
     }
 
     @Test

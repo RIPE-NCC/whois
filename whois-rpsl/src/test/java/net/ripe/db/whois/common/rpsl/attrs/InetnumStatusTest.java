@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_PA;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
