@@ -45,6 +45,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 
@@ -56,7 +58,7 @@ public class MessageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageParser.class);
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
-    public static final String HEADER_BASE_64 = "Content-Transfer-Encoding: base64";
+    private static final Pattern HEADER_BASE_64 = Pattern.compile("Content-Transfer-Encoding:\\s+base64*");
 
     private final LoggerContext loggerContext;
     private final DateTimeProvider dateTimeProvider;
@@ -189,20 +191,20 @@ public class MessageParser {
                     messageParts.add(new MessagePart(getHeaders(bodyPart) + getRawContent(bodyPart, bodyPartContentType.getParameter("boundary")), bodyPart));
                 } else if (bodyPartContentType.getBaseType().equals("application/pgp-signature")) {
                     final MessagePart last = messageParts.getLast();
-                    final String signedData = getHeaders(last.part) + getRawContent(last.part, bodyPartContentType.getParameter("boundary"));
+                    final String signedData = getHeaders(last.part) + getRawContent(last.part);
 
                     if (isBase64(bodyPart)) {
                         final String signature = getContent(bodyPart);
                         last.addCredential(PgpCredential.createOfferedCredential(signedData, signature, charset));
                     } else {
-                        final String signature = getRawContent(bodyPart, bodyPartContentType.getParameter("boundary"));
+                        final String signature = getRawContent(bodyPart);
                         last.addCredential(PgpCredential.createOfferedCredential(signedData, signature, charset));
                     }
                 } else if (bodyPartContentType.getBaseType().equals("application/pkcs7-signature") ||
                             bodyPartContentType.getBaseType().equals("application/x-pkcs7-signature")) {
                     final MessagePart last = messageParts.getLast();
-                    final String signedData = (getHeaders(last.part).replaceAll("\\r\\n", "\n") + getRawContent(last.part, bodyPartContentType.getParameter("boundary"))).replaceAll("\\n", "\r\n");
-                    final String signature = getRawContent(bodyPart, bodyPartContentType.getParameter("boundary"));
+                    final String signedData = (getHeaders(last.part).replaceAll("\\r\\n", "\n") + getRawContent(last.part)).replaceAll("\\n", "\r\n");
+                    final String signature = getRawContent(bodyPart);
                     last.addCredential(X509Credential.createOfferedCredential(signedData, signature));
                 } else {
                     parseContents(messageParts, bodyPart, part);
@@ -277,23 +279,30 @@ public class MessageParser {
         return builder.toString();
     }
 
+    //TODO: Refactor the code properly to avoid manually decoding base64.
+    // part.getContents() does gives us plain text but the PGP is signed including the boundary and headers from parent part.
     String getRawContent(final Part part, final String boundary) throws MessagingException {
-        try (final InputStream inputStream = ((MimeBodyPart) part).getRawInputStream()) {
-            final String rawContent = new String(ByteStreams.toByteArray(inputStream), getCharset(new ContentType(part.getContentType())));
+        String rawContent = getRawContent(part);
+        return getDecodedContent(rawContent, boundary);
+    }
 
-            return getDecodedContent(rawContent, boundary);
+    String getRawContent(final Part part) throws MessagingException {
+        try (final InputStream inputStream = ((MimeBodyPart) part).getRawInputStream()) {
+            return new String(ByteStreams.toByteArray(inputStream), getCharset(new ContentType(part.getContentType())));
         } catch (IOException e) {
             throw new MessagingException("Unable to read body part", e);
         }
     }
 
     private String getDecodedContent(final String rawContent, final String boundary) {
-        if(boundary == null || !rawContent.contains(HEADER_BASE_64)) {
+        final Matcher matcher = HEADER_BASE_64.matcher(rawContent);
+
+        if(boundary == null || !matcher.find()) {
             return rawContent;
         }
 
         //Boundary parameter in contentType exactly has two extra "--" as start and end of boundary
-        final String encodedContent = StringUtils.substringBetween(rawContent, HEADER_BASE_64, String.join("--", boundary)).trim();
+        final String encodedContent = StringUtils.substringBetween(rawContent, matcher.group(0), "--".concat(boundary)).trim();
         final String decodedContent = decodeBase64Encoding(encodedContent);
 
         return rawContent.replace(encodedContent, decodedContent);
