@@ -2254,7 +2254,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
     def "create with geofeed"() {
         when:
         def ack = syncUpdateWithResponse("""
-                inet6num:     2001:0600::/25
+                inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -2275,10 +2275,8 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
-        ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/25") ==
-                ["Value 2001:0600::/25 converted to 2001:600::/25"]
 
         queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
@@ -2286,7 +2284,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
     def "create with invalid geofeed"() {
         when:
         def ack = syncUpdateWithResponse("""
-                inet6num:     2001:0600::/25
+                inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -2307,7 +2305,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
                 ["Syntax error in not an url"]
@@ -2318,7 +2316,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
     def "create with not secure url as geofeed"() {
         when:
         def ack = syncUpdateWithResponse("""
-                inet6num:     2001:0600::/25
+                inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -2339,7 +2337,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
                 ["Syntax error in http://unsecure.com"]
@@ -2350,7 +2348,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
     def "create with geofeed and inet6num too specific"() {
         when:
         def ack = syncUpdateWithResponse("""
-                inet6num:     2001:0600::/64
+                inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -2371,18 +2369,18 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
-                ["Adding or modifying the \"geofeed:\" attribute of an object with a prefix length greater than 48 is not allowed."]
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/48") ==
+                ["Adding or modifying the \"geofeed:\" attribute of an object with a prefix length greater or equal to 48 is not allowed."]
 
-        queryObjectNotFound("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+        queryObjectNotFound("-rGBT inet6num 2001:600::/48", "inet6num", "2001:600::/48")
     }
 
     def "create with geofeed and remarks geofeed"() {
         when:
         def ack = syncUpdateWithResponse("""
-                inet6num:     2001:0600::/48
+                inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -2404,11 +2402,11 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/48") ==
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
                 ["Only one between the \"geofeed:\" and \"remark: geofeed:\" attributes is allowed."]
 
-        queryObjectNotFound("-rGBT inet6num 2001:600::/48", "inet6num", "2001:600::/48")
+        queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
 }

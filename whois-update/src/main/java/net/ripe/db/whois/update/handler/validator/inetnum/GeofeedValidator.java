@@ -50,7 +50,7 @@ public class GeofeedValidator implements BusinessRuleValidator {
         } else if(ObjectType.INET6NUM == updatedObject.getType()) {
             final Ipv6Resource ipv6Resource = Ipv6Resource.parse(updatedObject.getValueForAttribute(INET6NUM));
 
-            if(ipv6Resource.getPrefixLength() > IPV6_MAXIMUM_PREFIX_SIZE) {
+            if(ipv6Resource.getPrefixLength() >= IPV6_MAXIMUM_PREFIX_SIZE) {
                 updateContext.addMessage(update, UpdateMessages.geofeedTooSpecific(IPV6_MAXIMUM_PREFIX_SIZE));
             }
         }

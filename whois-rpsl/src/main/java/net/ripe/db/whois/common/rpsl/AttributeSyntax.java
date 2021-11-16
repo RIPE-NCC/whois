@@ -596,8 +596,8 @@ public interface AttributeSyntax extends Documented {
         public String getDescription(ObjectType objectType) {
             return "" +
                 "Geofeed is a self-published format for IP geolocation data.\n" +
-                "The URL must be valid and it must specify the https protocol.\n" +
-                "Only one between the \"geofeed:\" attribute and the format \"remarks: geofeed:\" can be used at the same time.";
+                "A URL referencing a CSV file containing geolocation data for the resource.\n" +
+                "The URL must be valid and it must specify the HTTPS protocol.\n";
         }
     }
 

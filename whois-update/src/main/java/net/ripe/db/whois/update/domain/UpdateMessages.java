@@ -671,7 +671,7 @@ public final class UpdateMessages {
     }
 
     public static Message geofeedTooSpecific(int maxPrefixAllowed) {
-        return new Message(Type.ERROR, "Adding or modifying the \"geofeed:\" attribute of an object with a prefix length greater than %d is not allowed.", maxPrefixAllowed);
+        return new Message(Type.ERROR, "Adding or modifying the \"geofeed:\" attribute of an object with a prefix length greater or equal to %d is not allowed.", maxPrefixAllowed);
     }
 
     public static Message eitherGeofeedOrRemarksIsAllowed() {
