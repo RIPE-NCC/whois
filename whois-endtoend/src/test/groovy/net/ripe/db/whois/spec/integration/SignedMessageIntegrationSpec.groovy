@@ -3920,7 +3920,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
 
-  @Ignore("TODO: [ES] We do not support base64 encoded content yet")
   def "pgp signed message with base64 encoded content"() {
     given:
       setTime(LocalDateTime.parse("2021-09-29T11:23:22")) // current time is >1 hour after signing time

@@ -37,12 +37,11 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
 
     @Autowired
     public RipeAuthoritativeResourceImportTask(final ResourceDataDao resourceDataDao,
-                                               @Value("${grs.import.enabled:false}") final boolean enabled,
+                                               @Value("${grs.import.enabled:false}") final boolean grsImportEnabled,
                                                @Value("${rsng.base.url:}") final String rsngBaseUrl,
                                                @Value("${rsng.use.single.api:true}") final boolean useSingleApi,
                                                @Value("${rsng.stats.api.key:}") final String apiKey) {
-
-        super(enabled && !StringUtils.isBlank(rsngBaseUrl), resourceDataDao);
+        super(grsImportEnabled && !StringUtils.isBlank(rsngBaseUrl), resourceDataDao);
         this.rsngBaseUrl = rsngBaseUrl;
         this.client = ClientBuilder.newBuilder()
                 .property(ClientProperties.CONNECT_TIMEOUT, 10_000)
@@ -56,7 +55,7 @@ public class RipeAuthoritativeResourceImportTask extends AbstractAutoritativeRes
         this.useSingleApi = useSingleApi;
         this.apiKey = apiKey;
 
-        LOGGER.info("Authoritative resource RSNG import task is {}abled", enabled && !StringUtils.isBlank(rsngBaseUrl)? "en" : "dis");
+        LOGGER.info("Authoritative resource RSNG import task is {}abled", grsImportEnabled && !StringUtils.isBlank(rsngBaseUrl)? "en" : "dis");
     }
 
     /**

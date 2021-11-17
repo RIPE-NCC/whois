@@ -35,7 +35,7 @@ public class AuthoritativeResourceDataTest {
     @BeforeEach
     public void setUp() {
         authoritativeResourceData = new AuthoritativeResourceData("test", "test", resourceDataDao);
-        subject = new AuthoritativeResourceRefreshTask(dailySchedulerDao, authoritativeResourceData, resourceDataDao, "test");
+        subject = new AuthoritativeResourceRefreshTask(dailySchedulerDao, authoritativeResourceData, resourceDataDao, true, "", "test");
     }
 
     @Test
