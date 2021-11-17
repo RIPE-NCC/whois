@@ -282,7 +282,7 @@ public class MessageParser {
     //TODO: Refactor the code properly to avoid manually decoding base64.
     // part.getContents() does gives us plain text but the PGP is signed including the boundary and headers from parent part.
     String getRawContent(final Part part, final String boundary) throws MessagingException {
-        String rawContent = getRawContent(part);
+        final String rawContent = getRawContent(part);
         return getDecodedContent(rawContent, boundary);
     }
 
@@ -358,7 +358,7 @@ public class MessageParser {
         try {
             return new String(new Base64().decode(paragraph.getBytes()));
         } catch (Exception e) {
-            LOGGER.info("failed to decode base64 for ");
+            LOGGER.info("failed to decode base64 due to {}: {}", e.getClass().getName(), e.getMessage());
             return paragraph;
         }
     }
