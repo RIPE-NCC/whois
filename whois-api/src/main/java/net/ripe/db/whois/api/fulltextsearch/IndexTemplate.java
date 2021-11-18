@@ -1,11 +1,8 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.QueryMessages;
@@ -164,6 +161,7 @@ public class IndexTemplate implements Closeable {
         });
     }
 
+    @FunctionalInterface
     public interface WriteCallback {
         void write(IndexWriter indexWriter, TaxonomyWriter taxonomyWriter) throws IOException;
     }

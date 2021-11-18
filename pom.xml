@@ -88,6 +88,7 @@
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>2.0-groovy-3.0</spock.version>
         <shedlock.version>4.24.0</shedlock.version>
+        <elasticsearch.version>7.15.0</elasticsearch.version>
 
         <validation.version>2.0.1.Final</validation.version>
         <velocity.version>2.3</velocity.version>
@@ -564,6 +565,19 @@
                 <artifactId>lucene-facet</artifactId>
                 <version>${lucene.version}</version>
             </dependency>
+
+            <!--ElasticSearch -->
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+
             <!-- diffutils -->
             <dependency>
                 <groupId>com.googlecode.java-diff-utils</groupId>

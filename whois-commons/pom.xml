@@ -106,6 +106,14 @@
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-provider-jdbc-template</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+        </dependency>
 
         <!-- test -->
 
