@@ -1,5 +1,19 @@
 # next
 
+# 1.102
+
+[all] NWI-13: Added support for the "geofeed:" attribute (#937)
+[Update] Support base64 encoded signed update messages (sent by Thunderbird 78+) (#942)
+[all] Updated "geoloc:" help text (#929)
+[api] Log client IP correctly in HTTP request log (#908)
+[api] Filter passwords in HTTP request log (#919)
+[update] Support IDN in outgoing mail update notifications (#888)
+[all] Added graceful shutdown to healthcheck (#896)
+[grs] Fixed APNIC GRS mirror HTTPS download (#871)
+[all] Removed AWS-specific changes 
+[all] Require UTC timezone at startup (#857)
+[all] Updated dependencies
+
 # 1.101
 
 [all] Switch RIPE database to UTC timezone
