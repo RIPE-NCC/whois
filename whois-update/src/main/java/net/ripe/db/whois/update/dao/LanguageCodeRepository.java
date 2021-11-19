@@ -9,6 +9,7 @@ import java.util.Set;
 @Component
 public class LanguageCodeRepository {
 
+    // TODO: [ES] comma-separated property value is not parsed properly
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciImmutableSet('${whois.languagecodes:}')}")
     private Set<CIString> languageCodes;
 
