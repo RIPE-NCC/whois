@@ -82,7 +82,7 @@
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.32</slf4j.version>
-        <spring.version>5.3.12</spring.version>
+        <spring.version>5.3.13</spring.version>
         <springockito.version>1.0.9</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
@@ -877,6 +877,12 @@
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
+                    <includes>
+                        <include>${test.files.unit}</include>
+                    </includes>
+                    <excludes>
+                        <exclude>${test.files.integration}</exclude>
+                    </excludes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
                     <reuseForks>true</reuseForks>
@@ -1056,8 +1062,8 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>IntegrationTest</test.groups>
-                <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.files.unit>None</test.files.unit>
+                <test.files.integration>**/*Integration*.class,**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
         <profile>
