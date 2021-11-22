@@ -57,7 +57,7 @@
         <guava.version>30.1.1-jre</guava.version>
         <groovy.version>3.0.9</groovy.version>
 
-        <hazelcast.version>4.1.5</hazelcast.version>
+        <hazelcast.version>4.2.2</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
         <jaxb.version>2.3.3</jaxb.version>
