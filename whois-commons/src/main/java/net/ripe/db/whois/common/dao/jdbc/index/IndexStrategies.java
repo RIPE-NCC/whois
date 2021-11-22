@@ -49,6 +49,7 @@ public final class IndexStrategies {
                 new IndexWithValue(AttributeType.FILTER_SET, "filter_set", "filter_set"),
                 new IndexWithValue(AttributeType.FINGERPR, "fingerpr", "fingerpr"),
                 new IndexWithReference(AttributeType.FORM, "form", "form_id"),
+                new Unindexed(AttributeType.GEOFEED),
                 new Unindexed(AttributeType.GEOLOC),
                 new Unindexed(AttributeType.HOLES),
                 new IndexWithIfAddr(AttributeType.IFADDR),

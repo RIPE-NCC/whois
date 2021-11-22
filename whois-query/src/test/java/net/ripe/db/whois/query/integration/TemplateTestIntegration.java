@@ -128,6 +128,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
                 "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
+                "geofeed:        [optional]   [single]     [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
@@ -176,6 +177,15 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "   Identifies the country.\n" +
                 "\n" +
                 "     Valid two-letter ISO 3166 country code.\n" +
+                "\n" +
+                "geofeed\n" +
+                "\n" +
+                "   A URL referencing a CSV file containing geolocation data for the\n" +
+                "   resource.\n" +
+                "\n" +
+                "     Geofeed is a self-published format for IP geolocation data.\n" +
+                "     A URL referencing a CSV file containing geolocation data for the resource.\n" +
+                "     The URL must be valid and it must specify the HTTPS protocol.\n" +
                 "\n" +
                 "geoloc\n" +
                 "\n" +
