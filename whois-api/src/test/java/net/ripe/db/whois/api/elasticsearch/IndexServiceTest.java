@@ -41,7 +41,7 @@ public class IndexServiceTest {
 
     @BeforeAll
     public static void startElastic() {
-        container = new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch").withTag(ES_VERSION));
+        container = new ElasticsearchContainer();
         container.start();
         esClient = testClient();
     }
