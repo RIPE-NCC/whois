@@ -7,8 +7,6 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.IndicesClient;
 import org.elasticsearch.client.RequestOptions;
@@ -31,7 +29,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.ConnectException;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -58,12 +55,7 @@ public class IndexService {
     }
 
     public boolean isEnabled() {
-        try {
-            return isWhoisIndexExist() && isSerialIndexExist();
-        } catch (IOException e) {
-            LOGGER.error("Checking if Elastic is available failed", e);
-            return false;
-        }
+        return isElasticRunning() && isWhoisIndexExist() && isMetaIndexExist();
     }
 
     public void addEntry(RpslObject rpslObject) throws IOException {
@@ -116,19 +108,31 @@ public class IndexService {
         client.update(request, RequestOptions.DEFAULT);
     }
 
+    private boolean isElasticRunning() {
+        try {
+            return client.ping(RequestOptions.DEFAULT);
+        } catch (Exception e) {
+            LOGGER.error("ElasticSearch is not running");
+            return false;
+        }
+    }
     private boolean isWhoisIndexExist() {
         GetIndexRequest request = new GetIndexRequest(WHOIS_INDEX);
         try {
-            IndicesClient indices = client.indices();
-            return indices.exists(request, RequestOptions.DEFAULT);
+            return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.error("Elastic Instance is not running");
+            LOGGER.error("Whois index does not exist");
             return false;
         }
     }
 
-    private boolean isSerialIndexExist() throws IOException {
+    private boolean isMetaIndexExist() {
         GetIndexRequest request = new GetIndexRequest(METADATA_INDEX);
-        return client.indices().exists(request, RequestOptions.DEFAULT);
+        try {
+            return client.indices().exists(request, RequestOptions.DEFAULT);
+        } catch (Exception e) {
+            LOGGER.error("Metadata index does not exist");
+            return false;
+        }
     }
 }
