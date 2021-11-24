@@ -29,8 +29,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-
-public class IndexServiceTest {
+@org.junit.jupiter.api.Tag("IntegrationTest")
+public class IndexServiceIntegrationTest {
 
     private static final String ES_VERSION = "7.15.0";
     private static final String WHOIS_INDEX = "whois";

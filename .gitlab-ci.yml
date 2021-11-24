@@ -56,8 +56,15 @@ release:
 
 .it_template: &it_env
   services:
+    - docker:dind
     - mariadb:10.2
   variables:
+    # Instruct Testcontainers to use the daemon of DinD.
+    DOCKER_HOST: "tcp://docker:2375"
+    # Instruct Docker not to start over TLS.
+    DOCKER_TLS_CERTDIR: ""
+    # Improve performance with overlayfs.
+    DOCKER_DRIVER: overlay2
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
   stage: integration-test
