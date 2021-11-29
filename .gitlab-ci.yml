@@ -56,11 +56,11 @@ release:
 
 .it_template: &it_env
   services:
-    - docker:dind
     - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
       alias: "elasticsearch"
       command: ["bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node"]
-
+    - mariadb:10.2
+  variables:
     # Improve performance with overlayfs.
     DOCKER_DRIVER: overlay2
     MYSQL_ROOT_PASSWORD: root
