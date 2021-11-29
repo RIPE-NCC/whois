@@ -18,8 +18,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.elasticsearch.ElasticsearchContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -32,19 +30,15 @@ import static org.junit.Assert.assertTrue;
 @org.junit.jupiter.api.Tag("IntegrationTest")
 public class IndexServiceIntegrationTest {
 
-    private static final String ES_VERSION = "7.15.0";
     private static final String WHOIS_INDEX = "whois";
     private static final String METADATA_INDEX = "metadata";
     public static final String CONTAINER_HOST = "localhost";
     public static final Integer CONTAINER_PORT = 9200;
-    private static ElasticsearchContainer container;
     private static RestHighLevelClient esClient;
     private static final RpslObject RPSL_MNT_PERSON = new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1")));
 
     @BeforeAll
     public static void startElastic() {
-        container = new ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch").withTag(ES_VERSION));
-        container.start();
         esClient = testClient();
     }
 
@@ -62,7 +56,7 @@ public class IndexServiceIntegrationTest {
 
     @Test
     public void addThenCountAndThenDeleteByEntry() throws IOException {
-        IndexService indexService = new IndexService(CONTAINER_HOST, container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
+        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
         long whoisDocCount = indexService.getWhoisDocCount();
         // No document in index
         assertEquals(whoisDocCount, 0);
@@ -81,7 +75,7 @@ public class IndexServiceIntegrationTest {
 
     @Test
     public void addThenCountAndThenDeleteAll() throws IOException {
-        IndexService indexService = new IndexService(CONTAINER_HOST, container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
+        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
         long whoisDocCount = indexService.getWhoisDocCount();
         // No document in index
         assertEquals(whoisDocCount, 0);
@@ -107,7 +101,7 @@ public class IndexServiceIntegrationTest {
 
     @Test
     public void isEnabledWhenMetadataIndexDoesNotExist() throws IOException {
-        IndexService indexService = new IndexService(CONTAINER_HOST, container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
+        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
         deleteMetadataIndex(esClient);
         assertFalse(indexService.isEnabled());
     }
