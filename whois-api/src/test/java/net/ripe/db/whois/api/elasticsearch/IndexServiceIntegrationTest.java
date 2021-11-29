@@ -35,6 +35,8 @@ public class IndexServiceIntegrationTest {
     private static final String ES_VERSION = "7.15.0";
     private static final String WHOIS_INDEX = "whois";
     private static final String METADATA_INDEX = "metadata";
+    public static final String CONTAINER_HOST = "localhost";
+    public static final Integer CONTAINER_PORT = 9200;
     private static ElasticsearchContainer container;
     private static RestHighLevelClient esClient;
     private static final RpslObject RPSL_MNT_PERSON = new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1")));
@@ -60,7 +62,7 @@ public class IndexServiceIntegrationTest {
 
     @Test
     public void addThenCountAndThenDeleteByEntry() throws IOException {
-        IndexService indexService = new IndexService(container.getHost(), container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
+        IndexService indexService = new IndexService(CONTAINER_HOST, container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
         long whoisDocCount = indexService.getWhoisDocCount();
         // No document in index
         assertEquals(whoisDocCount, 0);
@@ -79,7 +81,7 @@ public class IndexServiceIntegrationTest {
 
     @Test
     public void addThenCountAndThenDeleteAll() throws IOException {
-        IndexService indexService = new IndexService(container.getHost(), container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
+        IndexService indexService = new IndexService(CONTAINER_HOST, container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
         long whoisDocCount = indexService.getWhoisDocCount();
         // No document in index
         assertEquals(whoisDocCount, 0);
@@ -98,14 +100,14 @@ public class IndexServiceIntegrationTest {
 
     @Test
     public void isEnabledWhenWhoisIndexDoesNotExist() throws IOException {
-        IndexService indexService = new IndexService(container.getHost(), container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
+        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
         deleteWhoisIndex(esClient);
         assertFalse(indexService.isEnabled());
     }
 
     @Test
     public void isEnabledWhenMetadataIndexDoesNotExist() throws IOException {
-        IndexService indexService = new IndexService(container.getHost(), container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
+        IndexService indexService = new IndexService(CONTAINER_HOST, container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
         deleteMetadataIndex(esClient);
         assertFalse(indexService.isEnabled());
     }
@@ -118,13 +120,13 @@ public class IndexServiceIntegrationTest {
 
     @Test
     public void isEnabledWhenIndicesExist() {
-        IndexService indexService = new IndexService(container.getHost(), container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
+        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
         assertTrue(indexService.isEnabled());
     }
 
     @Test
     public void updateAndGetMetadata() throws IOException {
-        IndexService indexService = new IndexService(container.getHost(), container.getFirstMappedPort(), WHOIS_INDEX, METADATA_INDEX);
+        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
         IndexMetadata indexMetadata = new IndexMetadata(1, "RIPE");
         assertNull(indexService.getMetadata());
         indexService.updateMetadata(indexMetadata);
@@ -134,7 +136,7 @@ public class IndexServiceIntegrationTest {
     }
 
     private static RestHighLevelClient testClient() {
-        RestClientBuilder clientBuilder = RestClient.builder(new HttpHost("localhost", 9200));
+        RestClientBuilder clientBuilder = RestClient.builder(new HttpHost(CONTAINER_HOST, CONTAINER_PORT));
         return new RestHighLevelClient(clientBuilder);
     }
 
