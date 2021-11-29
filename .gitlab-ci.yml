@@ -56,6 +56,7 @@ release:
 
 .it_template: &it_env
   services:
+    - docker:dind
     - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
       alias: "elasticsearch"
       command: ["bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node"]
