@@ -57,12 +57,10 @@ release:
 .it_template: &it_env
   services:
     - docker:dind
-    - mariadb:10.2
-  variables:
-    # Instruct Testcontainers to use the daemon of DinD.
-    DOCKER_HOST: "tcp://docker:2375"
-    # Instruct Docker not to start over TLS.
-    DOCKER_TLS_CERTDIR: ""
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: ["bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node"]
+
     # Improve performance with overlayfs.
     DOCKER_DRIVER: overlay2
     MYSQL_ROOT_PASSWORD: root

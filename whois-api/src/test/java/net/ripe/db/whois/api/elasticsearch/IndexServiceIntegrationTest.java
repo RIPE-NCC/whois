@@ -134,7 +134,7 @@ public class IndexServiceIntegrationTest {
     }
 
     private static RestHighLevelClient testClient() {
-        RestClientBuilder clientBuilder = RestClient.builder(new HttpHost(container.getHost(), container.getFirstMappedPort()));
+        RestClientBuilder clientBuilder = RestClient.builder(new HttpHost("localhost", 9200));
         return new RestHighLevelClient(clientBuilder);
     }
 
