@@ -32,7 +32,7 @@ public class IndexServiceIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois";
     private static final String METADATA_INDEX = "metadata";
-    public static final String CONTAINER_HOST = "localhost";
+    public static final String CONTAINER_HOST = "elasticsearch";
     public static final Integer CONTAINER_PORT = 9200;
     private static RestHighLevelClient esClient;
     private static final RpslObject RPSL_MNT_PERSON = new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1")));
