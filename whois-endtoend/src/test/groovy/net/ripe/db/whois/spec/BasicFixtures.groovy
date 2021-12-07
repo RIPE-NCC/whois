@@ -551,6 +551,7 @@ class BasicFixtures {
                 org-name:        Other Test org
                 address:         RIPE NCC
                 e-mail:          dbtest@ripe.net
+                abuse-c:         AH1-TEST
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
