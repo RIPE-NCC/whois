@@ -3,8 +3,9 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import org.junit.jupiter.api.Tag
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -4166,7 +4167,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
