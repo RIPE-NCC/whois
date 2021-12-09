@@ -3,8 +3,9 @@ package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
+import org.junit.jupiter.api.Tag
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 class DomainAuthSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -159,6 +160,17 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 """,
             "ASSIGN-DOMAIN": """\
                 domain:         0.0.193.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         DOMAIN-MNT
+                source:         TEST
+                """,
+            "OVERLAP-DOMAIN": """\
+                domain:         128-191.0.0.193.in-addr.arpa
                 descr:          reverse domain
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -3205,6 +3217,44 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Delete" && it.key == "[domain] 4.4.e164.arpa" }
 
         queryObjectNotFound("-rGBT domain 4.4.e164.arpa", "domain", "4.4.e164.arpa")
+    }
+
+    def "create overlapping domain"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
+        queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
+        syncUpdate(getTransient("OVERLAP-DOMAIN") + "override: denis,override1")
+        ipTreeUpdater.rebuild();
+
+        when:
+        def message = syncUpdate("""\
+                Domain:         191-193.0.0.193.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         owner-MNT
+                source:         TEST
+
+                password:   lir2
+                password:   owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[domain] 191-193.0.0.193.in-addr.arpa" }
+        ack.errorMessagesFor("Create", "[domain] 191-193.0.0.193.in-addr.arpa") ==
+                ["This range overlaps with 193.0.0.128 - 193.0.0.191"]
+
+        queryObjectNotFound("-rGBT domain 191-193.0.0.193.in-addr.arpa", "domain", "191-193.0.0.193.in-addr.arpa")
     }
 
 }

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.domain;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.etree.NestedIntervalMap.Key;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
@@ -44,13 +45,13 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
     private void validateIntersections(final PreparedUpdate update, final UpdateContext updateContext, final Ipv4Resource ipv4Resource) {
         final List<Ipv4Entry> parent = ipv4DomainTree.findFirstLessSpecific(ipv4Resource);
 
-        if (parent.size() != 1) {
-            updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipv4Resource));
-            return;
-        }
+        final Ipv4Resource parentInterval = ipv4DomainTree.findFirstLessSpecific(ipv4Resource).stream()
+                .map(Key::getKey)
+                .findFirst()
+                .orElse(Ipv4Resource.parse("0/0"));
 
         Ipv4Resource firstIntersecting = null;
-        final List<Ipv4Entry> childEntries = ipv4DomainTree.findFirstMoreSpecific(parent.get(0).getKey());
+        final List<Ipv4Entry> childEntries = ipv4DomainTree.findFirstMoreSpecific(parentInterval);
         for (final Ipv4Entry childEntry : childEntries) {
             final Ipv4Resource child = childEntry.getKey();
 
