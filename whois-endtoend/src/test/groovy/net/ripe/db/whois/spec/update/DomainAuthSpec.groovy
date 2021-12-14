@@ -3252,7 +3252,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 191-193.0.0.193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 191-193.0.0.193.in-addr.arpa") ==
-                ["This range overlaps with 193.0.0.128 - 193.0.0.191"]
+                ["This domain overlaps with 128-191.0.0.193.in-addr.arpa"]
 
         queryObjectNotFound("-rGBT domain 191-193.0.0.193.in-addr.arpa", "domain", "191-193.0.0.193.in-addr.arpa")
     }

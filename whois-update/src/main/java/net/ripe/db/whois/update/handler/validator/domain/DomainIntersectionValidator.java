@@ -1,11 +1,13 @@
 package net.ripe.db.whois.update.handler.validator.domain;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.etree.NestedIntervalMap.Key;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -26,10 +28,13 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.DOMAIN);
 
     private final Ipv4DomainTree ipv4DomainTree;
+    private final RpslObjectDao rpslObjectDao;
 
     @Autowired
-    public DomainIntersectionValidator(final Ipv4DomainTree ipv4DomainTree) {
+    public DomainIntersectionValidator(final Ipv4DomainTree ipv4DomainTree,
+                                       final RpslObjectDao rpslObjectDao) {
         this.ipv4DomainTree = ipv4DomainTree;
+        this.rpslObjectDao = rpslObjectDao;
     }
 
     @Override
@@ -53,7 +58,8 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
             final Ipv4Resource child = childEntry.getKey();
 
             if (child.intersects(ipv4Resource) && !(child.contains(ipv4Resource) || ipv4Resource.contains(child))) {
-                updateContext.addMessage(update, UpdateMessages.intersectingRange(child));
+                final RpslObject domain = rpslObjectDao.getById(childEntry.getObjectId());
+                updateContext.addMessage(update, UpdateMessages.intersectingDomain(domain.getKey()));
                 break;
             }
         }

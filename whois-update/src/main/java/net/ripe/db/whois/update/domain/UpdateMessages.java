@@ -283,6 +283,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This range overlaps with %s", intervalToString(intersectingRange));
     }
 
+    public static Message intersectingDomain(final CIString domainKey) {
+        return new Message(Type.ERROR, "This domain overlaps with %s", domainKey);
+    }
+
     public static Message inetnumStatusLegacy() {
         return new Message(Type.ERROR, "Only RIPE NCC can create/delete a top level object with status 'LEGACY'\nContact legacy@ripe.net for more info");
     }
