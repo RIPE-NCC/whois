@@ -18,7 +18,7 @@
 [update] Support IDN in outgoing mail update notifications (#888)
 [all] Added graceful shutdown to healthcheck (#896)
 [grs] Fixed APNIC GRS mirror HTTPS download (#871)
-[all] Removed AWS-specific changes 
+[all] Removed AWS-specific changes
 [all] Require UTC timezone at startup (#857)
 [all] Updated dependencies
 
