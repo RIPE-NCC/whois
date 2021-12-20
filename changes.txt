@@ -1,5 +1,9 @@
 # next
 
+# 1.102.2
+
+[all] Update log4j to 2.17.0 from 2.15.0 (#965)
+
 # 1.102.1
 
 [all] Update log4j to 2.15.0 to address CVE-2021-44228 (#959)
