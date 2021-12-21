@@ -1,5 +1,13 @@
 # next
 
+# 1.102.2
+
+[all] Update log4j to 2.17.0 from 2.15.0 (#965)
+
+# 1.102.1
+
+[all] Update log4j to 2.15.0 to address CVE-2021-44228 (#959)
+
 # 1.102
 
 [all] NWI-13: Added support for the "geofeed:" attribute (#937)
@@ -10,7 +18,7 @@
 [update] Support IDN in outgoing mail update notifications (#888)
 [all] Added graceful shutdown to healthcheck (#896)
 [grs] Fixed APNIC GRS mirror HTTPS download (#871)
-[all] Removed AWS-specific changes 
+[all] Removed AWS-specific changes
 [all] Require UTC timezone at startup (#857)
 [all] Updated dependencies
 
