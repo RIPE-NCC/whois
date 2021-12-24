@@ -159,7 +159,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
-                org:          ORG-OR1-TEST
+                org:          ORG-OFA10-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
@@ -2287,18 +2287,19 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         expect:
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "ASSIGNED PA")
-        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
-        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "Organisation for Abuse")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "org-type:\\s*OTHER")
 
         when:
         def message = syncUpdate("""
-                organisation: ORG-OR1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
-                org-name:     New Other Registry
+                org-name:     New Organisation for Abuse
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
@@ -2316,9 +2317,9 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
-        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "New Organisation for Abuse")
     }
 
     def "modify organisation, org-type:OTHER, ref from legacy, change org-name"() {
