@@ -562,6 +562,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Self reference is not allowed for attribute type \"%s\"", attributeType.getName());
     }
 
+    public static Message noAbuseContact(final CIString orgId) {
+        return new Message(Type.ERROR, "%s must include an \"abuse-c\" attribute", orgId);
+    }
+
     public static Message commentInSourceNotAllowed() {
         return new Message(Type.ERROR, "End of line comments not allowed on \"source:\" attribute");
     }
