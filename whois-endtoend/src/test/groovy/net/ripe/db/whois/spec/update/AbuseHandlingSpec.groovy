@@ -2706,7 +2706,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS1309" }
         ack.errorMessagesFor("Modify", "[aut-num] AS1309") ==
-                ["ORG-OR1-TEST must include an \"abuse-c\" attribute"]
+                ["ORG-OR1-TEST must include an \"abuse-c:\" attribute"]
     }
 
     def "create INETNUM with org ref to ORGANISATION with no abuse-c, type OTHER"() {
@@ -2742,7 +2742,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["ORG-OR1-TEST must include an \"abuse-c\" attribute"]
+                ["ORG-OR1-TEST must include an \"abuse-c:\" attribute"]
     }
 
 }
