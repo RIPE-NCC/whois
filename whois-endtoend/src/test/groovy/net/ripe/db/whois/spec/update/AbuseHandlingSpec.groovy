@@ -101,7 +101,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 source:       TEST
-                org:          ORG-OFA1-TEST
+                org:          ORG-OFA10-TEST
                 """,
                 "ASS-END-HM-A": """\
                 inetnum:      192.168.200.0 - 192.168.200.255
@@ -113,7 +113,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 source:       TEST
-                org:          ORG-OFA1-TEST
+                org:          ORG-OFA10-TEST
                 """,
                 "ASSPI-A": """\
                 inetnum:      192.168.200.0 - 192.168.200.255
@@ -122,7 +122,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                org:          ORG-OFA1-TEST
+                org:          ORG-OFA10-TEST
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
@@ -136,7 +136,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                org:          ORG-OFA1-TEST
+                org:          ORG-OFA10-TEST
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
@@ -149,7 +149,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                org:          ORG-OFA1-TEST
+                org:          ORG-OFA10-TEST
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
@@ -160,7 +160,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
-                org:          ORG-OFA1-TEST
+                org:          ORG-OFA10-TEST
                 sponsoring-org: ORG-LIRA-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
@@ -190,7 +190,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
-                org:          ORG-OFA1-TEST
+                org:          ORG-OFA10-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
@@ -285,13 +285,26 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-mnt
                 source:       TEST
                 """,
+                "ORG-OTHER-NO-ABUSE-C": """\
+                organisation: ORG-NA1-TEST
+                org-type:     OTHER
+                org-name:     Organisation for Abuse
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                source:       TEST
+                """,
                 "AS352-A": """\
                 aut-num:     AS352
                 as-name:     TEST-AS
                 descr:       With abuse-c link
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
-                org:         ORG-OFA1-TEST
+                org:         ORG-OFA10-TEST
                 mnt-by:      EXACT-MB-MNT
                 source:      TEST
                 """,
@@ -301,7 +314,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 descr:       With abuse-c link
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
-                org:         ORG-OFA1-TEST
+                org:         ORG-OFA10-TEST
                 sponsoring-org: ORG-LIRA-TEST
                 status:      ASSIGNED
                 mnt-by:      RIPE-NCC-END-MNT
@@ -1461,16 +1474,18 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
     def "modify ORGANISATION, type OTHER, with abuse-c, add remarks:"() {
       given:
+        whoisFixture.dumpSchema()
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
+        whoisFixture.dumpSchema()
 
       expect:
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
 
       when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                organisation: ORG-OFA1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
                 address:      RIPE NCC
@@ -1496,9 +1511,9 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "just added")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "just added")
     }
 
     def "modify ORGANISATION, add 2 abuse-c ref ROLE with abuse-mailbox"() {
@@ -1938,11 +1953,11 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
 
       expect:
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
 
       when:
         def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
                 address:      RIPE NCC
@@ -1966,9 +1981,9 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
-        query_object_not_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
+        query_object_not_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
     }
 
     def "modify ORGANISATION with abuse-c, type OTHER, ref LEGACY, remove abuse-c"() {
@@ -1977,12 +1992,12 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("LEGACY") + "override: denis,override1")
 
       expect:
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
+        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA10-TEST")
 
       when:
         def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
                 address:      RIPE NCC
@@ -2006,9 +2021,9 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
-        query_object_not_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
+        query_object_not_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
     }
 
     def "modify ORGANISATION with abuse-c, type OTHER, ref ASSIGNED PA, remove abuse-c"() {
@@ -2017,12 +2032,12 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         dbfixture(getTransient("ASS-END-A"))
 
       expect:
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
+        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA10-TEST")
 
       when:
         def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
                 address:      RIPE NCC
@@ -2046,9 +2061,9 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
-        query_object_not_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
+        query_object_not_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
     }
 
     def "modify ORGANISATION with abuse-c, type OTHER, ref ASSIGNED PA with HM mntner, remove abuse-c"() {
@@ -2057,12 +2072,12 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         dbfixture(getTransient("ASS-END-HM-A"))
 
         expect:
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
+        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA10-TEST")
 
         when:
         def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
                 address:      RIPE NCC
@@ -2086,11 +2101,11 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA1-TEST") ==
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
 
-        query_object_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
+        query_object_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
     }
 
     def "modify ORGANISATION with abuse-c, type OTHER, ref ASSIGNED PI, remove abuse-c"() {
@@ -2099,12 +2114,12 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("ASSPI-A") + "override: denis,override1")
 
         expect:
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
+        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA10-TEST")
 
         when:
         def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
                 address:      RIPE NCC
@@ -2128,11 +2143,11 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA1-TEST") ==
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
 
-        query_object_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
+        query_object_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
     }
 
     def "modify ORGANISATION with abuse-c, type OTHER, ref ASSIGNED ANYCAST, remove abuse-c"() {
@@ -2141,12 +2156,12 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("ASSANY-A") + "override: denis,override1")
 
         expect:
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
+        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA10-TEST")
 
         when:
         def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
                 address:      RIPE NCC
@@ -2170,11 +2185,11 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA1-TEST") ==
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
 
-        query_object_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
+        query_object_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
     }
 
     def "modify ORGANISATION with abuse-c, type OTHER, ref ASN, remove abuse-c"() {
@@ -2183,12 +2198,12 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("AS1309-A") + "override: denis,override1")
 
         expect:
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        query_object_matches("-r -T aut-num AS1309", "aut-num", "AS1309", "ORG-OFA1-TEST")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
+        query_object_matches("-r -T aut-num AS1309", "aut-num", "AS1309", "ORG-OFA10-TEST")
 
         when:
         def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
                 address:      RIPE NCC
@@ -2212,11 +2227,11 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA1-TEST") ==
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
 
-        query_object_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
+        query_object_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
     }
 
     def "modify ORGANISATION with abuse-c, type OTHER, ref IPv6 ASSIGNED PI, remove abuse-c"() {
@@ -2225,12 +2240,12 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
           syncUpdate(getTransient("LIR-ASS-PI-A") + "override: denis,override1")
 
         expect:
-          query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-          query_object_matches("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "ORG-OFA1-TEST")
+          query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
+          query_object_matches("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "ORG-OFA10-TEST")
 
         when:
         def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
                 address:      RIPE NCC
@@ -2254,11 +2269,11 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA1-TEST") ==
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
 
-        query_object_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
+        query_object_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
     }
 
     def "modify ORGANISATION with abuse-c, type OTHER, ref AGGREGATED-BY-LIR, remove abuse-c"() {
@@ -2267,12 +2282,12 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("LIR-AGGR-32-48-A") + "override: denis,override1")
 
       expect:
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        query_object_matches("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32", "ORG-OFA1-TEST")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
+        query_object_matches("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32", "ORG-OFA10-TEST")
 
       when:
         def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
                 address:      RIPE NCC
@@ -2296,10 +2311,10 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
-        query_object_not_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        query_object_matches("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32", "ORG-OFA1-TEST")
+        query_object_not_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
+        query_object_matches("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32", "ORG-OFA10-TEST")
     }
 
     def "create ORGANISATION, type RIR, with no abuse-c "() {
@@ -2704,6 +2719,79 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[role] AH300-TEST   Standard Role" }
         ack.errorMessagesFor("Modify", "[role] AH300-TEST   Standard Role") == [
                 "There is an aut-num referencing role Standard Role's abuse-mailbox"]
+    }
+
+    def "modify AUTNUM change org ref to ORGANISATION with no abuse-c, type OTHER"() {
+        given:
+        syncUpdate(getTransient("AS1309-A") + "override: denis,override1")
+
+        when:
+        def message = syncUpdate("""\
+                aut-num:     AS1309
+                as-name:     TEST-AS
+                descr:       With abuse-c link
+                admin-c:     TP1-TEST
+                tech-c:      TP1-TEST
+                org:         ORG-OR1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                status:      ASSIGNED
+                mnt-by:      RIPE-NCC-END-MNT
+                mnt-by:      EXACT-MB-MNT
+                source:      TEST
+
+                password: owner3
+                password: mb-exact
+                password: nccend
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 2, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS1309" }
+        ack.errorMessagesFor("Modify", "[aut-num] AS1309") ==
+                ["ORG-OR1-TEST must include an \"abuse-c\" attribute"]
+    }
+
+    def "create INETNUM with org ref to ORGANISATION with no abuse-c, type OTHER"() {
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                org:          ORG-OR1-TEST
+                status:       ASSIGNED PI
+                sponsoring-org: ORG-LIRA-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                source:       TEST
+
+                password: owner3
+                password: lir
+                password: hm
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["ORG-OR1-TEST must include an \"abuse-c\" attribute"]
     }
 
 }
