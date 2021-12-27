@@ -1,10 +1,8 @@
 package net.ripe.db.whois.spec.update
 
-
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
-import spock.lang.Ignore
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class AbuseHandlingSpec extends BaseQueryUpdateSpec {
@@ -2485,53 +2483,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
         query_object_not_matches("-rGBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-    }
-
-    @Ignore("Ref. prevent creating inet(6)nums without abuse contacts")
-    def "modify ALLOCATED PA ref ORGANISATION with no abuse-c, type LIR"() {
-      given:
-        syncUpdate(getTransient("ALLOC-UNS") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
-      expect:
-
-      when:
-        def message = syncUpdate("""\
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR2-TEST
-                admin-c:      SR1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
-                mnt-lower:    LIR2-MNT
-                source:       TEST
-                remarks:      just added
-
-                password: hm
-                password: owner3
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
-                ["This object must include an \"abuse-c\" attribute"]
-
-        query_object_not_matches("-rGBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
-        query_object_not_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "just added")
     }
 
     def "modify ORGANISATION, add abuse-c referencing PERSON"() {
