@@ -563,7 +563,7 @@ public final class UpdateMessages {
     }
 
     public static Message noAbuseContact(final CIString orgId) {
-        return new Message(Type.ERROR, "%s must include an \"abuse-c\" attribute", orgId);
+        return new Message(Type.ERROR, "%s must include an \"abuse-c:\" attribute", orgId);
     }
 
     public static Message commentInSourceNotAllowed() {
