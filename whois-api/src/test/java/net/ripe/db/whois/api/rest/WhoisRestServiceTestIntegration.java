@@ -2361,6 +2361,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_bad_input_null_body() {
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/mntner")
+                    .request()
+                    .post( null, WhoisResources.class);
+        });
+    }
+
+    @Test
     public void create_bad_input_no_closing_element() {
         try {
              RestTest.target(getPort(), "whois/test/domain?password=test")
