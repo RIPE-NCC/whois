@@ -54,7 +54,7 @@
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <guava.version>30.1.1-jre</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
         <groovy.version>3.0.9</groovy.version>
 
         <hazelcast.version>4.2.2</hazelcast.version>
@@ -67,7 +67,7 @@
         <junit.version>5.7.2</junit.version>
         <jetty.version>10.0.7</jetty.version>
         <jersey.version>2.35</jersey.version>
-        <jackson.version>2.12.5</jackson.version>
+        <jackson.version>2.12.6</jackson.version>
 
         <log4j.version>2.17.1</log4j.version>
 
