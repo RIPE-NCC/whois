@@ -1,23 +1,24 @@
 package net.ripe.db.whois.common.sso;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SsoTokenTranslatorTest {
 
     @Mock
     CrowdClient crowdClient;
     private SsoTokenTranslator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new SsoTokenTranslator(crowdClient);
     }
@@ -39,16 +40,17 @@ public class SsoTokenTranslatorTest {
         assertThat(userSession.isActive(), is(true));
     }
 
-    @Test(expected = CrowdClientException.class)
+    @Test
     public void translateSsoToken_invalid_session() {
         final String ssotoken = "ssotoken";
 
         when(crowdClient.getUserSession(ssotoken)).thenThrow(new CrowdClientException("Unknown RIPE NCC Access token: " + ssotoken));
-
-        subject.translateSsoToken(ssotoken);
+        Assertions.assertThrows(CrowdClientException.class, () -> {
+            subject.translateSsoToken(ssotoken);
+        });
     }
 
-    @Test(expected = CrowdClientException.class)
+    @Test
     public void translateSsoToken_invalid_username() {
         final String ssotoken = "ssotoken";
         final String username = "username";
@@ -57,6 +59,8 @@ public class SsoTokenTranslatorTest {
         when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, displayName, true, "2033-01-30T16:38:27.369+11:00"));
         when(crowdClient.getUuid(username)).thenThrow(new CrowdClientException("Unknown RIPE NCC Access user: " + username));
 
-        subject.translateSsoToken(ssotoken);
+        Assertions.assertThrows(CrowdClientException.class, () -> {
+            subject.translateSsoToken(ssotoken);
+        });
     }
 }

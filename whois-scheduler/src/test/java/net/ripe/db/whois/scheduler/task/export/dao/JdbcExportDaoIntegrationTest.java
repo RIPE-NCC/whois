@@ -1,24 +1,24 @@
 package net.ripe.db.whois.scheduler.task.export.dao;
 
 import com.google.common.collect.Sets;
-import com.jayway.awaitility.Awaitility;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.awaitility.Awaitility;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class JdbcExportDaoIntegrationTest extends AbstractSchedulerIntegrationTest {
     @Autowired ExportDao subject;
 

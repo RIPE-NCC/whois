@@ -1,19 +1,20 @@
 package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.Message;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ObjectTemplateTest {
     private static final String MAINTAINER_OBJECT_STRING = "" +
@@ -32,14 +33,16 @@ public class ObjectTemplateTest {
 
     private ObjectTemplate subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = ObjectTemplate.getTemplate(ObjectType.MNTNER);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void getObjectSpec_null() {
-        ObjectTemplate.getTemplate(null);
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            ObjectTemplate.getTemplate(null);
+        });
     }
 
     @Test
@@ -136,6 +139,7 @@ public class ObjectTemplateTest {
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
                 "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
+                "geofeed:        [optional]   [single]     [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
@@ -169,6 +173,7 @@ public class ObjectTemplateTest {
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
                 "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
+                "geofeed:        [optional]   [single]     [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +

@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.rest;
 import net.ripe.db.whois.common.ClockDateTimeProvider;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.update.keycert.X509CertificateTestUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import static net.ripe.db.whois.api.rest.ClientCertificateExtractor.HEADER_SSL_CLIENT_CERT;
 import static net.ripe.db.whois.api.rest.ClientCertificateExtractor.HEADER_SSL_CLIENT_VERIFY;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

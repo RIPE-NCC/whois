@@ -1,21 +1,22 @@
 package net.ripe.db.whois.query.pipeline;
 
+import io.netty.channel.Channel;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import org.jboss.netty.channel.Channel;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class QueryCompletedEventTest {
     @Mock private Channel channel;
 
@@ -26,7 +27,7 @@ public class QueryCompletedEventTest {
         subject = new QueryCompletedEvent(channel);
 
         assertThat(subject.getChannel(), is(channel));
-        assertThat(subject.getFuture().getChannel(), is(channel));
+        assertThat(subject.getFuture().channel(), is(channel));
         assertThat(subject.isForceClose(), is(false));
         assertNull(subject.getCompletionInfo());
         assertThat(subject.toString(), containsString("null"));

@@ -19,13 +19,13 @@ import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.executor.decorators.ResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.io.ByteArrayOutputStream;
@@ -34,23 +34,23 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RpslResponseDecoratorTest {
 
     @Mock SourceContext sourceContext;
@@ -67,7 +67,13 @@ public class RpslResponseDecoratorTest {
 
     RpslResponseDecorator subject;
 
-    @Before
+    RpslObject ABUSE_ROLE = RpslObject.parse(
+            "role: Abuse Role\n" +
+            "nic-hdl: AA1-TEST\n" +
+            "abuse-mailbox: abuse@ripe.net"
+    );
+
+    @BeforeEach
     public void setup() {
         subject = new RpslResponseDecorator(rpslObjectDaoMock,
                 filterPersonalDecorator,
@@ -80,10 +86,9 @@ public class RpslResponseDecoratorTest {
                 ssoTokenTranslator,
                 crowdClient,
                 decorator);
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
-        when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
+        lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
-        when(sourceContext.isMain()).thenReturn(true);
+        lenient().when(sourceContext.isMain()).thenReturn(true);
         Fixture.mockRpslObjectDaoLoadingBehavior(rpslObjectDaoMock);
 
         decoratorPassthrough(filterPersonalDecorator, filterPlaceholdersDecorator, filterTagsDecorator, dummifyDecorator);
@@ -91,7 +96,7 @@ public class RpslResponseDecoratorTest {
 
     private static void decoratorPassthrough(ResponseDecorator... responseDecorator) {
         for (ResponseDecorator decorator : responseDecorator) {
-            when(decorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
+            lenient().when(decorator.decorate(any(Query.class), any(Iterable.class))).thenAnswer(new Answer<Object>() {
                 @Override
                 public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                     return invocationOnMock.getArguments()[1];
@@ -201,7 +206,6 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void shouldNotFilterForGrsSources() {
-        when(sourceContext.getCurrentSource()).thenReturn(Source.slave("APNIC-GRS"));
         when(sourceContext.isAcl()).thenReturn(false);
         when(sourceContext.isMain()).thenReturn(false);
 
@@ -277,7 +281,7 @@ public class RpslResponseDecoratorTest {
     public void non_grouping_and_recursive_no_recursive_objects() {
         final RpslObject inetnum = RpslObject.parse(1, "inetnum: 10.0.0.0\norg:ORG1-TEST\nstatus:OTHER");
 
-        when(abuseCFinder.getAbuseContact(inetnum)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(inetnum)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
 
         String result = execute("-G -B -T inetnum 10.0.0.0", inetnum);
 
@@ -293,7 +297,7 @@ public class RpslResponseDecoratorTest {
     public void non_grouping_and_recursive_with_recursive_objects() {
         RpslObject rpslObject = RpslObject.parse("inetnum: 10.0.0.0\ntech-c:NICHDL\norg:ORG1-TEST\nstatus:OTHER");
         when(decorator.appliesToQuery(any(Query.class))).thenReturn(true);
-        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
 
         String result = execute("-G -B -T inetnum 10.0.0.0", rpslObject);
 
@@ -324,8 +328,8 @@ public class RpslResponseDecoratorTest {
             }
         });
 
-        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
-        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
 
         String result = execute("-G -B -T inetnum 10.0.0.0", object1, object2);
 
@@ -368,8 +372,8 @@ public class RpslResponseDecoratorTest {
             }
         });
 
-        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
-        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(object1)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
+        when(abuseCFinder.getAbuseContact(object2)).thenReturn(Optional.of(new AbuseContact(ABUSE_ROLE, false, ciString(""))));
 
         String result = execute("-B -T inetnum 10.0.0.0", object1, object2);
 
@@ -421,8 +425,6 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void dummify_response() {
-        when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
-        when(sourceContext.isDummificationRequired()).thenReturn(true);
         when(sourceContext.isMain()).thenReturn(false);
         when(dummifyDecorator.decorate(any(Query.class), any(Iterable.class))).thenReturn(Collections.EMPTY_LIST);
 
@@ -436,8 +438,6 @@ public class RpslResponseDecoratorTest {
 
     @Test
     public void dummify_filter() {
-        when(sourceContext.getGrsSourceNames()).thenReturn(ciSet("GRS1", "GRS2"));
-        when(sourceContext.isDummificationRequired()).thenReturn(true);
         when(dummifyDecorator.decorate(any(Query.class), any(Iterable.class))).thenReturn(Collections.EMPTY_LIST);
 
         final RpslObject inetnum = RpslObject.parse(1, "inetnum: 10.0.0.0\norg:ORG1-TEST");

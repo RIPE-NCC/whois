@@ -105,7 +105,7 @@ public class DomainAuthentication extends AuthenticationStrategyBase {
         }
 
         final List<RpslObject> candidates = objectDao.getByKeys(ObjectType.MNTNER, keys);
-        final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
+        final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates, getClass());
         if (authenticated.isEmpty()) {
             throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(ipObject, attributeType, candidates), candidates);
         }

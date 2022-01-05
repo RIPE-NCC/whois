@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.PasswordCredential;
@@ -21,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import sun.reflect.CallerSensitive;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -53,12 +53,14 @@ public class AuthenticationModule {
         }
     }
 
-    @CallerSensitive
-    public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> maintainers) {
+    public List<RpslObject> authenticate(final PreparedUpdate update,
+                                         final UpdateContext updateContext,
+                                         final Collection<RpslObject> maintainers,
+                                         final Class<? extends AuthenticationStrategy> authenticationStrategyClass) {
         final Credentials offered = update.getCredentials();
         boolean passwordRemovedRemark = false;
 
-        loggerContext.logAuthenticationStrategy(update.getUpdate(), getCaller(), maintainers);
+        loggerContext.logAuthenticationStrategy(update.getUpdate(), authenticationStrategyClass.getName(), maintainers);
 
         final List<RpslObject> authenticatedCandidates = Lists.newArrayList();
         for (final RpslObject maintainer : maintainers) {
@@ -128,14 +130,6 @@ public class AuthenticationModule {
         }
 
         return false;
-    }
-
-    private String getCaller() {
-        return (new SecurityManager() {
-            public String getCaller() {
-                return getClassContext()[3].getCanonicalName();
-            }
-        }).getCaller();
     }
 
     private static class AuthComparator implements Comparator<CIString> {

@@ -4,25 +4,26 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.QueryFlag;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FilterPersonalDecoratorTest {
     @InjectMocks FilterPersonalDecorator subject;
 
@@ -56,9 +57,12 @@ public class FilterPersonalDecoratorTest {
         assertThat(response, contains(filterMessage, relatedMessage, maintainer));
     }
 
-    @Test(expected = QueryException.class)
+    @Test
     public void no_personal_filters_explicit_type() {
-        Query.parse(String.format("%s %s role Test", QueryFlag.NO_PERSONAL.getLongFlag(), QueryFlag.SELECT_TYPES.getLongFlag()));
+        Assertions.assertThrows(QueryException.class, () -> {
+            Query.parse(String.format("%s %s role Test", QueryFlag.NO_PERSONAL.getLongFlag(), QueryFlag.SELECT_TYPES.getLongFlag()));
+
+        });
     }
 
     @Test

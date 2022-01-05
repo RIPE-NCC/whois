@@ -3,8 +3,8 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,12 +34,12 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.RTR_SET;
 import static net.ripe.db.whois.common.rpsl.ObjectType.values;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RpslObjectInfoTest {
     private RpslObjectInfo subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new RpslObjectInfo(1, MNTNER, "1");
     }

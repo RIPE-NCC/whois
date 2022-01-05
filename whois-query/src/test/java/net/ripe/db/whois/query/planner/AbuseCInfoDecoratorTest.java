@@ -6,11 +6,12 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -19,11 +20,11 @@ import java.util.Optional;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AbuseCInfoDecoratorTest {
     @Mock private AbuseCFinder abuseCFinder;
     @Mock private SourceContext sourceContext;
@@ -36,14 +37,18 @@ public class AbuseCInfoDecoratorTest {
         final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("--abuse-contact AS3333"), Collections.singletonList(object)).iterator();
         final ResponseObject result = iterator.next();
 
-        assertThat(result, is((ResponseObject) object));
+        assertThat(result, is(object));
         assertThat(iterator.hasNext(), is(false));
     }
 
     @Test
     public void inet6num_with_abuse_contact() {
         final RpslObject object = RpslObject.parse("inet6num: ffc::0/64\norg: ORG-TEST");
-        when(abuseCFinder.getAbuseContact(object)).thenReturn(Optional.of(new AbuseContact(ciString(""), ciString("abuse@ripe.net"), false, ciString(""))));
+        final RpslObject abuseRole = RpslObject.parse("role: Abuse Role\n" +
+                        "nic-hdl: AA1-TEST\n" +
+                        "abuse-mailbox: abuse@ripe.net"
+        );
+        when(abuseCFinder.getAbuseContact(object)).thenReturn(Optional.of(new AbuseContact(abuseRole, false, ciString(""))));
         when(sourceContext.isMain()).thenReturn(true);
 
         final Iterator<? extends ResponseObject> iterator = subject.decorate(Query.parse("AS3333"), Collections.singletonList(object)).iterator();

@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.source.Source
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class VersionQuerySpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
@@ -822,7 +822,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Version 1 of object \"" + pkey + "\""
-        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+ \d+:\d+/
+        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+T\d+:\d+:\d+Z/
         response =~ "% You can use \"--list-versions\" to get a list of versions for an object."
 
       where:
@@ -839,7 +839,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Version 1 of object \"" + pkey + "\""
-        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+ \d+:\d+/
+        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+T\d+:\d+:\d+Z/
         response =~ "% You can use \"--list-versions\" to get a list of versions for an object."
 
       where:
@@ -996,6 +996,45 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 "%ERROR:111: invalid option supplied"
 
       where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions (invalid first version number)"() {
+        when:
+        def response = query "--diff-versions §:1 " + pkey
+
+        then:
+        response =~ header
+        response =~ "% diff version must be a number\n%\n" +
+                "%ERROR:111: invalid option supplied"
+
+        where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions (invalid second version number)"() {
+        when:
+        def response = query "--diff-versions 2:1- " + pkey
+
+        then:
+        response =~ header
+        response =~ "% diff version must be a number\n%\n" +
+                "%ERROR:111: invalid option supplied"
+
+        where:
+        pkey << ["TST-MNT"]
+    }
+
+    def "--diff-versions (both first and second version number invalid)"() {
+        when:
+        def response = query "--diff-versions §:1- " + pkey
+
+        then:
+        response =~ header
+        response =~ "% diff version must be a number\n%\n" +
+                "%ERROR:111: invalid option supplied"
+
+        where:
         pkey << ["TST-MNT"]
     }
 

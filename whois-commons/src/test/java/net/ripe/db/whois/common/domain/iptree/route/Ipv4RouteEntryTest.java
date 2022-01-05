@@ -4,22 +4,27 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4RouteEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Ipv4RouteEntryTest {
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testParse_null() {
-        Ipv4RouteEntry.parse(null, 0);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            Ipv4RouteEntry.parse(null, 0);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParse_empty() {
-        Ipv4RouteEntry.parse("", 0);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv4RouteEntry.parse("", 0);
+        });
     }
 
     @Test
@@ -62,19 +67,25 @@ public class Ipv4RouteEntryTest {
         assertThat(entry.getOrigin(), is("AS1234"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParse_no_origin() {
-        Ipv4RouteEntry.parse("10.0.0.0", 11);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv4RouteEntry.parse("10.0.0.0", 11);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParse_no_origin_number() {
-        Ipv4RouteEntry.parse("10.0.0.0/32AS", 11);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv4RouteEntry.parse("10.0.0.0/32AS", 11);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParse_no_prefix() {
-        Ipv4RouteEntry.parse("AS1234", 11);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv4RouteEntry.parse("AS1234", 11);
+        });
     }
 
     @Test
@@ -87,9 +98,11 @@ public class Ipv4RouteEntryTest {
         assertThat(entry.getOrigin(), is("AS1234"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParse_v6() {
-        Ipv4RouteEntry.parse("::0/0AS1234", 11);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv4RouteEntry.parse("::0/0AS1234", 11);
+        });
     }
 
     @Test

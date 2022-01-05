@@ -1,9 +1,6 @@
 package net.ripe.db.whois.nrtm.integration;
 
 
-import com.jayway.awaitility.Awaitility;
-import com.jayway.awaitility.Duration;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -11,11 +8,12 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -23,7 +21,7 @@ import java.util.concurrent.Callable;
 
 import static org.hamcrest.Matchers.is;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegrationBase {
 
     private static final RpslObject MNTNER = RpslObject.parse("" +
@@ -33,7 +31,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
     @Autowired protected NrtmImporter nrtmImporter;
     @Autowired protected SourceContext sourceContext;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         DatabaseHelper.addGrsDatabases("1-GRS", "2-GRS", "3-GRS");
         System.setProperty("nrtm.update.interval", "1");
@@ -42,7 +40,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
         System.setProperty("nrtm.import.enabled", "true");
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         databaseHelper.addObject(MNTNER);
         databaseHelper.addObjectToSource("1-GRS", MNTNER);
@@ -61,7 +59,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
         nrtmImporter.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);
@@ -82,7 +80,7 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
     }
 
     private void objectExists(final ObjectType type, final String key, final String source, final boolean exists) {
-        Awaitility.waitAtMost(Duration.FOREVER).until(new Callable<Boolean>() {
+        Awaitility.await().until(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 try {

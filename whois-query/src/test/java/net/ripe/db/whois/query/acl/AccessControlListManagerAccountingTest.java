@@ -4,21 +4,22 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AccessControlListManagerAccountingTest {
     private AccessControlListManager subject;
 
@@ -32,7 +33,7 @@ public class AccessControlListManagerAccountingTest {
     private InetAddress ipv4Address;
     private InetAddress ipv6Address;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, accessControlListDao, personalObjectAccounting, ipRanges);
         ipv4Address = Inet4Address.getLocalHost();
@@ -71,7 +72,6 @@ public class AccessControlListManagerAccountingTest {
 
     private void setPersonalLimit(int count) {
         when(ipResourceConfiguration.getLimit(ipv4Address)).thenReturn(count);
-        when(ipResourceConfiguration.getLimit(ipv6Address)).thenReturn(count);
         personalObjectAccounting.resetAccounting();
     }
 }

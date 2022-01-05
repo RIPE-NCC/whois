@@ -1,9 +1,7 @@
 package net.ripe.db.whois.nrtm.integration;
 
 import com.google.common.collect.Lists;
-import com.jayway.awaitility.Awaitility;
-import com.jayway.awaitility.Duration;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -12,21 +10,23 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
@@ -37,7 +37,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     @Autowired protected NrtmImporter nrtmImporter;
     @Autowired protected SourceContext sourceContext;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         DatabaseHelper.addGrsDatabases("1-GRS");
         System.setProperty("nrtm.update.interval", "1");
@@ -46,8 +46,8 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         System.setProperty("nrtm.import.enabled", "true");
     }
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void before() throws InterruptedException {
         databaseHelper.addObject(MNTNER);
         databaseHelper.addObjectToSource("1-GRS", MNTNER);
 
@@ -59,8 +59,8 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         nrtmImporter.start();
     }
 
-    @After
-    public void after() {
+    @AfterEach
+    public void after() throws InterruptedException {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);
     }
@@ -87,7 +87,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void add_mntner_from_nrtm_gap_in_serials() {
+    public void add_mntner_from_nrtm_gap_in_serials() throws InterruptedException {
         final RpslObject mntner = RpslObject.parse("" +
                 "mntner: TEST-MNT\n" +
                 "source: TEST");
@@ -101,6 +101,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.addObject(mntner);
 
         nrtmServer.start();
+
         System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 
@@ -140,7 +141,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void network_error() {
+    public void network_error() throws InterruptedException {
         final RpslObject mntner1 = RpslObject.parse("" +
                 "mntner: TEST1-MNT\n" +
                 "mnt-by: OWNER-MNT\n" +
@@ -166,7 +167,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void ensure_all_changes_of_object_are_imported_with_no_missing_references() {
+    public void ensure_all_changes_of_object_are_imported_with_no_missing_references() throws InterruptedException {
         final RpslObject test1mntA = RpslObject.parse("" +
                 "mntner: TEST1-MNT\n" +
                 "mnt-ref: OWNER-MNT\n" +
@@ -193,6 +194,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.updateObject(test1mntB);
 
         nrtmServer.start();
+
         System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 
@@ -221,7 +223,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     private void objectMatches(final RpslObject rpslObject) {
-        Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(new Callable<RpslObject>() {
+        Awaitility.waitAtMost(5L, TimeUnit.SECONDS).until(new Callable<RpslObject>() {
             @Override
             public RpslObject call() {
                 try {

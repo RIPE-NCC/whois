@@ -12,25 +12,24 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collections;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AbuseValidatorTest {
 
     private static final RpslObject LIR_ORG_WITH_ABUSE_C = RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: LIR\nsource: TEST");
@@ -53,11 +52,9 @@ public class AbuseValidatorTest {
 
     @InjectMocks AbuseValidator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(maintainers.isRsMaintainer(ciSet("A_NON_RS_MAINTAINER"))).thenReturn(false);
-        when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")))).thenReturn(true);
     }
 
 
@@ -67,7 +64,7 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -78,7 +75,7 @@ public class AbuseValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxRequired("AB-NIC", update.getUpdatedObject().getType()));
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -88,8 +85,8 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -102,7 +99,7 @@ public class AbuseValidatorTest {
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseCPersonReference());
         verify(updateContext, never()).addMessage(update, UpdateMessages.abuseMailboxRequired("nic-hdl: AB-NIC", update.getUpdatedObject().getType()));
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -113,8 +110,8 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -125,7 +122,7 @@ public class AbuseValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseContactNotRemovable());
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -136,31 +133,22 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
 
     @Test
     public void allow_remove_abusec_when_referencing_object_is_not_resource() {
-        final RpslObject referencingPerson = RpslObject.parse(
-            "person: A Person\n" +
-            "address: Address 1\n" +
-            "phone: +31 20 535 4444\n" +
-            "nic-hdl: DUMY-RIPE\n" +
-            "org: ORG-1\n" +
-            "mnt-by: A_NON_RS_MAINTAINER\n" +
-            "source: RIPE");
         final RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.PERSON, "AS6");
         when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
         when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
-        when(objectDao.getById(1)).thenReturn(referencingPerson);
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
-        verifyZeroInteractions(maintainers);
+        verifyNoMoreInteractions(updateContext);
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -173,13 +161,15 @@ public class AbuseValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
         verify(maintainers).isRsMaintainer(ciSet("A_NON_RS_MAINTAINER"));
         verifyNoMoreInteractions(maintainers);
     }
 
     @Test
     public void do_not_allow_remove_abuse_contact_when_a_referencing_resource_is_rs_maintained() {
+        when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")))).thenReturn(true);
+
         final RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.AUT_NUM, "AS6");
         when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);

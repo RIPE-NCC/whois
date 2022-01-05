@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -775,6 +775,39 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.summary.nrFound == 1
 
         queryMatches("-r FP1-TEST", "address:\\s+ÖÜëñ")
+    }
+
+    def "IDN email address converted to Punycode"() {
+      when:
+        def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: NEW\n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: Moscow\n" +
+                "e-mail:  example@москва.ru\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "password: owner\n\n"
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Value changed due to conversion of IDN email address(es) into Punycode"]
+
+        queryMatches("-Br FP1-TEST", "e-mail:         example@xn--80adxhks.ru")
     }
 
     def "blank lines are replaced by plus continuation character"() {

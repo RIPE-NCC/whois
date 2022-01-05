@@ -58,7 +58,7 @@ public class WhoisObjectServerMapper {
     }
 
     public WhoisObject map(final RpslObject rpslObject, final Parameters parameters) {
-        final Class<? extends AttributeMapper> attributeMapper = getServerAttributeMapper(Boolean.TRUE == parameters.getUnformatted());
+        final Class<? extends AttributeMapper> attributeMapper = getServerAttributeMapper(Boolean.TRUE.equals(parameters.getUnformatted()));
         return whoisObjectMapper.map(rpslObject, attributeMapper);
     }
 
@@ -74,21 +74,21 @@ public class WhoisObjectServerMapper {
     }
 
     public void mapResourceHolder(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject) {
-        if (Boolean.TRUE == parameters.getResourceHolder()) {
+        if (Boolean.TRUE.equals(parameters.getResourceHolder())) {
             whoisObject.setResourceHolder(resourceHolderSearch.findResourceHolder(rpslObject));
         }
     }
 
     public void mapAbuseContact(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject) {
-        if (Boolean.TRUE == parameters.getAbuseContact()) {
+        if (Boolean.TRUE.equals(parameters.getAbuseContact())) {
             whoisObject.setAbuseContact(abuseContactSearch.findAbuseContact(rpslObject));
         }
     }
 
     public void mapManagedAttributes(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject) {
-        if (parameters.getManagedAttributes() == Boolean.TRUE) {
+        if (Boolean.TRUE.equals(parameters.getManagedAttributes())) {
             whoisObject.setManaged(managedAttributeSearch.isCoMaintained(rpslObject));
-            if (whoisObject.isManaged() == Boolean.TRUE) {
+            if (Boolean.TRUE.equals(whoisObject.isManaged())) {
                 final Iterator<Attribute> attributeIterator = whoisObject.getAttributes().iterator();
                 final Iterator<RpslAttribute> rpslAttributeIterator = rpslObject.getAttributes().iterator();
                 while (attributeIterator.hasNext() && rpslAttributeIterator.hasNext()) {

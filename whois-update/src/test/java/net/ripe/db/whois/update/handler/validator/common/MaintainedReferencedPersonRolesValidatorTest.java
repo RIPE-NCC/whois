@@ -7,30 +7,30 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import static net.ripe.db.whois.update.handler.validator.ValidatorTestHelper.validateUpdate;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MaintainedReferencedPersonRolesValidatorTest {
     @Mock
     private RpslObjectDao rpslObjectDao;
 
     private MaintainedReferencedPersonRolesValidator subject;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         subject = new MaintainedReferencedPersonRolesValidator(rpslObjectDao);
     }
@@ -77,14 +77,12 @@ public class MaintainedReferencedPersonRolesValidatorTest {
         final RpslObject personObject = RpslObject.parse("person: foo\nnic-hdl: " + personName);
 
         when(rpslObjectDao.getByKey(ObjectType.PERSON, personName)).thenReturn(personObject);
-        when(rpslObjectDao.getById(0)).thenReturn(personObject);
 
         final String roleName = "ADMIN-RIPE";
         final RpslObject roleObject = RpslObject.parse("role: foo\nnic-hdl: " + roleName);
 
         when(rpslObjectDao.getByKey(ObjectType.PERSON, roleName)).thenThrow(EmptyResultDataAccessException.class);
         when(rpslObjectDao.getByKey(ObjectType.ROLE, roleName)).thenReturn(roleObject);
-        when(rpslObjectDao.getById(1)).thenReturn(roleObject);
 
         final ObjectMessages messages = validateUpdate(subject, null, RpslObject.parse("mntner: foo\ntech-c: " + personName + "\nadmin-c: " + roleName));
 

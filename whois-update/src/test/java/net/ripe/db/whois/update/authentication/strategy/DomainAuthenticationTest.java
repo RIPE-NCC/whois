@@ -16,29 +16,30 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DomainAuthenticationTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -52,14 +53,14 @@ public class DomainAuthenticationTest {
     RpslObject mntner;
     ArrayList<RpslObject> candidates;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         mntner = RpslObject.parse("" +
                 "mntner:  DEV-MNT\n");
 
         candidates = Lists.newArrayList(mntner);
 
-        when(objectDao.getByKeys(ObjectType.MNTNER, ciSet("DEV-MNT"))).thenReturn(candidates);
+        lenient().when(objectDao.getByKeys(ObjectType.MNTNER, ciSet("DEV-MNT"))).thenReturn(candidates);
     }
 
     @Test
@@ -73,7 +74,6 @@ public class DomainAuthenticationTest {
     @Test
     public void supports_modify_domain() {
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getType()).thenReturn(ObjectType.DOMAIN);
 
         assertThat(subject.supports(update), is(false));
     }
@@ -94,7 +94,7 @@ public class DomainAuthenticationTest {
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated, hasSize(0));
 
-        verifyZeroInteractions(ipv4Tree, ipv6Tree, objectDao);
+        verifyNoMoreInteractions(ipv4Tree, ipv6Tree, objectDao);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class DomainAuthenticationTest {
         }
 
         verify(ipv4Tree).findExactOrFirstLessSpecific(any(Ipv4Resource.class));
-        verifyZeroInteractions(ipv6Tree, objectDao);
+        verifyNoMoreInteractions(ipv6Tree, objectDao);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class DomainAuthenticationTest {
         }
 
         verify(ipv6Tree).findExactOrFirstLessSpecific(any(Ipv6Resource.class));
-        verifyZeroInteractions(ipv4Tree, objectDao);
+        verifyNoMoreInteractions(ipv4Tree, objectDao);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class DomainAuthenticationTest {
         }
 
         verify(ipv6Tree).findExactOrFirstLessSpecific(any(Ipv6Resource.class));
-        verifyZeroInteractions(ipv4Tree, objectDao);
+        verifyNoMoreInteractions(ipv4Tree, objectDao);
     }
 
     @Test
@@ -219,12 +219,12 @@ public class DomainAuthenticationTest {
                 Lists.newArrayList(new Ipv6Entry(Ipv6Resource.parse(ipObject.getKey()), 1)));
 
         when(objectDao.getById(1)).thenReturn(ipObject);
-        when(authenticationModule.authenticate(update, updateContext, candidates)).thenReturn(candidates);
+        when(authenticationModule.authenticate(update, updateContext, candidates, DomainAuthentication.class)).thenReturn(candidates);
 
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated.containsAll(candidates), is(true));
 
-        verifyZeroInteractions(ipv4Tree);
+        verifyNoMoreInteractions(ipv4Tree);
     }
 
     @Test
@@ -303,7 +303,7 @@ public class DomainAuthenticationTest {
             assertThat(ignored.getAuthenticationMessages(), contains(UpdateMessages.authenticationFailed(ipObject, attributeType, candidates)));
         }
 
-        verify(authenticationModule).authenticate(update, updateContext, candidates);
-        verifyZeroInteractions(ipv4Tree);
+        verify(authenticationModule).authenticate(update, updateContext, candidates, DomainAuthentication.class);
+        verifyNoMoreInteractions(ipv4Tree);
     }
 }

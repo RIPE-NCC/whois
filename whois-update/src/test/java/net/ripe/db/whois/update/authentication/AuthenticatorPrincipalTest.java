@@ -19,37 +19,36 @@ import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.OverrideCredential;
 import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthenticatorPrincipalTest {
     @Mock IpRanges ipRanges;
     @Mock UserDao userDao;
@@ -64,17 +63,14 @@ public class AuthenticatorPrincipalTest {
     Authenticator subject;
     ArgumentCaptor<Subject> subjectCapture;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(authenticationStrategy1.getName()).thenReturn("authenticationStrategy1");
-        when(authenticationStrategy2.getName()).thenReturn("authenticationStrategy2");
-        when(authenticationStrategy1.compareTo(authenticationStrategy2)).thenReturn(-1);
         when(authenticationStrategy2.compareTo(authenticationStrategy1)).thenReturn(1);
 
         when(maintainers.getEnduserMaintainers()).thenReturn(ciSet("RIPE-NCC-END-MNT"));
         when(maintainers.getAllocMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT", "AARDVARK-MNT"));
         when(maintainers.getLegacyMaintainers()).thenReturn(ciSet("RIPE-NCC-LEGACY-MNT"));
-        when(update.getCredentials()).thenReturn(new Credentials());
+        lenient().when(update.getCredentials()).thenReturn(new Credentials());
 
         subjectCapture = ArgumentCaptor.forClass(Subject.class);
         subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2});
@@ -87,16 +83,11 @@ public class AuthenticatorPrincipalTest {
 
     @Test
     public void authenticate_powerMaintainer() {
-        when(origin.getFrom()).thenReturn("127.0.0.1");
-        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
         authenticate_maintainer(RpslObject.parse("mntner: RIPE-NCC-HM-MNT"), Principal.ALLOC_MAINTAINER, Principal.ALLOC_MAINTAINER);
     }
 
-
     @Test
     public void authenticate_powerMaintainer_case_mismatch() {
-        when(origin.getFrom()).thenReturn("127.0.0.1");
-        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
         authenticate_maintainer(RpslObject.parse("mntner: riPe-nCC-hm-Mnt"), Principal.ALLOC_MAINTAINER, Principal.ALLOC_MAINTAINER);
     }
 
@@ -117,7 +108,6 @@ public class AuthenticatorPrincipalTest {
         ));
     }
 
-
     @Test
     public void authenticate_by_powerMaintainer_inside_ripe() {
         when(origin.getFrom()).thenReturn("193.0.0.10");
@@ -132,8 +122,7 @@ public class AuthenticatorPrincipalTest {
 
     @Test
     public void authentication_fails() {
-        when(origin.allowAdminOperations()).thenReturn(true);
-        when(origin.getFrom()).thenReturn("193.0.0.10");
+        when(authenticationStrategy2.getName()).thenReturn("authenticationStrategy2");
         when(authenticationStrategy1.supports(update)).thenReturn(false);
         when(authenticationStrategy2.supports(update)).thenReturn(true);
         when(authenticationStrategy2.authenticate(update, updateContext)).thenThrow(new AuthenticationFailedException(UpdateMessages.unexpectedError(), Collections.<RpslObject>emptyList()));
@@ -142,17 +131,14 @@ public class AuthenticatorPrincipalTest {
 
         verify(updateContext).addMessage(eq(update), any(Message.class));
         verifySubject(updateContext, new Subject(
-                Collections.<Principal>emptySet(),
-                Collections.<String>emptySet(),
+                Collections.emptySet(),
+                Collections.emptySet(),
                 Collections.singleton(authenticationStrategy2.getName())
         ));
     }
 
     @Test
     public void authenticate_too_many_passwords() {
-        when(origin.allowAdminOperations()).thenReturn(true);
-        when(origin.getFrom()).thenReturn("193.0.0.10");
-
         final HashSet<Credential> credentialSet = Sets.newHashSet();
         for (int i = 0; i < 30; i++) {
             credentialSet.add(new PasswordCredential("password" + i));
@@ -170,7 +156,6 @@ public class AuthenticatorPrincipalTest {
         final HashSet<Credential> credentialSet = Sets.newHashSet();
         credentialSet.add(OverrideCredential.parse("user,pwd"));
 
-        when(origin.getFrom()).thenReturn("someone@mail.com");
         when(update.isOverride()).thenReturn(true);
         when(update.getCredentials()).thenReturn(new Credentials(credentialSet));
 
@@ -202,7 +187,6 @@ public class AuthenticatorPrincipalTest {
         credentialSet.add(OverrideCredential.parse("user,pwd1"));
         credentialSet.add(OverrideCredential.parse("user,pwd2"));
 
-        when(origin.getFrom()).thenReturn("193.0.0.10");
         when(update.isOverride()).thenReturn(true);
         when(update.getCredentials()).thenReturn(new Credentials(credentialSet));
 
@@ -214,7 +198,6 @@ public class AuthenticatorPrincipalTest {
 
     @Test
     public void authenticate_override_no_users() {
-        when(origin.getName()).thenReturn("sync update");
         when(origin.allowAdminOperations()).thenReturn(true);
 
         final HashSet<Credential> credentialSet = Sets.newHashSet();
@@ -226,8 +209,6 @@ public class AuthenticatorPrincipalTest {
         when(ipRanges.isTrusted(IpInterval.parse("193.0.0.10"))).thenReturn(true);
 
         when(userDao.getOverrideUser("user")).thenThrow(EmptyResultDataAccessException.class);
-        when(userDao.getOverrideUser("dbase1")).thenThrow(EmptyResultDataAccessException.class);
-        when(userDao.getOverrideUser("dbase2")).thenThrow(EmptyResultDataAccessException.class);
 
         subject.authenticate(origin, update, updateContext);
 
@@ -247,8 +228,6 @@ public class AuthenticatorPrincipalTest {
         when(ipRanges.isTrusted(IpInterval.parse("193.0.0.10"))).thenReturn(true);
 
         when(userDao.getOverrideUser("user")).thenThrow(EmptyResultDataAccessException.class);
-        when(userDao.getOverrideUser("dbase1")).thenReturn(User.createWithPlainTextPassword("dbase", "password"));
-        when(userDao.getOverrideUser("dbase2")).thenReturn(User.createWithPlainTextPassword("dbase", "password"));
 
         subject.authenticate(origin, update, updateContext);
 
@@ -261,13 +240,8 @@ public class AuthenticatorPrincipalTest {
         final HashSet<Credential> credentialSet = Sets.newHashSet();
         credentialSet.add(OverrideCredential.parse("user,password"));
 
-        when(origin.getFrom()).thenReturn("193.0.0.10");
         when(update.isOverride()).thenReturn(true);
         when(update.getCredentials()).thenReturn(new Credentials(credentialSet));
-
-        when(userDao.getOverrideUser("user")).thenReturn(User.createWithPlainTextPassword("user", "password"));
-        when(userDao.getOverrideUser("dbase1")).thenReturn(User.createWithPlainTextPassword("dbase", "password"));
-        when(userDao.getOverrideUser("dbase2")).thenReturn(User.createWithPlainTextPassword("dbase", "password"));
 
         subject.authenticate(origin, update, updateContext);
 
@@ -348,7 +322,7 @@ public class AuthenticatorPrincipalTest {
         assertThat(capturedSubject.getFailedAuthentications(), containsInAnyOrder(expectedSubject.getFailedAuthentications().toArray()));
 
         if (!capturedSubject.getFailedAuthentications().isEmpty()) {
-            verify(updateContext, atLeastOnce()).status(any(Update.class), eq(UpdateStatus.FAILED_AUTHENTICATION));
+            verify(updateContext, atLeastOnce()).status(eq(update), eq(UpdateStatus.FAILED_AUTHENTICATION));
         }
     }
 }

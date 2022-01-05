@@ -2,7 +2,8 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 
 import net.ripe.db.whois.common.domain.CIString;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.AGGREGATED_BY_LIR;
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_LIR;
@@ -17,10 +18,9 @@ import static net.ripe.db.whois.common.rpsl.attrs.OrgType.NIR;
 import static net.ripe.db.whois.common.rpsl.attrs.OrgType.OTHER;
 import static net.ripe.db.whois.common.rpsl.attrs.OrgType.RIR;
 import static net.ripe.db.whois.common.rpsl.attrs.OrgType.WHITEPAGES;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 public class Inet6numStatusTest {
     private final boolean HAS_RS_MAINTAINER = true;
@@ -269,7 +269,7 @@ public class Inet6numStatusTest {
 
         try {
             Inet6numStatus.getStatusFor(CIString.ciString("AGGREGATED-BY-RIR"));
-            fail();
+            Assertions.fail();
         } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), is("AGGREGATED-BY-RIR is not a valid inet6numstatus"));
         }

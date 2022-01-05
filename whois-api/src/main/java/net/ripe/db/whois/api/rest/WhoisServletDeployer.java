@@ -9,6 +9,7 @@ import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.glassfish.jersey.jaxb.internal.JaxbMessagingBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
@@ -38,6 +39,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final DomainObjectService domainObjectService;
     private final FullTextSearch fullTextSearch;
     private final BatchUpdatesService batchUpdatesService;
+    private final HealthCheckService healthCheckService;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -53,7 +55,8 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final MaintenanceModeFilter maintenanceModeFilter,
                                 final DomainObjectService domainObjectService,
                                 final FullTextSearch fullTextSearch,
-                                final BatchUpdatesService batchUpdatesService) {
+                                final BatchUpdatesService batchUpdatesService,
+                                final HealthCheckService healthCheckService) {
         this.whoisRestService = whoisRestService;
         this.whoisSearchService = whoisSearchService;
         this.whoisVersionService = whoisVersionService;
@@ -68,6 +71,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.domainObjectService = domainObjectService;
         this.fullTextSearch = fullTextSearch;
         this.batchUpdatesService = batchUpdatesService;
+        this.healthCheckService = healthCheckService;
     }
 
     @Override
@@ -91,12 +95,15 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(domainObjectService);
         resourceConfig.register(fullTextSearch);
         resourceConfig.register(batchUpdatesService);
+        resourceConfig.register(healthCheckService);
         resourceConfig.register(new CacheControlFilter());
 
         final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         resourceConfig.register(jaxbJsonProvider);
+
+        resourceConfig.register(new JaxbMessagingBinder());
 
         // only allow cross-origin requests from ripe.net
         final FilterHolder crossOriginFilterHolder = context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));

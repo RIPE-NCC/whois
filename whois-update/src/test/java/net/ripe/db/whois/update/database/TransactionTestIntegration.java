@@ -1,9 +1,9 @@
 package net.ripe.db.whois.update.database;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,9 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.sql.DataSource;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class TransactionTestIntegration extends AbstractUpdateDaoIntegrationTest {
     @Autowired @Qualifier("sourceAwareDataSource") DataSource dataSource;
 

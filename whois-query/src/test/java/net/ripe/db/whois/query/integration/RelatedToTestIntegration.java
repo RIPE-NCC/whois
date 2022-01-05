@@ -1,23 +1,21 @@
 package net.ripe.db.whois.query.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void startupWhoisServer() throws Exception {
         databaseHelper.addObject(RpslObject.parse("mntner:RIPE-NCC-MNT\nnic-hdl:AP111-RIPE"));
         databaseHelper.addObject(RpslObject.parse("" +
@@ -35,7 +33,7 @@ public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }
@@ -56,6 +54,6 @@ public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
 
         final String check = "role:           Asia Pacific Network Information Centre\n";
         assertThat(response, containsString(check));
-        assertTrue("Object should appear only once", response.indexOf(check) == response.lastIndexOf(check));
+        assertTrue(response.indexOf(check) == response.lastIndexOf(check), "Object should appear only once");
     }
 }

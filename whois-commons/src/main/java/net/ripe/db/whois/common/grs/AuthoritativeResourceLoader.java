@@ -5,14 +5,23 @@ import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class AuthoritativeResourceLoader extends AbstractAuthoritativeResourceLoader {
+
+    private static final Splitter PIPE_SPLITTER = Splitter.on('|');
 
     private final String name;
     private final Scanner scanner;
 
     public AuthoritativeResourceLoader(final Logger logger, final String name, final Scanner scanner) {
         super(logger);
+        this.name = name;
+        this.scanner = scanner;
+    }
+
+    public AuthoritativeResourceLoader(final Logger logger, final String name, final Scanner scanner, final Set<AuthoritativeResourceStatus> statuses) {
+        super(logger, statuses);
         this.name = name;
         this.scanner = scanner;
     }
@@ -32,7 +41,7 @@ public class AuthoritativeResourceLoader extends AbstractAuthoritativeResourceLo
 
     private void handleLine(final String expectedSource, final String line) {
 
-        final List<String> columns = Splitter.on('|').splitToList(line);
+        final List<String> columns = PIPE_SPLITTER.splitToList(line);
 
         if (columns.size() < 7) {
             logger.debug("Skipping, not enough columns: {}", line);
@@ -44,7 +53,14 @@ public class AuthoritativeResourceLoader extends AbstractAuthoritativeResourceLo
         final String type = columns.get(2).toLowerCase();
         final String start = columns.get(3);
         final String value = columns.get(4);
-        final String status = columns.get(6).toLowerCase();
+
+        AuthoritativeResourceStatus status;
+        try {
+            status = AuthoritativeResourceStatus.valueOf(columns.get(6).toUpperCase());
+        } catch (IllegalArgumentException iae) {
+            logger.debug("Ignoring status '{}'", columns.get(6));
+            return;
+        }
 
         handleResource(source,
                        cc,

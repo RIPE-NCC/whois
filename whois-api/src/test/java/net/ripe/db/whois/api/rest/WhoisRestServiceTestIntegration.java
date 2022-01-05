@@ -16,7 +16,7 @@ import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.ApplicationVersion;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -37,12 +37,11 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -79,29 +78,31 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
@@ -196,7 +197,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private TestDateTimeProvider testDateTimeProvider;
     @Autowired private ApplicationVersion applicationVersion;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
@@ -295,7 +296,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "source:         TEST")));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void lookup_inet6num_without_prefix_length() throws InterruptedException {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
@@ -310,7 +311,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         );
         ipTreeUpdater.rebuild();
 
-        RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
+        });
     }
 
     @Test
@@ -639,7 +642,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .head();
 
         assertThat(response.getStatus(), is(200));
-        assertThat(response.readEntity(String.class), isEmptyString());
+        assertThat(response.readEntity(String.class), is(emptyString()));
     }
 
     @Test
@@ -649,7 +652,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .head();
 
         assertThat(response.getStatus(), is(404));
-        assertThat(response.readEntity(String.class), isEmptyString());
+        assertThat(response.readEntity(String.class), is(emptyString()));
     }
 
     @Test
@@ -715,14 +718,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisObject.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void lookup_object_not_found() {
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+        });
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void lookup_object_wrong_source() {
-        RestTest.target(getPort(), "whois/test-grs/person/TP1-TEST").request().get(String.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test-grs/person/TP1-TEST").request().get(String.class);
+        });
     }
 
     @Test
@@ -1528,6 +1535,56 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_autnum_with_managed_attributes() {
+        databaseHelper.addObject("mntner: RIPE-NCC-END-MNT");
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        ASNAME\n" +
+                "status:         ASSIGNED\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-by:         RIPE-NCC-END-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/aut-num/AS102?managed-attributes")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey(), contains(new Attribute("aut-num", "AS102")));
+        assertThat(whoisResources.getWhoisObjects().get(0).isManaged(), is(true));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getName(), is("status"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(true));
+    }
+
+    @Test
+    public void lookup_autnum_without_managed_attributes() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        ASNAME\n" +
+                "status:         OTHER\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/aut-num/AS102?managed-attributes")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey(), contains(new Attribute("aut-num", "AS102")));
+        assertThat(whoisResources.getWhoisObjects().get(0).isManaged(), is(false));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getName(), is("status"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(2).getManaged(), is(nullValue()));
+    }
+
+    @Test
     public void lookup_inetnum_managed_attributes_resource_holder_abuse_contact() {
         databaseHelper.addObject(
                 "mntner:       RIPE-NCC-HM-MNT\n" +
@@ -1562,6 +1619,49 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(nullValue()));   // mnt-by
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(4).getManaged(), is(true));    // mnt-by
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(5).getManaged(), is(true));    // source
+    }
+
+    @Test
+    public void validate_country_managed_attribute_only_for_organisation() {
+        databaseHelper.addObject(
+                "mntner:       RIPE-NCC-HM-MNT\n" +
+                        "source:   TEST");
+        databaseHelper.addObject(
+                "organisation: ORG-TO1-TEST\n" +
+                        "org-name:     Test Organisation\n" +
+                        "org-type:     LIR\n" +
+                        "country:      NL\n" +
+                        "abuse-c:      TR1-TEST\n" +
+                        "source:       TEST");
+        databaseHelper.addObject(
+                "inetnum:       10.0.0.0 - 10.0.0.255\n" +
+                        "status:   ALLOCATED PA\n" +
+                        "org:      ORG-TO1-TEST\n" +
+                        "country:  NL\n" +
+                        "mnt-by:   OWNER-MNT\n" +
+                        "mnt-by:   RIPE-NCC-HM-MNT\n" +
+                        "source:   TEST");
+
+
+        final WhoisResources searchOrg = RestTest.target(getPort(), "whois/test/organisation/ORG-TO1-TEST?managed-attributes")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(searchOrg.getWhoisObjects(), hasSize(1));
+        assertThat(searchOrg.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("ORG-TO1-TEST"));
+        assertThat(searchOrg.getWhoisObjects().get(0).isManaged(), is(true));
+        assertThat(searchOrg.getWhoisObjects().get(0).getAttributes().get(3).getName(), is("country"));
+        assertThat(searchOrg.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(true));
+
+
+        final WhoisResources searchinetnum = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0%20-%2010.0.0.255?managed-attributes&resource-holder&abuse-contact")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(searchinetnum.getWhoisObjects(), hasSize(1));
+        assertThat(searchinetnum.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(searchinetnum.getWhoisObjects().get(0).getAttributes().get(3).getName(), is("country"));
+        assertThat(searchinetnum.getWhoisObjects().get(0).getAttributes().get(3).getManaged(), is(nullValue()));
     }
 
     @Test
@@ -1673,7 +1773,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST").containsAttribute(AttributeType.CHANGED), is(false));
     }
 
-    @Ignore("TODO: [ES] #320 confusing error response")
+    @Disabled("TODO: [ES] #320 confusing error response")
     @Test
     public void create_invalid_object_type_on_first_attribute() {
         try {
@@ -1739,7 +1839,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error",
                 "XML processing exception: %s (line: %s, column: %s)",
-                "JAXP00010001: The parser has encountered more than \"64000\" entity expansions in this document; this is the limit imposed by the JDK.", "1", "1");
+                "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.", "2", "10");
         }
     }
 
@@ -1776,7 +1876,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error",
                 "XML processing exception: %s (line: %s, column: %s)",
-                "JAXP00010004: The accumulated size of entities is \"50,000,049\" that exceeded the \"50,000,000\" limit set by \"FEATURE_SECURE_PROCESSING\".", "1", "1000001");
+                "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.", "2", "10");
         }
     }
 
@@ -1812,45 +1912,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Error",
                 "XML processing exception: %s (line: %s, column: %s)",
-                "The external entity reference \"&externalEntity;\" is not permitted in an attribute value.", "10", "66");
+                "DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true.", "2", "10");
         }
-    }
-
-    @Test
-    public void create_succeeds_utf8_abuse_mailbox_stored_as_latin1() {
-        final byte[] request =
-                ("<whois-resources>\n" +
-                "    <objects>\n" +
-                "        <object type=\"role\">\n" +
-                "            <source id=\"TEST\"/>\n" +
-                "            <attributes>\n" +
-                "                <attribute name=\"role\" value=\"Zurich Role\"/>\n" +
-                "                <attribute name=\"address\" value=\"Z\u00FCrich\"/>\n" +           // unicode encoded u-umlaut, will be encoded as UTF-8 (bytes 0xc3bc in byte[]).
-                "                <attribute name=\"e-mail\" value=\"info@Z\u00FCrich.city\"/>\n" +
-                "                <attribute name=\"abuse-mailbox\" value=\"abuse@Z\u00FCrich.city\"/>\n" +
-                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
-                "                <attribute name=\"nic-hdl\" value=\"ZR1-TEST\"/>\n" +
-                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
-                "            </attributes>\n" +
-                "        </object>\n" +
-                "    </objects>\n" +
-                "</whois-resources>").getBytes(StandardCharsets.UTF_8);
-
-        final String response = RestTest.target(getPort(), "whois/test/role?password=test")
-            .request()
-            .post(Entity.entity(request, MediaType.APPLICATION_XML_TYPE.withCharset("UTF-8")), String.class);
-
-        // u-umlaut returned correctly
-        assertThat(response, containsString("<attribute name=\"abuse-mailbox\" value=\"abuse@Zürich.city\"/>"));
-
-        // expect u-umlaut in Zürich to be stored in the index table as latin1 byte 0xFC, not as UTF8 bytes 0xC3BC
-        assertThat(whoisTemplate.queryForObject("SELECT hex(abuse_mailbox) FROM abuse_mailbox WHERE abuse_mailbox like '%city'", String.class), containsString("5AFC72696368"));
-
-        // lookup object
-        assertThat(queryTelnet("-Br ZR1-TEST"), containsString("abuse-mailbox:  abuse@Zürich.city"));
-
-        // inverse lookup with u-umlaut
-        assertThat(queryTelnet("-r -i abuse-mailbox abuse@zürich.city"), containsString("abuse-mailbox:  abuse@Zürich.city"));
     }
 
     @Test
@@ -1930,6 +1993,31 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"ÖÜëñ\"/>"));
+    }
+
+    @Test
+    public void create_succeeds_idn_email_address_converted_to_punycode() {
+        final String response = RestTest.target(getPort(), "whois/test/person?password=test")
+            .request()
+            .post(Entity.entity(
+                "<whois-resources>\n" +
+                "    <objects>\n" +
+                "        <object type=\"person\">\n" +
+                "            <source id=\"TEST\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"person\" value=\"New Person\"/>\n" +
+                "                <attribute name=\"address\" value=\"Moscow\"/>\n" +
+                "                <attribute name=\"e-mail\" value=\"example@москва.ru\"/>\n" +
+                "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+
+        assertThat(response, containsString("<attribute name=\"e-mail\" value=\"example@xn--80adxhks.ru\"/>"));
     }
 
     @Test
@@ -2243,25 +2331,33 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void create_bad_input_empty_objects_element() {
-        RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .post(Entity.entity("<whois-resources>\n<objects/>\n</whois-resources>", MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity("<whois-resources>\n<objects/>\n</whois-resources>", MediaType.APPLICATION_XML), String.class);
+
+        });
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void create_bad_input_no_objects_element() {
-        RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .post(Entity.entity("<whois-resources/>", MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity("<whois-resources/>", MediaType.APPLICATION_XML), String.class);
+
+        });
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void create_bad_input_empty_body() {
-        RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .post(Entity.entity("", MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity("", MediaType.APPLICATION_XML), String.class);
+        });
     }
 
     @Test
@@ -2432,18 +2528,22 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = NotAllowedException.class)
+    @Test
     public void get_method_without_primary_key_not_allowed() {
-        RestTest.target(getPort(), "whois/ripe/route6")
-                .request()
-                .get(String.class);
+        Assertions.assertThrows(NotAllowedException.class, () -> {
+            RestTest.target(getPort(), "whois/ripe/route6")
+                    .request()
+                    .get(String.class);
+        });
     }
 
-    @Test(expected = NotAllowedException.class)
+    @Test
     public void delete_method_without_primary_key_not_allowed() {
-        RestTest.target(getPort(), "whois/test/person")
-                .request()
-                .delete(String.class);
+        Assertions.assertThrows(NotAllowedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person")
+                    .request()
+                    .delete(String.class);
+        });
     }
 
     @Test
@@ -2915,9 +3015,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(object.getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
     }
 
-    @Ignore("TODO: [ES] empty response body (confirmed FIXED by Jersey 2.22)")
     @Test
     public void update_huge_object_with_syntax_error_compressed_response() throws IOException {
+        databaseHelper.addAuthoritativeResource("TEST", "AS3333");
+
         databaseHelper.addObject("aut-num: AS3333\nsource: TEST");
 
         try {
@@ -2927,10 +3028,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(gunzip(new ClassPathResource("as3333.json.gz").getFile()), MediaType.APPLICATION_JSON), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-
+            assertThat(e.getResponse().hasEntity(), is(true));
 
             final String response = gunzip(e.getResponse().readEntity(byte[].class));
-            assertThat(response, containsString("Unrecognized source: %s"));
+            assertThat(response, containsString("\"text\" : \"Syntax error in %s\""));
         }
     }
 
@@ -3261,11 +3362,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void delete_nonexistant() {
-        RestTest.target(getPort(), "whois/test/person/NON-EXISTANT")
-                .request()
-                .delete(String.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person/NON-EXISTANT")
+                    .request()
+                    .delete(String.class);
+        });
     }
 
     @Test
@@ -3802,11 +3905,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = NotAllowedException.class)
+    @Test
     public void update_post_not_allowed() {
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
-                .request(MediaType.APPLICATION_XML)
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(NotAllowedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        });
     }
 
     @Test
@@ -3895,11 +4000,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void update_bad_input_empty_body() {
-        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
-                .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity("", MediaType.APPLICATION_XML), WhoisResources.class);
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity("", MediaType.APPLICATION_XML), WhoisResources.class);
+        });
     }
 
     @Test
@@ -3910,7 +4017,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         builder.append(remarks);
 
         RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
-                .request(MediaType.APPLICATION_XML)
+                    .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(map(builder.sort().get()), MediaType.APPLICATION_XML), WhoisResources.class);
 
         builder.replaceAttribute(remarks, new RpslAttribute(AttributeType.REMARKS, "updated # new comment"));
@@ -3952,6 +4059,38 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void update_with_override_trusted_ip_with_sso_succeeds() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("db_e2e_1", "zoh", ObjectType.PERSON));
+
+        final RpslObject TEST_PERSON_2 = RpslObject.parse("" +
+                "person:    Test Person2\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31 6 12345678\n" +
+                "nic-hdl:   TP2-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        databaseHelper.addObject(TEST_PERSON_2);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(TEST_PERSON_2).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST")
+                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
+                .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "db_e2e_1")
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertInfoCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Info", "Authorisation override used");
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getPrimaryKey(), contains(new Attribute("nic-hdl", "TP2-TEST")));
+        assertThat(object.getAttributes().stream().filter( (attribute) -> attribute.getName().equals("remarks")).collect(Collectors.toSet()), contains(new Attribute("remarks", "updated")));
+
     }
 
     @Test
@@ -4235,7 +4374,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void use_override_to_skip_updating_last_modified() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
 
-        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentZonedDateTime();
         final ZonedDateTime newDateTime = oldDateTime.plusDays(10);
         testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 
@@ -4266,7 +4405,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void use_override_explicit_not_skip_updating_last_modified() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
 
-        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final ZonedDateTime oldDateTime = testDateTimeProvider.getCurrentZonedDateTime();
         final ZonedDateTime newDateTime = oldDateTime.plusDays(10);
         testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 
@@ -4349,12 +4488,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     // TODO: [AH] also test origin, i.e. maintenanceMode.set("NONE,READONLY")
 
-    @Test(expected = ServiceUnavailableException.class)
+    @Test
     public void maintenance_mode_readonly_update() {
-        maintenanceMode.set("READONLY,READONLY");
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+            maintenanceMode.set("READONLY,READONLY");
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        });
     }
 
     @Test
@@ -4364,18 +4505,22 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
 
-    @Test(expected = ServiceUnavailableException.class)
+    @Test
     public void maintenance_mode_none_update() {
-        maintenanceMode.set("NONE,NONE");
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+            maintenanceMode.set("NONE,NONE");
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        });
     }
 
-    @Test(expected = ServiceUnavailableException.class)
+    @Test
     public void maintenance_mode_none_query() {
-        maintenanceMode.set("NONE,NONE");
-        RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+            maintenanceMode.set("NONE,NONE");
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+        });
     }
 
     @Test
@@ -4474,8 +4619,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .options();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
     }
 
     @Test
@@ -4486,8 +4631,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .options();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -4499,8 +4644,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
                 .options();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), Matchers.arrayContainingInAnyOrder("GET","POST","HEAD"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET","POST","HEAD"));
     }
 
     @Test
@@ -4512,8 +4657,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
                 .options();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -4524,9 +4669,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     @Test
@@ -4537,11 +4682,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
 
         // actual request is still allowed (it's the browsers responsibility to honor the restriction)
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     @Test
@@ -4552,9 +4697,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML));
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
     }
 
     @Test
@@ -4565,11 +4710,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML));
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
 
         // actual request is still allowed (it's the browsers responsibility to honor the restriction)
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
     }
 
     @Test
@@ -4580,7 +4725,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .options();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
     }
 
     @Test
@@ -4591,8 +4736,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     @Test
@@ -4603,8 +4748,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get();
 
-        MatcherAssert.assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        MatcherAssert.assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     @Test
@@ -4673,6 +4818,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getStatus(), is(Response.Status.MOVED_PERMANENTLY.getStatusCode()));
         assertThat(response.getHeaderString("Location").toLowerCase(), endsWith("test-nonauth/route/192.168.0.0/24AS12726".toLowerCase()));
         databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void delete_domain_trailing_dot_nserver() {
+        databaseHelper.addObject(
+                "domain:        193.in-addr.arpa4\n" +
+                        "nserver:         test.ns.\n" +
+                        "mnt-by:          OWNER-MNT\n" +
+                        "source:          TEST\n");
+
+        final Response response = RestTest.target(getPort(), "whois/test/domain/193.in-addr.arpa4?password=test")
+                .request().delete();
+        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
     }
 
     @Test

@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -245,5 +245,87 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response.contains("***Error:   Override authentication failed")
+    }
+
+    def "override is noop on case-sensitive change without "() {
+        given:
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        data = (data =~ /org-name:     Test Organisation Ltd/).replaceFirst("org-name: test organisation ltd")
+
+        def update = new SyncUpdate(data: data)
+
+        when:
+        def result = syncUpdate update
+
+        then:
+        result.contains("Warning: Submitted object identical to database object\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+    }
+
+    def "override is noop on case-sensitive change with update-on-noop set to false"() {
+        given:
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1, {update-on-noop=false}"
+        data = (data =~ /org-name:     Test Organisation Ltd/).replaceFirst("org-name: test organisation ltd")
+
+        def update = new SyncUpdate(data: data)
+
+        when:
+        def result = syncUpdate update
+
+        then:
+        result.contains("Warning: Submitted object identical to database object\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+    }
+
+    def "override on case-sensitive change with update-on-noop set to true"() {
+        given:
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1, {update-on-noop=true}"
+        data = (data =~ /org-name:     Test Organisation Ltd/).replaceFirst("org-name: test organisation ltd")
+
+        def update = new SyncUpdate(data: data)
+
+        when:
+        def result = syncUpdate update
+
+        then:
+        result.contains("Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
+                "\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+    }
+
+    def "override on comment changes change with update-on-noop set to false"() {
+        given:
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1, {update-on-noop=false}"
+        data = (data =~ /org-name:     Test Organisation Ltd/).replaceFirst("org-name:     Test Organisation Ltd #comment")
+
+        def update = new SyncUpdate(data: data)
+
+        when:
+        def result = syncUpdate update
+
+        then:
+        result.contains("Warning: Submitted object identical to database object\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+    }
+
+    def "override on comment changes change with update-on-noop set to true"() {
+        given:
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1, {update-on-noop=true}"
+        data = (data =~ /org-name:     Test Organisation Ltd/).replaceFirst("org-name:     Test Organisation Ltd #comment")
+
+        def update = new SyncUpdate(data: data)
+
+        when:
+        def result = syncUpdate update
+
+        then:
+        result.contains("Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
+                "\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
     }
 }

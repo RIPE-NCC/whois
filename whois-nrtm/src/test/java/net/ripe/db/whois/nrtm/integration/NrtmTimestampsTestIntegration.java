@@ -1,25 +1,25 @@
 package net.ripe.db.whois.nrtm.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
 
-    @Before
+    @BeforeEach
     public void before() {
         nrtmServer.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         nrtmServer.stop(true);
     }

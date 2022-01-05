@@ -13,6 +13,18 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-log4j2</artifactId>
+            <version>${sentry.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-client</artifactId>
         </dependency>
@@ -57,6 +69,10 @@
             <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -78,7 +94,7 @@
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
+            <artifactId>netty-all</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -98,6 +114,7 @@
         </dependency>
 
         <!-- test -->
+
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-rpsl</artifactId>
@@ -110,19 +127,33 @@
         </dependency>
     </dependencies>
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <!-- TODO: Including this in jacoco plugin throws Can't add different class with same name: org/apache/commons/collections/ArrayStack
+                            I tried to exclude this file, package  and dependency also still from some other dependency tree it gets included
+                 -->
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
         <resources>
             <resource>
+                <!-- Include application version (with parameter substitution) -->
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/version.properties</include>
+                    <include>**/whois.version.properties</include>
                 </includes>
             </resource>
             <resource>
+                <!-- Include database patches etc. (without parameter substitution) -->
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
                 <excludes>
-                    <exclude>**/version.properties</exclude>
+                    <exclude>**/whois.version.properties</exclude>
                 </excludes>
             </resource>
         </resources>

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import com.google.common.util.concurrent.Uninterruptibles;
-import net.javacrumbs.shedlock.core.SchedulerLock;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
@@ -82,7 +82,7 @@ public class Bootstrap implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "Bootstrap")
     public void run() {
         try {

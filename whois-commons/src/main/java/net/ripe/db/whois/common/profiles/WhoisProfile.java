@@ -14,6 +14,7 @@ public class WhoisProfile {
         final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext();
         ConfigurableEnvironment env = applicationContext.getEnvironment();
         env.setActiveProfiles(profiles);
+
         applicationContext.setConfigLocation(configLocation);
         applicationContext.refresh();
         return applicationContext;

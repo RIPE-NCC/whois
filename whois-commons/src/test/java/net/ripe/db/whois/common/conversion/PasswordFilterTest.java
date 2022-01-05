@@ -1,12 +1,12 @@
 package net.ripe.db.whois.common.conversion;
 
 import org.glassfish.jersey.uri.UriComponent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PasswordFilterTest {
 
@@ -132,13 +132,13 @@ public class PasswordFilterTest {
                 is("/some/path?override=admin,FILTERED,reason&param=other"));
 
         assertThat(PasswordFilter.filterPasswordsInUrl(uriWithParams(new Pair("DATA", "person:  Test+Person\nsource:  TEST\n\noverride:admin,password"), new Pair("NEW", "yes"))),
-                is("/some/path?DATA=person:++Test%2BPerson%0Asource:++TEST%0A%0Aoverride:admin,FILTERED&NEW=yes"));
+                is("/some/path?DATA=person%3A++Test%2BPerson%0Asource%3A++TEST%0A%0Aoverride%3Aadmin,FILTERED&NEW=yes"));
 
         assertThat(PasswordFilter.filterPasswordsInUrl(uriWithParams(new Pair("DATA", "person:  Test+Person\nsource:  TEST\n\noverride:admin,password,reason"), new Pair("NEW", "yes"))),
-                is("/some/path?DATA=person:++Test%2BPerson%0Asource:++TEST%0A%0Aoverride:admin,FILTERED,reason&NEW=yes"));
+                is("/some/path?DATA=person%3A++Test%2BPerson%0Asource%3A++TEST%0A%0Aoverride%3Aadmin,FILTERED,reason&NEW=yes"));
 
         assertThat( PasswordFilter.filterPasswordsInUrl(uriWithParams(new Pair("DATA", "person:  TestP\n\noverride:personadmin,team-red1234"), new Pair("NEW","yes"))),
-                is("/some/path?DATA=person:++TestP%0A%0Aoverride:personadmin,FILTERED&NEW=yes"));
+                is("/some/path?DATA=person%3A++TestP%0A%0Aoverride%3Apersonadmin,FILTERED&NEW=yes"));
 
         assertThat( PasswordFilter.filterPasswordsInUrl("/some/path?DATA=person:++TestP%0A%0Aoverride%3Apersonadmin,team-red1234&NEW=yes"),
                 is("/some/path?DATA=person:++TestP%0A%0Aoverride%3Apersonadmin,FILTERED&NEW=yes"));
@@ -149,6 +149,26 @@ public class PasswordFilterTest {
 
         assertThat( PasswordFilter.filterPasswordsInUrl("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0Aoverride:+admin,teamred,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"),
                 is("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0Aoverride:+admin,FILTERED,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"));
+    }
+
+    @Test
+    public void testRemoveWithOverrideInUrl() {
+        assertThat(PasswordFilter.removePasswordsInUrl(""), is(""));
+        assertThat(PasswordFilter.removePasswordsInUrl("flags=list-versions"), is("flags=list-versions"));
+        assertThat(PasswordFilter.removePasswordsInUrl("password=abc"), is(""));
+        assertThat(PasswordFilter.removePasswordsInUrl("password=abc&password=xyz"), is(""));
+        assertThat(PasswordFilter.removePasswordsInUrl("password= abc&PassWord=xyz"), is(""));
+        assertThat(PasswordFilter.removePasswordsInUrl("param=one&password=xyz"), is("param=one"));
+        assertThat(PasswordFilter.removePasswordsInUrl("param=password&password=xyz"), is("param=password"));
+
+        assertThat(PasswordFilter.removePasswordsInUrl("param=password&parampassword=xyz"), is("param=password&parampassword=xyz"));
+        assertThat(PasswordFilter.removePasswordsInUrl("param=password&password=xyz&param=password&param=one"), is("param=password&param=password&param=one"));
+        assertThat(PasswordFilter.removePasswordsInUrl("password=xyz&param=one"), is("param=one"));
+        assertThat(PasswordFilter.removePasswordsInUrl("password=abc&param=one&password=xyz"), is("param=one"));
+        assertThat(PasswordFilter.removePasswordsInUrl("param=one&password=abc&param=two"), is("param=one&param=two"));
+        assertThat(PasswordFilter.removePasswordsInUrl("param=one&password=abc&param=two&password=xyz"), is("param=one&param=two"));
+        assertThat(PasswordFilter.removePasswordsInUrl("password=abc&param=one&password=xyz&param=two"), is("param=one&param=two"));
+        assertThat(PasswordFilter.removePasswordsInUrl("password=aaa&password=bbb&param=one&password=ccc&param=two"), is("param=one&param=two"));
     }
 
     private static String uriWithParams(final Pair ...params) {

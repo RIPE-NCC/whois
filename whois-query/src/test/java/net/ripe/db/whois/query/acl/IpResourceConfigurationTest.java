@@ -2,12 +2,13 @@ package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -16,10 +17,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class IpResourceConfigurationTest {
 
     @Mock private IpResourceConfiguration.Loader loader;
@@ -27,7 +28,7 @@ public class IpResourceConfigurationTest {
 
     private InetAddress inetAddress;
 
-    @Before
+    @BeforeEach
     public void setup() throws UnknownHostException {
         when(loader.loadIpLimit()).thenReturn(Collections.<IpResourceEntry<Integer>>emptyList());
         when(loader.loadIpProxy()).thenReturn(Collections.<IpResourceEntry<Boolean>>emptyList());

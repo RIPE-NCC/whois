@@ -11,25 +11,25 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FilterPlaceholderDecoratorTest {
 
     @Mock
@@ -44,11 +44,11 @@ public class FilterPlaceholderDecoratorTest {
     @InjectMocks
     FilterPlaceholdersDecorator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         source = Source.slave("TEST-GRS");
-        when(sourceContext.getCurrentSource()).thenReturn(source);
-        when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
+        lenient().when(sourceContext.getCurrentSource()).thenReturn(source);
+        lenient().when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
         subject = new FilterPlaceholdersDecorator(sourceContext, authoritativeResourceData);
     }
 
@@ -65,8 +65,8 @@ public class FilterPlaceholderDecoratorTest {
 
         Iterator<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter).iterator();
 
-        assertSame(result.next(), toFilter.get(1));
-        assertSame(result.next(), toFilter.get(2));
+        Assertions.assertSame(result.next(), toFilter.get(1));
+        Assertions.assertSame(result.next(), toFilter.get(2));
         assertThat(result.hasNext(), is(false));
     }
 
@@ -83,8 +83,8 @@ public class FilterPlaceholderDecoratorTest {
 
         Iterator<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter).iterator();
 
-        assertSame(result.next(), toFilter.get(0));
-        assertSame(result.next(), toFilter.get(3));
+        Assertions.assertSame(result.next(), toFilter.get(0));
+        Assertions.assertSame(result.next(), toFilter.get(3));
         assertThat(result.hasNext(), is(false));
     }
 
@@ -95,7 +95,7 @@ public class FilterPlaceholderDecoratorTest {
 
         Iterable<? extends ResponseObject> result = subject.decorate(Query.parse("10.10.10.10"), toFilter);
 
-        assertNotSame(result, toFilter);
+        Assertions.assertNotSame(result, toFilter);
     }
 
     @Test
@@ -105,6 +105,6 @@ public class FilterPlaceholderDecoratorTest {
 
         Iterable<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter);
 
-        assertSame(result, toFilter);
+        Assertions.assertSame(result, toFilter);
     }
 }

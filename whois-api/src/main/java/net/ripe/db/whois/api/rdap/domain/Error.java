@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rdap.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -17,7 +17,7 @@ import java.util.List;
     "description"
 })
 @XmlRootElement
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Immutable
 public class Error {
 

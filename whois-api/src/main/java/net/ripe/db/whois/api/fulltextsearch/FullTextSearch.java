@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -170,7 +171,7 @@ public class FullTextSearch {
                 @Override
                 protected SearchResponse doSearch(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 
-                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResultSize, false, false, false, true);
+                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResultSize,  Integer.MAX_VALUE);
                     final FacetsCollector facetsCollector = new FacetsCollector();
 
                     indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
@@ -179,13 +180,20 @@ public class FullTextSearch {
 
                     final TopDocs topDocs = topFieldCollector.topDocs();
                     final int start = Math.max(0, searchRequest.getStart());
-                    int resultSize = Math.min(maxResultSize, Long.valueOf(topDocs.totalHits).intValue());
+                    int resultSize = Math.min(maxResultSize, Long.valueOf(topDocs.totalHits.value).intValue());
 
                     final int end = Math.min(start + searchRequest.getRows(), resultSize);
                     for (int index = start; index < end; index++) {
                         final ScoreDoc scoreDoc = topDocs.scoreDocs[index];
                         final Document document = indexSearcher.doc(scoreDoc.doc);
-                        final RpslObject object = objectDao.getById(getObjectId(document));
+                        final RpslObject object;
+                        try {
+                            object = objectDao.getById(getObjectId(document));
+                        } catch (EmptyResultDataAccessException e) {
+                            // object was deleted from the database but index was not updated yet
+                            resultSize--;
+                            continue;
+                        }
                         account(object);
                         rpslObjectToDocument.put(object, document);
                     }

@@ -13,18 +13,19 @@ import java.time.ZonedDateTime;
 @Primary
 @Component
 public class ClockDateTimeProvider implements DateTimeProvider {
+
     @Override
     public LocalDate getCurrentDate() {
-        return LocalDate.now();
+        return getCurrentZonedDateTime().toLocalDate();
     }
 
     @Override
     public LocalDateTime getCurrentDateTime() {
-        return LocalDateTime.now();
+        return getCurrentZonedDateTime().toLocalDateTime();
     }
 
     @Override
-    public ZonedDateTime getCurrentDateTimeUtc() {
+    public ZonedDateTime getCurrentZonedDateTime() {
         return ZonedDateTime.now(ZoneOffset.UTC);
     }
 

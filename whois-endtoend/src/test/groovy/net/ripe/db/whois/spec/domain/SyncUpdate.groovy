@@ -2,6 +2,7 @@ package net.ripe.db.whois.spec.domain
 
 class SyncUpdate {
     String data
+    String charset
     boolean help
     boolean diff
     boolean forceNew
@@ -9,6 +10,10 @@ class SyncUpdate {
 
     def setData(String data) {
         this.data = data.stripIndent()
+    }
+
+    def setCharset(String charset) {
+        this.charset = charset
     }
 
     def setRawData(String rawData) {

@@ -1,12 +1,12 @@
 package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Latin1ConversionTest {
 

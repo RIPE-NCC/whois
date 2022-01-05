@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_PA;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
@@ -12,7 +12,7 @@ import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LEGACY;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LIR_PARTITIONED_PA;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.SUB_ALLOCATED_PA;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class InetnumStatusTest {
 

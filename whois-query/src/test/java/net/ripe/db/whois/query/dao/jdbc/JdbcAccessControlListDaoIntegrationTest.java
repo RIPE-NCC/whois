@@ -1,6 +1,6 @@
 package net.ripe.db.whois.query.dao.jdbc;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
@@ -8,9 +8,9 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
@@ -23,17 +23,17 @@ import java.util.Map;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class JdbcAccessControlListDaoIntegrationTest extends AbstractQueryDaoIntegrationTest {
 
     @Autowired AccessControlListDao subject;
     private InetAddress inetAddress1;
     private InetAddress inetAddress2;
 
-    @Before
+    @BeforeEach
     public void setup() throws UnknownHostException {
         inetAddress1 = InetAddress.getByName("128.0.0.1");
         inetAddress2 = InetAddress.getByName("128.0.0.2");

@@ -1,24 +1,24 @@
 package net.ripe.db.whois.query.integration;
 
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     private static final String[] BASE_OBJECTS = {
@@ -133,7 +133,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired
     private IpTreeUpdater ipTreeUpdater;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         for (String next : BASE_OBJECTS) {
             databaseHelper.addObject(RpslObject.parse(next));
@@ -142,7 +142,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdown() {
         queryServer.stop(true);
     }

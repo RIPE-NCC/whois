@@ -1,33 +1,25 @@
 package net.ripe.db.whois.api.rdap;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.junit.rules.ExpectedException;
-import org.junit.Rule;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verifyZeroInteractions;
-
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RdapRequestValidatorTest {
 
     @InjectMocks
     private RdapRequestValidator validator;
 
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
-
     @Test
     public void shouldThrowExceptionForInvalidOrganisation() {
-        expectedEx.expect(BadRequestException.class);
-        expectedEx.expectMessage("Invalid syntax");
-
-        validator.validateEntity("ORG-Test");
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            validator.validateEntity("ORG-Test");
+        });
     }
 
     @Test
@@ -35,14 +27,18 @@ public class RdapRequestValidatorTest {
         validator.validateEntity("ORG-BAD1-TEST");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void shouldThrowExceptionForInvalidAutnum() {
-        validator.validateAutnum("TEST");
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            validator.validateAutnum("TEST");
+        });
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void shouldThrowExceptionForInvalidIP() {
-        validator.validateIp("", "invalid");
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            validator.validateIp("", "invalid");
+        });
     }
 
     @Test

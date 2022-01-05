@@ -3,7 +3,8 @@ package net.ripe.db.whois.common.etree;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import org.apache.commons.lang.Validate;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,9 +13,9 @@ import java.util.Map;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NestedIntervalMapNonLookupTest {
 
@@ -53,9 +54,11 @@ public class NestedIntervalMapNonLookupTest {
     }
 
     /* Single node */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void addingNullShouldFail() {
-        add(null);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            add(null);
+        });
     }
 
     @Test
@@ -326,58 +329,77 @@ public class NestedIntervalMapNonLookupTest {
     }
 
     /* Test intersects */
-    @Test(expected = IntersectingIntervalException.class)
+    @Test
     public void leftIntersect() {
-        add(node("2-3"));
-        add(node("1-2"));
+        Assertions.assertThrows(IntersectingIntervalException.class, () -> {
+            add(node("2-3"));
+            add(node("1-2"));
+        });
     }
 
-    @Test(expected = IntersectingIntervalException.class)
+    @Test
     public void rightIntersect() {
-        add(node("2-3"));
-        add(node("3-4"));
+        Assertions.assertThrows(IntersectingIntervalException.class, () -> {
+            add(node("2-3"));
+            add(node("3-4"));
+        });
     }
 
-    @Test(expected = IntersectingIntervalException.class)
+    @Test
     public void fullLeftIntersect() {
-        add(node("2-4"));
-        add(node("1-3"));
+        Assertions.assertThrows(IntersectingIntervalException.class, () -> {
+            add(node("2-4"));
+            add(node("1-3"));
+        });
     }
 
-    @Test(expected = IntersectingIntervalException.class)
+    @Test
     public void fullRightIntersect() {
-        add(node("2-4"));
-        add(node("3-5"));
+        Assertions.assertThrows(IntersectingIntervalException.class, () -> {
+            add(node("2-4"));
+            add(node("3-5"));
+        });
     }
 
-    @Test(expected = IntersectingIntervalException.class)
+    @Test
     public void childLeftIntersect() {
-        add(node("2"));
-        add(node("3-4"));
-        add(node("1-3"));
+        Assertions.assertThrows(IntersectingIntervalException.class, () -> {
+            add(node("2"));
+            add(node("3-4"));
+            add(node("1-3"));
+        });
     }
 
-    @Test(expected = IntersectingIntervalException.class)
+    @Test
     public void childRightIntersect() {
-        add(node("2-3"));
-        add(node("4"));
-        add(node("3-5"));
+        Assertions.assertThrows(IntersectingIntervalException.class, () -> {
+            add(node("2-3"));
+            add(node("4"));
+            add(node("3-5"));
+        });
+
     }
 
-    @Test(expected = IntersectingIntervalException.class)
+    @Test
     public void childMiddleLeftIntersect() {
-        add(node("2-3"));
-        add(node("4"));
-        add(node("5-6"));
-        add(node("2-5"));
+        Assertions.assertThrows(IntersectingIntervalException.class, () -> {
+            add(node("2-3"));
+            add(node("4"));
+            add(node("5-6"));
+            add(node("2-5"));
+        });
+
     }
 
-    @Test(expected = IntersectingIntervalException.class)
+    @Test
     public void childMiddleRightIntersect() {
-        add(node("2-3"));
-        add(node("4"));
-        add(node("5-6"));
-        add(node("3-6"));
+        Assertions.assertThrows(IntersectingIntervalException.class, () -> {
+            add(node("2-3"));
+            add(node("4"));
+            add(node("5-6"));
+            add(node("3-6"));
+        });
+
     }
 
     @Test

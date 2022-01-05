@@ -2,22 +2,27 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class NServerTest {
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void empty() {
-        NServer.parse("");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            NServer.parse("");
+        });
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void hostname_invalid() {
-        NServer.parse("$");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            NServer.parse("$");
+        });
     }
 
     @Test
@@ -44,9 +49,12 @@ public class NServerTest {
         assertThat(nServer.toString(), is("dns.comcor.ru 194.0.0.0"));
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void hostname_and_ipv4_range_24() {
-        NServer.parse("dns.comcor.ru 194.0.0.0/24");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            NServer.parse("dns.comcor.ru 194.0.0.0/24");
+        });
+
     }
 
     @Test
@@ -65,9 +73,11 @@ public class NServerTest {
         assertThat(nServer.toString(), is("dns.comcor.ru 194.0.0.0"));
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void hostname_and_ipv4_list() {
-        NServer.parse("dns.comcor.ru 194.0.0.0 194.0.0.0");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            NServer.parse("dns.comcor.ru 194.0.0.0 194.0.0.0");
+        });
     }
 
     @Test
@@ -86,8 +96,10 @@ public class NServerTest {
         assertThat(nServer.toString(), is("dns.comcor.ru f::1"));
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void hostname_and_invalid_ip() {
-        NServer.parse("dns.comcor.ru dns.comcor.ru");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            NServer.parse("dns.comcor.ru dns.comcor.ru");
+        });
     }
 }

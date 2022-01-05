@@ -34,8 +34,8 @@ public class JdbcManagedAttributeDao {
     public boolean hasManagedResource(final CIString orgId) {
         final int orgObjectId = jdbcTemplate.queryForObject(
             "SELECT object_id FROM organisation WHERE organisation = ?",
-                new Object[] { orgId },
-                Integer.class
+                Integer.class,
+                new Object[] { orgId }
         );
 
         return executeStreaming(

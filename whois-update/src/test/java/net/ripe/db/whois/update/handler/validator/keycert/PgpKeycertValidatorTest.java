@@ -11,28 +11,28 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PgpKeycertValidatorTest {
 
     @Mock PreparedUpdate update;
@@ -41,10 +41,10 @@ public class PgpKeycertValidatorTest {
     @InjectMocks PgpKeycertValidator subject;
     List<Message> messages;
 
-    @Before
+    @BeforeEach
     public void setup() {
         messages = Lists.newArrayList();
-        doAnswer(new Answer() {
+        lenient().doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
@@ -52,7 +52,7 @@ public class PgpKeycertValidatorTest {
                 return null;
             }
         }).when(updateContext).addMessage(any(UpdateContainer.class), any(RpslAttribute.class), any(Message.class));
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        lenient().when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
     }
 
     @Test
@@ -90,7 +90,6 @@ public class PgpKeycertValidatorTest {
                "mnt-by:       TST-MNT\n" +
                "source:       TEST");
 
-        when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(object);
 
         subject.validate(update, updateContext);
@@ -138,7 +137,6 @@ public class PgpKeycertValidatorTest {
                 "notify:       noreply@ripe.net\n" +
                 "source:       TEST\n");
 
-        when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(object);
 
         subject.validate(update, updateContext);
@@ -210,7 +208,7 @@ public class PgpKeycertValidatorTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST");
 
-        when(update.getAction()).thenReturn(Action.CREATE);
+//        when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(object);
 
         subject.validate(update, updateContext);
@@ -252,7 +250,6 @@ public class PgpKeycertValidatorTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(object);
 
         subject.validate(update, updateContext);
@@ -293,7 +290,6 @@ public class PgpKeycertValidatorTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(object);
 
         subject.validate(update, updateContext);

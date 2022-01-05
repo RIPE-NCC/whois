@@ -1,12 +1,13 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import org.junit.jupiter.api.Tag
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -57,6 +58,19 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: AP1-TEST
             mnt-by:  UPD-MNT
             source:  TEST
+            """,
+                "ROLE-A": """\
+            role:         Abuse Handler
+            address:      St James Street
+            address:      Burnley
+            address:      UK
+            e-mail:       dbtest@ripe.net
+            abuse-mailbox:abuse@lir.net
+            admin-c:      AP1-TEST
+            tech-c:       AP1-TEST
+            nic-hdl:      AH1-TEST
+            mnt-by:       UPD-MNT
+            source:       TEST
             """,
                 "ORG-NCC1-RIPE": """\
             organisation: ORG-NCC1-RIPE
@@ -871,6 +885,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "address:         RIPE NCC\n" +
                 "e-mail:          dbtest@ripe.net\n" +
                 "ref-nfy:         dbtest-org@ripe.net\n" +
+                "abuse-c:         AH1-TEST\n" +
                 "mnt-by:          upd-mnt\n" +
                 "mnt-ref:          upd-mnt\n" +
                 "source:  TEST")
@@ -930,6 +945,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "org-type:        other\n" +
                 "org-name:        Other Test org\n" +
                 "address:         RIPE NCC\n" +
+                "abuse-c:         AH1-TEST\n" +
                 "e-mail:          dbtest@ripe.net\n" +
                 "ref-nfy:         dbtest-org@ripe.net\n" +
                 "mnt-by:          upd-mnt\n" +

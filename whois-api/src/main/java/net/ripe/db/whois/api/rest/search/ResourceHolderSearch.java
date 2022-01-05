@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +38,7 @@ public class ResourceHolderSearch {
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
             final Maintainers maintainers,
-            final RpslObjectDao rpslObjectDao) {
+            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao) {
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.maintainers = maintainers;

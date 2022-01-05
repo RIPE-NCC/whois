@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
-import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -10,14 +9,13 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_ADDRESS;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_EMAIL;
@@ -26,29 +24,27 @@ import static net.ripe.db.whois.update.handler.validator.organisation.LirAttribu
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_ORG_NAME_CASE_SENSITIVE;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_PHONE;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.NON_LIR_ORG;
-import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.NON_LIR_ORG_CHANGED;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LirUserMaintainedAttributesValidatorTest {
 
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock Subject authenticationSubject;
-    @Mock Maintainers maintainers;
 
     @InjectMocks LirUserMaintainedAttributesValidator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(maintainers.getAllocMaintainers()).thenReturn(ciSet("ALLOC-MNT"));
-        when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
+        lenient().when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
     }
 
     @Test
@@ -68,7 +64,6 @@ public class LirUserMaintainedAttributesValidatorTest {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
         when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
-        when(update.getUpdatedObject()).thenReturn(NON_LIR_ORG_CHANGED);
 
         subject.validate(update, updateContext);
 

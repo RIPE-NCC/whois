@@ -176,6 +176,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
     }
 
+    public static Message invalidMaintainerName() {
+        return new Message(Type.ERROR, "When creating a MNTNER the name must end with an -MNT suffix");
+    }
+
     public static Message cantChangeOrgAttribute() {
         return new Message(Type.ERROR, "Referenced organisation can only be changed by the RIPE NCC for this resource.\n" +
                 "Please contact \"ncc@ripe.net\" to change this reference.");
@@ -277,6 +281,10 @@ public final class UpdateMessages {
 
     public static Message intersectingRange(final Interval<?> intersectingRange) {
         return new Message(Type.ERROR, "This range overlaps with %s", intervalToString(intersectingRange));
+    }
+
+    public static Message intersectingDomain(final CIString domainKey) {
+        return new Message(Type.ERROR, "This domain overlaps with %s", domainKey);
     }
 
     public static Message inetnumStatusLegacy() {
@@ -562,6 +570,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Self reference is not allowed for attribute type \"%s\"", attributeType.getName());
     }
 
+    public static Message noAbuseContact(final CIString orgId) {
+        return new Message(Type.ERROR, "%s must include an \"abuse-c:\" attribute", orgId);
+    }
+
     public static Message commentInSourceNotAllowed() {
         return new Message(Type.ERROR, "End of line comments not allowed on \"source:\" attribute");
     }
@@ -612,6 +624,10 @@ public final class UpdateMessages {
 
     public static Message valueChangedDueToLatin1Conversion(final String attributeName) {
         return new Message(Type.WARNING, "Invalid character(s) were substituted in attribute \"%s\" value", attributeName);
+    }
+
+    public static Message valueChangedDueToPunycodeConversion() {
+        return new Message(Type.WARNING, "Value changed due to conversion of IDN email address(es) into Punycode");
     }
 
     public static Message oldPasswordsRemoved() {
@@ -670,4 +686,11 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Ignored object with size %d, exceeds maximum object size %d.", size, maximumSize);
     }
 
+    public static Message geofeedTooSpecific(int maxPrefixAllowed) {
+        return new Message(Type.ERROR, "Adding or modifying the \"geofeed:\" attribute of an object with a prefix length greater or equal to %d is not allowed.", maxPrefixAllowed);
+    }
+
+    public static Message eitherGeofeedOrRemarksIsAllowed() {
+        return new Message(Type.ERROR, "Only one between the \"geofeed:\" and \"remark: geofeed:\" attributes is allowed.");
+    }
 }

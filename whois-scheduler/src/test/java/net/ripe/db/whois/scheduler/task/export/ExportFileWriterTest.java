@@ -6,16 +6,14 @@ import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryMessages;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.util.FileCopyUtils;
 
@@ -27,12 +25,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.zip.GZIPInputStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ExportFileWriterTest {
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
     @Mock FilenameStrategy filenameStrategy;
     @Mock DecorationStrategy decorationStrategy;
@@ -40,7 +43,7 @@ public class ExportFileWriterTest {
 
     ExportFileWriter subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(filenameStrategy.getFilename(any(ObjectType.class))).thenAnswer(new Answer<String>() {
             @Override
@@ -49,21 +52,20 @@ public class ExportFileWriterTest {
             }
         });
 
+        subject = new ExportFileWriter(folder.getAbsoluteFile(), filenameStrategy, decorationStrategy, exportFilter);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void write() throws IOException {
         when(decorationStrategy.decorate(any(RpslObject.class))).thenAnswer(new Answer<RpslObject>() {
             @Override
             public RpslObject answer(InvocationOnMock invocation) throws Throwable {
                 return (RpslObject) invocation.getArguments()[0];
             }
         });
-
         when(exportFilter.shouldExport(any(RpslObject.class))).thenReturn(true);
 
-        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy, exportFilter);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void write() throws IOException {
         subject.write(RpslObject.parse("mntner: DEV-MNT1"), Collections.EMPTY_LIST);
         subject.write(RpslObject.parse("mntner: DEV-MNT2"), Collections.EMPTY_LIST);
         subject.write(RpslObject.parse("mntner: DEV-MNT3"), Collections.EMPTY_LIST);
@@ -72,9 +74,9 @@ public class ExportFileWriterTest {
         subject.write(RpslObject.parse("route: 193.0.0.0 - 193.0.0.10\norigin: AS12"), Lists.newArrayList(new Tag(CIString.ciString("foo"), 3, "bar")));
         subject.close();
 
-        final File[] files = folder.getRoot().listFiles();
-        Assert.assertNotNull(files);
-        Assert.assertThat(files.length, Matchers.is(21));
+        final File[] files = folder.listFiles();
+        assertThat(files, is(not(nullValue())));
+        assertThat(files.length, is(21));
 
         for (final File file : files) {
             final String fileName = file.getName();
@@ -102,11 +104,15 @@ public class ExportFileWriterTest {
 
     private void checkFile(final File file, final String expectedContents) throws IOException {
         final String content = FileCopyUtils.copyToString(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), StandardCharsets.ISO_8859_1));
-        Assert.assertThat(content, Matchers.is(QueryMessages.termsAndConditionsDump() + "\n" + expectedContents));
+
+        assertThat(content, is(QueryMessages.termsAndConditionsDump() + "\n" + expectedContents));
     }
 
-    @Test(expected = RuntimeException.class)
-    public void unexisting_folder() throws IOException {
-        new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, exportFilter);
+    @Test
+    public void unexisting_folder() {
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            new ExportFileWriter(new File(folder.getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, exportFilter);
+
+        });
     }
 }

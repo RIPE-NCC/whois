@@ -18,7 +18,7 @@
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
+            <artifactId>netty-all</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -54,6 +54,7 @@
         </dependency>
 
         <!-- testing -->
+
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
@@ -68,6 +69,12 @@
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws.proprot</groupId>
+            <artifactId>proprot</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -89,7 +96,7 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>io.starter</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
                 <configuration>
                     <aspectLibraries>

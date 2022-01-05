@@ -3,21 +3,21 @@ package net.ripe.db.whois.update.domain;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AckTest {
     private List<UpdateResult> updateResults;
     private List<Paragraph> ignoredParagraphs;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         updateResults = Lists.newArrayList();
         ignoredParagraphs = Lists.newArrayList();

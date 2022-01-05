@@ -7,19 +7,20 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MntRoutesAttributeTransformerTest {
 
     @Mock
@@ -29,7 +30,7 @@ public class MntRoutesAttributeTransformerTest {
 
     private MntRoutesAttributeTransformer subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.subject = new MntRoutesAttributeTransformer();
     }
@@ -85,7 +86,7 @@ public class MntRoutesAttributeTransformerTest {
         final RpslObject updatedAutnum = subject.transform(autnum, update, updateContext, Action.MODIFY);
 
         assertThat(updatedAutnum.containsAttribute(AttributeType.MNT_ROUTES), is(false));
-        assertThat(diff(autnum, updatedAutnum), isEmptyString());
+        assertThat(diff(autnum, updatedAutnum), is(emptyString()));
         verifyMessageNotAdded();
     }
 
@@ -108,7 +109,7 @@ public class MntRoutesAttributeTransformerTest {
         final RpslObject updatedInetnum = subject.transform(inetnum, update, updateContext, Action.MODIFY);
 
         assertThat(updatedInetnum.containsAttribute(AttributeType.MNT_ROUTES), is(true));
-        assertThat(diff(inetnum, updatedInetnum), isEmptyString());
+        assertThat(diff(inetnum, updatedInetnum), is(emptyString()));
         verifyMessageNotAdded();
     }
 

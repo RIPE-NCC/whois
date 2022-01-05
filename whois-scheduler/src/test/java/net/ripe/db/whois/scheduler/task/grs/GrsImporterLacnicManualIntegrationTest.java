@@ -2,7 +2,6 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.io.Files;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.ManualTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
@@ -10,11 +9,10 @@ import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -23,11 +21,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 
-@Category(ManualTest.class)
+@org.junit.jupiter.api.Tag("ManualTest")
 @DirtiesContext
 public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerIntegrationTest {
 
@@ -41,7 +39,7 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
 
     private static final File tempDirectory = Files.createTempDir();
 
-    @BeforeClass
+    @BeforeAll
     public static void setup_database() {
         DatabaseHelper.addGrsDatabases("LACNIC-GRS");
 
@@ -53,12 +51,12 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
         System.setProperty("dir.grs.import.download", tempDirectory.getAbsolutePath());
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanup() {
         FileHelper.delete(tempDirectory);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         authoritativeResourceImportTask.run();
         authoritativeResourceData.refreshGrsSources();

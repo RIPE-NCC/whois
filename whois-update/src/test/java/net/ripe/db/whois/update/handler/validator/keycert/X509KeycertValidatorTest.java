@@ -1,34 +1,32 @@
 package net.ripe.db.whois.update.handler.validator.keycert;
-
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class X509KeycertValidatorTest {
 
     @Mock PreparedUpdate update;
@@ -37,10 +35,10 @@ public class X509KeycertValidatorTest {
     @InjectMocks X509KeycertValidator subject;
     List<Message> messages;
 
-    @Before
+    @BeforeEach
     public void setup() {
         messages = Lists.newArrayList();
-        doAnswer(new Answer() {
+        lenient().doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
@@ -48,7 +46,7 @@ public class X509KeycertValidatorTest {
                 return null;
             }
         }).when(updateContext).addMessage(any(UpdateContainer.class), any(RpslAttribute.class), any(Message.class));
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        lenient().when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
     }
 
     @Test
@@ -82,13 +80,13 @@ public class X509KeycertValidatorTest {
                 "certif:         -----END CERTIFICATE-----\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
-        when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.certificateHasWeakHash("AUTO-1", "MD5withRSA"));
         verify(updateContext).addMessage(update, UpdateMessages.publicKeyLengthIsWeak("RSA", 2048, 1024));
+        verify(updateContext).addMessage(update, UpdateMessages.publicKeyHasExpired(rpslObject.getKey()));
         verifyNoMoreInteractions(updateContext);
     }
 

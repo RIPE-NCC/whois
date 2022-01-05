@@ -1,30 +1,26 @@
 package net.ripe.db.whois.nrtm;
 
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelState;
-import org.jboss.netty.channel.UpstreamChannelStateEvent;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NrtmConnectionPerIpLimitHandlerTest {
 
     private static final int MAX_CONNECTIONS_PER_IP = 1;
@@ -36,50 +32,42 @@ public class NrtmConnectionPerIpLimitHandlerTest {
 
     private NrtmConnectionPerIpLimitHandler subject;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.subject = new NrtmConnectionPerIpLimitHandler(MAX_CONNECTIONS_PER_IP, nrtmLog);
 
-        when(ctx.getChannel()).thenReturn(channel);
-
-        when(channel.write(anyObject())).thenReturn(channelFuture);
+        when(ctx.channel()).thenReturn(channel);
     }
 
     @Test
     public void one_connected() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
-        when(channel.getRemoteAddress()).thenReturn(remoteAddress);
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
 
-        final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, event);
-        subject.handleUpstream(ctx, event);
+        subject.channelActive(ctx);
+        subject.channelActive(ctx);
 
-        verify(ctx, times(2)).sendUpstream(event);
+        verify(ctx, times(2)).fireChannelActive();
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Test
     public void multiple_connected_same_ip() throws Exception {
+        when(channel.write(any())).thenReturn(channelFuture);
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
-        when(channel.getRemoteAddress()).thenReturn(remoteAddress);
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
 
-        final ChannelEvent openEvent = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, openEvent);
-        subject.handleUpstream(ctx, openEvent);
-        subject.handleUpstream(ctx, openEvent);
+        subject.channelActive(ctx);
+        subject.channelActive(ctx);
+        subject.channelActive(ctx);
 
-        verify(ctx, times(2)).sendUpstream(openEvent);
-        verify(channel, times(1)).write(argThat(new ArgumentMatcher<Object>() {
-            @Override
-            public boolean matches(Object argument) {
-                return NrtmMessages.connectionsExceeded(MAX_CONNECTIONS_PER_IP).equals(argument);
-            }
-        }));
+        verify(ctx, times(2)).fireChannelActive();
+        verify(channel, times(1)).write(argThat(argument -> NrtmMessages.connectionsExceeded(MAX_CONNECTIONS_PER_IP).equals(argument)));
         verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
         verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
-        verify(ctx, times(2)).sendUpstream(openEvent);
+        verify(ctx, times(2)).fireChannelActive();
     }
 
     @Test
@@ -88,16 +76,15 @@ public class NrtmConnectionPerIpLimitHandlerTest {
 
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
 
-        when(channel.getRemoteAddress()).thenReturn(remoteAddress);
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
 
-        final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, event);
-        subject.handleUpstream(ctx, event);
-        subject.handleUpstream(ctx, event);
+        subject.channelActive(ctx);
+        subject.channelActive(ctx);
+        subject.channelActive(ctx);
 
-        verify(ctx, times(3)).sendUpstream(event);
+        verify(ctx, times(3)).fireChannelActive();
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -105,19 +92,16 @@ public class NrtmConnectionPerIpLimitHandlerTest {
     public void multiple_connected_different_ip() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
         final InetSocketAddress remoteAddress2 = new InetSocketAddress("10.0.0.1", 43);
-        when(channel.getRemoteAddress()).thenReturn(remoteAddress).thenReturn(remoteAddress).thenReturn(remoteAddress2);
+        when(channel.remoteAddress()).thenReturn(remoteAddress).thenReturn(remoteAddress).thenReturn(remoteAddress2);
 
-        final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, event);
-        subject.handleUpstream(ctx, event);
+        subject.channelActive(ctx);
+        subject.channelActive(ctx);
 
-        final ChannelEvent event2 = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, event2);
+        subject.channelActive(ctx);
 
-        verify(ctx, times(2)).sendUpstream(event);
-        verify(ctx, times(1)).sendUpstream(event2);
+        verify(ctx, times(3)).fireChannelActive();
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 

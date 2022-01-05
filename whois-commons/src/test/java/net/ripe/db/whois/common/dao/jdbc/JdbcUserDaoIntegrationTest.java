@@ -1,12 +1,13 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -14,15 +15,17 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class JdbcUserDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired UserDao subject;
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void getOverrideUser_not_found() {
-        subject.getOverrideUser("unexist");
+        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+            subject.getOverrideUser("unexist");
+        });
     }
 
     @Test

@@ -12,26 +12,27 @@ import net.ripe.db.whois.update.dns.zonemaster.domain.StartDomainTestResponse;
 import net.ripe.db.whois.update.dns.zonemaster.domain.TestProgressResponse;
 import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
 import net.ripe.db.whois.update.domain.Update;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 // TODO: [ES] slow unit tests (takes ~30s)
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ZonemasterDnsGatewayTest {
 
     @Mock
@@ -53,7 +54,7 @@ public class ZonemasterDnsGatewayTest {
     @InjectMocks
     private ZonemasterDnsGateway subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(restClient.sendRequest(any(ZonemasterRequest.class))).thenReturn(response);
         when(response.readEntity(StartDomainTestResponse.class)).thenReturn(startDomainTestResponse);

@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
@@ -66,8 +66,8 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 mnt-by:       TST-MNT2
                 source:       TEST
                 """,
-                "TST-MNT-NEW"    : """\
-                mntner:      TST-MNT-NEW
+                "TST-NEW-MNT"    : """\
+                mntner:      TST-NEW-MNT
                 descr:       MNTNER for test
                 admin-c:     TP1-TEST
                 upd-to:      dbtest@ripe.net
@@ -111,7 +111,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-                mntner:      TST-MNT-NEW
+                mntner:      TST-NEW-MNT
                 descr:       MNTNER for test
                 admin-c:     TP1-TEST
                 upd-to:      dbtest@ripe.net
@@ -132,9 +132,9 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[mntner] TST-MNT-NEW" }
+        ack.successes.any { it.operation == "Create" && it.key == "[mntner] TST-NEW-MNT" }
 
-        queryObject("-rBT mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
+        queryObject("-rBT mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
     }
 
     def "create mntr authorized by a non-existing PGP-Key"() {
@@ -144,7 +144,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-                mntner:      TST-MNT-NEW
+                mntner:      TST-NEW-MNT
                 descr:       MNTNER for test
                 admin-c:     TP1-TEST
                 upd-to:      dbtest@ripe.net
@@ -165,9 +165,9 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[mntner] TST-MNT-NEW" }
-        ack.errorMessagesFor("Create", "[mntner] TST-MNT-NEW") == ["Unknown object referenced PGPKEY-EBEEB05E"]
-        queryObjectNotFound("-rBT mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
+        ack.errors.any { it.operation == "Create" && it.key == "[mntner] TST-NEW-MNT" }
+        ack.errorMessagesFor("Create", "[mntner] TST-NEW-MNT") == ["Unknown object referenced PGPKEY-EBEEB05E"]
+        queryObjectNotFound("-rBT mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
     }
 
     def "create mntr authorized by a existing PGP-Key with override"() {
@@ -259,15 +259,15 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
     def "modify mntr authorized by PGP-Key"() {
         given:
         syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
-        syncUpdate(getTransient("TST-MNT-NEW") + "password:test")
+        syncUpdate(getTransient("TST-NEW-MNT") + "password:test")
         expect:
         queryObject("-r -T key-cert PGPKEY-EBEEB05E", "key-cert", "PGPKEY-EBEEB05E")
-        queryObject("-r -T mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
+        queryObject("-r -T mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
         when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                mntner:      TST-MNT-NEW
+                mntner:      TST-NEW-MNT
                 descr:       MNTNER description changed
                 admin-c:     TP1-TEST
                 upd-to:      dbtest@ripe.net
@@ -288,9 +288,9 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT-NEW" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-NEW-MNT" }
 
-        queryObject("-rBT mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
+        queryObject("-rBT mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
     }
 
     def "create mntr authorized by multiple auth values"() {
@@ -304,7 +304,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-                mntner:      TST-MNT-NEW
+                mntner:      TST-NEW-MNT
                 descr:       MNTNER description changed
                 admin-c:     TP1-TEST
                 upd-to:      dbtest@ripe.net
@@ -326,9 +326,9 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[mntner] TST-MNT-NEW" }
+        ack.successes.any { it.operation == "Create" && it.key == "[mntner] TST-NEW-MNT" }
 
-        queryObject("-rBT mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
+        queryObject("-rBT mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
     }
 
     def "modify mntner using override using pgp key with wrong pgp signature"() {
@@ -531,10 +531,10 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
     def "delete PGP-Key and modify mntr authorized by the PGP-Key"() {
         given:
         syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
-        syncUpdate(getTransient("TST-MNT-NEW") + "password:test")
+        syncUpdate(getTransient("TST-NEW-MNT") + "password:test")
         expect:
         queryObject("-r -T key-cert PGPKEY-EBEEB05E", "key-cert", "PGPKEY-EBEEB05E")
-        queryObject("-r -T mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
+        queryObject("-r -T mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
         when:
         def update = syncUpdate(
                 """\
@@ -566,7 +566,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 delete: test delete
 
-                mntner:      TST-MNT-NEW
+                mntner:      TST-NEW-MNT
                 descr:       MNTNER description changed
                 admin-c:     TP1-TEST
                 upd-to:      dbtest@ripe.net
@@ -586,11 +586,11 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 0, 1)
         ack.countErrorWarnInfo(1, 0, 0)
 
-        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT-NEW" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-NEW-MNT" }
         ack.errors.any { it.operation == "Delete" && it.key == "[key-cert] PGPKEY-EBEEB05E" }
 
         ack.errorMessagesFor("Delete", "[key-cert] PGPKEY-EBEEB05E") == ["Object [key-cert] PGPKEY-EBEEB05E is referenced from other objects"]
-        queryObject("-rBT mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
+        queryObject("-rBT mntner TST-NEW-MNT", "mntner", "TST-NEW-MNT")
     }
 
     def "delete key-cert object that differs in generated attributes only"() {

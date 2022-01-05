@@ -1,14 +1,14 @@
 package net.ripe.db.whois.common.etree;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MultiValueIntervalMapTest {
     private MultiValueIntervalMap<Ipv4Resource, String> subject;
@@ -24,7 +24,7 @@ public class MultiValueIntervalMapTest {
     private String v_132 = "1-3 2";
     private String v_133 = "1-3 3";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new MultiValueIntervalMap<>();
 

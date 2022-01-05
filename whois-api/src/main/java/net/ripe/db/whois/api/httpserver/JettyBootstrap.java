@@ -3,11 +3,15 @@ package net.ripe.db.whois.api.httpserver;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.jmx.ObjectMBean;
+import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.Slf4jRequestLogWriter;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -45,20 +49,31 @@ public class JettyBootstrap implements ApplicationService {
 
     private int port = 0;
 
+    private final RewriteEngine rewriteEngine;
     private final String trustedIpRanges;
+    private final boolean rewriteEngineEnabled;
 
     private final boolean dosFilterEnabled;
+
+    private final DelayShutdownHook delayShutdownHook;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
+                          final RewriteEngine rewriteEngine,
+                          final DelayShutdownHook delayShutdownHook,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
-                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled) throws MalformedObjectNameException {
+                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
+                          @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
+        this.rewriteEngine = rewriteEngine;
+        this.delayShutdownHook = delayShutdownHook;
         this.trustedIpRanges = trustedIpRanges;
+        this.rewriteEngineEnabled = rewriteEngineEnabled;
+        LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled? "en" : "dis");
         this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
         this.dosFilterEnabled = dosFilterEnabled;
     }
@@ -68,7 +83,7 @@ public class JettyBootstrap implements ApplicationService {
         server = createAndStartServer(port);
     }
 
-    @Value("${port.api}")
+    @Value("${port.api:0}")
     public void setPort(final int port) {
         if (port > 0) {
             this.port = port;
@@ -104,7 +119,13 @@ public class JettyBootstrap implements ApplicationService {
         }
 
         final HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[]{context});
+        handlers.setHandlers(new Handler[] { context });
+
+        if (rewriteEngineEnabled) {
+            final RewriteHandler rewriteHandler = rewriteEngine.getRewriteHandler();
+            rewriteHandler.setHandler(context);
+            handlers.setHandlers(new Handler[] { rewriteHandler });
+        }
 
         for (final ServletDeployer servletDeployer : servletDeployers) {
             servletDeployer.deploy(context);
@@ -150,10 +171,22 @@ public class JettyBootstrap implements ApplicationService {
 
     @RetryFor(attempts = 5, value = Exception.class)
     private Server createAndStartServer(int port, HandlerList handlers) throws Exception {
+        delayShutdownHook.register();
         final Server server = new Server(port);
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
         server.setRequestLog(createRequestLog());
+
+        final HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.addCustomizer( new RemoteAddressCustomizer() );
+
+        final HttpConnectionFactory connectionFactory = new HttpConnectionFactory( httpConfig );
+        final ServerConnector connector = new ServerConnector(server, connectionFactory);
+
+        //the port in the Server constructor is overridden by the new connector
+        connector.setPort(port);
+
+        server.setConnectors( new ServerConnector[] { connector } );
 
         server.start();
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
@@ -183,6 +216,6 @@ public class JettyBootstrap implements ApplicationService {
 
     // Log requests to org.eclipse.jetty.server.RequestLog
     private RequestLog createRequestLog() {
-        return new CustomRequestLog(new Slf4jRequestLogWriter(), EXTENDED_RIPE_LOG_FORMAT);
+        return new CustomRequestLog(new FilteredSlf4jRequestLogWriter("password"), EXTENDED_RIPE_LOG_FORMAT);
     }
 }

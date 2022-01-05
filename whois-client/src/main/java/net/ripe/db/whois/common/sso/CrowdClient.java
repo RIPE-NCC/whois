@@ -4,6 +4,7 @@ import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
 import com.google.common.collect.Iterables;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.jaxb.internal.JaxbMessagingBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +41,14 @@ public class CrowdClient {
     private Client client;
 
     @Autowired
-    public CrowdClient(@Value("${crowd.rest.url}") final String translatorUrl,
-                       @Value("${crowd.rest.user}") final String crowdAuthUser,
-                       @Value("${crowd.rest.password}") final String crowdAuthPassword) {
+    public CrowdClient(@Value("${crowd.rest.url:}") final String translatorUrl,
+                       @Value("${crowd.rest.user:}") final String crowdAuthUser,
+                       @Value("${crowd.rest.password:}") final String crowdAuthPassword) {
         this.restUrl = translatorUrl;
         this.client = ClientBuilder.newBuilder()
                 .register(HttpAuthenticationFeature.basic(crowdAuthUser, crowdAuthPassword))
                 .register(JacksonFeatures.class)
+                .register(new JaxbMessagingBinder())
                 .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
                 .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
                 .build();

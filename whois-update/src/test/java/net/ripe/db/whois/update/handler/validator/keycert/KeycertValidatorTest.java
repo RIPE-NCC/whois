@@ -13,31 +13,30 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class KeycertValidatorTest {
 
     @Mock PreparedUpdate update;
@@ -47,17 +46,9 @@ public class KeycertValidatorTest {
     @InjectMocks KeycertValidator subject;
     List<Message> messages;
 
-    @Before
+    @BeforeEach
     public void setup() {
         messages = Lists.newArrayList();
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                messages.add((Message) args[2]);
-                return null;
-            }
-        }).when(updateContext).addMessage(any(UpdateContainer.class), any(RpslAttribute.class), any(Message.class));
     }
 
     @Test
@@ -73,17 +64,21 @@ public class KeycertValidatorTest {
     @Test
     public void auto_1_with_x509() throws Exception {
         RpslObject object = RpslObject.parse(getResource("keycerts/AUTO-1-X509.TXT"));
-        when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(object);
-        when(keyWrapperFactory.createKeyWrapper(object, update, updateContext)).thenReturn(X509CertificateWrapper.parse(object));
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
     public void auto_3_with_pgp() {
+        doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            messages.add((Message) args[2]);
+            return null;
+        }).when(updateContext).addMessage(any(UpdateContainer.class), any(RpslAttribute.class), any(Message.class));
+
         final RpslObject object = RpslObject.parse("" +
                 "key-cert:     AUTO-3\n" +
                 "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
@@ -119,7 +114,6 @@ public class KeycertValidatorTest {
                 "mnt-by:       UPD-MNT\n" +
                 "notify:       noreply@ripe.net\n" +
                 "source:       TEST\n");
-        when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(object);
         when(x509AutoKeyFactory.isKeyPlaceHolder("AUTO-3")).thenReturn(true);
         when(keyWrapperFactory.createKeyWrapper(object, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(object));
@@ -133,14 +127,13 @@ public class KeycertValidatorTest {
     public void one_public_key_with_multiple_sub_keys() throws Exception {
         final RpslObject object = RpslObject.parse(getResource("keycerts/PGPKEY-MULTIPLE-SUBKEYS.TXT"));
         when(update.getUpdatedObject()).thenReturn(object);
-        when(keyWrapperFactory.createKeyWrapper(object, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(object));
 
         subject.validate(update, updateContext);
 
-        assertThat(messages.size(), is(0));
+        assertThat(messages, is(empty()));
     }
 
     private String getResource(final String resourceName) throws IOException {
-        return IOUtils.toString(new ClassPathResource(resourceName).getInputStream());
+        return IOUtils.toString(new ClassPathResource(resourceName).getInputStream(), Charset.defaultCharset());
     }
 }

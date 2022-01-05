@@ -7,16 +7,16 @@ import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -32,12 +32,12 @@ import java.util.regex.Pattern;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-api-test.xml"}, inheritLocations = false)
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse(
@@ -63,7 +63,7 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 
     private static Proxy proxy;
 
-    @BeforeClass
+    @BeforeAll
     public static void proxyMasterDatabaseConnections() {
         final String url = System.getProperty("whois.db.master.url");
         Matcher matcher = Pattern.compile("(jdbc:log:mariadb://)(.+)(/.+)").matcher(url);
@@ -77,7 +77,7 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
@@ -86,7 +86,7 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
         proxy.setRunning(false);
     }
 
-    @After
+    @AfterEach
     public void after() {
         proxy.setRunning(true);
     }

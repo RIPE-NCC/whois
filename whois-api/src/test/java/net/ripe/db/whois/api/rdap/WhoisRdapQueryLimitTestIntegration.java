@@ -2,12 +2,12 @@ package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.query.support.TestWhoisLog;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -15,9 +15,9 @@ import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationTest {
 
@@ -26,12 +26,12 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
     @Autowired
     TestWhoisLog queryLog;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("rdap.search.max.results", "2");
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("" +
                 "person:        Test Person\n" +

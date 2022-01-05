@@ -71,7 +71,9 @@ public class ResponseFactory {
     }
 
     public ResponseMessage createNotification(final UpdateContext updateContext, final Origin origin, final Notification notification) {
-        final String ssoUserEmail = updateContext.getUserSession() != null ? updateContext.getUserSession().getUsername() : "";
+        final String ssoUserEmail = updateContext.getUserSession() != null && !notification.isOverrideUsed()?
+                updateContext.getUserSession().getUsername() : "";
+
         final VelocityContext velocityContext = new VelocityContext();
 
         velocityContext.put("failedAuthentication", notification.getUpdates(Notification.Type.FAILED_AUTHENTICATION));
@@ -93,9 +95,9 @@ public class ResponseFactory {
         velocityContext.put("globalMessages", updateContext.printGlobalMessages());
         velocityContext.put("origin", origin);
         velocityContext.put("version", applicationVersion.getVersion());
-        velocityContext.put("hostName", Hosts.getLocalHostName());
+        velocityContext.put("hostName", Hosts.getInstanceName());
         velocityContext.put("source", source);
-        velocityContext.put("timestamp", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
+        velocityContext.put("timestamp", FormatHelper.dateTimeToUtcString(dateTimeProvider.getCurrentDateTime()));
 
         final Template template = velocityEngine.getTemplate(templateName);
         final StringWriter writer = new StringWriter();

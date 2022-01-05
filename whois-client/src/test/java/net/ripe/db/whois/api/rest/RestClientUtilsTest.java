@@ -2,10 +2,10 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RestClientUtilsTest {
 

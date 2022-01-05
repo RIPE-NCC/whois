@@ -1,49 +1,50 @@
 package net.ripe.db.whois.query.pipeline;
 
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.DefaultChannelId;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class QueryChannelsRegistryTest {
 
     @Mock private ChannelHandlerContext contextMock;
-    @Mock private ChannelStateEvent eventMock;
     @Mock private Channel channelMock;
     @Mock private ChannelFuture futureMock;
     @InjectMocks private QueryChannelsRegistry subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(eventMock.getChannel()).thenReturn(channelMock);
-        when(channelMock.getCloseFuture()).thenReturn(futureMock);
-        when(channelMock.close()).thenReturn(futureMock);
+        when(contextMock.channel()).thenReturn(channelMock);
+        when(channelMock.closeFuture()).thenReturn(futureMock);
+
+        when(channelMock.id()).thenReturn(DefaultChannelId.newInstance());
     }
 
     @Test
     public void channel_open_records_sends_upstream() {
-        subject.channelOpen(contextMock, eventMock);
+        subject.channelActive(contextMock);
 
         assertThat(subject.size(), is(1));
-        verify(contextMock, times(1)).sendUpstream(eventMock);
+        verify(contextMock, times(1)).fireChannelActive();
     }
 
     @Test
     public void service_stop_closes_channels() {
-        subject.channelOpen(contextMock, eventMock);
+        when(channelMock.close()).thenReturn(futureMock);
+        subject.channelActive(contextMock);
 
         subject.closeChannels();
 

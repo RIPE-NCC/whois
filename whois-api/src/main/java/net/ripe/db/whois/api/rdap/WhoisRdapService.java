@@ -5,7 +5,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
@@ -43,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +53,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -126,8 +127,12 @@ public class WhoisRdapService {
                            @PathParam("objectType") RdapRequestType requestType,
                            @PathParam("key") final String key) {
 
-        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
-        final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);
+        LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
+        if (requestType == null) {
+            throw new BadRequestException("unknown objectType");
+        }
+
+        final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);  // null
 
         switch (requestType) {
             case AUTNUM: {
@@ -148,7 +153,7 @@ public class WhoisRdapService {
                 return lookupObject(request, whoisObjectTypes, key);
             }
             case NAMESERVER: {
-                throw new NotFoundException("nameserver not found");
+                throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
             }
             default: {
                 throw new BadRequestException("unknown type");
@@ -164,7 +169,7 @@ public class WhoisRdapService {
             @QueryParam("fn") final String name,
             @QueryParam("handle") final String handle) {
 
-        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
+        LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
         if (name != null && handle == null) {
             return handleSearch(new String[]{"person", "role", "org-name"}, name, request);
@@ -183,14 +188,7 @@ public class WhoisRdapService {
     public Response searchNameservers(
             @Context final HttpServletRequest request,
             @QueryParam("name") final String name) {
-
-        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
-
-        if (StringUtils.isEmpty(name)) {
-            throw new BadRequestException("empty lookup key");
-        }
-
-        throw new NotFoundException("nameservers not found");
+        throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
     }
 
     @GET
@@ -200,7 +198,7 @@ public class WhoisRdapService {
             @Context final HttpServletRequest request,
             @QueryParam("name") final String name) {
 
-        LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
+        LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
         return handleSearch(new String[]{"domain"}, name, request);
     }
@@ -276,7 +274,7 @@ public class WhoisRdapService {
                         getRequestUrl(request),
                         resultObject,
                         objectDao.getLastUpdated(resultObject.getObjectId()),
-                        abuseCFinder.getAbuseContactRole(resultObject)))
+                        abuseCFinder.getAbuseContact(resultObject)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -321,7 +319,7 @@ public class WhoisRdapService {
     }
 
     private Response handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
-        LOGGER.info("Search {} for {}", fields, term);
+        LOGGER.debug("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
             throw new BadRequestException("empty search term");
@@ -349,12 +347,18 @@ public class WhoisRdapService {
                                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                                     final Document document = indexSearcher.doc(scoreDoc.doc);
 
-                                    final RpslObject rpslObject = objectDao.getById(getObjectId(document));
+                                    final RpslObject rpslObject;
+                                    try {
+                                        rpslObject = objectDao.getById(getObjectId(document));
+                                    } catch (EmptyResultDataAccessException e) {
+                                        // object was deleted from the database but index was not updated yet
+                                        continue;
+                                    }
                                     account(rpslObject);
                                     results.add(rpslObject);
                                 }
 
-                                LOGGER.info("Found {} objects in {}", results.size(), stopWatch.stop());
+                                LOGGER.debug("Found {} objects in {}", results.size(), stopWatch.stop());
                                 return results;
 
                             } catch (ParseException e) {

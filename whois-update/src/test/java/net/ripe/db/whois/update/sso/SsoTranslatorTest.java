@@ -4,22 +4,23 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SsoTranslatorTest {
 
     @Mock UpdateContext updateContext;
@@ -29,7 +30,7 @@ public class SsoTranslatorTest {
 
     private SsoTranslator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new SsoTranslator(crowdClient);
     }
@@ -40,7 +41,7 @@ public class SsoTranslatorTest {
 
         final RpslObject result = subject.translateFromCacheAuthToUuid(updateContext, object);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
         assertThat(result, is(object));
     }
 
@@ -82,7 +83,7 @@ public class SsoTranslatorTest {
 
         subject.populateCacheAuthToUuid(updateContext, update);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -92,7 +93,7 @@ public class SsoTranslatorTest {
 
         subject.populateCacheAuthToUuid(updateContext, update);
 
-        verifyZeroInteractions(updateContext);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test

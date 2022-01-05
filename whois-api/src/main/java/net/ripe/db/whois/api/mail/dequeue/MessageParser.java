@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.mail.dequeue;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import net.ripe.db.whois.api.mail.MailMessage;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
@@ -13,6 +14,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +40,15 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 
 /**
  * Ref: http://www.ripe.net/data-tools/support/documentation/update-ref-manual#section-47
@@ -51,12 +58,15 @@ public class MessageParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageParser.class);
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
+    private static final Pattern HEADER_BASE_64 = Pattern.compile("Content-Transfer-Encoding:\\s+base64*");
 
     private final LoggerContext loggerContext;
+    private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    public MessageParser(final LoggerContext loggerContext) {
+    public MessageParser(final LoggerContext loggerContext, final DateTimeProvider dateTimeProvider) {
         this.loggerContext = loggerContext;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException {
@@ -67,9 +77,12 @@ public class MessageParser {
 
         String[] deliveryDate = message.getHeader("Delivery-date");
         if (deliveryDate != null && deliveryDate.length > 0 && deliveryDate[0].length() > 0) {
-            messageBuilder.date(deliveryDate[0]);
+            ZonedDateTime deliveryDateInUTC = ZonedDateTime
+                    .parse(deliveryDate[0], RFC_1123_DATE_TIME).withZoneSameInstant(ZoneOffset.UTC);
+
+            messageBuilder.date(DATE_FORMAT.format(deliveryDateInUTC));
         } else {
-            messageBuilder.date(DATE_FORMAT.format(ZonedDateTime.now()));
+            messageBuilder.date(DATE_FORMAT.format(dateTimeProvider.getCurrentZonedDateTime()));
         }
 
         parseReplyTo(messageBuilder, message);
@@ -175,7 +188,7 @@ public class MessageParser {
 
                 if (bodyPartContentType.getBaseType().equals("multipart/mixed") && contentType.getBaseType().equals("multipart/signed")) {
                     // nested multipart signed message
-                    messageParts.add(new MessagePart(getHeaders(bodyPart) + getRawContent(bodyPart), bodyPart));
+                    messageParts.add(new MessagePart(getHeaders(bodyPart) + getRawContent(bodyPart, bodyPartContentType.getParameter("boundary")), bodyPart));
                 } else if (bodyPartContentType.getBaseType().equals("application/pgp-signature")) {
                     final MessagePart last = messageParts.getLast();
                     final String signedData = getHeaders(last.part) + getRawContent(last.part);
@@ -266,12 +279,33 @@ public class MessageParser {
         return builder.toString();
     }
 
+    //TODO: Refactor the code properly to avoid manually decoding base64.
+    // part.getContents() does gives us plain text but the PGP is signed including the boundary and headers from parent part.
+    String getRawContent(final Part part, final String boundary) throws MessagingException {
+        final String rawContent = getRawContent(part);
+        return getDecodedContent(rawContent, boundary);
+    }
+
     String getRawContent(final Part part) throws MessagingException {
         try (final InputStream inputStream = ((MimeBodyPart) part).getRawInputStream()) {
             return new String(ByteStreams.toByteArray(inputStream), getCharset(new ContentType(part.getContentType())));
         } catch (IOException e) {
             throw new MessagingException("Unable to read body part", e);
         }
+    }
+
+    private String getDecodedContent(final String rawContent, final String boundary) {
+        final Matcher matcher = HEADER_BASE_64.matcher(rawContent);
+
+        if(boundary == null || !matcher.find()) {
+            return rawContent;
+        }
+
+        //Boundary parameter in contentType exactly has two extra "--" as start and end of boundary
+        final String encodedContent = StringUtils.substringBetween(rawContent, matcher.group(0), "--".concat(boundary)).trim();
+        final String decodedContent = decodeBase64Encoding(encodedContent);
+
+        return rawContent.replace(encodedContent, decodedContent);
     }
 
     String getContent(final Part part) throws MessagingException {
@@ -317,6 +351,15 @@ public class MessageParser {
 
         void addCredential(final Credential credential) {
             credentials.add(credential);
+        }
+    }
+
+    private String decodeBase64Encoding(final String paragraph) {
+        try {
+            return new String(new Base64().decode(paragraph.getBytes()));
+        } catch (Exception e) {
+            LOGGER.info("failed to decode base64 due to {}: {}", e.getClass().getName(), e.getMessage());
+            return paragraph;
         }
     }
 }

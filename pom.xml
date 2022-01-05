@@ -25,69 +25,73 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- JAVA version -->
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
 
         <!-- dependencies -->
 
-        <aspectj.version>1.8.8</aspectj.version>
-        <awaitility.version>1.3.5</awaitility.version>
+        <aspectj.version>1.9.7</aspectj.version>
+        <awaitility.version>4.1.1</awaitility.version>
+        <sentry.version>5.1.2</sentry.version>
 
-        <bouncycastle.version>1.65</bouncycastle.version>
+        <bouncycastle.version>1.70</bouncycastle.version>
 
-        <c3po.version>0.9.5.4</c3po.version>
-        <commons-compress.version>1.19</commons-compress.version>
-        <commons-net.version>3.4</commons-net.version>
-        <commons-io.version>2.4</commons-io.version>
-        <commons-codec.version>1.11</commons-codec.version>
+        <c3po.version>0.9.5.5</c3po.version>
+        <commons-compress.version>1.21</commons-compress.version>
+        <commons-net.version>3.8.0</commons-net.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <commons-codec.version>1.15</commons-codec.version>
+        <commons-email.version>1.5</commons-email.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-validator.version>1.6</commons-validator.version>
+        <commons-validator.version>1.7</commons-validator.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
 
         <diffutils.version>1.3.0</diffutils.version>
 
-        <ezvcard.version>0.8.2</ezvcard.version>
+        <ezvcard.version>0.11.3</ezvcard.version>
 
-        <findbugs.version>1.3.9</findbugs.version>
+        <findbugs.version>3.0.2</findbugs.version>
 
-        <guava.version>26.0-jre</guava.version>
+        <guava.version>30.1.1-jre</guava.version>
+        <groovy.version>3.0.9</groovy.version>
 
-        <!-- TODO: [ES] hazelcast 3.6 loses data on node shutdown. See hazelcast branch -->
-        <hazelcast.version>2.6.10</hazelcast.version>
-        <hamcrest.version>1.3</hamcrest.version>
+        <hazelcast.version>4.2.2</hazelcast.version>
+        <hamcrest.version>2.2</hamcrest.version>
 
-        <jaxb.version>2.2.11</jaxb.version>
+        <jaxb.version>2.3.3</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
-        <jopt-simple.version>4.8</jopt-simple.version>
-        <jsoup.version>1.11.2</jsoup.version>
-        <junit.version>4.12</junit.version>
-        <jetty.version>9.4.28.v20200408</jetty.version>
-        <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
-        <jersey.version>2.12</jersey.version>
-        <jackson.version>2.10.3</jackson.version>
+        <jopt-simple.version>5.0.4</jopt-simple.version>
+        <jsoup.version>1.14.3</jsoup.version>
+        <junit.version>5.7.2</junit.version>
+        <jetty.version>10.0.7</jetty.version>
+        <jersey.version>2.35</jersey.version>
+        <jackson.version>2.12.6</jackson.version>
 
-        <log4j.version>2.13.2</log4j.version>
-        <lucene.version>7.7.2</lucene.version>
+        <log4j.version>2.17.1</log4j.version>
+
+        <!-- Needs to be in sync with the version of Lucene used by the ElasticSearch client -->
+        <lucene.version>8.9.0</lucene.version>
 
         <mail.version>1.6.2</mail.version>
-        <mariadb-java-client.version>2.5.1</mariadb-java-client.version>
-        <mockito.version>1.9.5</mockito.version>
+        <mariadb-java-client.version>2.7.4</mariadb-java-client.version>
+        <mockito.version>3.11.2</mockito.version>
 
-        <netty.version>3.10.6.Final</netty.version>
+        <netty.version>4.1.70.Final</netty.version>
 
         <persistence.version>1.0.2</persistence.version>
 
-        <slf4j.version>1.7.30</slf4j.version>
-        <spring.version>5.2.5.RELEASE</spring.version>
-        <springockito.version>1.0.5</springockito.version>
+        <slf4j.version>1.7.32</slf4j.version>
+        <spring.version>5.3.14</spring.version>
+        <springockito.version>1.0.9</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
-        <spock.version>0.7-groovy-1.8</spock.version>
-        <shedlock.version>2.5.0</shedlock.version>
+        <spock.version>2.0-groovy-3.0</spock.version>
+        <shedlock.version>4.24.0</shedlock.version>
 
-        <velocity.version>2.0</velocity.version>
+        <validation.version>2.0.1.Final</validation.version>
+        <velocity.version>2.3</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
     </properties>
@@ -100,11 +104,11 @@
     <distributionManagement>
         <repository>
             <id>ripe-releases</id>
-            <url>https://nexus.ripe.net/nexus/content/repositories/releases</url>
+            <url>https://artefacts.ripe.net/repository/maven-releases-ncc/</url>
         </repository>
         <snapshotRepository>
             <id>ripe-snapshots</id>
-            <url>https://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+            <url>https://artefacts.ripe.net/repository/maven-snapshots-ncc/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -325,7 +329,7 @@
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
-                <artifactId>netty</artifactId>
+                <artifactId>netty-all</artifactId>
                 <version>${netty.version}</version>
             </dependency>
 
@@ -341,9 +345,10 @@
                 <version>${mail.version}</version>
             </dependency>
 
+            <!-- Hazelcast -->
             <dependency>
                 <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast</artifactId>
+                <artifactId>hazelcast-all</artifactId>
                 <version>${hazelcast.version}</version>
             </dependency>
 
@@ -407,6 +412,11 @@
                 <version>${commons-collections.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-email</artifactId>
+                <version>${commons-email.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity-engine-core</artifactId>
                 <version>${velocity.version}</version>
@@ -435,11 +445,16 @@
                 <artifactId>jetty-servlets</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-rewrite</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
 
             <!-- Jersey JAX-RS 2.0 implementation -->
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
-                <artifactId>jersey-container-servlet-core</artifactId>
+                <artifactId>jersey-container-servlet</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
@@ -459,11 +474,23 @@
                 <artifactId>jersey-media-multipart</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
-            <dependency> <!-- don't use these in our code, use the static code checks instead -->
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-jaxb</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.inject</groupId>
+                <artifactId>jersey-hk2</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <!-- don't use the Validation API in our code, use the static checks (JSR305) instead -->
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
-                <version>1.1.0.Final</version>
-                <scope>runtime</scope> <!-- so we can't use them but Jersey can at runtime -->
+                <version>${validation.version}</version>
+                <!-- set scope to prevent compile-time checks but Jersey can use at runtime -->
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Jackson -->
@@ -497,17 +524,17 @@
             </dependency>
 
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-core</artifactId>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jaxb.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb.version}</version>
             </dependency>
 
-            <!-- lucene for fulltext search -->
+            <!-- Lucene for fulltext search -->
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
@@ -586,16 +613,22 @@
             <version>${persistence.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!-- common test dependencies -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${findbugs.version}</version>
-            <type>jar</type>
+        </dependency>
+
+        <!-- common test dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -618,14 +651,26 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy</artifactId>
+          <version>${groovy.version}</version>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
+            <artifactId>hamcrest</artifactId>
             <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
@@ -642,21 +687,27 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.jayway.awaitility</groupId>
+            <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <version>${awaitility.version}</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hamcrest</groupId>
-                    <artifactId>hamcrest-library</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -666,7 +717,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.5</version>
+                <version>0.8.7</version>
                 <executions>
                     <execution>
                         <id>before-unit-test-execution</id>
@@ -674,8 +725,19 @@
                             <goal>prepare-agent</goal>
                         </goals>
                         <configuration>
-                            <append>true</append>
+                            <destFile>${project.build.directory}/jacoco-output/jacoco-unit-tests.exec</destFile>
                             <propertyName>surefire.jacoco.args</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>after-unit-test-execution</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-output/jacoco-unit-tests.exec</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-unit-test-coverage-report</outputDirectory>
                         </configuration>
                     </execution>
                     <execution>
@@ -685,13 +747,54 @@
                             <goal>prepare-agent-integration</goal>
                         </goals>
                         <configuration>
-                            <append>true</append>
+                            <destFile>${project.build.directory}/jacoco-output/jacoco-integration-tests.exec</destFile>
                             <propertyName>failsafe.jacoco.args</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>after-integration-test-execution</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-output/jacoco-integration-tests.exec</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-integration-test-coverage-report</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>merge-unit-and-integration</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>merge</goal>
+                        </goals>
+                        <configuration>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${project.build.directory}/jacoco-output/</directory>
+                                    <includes>
+                                        <include>*.exec</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                            <destFile>${project.build.directory}/jacoco-output/merged.exec</destFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-merged-report</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco-output/merged.exec</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-merged-test-coverage-report</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
@@ -709,10 +812,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArgs>
                         <arg>-Xlint</arg>
@@ -720,6 +822,7 @@
                         <arg>-Xlint:-rawtypes</arg>
                         <arg>-Xlint:-serial</arg>
                         <arg>-Xlint:-fallthrough</arg>
+                    	<arg>--add-modules</arg><arg>java.sql,java.xml</arg>
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
@@ -728,7 +831,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
@@ -736,7 +839,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -748,7 +851,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -763,34 +866,10 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.8.2</version>
             </plugin>
-            <!-- TODO: [ES] update gmaven plugin to 1.5 -->
             <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <version>1.4</version>
-                <configuration>
-                    <source />
-                    <providerSelection>1.8</providerSelection>
-                    <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.gmaven.runtime</groupId>
-                        <artifactId>gmaven-runtime-1.8</artifactId>
-                        <version>1.5</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>org.codehaus.groovy</groupId>
-                                <artifactId>groovy-all</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-all</artifactId>
-                        <version>1.8.9</version>
-                    </dependency>
-                </dependencies>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>1.12.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -808,10 +887,7 @@
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
                     <reuseForks>true</reuseForks>
-                    <excludedGroups>
-                        net.ripe.db.whois.common.IntegrationTest,
-                        net.ripe.db.whois.common.ManualTest
-                    </excludedGroups>
+                    <excludedGroups>IntegrationTest,ManualTest</excludedGroups>
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
                         <hazelcast.phone.home.enabled>false</hazelcast.phone.home.enabled>
@@ -824,10 +900,11 @@
                 <version>2.22.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} ${failsafe.jacoco.args}</argLine>
+                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml ${failsafe.jacoco.args}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
+                    <excludedGroups>ManualTest</excludedGroups>
                     <!-- doesnt work (breaks tests)
                     <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
@@ -837,7 +914,7 @@
                     <groups>${test.groups}</groups>
                     <runOrder>random</runOrder> -->
                     <!-- works (tests pass) -->
-                    <groups>${test.groups}</groups>
+                   <!-- <groups>${test.groups}</groups>-->
                     <forkCount>3</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
@@ -854,12 +931,16 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <!-- Plugin forked from mojohaus project to add Java 11 support -->
+                <groupId>io.starter</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.8</version>
+                <version>1.12.9</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <complianceLevel>${java.version}</complianceLevel>
+                    <!-- TODO: no sources in root project causes an error, continue anyway -->
+                    <proceedOnError>true</proceedOnError>
                     <!-- [TP] This is a bit ugly part.
                         aspectjweaver, spring-context, spring-tx libs were removed from whois-rpsl/pom.xml, because they
                         pull many deps, and no aspects are/should be present in this module. By removing the libs, a lot of
@@ -883,11 +964,8 @@
                         <exclude>**/net/ripe/db/whois/common/IllegalArgumentExceptionMessage.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
-                        <exclude>**/net/ripe/db/whois/common/IntegrationTest.java</exclude>
-                        <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>
                     </excludes>
 
-                    <complianceLevel>${java.version}</complianceLevel>
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>
                     <forceAjcCompile>true</forceAjcCompile>
@@ -926,7 +1004,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>3.1.1</version>
+                <version>6.2.2</version>
                 <executions>
                     <execution>
                         <id>not-by-default</id>
@@ -934,10 +1012,24 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- check for mis-matching dependency versions -->
+            <!-- enforcer plugin is off by default. Run mvn enforcer:enforce to run standalone -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <rules>
+                        <dependencyConvergence/>
+                    </rules>
+                    <!-- do not fail the build, just log the dependency conflict -->
+                    <fail>false</fail>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.6</version>
+                <version>4.0.5</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
@@ -963,23 +1055,23 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>None</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Integration*.class</test.files.integration>
+                <test.files.integration>None</test.files.integration>
             </properties>
         </profile>
         <profile>
             <id>integration</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.groups>IntegrationTest</test.groups>
+                <test.files.unit>None</test.files.unit>
+                <test.files.integration>**/*Integration*.class,**/*Spec*.class</test.files.integration>
             </properties>
         </profile>
         <profile>
             <id>comparison</id>
             <properties>
                 <test.redirectOutput>false</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
+                <test.groups>ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>
                     **/CompareTwoQueryInstancesByFile.class,
@@ -992,17 +1084,7 @@
             <id>all</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-            </properties>
-        </profile>
-        <profile>
-            <!-- travis can't run endtoend tests because of the dependency on ripe-internal servers like crowd -->
-            <id>travis</id>
-            <properties>
-                <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.groups>IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
             </properties>
@@ -1047,7 +1129,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
-                <version>2.7</version>
+                <version>2.8.1</version>
                 <reportSets>
                     <reportSet>
                         <reports>

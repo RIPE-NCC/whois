@@ -1,12 +1,12 @@
 package net.ripe.db.whois.common.sso;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Month;
 import java.time.temporal.ChronoField;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class UserSessionTest {
 

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.query.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
@@ -13,10 +13,10 @@ import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.kubek2k.springockito.annotations.ReplaceWithMock;
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.mockito.invocation.InvocationOnMock;
@@ -31,29 +31,29 @@ import java.net.InetAddress;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired @ReplaceWithMock private QueryHandler queryHandler;
     @Autowired @ReplaceWithMock private AccessControlListManager accessControlListManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(accessControlListManager.canQueryPersonalObjects(any(InetAddress.class))).thenReturn(true);
 
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         queryServer.stop(true);
     }
@@ -125,6 +125,16 @@ public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTe
         String response = new TelnetWhoisClient(QueryServer.port).sendQuery(bigString);
 
         assertThat(response, containsString(trim(QueryMessages.inputTooLong())));
+    }
+
+    @Test
+    public void exceptionShouldGiveErrorMessage() {
+        doThrow(new NullPointerException()).when(queryHandler)
+                .streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
+
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
+
+        assertThat(response, containsString("%ERROR:100: internal software error"));
     }
 
     private String trim(Message message) {

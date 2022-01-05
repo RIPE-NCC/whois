@@ -7,10 +7,8 @@ import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import net.ripe.db.whois.update.domain.Keyword;
-import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
@@ -20,37 +18,40 @@ import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.log.UpdateLog;
 import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailMessageLogCallback;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
-import static org.mockito.Mockito.anyListOf;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MessageDequeueTest {
     private static final int TIMEOUT = 1000;
 
@@ -66,44 +67,42 @@ public class MessageDequeueTest {
     @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks MessageDequeue subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         ReflectionTestUtils.setField(subject, "nrThreads", 1);
         ReflectionTestUtils.setField(subject, "intervalMs", 1);
-        when(maintenanceMode.allowUpdate()).thenReturn(true);
+        lenient().when(maintenanceMode.allowUpdate()).thenReturn(true);
+        lenient().when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(ZonedDateTime.now(ZoneOffset.UTC));
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         subject.stop(true);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void start_twice() {
-        when(mailMessageDao.claimMessage()).thenReturn(null);
-
-        subject.start();
-        subject.start();
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            subject.start();
+            subject.start();
+        });
     }
 
     @Test
-    public void stop_not_running() throws InterruptedException {
+    public void stop_not_running() {
         subject.stop(true);
     }
 
     @Test
     public void noMessages() {
-        when(mailMessageDao.claimMessage()).thenReturn(null);
-
         subject.start();
-        verifyZeroInteractions(messageHandler);
+        verifyNoMoreInteractions(messageHandler);
     }
 
     @Test
-    public void handleMessage_filtered() throws Exception {
+    public void handleMessage_filtered() {
         final MimeMessage message = MimeMessageProvider.getMessageSimpleTextUnsigned();
 
-        when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(false);
         when(mailMessageDao.getMessage("1")).thenReturn(message);
         when(mailMessageDao.claimMessage()).thenReturn("1").thenReturn(null);
 
@@ -114,7 +113,7 @@ public class MessageDequeueTest {
         verify(loggerContext, timeout(TIMEOUT)).log(eq("msg-in.txt"), any(MailMessageLogCallback.class));
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.LOGGED);
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.PARSED);
-        verifyZeroInteractions(messageHandler);
+        verifyNoMoreInteractions(messageHandler);
     }
 
     @Test
@@ -123,8 +122,8 @@ public class MessageDequeueTest {
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(true);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
-                new MailMessage("", "", "", "", "", "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
-        when(updatesParser.parse(any(UpdateContext.class), anyListOf(ContentWithCredentials.class))).thenReturn(Lists.<Update>newArrayList());
+                new MailMessage("", "", "", "", "", "", Keyword.NONE, Lists.newArrayList()));
+        when(updatesParser.parse(any(UpdateContext.class), anyList())).thenReturn(Lists.newArrayList());
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, ""));
 
         when(mailMessageDao.getMessage("1")).thenReturn(message);
@@ -147,8 +146,8 @@ public class MessageDequeueTest {
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(true);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
-                new MailMessage("", "", "", "", "", "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
-        when(updatesParser.parse(any(UpdateContext.class), anyListOf(ContentWithCredentials.class))).thenReturn(Lists.<Update>newArrayList());
+                new MailMessage("", "", "", "", "", "", Keyword.NONE, Lists.newArrayList()));
+        when(updatesParser.parse(any(UpdateContext.class), anyList())).thenReturn(Lists.newArrayList());
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenThrow(RuntimeException.class);
 
         when(mailMessageDao.getMessage("1")).thenReturn(message);
@@ -161,7 +160,7 @@ public class MessageDequeueTest {
         verify(mailMessageDao, timeout(TIMEOUT)).setStatus("1", DequeueStatus.FAILED);
         verify(loggerContext, timeout(TIMEOUT)).init("20120527220444.GA6565");
         verify(loggerContext, timeout(TIMEOUT)).log(eq("msg-in.txt"), any(MailMessageLogCallback.class));
-        verifyZeroInteractions(mailGateway);
+        verifyNoMoreInteractions(mailGateway);
         verify(mailMessageDao, never()).deleteMessage("1");
     }
 
@@ -171,7 +170,7 @@ public class MessageDequeueTest {
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(false);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
-                new MailMessage("", null, "", "", null, "", Keyword.NONE, Lists.<ContentWithCredentials>newArrayList()));
+                new MailMessage("", null, "", "", null, "", Keyword.NONE, Lists.newArrayList()));
 
         when(mailMessageDao.getMessage("1")).thenReturn(message);
         when(mailMessageDao.claimMessage()).thenReturn("1").thenReturn(null);
@@ -231,7 +230,7 @@ public class MessageDequeueTest {
             @Override
             public MailMessage answer(InvocationOnMock invocation) throws Throwable {
                 final Object[] arguments = invocation.getArguments();
-                return new MessageParser(loggerContext).parse(((MimeMessage) arguments[0]), ((UpdateContext) arguments[1]));
+                return new MessageParser(loggerContext, dateTimeProvider).parse(((MimeMessage) arguments[0]), ((UpdateContext) arguments[1]));
             }
         });
 

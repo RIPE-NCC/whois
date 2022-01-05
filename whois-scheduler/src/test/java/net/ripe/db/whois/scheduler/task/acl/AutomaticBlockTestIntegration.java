@@ -1,6 +1,6 @@
 package net.ripe.db.whois.scheduler.task.acl;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
@@ -8,10 +8,10 @@ import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.PersonalObjectAccounting;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
@@ -19,9 +19,9 @@ import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationTest {
 
     private static final int NR_DAYS_BEFORE_PERMANENT_BAN = 10;
@@ -32,7 +32,7 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     @Autowired AutomaticPermanentBlocks automaticPermanentBlocks;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
 
-    @Before
+    @BeforeEach
     public void startupServer() throws Exception {
         localHost = InetAddress.getByName("127.0.0.1");
 
@@ -49,7 +49,7 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownServer() {
         queryServer.stop(true);
     }

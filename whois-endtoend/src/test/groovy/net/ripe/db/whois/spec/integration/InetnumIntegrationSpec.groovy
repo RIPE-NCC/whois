@@ -1,9 +1,10 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+import net.ripe.db.whois.spec.domain.SyncUpdate
+import org.junit.jupiter.api.Tag
+
+@Tag("IntegrationTest")
 class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
 
   @Override
@@ -58,6 +59,19 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     auth:    MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
                     source:  TEST
                 """,
+            "ROLE-A001": """\
+                role:         Abuse Handler
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                abuse-mailbox:more_abuse@lir.net
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                nic-hdl:      AH001-TEST
+                mnt-by:       TEST-MNT
+                source:       TEST
+                """,
             "ORG1"     : """\
                     organisation: ORG-TOL1-TEST
                     org-name:     Test Organisation Ltd
@@ -76,6 +90,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:        test org
                     address:      street 5
                     e-mail:       org1@test.com
+                    abuse-c:      AH001-TEST
                     mnt-ref:      TEST-MNT
                     mnt-by:       TEST-MNT
                     source:       TEST

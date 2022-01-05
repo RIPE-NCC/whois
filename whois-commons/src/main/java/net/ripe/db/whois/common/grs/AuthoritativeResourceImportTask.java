@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.grs;
 
 import com.google.common.base.Splitter;
-import net.javacrumbs.shedlock.core.SchedulerLock;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
@@ -40,13 +40,13 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
                                            final ResourceDataDao resourceDataDao,
                                            final Downloader downloader,
                                            @Value("${dir.grs.import.download:}") final String downloadDir,
-                                           @Value("${grs.import.enabled}") final boolean enabled,
+                                           @Value("${grs.import.enabled:false}") final boolean enabled,
                                            @Value("${rsng.base.url:}") final String rsngBaseUrl) {
         super(enabled, resourceDataDao);
 
         final boolean rsngImportDisabled = StringUtils.isBlank(rsngBaseUrl);
 
-        this.sourceNames = PROPERTY_LIST_SPLITTER.splitToList(grsSourceNames).stream()
+        this.sourceNames = PROPERTY_LIST_SPLITTER.splitToStream(grsSourceNames)
                 .map(input -> input.toLowerCase().replace("-grs", ""))
                 .filter(source -> !SOURCE_NAME_RIPE.equalsIgnoreCase(source) || rsngImportDisabled)
                 .collect(Collectors.toSet());
@@ -66,7 +66,7 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
      * Run at 00.15 so we don't miss the the delegated stats file which is normally published around midnight.
      */
     @Override
-    @Scheduled(cron = "0 15 0 * * *")
+    @Scheduled(cron = "0 15 0 * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         doImport(sourceNames);

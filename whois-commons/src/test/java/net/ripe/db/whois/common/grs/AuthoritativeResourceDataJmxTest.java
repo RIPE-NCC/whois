@@ -1,27 +1,27 @@
 package net.ripe.db.whois.common.grs;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthoritativeResourceDataJmxTest {
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
     @Mock AuthoritativeResourceDataValidator authoritativeResourceDataValidator;
     @Mock AuthoritativeResourceRefreshTask authoritativeResourceRefreshTask;
@@ -41,7 +41,7 @@ public class AuthoritativeResourceDataJmxTest {
         final String msg = subject.checkOverlaps(file.getAbsolutePath(), "");
         assertThat(msg, startsWith("Abort, file already exists"));
 
-        verifyZeroInteractions(authoritativeResourceDataValidator);
+        verifyNoMoreInteractions(authoritativeResourceDataValidator);
     }
 
     @Test
@@ -50,13 +50,13 @@ public class AuthoritativeResourceDataJmxTest {
         final String msg = subject.checkOverlaps(file.getAbsolutePath(), "");
         assertThat(msg, startsWith("Failed writing to: /some/unexisting/dir/overlaps"));
 
-        verifyZeroInteractions(authoritativeResourceDataValidator);
+        verifyNoMoreInteractions(authoritativeResourceDataValidator);
     }
 
     @Test
     public void checkOverlaps() throws IOException {
-        folder.getRoot().mkdirs();
-        final File file = new File(folder.getRoot(), "overlaps.txt");
+        folder.mkdirs();
+        final File file = new File(folder, "overlaps.txt");
 
         final String msg = subject.checkOverlaps(file.getAbsolutePath(), "");
         assertThat(msg, startsWith("Overlaps written to"));

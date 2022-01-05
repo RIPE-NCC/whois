@@ -1,22 +1,20 @@
 package net.ripe.db.whois.query;
 
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 
 // TODO: [AH] this should be in whois-query; however, crowdserverdummy is tied to whois-api because of jetty references
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
 public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
 
@@ -71,14 +69,14 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     @Autowired IpRanges ipRanges;
 
-    @Before
+    @BeforeEach
     public void startupWhoisServer() throws Exception {
         databaseHelper.addObjects(PAULETH_PALTHEN, KEYCERT, OWNER_MNT);
 
         queryServer.start();
     }
 
-    @After
+    @AfterEach
     public void shutdownWhoisServer() {
         queryServer.stop(true);
     }

@@ -1,34 +1,32 @@
 package net.ripe.db.whois.nrtm;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelState;
-import org.jboss.netty.channel.UpstreamChannelStateEvent;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 
-import static org.mockito.Matchers.anyObject;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
 
-@RunWith(MockitoJUnitRunner.class)
+
+@ExtendWith(MockitoExtension.class)
 public class NrtmAclLimitHandlerTest {
-
-    private static final int MAX_CONNECTIONS_PER_IP = 1;
 
     @Mock private ChannelHandlerContext ctx;
     @Mock private Channel channel;
@@ -38,62 +36,59 @@ public class NrtmAclLimitHandlerTest {
 
     private NrtmAclLimitHandler subject;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.subject = new NrtmAclLimitHandler(accessControlListManager, nrtmLog);
 
-        when(ctx.getChannel()).thenReturn(channel);
-
-        when(channel.write(anyObject())).thenReturn(channelFuture);
+        when(ctx.channel()).thenReturn(channel);
     }
 
     @Test
     public void acl_permanently_blocked() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
 
-        when(channel.getRemoteAddress()).thenReturn(remoteAddress);
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
         when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(true);
 
-        final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, event);
-
-        verify(channel, times(1)).write(Matchers.eq(QueryMessages.accessDeniedPermanently(remoteAddress.getAddress())));
-
-        verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
-        verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
+        try {
+            subject.channelActive(ctx);
+            fail();
+        } catch (NrtmException e) {
+            assertThat(e.getMessage(), is(QueryMessages.accessDeniedPermanently(remoteAddress.getAddress()).toString()));
+            verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
+        }
     }
 
     @Test
     public void acl_temporarily_blocked() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
 
-        when(channel.getRemoteAddress()).thenReturn(remoteAddress);
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
         when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
         when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(false);
 
-        final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, event);
-
-        verify(channel, times(1)).write(Matchers.eq(QueryMessages.accessDeniedTemporarily(remoteAddress.getAddress())));
-
-        verify(channelFuture, times(1)).addListener(ChannelFutureListener.CLOSE);
-        verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
+        try {
+            subject.channelActive(ctx);
+            fail();
+        } catch (NrtmException e) {
+            assertThat(e.getMessage(), is(QueryMessages.accessDeniedTemporarily(remoteAddress.getAddress()).toString()));
+            verify(nrtmLog).log(Inet4Address.getByName("10.0.0.0"), "REJECTED");
+        }
     }
 
     @Test
     public void acl_limit_not_breached() throws Exception {
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
-        when(channel.getRemoteAddress()).thenReturn(remoteAddress);
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
         when(accessControlListManager.isDenied(remoteAddress.getAddress())).thenReturn(false);
         when(accessControlListManager.canQueryPersonalObjects(remoteAddress.getAddress())).thenReturn(true);
 
-        final ChannelEvent event = new UpstreamChannelStateEvent(channel, ChannelState.OPEN, Boolean.TRUE);
-        subject.handleUpstream(ctx, event);
+        subject.channelActive(ctx);
 
 
-        verify(ctx, times(1)).sendUpstream(event);
+        verify(ctx, times(1)).fireChannelActive();
         verify(channel, never()).close();
-        verify(channel, never()).write(anyObject());
+        verify(channel, never()).write(any());
         verify(channelFuture, never()).addListener(ChannelFutureListener.CLOSE);
     }
 }

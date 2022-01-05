@@ -9,31 +9,32 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EnumDomainAuthorisationValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock Subject authSubject;
     @InjectMocks EnumDomainAuthorisationValidator subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        when(updateContext.getSubject(update)).thenReturn(authSubject);
+        lenient().when(updateContext.getSubject(update)).thenReturn(authSubject);
     }
 
     @Test
@@ -60,9 +61,6 @@ public class EnumDomainAuthorisationValidatorTest {
     @Test
     public void validate_override() {
         when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("domain: 2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
-
-        when(authSubject.hasPrincipal(Principal.ENUM_MAINTAINER)).thenReturn(false);
 
         subject.validate(update, updateContext);
 
@@ -75,7 +73,7 @@ public class EnumDomainAuthorisationValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "domain: 2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
 
-        when(authSubject.hasPrincipal(Principal.ENUM_MAINTAINER)).thenReturn(false);
+        lenient().when(authSubject.hasPrincipal(Principal.ENUM_MAINTAINER)).thenReturn(false);
 
         subject.validate(update, updateContext);
 
@@ -88,7 +86,7 @@ public class EnumDomainAuthorisationValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "domain: 2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
 
-        when(authSubject.hasPrincipal(Principal.ENUM_MAINTAINER)).thenReturn(true);
+        lenient().when(authSubject.hasPrincipal(Principal.ENUM_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);
 
