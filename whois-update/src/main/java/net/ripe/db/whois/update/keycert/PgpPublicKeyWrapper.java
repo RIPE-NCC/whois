@@ -178,6 +178,15 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         return builder.toString();
     }
 
+    public String getKeyId() {
+        final long value = masterKey.getKeyID();
+        return String.format("%02X%02X%02X%02X",
+            ((value >> 24) & 0xFF),
+            ((value >> 16) & 0xFF),
+            ((value >> 8) & 0xFF),
+            ((value >> 0) & 0xFF));
+    }
+
     public boolean isExpired(final DateTimeProvider dateTimeProvider) {
         final long validSeconds = masterKey.getValidSeconds();
         if (validSeconds > 0) {

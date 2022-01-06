@@ -61,7 +61,6 @@ public class KeycertValidatorTest {
         assertThat(subject.getTypes(), containsInAnyOrder(ObjectType.KEY_CERT));
     }
 
-
     @Test
     public void auto_1_with_x509() throws Exception {
         RpslObject object = RpslObject.parse(getResource("keycerts/AUTO-1-X509.TXT"));
@@ -80,7 +79,7 @@ public class KeycertValidatorTest {
             return null;
         }).when(updateContext).addMessage(any(UpdateContainer.class), any(RpslAttribute.class), any(Message.class));
 
-        RpslObject object = RpslObject.parse("" +
+        final RpslObject object = RpslObject.parse("" +
                 "key-cert:     AUTO-3\n" +
                 "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
                 "certif:       Version: GnuPG v1.4.11 (Darwin)\n" +
@@ -126,14 +125,13 @@ public class KeycertValidatorTest {
 
     @Test
     public void one_public_key_with_multiple_sub_keys() throws Exception {
-        RpslObject object = RpslObject.parse(getResource("keycerts/PGPKEY-MULTIPLE-SUBKEYS.TXT"));
+        final RpslObject object = RpslObject.parse(getResource("keycerts/PGPKEY-MULTIPLE-SUBKEYS.TXT"));
         when(update.getUpdatedObject()).thenReturn(object);
 
         subject.validate(update, updateContext);
 
         assertThat(messages, is(empty()));
     }
-
 
     private String getResource(final String resourceName) throws IOException {
         return IOUtils.toString(new ClassPathResource(resourceName).getInputStream(), Charset.defaultCharset());
