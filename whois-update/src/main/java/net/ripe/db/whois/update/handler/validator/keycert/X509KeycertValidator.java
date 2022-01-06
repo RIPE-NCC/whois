@@ -34,8 +34,8 @@ public class X509KeycertValidator implements BusinessRuleValidator {
 
     private static final Set<String> WEAK_HASH_ALGORITHMS = Sets.newHashSet("SHA1withRSA", "SHA1withDSA", "MD5withRSA", "MD5withDSA");
 
-    private static final int MINIMUM_KEY_LENGTH_RSA = 2048;
-    private static final int MINIMUM_KEY_LENGTH_DSA = 2048;
+    private static final int MINIMUM_KEY_LENGTH_RSA = 1024;
+    private static final int MINIMUM_KEY_LENGTH_DSA = 1024;
 
     private final DateTimeProvider dateTimeProvider;
 

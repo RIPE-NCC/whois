@@ -50,7 +50,7 @@ public class X509KeycertValidatorTest {
     }
 
     @Test
-    public void weak_hash_MD5withRSA_and_smaller_than_minimum_key_length() {
+    public void weak_hash_MD5withRSA() {
         final RpslObject rpslObject =  RpslObject.parse(
                 "key-cert:       AUTO-1\n" +
                 "method:         X509\n" +
@@ -85,7 +85,6 @@ public class X509KeycertValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.certificateHasWeakHash("AUTO-1", "MD5withRSA"));
-        verify(updateContext).addMessage(update, UpdateMessages.publicKeyLengthIsWeak("RSA", 2048, 1024));
         verify(updateContext).addMessage(update, UpdateMessages.publicKeyHasExpired(rpslObject.getKey()));
         verifyNoMoreInteractions(updateContext);
     }

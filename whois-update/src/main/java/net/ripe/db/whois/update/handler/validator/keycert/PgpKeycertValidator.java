@@ -26,8 +26,8 @@ public class PgpKeycertValidator implements BusinessRuleValidator {
 
     private static final CIString METHOD_PGP = CIString.ciString("PGP");
 
-    private static final int MINIMUM_KEY_LENGTH_RSA = 2048;
-    private static final int MINIMUM_KEY_LENGTH_DSA = 2048;
+    private static final int MINIMUM_KEY_LENGTH_RSA = 1024;
+    private static final int MINIMUM_KEY_LENGTH_DSA = 1024;
 
     private final DateTimeProvider dateTimeProvider;
 
@@ -88,8 +88,4 @@ public class PgpKeycertValidator implements BusinessRuleValidator {
     public ImmutableList<ObjectType> getTypes() {
         return TYPES;
     }
-
-
-
-
 }

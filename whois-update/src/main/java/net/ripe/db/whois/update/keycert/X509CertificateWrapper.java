@@ -51,7 +51,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
     public static X509CertificateWrapper parse(final byte[] certificate) {
         final X509Certificate result;
         try {
-            final CertificateFactory factory = java.security.cert.CertificateFactory.getInstance("X.509", PROVIDER);
+            final CertificateFactory factory = CertificateFactory.getInstance("X.509", PROVIDER);
             result = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(certificate));
             if (result == null) {
                 throw new IllegalArgumentException("Invalid X509 Certificate");
