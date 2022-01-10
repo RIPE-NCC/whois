@@ -886,7 +886,7 @@
                     </excludes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
-                    <reuseForks>true</reuseForks>
+                    <reuseForks>false</reuseForks>
                     <excludedGroups>IntegrationTest,ManualTest</excludedGroups>
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
@@ -915,8 +915,8 @@
                     <runOrder>random</runOrder> -->
                     <!-- works (tests pass) -->
                    <!-- <groups>${test.groups}</groups>-->
-                    <forkCount>3</forkCount>
-                    <reuseForks>true</reuseForks>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
                     <testFailureIgnore>false</testFailureIgnore>
