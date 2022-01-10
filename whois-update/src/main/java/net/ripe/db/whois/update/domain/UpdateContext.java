@@ -327,6 +327,14 @@ public class UpdateContext {
         return clientCertificate;
     }
 
+    public void log(final Message message) {
+        loggerContext.log(message);
+    }
+
+    public void log(final Message message, final Throwable t) {
+        loggerContext.log(message, t);
+    }
+
     private static class Context {
         private final ObjectMessages objectMessages = new ObjectMessages();
         private Action action;
