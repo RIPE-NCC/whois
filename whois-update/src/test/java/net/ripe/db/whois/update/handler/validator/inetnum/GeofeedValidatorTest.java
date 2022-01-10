@@ -59,6 +59,19 @@ public class GeofeedValidatorTest {
 
         verify(updateContext).addMessage(update, UpdateMessages.eitherGeofeedOrRemarksIsAllowed());
     }
+    @Test
+    public void updated_inetnum_contains_multiple_remarks_geofeed() {
+        final RpslObject object = RpslObject.parse(
+            "inetnum: 1.1/16\n" +
+            "geofeed: https://example.com\n" +
+            "remarks: geofeed: https://example.com\n" +
+            "remarks: geofeed: https://test.com\n" +
+            "source: TEST");
+        when(update.getUpdatedObject()).thenReturn(object);
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.eitherGeofeedOrRemarksIsAllowed());
+    }
 
     @Test
     public void updated_inet6num_contains_valid_geofeed_attribute() {
