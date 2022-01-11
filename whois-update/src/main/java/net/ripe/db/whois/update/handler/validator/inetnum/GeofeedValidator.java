@@ -34,10 +34,10 @@ public class GeofeedValidator implements BusinessRuleValidator {
             return;
         }
 
-        if(updatedObject.containsAttribute(REMARKS)) {
-            final CIString remarks = updatedObject.getValueForAttribute(REMARKS);
+        for (CIString remarks : updatedObject.getValuesForAttribute(REMARKS)) {
             if(remarks.startsWith("geofeed:")) {
                 updateContext.addMessage(update, UpdateMessages.eitherGeofeedOrRemarksIsAllowed());
+                break;
             }
         }
 
