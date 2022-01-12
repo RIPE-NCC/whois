@@ -2882,6 +2882,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
   }
 
+  @Ignore("[ES] keycert expired in 2004 need to re-create test")
   def "multipart plaintext x509 signed message keycert is expired"() {
     given:
       setTime(LocalDateTime.parse("2013-01-11T14:27:09")) // current time must be within 1 hour of signing time
