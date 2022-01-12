@@ -19,6 +19,7 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.PublicKey;
@@ -34,15 +35,17 @@ public class X509KeycertValidator implements BusinessRuleValidator {
 
     private static final CIString METHOD_X509 = CIString.ciString("X509");
 
-    private static final Set<String> WEAK_HASH_ALGORITHMS = Sets.newHashSet("SHA1withRSA", "SHA1withDSA", "MD5withRSA", "MD5withDSA");
-
     private static final int MINIMUM_KEY_LENGTH_RSA = 1024;
     private static final int MINIMUM_KEY_LENGTH_DSA = 1024;
 
+    private final Set<String> weakHashAlgorithms;
     private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    public X509KeycertValidator(final DateTimeProvider dateTimeProvider) {
+    public X509KeycertValidator(
+            @Value("${keycert.weak.algorithms:}") final String[] weakHashAlgorithms,
+            final DateTimeProvider dateTimeProvider) {
+        this.weakHashAlgorithms = Sets.newHashSet(weakHashAlgorithms);
         this.dateTimeProvider = dateTimeProvider;
     }
 
@@ -72,8 +75,11 @@ public class X509KeycertValidator implements BusinessRuleValidator {
             updateContext.addMessage(update, UpdateMessages.publicKeyHasExpired(updatedObject.getKey()));
         }
 
-        if (WEAK_HASH_ALGORITHMS.contains(wrapper.getCertificate().getSigAlgName())) {
-            updateContext.addMessage(update, UpdateMessages.certificateHasWeakHash(updatedObject.getKey(), wrapper.getCertificate().getSigAlgName()));
+        final String signatureAlgorithm = wrapper.getCertificate().getSigAlgName();
+        if (weakHashAlgorithms.contains(signatureAlgorithm)) {
+            updateContext.addMessage(update, UpdateMessages.certificateHasWeakHash(updatedObject.getKey(), signatureAlgorithm));
+        } else {
+            updateContext.log(new Message(Messages.Type.INFO, "keycert %s uses signature algorithm %s", updatedObject.getKey(), signatureAlgorithm));
         }
 
         final PublicKey publicKey = wrapper.getCertificate().getPublicKey();
