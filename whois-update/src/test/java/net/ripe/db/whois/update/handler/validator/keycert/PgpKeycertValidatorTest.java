@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
@@ -37,7 +38,8 @@ public class PgpKeycertValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock DateTimeProvider dateTimeProvider;
-    @InjectMocks PgpKeycertValidator subject;
+    @Mock Subject subject;
+    @InjectMocks PgpKeycertValidator pgpKeycertValidator;
     List<Message> messages;
 
     @BeforeEach
@@ -51,17 +53,18 @@ public class PgpKeycertValidatorTest {
                 return null;
             }
         }).when(updateContext).addMessage(any(UpdateContainer.class), any(RpslAttribute.class), any(Message.class));
+        lenient().when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(subject);
         lenient().when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
     }
 
     @Test
     public void get_actions() {
-        assertThat(subject.getActions(), containsInAnyOrder(Action.CREATE));
+        assertThat(pgpKeycertValidator.getActions(), containsInAnyOrder(Action.CREATE));
     }
 
     @Test
     public void get_types() {
-        assertThat(subject.getTypes(), containsInAnyOrder(ObjectType.KEY_CERT));
+        assertThat(pgpKeycertValidator.getTypes(), containsInAnyOrder(ObjectType.KEY_CERT));
     }
 
     @Test
@@ -91,8 +94,9 @@ public class PgpKeycertValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+        pgpKeycertValidator.validate(update, updateContext);
 
+        verify(updateContext).getSubject(update);
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -162,8 +166,9 @@ public class PgpKeycertValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+        pgpKeycertValidator.validate(update, updateContext);
 
+        verify(updateContext).getSubject(update);
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -203,8 +208,9 @@ public class PgpKeycertValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+        pgpKeycertValidator.validate(update, updateContext);
 
+        verify(updateContext).getSubject(update);
         verify(updateContext).addMessage(update, UpdateMessages.publicKeyIsRevoked("8947C26B"));
         verifyNoMoreInteractions(updateContext);
     }
@@ -242,8 +248,9 @@ public class PgpKeycertValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+        pgpKeycertValidator.validate(update, updateContext);
 
+        verify(updateContext).getSubject(update);
         verify(updateContext).addMessage(update, UpdateMessages.publicKeyHasExpired("C88CA438"));
         verifyNoMoreInteractions(updateContext);
     }
