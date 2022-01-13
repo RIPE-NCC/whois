@@ -40,5 +40,5 @@ mvn clean install -DfailIfNoTests=false -Pintegration -Dit.test=NrtmClientInvali
 
 ### Run all integration tests in a single module
 
-mvn clean install; cd whois-query; mvn install -Pintegration
+mvn clean install -Pintegration -pl whois-query
 
