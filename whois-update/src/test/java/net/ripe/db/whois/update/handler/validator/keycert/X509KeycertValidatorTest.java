@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -11,7 +12,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,14 +29,18 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class X509KeycertValidatorTest {
 
+    private static final String[] WEAK_HASH_ALGORITHMS = new String[]{"SHA1withRSA", "SHA1withDSA", "MD5withRSA", "MD5withDSA"};
+
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock DateTimeProvider dateTimeProvider;
-    @InjectMocks X509KeycertValidator subject;
+    @Mock Subject subject;
+    X509KeycertValidator x509KeycertValidator;
     List<Message> messages;
 
     @BeforeEach
     public void setup() {
+        x509KeycertValidator = new X509KeycertValidator(WEAK_HASH_ALGORITHMS, dateTimeProvider);
         messages = Lists.newArrayList();
         lenient().doAnswer(new Answer() {
             @Override
@@ -46,6 +50,7 @@ public class X509KeycertValidatorTest {
                 return null;
             }
         }).when(updateContext).addMessage(any(UpdateContainer.class), any(RpslAttribute.class), any(Message.class));
+        when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(subject);
         lenient().when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
     }
 
@@ -82,7 +87,7 @@ public class X509KeycertValidatorTest {
                 "source:         TEST\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+        x509KeycertValidator.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.certificateHasWeakHash("AUTO-1", "MD5withRSA"));
         verify(updateContext).addMessage(update, UpdateMessages.publicKeyHasExpired(rpslObject.getKey()));

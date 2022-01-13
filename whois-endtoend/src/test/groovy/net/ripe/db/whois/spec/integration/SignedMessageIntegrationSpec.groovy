@@ -2904,7 +2904,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:       -----END CERTIFICATE-----
                 mnt-by:       OWNER-MNT
                 source:       TEST
-                password:     owner
+                override: denis, override1 
              """.stripIndent())
     then:
       syncUpdate new SyncUpdate(data:
