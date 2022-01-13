@@ -888,7 +888,7 @@
                     <forkCount>3</forkCount>
                     <threadCount>1</threadCount>
                     <!-- TODO: [ES] reuseForks=true causes local integration test build to hang -->
-                    <reuseForks>false</reuseForks>
+                    <reuseForks>true</reuseForks>
                     <excludedGroups>IntegrationTest,ManualTest</excludedGroups>
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
@@ -919,7 +919,7 @@
                    <!-- <groups>${test.groups}</groups>-->
                     <forkCount>3</forkCount>
                     <!-- TODO: [ES] reuseForks=true causes local integration test build to hang -->
-                    <reuseForks>false</reuseForks>
+                    <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
                     <testFailureIgnore>false</testFailureIgnore>
