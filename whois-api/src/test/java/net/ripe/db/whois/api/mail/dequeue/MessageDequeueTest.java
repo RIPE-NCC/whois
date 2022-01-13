@@ -18,20 +18,23 @@ import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.log.UpdateLog;
 import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailMessageLogCallback;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -40,6 +43,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -47,7 +51,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MessageDequeueTest {
     private static final int TIMEOUT = 1000;
 
@@ -63,22 +67,25 @@ public class MessageDequeueTest {
     @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks MessageDequeue subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         ReflectionTestUtils.setField(subject, "nrThreads", 1);
         ReflectionTestUtils.setField(subject, "intervalMs", 1);
-        when(maintenanceMode.allowUpdate()).thenReturn(true);
+        lenient().when(maintenanceMode.allowUpdate()).thenReturn(true);
+        lenient().when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(ZonedDateTime.now(ZoneOffset.UTC));
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         subject.stop(true);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void start_twice() {
-        subject.start();
-        subject.start();
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            subject.start();
+            subject.start();
+        });
     }
 
     @Test
@@ -223,7 +230,7 @@ public class MessageDequeueTest {
             @Override
             public MailMessage answer(InvocationOnMock invocation) throws Throwable {
                 final Object[] arguments = invocation.getArguments();
-                return new MessageParser(loggerContext).parse(((MimeMessage) arguments[0]), ((UpdateContext) arguments[1]));
+                return new MessageParser(loggerContext, dateTimeProvider).parse(((MimeMessage) arguments[0]), ((UpdateContext) arguments[1]));
             }
         });
 

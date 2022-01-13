@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.dao;
 
+import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.Timestamp;
 
 import java.time.LocalDateTime;
@@ -7,8 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class VersionDateTime implements Comparable<VersionDateTime> {
-
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final LocalDateTime timestamp;
 
@@ -23,7 +22,7 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
 
     @Override
     public String toString() {
-        return DATE_TIME_FORMATTER.format(timestamp);
+        return FormatHelper.dateTimeToUtcString(timestamp);
     }
 
     @Override

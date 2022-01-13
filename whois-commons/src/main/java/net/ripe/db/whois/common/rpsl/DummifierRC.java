@@ -23,7 +23,6 @@ public class DummifierRC extends DummifierCurrent {
             attributes.set(i, replacement);
         }
 
-
         return super.dummify(version, new RpslObject(rpslObject, attributes));
     }
 
@@ -32,7 +31,7 @@ public class DummifierRC extends DummifierCurrent {
             return rpslAttribute;
         }
 
-        return new RpslAttribute(AttributeType.ORG_NAME, String.format("Dummy org-name for %s", rpslObject.getKey().toUpperCase()));
+        return new RpslAttribute(AttributeType.ORG_NAME, new PhoneticDummifier(rpslObject.getValueForAttribute(AttributeType.ORG_NAME).toString()).toString());
     }
 
     private RpslAttribute dummifyDescr(final RpslAttribute rpslAttribute) {

@@ -99,7 +99,7 @@ class LacnicGrsSource extends GrsSource {
     @Override
     public void handleObjects(final File file, final ObjectHandler handler) throws IOException {
         try (FileInputStream is = new FileInputStream(file)) {
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
             handleLines(reader, lines -> {
                 final String rpslObjectString = Joiner.on("").join(lines);
                 final RpslObject rpslObjectBase = RpslObject.parse(rpslObjectString);

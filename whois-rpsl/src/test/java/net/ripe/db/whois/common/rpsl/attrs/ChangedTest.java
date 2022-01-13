@@ -1,34 +1,45 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
-import net.ripe.db.whois.common.rpsl.attrs.Changed;
-import java.time.LocalDate;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
+import java.time.LocalDate;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ChangedTest {
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void empty() {
-        Changed.parse("");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Changed.parse("");
+        });
+
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void no_email() {
-        Changed.parse("20010101");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Changed.parse("20010101");
+        });
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void invalid_date() {
-        Changed.parse("a@a.a 13131313");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Changed.parse("a@a.a 13131313");
+        });
+
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void too_long() {
-        Changed.parse("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz 20010101");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Changed.parse("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz 20010101");
+
+        });
     }
 
     @Test
@@ -51,9 +62,11 @@ public class ChangedTest {
         assertThat(subject.toString(), is("a@a.a 20010101"));
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void mixedUpDateAndEmail() {
-        Changed subject = Changed.parse("20130112 b.was@infbud.pl");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Changed.parse("20130112 b.was@infbud.pl");
+        });
     }
 
     @Test

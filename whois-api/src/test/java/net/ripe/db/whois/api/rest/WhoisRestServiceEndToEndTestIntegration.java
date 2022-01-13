@@ -11,7 +11,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
@@ -21,9 +21,9 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.support.TestUpdateLog;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -46,13 +46,13 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ActiveProfiles(profiles = WhoisProfile.TEST, inheritProfiles = false)
-@Category(IntegrationTest.class)
-public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
+@org.junit.jupiter.api.Tag("IntegrationTest")
+public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegrationTest {
 
     public static final String USER1 = "db_e2e_1@ripe.net";
     public static final String USER2 = "db_e2e_2@ripe.net";
@@ -131,7 +131,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
     @Autowired TestUpdateLog updateLog;
     @Value("${dir.update.audit.log}") String auditLog;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObjects(baseFixtures.values());
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-06T17:00:00"));

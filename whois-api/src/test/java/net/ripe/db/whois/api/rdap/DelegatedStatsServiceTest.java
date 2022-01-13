@@ -5,11 +5,11 @@ import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.StringValueResolver;
 
 import jakarta.ws.rs.WebApplicationException;
@@ -17,11 +17,12 @@ import jakarta.ws.rs.core.Response;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DelegatedStatsServiceTest {
     @Mock AuthoritativeResourceData authoritativeResourceData;
     @Mock AuthoritativeResource authoritativeResourceOne;
@@ -30,12 +31,12 @@ public class DelegatedStatsServiceTest {
 
     private DelegatedStatsService subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(authoritativeResourceOne.isMaintainedInRirSpace(any(ObjectType.class), any(CIString.class))).thenReturn(Boolean.FALSE);
-        when(authoritativeResourceTwo.isMaintainedInRirSpace(any(ObjectType.class), any(CIString.class))).thenReturn(Boolean.FALSE);
+        lenient().when(authoritativeResourceTwo.isMaintainedInRirSpace(any(ObjectType.class), any(CIString.class))).thenReturn(Boolean.FALSE);
         when(authoritativeResourceData.getAuthoritativeResource(CIString.ciString("one"))).thenReturn(authoritativeResourceOne);
-        when(authoritativeResourceData.getAuthoritativeResource(CIString.ciString("two"))).thenReturn(authoritativeResourceTwo);
+        lenient().when(authoritativeResourceData.getAuthoritativeResource(CIString.ciString("two"))).thenReturn(authoritativeResourceTwo);
 
         when(valueResolver.resolveStringValue("${rdap.redirect.one:}")).thenReturn("one.net");
         when(valueResolver.resolveStringValue("${rdap.redirect.two:}")).thenReturn("two.net");

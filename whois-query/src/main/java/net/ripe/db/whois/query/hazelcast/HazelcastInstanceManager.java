@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 import java.util.Arrays;
@@ -31,7 +30,7 @@ public class HazelcastInstanceManager {
     }
 
     @Bean
-    @Profile(WhoisProfile.RIPE_DEPLOYED)
+    @Profile(WhoisProfile.DEPLOYED)
     public HazelcastInstance hazelcastInstance() {
       LOGGER.info("Creating hazelcast instance with Ripe deployed profile");
 
@@ -46,19 +45,6 @@ public class HazelcastInstanceManager {
       return getHazelcastInstance(config);
     }
 
-    @Bean
-    @Profile(WhoisProfile.AWS_DEPLOYED)
-    @Primary
-    public HazelcastInstance hazelcastAwsInstance() {
-        LOGGER.info("Creating hazelcast instance with AWS deployed profile");
-
-        final Config config = getGenericConfig();
-        config.getNetworkConfig().getJoin().getAwsConfig().setEnabled(true);
-        config.getNetworkConfig().getInterfaces().setEnabled(true).addInterface(interfaces);
-
-        return getHazelcastInstance(config);
-    }
-
     private HazelcastInstance getHazelcastInstance(Config config) {
         final HazelcastInstance instance = Hazelcast.newHazelcastInstance(config);
         instance.getCluster().addMembershipListener(new HazelcastMemberShipListener());
@@ -71,6 +57,7 @@ public class HazelcastInstanceManager {
 
         config.setProperty("hazelcast.jmx", "true")
                 .setProperty("hazelcast.version.check.enabled", "false")
+                .setProperty("hazelcast.phone.home.enabled", "false")
                 .setProperty("hazelcast.memcache.enabled","false")
                 .setProperty("hazelcast.redo.giveup.threshold","10")
                 .setProperty("hazelcast.logging.type","slf4j");

@@ -3,22 +3,21 @@ image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:6113670d
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   TZ: Europe/Amsterdam
-  WHITESOURCE_CONFIG_FILE: "whitesource.config"
+  WHITESOURCE_PRODUCT: "database-team"
+  WHITESOURCE_PROJECT: "whois"
+  WS_MAVEN_AGGREGATEMODULES: "true"
   PROJECT_NAME: "whois"
   ARTIFACT_NAME: "whois-db"
   ARTIFACT_DIR: "whois-db"
+  GROUP_ID: "net.ripe.db"
 
 include:
   - project: 'swe/gitlab-ci'
     file: '/templates/whitesource-scanning.yml'
   - project: 'swe-database-team/gitlab-ci'
     file: '/templates/release-template.yml'
-
   - project: 'swe-database-team/gitlab-ci'
     file: '/templates/deployment-template.yml'
-
-  - project: 'swe-database-team/gitlab-ci'
-    file: '/templates/aws-deployment-template.yml'
 
 stages:
   - build
@@ -34,13 +33,11 @@ cache:
     - .m2/repository
 
 build:
+  tags:
+    - whois
   stage: build
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - mvn $MAVEN_OPTS clean install -Prelease
-    - docker tag whois:${CI_COMMIT_SHA} $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
-    - docker push $CI_REGISTRY_IMAGE/whois:${CI_COMMIT_SHORT_SHA}
   artifacts:
     paths:
       - "*/target/*.jar"
@@ -54,7 +51,8 @@ release:
   only:
     - tags
   script:
-    - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA
+    - if [ "$CI_COMMIT_TAG" ]; then NEW_VERSION="$CI_COMMIT_SHORT_SHA"; else NEW_VERSION="$CI_COMMIT_SHORT_SHA-SNAPSHOT"; fi
+    - mvn versions:set -DnewVersion=$NEW_VERSION
     - mvn -DskipTests -DskipITs -Prelease deploy
   extends: .release_template
 

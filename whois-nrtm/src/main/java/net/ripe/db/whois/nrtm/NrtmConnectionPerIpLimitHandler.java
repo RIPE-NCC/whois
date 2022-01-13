@@ -1,13 +1,12 @@
 package net.ripe.db.whois.nrtm;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.common.pipeline.ConnectionCounter;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ import java.net.InetAddress;
  */
 @Component
 @ChannelHandler.Sharable
-public class NrtmConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandler {
+public class NrtmConnectionPerIpLimitHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmConnectionPerIpLimitHandler.class);
 
@@ -39,8 +38,8 @@ public class NrtmConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandle
     }
 
     @Override
-    public void channelOpen(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        final Channel channel = ctx.getChannel();
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
 
         if (limitConnections(remoteAddress) && connectionsExceeded(remoteAddress)) {
@@ -49,17 +48,18 @@ public class NrtmConnectionPerIpLimitHandler extends SimpleChannelUpstreamHandle
             return;
         }
 
-        super.channelOpen(ctx, e);
+        ctx.fireChannelActive();
     }
 
     @Override
-    public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        final Channel channel = ctx.getChannel();
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
         connectionCounter.decrement(remoteAddress);
 
-        super.channelClosed(ctx, e);
+        ctx.fireChannelInactive();
     }
+
 
     private boolean limitConnections(final InetAddress remoteAddress) {
         // unlike query port, no exceptions made for internal addresses

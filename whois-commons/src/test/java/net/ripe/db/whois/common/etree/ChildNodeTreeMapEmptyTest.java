@@ -1,18 +1,23 @@
 package net.ripe.db.whois.common.etree;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ChildNodeTreeMapEmptyTest {
 
     @SuppressWarnings("unchecked")
-    @Test(expected=UnsupportedOperationException.class)
+    @Test
     public void removeChildIsUnsupported() {
-        ChildNodeTreeMap.EMPTY.removeChild(null);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            ChildNodeTreeMap.EMPTY.removeChild(null);
+        });
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected=UnsupportedOperationException.class)
+    @Test
     public void addChildIsUnsupported() {
-        ChildNodeTreeMap.EMPTY.addChild(null);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            ChildNodeTreeMap.EMPTY.addChild(null);
+        });
     }
 }

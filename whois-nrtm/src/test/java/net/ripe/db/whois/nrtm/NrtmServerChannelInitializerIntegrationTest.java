@@ -1,11 +1,10 @@
 package net.ripe.db.whois.nrtm;
 
-import net.ripe.db.whois.common.IntegrationTest;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.embedded.EmbeddedChannel;
 import net.ripe.db.whois.nrtm.integration.AbstractNrtmIntegrationBase;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
@@ -16,35 +15,46 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
-public class BaseNrtmServerPipelineFactoryIntegrationTest extends AbstractNrtmIntegrationBase {
-    @Autowired private BaseNrtmServerPipelineFactory nrtmServerPipelineFactory;
+@org.junit.jupiter.api.Tag("IntegrationTest")
+public class NrtmServerChannelInitializerIntegrationTest extends AbstractNrtmIntegrationBase {
+    @Autowired private NrtmServerChannelInitializer nrtmServerPipelineFactory;
     @Autowired private List<ChannelHandler> channelHandlers;
 
     @Test
-    public void testChannelHandlersAddedToPipeline() {
-        final ChannelPipeline pipeline1 = nrtmServerPipelineFactory.getPipeline();
-        final ChannelPipeline pipeline2 = nrtmServerPipelineFactory.getPipeline();
+    public void testChannelHandlersAddedToPipeline() throws Exception {
+        channelHandlers.removeIf(channelHandler -> (channelHandler instanceof NrtmServerChannelInitializer));
+
+        EmbeddedChannel embeddedChannel1 = new EmbeddedChannel();
+        EmbeddedChannel embeddedChannel2 = new EmbeddedChannel();
+        nrtmServerPipelineFactory.initChannel(embeddedChannel1);
+        nrtmServerPipelineFactory.initChannel(embeddedChannel2);
+
+
+        final ChannelPipeline pipeline1 = embeddedChannel1.pipeline();
+        final ChannelPipeline pipeline2 = embeddedChannel2.pipeline();
 
         final Set<ChannelHandler> toCheck = new HashSet<>(channelHandlers);
-        final List<String> names = pipeline1.getNames();
+        final List<String> names = pipeline1.names();
         for (final String name : names) {
-            final ChannelHandler channelHandler = pipeline1.get(name);
+            if (name.equalsIgnoreCase("DefaultChannelPipeline$TailContext#0")) {
+                continue;
+            }
 
+            final ChannelHandler channelHandler = pipeline1.get(name);
             final ChannelHandler.Sharable annotation = AnnotationUtils.findAnnotation(channelHandler.getClass(), ChannelHandler.Sharable.class);
             final boolean handlerIsShared = pipeline2.get(channelHandler.getClass()) == channelHandler;
             if (annotation == null) {
-                assertFalse("Handler is not sharable, but reused: " + channelHandler, handlerIsShared);
+                assertFalse(handlerIsShared, "Handler is not sharable, but reused: " + channelHandler);
             } else {
-                assertTrue("Handler is sharable, but not reused: " + channelHandler, handlerIsShared);
+                assertTrue(handlerIsShared, "Handler is sharable, but not reused: " + channelHandler);
             }
 
             if (channelHandler.getClass().getName().contains("ripe")) {
-                ReflectionUtils.doWithFields(channelHandler.getClass(), field -> {
+                ReflectionUtils.doWithLocalFields(channelHandler.getClass(), field -> {
                     final int modifiers = field.getModifiers();
 
                     final String fieldName = field.getName();

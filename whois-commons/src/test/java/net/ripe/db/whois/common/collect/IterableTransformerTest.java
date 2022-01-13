@@ -1,16 +1,17 @@
 package net.ripe.db.whois.common.collect;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Deque;
 import java.util.Iterator;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IterableTransformerTest {
 
@@ -41,21 +42,23 @@ public class IterableTransformerTest {
         assertFalse(iterator.hasNext());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void null_test() {
-        final Iterable<Integer> subject = getSimpleIterable(1, null, 2, null);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            final Iterable<Integer> subject = getSimpleIterable(1, null, 2, null);
 
-        final Iterator<Integer> iterator = subject.iterator();
+            final Iterator<Integer> iterator = subject.iterator();
 
-        assertTrue(iterator.hasNext());
-        assertThat(iterator.next(), is(1));
-        assertTrue(iterator.hasNext());
-        assertNull(iterator.next());
-        assertTrue(iterator.hasNext());
-        assertThat(iterator.next(), is(2));
-        assertTrue(iterator.hasNext());
-        assertNull(iterator.next());
-        assertFalse(iterator.hasNext());
+            assertTrue(iterator.hasNext());
+            assertThat(iterator.next(), is(1));
+            assertTrue(iterator.hasNext());
+            assertNull(iterator.next());
+            assertTrue(iterator.hasNext());
+            assertThat(iterator.next(), is(2));
+            assertTrue(iterator.hasNext());
+            assertNull(iterator.next());
+            assertFalse(iterator.hasNext());
+        });
     }
 
     @Test

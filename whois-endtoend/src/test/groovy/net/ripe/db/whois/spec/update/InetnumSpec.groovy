@@ -1,12 +1,12 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class InetnumSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -5569,4 +5569,179 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
 
+    def "create and modify with geofeed"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ALLOCATED UNSPECIFIED
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent())
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    NL
+                        geofeed:    https://www.example.com
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent()))
+        then:
+        created =~ /Create SUCCEEDED: \[inetnum] 192.168.0.0 - 192.168.0.255/
+        when:
+        def modified = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    DK
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent()))
+        then:
+        modified =~ /Modify SUCCEEDED: \[inetnum] 192.168.0.0 - 192.168.0.255/
+    }
+
+    def "create with invalid geofeed"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ALLOCATED UNSPECIFIED
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent())
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    NL
+                        geofeed:    not an url
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent()))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
+    }
+
+    def "create with not secure url as geofeed"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ALLOCATED UNSPECIFIED
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent())
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    NL
+                        geofeed:    http://unsecure.com
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent()))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
+    }
+
+    def "create with geofeed and inetnum too specific"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ALLOCATED UNSPECIFIED
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent())
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.63
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    NL
+                        geofeed:    https://example.com
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent()))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.63/
+    }
+
+    def "create with geofeed and remarks geofeed"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ALLOCATED UNSPECIFIED
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent())
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    NL
+                        geofeed:    https://example.com
+                        remarks:    geofeed: https://example.com
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent()))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
+    }
 }

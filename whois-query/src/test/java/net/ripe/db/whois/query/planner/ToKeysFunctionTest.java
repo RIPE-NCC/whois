@@ -3,8 +3,8 @@ package net.ripe.db.whois.query.planner;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.MessageObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,7 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ToKeysFunctionTest {
     ToKeysFunction subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new ToKeysFunction();
     }

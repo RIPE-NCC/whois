@@ -17,12 +17,12 @@ import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.Map;
@@ -32,6 +32,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 // TODO: [ES] Replace these unmaintainable unit tests with integration tests
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InetnumStrictStatusValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -50,10 +51,10 @@ public class InetnumStrictStatusValidatorTest {
     @Mock Maintainers maintainers;
     @InjectMocks InetnumStrictStatusValidator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
+        lenient().when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
+        lenient().when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
     }
 
     @Test
@@ -77,7 +78,7 @@ public class InetnumStrictStatusValidatorTest {
     @Test
     public void not_authorized_by_rsmntner_ipv4() {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST"));
         when(ipv4Tree.findFirstMoreSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList());
 
@@ -91,7 +92,7 @@ public class InetnumStrictStatusValidatorTest {
     @Test
     public void not_authorized_by_rsmntner_ipv4_override() {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST"));
         when(ipv4Tree.findFirstMoreSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList());
@@ -105,7 +106,7 @@ public class InetnumStrictStatusValidatorTest {
     public void parent_has_assigned_pa_status_and_grandparent_is_allocated_pa_and_has_rs_maintainer() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.168.1.0/24\nstatus: ASSIGNED PA"));
         Ipv4Entry parentEntry = new Ipv4Entry(Ipv4Resource.parse("192.168/16"), 1);
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ASSIGNED PA"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ASSIGNED PA"));
         Ipv4Entry grandParentEntry = new Ipv4Entry(Ipv4Resource.parse("192/8"), 2);
         when(objectDao.getById(2)).thenReturn(RpslObject.parse("inetnum: 192/8\nstatus: ALLOCATED PA\nmnt-by: RIPE-NCC-HM-MNT"));
         when(ipv4Tree.findAllLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry, grandParentEntry));
@@ -124,7 +125,7 @@ public class InetnumStrictStatusValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.168.1.0/24\nstatus: ASSIGNED PA"));
         Ipv4Entry parentEntry = new Ipv4Entry(Ipv4Resource.parse("192.168/16"), 1);
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 192.168/16\nstatus: ASSIGNED PA"));
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ASSIGNED PA"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ASSIGNED PA"));
         Ipv4Entry grandParentEntry = new Ipv4Entry(Ipv4Resource.parse("192/8"), 2);
         when(objectDao.getById(2)).thenReturn(RpslObject.parse("inetnum: 192/8\nstatus: ALLOCATED PA"));
         when(ipv4Tree.findAllLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry, grandParentEntry));
@@ -144,7 +145,7 @@ public class InetnumStrictStatusValidatorTest {
         Ipv4Entry parentEntry = new Ipv4Entry(Ipv4Resource.parse("192.0/16"), 1);
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry));
         final RpslObject parent = RpslObject.parse("inetnum: 192.0/16\nstatus: SUB-ALLOCATED PA");
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("SUB-ALLOCATED PA"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("SUB-ALLOCATED PA"));
 
         subject.validate(update, updateContext);
 
@@ -160,7 +161,7 @@ public class InetnumStrictStatusValidatorTest {
         when(ipv4Tree.findFirstMoreSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList());
         Ipv4Entry parentEntry = new Ipv4Entry(Ipv4Resource.parse("192.0/16"), 1);
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry));
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("SUB-ALLOCATED PA"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("SUB-ALLOCATED PA"));
 
         subject.validate(update, updateContext);
 
@@ -173,7 +174,7 @@ public class InetnumStrictStatusValidatorTest {
         when(ipv4Tree.findFirstMoreSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList());
         Ipv4Entry parentEntry = new Ipv4Entry(Ipv4Resource.parse("192.0/16"), 1);
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry));
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
 
         subject.validate(update, updateContext);
 
@@ -185,7 +186,7 @@ public class InetnumStrictStatusValidatorTest {
     @Test
     public void create_inetnum_w_legacy_allowed_under_legacy_w_non_rs_maintainer() {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("LEGACY"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("LEGACY"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +
@@ -199,7 +200,7 @@ public class InetnumStrictStatusValidatorTest {
     @Test
     public void create_inetnum_w_legacy_not_allowed_under_unspecified_w_non_rs_maintainer() {
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +
@@ -212,9 +213,9 @@ public class InetnumStrictStatusValidatorTest {
 
     @Test
     public void create_inetnum_w_legacy_allowed_under_unspecified_w_rs_maintainer() {
-        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
+        lenient().when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("ALLOCATED UNSPECIFIED"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +
@@ -227,9 +228,9 @@ public class InetnumStrictStatusValidatorTest {
 
     @Test
     public void create_inetnum_w_legacy_not_allowed_under_wrong_status_w_rs_maintainer() {
-        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
+        lenient().when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
-        when(statusDao.getStatus(1)).thenReturn(CIString.ciString("LIR-PARTITIONED PA"));
+        lenient().when(statusDao.getStatus(1)).thenReturn(CIString.ciString("LIR-PARTITIONED PA"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +

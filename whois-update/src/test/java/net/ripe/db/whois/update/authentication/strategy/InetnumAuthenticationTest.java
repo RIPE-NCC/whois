@@ -15,11 +15,12 @@ import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InetnumAuthenticationTest {
     @Mock private AuthenticationModule authenticationModule;
     @Mock private Ipv4Tree ipv4Tree;
@@ -64,7 +65,6 @@ public class InetnumAuthenticationTest {
     @Test
     public void does_not_support_modifying() {
         when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
 
         assertThat(subject.supports(update), is(false));
     }
@@ -114,7 +114,7 @@ public class InetnumAuthenticationTest {
         verifyNoMoreInteractions(updateContext);
     }
 
-    @Test(expected = AuthenticationFailedException.class)
+    @Test
     public void authenticate_mntlower_inetnum_fails() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24"));
 
@@ -129,7 +129,9 @@ public class InetnumAuthenticationTest {
 
         when(authenticationModule.authenticate(update, updateContext, maintainers, InetnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
-        subject.authenticate(update, updateContext);
+        Assertions.assertThrows(AuthenticationFailedException.class, () -> {
+            subject.authenticate(update, updateContext);
+        });
     }
 
     @Test

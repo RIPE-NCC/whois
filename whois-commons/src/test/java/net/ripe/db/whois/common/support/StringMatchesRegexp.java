@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.support;
 
 import org.hamcrest.Description;
-import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
@@ -25,7 +24,6 @@ public class StringMatchesRegexp extends TypeSafeMatcher<String> {
         return pattern.matcher(item).matches();
     }
 
-    @Factory
     public static Matcher<String> stringMatchesRegexp(String regexp) {
         return new StringMatchesRegexp(regexp);
     }

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class AuthoritativeResourceLoader extends AbstractAuthoritativeResourceLoader {
 
@@ -15,6 +16,12 @@ public class AuthoritativeResourceLoader extends AbstractAuthoritativeResourceLo
 
     public AuthoritativeResourceLoader(final Logger logger, final String name, final Scanner scanner) {
         super(logger);
+        this.name = name;
+        this.scanner = scanner;
+    }
+
+    public AuthoritativeResourceLoader(final Logger logger, final String name, final Scanner scanner, final Set<AuthoritativeResourceStatus> statuses) {
+        super(logger, statuses);
         this.name = name;
         this.scanner = scanner;
     }
@@ -46,7 +53,14 @@ public class AuthoritativeResourceLoader extends AbstractAuthoritativeResourceLo
         final String type = columns.get(2).toLowerCase();
         final String start = columns.get(3);
         final String value = columns.get(4);
-        final String status = columns.get(6).toLowerCase();
+
+        AuthoritativeResourceStatus status;
+        try {
+            status = AuthoritativeResourceStatus.valueOf(columns.get(6).toUpperCase());
+        } catch (IllegalArgumentException iae) {
+            logger.debug("Ignoring status '{}'", columns.get(6));
+            return;
+        }
 
         handleResource(source,
                        cc,

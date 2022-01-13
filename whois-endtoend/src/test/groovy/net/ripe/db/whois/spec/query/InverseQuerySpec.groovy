@@ -1,10 +1,11 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
+import org.junit.jupiter.api.Tag
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 class InverseQuerySpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -98,11 +99,25 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:      MBRS-MNT
                 source:      TEST
                 """,
+            "ROLE-A001": """\
+                role:         Abuse Handler
+                address:      St James Street
+                address:      Burnley
+                address:      UK
+                e-mail:       dbtest@ripe.net
+                abuse-mailbox:more_abuse@lir.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                nic-hdl:      AH001-TEST
+                mnt-by:       LIR-MNT
+                source:       TEST
+                """,
             "ORGSUB": """\
                 organisation:    ORG-SUB1-TEST
                 org-type:        other
                 org-name:        S U B
                 address:         RIPE NCC
+                abuse-c:         AH001-TEST
                 e-mail:          dbtest@ripe.net
                 ref-nfy:         org-inverse@ripe.net
                 notify:          notify-inverse@ripe.net

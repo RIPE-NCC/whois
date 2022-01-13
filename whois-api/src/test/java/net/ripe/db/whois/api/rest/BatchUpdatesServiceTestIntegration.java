@@ -6,14 +6,15 @@ import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -26,18 +27,18 @@ import java.util.stream.Collectors;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", "secret", ObjectType.values()));
 
@@ -398,27 +399,30 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
         assertEquals(ciString("BE"), inetnum.getValueForAttribute(AttributeType.COUNTRY));
     }
 
-    @Test(expected = NotAuthorizedException.class)
+    @Test
     public void batch_update_no_valid_authentication() {
-        final WhoisResources whoisResources =
-                mapRpslObjects(
-                        RpslObject.parse(
-                                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
-                                        "netname:      TEST-NET-NAME\n" +
-                                        "descr:        TEST network\n" +
-                                        "country:      BE\n" +
-                                        "org:          ORG-LIR1-TEST\n" +
-                                        "admin-c:      TP1-TEST\n" +
-                                        "tech-c:       TP1-TEST\n" +
-                                        "status:       ALLOCATED UNSPECIFIED\n" +
-                                        "mnt-by:       RIPE-NCC-HM-MNT\n" +
-                                        "mnt-lower:    LIR-mnt\n" +
-                                        "source:       TEST")
-                );
+        Assertions.assertThrows(NotAuthorizedException.class, () -> {
+            final WhoisResources whoisResources =
+                    mapRpslObjects(
+                            RpslObject.parse(
+                                    "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                                            "netname:      TEST-NET-NAME\n" +
+                                            "descr:        TEST network\n" +
+                                            "country:      BE\n" +
+                                            "org:          ORG-LIR1-TEST\n" +
+                                            "admin-c:      TP1-TEST\n" +
+                                            "tech-c:       TP1-TEST\n" +
+                                            "status:       ALLOCATED UNSPECIFIED\n" +
+                                            "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                                            "mnt-lower:    LIR-mnt\n" +
+                                            "source:       TEST")
+                    );
 
-        RestTest.target(getPort(), "whois/batch/TEST")
-                .request()
-                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            RestTest.target(getPort(), "whois/batch/TEST")
+                    .request()
+                    .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        });
     }
 
     @Test

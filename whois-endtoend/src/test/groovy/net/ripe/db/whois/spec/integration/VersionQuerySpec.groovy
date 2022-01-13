@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.source.Source
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class VersionQuerySpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
@@ -822,7 +822,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Version 1 of object \"" + pkey + "\""
-        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+ \d+:\d+/
+        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+T\d+:\d+:\d+Z/
         response =~ "% You can use \"--list-versions\" to get a list of versions for an object."
 
       where:
@@ -839,7 +839,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         !(response =~ /ERROR:/)
 
         response =~ "% Version 1 of object \"" + pkey + "\""
-        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+ \d+:\d+/
+        response =~ /% This version was a (UPDATE|DELETE) operation on \d+-\d+-\d+T\d+:\d+:\d+Z/
         response =~ "% You can use \"--list-versions\" to get a list of versions for an object."
 
       where:

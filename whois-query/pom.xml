@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
+            <artifactId>netty-all</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -56,6 +56,14 @@
             <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
+
+        <dependency>
+            <groupId>com.amazonaws.proprot</groupId>
+            <artifactId>proprot</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
+        </dependency>
+
 
     </dependencies>
     <build>
@@ -97,7 +105,7 @@
                     <dependency>
                         <groupId>commons-net</groupId>
                         <artifactId>commons-net</artifactId>
-                        <version>3.1</version>
+                        <version>3.8.0</version>
                     </dependency>
                 </dependencies>
             </plugin>

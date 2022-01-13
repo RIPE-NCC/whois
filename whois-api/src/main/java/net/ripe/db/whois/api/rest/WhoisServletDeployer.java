@@ -39,6 +39,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final DomainObjectService domainObjectService;
     private final FullTextSearch fullTextSearch;
     private final BatchUpdatesService batchUpdatesService;
+    private final HealthCheckService healthCheckService;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -54,7 +55,8 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final MaintenanceModeFilter maintenanceModeFilter,
                                 final DomainObjectService domainObjectService,
                                 final FullTextSearch fullTextSearch,
-                                final BatchUpdatesService batchUpdatesService) {
+                                final BatchUpdatesService batchUpdatesService,
+                                final HealthCheckService healthCheckService) {
         this.whoisRestService = whoisRestService;
         this.whoisSearchService = whoisSearchService;
         this.whoisVersionService = whoisVersionService;
@@ -69,6 +71,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.domainObjectService = domainObjectService;
         this.fullTextSearch = fullTextSearch;
         this.batchUpdatesService = batchUpdatesService;
+        this.healthCheckService = healthCheckService;
     }
 
     @Override
@@ -92,6 +95,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(domainObjectService);
         resourceConfig.register(fullTextSearch);
         resourceConfig.register(batchUpdatesService);
+        resourceConfig.register(healthCheckService);
         resourceConfig.register(new CacheControlFilter());
 
         final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();

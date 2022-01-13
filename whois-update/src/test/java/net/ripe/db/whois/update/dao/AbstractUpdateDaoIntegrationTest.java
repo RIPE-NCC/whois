@@ -2,8 +2,8 @@ package net.ripe.db.whois.update.dao;
 
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -14,14 +14,14 @@ import java.util.List;
 public abstract class AbstractUpdateDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired(required = false) protected List<ApplicationService> applicationServices = Collections.emptyList();
 
-    @Before
+    @BeforeEach
     public void startServer() throws Exception {
         for (final ApplicationService applicationService : applicationServices) {
             applicationService.start();
         }
     }
 
-    @After
+    @AfterEach
     public void stopServer() throws Exception {
         for (final ApplicationService applicationService : applicationServices) {
             applicationService.stop(true);

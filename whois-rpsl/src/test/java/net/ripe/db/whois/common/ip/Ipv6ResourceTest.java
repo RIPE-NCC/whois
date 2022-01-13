@@ -1,16 +1,17 @@
 package net.ripe.db.whois.common.ip;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Ipv6ResourceTest {
     private Ipv6Resource subject;
@@ -34,7 +35,7 @@ public class Ipv6ResourceTest {
     }
 
     // TODO: [ES] ::ffff:0:0/96 not handled properly — This prefix is used for IPv6 transition mechanisms and designated as an IPv4-mapped IPv6 address.
-    @Ignore
+    @Disabled
     @Test
     public void ipv4_mapped_ipv6_address() {
         subject = Ipv6Resource.parse("::ffff:c16e:370c/128");       // "Address has to be 16 bytes long"
@@ -68,39 +69,53 @@ public class Ipv6ResourceTest {
         assertThat(subject.toString(), is("2a00:f78::/48"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseIpv6MappedIpv4Fails() {
-        subject = Ipv6Resource.parse("::ffff:192.0.2.128");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            subject = Ipv6Resource.parse("::ffff:192.0.2.128");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void invalidResource() {
-        Ipv6Resource.parse("invalid resource");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parse("invalid resource");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void invalidResourceType() {
-        Ipv6Resource.parse("12.0.0.1");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parse("12.0.0.1");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void Ipv6RangeThrowsIllegalArgumentException() {
-        Ipv6Resource.parse("2001:: - 2020::");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parse("2001:: - 2020::");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void createWithBeginEndBeforeBeginFails() {
-        subject = resource(2, 1);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            subject = resource(2, 1);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void createWithBeginOutOfBoundsFails() {
-        subject = resource(Long.MIN_VALUE, 1);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            subject = resource(Long.MIN_VALUE, 1);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void createWithEndOutOfBoundsFails() {
-        subject = new Ipv6Resource(BigInteger.ONE, BigInteger.ONE.shiftLeft(128));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            subject = new Ipv6Resource(BigInteger.ONE, BigInteger.ONE.shiftLeft(128));
+        });
     }
 
     @Test
@@ -370,38 +385,53 @@ public class Ipv6ResourceTest {
         assertEquals(ipv6Resource, parsedFromStrings);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void reverse_empty() {
-        Ipv6Resource.parseReverseDomain("");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parseReverseDomain("");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void reverse_null() {
-        Ipv6Resource.parseReverseDomain(null);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parseReverseDomain(null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void reverse_no_ip6arpa() {
-        Ipv6Resource.parseReverseDomain("1.2.3.4");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parseReverseDomain("1.2.3.4");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void reverse_no_octets() {
-        Ipv6Resource.parseReverseDomain(".ip6.arpa");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parseReverseDomain(".ip6.arpa");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void reverse_more_than_four_octets() {
-        Ipv6Resource.parseReverseDomain("8.7.6.5.4.3.2.1.in-addr.arpa");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parseReverseDomain("8.7.6.5.4.3.2.1.in-addr.arpa");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void reverse_invalid_nibbles_dash() {
-        Ipv6Resource.parseReverseDomain("1-1.1.a.ip6.arpa");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parseReverseDomain("1-1.1.a.ip6.arpa");
+        });
+
     }
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void reverse_invalid_nibbles_non_hex() {
-        Ipv6Resource.parseReverseDomain("g.ip6.arpa");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parseReverseDomain("g.ip6.arpa");
+        });
     }
 
     @Test
@@ -414,8 +444,34 @@ public class Ipv6ResourceTest {
         assertThat(Ipv6Resource.parseReverseDomain("a.9.8.7.6.5.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa").toString(), is("2001:db8::567:89a0/124"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void invalid_prefix_length() {
-        Ipv6Resource.parse("2001::/129");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parse("2001::/129");
+        });
+    }
+
+    @Test
+    public void test_brackets_no_prefix_length() {
+        assertThat(Ipv6Resource.parse("[2001:67c:2e8:1::c100:13b]"), is(Ipv6Resource.parse("2001:67c:2e8:1::c100:13b")));
+    }
+
+    @Test
+    public void test_brackets_with_prefix_length() {
+        assertThat(Ipv6Resource.parse("[2001:67c:2e8:1::c100:13b]/64"), is(Ipv6Resource.parse("2001:67c:2e8:1::c100:13b/64")));
+    }
+
+    @Test
+    public void test_brackets_invalid_prefix_length() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parse("[2001:67c:2e8:1::c100:13b/64]");
+        });
+    }
+
+    @Test
+    public void test_brackets_with_port_number() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Ipv6Resource.parse("[2001:db8::1]:80");
+        });
     }
 }

@@ -6,9 +6,12 @@ import org.eclipse.jetty.jmx.ObjectMBean;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.Slf4jRequestLogWriter;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -52,11 +55,14 @@ public class JettyBootstrap implements ApplicationService {
 
     private final boolean dosFilterEnabled;
 
+    private final DelayShutdownHook delayShutdownHook;
+
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
+                          final DelayShutdownHook delayShutdownHook,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled) throws MalformedObjectNameException {
@@ -64,6 +70,7 @@ public class JettyBootstrap implements ApplicationService {
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
         this.rewriteEngine = rewriteEngine;
+        this.delayShutdownHook = delayShutdownHook;
         this.trustedIpRanges = trustedIpRanges;
         this.rewriteEngineEnabled = rewriteEngineEnabled;
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled? "en" : "dis");
@@ -164,10 +171,22 @@ public class JettyBootstrap implements ApplicationService {
 
     @RetryFor(attempts = 5, value = Exception.class)
     private Server createAndStartServer(int port, HandlerList handlers) throws Exception {
+        delayShutdownHook.register();
         final Server server = new Server(port);
         server.setHandler(handlers);
         server.setStopAtShutdown(true);
         server.setRequestLog(createRequestLog());
+
+        final HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.addCustomizer( new RemoteAddressCustomizer() );
+
+        final HttpConnectionFactory connectionFactory = new HttpConnectionFactory( httpConfig );
+        final ServerConnector connector = new ServerConnector(server, connectionFactory);
+
+        //the port in the Server constructor is overridden by the new connector
+        connector.setPort(port);
+
+        server.setConnectors( new ServerConnector[] { connector } );
 
         server.start();
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
@@ -197,6 +216,6 @@ public class JettyBootstrap implements ApplicationService {
 
     // Log requests to org.eclipse.jetty.server.RequestLog
     private RequestLog createRequestLog() {
-        return new CustomRequestLog(new Slf4jRequestLogWriter(), EXTENDED_RIPE_LOG_FORMAT);
+        return new CustomRequestLog(new FilteredSlf4jRequestLogWriter("password"), EXTENDED_RIPE_LOG_FORMAT);
     }
 }

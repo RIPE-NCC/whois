@@ -2,23 +2,29 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class DomainTest {
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void empty() {
-        Domain.parse("");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Domain.parse("");
+        });
+
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void hostname() {
-        Domain.parse("hostname");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Domain.parse("hostname");
+        });
     }
 
     @Test
@@ -37,19 +43,28 @@ public class DomainTest {
         assertThat(domain.getType(), is(Domain.Type.INADDR));
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void ipv4_dash_invalid_position() {
-        Domain.parse("0-127.10.10.in-addr.arpa");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Domain.parse("0-127.10.10.in-addr.arpa");
+        });
+
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void ipv4_dash_range_0_255() {
-        Domain.parse("0-255.10.10.in-addr.arpa");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Domain.parse("0-255.10.10.in-addr.arpa");
+        });
+
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void ipv4_dash_range_start_is_range_end() {
-        Domain.parse("1-1.10.10.in-addr.arpa");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Domain.parse("1-1.10.10.in-addr.arpa");
+        });
+
     }
 
     @Test
@@ -96,14 +111,20 @@ public class DomainTest {
         assertThat(domain.getValue(), is(ciString("200.193.193.193.in-addr.arpa")));
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void suffix() {
-        Domain.parse("200.193.193.193.some-suffix.");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Domain.parse("200.193.193.193.some-suffix.");
+        });
+
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void suffix_almost_correct() {
-        Domain.parse("200.193.193.in-addraarpa");
+        Assertions.assertThrows(AttributeParseException.class, () -> {
+            Domain.parse("200.193.193.in-addraarpa");
+        });
+
     }
 
     @Test

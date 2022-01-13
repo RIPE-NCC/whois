@@ -7,14 +7,14 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.BufferedInputStream;
@@ -29,37 +29,39 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LoggerContextTest {
     @Mock Update update;
     @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks LoggerContext subject;
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
-    @Before
+
+    @BeforeEach
     public void setUp() throws Exception {
         // need to reinit static threadlocal
         try {
             subject.remove();
         } catch (IllegalStateException ignored) {}
-        subject.init(folder.getRoot());
+        subject.init(folder.getAbsoluteFile());
 
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
-        when(update.getUpdate()).thenReturn(update);
+        lenient().when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        lenient().when(update.getUpdate()).thenReturn(update);
     }
 
     @Test
     public void checkDirs() {
         subject.remove();
 
-        final File f = new File(folder.getRoot(), "test/");
+        final File f = new File(folder.getAbsolutePath(), "test/");
         subject.setBaseDir(f.getAbsolutePath());
         subject.checkDirs();
         subject.init("folder");
@@ -83,20 +85,22 @@ public class LoggerContextTest {
             }
         });
 
-        final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "001.test.txt.gz"))));
+        final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getAbsolutePath(), "001.test.txt.gz"))));
         final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
         assertThat(file.getName(), is("001.test.txt.gz"));
         assertThat(contents, is("test"));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void log_throws_exception() {
-        subject.log("filename", new LogCallback() {
-            @Override
-            public void log(final OutputStream outputStream) throws IOException {
-                throw new IOException();
-            }
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            subject.log("filename", new LogCallback() {
+                @Override
+                public void log(final OutputStream outputStream) throws IOException {
+                    throw new IOException();
+                }
+            });
         });
     }
 
@@ -114,7 +118,7 @@ public class LoggerContextTest {
         subject.logUpdateCompleted(update);
         subject.remove();
 
-        final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "000.audit.xml.gz"))));
+        final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getAbsolutePath(), "000.audit.xml.gz"))));
         final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
         assertThat(trim(contents), containsString("" +
@@ -142,9 +146,11 @@ public class LoggerContextTest {
         subject.logQuery(new StatementInfo("sql"), new ResultInfo(Collections.<List<String>>emptyList()));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void logUpdateComplete_no_context_should_fail() {
-        subject.logUpdateCompleted(update);
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            subject.logUpdateCompleted(update);
+        });
     }
 
     @Test
@@ -160,7 +166,7 @@ public class LoggerContextTest {
         subject.logUpdateFailed(update, new NullPointerException());
         subject.remove();
 
-        final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getRoot(), "000.audit.xml.gz"))));
+        final InputStream is = new GZIPInputStream(new BufferedInputStream(new FileInputStream(new File(folder.getAbsolutePath(), "000.audit.xml.gz"))));
         final String contents = new String(FileCopyUtils.copyToByteArray(is), StandardCharsets.UTF_8);
 
         assertThat(trim(contents), containsString("" +
@@ -179,7 +185,7 @@ public class LoggerContextTest {
     public void init_with_null_should_not_fail() throws Exception {
         LoggerContext context = new LoggerContext(dateTimeProvider);
         context.remove();
-        context.setBaseDir(folder.getRoot().getCanonicalPath());
+        context.setBaseDir(folder.getAbsolutePath());
 
         context.init((String) null);
 
@@ -190,7 +196,7 @@ public class LoggerContextTest {
     public void init_filename_too_long() throws Exception {
         LoggerContext context = new LoggerContext(dateTimeProvider);
         context.remove();
-        context.setBaseDir(folder.getRoot().getCanonicalPath());
+        context.setBaseDir(folder.getAbsolutePath());
 
         context.init(
                 "!&!GAAAAAAAAABroW3yuncHTIoNeDX08wSswoAAABgAAAAAAAAAa6Ft8rp3B0yKDXg19LMErCTLPAAAAAAAEAAAAETr6edDTvV" +
@@ -206,7 +212,7 @@ public class LoggerContextTest {
     public void init_filename_illegal_path() throws Exception {
         LoggerContext context = new LoggerContext(dateTimeProvider);
         context.remove();
-        context.setBaseDir(folder.getRoot().getCanonicalPath());
+        context.setBaseDir(folder.getAbsolutePath());
 
         context.init("/../../../../../../../");
         context.checkDirs();
@@ -218,7 +224,7 @@ public class LoggerContextTest {
     public void init_filename_illegal_characters() throws Exception {
         LoggerContext context = new LoggerContext(dateTimeProvider);
         context.remove();
-        context.setBaseDir(folder.getRoot().getCanonicalPath());
+        context.setBaseDir(folder.getAbsolutePath());
 
         context.init("2001:2002::\t\n\\x0B\f\r//?<>\\*|\"");
         context.checkDirs();

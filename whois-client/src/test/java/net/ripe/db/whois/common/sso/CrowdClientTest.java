@@ -1,11 +1,11 @@
 package net.ripe.db.whois.common.sso;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import jakarta.ws.rs.BadRequestException;
@@ -24,13 +24,13 @@ import static net.ripe.db.whois.common.sso.CrowdClient.CrowdSession;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdUser;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CrowdClientTest {
 
     @Mock Response response;
@@ -40,13 +40,11 @@ public class CrowdClientTest {
 
     CrowdClient subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(client.target(anyString())).thenReturn(webTarget);
         when(webTarget.path(anyString())).thenReturn(webTarget);
-        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
         when(webTarget.request(any(String.class))).thenReturn(builder);
-        when(webTarget.request()).thenReturn(builder);
 
         subject = new CrowdClient("http://testurl", "crowduser", "crowdpassword");
         ReflectionTestUtils.setField(subject, "client", client);
@@ -83,6 +81,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_user_session_success() {
+        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
         when(builder.<CrowdSession>post(any(Entity.class), any(Class.class))).then(
             invocation ->
                 new CrowdSession(new CrowdUser("test@ripe.net", "Test User", true), null, "2033-01-30T16:38:27.369+11:00")
@@ -97,6 +96,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_user_session_bad_request() {
+        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
         when(builder.<CrowdSession>post(any(Entity.class), any(Class.class))).then(invocation -> {throw new BadRequestException("Not valid sso");});
 
         try {
@@ -109,6 +109,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_username_success() {
+        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
         when(builder.get(CrowdClient.CrowdUsers.class))
                 .then(invocation -> new CrowdClient.CrowdUsers(
                         Arrays.asList(new CrowdClient.CrowdUser("test@ripe.net", "Test User", true)))
@@ -119,6 +120,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_username_not_found() {
+        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
         when(builder.get(CrowdClient.CrowdUsers.class)).then(invocation -> {throw new NotFoundException("message");});
 
         try {
@@ -131,6 +133,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_display_name_success() {
+        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
         when(builder.get(CrowdClient.CrowdUsers.class))
                 .then(invocation -> new CrowdClient.CrowdUsers(
                         Arrays.asList(new CrowdClient.CrowdUser("test@ripe.net", "Test User", true)))
@@ -141,6 +144,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_display_name_not_found() {
+        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
         when(builder.get(CrowdClient.CrowdUsers.class)).then(invocation -> {throw new NotFoundException("message");});
 
         try {
@@ -154,6 +158,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_uuid_success() {
+        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
         when(builder.get(CrowdResponse.class)).then(invocation ->
                 new CrowdResponse(Lists.newArrayList(
                         new CrowdClient.CrowdAttribute(Lists.newArrayList(
@@ -165,6 +170,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_uuid_not_found() {
+        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
         when(builder.get(CrowdResponse.class)).then(invocation -> {throw new NotFoundException("message");});
 
         try {
@@ -180,6 +186,7 @@ public class CrowdClientTest {
         final CrowdResponse crowdResponse = mock(CrowdResponse.class);
         when(crowdResponse.getUUID()).then(invocation -> {throw new NoSuchElementException();});
         when(builder.get(CrowdResponse.class)).thenReturn(crowdResponse);
+        when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
 
         try {
             subject.getUuid("test@ripe.net");

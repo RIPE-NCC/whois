@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 

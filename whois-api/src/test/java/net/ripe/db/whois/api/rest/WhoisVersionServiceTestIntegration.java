@@ -7,13 +7,14 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.ws.rs.NotFoundException;
@@ -31,7 +32,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
@@ -52,12 +53,12 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
             "mnt-by:    OWNER-MNT\n" +
             "source:    TEST\n");
 
-    private static final String VERSION_DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}";
+    private static final String VERSION_DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z";
 
     @Autowired
     private MaintenanceMode maintenanceMode;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
@@ -207,14 +208,16 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(versions.get(0).getRevision(), is(nullValue()));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void versions_no_versions_found() {
-        RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(String.class);
+        });
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void version_nonexistant_version() {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
@@ -225,12 +228,14 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void version_wrong_object_type() {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
@@ -241,9 +246,11 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        RestTest.target(getPort(), "whois/test/inetnum/AS102/versions/1")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/inetnum/AS102/versions/1")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
     }
 
     @Test
@@ -321,7 +328,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         }
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void version_not_showing_deleted_version() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -334,9 +341,11 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject(autnum);
         databaseHelper.deleteObject(autnum);
 
-        RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
     }
 
     @Test

@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
+import org.glassfish.jersey.server.internal.LocalizationMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -67,6 +68,12 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
             }
 
             return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
+        }
+
+        if (exception instanceof IllegalStateException) {
+            if (LocalizationMessages.FORM_PARAM_CONTENT_TYPE_ERROR().equals(exception.getMessage())) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
         }
 
         LOGGER.error("Unexpected", exception);

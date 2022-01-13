@@ -8,12 +8,12 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
@@ -27,14 +27,14 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuditLoggerTest {
     @Spy ByteArrayOutputStream outputStream;
     @Mock DateTimeProvider dateTimeProvider;
     private AuditLogger subject;
     private Update update;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.of(2012, 12, 1, 0, 0));
         update = new Update(new Paragraph("paragraph"), Operation.DELETE, Arrays.asList("reason"), RpslObject.parse("mntner:DEV-ROOT-MNT"));
@@ -47,7 +47,6 @@ public class AuditLoggerTest {
         subject.close();
 
         final String log = outputStream.toString("UTF-8");
-
         assertThat(trim(log), containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
                 "<dbupdate created=\"2012-12-01 00:00:00\">" +
@@ -75,7 +74,6 @@ public class AuditLoggerTest {
         subject.close();
 
         final String log = outputStream.toString("UTF-8");
-
         assertThat(trim(log), is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
                 "<dbupdate created=\"2012-12-01 00:00:00\">" +
@@ -99,7 +97,6 @@ public class AuditLoggerTest {
         subject.close();
 
         final String log = outputStream.toString("UTF-8");
-
         assertThat(trim(log), containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
                 "<dbupdate created=\"2012-12-01 00:00:00\">" +
@@ -131,7 +128,6 @@ public class AuditLoggerTest {
         subject.close();
 
         final String log = outputStream.toString("UTF-8");
-
         assertThat(trim(log), containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
                 "<dbupdate created=\"2012-12-01 00:00:00\">" +
@@ -172,7 +168,6 @@ public class AuditLoggerTest {
         subject.close();
 
         final String log = outputStream.toString("UTF-8");
-
         assertThat(trim(log), containsString("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
                 "<dbupdate created=\"2012-12-01 00:00:00\">" +
@@ -227,7 +222,7 @@ public class AuditLoggerTest {
 
         assertThat(outputStream.toString("UTF-8"), is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<dbupdate created=\"2012-12-01 00:00:00\">\n" +
+                "<dbupdate created=\"2012-12-01T00:00:00Z\">\n" +
                 "    <messages/>\n" +
                 "    <updates/>\n" +
                 "</dbupdate>\n"

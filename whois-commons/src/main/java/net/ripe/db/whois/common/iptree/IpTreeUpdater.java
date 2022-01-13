@@ -50,7 +50,7 @@ public class IpTreeUpdater {
         this.sourceContext = sourceContext;
 
         sourceConfigurationForSlave = getSourceConfigurationsWithTypePreference(sourceContext, Source.Type.SLAVE);
-        LOGGER.info("Rebuild IpTress and scheduled update using sources: {}", sourceConfigurationForSlave);
+        LOGGER.info("Rebuild IpTrees and scheduled update using sources: {}", sourceConfigurationForSlave);
     }
 
     private Set<SourceConfiguration> getSourceConfigurationsWithTypePreference(final SourceContext sourceContext, final Source.Type preferredType) {

@@ -1,48 +1,62 @@
 package net.ripe.db.whois.nrtm;
 
 import joptsimple.OptionException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class QueryTest {
 
     public static final String SOURCE = "RIPE";
     public static final String NONAUTH_SOURCE = "RIPE-NONAUTH";
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void null_argument() {
-        new Query(SOURCE, null);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            new Query(SOURCE, null);
+        });
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void empty() {
-        new Query(SOURCE, "");
+        Assertions.assertThrows(NrtmException.class, () -> {
+            new Query(SOURCE, "");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void all_args() {
-        new Query(SOURCE, "-q -g -k");
+        Assertions.assertThrows(NrtmException.class, () -> {
+            new Query(SOURCE, "-q -g -k");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void flag_k_no_flag_g() {
-        new Query(SOURCE, "-k");
+        Assertions.assertThrows(NrtmException.class, () -> {
+            new Query(SOURCE, "-k");
+        });
     }
 
-    @Test(expected = OptionException.class)
+    @Test
     public void flag_q_no_arg() {
-        new Query(SOURCE, "-q");
+        Assertions.assertThrows(OptionException.class, () -> {
+            new Query(SOURCE, "-q");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void flag_q_unknown() {
-        new Query(SOURCE, "-q foo");
+        Assertions.assertThrows(NrtmException.class, () -> {
+            new Query(SOURCE, "-q foo");
+        });
     }
 
     @Test
@@ -66,7 +80,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, NONAUTH_SOURCE, "-g FOO");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:403"));
         }
     }
@@ -76,7 +90,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE:0");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:406"));
         }
     }
@@ -86,7 +100,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:405"));
         }
     }
@@ -96,7 +110,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE:3:FOO");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:405"));
         }
     }
@@ -106,7 +120,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE:3:1-FOO");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:405"));
         }
     }
@@ -116,7 +130,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE:3:2-1");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:405"));
         }
     }
@@ -126,7 +140,7 @@ public class QueryTest {
         try {
             new Query(SOURCE, "-g RIPE:3:-1");
             fail("No exception thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (NrtmException e) {
             assertThat(e.getMessage(), containsString("ERROR:405"));
         }
     }

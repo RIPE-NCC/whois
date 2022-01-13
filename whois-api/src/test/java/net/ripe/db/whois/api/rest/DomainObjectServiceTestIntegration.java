@@ -6,12 +6,12 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.ws.rs.BadRequestException;
@@ -22,9 +22,9 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
@@ -33,7 +33,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
     @Autowired
     private DnsGatewayStub dnsGatewayStub;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("" +
                 "person:        Jaap Knasterhuis\n" +

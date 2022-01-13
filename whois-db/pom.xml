@@ -41,6 +41,14 @@
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-scheduler</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
 
         <!-- testing -->
         <dependency>
@@ -106,37 +114,6 @@
                             </artifactSet>
                         </configuration>
                     </plugin>
-                    <plugin>
-                        <groupId>com.google.cloud.tools</groupId>
-                        <artifactId>jib-maven-plugin</artifactId>
-                        <version>2.7.1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>dockerBuild</goal>
-                                </goals>
-                                <phase>package</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <from>
-                                <image>openjdk:11</image>
-                            </from>
-                            <to>
-                                <image>whois:${git.commit.id}</image>
-                            </to>
-                            <container>
-                                <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-                                <jvmFlags>
-                                    <jvmFlag>-XX:+UseContainerSupport</jvmFlag>
-                                    <jvmFlag>-Dlog4j.configurationFile=file:/export/services/whois/log4j2.xml</jvmFlag>
-                                    <jvmFlag>-Dbase.dir=/export/services/whois</jvmFlag>
-                                    <jvmFlag>-Dinstance.name.prefix=whois-aws-</jvmFlag>
-                                </jvmFlags>
-                                <mainClass>net.ripe.db.whois.db.WhoisServer</mainClass>
-                            </container>
-                        </configuration>
-                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -162,7 +139,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>1.5</version>
+                <version>3.2.4</version>
                 <configuration>
                     <finalName>${project.artifactId}-${project.version}</finalName>
                     <transformers>

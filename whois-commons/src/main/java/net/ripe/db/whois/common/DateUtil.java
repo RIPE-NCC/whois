@@ -16,7 +16,7 @@ public final class DateUtil {
     }
 
     /** Convert from Java date time to a Date object.
-     * Specify the local timezone (not UTC).
+     * Specify the system default zone offset, which is set to UTC.
      */
     public static Date toDate(final LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneOffset.systemDefault())
@@ -24,14 +24,14 @@ public final class DateUtil {
     }
 
     /** Convert from Java date to a Date object.
-     * Specify the local timezone (not UTC).
+     * Specify the system default zone offset, which is set to UTC.
      */
     public static Date toDate(final LocalDate localDate) {
         return Date.from(localDate.atStartOfDay(ZoneOffset.systemDefault()).toInstant());
     }
 
     /** Convert from a Date to a Java date time object.
-     * Specify the local timezone (not UTC).
+     * Specify the system default zone offset, which is set to UTC.
      */
     public static LocalDateTime fromDate(final Date date) {
         return Instant.ofEpochMilli(date.getTime())

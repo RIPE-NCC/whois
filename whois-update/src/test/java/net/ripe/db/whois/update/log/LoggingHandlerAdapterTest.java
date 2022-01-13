@@ -4,18 +4,19 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LoggingHandlerAdapterTest {
     @Mock LoggerContext loggerContext;
 
@@ -23,7 +24,7 @@ public class LoggingHandlerAdapterTest {
     private ResultInfo resultInfo;
     private LoggingHandlerAdapter subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         statementInfo = new StatementInfo("sql", Maps.<Integer, Object>newHashMap());
 

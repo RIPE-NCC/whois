@@ -1,11 +1,49 @@
 # next
 
+# 1.102.2
+
+[all] Update log4j to 2.17.0 from 2.15.0 (#965)
+
+# 1.102.1
+
+[all] Update log4j to 2.15.0 to address CVE-2021-44228 (#959)
+
+# 1.102
+
+[all] NWI-13: Added support for the "geofeed:" attribute (#937)
+[Update] Support base64 encoded signed update messages (sent by Thunderbird 78+) (#942)
+[all] Updated "geoloc:" help text (#929)
+[api] Log client IP correctly in HTTP request log (#908)
+[api] Filter passwords in HTTP request log (#919)
+[update] Support IDN in outgoing mail update notifications (#888)
+[all] Added graceful shutdown to healthcheck (#896)
+[grs] Fixed APNIC GRS mirror HTTPS download (#871)
+[all] Removed AWS-specific changes
+[all] Require UTC timezone at startup (#857)
+[all] Updated dependencies
+
+# 1.101
+
+[all] Switch RIPE database to UTC timezone
+[nrtm] Display an error on NRTM if client is blocked by ACL limit (#812)
+[api] Added rewrite rules to embedded Jetty (#801)
+[rdap] RDAP nameserver queries always return Not Implemented (#811)
+[update] Don't use sso as reply-to when override was used. (#818)
+[all] Updated dependencies
+
+# 1.100
+
+[query] Use AWS instance name (#781)
+[update] Use status index during validation (#725)
+[api] Fixed aut-num attribute managed flag (#749)
+[api] Added client flag to API for proxying requests (#728)
 [all] Java 11 support (#673)
 [rdap] nameserver not implemented (#711)
 [update] Delete object bug (#723)
 [all] Removed Travis integration (#724)
 [all] Updated dependencies
 [all] Merged AWS profile (#721)
+[update] Separate email address and leading/trailing space during Punycode conversion (#782)
 
 # 1.99
 

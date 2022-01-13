@@ -1,8 +1,9 @@
 package net.ripe.db.whois.spec.integration
-import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+import net.ripe.db.whois.spec.domain.SyncUpdate
+import org.junit.jupiter.api.Tag
+
+@Tag("IntegrationTest")
 class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -52,6 +53,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             descr:        test org
             address:      street 5
             e-mail:       org1@test.com
+            abuse-c:      AB-NIC
             mnt-ref:      TST-MNT
             mnt-by:       TST-MNT
             source:       TEST

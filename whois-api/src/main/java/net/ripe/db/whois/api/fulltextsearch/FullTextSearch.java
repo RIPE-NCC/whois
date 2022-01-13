@@ -171,7 +171,7 @@ public class FullTextSearch {
                 @Override
                 protected SearchResponse doSearch(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 
-                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResultSize, false, false, false, true);
+                    final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResultSize,  Integer.MAX_VALUE);
                     final FacetsCollector facetsCollector = new FacetsCollector();
 
                     indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
@@ -180,7 +180,7 @@ public class FullTextSearch {
 
                     final TopDocs topDocs = topFieldCollector.topDocs();
                     final int start = Math.max(0, searchRequest.getStart());
-                    int resultSize = Math.min(maxResultSize, Long.valueOf(topDocs.totalHits).intValue());
+                    int resultSize = Math.min(maxResultSize, Long.valueOf(topDocs.totalHits.value).intValue());
 
                     final int end = Math.min(start + searchRequest.getRows(), resultSize);
                     for (int index = start; index < end; index++) {

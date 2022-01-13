@@ -1,12 +1,12 @@
 package net.ripe.db.whois.spec.integration
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import java.time.LocalDateTime
 import org.springframework.test.util.ReflectionTestUtils
 import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
     //FIXME [TP] this workaround with the authenticator and the principalsMap is a hack to...
     //FIXME [TP] ...temporarilly allow hierarchical *mail*updates with power maintainers. Do not replicate this logic.
@@ -2904,7 +2904,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:       -----END CERTIFICATE-----
                 mnt-by:       OWNER-MNT
                 source:       TEST
-                password:     owner
+                override: denis, override1 
              """.stripIndent())
     then:
       syncUpdate new SyncUpdate(data:
@@ -3920,4 +3920,69 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
 
+  def "pgp signed message with base64 encoded content"() {
+    given:
+      setTime(LocalDateTime.parse("2021-09-29T11:23:22")) // current time is >1 hour after signing time
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST") +
+                      "password: owner")
+    then:
+      def message = send "" +
+              "Message-ID: <a64222cd-6cb7-4a6a-33ec-3111e9e79331@ripe.net>\n" +
+              "Date: Wed, 29 Sep 2021 11:23:17 +0200\n" +
+              "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)\n" +
+              " Gecko/20100101 Thunderbird/91.1.2\n" +
+              "Content-Language: en-US\n" +
+              "To: test-dbm@ripe.net\n" +
+              "From: No Reply <noreply@ripe.net>\n" +
+              "Subject: NEW\n" +
+              "Content-Type: multipart/signed; micalg=pgp-sha256;\n" +
+              " protocol=\"application/pgp-signature\";\n" +
+              " boundary=\"------------z60obBv7fVfOOgKt1tN8jpOM\"\n" +
+              "\n" +
+              "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+              "--------------z60obBv7fVfOOgKt1tN8jpOM\n" +
+              "Content-Type: multipart/mixed; boundary=\"------------Vea17wsKD2zUMOZmbw2ly2r0\";\n" +
+              " protected-headers=\"v1\"\n" +
+              "From: No Reply <noreply@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Message-ID: <a64222cd-6cb7-4a6a-33ec-3111e9e79331@ripe.net>\n" +
+              "Subject: NEW\n" +
+              "\n" +
+              "--------------Vea17wsKD2zUMOZmbw2ly2r0\n" +
+              "Content-Type: text/plain; charset=UTF-8; format=flowed\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "\n" +
+              "cGVyc29uOsKgIEZpcnN0IFBlcnNvbg0KYWRkcmVzczogU3QgSmFtZXMgU3RyZWV0DQphZGRy\n" +
+              "ZXNzOiBCdXJubGV5DQphZGRyZXNzOiBVSw0KcGhvbmU6wqDCoCArNDQgMjgyIDQyMDQ2OQ0K\n" +
+              "bmljLWhkbDogRlAxLVRFU1QNCm1udC1ieTrCoCBPV05FUi1NTlQNCnNvdXJjZTrCoCBURVNU\n" +
+              "DQoNCg==\n" +
+              "\n" +
+              "--------------Vea17wsKD2zUMOZmbw2ly2r0--\n" +
+              "\n" +
+              "--------------z60obBv7fVfOOgKt1tN8jpOM\n" +
+              "Content-Type: application/pgp-signature; name=\"OpenPGP_signature.asc\"\n" +
+              "Content-Description: OpenPGP digital signature\n" +
+              "Content-Disposition: attachment; filename=\"OpenPGP_signature\"\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "\n" +
+              "wsB5BAABCAAjFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmFUMIUFAwAAAAAACgkQu8y7LVdjlQ0X\n" +
+              "dAf/TqDMoPLSVz54m6LpJi1/CZ2aG5aEWAZUUkz1Qjf0KbPN6i3tJRvzovb8KWTyge8/JtSIA3tW\n" +
+              "3Srq1OJE9dimlC7cTAjRtk+V5FPn35vWGyH8SbQPZ2GtcIXY7BvChfXFykXZO4nt47+oU2EN+V1V\n" +
+              "Y9HnLnpR6atGTqdGWAGjcHTd5b2wMzxFaXyeTBNehDNAFiiIeKupdoVy8dOES4mW9lgmDIVFIzNq\n" +
+              "gAxdlPUCJoquVHwM+g5VZG6Wb1ahUs/c3ACnb7iw/x/TfnUbtryy22q9m1sgBHRGgUpc6Zp7XyGB\n" +
+              "PbhoRb5m4s95oxOh5crFMcRveIx8SCj45YqX0ONuew==\n" +
+              "=mjpm\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--------------z60obBv7fVfOOgKt1tN8jpOM--\n"
+
+    then:
+      def ack = ackFor message
+      ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
+  }
 }
