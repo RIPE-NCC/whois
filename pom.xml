@@ -54,7 +54,7 @@
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <guava.version>30.1.1-jre</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
         <groovy.version>3.0.9</groovy.version>
 
         <hazelcast.version>4.2.2</hazelcast.version>
