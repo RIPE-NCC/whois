@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.common.ReadinessUpdater;
 import net.ripe.db.whois.common.iptree.IpTreeCacheManager;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -16,10 +19,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -73,7 +72,7 @@ public class HealthCheckService {
 
         return isHealthy ?
                 Response.ok().entity("OK").build() :
-                Response.status(Status.SERVICE_UNAVAILABLE).entity("DISABLED").build();
+                Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("DISABLED").build();
     }
 
     @Scheduled(fixedDelay = 60 * 1_000)

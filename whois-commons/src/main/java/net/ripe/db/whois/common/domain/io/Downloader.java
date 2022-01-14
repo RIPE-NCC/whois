@@ -2,13 +2,13 @@ package net.ripe.db.whois.common.domain.io;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import jakarta.ws.rs.core.HttpHeaders;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
-import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
