@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.sso;
 
-import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
+import com.fasterxml.jackson.jakarta.rs.annotation.JacksonFeatures;
 import com.google.common.collect.Iterables;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;

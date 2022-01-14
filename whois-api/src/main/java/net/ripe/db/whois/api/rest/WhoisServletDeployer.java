@@ -1,7 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
 import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
@@ -19,7 +20,6 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.DispatcherType;
 import java.util.EnumSet;
 
 @Component
@@ -98,7 +98,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(healthCheckService);
         resourceConfig.register(new CacheControlFilter());
 
-        final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
+        final JacksonJsonProvider jaxbJsonProvider = new JacksonJsonProvider();
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         resourceConfig.register(jaxbJsonProvider);

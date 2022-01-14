@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -39,8 +39,8 @@ import java.util.TimeZone;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 @Disabled("TODO: [ES] java.lang.NoClassDefFoundError: javax/xml/bind/annotation/XmlElement")
 public class RdapResponseJsonTest {
@@ -492,7 +492,7 @@ public class RdapResponseJsonTest {
         objectMapper.setAnnotationIntrospector(
                 new AnnotationIntrospectorPair(
                         new JacksonAnnotationIntrospector(),
-                        new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
+                        new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
 
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);

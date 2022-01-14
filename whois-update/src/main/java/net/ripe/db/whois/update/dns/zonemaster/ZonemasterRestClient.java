@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.dns.zonemaster;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -36,7 +36,7 @@ public class ZonemasterRestClient {
     }
 
     private static Client createClient() {
-        final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
+        final JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
         jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
         jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         jsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);

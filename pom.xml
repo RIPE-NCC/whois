@@ -60,14 +60,14 @@
         <hazelcast.version>4.2.2</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
-        <jaxb.version>3.0.0</jaxb.version>
+        <jaxb.version>3.0.1</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.14.3</jsoup.version>
-        <junit.version>5.7.2</junit.version>
-        <jetty.version>11.0.1</jetty.version>
-        <jersey.version>3.0.1</jersey.version>
-        <jackson.version>2.12.6</jackson.version>
+        <junit.version>5.8.2</junit.version>
+        <jetty.version>11.0.7</jetty.version>
+        <jersey.version>3.0.3</jersey.version>
+        <jackson.version>2.13.1</jackson.version>
 
         <log4j.version>2.17.1</log4j.version>
 
@@ -83,7 +83,7 @@
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.32</slf4j.version>
-        <spring.version>5.3.14</spring.version>
+        <spring.version>5.3.15</spring.version>
         <springockito.version>1.0.9</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
@@ -495,22 +495,20 @@
 
             <!-- Jackson JSON Library -->
             <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-base</artifactId>
-                <classifier>jakarta</classifier>
+                <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+                <artifactId>jackson-jakarta-rs-base</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <classifier>jakarta</classifier>
+                <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+                <artifactId>jackson-jakarta-rs-json-provider</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-             <dependency>
+            <dependency>
                  <groupId>com.fasterxml.jackson.core</groupId>
                  <artifactId>jackson-annotations</artifactId>
-                 <version>${jackson.version}</version>
-             </dependency>
+                <version>${jackson.version}</version>
+            </dependency>
 
             <!-- StaxUtils for the XMLWriterUtils -->
             <dependency>
