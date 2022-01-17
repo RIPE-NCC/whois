@@ -1,28 +1,26 @@
 package net.ripe.db.whois.api.mail.dao;
 
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
-
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileCopyUtils;
 
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {

@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 import com.google.common.collect.Lists;
+import jakarta.mail.Message;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
@@ -30,8 +32,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.mail.Message;
-import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;

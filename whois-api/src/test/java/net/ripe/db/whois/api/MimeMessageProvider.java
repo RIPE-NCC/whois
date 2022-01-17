@@ -1,9 +1,9 @@
 package net.ripe.db.whois.api;
 
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
 
 /**

@@ -74,7 +74,7 @@
         <!-- Needs to be in sync with the version of Lucene used by the ElasticSearch client -->
         <lucene.version>8.9.0</lucene.version>
 
-        <mail.version>1.6.2</mail.version>
+        <mail.version>2.0.1</mail.version>
         <mariadb-java-client.version>2.7.4</mariadb-java-client.version>
         <mockito.version>3.11.2</mockito.version>
 
@@ -335,13 +335,8 @@
 
             <!-- JavaMail API and implementation -->
             <dependency>
-                <groupId>javax.mail</groupId>
-                <artifactId>javax.mail-api</artifactId>
-                <version>${mail.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.mail</groupId>
-                <artifactId>javax.mail</artifactId>
+                <groupId>jakarta.mail</groupId>
+                <artifactId>jakarta.mail-api</artifactId>
                 <version>${mail.version}</version>
             </dependency>
 

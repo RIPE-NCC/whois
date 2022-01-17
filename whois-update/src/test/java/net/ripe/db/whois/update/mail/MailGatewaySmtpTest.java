@@ -1,20 +1,19 @@
 package net.ripe.db.whois.update.mail;
 
+import jakarta.mail.SendFailedException;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.mail.SendFailedException;
-import javax.mail.internet.MimeMessage;
 import java.lang.reflect.Field;
 
 import static org.hamcrest.MatcherAssert.assertThat;
