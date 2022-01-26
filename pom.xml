@@ -885,7 +885,7 @@
                         <exclude>${test.files.integration}</exclude>
                     </excludes>
                     <runOrder>random</runOrder>
-                    <forkCount>3</forkCount>
+                    <forkCount>8</forkCount>
                     <threadCount>1</threadCount>
                     <!-- TODO: [ES] reuseForks=true causes local integration test build to hang -->
                     <reuseForks>true</reuseForks>
@@ -917,7 +917,7 @@
                     <runOrder>random</runOrder> -->
                     <!-- works (tests pass) -->
                    <!-- <groups>${test.groups}</groups>-->
-                    <forkCount>3</forkCount>
+                    <forkCount>8</forkCount>
                     <!-- TODO: [ES] reuseForks=true causes local integration test build to hang -->
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
