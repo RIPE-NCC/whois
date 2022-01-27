@@ -93,6 +93,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <parallelParsing>true</parallelParsing>
+                </configuration>
             </plugin>
         </plugins>
     </build>
