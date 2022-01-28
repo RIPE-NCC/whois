@@ -4,8 +4,9 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
+import org.junit.jupiter.api.Tag
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 class MemberReclaimSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {

@@ -1,22 +1,21 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class LacnicGrsSourceTest {
@@ -45,7 +44,7 @@ public class LacnicGrsSourceTest {
         assertThat(objectHandler.getObjects(), contains(
                 RpslObject.parse("" +
                         "aut-num:        AS278\n" +
-                        "descr:          Description\n" +
+                        "descr:          FUNDAÇÃO DE AMPARO À PESQUISA DO ESTADO SÃO PAULO\n" +
                         "country:        MX\n" +
                         "created:        19890331 # created\n" +
                         "source:         LACNIC\n"),

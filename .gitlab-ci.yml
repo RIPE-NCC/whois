@@ -3,7 +3,9 @@ image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:6113670d
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   TZ: Europe/Amsterdam
-  WHITESOURCE_CONFIG_FILE: "whitesource.config"
+  WHITESOURCE_PRODUCT: "database-team"
+  WHITESOURCE_PROJECT: "whois"
+  WS_MAVEN_AGGREGATEMODULES: "true"
   PROJECT_NAME: "whois"
   ARTIFACT_NAME: "whois-db"
   ARTIFACT_DIR: "whois-db"

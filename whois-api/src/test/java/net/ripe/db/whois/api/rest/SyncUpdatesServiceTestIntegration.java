@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -71,7 +72,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     private IpRanges ipRanges;
 
     @Test
-    public void empty_request() {
+    public void get_empty_request() {
         try {
             RestTest.target(getPort(), "whois/syncupdates/test")
                     .request()
@@ -778,6 +779,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
                 containsString("address:        ???????? ?????,??????"));
+    }
+
+    @Test
+    public void post_empty_body() {
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post( null);
+
+        assertThat(response.getStatus(), is(HttpStatus.BAD_REQUEST_400));
     }
 
     @Test

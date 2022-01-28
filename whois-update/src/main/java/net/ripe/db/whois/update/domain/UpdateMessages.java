@@ -283,6 +283,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This range overlaps with %s", intervalToString(intersectingRange));
     }
 
+    public static Message intersectingDomain(final CIString domainKey) {
+        return new Message(Type.ERROR, "This domain overlaps with %s", domainKey);
+    }
+
     public static Message inetnumStatusLegacy() {
         return new Message(Type.ERROR, "Only RIPE NCC can create/delete a top level object with status 'LEGACY'\nContact legacy@ripe.net for more info");
     }
@@ -478,12 +482,20 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Certificate in keycert %s has expired", name);
     }
 
+    public static Message certificateHasWeakHash(final CharSequence name, final CharSequence hash) {
+        return new Message(Type.ERROR, "Certificate in keycert %s uses a weak hash algorithm %s", name, hash);
+    }
+
     public static Message publicKeyHasExpired(final CharSequence name) {
         return new Message(Type.ERROR, "Public key in keycert %s has expired", name);
     }
 
     public static Message publicKeyIsRevoked(final CharSequence name) {
         return new Message(Type.ERROR, "Public key in keycert %s is revoked", name);
+    }
+
+    public static Message publicKeyLengthIsWeak(final CharSequence algorithm, final int minimum, final int actual) {
+        return new Message(Type.ERROR, "%s public key is %d bits which is less than the minimum %d", algorithm, actual, minimum);
     }
 
     public static Message cannotCreateOutOfRegionObject(final ObjectType objectType) {
@@ -556,6 +568,10 @@ public final class UpdateMessages {
 
     public static Message selfReferenceError(final AttributeType attributeType) {
         return new Message(Type.ERROR, "Self reference is not allowed for attribute type \"%s\"", attributeType.getName());
+    }
+
+    public static Message noAbuseContact(final CIString orgId) {
+        return new Message(Type.ERROR, "%s must include an \"abuse-c:\" attribute", orgId);
     }
 
     public static Message commentInSourceNotAllowed() {
