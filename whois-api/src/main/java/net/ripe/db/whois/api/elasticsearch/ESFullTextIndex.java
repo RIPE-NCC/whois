@@ -2,15 +2,12 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.base.Stopwatch;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.elasticsearch.IndexMetadata;
 import net.ripe.db.whois.common.elasticsearch.IndexService;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
-import org.apache.lucene.index.IndexWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,7 +36,6 @@ public class ESFullTextIndex {
     private final JdbcTemplate jdbcTemplate;
     private final String source;
     private final String TASK_NAME = "fulltextIndexUpdate";
-
 
     public ESFullTextIndex(IndexService indexService,
                            @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
@@ -76,8 +72,11 @@ public class ESFullTextIndex {
     @SchedulerLock(name = TASK_NAME)
     public void scheduledUpdate() {
         if (!indexService.isEnabled()) {
+            LOGGER.info("ES not enabled");
             return;
         }
+
+        LOGGER.info("started scheduled job for  elastic search  indexes");
 
         try {
             update();
@@ -127,8 +126,10 @@ public class ESFullTextIndex {
 
     private void rebuild() throws IOException {
         if (!indexService.isEnabled()) {
+            LOGGER.warn("ES not enabled");
             return;
         }
+        LOGGER.info("Rebuilding elastic search indexes");
 
         indexService.deleteAll();
         final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
@@ -196,7 +197,6 @@ public class ESFullTextIndex {
             }
         }
     }
-
 }
 
 
