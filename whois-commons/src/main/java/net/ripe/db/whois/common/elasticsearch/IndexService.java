@@ -8,7 +8,6 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.IndicesClient;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
@@ -55,7 +54,23 @@ public class IndexService {
     }
 
     public boolean isEnabled() {
-        return isElasticRunning() && isWhoisIndexExist() && isMetaIndexExist();
+
+        if(!isElasticRunning()) {
+            LOGGER.info("ES cluster is not running");
+            return false;
+        }
+
+        if(!isWhoisIndexExist()) {
+            LOGGER.info("ES index does not exists");
+            return false;
+        }
+
+        if(!isMetaIndexExist()) {
+            LOGGER.info("ES metaIndex does not ruuning");
+            return false;
+        }
+
+        return true;
     }
 
     public void addEntry(RpslObject rpslObject) throws IOException {
