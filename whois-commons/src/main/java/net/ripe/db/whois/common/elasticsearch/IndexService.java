@@ -66,7 +66,7 @@ public class IndexService {
         }
 
         if(!isMetaIndexExist()) {
-            LOGGER.info("ES metaIndex does not ruuning");
+            LOGGER.info("ES metaIndex does not exists");
             return false;
         }
 

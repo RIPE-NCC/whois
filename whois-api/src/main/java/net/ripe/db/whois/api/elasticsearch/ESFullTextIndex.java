@@ -51,11 +51,6 @@ public class ESFullTextIndex {
             return;
         }
 
-        if(indexService.getMetadata() == null) {
-            LOGGER.warn("Invalid Metadata");
-            rebuild();
-        }
-
         if (indexService.getWhoisDocCount() == 0L) {
             rebuild();
         } else {
@@ -90,6 +85,9 @@ public class ESFullTextIndex {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        LOGGER.info("Completed updating ES indexes");
+
     }
 
     protected void update() throws IOException {
@@ -174,6 +172,8 @@ public class ESFullTextIndex {
         }
 
         indexService.updateMetadata(new IndexMetadata(maxSerial, source));
+        LOGGER.info("Completed Rebuilding ES indexes");
+
     }
 
     final class DatabaseObjectProcessor implements Runnable {
