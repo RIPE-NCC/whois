@@ -51,6 +51,11 @@ public class ESFullTextIndex {
             return;
         }
 
+        if(indexService.getMetadata() == null) {
+            LOGGER.warn("Invalid Metadata");
+            rebuild();
+        }
+
         if (indexService.getWhoisDocCount() == 0L) {
             rebuild();
         } else {
