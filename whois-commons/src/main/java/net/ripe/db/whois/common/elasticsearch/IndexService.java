@@ -2,7 +2,9 @@ package net.ripe.db.whois.common.elasticsearch;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
@@ -17,7 +19,6 @@ import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
@@ -74,9 +75,9 @@ public class IndexService {
     }
 
     public void addEntry(RpslObject rpslObject) throws IOException {
-        byte[] bytes = objectMapper.writeValueAsBytes(rpslObject);
         IndexRequest request = new IndexRequest(WHOIS_INDEX);
-        request.source(bytes, XContentType.JSON);
+        request.id(String.valueOf(rpslObject.getObjectId()));
+        request.source(json(rpslObject));
         client.index(request, RequestOptions.DEFAULT);
     }
 
@@ -149,5 +150,16 @@ public class IndexService {
             LOGGER.error("Metadata index does not exist");
             return false;
         }
+    }
+    
+    private XContentBuilder json(final RpslObject rpslObject) throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+
+        builder.field(
+                "object",
+                new RpslObjectBuilder(rpslObject).removeAttributeType(AttributeType.AUTH).get().toString()
+        );
+
+        return builder.endObject();
     }
 }
