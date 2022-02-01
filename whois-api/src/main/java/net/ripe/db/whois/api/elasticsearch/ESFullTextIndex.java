@@ -173,7 +173,6 @@ public class ESFullTextIndex {
 
         indexService.updateMetadata(new IndexMetadata(maxSerial, source));
         LOGGER.info("Completed Rebuilding ES indexes");
-
     }
 
     final class DatabaseObjectProcessor implements Runnable {

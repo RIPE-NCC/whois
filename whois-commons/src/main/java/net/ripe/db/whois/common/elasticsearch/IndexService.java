@@ -82,6 +82,7 @@ public class IndexService {
     }
 
     public void deleteEntry(int objectId) throws IOException {
+        LOGGER.info("Deleting an entry for {}", objectId);
         DeleteByQueryRequest request = new DeleteByQueryRequest(WHOIS_INDEX);
         request.setQuery(new TermQueryBuilder("objectId", objectId));
         client.deleteByQuery(request, RequestOptions.DEFAULT);
@@ -151,7 +152,7 @@ public class IndexService {
             return false;
         }
     }
-    
+
     private XContentBuilder json(final RpslObject rpslObject) throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 
