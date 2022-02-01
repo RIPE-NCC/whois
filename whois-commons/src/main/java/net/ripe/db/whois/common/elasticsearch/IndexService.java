@@ -1,11 +1,11 @@
 package net.ripe.db.whois.common.elasticsearch;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.apache.http.HttpHost;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -20,7 +20,6 @@ import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
@@ -40,8 +39,6 @@ public class IndexService {
     private static final String SERIAL_DOC_ID = "1";
     private final String WHOIS_INDEX;
     private final String METADATA_INDEX;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
 
     @Autowired
     public IndexService(@Value("${elastic.host:localhost}") final String elasticHost,
@@ -83,9 +80,8 @@ public class IndexService {
 
     public void deleteEntry(int objectId) throws IOException {
         LOGGER.info("Deleting an entry for {}", objectId);
-        DeleteByQueryRequest request = new DeleteByQueryRequest(WHOIS_INDEX);
-        request.setQuery(new TermQueryBuilder("objectId", objectId));
-        client.deleteByQuery(request, RequestOptions.DEFAULT);
+        DeleteRequest request = new DeleteRequest(WHOIS_INDEX, String.valueOf(objectId));
+        client.delete(request, RequestOptions.DEFAULT);
     }
 
     public void deleteAll() throws IOException {
