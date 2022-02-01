@@ -80,11 +80,10 @@ public class IndexServiceIntegrationTest {
         // No document in index
         assertEquals(whoisDocCount, 0);
         indexService.addEntry(RPSL_MNT_PERSON);
-        indexService.addEntry(RPSL_MNT_PERSON);
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = indexService.getWhoisDocCount();
         // one document after adding
-        assertEquals(whoisDocCount, 2);
+        assertEquals(whoisDocCount, 1);
         indexService.deleteAll();
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = indexService.getWhoisDocCount();

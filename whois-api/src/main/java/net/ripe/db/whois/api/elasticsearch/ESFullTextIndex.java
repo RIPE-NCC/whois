@@ -111,7 +111,7 @@ public class ESFullTextIndex {
 
                 switch (serialEntry.getOperation()) {
                     case UPDATE:
-                        indexService.deleteEntry(rpslObject.getObjectId());
+                        //indexService.deleteEntry(rpslObject.getObjectId());
                         indexService.addEntry(rpslObject);
                         break;
                     case DELETE:
