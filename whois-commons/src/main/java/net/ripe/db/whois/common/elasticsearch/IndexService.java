@@ -28,9 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-
 import static org.slf4j.LoggerFactory.getLogger;
-
 
 @Component
 public class IndexService {
@@ -79,7 +77,6 @@ public class IndexService {
     }
 
     public void deleteEntry(int objectId) throws IOException {
-        LOGGER.info("Deleting an entry for {}", objectId);
         DeleteRequest request = new DeleteRequest(WHOIS_INDEX, String.valueOf(objectId));
         client.delete(request, RequestOptions.DEFAULT);
     }

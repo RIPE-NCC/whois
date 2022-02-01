@@ -119,9 +119,7 @@ public class ESFullTextIndex {
                         break;
                 }
             }
-
             LOGGER.debug("Updated index in {}", stopwatch.stop());
-
         }
 
         indexService.updateMetadata(new IndexMetadata(end, source));
