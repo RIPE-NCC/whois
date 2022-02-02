@@ -57,11 +57,6 @@ release:
   extends: .release_template
 
 .it_template: &it_env
-  services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: ["bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node"]
-    - mariadb:10.2
   variables:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
@@ -80,6 +75,8 @@ release:
 
 whois-groovy-test:
   <<: *it_env
+  services:
+    - mariadb:10.2
   tags:
     - whois
   rules:
@@ -93,6 +90,11 @@ whois-groovy-test:
 
 whois-integration-test:
   <<: *it_env
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    - mariadb:10.2
   tags:
     - whois
   rules:
