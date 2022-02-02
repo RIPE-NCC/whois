@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
@@ -37,7 +38,8 @@ public class ElasticFullTextIndex {
     private final String source;
     private final String TASK_NAME = "fulltextIndexUpdate";
 
-    public ElasticFullTextIndex(ElasticIndexService elasticIndexService,
+    @Autowired
+    public ElasticFullTextIndex(final ElasticIndexService elasticIndexService,
                                 @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
                                 @Value("${whois.source}") final String source) {
         this.elasticIndexService = elasticIndexService;
@@ -72,7 +74,7 @@ public class ElasticFullTextIndex {
     @SchedulerLock(name = TASK_NAME)
     public void scheduledUpdate() {
         if (!elasticIndexService.isEnabled()) {
-            LOGGER.info("ES is not enabled");
+            LOGGER.debug("ES is not enabled");
             return;
         }
 

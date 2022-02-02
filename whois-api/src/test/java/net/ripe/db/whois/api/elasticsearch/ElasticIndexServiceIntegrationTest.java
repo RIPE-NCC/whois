@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
-public class ElasticElasticIndexServiceIntegrationTest {
+public class ElasticIndexServiceIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois";
     private static final String METADATA_INDEX = "metadata";

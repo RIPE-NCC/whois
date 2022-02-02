@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.elasticsearch;
 
-
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
