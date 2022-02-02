@@ -31,18 +31,18 @@ import java.io.IOException;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-public class IndexService {
-    private static final Logger LOGGER = getLogger(IndexService.class);
+public class ElasticIndexService {
+    private static final Logger LOGGER = getLogger(ElasticIndexService.class);
     private final RestHighLevelClient client;
     private static final String SERIAL_DOC_ID = "1";
     private final String WHOIS_INDEX;
     private final String METADATA_INDEX;
 
     @Autowired
-    public IndexService(@Value("${elastic.host:localhost}") final String elasticHost,
-                        @Value("${elastic.port:9200}") final int elasticPort,
-                        @Value("${elastic.whois.index:whois}") final String whoisIndexName,
-                        @Value("${elastic.commit.index:metadata}") final String whoisMetadataIndexName) {
+    public ElasticIndexService(@Value("${elastic.host:localhost}") final String elasticHost,
+                               @Value("${elastic.port:9200}") final int elasticPort,
+                               @Value("${elastic.whois.index:whois}") final String whoisIndexName,
+                               @Value("${elastic.commit.index:metadata}") final String whoisMetadataIndexName) {
         this.WHOIS_INDEX = whoisIndexName;
         this.METADATA_INDEX = whoisMetadataIndexName;
         RestClientBuilder clientBuilder = RestClient.builder(new HttpHost(elasticHost, elasticPort));
@@ -50,7 +50,6 @@ public class IndexService {
     }
 
     public boolean isEnabled() {
-
         if(!isElasticRunning()) {
             LOGGER.info("ES cluster is not running");
             return false;
@@ -65,7 +64,6 @@ public class IndexService {
             LOGGER.info("ES metaIndex does not exists");
             return false;
         }
-
         return true;
     }
 
@@ -96,16 +94,16 @@ public class IndexService {
         return countResponse.getCount();
     }
 
-    public IndexMetadata getMetadata() throws IOException {
+    public ElasticIndexMetadata getMetadata() throws IOException {
         GetRequest request = new GetRequest(METADATA_INDEX, SERIAL_DOC_ID);
         GetResponse documentFields = client.get(request, RequestOptions.DEFAULT);
         if (documentFields.getSource() == null) {
             return null;
         }
-        return new IndexMetadata(Integer.parseInt(documentFields.getSource().get("serial").toString()), documentFields.getSource().get("source").toString());
+        return new ElasticIndexMetadata(Integer.parseInt(documentFields.getSource().get("serial").toString()), documentFields.getSource().get("source").toString());
     }
 
-    public void updateMetadata(IndexMetadata metadata) throws IOException {
+    public void updateMetadata(ElasticIndexMetadata metadata) throws IOException {
         UpdateRequest updateRequest = new UpdateRequest(METADATA_INDEX, SERIAL_DOC_ID);
 
         XContentBuilder builder = XContentFactory.jsonBuilder()

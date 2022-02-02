@@ -5,8 +5,8 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
-import net.ripe.db.whois.common.elasticsearch.IndexMetadata;
-import net.ripe.db.whois.common.elasticsearch.IndexService;
+import net.ripe.db.whois.common.elasticsearch.ElasticIndexMetadata;
+import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,31 +30,31 @@ import java.util.concurrent.TimeUnit;
 
 // TODO [DA] Lucene implementation has some mechanism around thread safety. check if that is also necessary
 @Component
-public class ESFullTextIndex {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ESFullTextIndex.class);
-    private IndexService indexService;
+public class ElasticFullTextIndex {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFullTextIndex.class);
+    private ElasticIndexService elasticIndexService;
     private final JdbcTemplate jdbcTemplate;
     private final String source;
     private final String TASK_NAME = "fulltextIndexUpdate";
 
-    public ESFullTextIndex(IndexService indexService,
-                           @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
-                           @Value("${whois.source}") final String source) {
-        this.indexService = indexService;
+    public ElasticFullTextIndex(ElasticIndexService elasticIndexService,
+                                @Qualifier("whoisSlaveDataSource") final DataSource dataSource,
+                                @Value("${whois.source}") final String source) {
+        this.elasticIndexService = elasticIndexService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
     }
 
     @PostConstruct
     public void init() throws IOException {
-        if (!indexService.isEnabled()) {
+        if (!elasticIndexService.isEnabled()) {
             return;
         }
 
-        if (indexService.getWhoisDocCount() == 0L) {
+        if (elasticIndexService.getWhoisDocCount() == 0L) {
             rebuild();
         } else {
-            final IndexMetadata committedMetadata = indexService.getMetadata();
+            final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
             if (!source.equals(committedMetadata.getSource())) {
                 LOGGER.warn("Index has invalid source: {}, rebuild", committedMetadata.getSource());
                 rebuild();
@@ -71,8 +71,8 @@ public class ESFullTextIndex {
     @Scheduled(fixedDelayString = "${fulltext.index.update.interval.msecs:60000}")
     @SchedulerLock(name = TASK_NAME)
     public void scheduledUpdate() {
-        if (!indexService.isEnabled()) {
-            LOGGER.info("ES not enabled");
+        if (!elasticIndexService.isEnabled()) {
+            LOGGER.info("ES is not enabled");
             return;
         }
 
@@ -87,12 +87,11 @@ public class ESFullTextIndex {
         }
 
         LOGGER.info("Completed updating ES indexes");
-
     }
 
     protected void update() throws IOException {
         final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
-        final int last = indexService.getMetadata().getSerial();
+        final int last = elasticIndexService.getMetadata().getSerial();
         if (last > end) {
             rebuild();
         } else if (last < end) {
@@ -112,27 +111,27 @@ public class ESFullTextIndex {
                 switch (serialEntry.getOperation()) {
                     case UPDATE:
                         //indexService.deleteEntry(rpslObject.getObjectId());
-                        indexService.addEntry(rpslObject);
+                        elasticIndexService.addEntry(rpslObject);
                         break;
                     case DELETE:
-                        indexService.deleteEntry(rpslObject.getObjectId());
+                        elasticIndexService.deleteEntry(rpslObject.getObjectId());
                         break;
                 }
             }
             LOGGER.debug("Updated index in {}", stopwatch.stop());
         }
 
-        indexService.updateMetadata(new IndexMetadata(end, source));
+        elasticIndexService.updateMetadata(new ElasticIndexMetadata(end, source));
     }
 
     private void rebuild() throws IOException {
-        if (!indexService.isEnabled()) {
+        if (!elasticIndexService.isEnabled()) {
             LOGGER.warn("ES not enabled");
             return;
         }
         LOGGER.info("Rebuilding elastic search indexes");
 
-        indexService.deleteAll();
+        elasticIndexService.deleteAll();
         final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
         // sadly Executors don't offer a bounded/blocking submit() implementation
         int numThreads = Runtime.getRuntime().availableProcessors();
@@ -169,7 +168,7 @@ public class ESFullTextIndex {
             LOGGER.error("shutdown", e);
         }
 
-        indexService.updateMetadata(new IndexMetadata(maxSerial, source));
+        elasticIndexService.updateMetadata(new ElasticIndexMetadata(maxSerial, source));
         LOGGER.info("Completed Rebuilding ES indexes");
     }
 
@@ -193,7 +192,7 @@ public class ESFullTextIndex {
             }
 
             try {
-                indexService.addEntry(rpslObject);
+                elasticIndexService.addEntry(rpslObject);
             } catch (IOException e) {
                 throw new IllegalStateException("Indexing", e);
             }

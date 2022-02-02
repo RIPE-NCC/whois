@@ -1,10 +1,10 @@
 package net.ripe.db.whois.common.elasticsearch;
 
-public class IndexMetadata {
+public class ElasticIndexMetadata {
     private final Integer serial;
     private final String source;
 
-    public IndexMetadata(Integer serial, String source) {
+    public ElasticIndexMetadata(Integer serial, String source) {
         this.serial = serial;
         this.source = source;
     }

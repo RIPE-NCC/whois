@@ -3,8 +3,8 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Uninterruptibles;
-import net.ripe.db.whois.common.elasticsearch.IndexMetadata;
-import net.ripe.db.whois.common.elasticsearch.IndexService;
+import net.ripe.db.whois.common.elasticsearch.ElasticIndexMetadata;
+import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.http.HttpHost;
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
-public class IndexServiceIntegrationTest {
+public class ElasticElasticIndexServiceIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois";
     private static final String METADATA_INDEX = "metadata";
@@ -56,18 +56,18 @@ public class IndexServiceIntegrationTest {
 
     @Test
     public void addThenCountAndThenDeleteByEntry() throws IOException {
-        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
-        long whoisDocCount = indexService.getWhoisDocCount();
+        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
         assertEquals(whoisDocCount, 0);
-        indexService.addEntry(RPSL_MNT_PERSON);
+        elasticIndexService.addEntry(RPSL_MNT_PERSON);
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
-        whoisDocCount = indexService.getWhoisDocCount();
+        whoisDocCount = elasticIndexService.getWhoisDocCount();
         // one document after adding
         assertEquals(whoisDocCount, 1);
-        indexService.deleteEntry(RPSL_MNT_PERSON.getObjectId());
+        elasticIndexService.deleteEntry(RPSL_MNT_PERSON.getObjectId());
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
-        whoisDocCount = indexService.getWhoisDocCount();
+        whoisDocCount = elasticIndexService.getWhoisDocCount();
         // no document in index after deleting
         assertEquals(whoisDocCount, 0);
     }
@@ -75,55 +75,55 @@ public class IndexServiceIntegrationTest {
 
     @Test
     public void addThenCountAndThenDeleteAll() throws IOException {
-        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
-        long whoisDocCount = indexService.getWhoisDocCount();
+        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
         assertEquals(whoisDocCount, 0);
-        indexService.addEntry(RPSL_MNT_PERSON);
+        elasticIndexService.addEntry(RPSL_MNT_PERSON);
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
-        whoisDocCount = indexService.getWhoisDocCount();
+        whoisDocCount = elasticIndexService.getWhoisDocCount();
         // one document after adding
         assertEquals(whoisDocCount, 1);
-        indexService.deleteAll();
+        elasticIndexService.deleteAll();
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
-        whoisDocCount = indexService.getWhoisDocCount();
+        whoisDocCount = elasticIndexService.getWhoisDocCount();
         // no document in index after deleting
         assertEquals(whoisDocCount, 0);
     }
 
     @Test
     public void isEnabledWhenWhoisIndexDoesNotExist() throws IOException {
-        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
         deleteWhoisIndex(esClient);
-        assertFalse(indexService.isEnabled());
+        assertFalse(elasticIndexService.isEnabled());
     }
 
     @Test
     public void isEnabledWhenMetadataIndexDoesNotExist() throws IOException {
-        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
         deleteMetadataIndex(esClient);
-        assertFalse(indexService.isEnabled());
+        assertFalse(elasticIndexService.isEnabled());
     }
 
     @Test
     public void isEnabledWhenIndexIsNotRunning() throws IOException {
-        IndexService indexService = new IndexService("host", 12345, WHOIS_INDEX, METADATA_INDEX);
-        assertFalse(indexService.isEnabled());
+        ElasticIndexService elasticIndexService = new ElasticIndexService("host", 12345, WHOIS_INDEX, METADATA_INDEX);
+        assertFalse(elasticIndexService.isEnabled());
     }
 
     @Test
     public void isEnabledWhenIndicesExist() {
-        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
-        assertTrue(indexService.isEnabled());
+        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        assertTrue(elasticIndexService.isEnabled());
     }
 
     @Test
     public void updateAndGetMetadata() throws IOException {
-        IndexService indexService = new IndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
-        IndexMetadata indexMetadata = new IndexMetadata(1, "RIPE");
-        assertNull(indexService.getMetadata());
-        indexService.updateMetadata(indexMetadata);
-        IndexMetadata retrievedMetaData = indexService.getMetadata();
+        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "RIPE");
+        assertNull(elasticIndexService.getMetadata());
+        elasticIndexService.updateMetadata(elasticIndexMetadata);
+        ElasticIndexMetadata retrievedMetaData = elasticIndexService.getMetadata();
         assertEquals(1L, retrievedMetaData.getSerial().longValue());
         assertEquals("RIPE", retrievedMetaData.getSource());
     }
