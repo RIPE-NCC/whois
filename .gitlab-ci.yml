@@ -86,7 +86,7 @@ whois-groovy-test:
       allow_failure: true
   script:
     - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-endtoend
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-endtoend
 
 whois-integration-test:
   <<: *it_env
@@ -104,15 +104,15 @@ whois-integration-test:
       allow_failure: true
   script:
     - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-client
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-commons
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-db
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-nrtm
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-query
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-rpsl
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-scheduler
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-update
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-api
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-client
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-commons
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-db
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-query
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rpsl
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-update
 
 sonar:
   <<: *it_env
