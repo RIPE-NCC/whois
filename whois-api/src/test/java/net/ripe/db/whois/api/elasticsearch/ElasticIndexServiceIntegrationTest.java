@@ -27,7 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@org.junit.jupiter.api.Tag("ElasticSearchTest")
 public class ElasticIndexServiceIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois";
