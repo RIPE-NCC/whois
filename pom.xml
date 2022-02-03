@@ -89,6 +89,7 @@
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>2.0-groovy-3.0</spock.version>
         <shedlock.version>4.24.0</shedlock.version>
+        <elasticsearch.version>7.15.0</elasticsearch.version>
 
         <validation.version>2.0.1.Final</validation.version>
         <velocity.version>2.3</velocity.version>
@@ -565,6 +566,19 @@
                 <artifactId>lucene-facet</artifactId>
                 <version>${lucene.version}</version>
             </dependency>
+
+            <!--ElasticSearch -->
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+
             <!-- diffutils -->
             <dependency>
                 <groupId>com.googlecode.java-diff-utils</groupId>
@@ -889,7 +903,7 @@
                     <threadCount>1</threadCount>
                     <!-- TODO: [ES] reuseForks=true causes local integration test build to hang -->
                     <reuseForks>true</reuseForks>
-                    <excludedGroups>IntegrationTest,ManualTest</excludedGroups>
+                    <excludedGroups>IntegrationTest,ManualTest,ElasticSearchTest</excludedGroups>
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
                         <hazelcast.phone.home.enabled>false</hazelcast.phone.home.enabled>
@@ -906,6 +920,9 @@
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
+                    <excludes>
+                        <exclude>${test.files.excludes}</exclude>
+                    </excludes>
                     <excludedGroups>ManualTest</excludedGroups>
                     <!-- doesnt work (breaks tests)
                     <forkCount>1C</forkCount>
@@ -1059,6 +1076,7 @@
                 <test.groups>None</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>None</test.files.integration>
+                <test.files.excludes>None</test.files.excludes>
             </properties>
         </profile>
         <profile>
@@ -1068,6 +1086,17 @@
                 <test.groups>IntegrationTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*Integration*.class,**/*Spec*.class</test.files.integration>
+                <test.files.excludes>**/*Elastic*.class</test.files.excludes>
+            </properties>
+        </profile>
+        <profile>
+            <id>integrationAll</id>
+            <properties>
+                <test.redirectOutput>true</test.redirectOutput>
+                <test.groups>IntegrationTest,ElasticSearchTest</test.groups>
+                <test.files.unit>None</test.files.unit>
+                <test.files.integration>**/*Integration*.class,**/*Spec*.class</test.files.integration>
+                <test.files.excludes>None</test.files.excludes>
             </properties>
         </profile>
         <profile>
@@ -1081,6 +1110,7 @@
                     **/CompareTwoRestInstancesByFile.class,
                     **/CompareTwoNrtmInstances.class
                 </test.files.integration>
+                <test.files.excludes>None</test.files.excludes>
             </properties>
         </profile>
         <profile>
@@ -1090,6 +1120,7 @@
                 <test.groups>IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.files.excludes>None</test.files.excludes>
             </properties>
         </profile>
         <profile>
@@ -1098,6 +1129,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>None</test.files.integration>
+                <test.files.excludes>None</test.files.excludes>
                 <maven.javadoc.skip>true</maven.javadoc.skip>
             </properties>
         </profile>

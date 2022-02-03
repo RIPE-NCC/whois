@@ -140,26 +140,21 @@ public class FullTextIndex extends RebuildableIndex {
             return;
         }
 
-        super.init(new IndexWriterConfig(INDEX_ANALYZER)
-                        .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
-                new IndexTemplate.WriteCallback() {
-                    @Override
-                    public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                        if (indexWriter.getDocStats().numDocs == 0) {
+        super.init(new IndexWriterConfig(INDEX_ANALYZER).setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND), (indexWriter, taxonomyWriter) -> {
+                    if (indexWriter.getDocStats().numDocs == 0) {
+                        rebuild(indexWriter, taxonomyWriter);
+                    } else {
+                        final String committedSource = getCommitData(indexWriter, "source");
+                        if (!source.equals(committedSource)) {
+                            LOGGER.warn("Index {} has invalid source: {}, rebuild", indexDir, committedSource);
                             rebuild(indexWriter, taxonomyWriter);
-                        } else {
-                            final String committedSource = getCommitData(indexWriter, "source");
-                            if (!source.equals(committedSource)) {
-                                LOGGER.warn("Index {} has invalid source: {}, rebuild", indexDir, committedSource);
-                                rebuild(indexWriter, taxonomyWriter);
-                                return;
-                            }
+                            return;
+                        }
 
-                            if (getCommitData(indexWriter, "serial") == null) {
-                                LOGGER.warn("Index {} is missing serial, rebuild", indexDir);
-                                rebuild(indexWriter, taxonomyWriter);
-                                return;
-                            }
+                        if (getCommitData(indexWriter, "serial") == null) {
+                            LOGGER.warn("Index {} is missing serial, rebuild", indexDir);
+                            rebuild(indexWriter, taxonomyWriter);
+                            return;
                         }
                     }
                 }
