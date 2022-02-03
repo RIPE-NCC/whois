@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.handler.validator.inet6num;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.StatusDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
@@ -100,11 +99,6 @@ public class Inet6numStrictStatusValidator implements BusinessRuleValidator {
 
         final Inet6numStatus currentStatus = Inet6numStatus.getStatusFor(updatedObject.getValueForAttribute(STATUS));
         if (currentStatus.requiresAllocMaintainer()) {
-            final boolean hasOnlyAllocMaintainer = Sets.intersection(maintainers.getAllocMaintainers(), mntBy).containsAll(mntBy);
-            if (!hasOnlyAllocMaintainer) {
-                updateContext.addMessage(update, UpdateMessages.statusRequiresAuthorization(currentStatus.toString()));
-                return;
-            }
             if (!updateContext.getSubject(update).hasPrincipal(Principal.ALLOC_MAINTAINER)) {
                 updateContext.addMessage(update, UpdateMessages.statusRequiresAuthorization(currentStatus.toString()));
                 return;
