@@ -119,7 +119,7 @@ public class ElasticIndexService {
         try {
             return client.ping(RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.error("ElasticSearch is not running");
+            LOGGER.warn("ElasticSearch is not running");
             return false;
         }
     }
@@ -128,7 +128,7 @@ public class ElasticIndexService {
         try {
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.error("Whois index does not exist");
+            LOGGER.warn("Whois index does not exist");
             return false;
         }
     }
@@ -138,7 +138,7 @@ public class ElasticIndexService {
         try {
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.error("Metadata index does not exist");
+            LOGGER.warn("Metadata index does not exist");
             return false;
         }
     }
