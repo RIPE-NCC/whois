@@ -14,10 +14,14 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +32,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
+@Testcontainers
 public class ElasticIndexServiceIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois";
@@ -36,6 +41,9 @@ public class ElasticIndexServiceIntegrationTest {
     public static final Integer CONTAINER_PORT = 9200;
     private static RestHighLevelClient esClient;
     private static final RpslObject RPSL_MNT_PERSON = new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1")));
+
+    @Container
+    private static ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
 
     @BeforeAll
     public static void startElastic() {
@@ -56,7 +64,7 @@ public class ElasticIndexServiceIntegrationTest {
 
     @Test
     public void addThenCountAndThenDeleteByEntry() throws IOException {
-        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        ElasticIndexService elasticIndexService = getElasticIndexService();
         long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
         assertEquals(whoisDocCount, 0);
@@ -72,10 +80,9 @@ public class ElasticIndexServiceIntegrationTest {
         assertEquals(whoisDocCount, 0);
     }
 
-
     @Test
     public void addThenCountAndThenDeleteAll() throws IOException {
-        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        ElasticIndexService elasticIndexService = getElasticIndexService();
         long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
         assertEquals(whoisDocCount, 0);
@@ -93,14 +100,14 @@ public class ElasticIndexServiceIntegrationTest {
 
     @Test
     public void isEnabledWhenWhoisIndexDoesNotExist() throws IOException {
-        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        ElasticIndexService elasticIndexService = getElasticIndexService();
         deleteWhoisIndex(esClient);
         assertFalse(elasticIndexService.isEnabled());
     }
 
     @Test
     public void isEnabledWhenMetadataIndexDoesNotExist() throws IOException {
-        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        ElasticIndexService elasticIndexService = getElasticIndexService();
         deleteMetadataIndex(esClient);
         assertFalse(elasticIndexService.isEnabled());
     }
@@ -113,13 +120,13 @@ public class ElasticIndexServiceIntegrationTest {
 
     @Test
     public void isEnabledWhenIndicesExist() {
-        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        ElasticIndexService elasticIndexService = getElasticIndexService();
         assertTrue(elasticIndexService.isEnabled());
     }
 
     @Test
     public void updateAndGetMetadata() throws IOException {
-        ElasticIndexService elasticIndexService = new ElasticIndexService(CONTAINER_HOST, CONTAINER_PORT, WHOIS_INDEX, METADATA_INDEX);
+        ElasticIndexService elasticIndexService = getElasticIndexService();
         ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "RIPE");
         assertNull(elasticIndexService.getMetadata());
         elasticIndexService.updateMetadata(elasticIndexMetadata);
@@ -129,7 +136,7 @@ public class ElasticIndexServiceIntegrationTest {
     }
 
     private static RestHighLevelClient testClient() {
-        RestClientBuilder clientBuilder = RestClient.builder(new HttpHost(CONTAINER_HOST, CONTAINER_PORT));
+        RestClientBuilder clientBuilder = RestClient.builder(HttpHost.create(elasticsearchContainer.getHttpHostAddress()));
         return new RestHighLevelClient(clientBuilder);
     }
 
@@ -157,5 +164,10 @@ public class ElasticIndexServiceIntegrationTest {
             esClient.indices().delete(metadataRequest, RequestOptions.DEFAULT);
         } catch (Exception ignored) {
         }
+    }
+
+    @NotNull
+    private ElasticIndexService getElasticIndexService() {
+        return new ElasticIndexService(elasticsearchContainer.getHttpHostAddress().split(":")[0], Integer.parseInt(elasticsearchContainer.getHttpHostAddress().split(":")[1]), WHOIS_INDEX, METADATA_INDEX);
     }
 }
