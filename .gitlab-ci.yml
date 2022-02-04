@@ -60,6 +60,12 @@ release:
   variables:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
+    # Instruct Testcontainers to use the daemon of DinD.
+    DOCKER_HOST: "tcp://docker:2375"
+    # Instruct Docker not to start over TLS.
+    DOCKER_TLS_CERTDIR: ""
+    # Improve performance with overlayfs.
+    DOCKER_DRIVER: overlay2
   stage: integration-test
   before_script:
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
@@ -95,13 +101,6 @@ whois-integration-test:
       # explicitly disable tls to avoid docker startup interruption
       command: [ "--tls=false" ]
     - mariadb:10.2
-  variables:
-    # Instruct Testcontainers to use the daemon of DinD.
-    DOCKER_HOST: "tcp://docker:2375"
-    # Instruct Docker not to start over TLS.
-    DOCKER_TLS_CERTDIR: ""
-    # Improve performance with overlayfs.
-    DOCKER_DRIVER: overlay2
 
   tags:
     - whois
