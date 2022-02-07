@@ -24,6 +24,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+//TODO[MA]: Setting up gitlab to use test container was not working as docker:dind was not starting up properly. It requires some config changes to runners
+//For now when you want to run the ES test locally extends AbstractElasticSearchLocalTest instead of AbstractElasticSearchIntegrationTest
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
 public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchIntegrationTest {
 
