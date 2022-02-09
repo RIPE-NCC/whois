@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.elasticsearch;
 
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexMetadata;
@@ -12,9 +11,9 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -25,36 +24,32 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 //TODO[MA]: Setting up gitlab to use test container was not working as docker:dind was not starting up properly. It requires some config changes to runners
-//For now when you want to run the ES test locally extends AbstractElasticSearchLocalTest instead of AbstractElasticSearchIntegrationTest
+//For now when you want to run the ES test locally extends AbstractElasticSearchLocalTest instead of AbstractIntegrationTest
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
-public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchIntegrationTest {
+public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchLocalTest {
 
     private static final String WHOIS_INDEX = "whois";
     private static final String METADATA_INDEX = "metadata";
 
-    private static RestHighLevelClient esClient;
-    private static final RpslObject RPSL_MNT_PERSON = new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1")));
+    @Autowired
+    ElasticIndexService elasticIndexService;
 
-    @BeforeAll
-    public static void startElastic() {
-        esClient = testClient();
-    }
+    private static final RpslObject RPSL_MNT_PERSON = new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1")));
 
     @BeforeEach
     public void setUp() throws IOException {
-        createWhoisIndex(esClient);
-        createMetadataIndex(esClient);
+        createWhoisIndex(elasticIndexService.getClient());
+        createMetadataIndex(elasticIndexService.getClient());
     }
 
     @AfterEach
     public void tearDown() throws IOException {
-        deleteWhoisIndex(esClient);
-        deleteMetadataIndex(esClient);
+        deleteWhoisIndex(elasticIndexService.getClient());
+        deleteMetadataIndex(elasticIndexService.getClient());
     }
 
     @Test
     public void addThenCountAndThenDeleteByEntry() throws IOException {
-        ElasticIndexService elasticIndexService = getElasticIndexService(WHOIS_INDEX, METADATA_INDEX);
         long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
         assertEquals(whoisDocCount, 0);
@@ -72,7 +67,6 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
 
     @Test
     public void addThenCountAndThenDeleteAll() throws IOException {
-        ElasticIndexService elasticIndexService = getElasticIndexService(WHOIS_INDEX, METADATA_INDEX);
         long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
         assertEquals(whoisDocCount, 0);
@@ -90,33 +84,23 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
 
     @Test
     public void isEnabledWhenWhoisIndexDoesNotExist() throws IOException {
-        ElasticIndexService elasticIndexService = getElasticIndexService(WHOIS_INDEX, METADATA_INDEX);
-        deleteWhoisIndex(esClient);
+        deleteWhoisIndex(elasticIndexService.getClient());
         assertFalse(elasticIndexService.isEnabled());
     }
 
     @Test
     public void isEnabledWhenMetadataIndexDoesNotExist() throws IOException {
-        ElasticIndexService elasticIndexService = getElasticIndexService(WHOIS_INDEX, METADATA_INDEX);
-        deleteMetadataIndex(esClient);
-        assertFalse(elasticIndexService.isEnabled());
-    }
-
-    @Test
-    public void isEnabledWhenIndexIsNotRunning() throws IOException {
-        ElasticIndexService elasticIndexService = new ElasticIndexService("host", 12345, WHOIS_INDEX, METADATA_INDEX);
+        deleteMetadataIndex(elasticIndexService.getClient());
         assertFalse(elasticIndexService.isEnabled());
     }
 
     @Test
     public void isEnabledWhenIndicesExist() {
-        ElasticIndexService elasticIndexService = getElasticIndexService(WHOIS_INDEX, METADATA_INDEX);
         assertTrue(elasticIndexService.isEnabled());
     }
 
     @Test
     public void updateAndGetMetadata() throws IOException {
-        ElasticIndexService elasticIndexService = getElasticIndexService(WHOIS_INDEX, METADATA_INDEX);
         ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "RIPE");
         assertNull(elasticIndexService.getMetadata());
         elasticIndexService.updateMetadata(elasticIndexMetadata);

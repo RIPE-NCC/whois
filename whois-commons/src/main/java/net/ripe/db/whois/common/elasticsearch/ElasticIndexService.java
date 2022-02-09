@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common.elasticsearch;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -146,11 +147,32 @@ public class ElasticIndexService {
     private XContentBuilder json(final RpslObject rpslObject) throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 
-        builder.field(
-                "object",
-                new RpslObjectBuilder(rpslObject).removeAttributeType(AttributeType.AUTH).get().toString()
-        );
+        final ObjectTemplate template = ObjectTemplate.getTemplate(rpslObject.getType());
+
+        for (AttributeType attributeType : template.getAllAttributes()) {
+            if(rpslObject.containsAttribute(attributeType)) {
+                if (template.getMultipleAttributes().contains(attributeType)) {
+                    builder.array(
+                            attributeType.getName(),
+                            rpslObject.findAttributes(attributeType).stream().map((attribute) -> attribute.getValue()).toArray(String[]::new)
+                    );
+                } else {
+                    builder.field(attributeType.getName(), rpslObject.findAttribute(attributeType).getValue());
+                }
+            }
+        }
+
+        builder.field("primary-key", rpslObject.getKey().toString());
+        builder.field("object-type", rpslObject.getType().getName());
 
         return builder.endObject();
+    }
+
+    public RestHighLevelClient getClient() {
+        return client;
+    }
+
+    public String getWHOIS_INDEX() {
+        return WHOIS_INDEX;
     }
 }

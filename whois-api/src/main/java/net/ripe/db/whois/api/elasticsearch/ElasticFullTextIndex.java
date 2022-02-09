@@ -93,7 +93,15 @@ public class ElasticFullTextIndex {
 
     protected void update() throws IOException {
         final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
-        final int last = elasticIndexService.getMetadata().getSerial();
+
+        final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
+        if (committedMetadata == null || committedMetadata.getSerial() == null) {
+            LOGGER.warn("Index is missing serial, rebuild");
+            rebuild();
+            return;
+        }
+
+        final int last = committedMetadata.getSerial();
         if (last > end) {
             rebuild();
         } else if (last < end) {

@@ -1,29 +1,20 @@
 package net.ripe.db.whois.api.elasticsearch;
 
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.jetbrains.annotations.NotNull;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
+import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-public class AbstractElasticSearchLocalTest {
+public class AbstractElasticSearchLocalTest extends AbstractIntegrationTest {
 
     @Container
-    private static ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
+    public static ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
 
-    @NotNull
-    protected ElasticIndexService getElasticIndexService(final String whoisIndex, final String metadataIndex) {
-        return new ElasticIndexService(elasticsearchContainer.getHttpHostAddress().split(":")[0], Integer.parseInt(elasticsearchContainer.getHttpHostAddress().split(":")[1]), whoisIndex, metadataIndex);
+    @BeforeAll
+    public static void startElastic() {
+        System.setProperty("elastic.host", elasticsearchContainer.getHttpHostAddress().split(":")[0]);
+        System.setProperty("elastic.port", elasticsearchContainer.getHttpHostAddress().split(":")[1]);
     }
-
-    public static RestHighLevelClient testClient() {
-        RestClientBuilder clientBuilder = RestClient.builder(HttpHost.create(elasticsearchContainer.getHttpHostAddress()));
-        return new RestHighLevelClient(clientBuilder);
-    }
-
 }
