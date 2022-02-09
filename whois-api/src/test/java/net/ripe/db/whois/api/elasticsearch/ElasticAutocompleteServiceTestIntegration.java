@@ -253,7 +253,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
     @Test
     @Disabled
-    //TODO: elasticsearch supports this
+    //TODO: elasticsearch does run fine
     public void key_type_invalid_query_characters() {
         databaseHelper.addObject(
                 "mntner:        test-mnt\n" +
@@ -322,9 +322,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
         assertThat(getValues(query("ww", "admin-c", "remarks"), "remarks"), contains("[remarks1, remarks2]"));
     }
 
-    //TODO: check why we need auth index
     @Test
-    @Disabled
     public void key_type_auth_attributes_returned() {
         databaseHelper.addObject(
                 "mntner:  AUTH-MNT\n" +
@@ -344,8 +342,6 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Test
-    @Disabled
-    //TODO: Auth is filtered
     public void key_type_exact_complete_match_returned_first() {
         databaseHelper.addObject("mntner:  AUTH-MNT\nsource:  TEST\n");
         databaseHelper.addObject("mntner:  AUTH2-MNT\nsource:  TEST\n");
@@ -666,6 +662,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
     @Test
     @Disabled
+    //Elastic search does run fine
     public void select_invalid_query_characters() {
         databaseHelper.addObject(
                 "role:          test role\n" +

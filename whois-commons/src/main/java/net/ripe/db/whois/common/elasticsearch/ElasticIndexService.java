@@ -1,7 +1,11 @@
 package net.ripe.db.whois.common.elasticsearch;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -27,6 +31,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -37,6 +43,10 @@ public class ElasticIndexService {
     private static final String SERIAL_DOC_ID = "1";
     private final String WHOIS_INDEX;
     private final String METADATA_INDEX;
+
+    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED), AttributeType.class);
+    private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
+
 
     @Autowired
     public ElasticIndexService(@Value("${elastic.host:localhost}") final String elasticHost,
@@ -147,23 +157,24 @@ public class ElasticIndexService {
     private XContentBuilder json(final RpslObject rpslObject) throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 
-        final ObjectTemplate template = ObjectTemplate.getTemplate(rpslObject.getType());
+        final RpslObject filterRpslObject = filterRpslObject(rpslObject);
+        final ObjectTemplate template = ObjectTemplate.getTemplate(filterRpslObject.getType());
 
         for (AttributeType attributeType : template.getAllAttributes()) {
-            if(rpslObject.containsAttribute(attributeType)) {
+            if(filterRpslObject.containsAttribute(attributeType)) {
                 if (template.getMultipleAttributes().contains(attributeType)) {
                     builder.array(
                             attributeType.getName(),
-                            rpslObject.findAttributes(attributeType).stream().map((attribute) -> attribute.getValue()).toArray(String[]::new)
+                            filterRpslObject.findAttributes(attributeType).stream().map((attribute) -> attribute.getValue().trim()).toArray(String[]::new)
                     );
                 } else {
-                    builder.field(attributeType.getName(), rpslObject.findAttribute(attributeType).getValue());
+                    builder.field(attributeType.getName(), filterRpslObject.findAttribute(attributeType).getValue().trim());
                 }
             }
         }
 
-        builder.field("primary-key", rpslObject.getKey().toString());
-        builder.field("object-type", rpslObject.getType().getName());
+        builder.field("primary-key", filterRpslObject.getKey().toString());
+        builder.field("object-type", filterRpslObject.getType().getName());
 
         return builder.endObject();
     }
@@ -174,5 +185,43 @@ public class ElasticIndexService {
 
     public String getWHOIS_INDEX() {
         return WHOIS_INDEX;
+    }
+
+    public RpslObject filterRpslObject(final RpslObject rpslObject) {
+        List<RpslAttribute> attributes = Lists.newArrayList();
+
+        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
+            if (SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
+                continue;
+            }
+            attributes.add(new RpslAttribute(attribute.getKey(), filterRpslAttribute(attribute.getType(), attribute.getValue())));
+        }
+        return new RpslObject(rpslObject.getObjectId(), attributes);
+    }
+
+    public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
+
+        if (FILTERED_ATTRIBUTES.contains(attributeType)) {
+            return sanitise(filterAttribute(attributeValue.trim()));
+        }
+
+        return sanitise(attributeValue.trim());
+    }
+
+    private String filterAttribute(final String value) {
+        if (value.toLowerCase().startsWith("md5-pw")) {
+            return "MD5-PW";
+        }
+
+        if (value.toLowerCase().startsWith("sso")) {
+            return "SSO";
+        }
+
+        return value;
+    }
+
+    private static String sanitise(final String value) {
+        // TODO: [ES] also strips newlines, attribute cannot be re-constructed later
+        return CharMatcher.javaIsoControl().removeFrom(value);
     }
 }

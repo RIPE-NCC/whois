@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.autocomplete;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -114,7 +113,6 @@ public class ElasticAutocompleteSearch {
                     result.put(responseAttribute.getName(), filterValue(responseAttribute, rpslObject.containsAttribute(responseAttribute) ? rpslObject.findAttribute(responseAttribute).getValue() : null));
                 }
             }
-
             results.add(result);
         }
 
@@ -124,15 +122,10 @@ public class ElasticAutocompleteSearch {
     //TODO: check for Auth filter
     @Nullable
     private String filterValue(final AttributeType type, final String attributeValue) {
-        return attributeValue == null ? null : COMMENT_PATTERN.matcher( sanitise(attributeValue) ).replaceFirst("").trim();
+        return attributeValue == null ? null : COMMENT_PATTERN.matcher( elasticIndexService.filterRpslAttribute(type, attributeValue) ).replaceFirst("").trim();
     }
 
     private List<String> filterValues(final AttributeType attributeType, final RpslObject rpslObject) {
         return rpslObject.findAttributes(attributeType).stream().map( (attribute) -> filterValue(attributeType, attribute.getValue())).collect(Collectors.toList());
-    }
-
-    private static String sanitise(final String value) {
-        // TODO: [ES] also strips newlines, attribute cannot be re-constructed later
-        return CharMatcher.javaIsoControl().removeFrom(value);
     }
 }
