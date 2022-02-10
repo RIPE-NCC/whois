@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.rest;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
-import net.ripe.db.whois.api.autocomplete.ElasticAutocompleteService;
 import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
@@ -34,7 +33,6 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final GeolocationService geolocationService;
     private final AbuseContactService abuseContactService;
     private final AutocompleteService autocompleteService;
-    private final ElasticAutocompleteService elasticAutocompleteService;
     private final ReferencesService referencesService;
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
@@ -52,7 +50,6 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final GeolocationService geolocationService,
                                 final AbuseContactService abuseContactService,
                                 final AutocompleteService autocompleteService,
-                                final ElasticAutocompleteService elasticAutocompleteService,
                                 final ReferencesService referencesService,
                                 final DefaultExceptionMapper defaultExceptionMapper,
                                 final MaintenanceModeFilter maintenanceModeFilter,
@@ -68,7 +65,6 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.geolocationService = geolocationService;
         this.abuseContactService = abuseContactService;
         this.autocompleteService = autocompleteService;
-        this.elasticAutocompleteService = elasticAutocompleteService;
         this.referencesService = referencesService;
         this.defaultExceptionMapper = defaultExceptionMapper;
         this.maintenanceModeFilter = maintenanceModeFilter;
@@ -94,7 +90,6 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(geolocationService);
         resourceConfig.register(abuseContactService);
         resourceConfig.register(autocompleteService);
-        resourceConfig.register(elasticAutocompleteService);
         resourceConfig.register(referencesService);
         resourceConfig.register(defaultExceptionMapper);
         resourceConfig.register(domainObjectService);

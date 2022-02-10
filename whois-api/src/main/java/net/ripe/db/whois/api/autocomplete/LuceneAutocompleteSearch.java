@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -43,9 +44,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
-public class AutocompleteSearch {
+@Conditional(LuceneSearchCondition.class)
+public class LuceneAutocompleteSearch implements  AutoCompleteSearch {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AutocompleteSearch.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LuceneAutocompleteSearch.class);
 
     // results will always be sorted by lookup key (which is case sensitive, and by string value)
     private static final Sort SORT_BY_LOOKUP_KEY = new Sort(SortField.FIELD_SCORE, new SortField(FullTextIndex.LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
@@ -59,7 +61,7 @@ public class AutocompleteSearch {
     private final RpslObjectDao objectDao;
 
     @Autowired
-    public AutocompleteSearch(final FullTextIndex fullTextIndex, @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao) {
+    public LuceneAutocompleteSearch(final FullTextIndex fullTextIndex, @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao) {
         this.fullTextIndex = fullTextIndex;
         this.objectDao = rpslObjectDao;
     }

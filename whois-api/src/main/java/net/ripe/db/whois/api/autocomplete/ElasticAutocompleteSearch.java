@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +37,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
-public class ElasticAutocompleteSearch {
+@Conditional(ElasticSearchCondition.class)
+public class ElasticAutocompleteSearch implements  AutoCompleteSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticAutocompleteSearch.class);
     private static final int MAX_SEARCH_RESULTS = 10;
@@ -43,7 +46,6 @@ public class ElasticAutocompleteSearch {
 
     private final ElasticIndexService elasticIndexService;
     private final RpslObjectDao objectDao;
-
 
     @Autowired
     public ElasticAutocompleteSearch(final ElasticIndexService elasticIndexService, @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao) {
@@ -79,6 +81,7 @@ public class ElasticAutocompleteSearch {
 
         final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWHOIS_INDEX());
         searchRequest.source(sourceBuilder);
+        searchRequest.searchType(SearchType.DFS_QUERY_THEN_FETCH);
 
         final SearchResponse searchResponse = elasticIndexService.getClient().search(searchRequest, RequestOptions.DEFAULT);
         SearchHit[] hits = searchResponse.getHits().getHits();

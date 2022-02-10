@@ -4,8 +4,6 @@ import com.google.common.base.Strings;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,15 +27,13 @@ import java.util.stream.Collectors;
 @Path("/autocomplete")
 public class AutocompleteService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AutocompleteService.class);
-
     private static final int MINIMUM_PREFIX_LENGTH = 2;
 
-    private final AutocompleteSearch autocompleteSearch;
+    private final AutoCompleteSearch autoCompleteSearch;
 
     @Autowired
-    public AutocompleteService(final AutocompleteSearch autocompleteSearch) {
-        this.autocompleteSearch = autocompleteSearch;
+    public AutocompleteService(final AutoCompleteSearch autoCompleteSearch) {
+        this.autoCompleteSearch = autoCompleteSearch;
     }
 
     /**
@@ -82,12 +78,12 @@ public class AutocompleteService {
                 if (AttributeType.getByNameOrNull(field) == null) {
                     return badRequest("invalid name for field");
                 }
-                return okResponse(autocompleteSearch.search(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet()));
+                return okResponse(autoCompleteSearch.search(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet()));
             } else if (!select.isEmpty() && !where.isEmpty() && !Strings.isNullOrEmpty(like)) {
 
                 // query by attribute(s)
 
-                return okResponse(autocompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
+                return okResponse(autoCompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
             } else {
                 return badRequest("invalid arguments");
             }

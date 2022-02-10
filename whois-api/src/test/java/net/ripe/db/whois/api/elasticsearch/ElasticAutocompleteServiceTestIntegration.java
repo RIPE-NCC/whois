@@ -11,9 +11,10 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -51,6 +52,16 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
     @Autowired
     ElasticAutocompleteSearch elasticAutocompleteSearch;
+
+    @BeforeAll
+    public static void setupProperties() {
+        System.setProperty("elasticsearch.enabled", "true");
+    }
+
+    @AfterAll
+    public static void resetAbstractDatabaseHelperTest() {
+        System.clearProperty("elasticsearch.enabled");
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -252,23 +263,6 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Test
-    @Disabled
-    //TODO: elasticsearch does run fine
-    public void key_type_invalid_query_characters() {
-        databaseHelper.addObject(
-                "mntner:        test-mnt\n" +
-                        "source:        TEST");
-        databaseHelper.addObject(
-                "mntner:        mnt-test-mnt\n" +
-                        "source:        TEST");
-        rebuildIndex();
-
-        assertThat(
-                query("*test", "mnt-by"),
-                hasSize(0));
-    }
-
-    @Test
     public void multiple_matches_no_duplicates() {
         databaseHelper.addObject("mntner:  bla-bla-mnt\n");
         rebuildIndex();
@@ -344,7 +338,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     @Test
     public void key_type_exact_complete_match_returned_first() {
         databaseHelper.addObject("mntner:  AUTH-MNT\nsource:  TEST\n");
-        databaseHelper.addObject("mntner:  AUTH2-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  AUTH-TEST-MNT\nsource:  TEST\n");
         databaseHelper.addObject("mntner:  AUTH\nsource:  TEST\n");
         rebuildIndex();
 
@@ -661,26 +655,6 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Test
-    @Disabled
-    //Elastic search does run fine
-    public void select_invalid_query_characters() {
-        databaseHelper.addObject(
-                "role:          test role\n" +
-                        "nic-hdl:       tr1-test\n" +
-                        "abuse-mailbox: noreply@ripe.net\n" +
-                        "source:        TEST");
-        rebuildIndex();
-
-        assertThat(
-                query(
-                        Lists.newArrayList(AttributeType.ABUSE_MAILBOX),
-                        Lists.newArrayList(ObjectType.ROLE),
-                        Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
-                        "*noreply"),
-                hasSize(0));
-    }
-
-    @Test
     public void select_forward_slashes() {
         databaseHelper.addObject("inet6num: 2001:67c:2e8::/48\nsource: TEST");
         rebuildIndex();
@@ -725,14 +699,14 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     // helper methods
     private List<Map<String, Object>> query(final String query, final String field, final String... attributes) {
         return RestTest
-            .target(getPort(), String.format("whois/elastic/autocomplete?query=%s&field=%s%s", query, field, join("attribute", attributes)))
+            .target(getPort(), String.format("whois/autocomplete?query=%s&field=%s%s", query, field, join("attribute", attributes)))
             .request(MediaType.APPLICATION_JSON_TYPE)
             .get(new GenericType<List<Map<String, Object>>>(){});
     }
 
     private String queryRaw(final String query, final String field, final String... attributes) {
         return RestTest
-            .target(getPort(), String.format("whois/elastic/autocomplete?query=%s&field=%s%s", query, field, join("attribute", attributes)))
+            .target(getPort(), String.format("whois/autocomplete?query=%s&field=%s%s", query, field, join("attribute", attributes)))
             .request(MediaType.APPLICATION_JSON_TYPE)
             .get(String.class);
     }
@@ -741,7 +715,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
         try {
             return RestTest
                 .target(getPort(),
-                    "whois/elastic/autocomplete?" +
+                    "whois/autocomplete?" +
                             (!select.isEmpty() ? join("select", select.stream().map(attributeType -> attributeType.getName()).collect(Collectors.toList())) : "") +
                             (!from.isEmpty()   ? join("from", from.stream().map(objectType -> objectType.getName()).collect(Collectors.toList())) : "") +
                             (!where.isEmpty()  ? join("where", where.stream().map(attributeType -> attributeType.getName()).collect(Collectors.toList())) : "") +
