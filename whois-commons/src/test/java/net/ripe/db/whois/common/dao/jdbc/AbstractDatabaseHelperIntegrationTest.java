@@ -56,6 +56,7 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
 
         // allow setting Origin header
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+        System.setProperty("elastic.host", "elasticsearch");
     }
 
     @AfterAll
