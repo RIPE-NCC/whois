@@ -1,9 +1,8 @@
 package net.ripe.db.whois.spec.update.lireditable
 
-import org.junit.jupiter.api.Tag
 
 
-@Tag("IntegrationTest")
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttributeValidation {
 
     // data for tests
@@ -13,6 +12,7 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
     def resourceRipeMntner = "RIPE-NCC-HM-MNT"
     def resourceRipeMntnerPassword = "hm"
     // other resource specifics
+    def differentStatus = "ALLOCATED-BY-LIR"
     def differentRipeMntner = "RIPE-NCC-LEGACY-MNT"
 
     @Override
