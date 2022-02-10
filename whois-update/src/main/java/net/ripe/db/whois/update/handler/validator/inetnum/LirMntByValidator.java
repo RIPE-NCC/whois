@@ -44,7 +44,7 @@ public class LirMntByValidator implements BusinessRuleValidator {
             if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER)) {
                 return;
             } else {
-                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
+                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
             }
         }
     }
