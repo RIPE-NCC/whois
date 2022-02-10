@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Uninterruptibles;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexMetadata;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 //TODO[MA]: Setting up gitlab to use test container was not working as docker:dind was not starting up properly. It requires some config changes to runners
 //For now when you want to run the ES test locally extends AbstractElasticSearchLocalTest instead of AbstractIntegrationTest
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
-public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchLocalTest {
+public class ElasticIndexServiceIntegrationTest extends AbstractIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois";
     private static final String METADATA_INDEX = "metadata";
