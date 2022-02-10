@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
@@ -39,7 +40,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
-public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSearchLocalTest {
+public class ElasticAutocompleteServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois";
     private static final String METADATA_INDEX = "metadata";
@@ -75,7 +76,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
         createMetadataIndex(elasticIndexService.getClient());
 
         elasticFullTextIndex.update();
-        Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
+        Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
     }
 
     @AfterEach
@@ -458,14 +459,6 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
         assertThat(getValues(query("AA1", "organisation", "org-name"), "org-name"), contains("Any"));
     }
 
-    @Test
-    public void filter_comment_multiple_values() {
-        databaseHelper.addObject("route-set: AS34086:RS-OTC\nmembers: 46.29.103.32/27\nmembers: 46.29.96.0/24\nmnt-ref:AA1-MNT, # first\n+AA2-MNT,    # second\n\tAA3-MNT\t#third\nsource: TEST");
-        rebuildIndex();
-
-        assertThat(getValues(query("AS34086:RS-OTC", "route-set", "mnt-ref"), "mnt-ref"), contains("AA1-MNT,"));
-    }
-
     // complex lookups (specify attributes)
 
     @Test
@@ -749,7 +742,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     private void rebuildIndex(){
         try {
             elasticFullTextIndex.update();
-            Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
+            Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
         } catch (IOException e) {
             e.printStackTrace();
         }
