@@ -1,8 +1,9 @@
 package net.ripe.db.whois.spec.update.lireditable
 
+import org.junit.jupiter.api.Tag
 
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttributeValidation {
 
     // data for tests
@@ -12,7 +13,6 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
     def resourceRipeMntner = "RIPE-NCC-HM-MNT"
     def resourceRipeMntnerPassword = "hm"
     // other resource specifics
-    def differentStatus = "ALLOCATED-BY-LIR"
     def differentRipeMntner = "RIPE-NCC-LEGACY-MNT"
 
     @Override
@@ -543,7 +543,7 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
         ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"mnt-by:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account\" under \"My LIR\" to change it.",
                 "The \"netname\" attribute can only be changed by the RIPE NCC"
         ]
     }
