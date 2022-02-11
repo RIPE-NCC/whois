@@ -32,6 +32,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
        // System.setProperty("elastic.host", elasticsearchContainer.getHttpHostAddress().split(":")[0]);
        // System.setProperty("elastic.port", elasticsearchContainer.getHttpHostAddress().split(":")[1]);
         System.setProperty("elastic.host", "elasticsearch");
+        System.setProperty("elastic.port", "9200");
 
         ElasticSearchHelper.setupElasticIndexes();
     }
