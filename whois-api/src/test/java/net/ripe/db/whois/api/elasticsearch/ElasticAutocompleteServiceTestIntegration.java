@@ -6,10 +6,7 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,16 +34,6 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
     @Autowired
     ElasticAutocompleteSearch elasticAutocompleteSearch;
-
-    @BeforeAll
-    public static void setupProperties() {
-        System.setProperty("elasticsearch.enabled", "true");
-    }
-
-    @AfterAll
-    public static void resetAbstractDatabaseHelperTest() {
-        System.clearProperty("elasticsearch.enabled");
-    }
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -183,21 +170,19 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Test
-    @Disabled
-    //TODO: individual run is successful but fails when all tests runs
     public void field_references_matched() {
         databaseHelper.addObject(
                 "person:  person test\n" +
-                        "nic-hdl: ww1-test");
+                        "nic-hdl: tt1-test");
         databaseHelper.addObject(
                 "role:  role test\n" +
-                        "nic-hdl: ww2-test\n");
+                        "nic-hdl: tt2-test\n");
 
         rebuildIndex();
 
-        List<String> results = getValues(query("ww", "admin-c"), "key");
+        List<String> results = getValues(query("tt", "admin-c"), "key");
         assertThat(results, hasSize(2));
-        assertThat(results, contains("ww1-test", "ww2-test"));
+        assertThat(results, contains("tt1-test", "tt2-test"));
     }
 
     @Test

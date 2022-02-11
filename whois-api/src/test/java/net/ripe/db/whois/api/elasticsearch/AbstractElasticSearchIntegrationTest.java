@@ -23,7 +23,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     protected static final String WHOIS_INDEX = "whois";
     protected static final String METADATA_INDEX = "metadata";
 
-   /* @Container
+  /*  @Container
     public static ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
 */
     @Autowired
@@ -34,13 +34,21 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     @BeforeAll
     public static void setUpElasticCluster() throws Exception {
-       /*System.setProperty("elastic.host", elasticsearchContainer.getHttpHostAddress().split(":")[0]);
-       System.setProperty("elastic.port", elasticsearchContainer.getHttpHostAddress().split(":")[1]);*/
+        localBuild();
+        gitlabBuild();
 
-       System.setProperty("elastic.host", "elasticsearch");
-       System.setProperty("elastic.port", "9200");
+        System.setProperty("elasticsearch.enabled", "true");
+        ElasticSearchHelper.setupElasticIndexes();
+    }
 
-       ElasticSearchHelper.setupElasticIndexes();
+    private static void localBuild() {
+     /*   System.setProperty("elastic.host", elasticsearchContainer.getHttpHostAddress().split(":")[0]);
+        System.setProperty("elastic.port", elasticsearchContainer.getHttpHostAddress().split(":")[1]);*/
+    }
+
+    private static void gitlabBuild() {
+        System.setProperty("elastic.host", "elasticsearch");
+        System.setProperty("elastic.port", "9200");
     }
 
     @AfterAll
@@ -48,6 +56,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
         ElasticSearchHelper.resetElasticIndexes();
         System.clearProperty("elastic.host");
         System.clearProperty("elastic.port");
+        System.clearProperty("elasticsearch.enabled");
     }
 
     @AfterEach
