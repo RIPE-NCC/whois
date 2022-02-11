@@ -3,15 +3,10 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexMetadata;
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -23,10 +18,12 @@ import static org.junit.Assert.assertTrue;
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
 public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchIntegrationTest {
 
-    @Autowired
-    ElasticIndexService elasticIndexService;
-
     private static final RpslObject RPSL_MNT_PERSON = new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1")));
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        rebuildIndex();
+    }
 
     @Test
     public void addThenCountAndThenDeleteByEntry() throws IOException {
@@ -69,37 +66,14 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
 
     @Test
     public void updateAndGetMetadata() throws IOException {
+        tearDownIndexes();
+        Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+
         ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "RIPE");
         assertNull(elasticIndexService.getMetadata());
         elasticIndexService.updateMetadata(elasticIndexMetadata);
         ElasticIndexMetadata retrievedMetaData = elasticIndexService.getMetadata();
         assertEquals(1L, retrievedMetaData.getSerial().longValue());
         assertEquals("RIPE", retrievedMetaData.getSource());
-    }
-
-    private static void createWhoisIndex(RestHighLevelClient esClient) throws IOException {
-        CreateIndexRequest whoisRequest = new CreateIndexRequest(WHOIS_INDEX);
-        esClient.indices().create(whoisRequest, RequestOptions.DEFAULT);
-    }
-
-    private static void createMetadataIndex(RestHighLevelClient esClient) throws IOException {
-        CreateIndexRequest whoisRequest = new CreateIndexRequest(METADATA_INDEX);
-        esClient.indices().create(whoisRequest, RequestOptions.DEFAULT);
-    }
-
-    private void deleteWhoisIndex(RestHighLevelClient esClient) throws IOException {
-        try {
-            DeleteIndexRequest whoisRequest = new DeleteIndexRequest(WHOIS_INDEX);
-            esClient.indices().delete(whoisRequest, RequestOptions.DEFAULT);
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void deleteMetadataIndex(RestHighLevelClient esClient) throws IOException {
-        try {
-            DeleteIndexRequest metadataRequest = new DeleteIndexRequest(METADATA_INDEX);
-            esClient.indices().delete(metadataRequest, RequestOptions.DEFAULT);
-        } catch (Exception ignored) {
-        }
     }
 }
