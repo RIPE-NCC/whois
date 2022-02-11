@@ -53,20 +53,8 @@ public class ElasticFullTextIndex {
             return;
         }
 
-        if (elasticIndexService.getWhoisDocCount() == 0L) {
+        if(shouldRebuild()) {
             rebuild();
-        } else {
-            final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
-            if (!source.equals(committedMetadata.getSource())) {
-                LOGGER.warn("Index has invalid source: {}, rebuild", committedMetadata.getSource());
-                rebuild();
-                return;
-            }
-
-            if (committedMetadata.getSerial() == null) {
-                LOGGER.warn("Index is missing serial, rebuild");
-                rebuild();
-            }
         }
     }
 
@@ -92,15 +80,13 @@ public class ElasticFullTextIndex {
     }
 
     protected void update() throws IOException {
-        final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
-
-        final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
-        if (committedMetadata == null || committedMetadata.getSerial() == null) {
-            LOGGER.warn("Index is missing serial, rebuild");
+        if(shouldRebuild()) {
             rebuild();
             return;
         }
 
+        final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
+        final int end = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
         final int last = committedMetadata.getSerial();
         if (last > end) {
             rebuild();
@@ -180,6 +166,25 @@ public class ElasticFullTextIndex {
 
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(maxSerial, source));
         LOGGER.info("Completed Rebuilding ES indexes");
+    }
+
+    private boolean shouldRebuild() throws IOException {
+        if (elasticIndexService.getWhoisDocCount() == 0L) {
+            return true;
+        }
+
+        final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
+        if (committedMetadata == null || committedMetadata.getSerial() == null) {
+            LOGGER.warn("Index has invalid or null source, rebuild");
+            return true;
+        }
+
+        if (committedMetadata.getSerial() == null) {
+            LOGGER.warn("Index is missing serial, rebuild");
+            return true;
+        }
+
+        return false;
     }
 
     final class DatabaseObjectProcessor implements Runnable {

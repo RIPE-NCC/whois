@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Uninterruptibles;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexMetadata;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -11,9 +10,6 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,35 +17,16 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-//TODO[MA]: Setting up gitlab to use test container was not working as docker:dind was not starting up properly. It requires some config changes to runners
-//For now when you want to run the ES test locally extends AbstractElasticSearchLocalTest instead of AbstractIntegrationTest
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
-@Disabled
-public class ElasticIndexServiceIntegrationTest extends AbstractIntegrationTest {
-
-    private static final String WHOIS_INDEX = "whois";
-    private static final String METADATA_INDEX = "metadata";
+public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchIntegrationTest {
 
     @Autowired
     ElasticIndexService elasticIndexService;
 
     private static final RpslObject RPSL_MNT_PERSON = new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1")));
-
-    @BeforeEach
-    public void setUp() throws IOException {
-        createWhoisIndex(elasticIndexService.getClient());
-        createMetadataIndex(elasticIndexService.getClient());
-    }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        deleteWhoisIndex(elasticIndexService.getClient());
-        deleteMetadataIndex(elasticIndexService.getClient());
-    }
 
     @Test
     public void addThenCountAndThenDeleteByEntry() throws IOException {
@@ -83,18 +60,6 @@ public class ElasticIndexServiceIntegrationTest extends AbstractIntegrationTest 
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // no document in index after deleting
         assertEquals(whoisDocCount, 0);
-    }
-
-    @Test
-    public void isEnabledWhenWhoisIndexDoesNotExist() throws IOException {
-        deleteWhoisIndex(elasticIndexService.getClient());
-        assertFalse(elasticIndexService.isEnabled());
-    }
-
-    @Test
-    public void isEnabledWhenMetadataIndexDoesNotExist() throws IOException {
-        deleteMetadataIndex(elasticIndexService.getClient());
-        assertFalse(elasticIndexService.isEnabled());
     }
 
     @Test

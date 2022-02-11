@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
@@ -13,7 +12,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +38,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
-public class ElasticAutocompleteServiceTestIntegration extends AbstractIntegrationTest {
+public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois";
     private static final String METADATA_INDEX = "metadata";
@@ -72,17 +70,9 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractIntegrati
         databaseHelper.addObject("mntner: something-mnt");
         databaseHelper.addObject("mntner: random1-mnt");
         databaseHelper.addObject("mntner: random2-mnt");
-        createWhoisIndex(elasticIndexService.getClient());
-        createMetadataIndex(elasticIndexService.getClient());
 
         elasticFullTextIndex.update();
         Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
-    }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        deleteWhoisIndex(elasticIndexService.getClient());
-        deleteMetadataIndex(elasticIndexService.getClient());
     }
 
     // simple searches (field and value)
@@ -217,7 +207,9 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractIntegrati
 
         rebuildIndex();
 
-        assertThat(getValues(query("ww", "admin-c"), "key"), contains("ww1-test", "ww2-test"));
+        List<String> results = getValues(query("ww", "admin-c"), "key");
+        assertThat(results, hasSize(2));
+        assertThat(results, contains("ww1-test", "ww2-test"));
     }
 
     @Test
@@ -742,7 +734,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractIntegrati
     private void rebuildIndex(){
         try {
             elasticFullTextIndex.update();
-            Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+            Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -773,5 +765,4 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractIntegrati
         } catch (Exception ignored) {
         }
     }
-
 }
