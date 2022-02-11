@@ -13,6 +13,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 //TODO[MA]: Setting up gitlab to use test container was not working as docker:dind was not starting up properly. It requires some config changes to runners
 //For now when you want to run the ES test locally extends AbstractElasticSearchLocalTest instead of AbstractIntegrationTest
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
+@Disabled
 public class ElasticIndexServiceIntegrationTest extends AbstractIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois";
