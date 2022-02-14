@@ -1097,6 +1097,7 @@
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*Integration*.class,**/*Spec*.class</test.files.integration>
                 <test.files.excludes>None</test.files.excludes>
+                <test.containers.disabled>true</test.containers.disabled>
             </properties>
         </profile>
         <profile>
