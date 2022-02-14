@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.ElasticSearchHelper;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
@@ -11,21 +12,25 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.junit.jupiter.Container;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-//TODO[MA]: Setting up gitlab to use test container was not working as docker:dind was not starting up properly. It requires some config changes to runners
-//To start the ES on local uncomment the testcontainers property
-//@Testcontainers
 public abstract class AbstractElasticSearchIntegrationTest extends AbstractIntegrationTest {
 
     protected static final String WHOIS_INDEX = "whois";
     protected static final String METADATA_INDEX = "metadata";
 
-  /*  @Container
-    public static ElasticsearchContainer elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
-*/
+    public static final String ENV_DISABLE_TEST_CONTAIENRS = "test.containers.disabled";
+
+    @Container
+    private static ElasticsearchContainer elasticContainer =
+            new ElasticsearchDisableableContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0")
+                    .isActive(StringUtils.isBlank(System.getenv(ENV_DISABLE_TEST_CONTAIENRS)))
+                    .withStartupAttempts(100);
+
     @Autowired
     ElasticIndexService elasticIndexService;
 
@@ -34,21 +39,20 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     @BeforeAll
     public static void setUpElasticCluster() throws Exception {
-        localBuild();
-        gitlabBuild();
+
+       if(StringUtils.isBlank(System.getenv(ENV_DISABLE_TEST_CONTAIENRS))) {
+           elasticContainer.start();
+
+           System.setProperty("elastic.host", elasticContainer.getHttpHostAddress().split(":")[0]);
+           System.setProperty("elastic.port", elasticContainer.getHttpHostAddress().split(":")[1]);
+
+       } else {
+            System.setProperty("elastic.host", "elasticsearch");
+            System.setProperty("elastic.port", "9200");
+        }
 
         System.setProperty("elasticsearch.enabled", "true");
         ElasticSearchHelper.setupElasticIndexes();
-    }
-
-    private static void localBuild() {
-     /*   System.setProperty("elastic.host", elasticsearchContainer.getHttpHostAddress().split(":")[0]);
-        System.setProperty("elastic.port", elasticsearchContainer.getHttpHostAddress().split(":")[1]);*/
-    }
-
-    private static void gitlabBuild() {
-        System.setProperty("elastic.host", "elasticsearch");
-        System.setProperty("elastic.port", "9200");
     }
 
     @AfterAll
