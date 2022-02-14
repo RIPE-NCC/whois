@@ -13,7 +13,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
-import org.testcontainers.junit.jupiter.Container;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -24,12 +23,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     protected static final String METADATA_INDEX = "metadata";
 
     public static final String ENV_DISABLE_TEST_CONTAIENRS = "test.containers.disabled";
-
-    @Container
-    private static ElasticsearchContainer elasticContainer =
-            new ElasticsearchDisableableContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0")
-                    .isActive(StringUtils.isBlank(System.getenv(ENV_DISABLE_TEST_CONTAIENRS)))
-                    .withStartupAttempts(100);
+    private static ElasticsearchContainer elasticsearchContainer;
 
     @Autowired
     ElasticIndexService elasticIndexService;
@@ -38,13 +32,18 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     ElasticFullTextIndex elasticFullTextIndex;
 
     @BeforeAll
-    public static void setUpElasticCluster() throws Exception {
+    public static synchronized void setUpElasticCluster() throws Exception {
 
        if(StringUtils.isBlank(System.getenv(ENV_DISABLE_TEST_CONTAIENRS))) {
-           elasticContainer.start();
+           if(elasticsearchContainer != null) {
+               return;
+           }
 
-           System.setProperty("elastic.host", elasticContainer.getHttpHostAddress().split(":")[0]);
-           System.setProperty("elastic.port", elasticContainer.getHttpHostAddress().split(":")[1]);
+           elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
+           elasticsearchContainer.start();
+
+           System.setProperty("elastic.host", elasticsearchContainer.getHttpHostAddress().split(":")[0]);
+           System.setProperty("elastic.port", elasticsearchContainer.getHttpHostAddress().split(":")[1]);
 
        } else {
             System.setProperty("elastic.host", "elasticsearch");
