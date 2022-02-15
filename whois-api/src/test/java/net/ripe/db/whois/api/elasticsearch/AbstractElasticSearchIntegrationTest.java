@@ -11,6 +11,7 @@ import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
@@ -18,9 +19,6 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractElasticSearchIntegrationTest extends AbstractIntegrationTest {
-
-    protected static final String WHOIS_INDEX = "whois";
-    protected static final String METADATA_INDEX = "metadata";
 
     public static final String ENV_DISABLE_TEST_CONTAIENRS = "test.containers.disabled";
     private static ElasticsearchContainer elasticsearchContainer;
@@ -32,7 +30,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     ElasticFullTextIndex elasticFullTextIndex;
 
     @BeforeAll
-    public static synchronized void setUpElasticCluster() throws Exception {
+    public static void setUpElasticCluster() {
         if (StringUtils.isBlank(System.getProperty(ENV_DISABLE_TEST_CONTAIENRS))) {
             if (elasticsearchContainer == null) {
                 elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
@@ -45,29 +43,26 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
             System.setProperty("elastic.host", "elasticsearch");
             System.setProperty("elastic.port", "9200");
         }
+
         System.setProperty("elasticsearch.enabled", "true");
-        ElasticSearchHelper.setupElasticIndexes();
     }
 
     @AfterAll
-    public synchronized static void resetElasticCluster() throws Exception {
-        ElasticSearchHelper.resetElasticIndexes();
+    public static void resetElasticCluster() {
         System.clearProperty("elastic.host");
         System.clearProperty("elastic.port");
         System.clearProperty("elasticsearch.enabled");
     }
 
+    @BeforeEach
+    public void setUpIndexes() throws Exception {
+        ElasticSearchHelper.setupElasticIndexes(getWhoisIndex(), getMetadataIndex());
+        rebuildIndex();
+    }
+
     @AfterEach
-    public void tearDownIndexes() throws IOException {
-        DeleteByQueryRequest request = new DeleteByQueryRequest(WHOIS_INDEX);
-        request.setQuery(QueryBuilders.matchAllQuery());
-
-        elasticIndexService.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
-
-        DeleteByQueryRequest metadata = new DeleteByQueryRequest(METADATA_INDEX);
-        metadata.setQuery(QueryBuilders.matchAllQuery());
-
-        elasticIndexService.getClient().deleteByQuery(metadata, RequestOptions.DEFAULT);
+    public void tearDownIndexes() throws Exception {
+        ElasticSearchHelper.resetElasticIndexes(getWhoisIndex(), getMetadataIndex());
     }
 
     public void rebuildIndex() {
@@ -78,4 +73,20 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
             e.printStackTrace();
         }
     }
+
+    public void deleteAll() throws IOException {
+        DeleteByQueryRequest request = new DeleteByQueryRequest(getWhoisIndex());
+        request.setQuery(QueryBuilders.matchAllQuery());
+
+        elasticIndexService.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
+
+        DeleteByQueryRequest metadata = new DeleteByQueryRequest(getMetadataIndex());
+        metadata.setQuery(QueryBuilders.matchAllQuery());
+
+        elasticIndexService.getClient().deleteByQuery(metadata, RequestOptions.DEFAULT);
+    }
+
+    abstract String getWhoisIndex();
+    abstract String getMetadataIndex();
+
 }

@@ -5,7 +5,6 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexMetadata;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -18,12 +17,10 @@ import static org.junit.Assert.assertTrue;
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
 public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchIntegrationTest {
 
-    private static final RpslObject RPSL_MNT_PERSON = new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1")));
+    private static final String WHOIS_INDEX = "whois";
+    private static final String METADATA_INDEX = "metadata";
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        rebuildIndex();
-    }
+    private static final RpslObject RPSL_MNT_PERSON = new RpslObject(2, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1")));
 
     @Test
     public void addThenCountAndThenDeleteByEntry() throws IOException {
@@ -66,7 +63,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
 
     @Test
     public void updateAndGetMetadata() throws IOException {
-        tearDownIndexes();
+        deleteAll();
         Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
 
         ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "RIPE");
@@ -76,4 +73,15 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
         assertEquals(1L, retrievedMetaData.getSerial().longValue());
         assertEquals("RIPE", retrievedMetaData.getSource());
     }
+
+    @Override
+    String getWhoisIndex() {
+        return WHOIS_INDEX;
+    }
+
+    @Override
+    String getMetadataIndex() {
+        return METADATA_INDEX;
+    }
+
 }

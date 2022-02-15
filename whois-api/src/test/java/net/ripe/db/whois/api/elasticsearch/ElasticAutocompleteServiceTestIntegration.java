@@ -6,6 +6,8 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +34,23 @@ import static org.junit.jupiter.api.Assertions.fail;
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
 public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
 
+    private static final String WHOIS_INDEX = "whois_autocomplete";
+    private static final String METADATA_INDEX = "metadata_autocomplete";
+
     @Autowired
     ElasticAutocompleteSearch elasticAutocompleteSearch;
+
+    @BeforeAll
+    public static void setUpProperties() {
+        System.setProperty("elastic.whois.index", WHOIS_INDEX);
+        System.setProperty("elastic.commit.index", METADATA_INDEX);
+    }
+
+    @AfterAll
+    public static void resetProperties() {
+        System.clearProperty("elastic.commit.index");
+        System.clearProperty("elastic.whois.index");
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -46,6 +63,16 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
         elasticFullTextIndex.update();
         Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+    }
+
+    @Override
+    String getWhoisIndex() {
+        return WHOIS_INDEX;
+    }
+
+    @Override
+    String getMetadataIndex() {
+        return METADATA_INDEX;
     }
 
     // simple searches (field and value)
