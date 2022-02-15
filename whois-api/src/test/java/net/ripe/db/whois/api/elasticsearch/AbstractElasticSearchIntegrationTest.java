@@ -34,13 +34,12 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     @BeforeAll
     public static synchronized void setUpElasticCluster() throws Exception {
 
-       if(StringUtils.isBlank(System.getenv(ENV_DISABLE_TEST_CONTAIENRS))) {
-           if(elasticsearchContainer != null) {
-               return;
-           }
+       if(StringUtils.isBlank(System.getProperty(ENV_DISABLE_TEST_CONTAIENRS))) {
 
-           elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
-           elasticsearchContainer.start();
+           if(elasticsearchContainer == null) {
+               elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
+               elasticsearchContainer.start();
+           }
 
            System.setProperty("elastic.host", elasticsearchContainer.getHttpHostAddress().split(":")[0]);
            System.setProperty("elastic.port", elasticsearchContainer.getHttpHostAddress().split(":")[1]);

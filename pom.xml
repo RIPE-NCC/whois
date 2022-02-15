@@ -907,6 +907,7 @@
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
                         <hazelcast.phone.home.enabled>false</hazelcast.phone.home.enabled>
+                        <test.containers.disabled>${test.containers.disabled}</test.containers.disabled>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -1097,7 +1098,6 @@
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*Integration*.class,**/*Spec*.class</test.files.integration>
                 <test.files.excludes>None</test.files.excludes>
-                <test.containers.disabled>true</test.containers.disabled>
             </properties>
         </profile>
         <profile>
