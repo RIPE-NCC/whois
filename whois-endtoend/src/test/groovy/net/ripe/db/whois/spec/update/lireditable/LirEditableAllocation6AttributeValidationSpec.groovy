@@ -543,7 +543,7 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
         ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"mnt-by:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account\" under \"My LIR\" to change it.",
                 "The \"netname\" attribute can only be changed by the RIPE NCC"
         ]
     }

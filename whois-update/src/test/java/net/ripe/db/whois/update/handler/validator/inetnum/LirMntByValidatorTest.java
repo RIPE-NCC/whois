@@ -79,7 +79,7 @@ public class LirMntByValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
+        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -171,7 +171,7 @@ public class LirMntByValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
+        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -193,7 +193,7 @@ public class LirMntByValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
+        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -220,7 +220,7 @@ public class LirMntByValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
+        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT", "TEST2-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
