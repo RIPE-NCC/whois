@@ -92,7 +92,7 @@ public class ElasticFullTextIndex {
             rebuild();
         } else if (last < end) {
             LOGGER.debug("Updating index from {} to {}", last, end);
-            LOGGER.warn("Index serial ({}) higher than database serial ({}), rebuilding", last, end);
+            LOGGER.info("Index serial ({}) higher than database serial ({}), rebuilding", last, end);
             final Stopwatch stopwatch = Stopwatch.createStarted();
 
             for (int serial = last + 1; serial <= end; serial++) {
