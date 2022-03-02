@@ -14,7 +14,9 @@ import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.support.TestWhoisLog;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.IpResourceConfiguration;
+import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +29,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +40,7 @@ import java.util.stream.Collectors;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -49,8 +53,15 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
     private static final String WHOIS_INDEX = "whois_rdap";
     private static final String METADATA_INDEX = "metadata_rdap";
 
+    private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
+    private static final String LOCALHOST = "127.0.0.1";
+
     @Autowired
-    TestWhoisLog queryLog;
+    private AccessControlListManager accessControlListManager;
+    @Autowired
+    private IpResourceConfiguration ipResourceConfiguration;
+    @Autowired
+    private TestPersonalObjectAccounting testPersonalObjectAccounting;
 
     @BeforeAll
     public static void setUpProperties() {
@@ -596,6 +607,47 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
 
+    @Test
+    public void lookup_person_entity_acl_denied() {
+        try {
+            databaseHelper.insertAclIpDenied(LOCALHOST_WITH_PREFIX);
+            ipResourceConfiguration.reload();
+
+            try {
+                createResource("entities?handle=PP1-TEST")
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .get(SearchResult.class);
+                fail();
+            } catch (ClientErrorException e) {
+                assertErrorStatus(e, 429);
+                assertErrorTitleContains(e, "%ERROR:201: access denied for 127.0.0.1");
+            }
+        } finally {
+            databaseHelper.unban(LOCALHOST_WITH_PREFIX);
+            ipResourceConfiguration.reload();
+            testPersonalObjectAccounting.resetAccounting();
+        }
+    }
+
+    @Test
+    public void lookup_person_acl_counted() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        try {
+            final int limit = accessControlListManager.getPersonalObjects(localhost);
+
+            createResource("entities?handle=PP1-TEST")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+
+            final int remaining = accessControlListManager.getPersonalObjects(localhost);
+            assertThat(remaining, is(limit-1));
+
+        } finally {
+            ipResourceConfiguration.reload();
+            testPersonalObjectAccounting.resetAccounting();
+        }
+    }
+
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
         assertThat(object.getRdapConformance(), hasSize(1));
@@ -651,4 +703,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(entity.getErrorCode(), is(status));
     }
 
+    protected void assertErrorTitleContains(final ClientErrorException exception, final String title) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getErrorTitle(), containsString(title));
+    }
 }

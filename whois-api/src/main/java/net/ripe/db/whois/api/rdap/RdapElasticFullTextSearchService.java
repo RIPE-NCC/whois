@@ -1,12 +1,12 @@
 package net.ripe.db.whois.api.rdap;
 
+import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.autocomplete.ElasticSearchCondition;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.QueryMessages;
-import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -21,6 +21,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +30,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -37,6 +41,8 @@ import java.util.List;
 @Component
 @Conditional(ElasticSearchCondition.class)
 public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RdapElasticFullTextSearchService.class);
 
     private final int maxResultSize;
     private final RpslObjectDao objectDao;
@@ -57,13 +63,12 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
     @Override
     public List<RpslObject> performSearch(final String[] fields, final String term, final String clientIp, final Source source) throws IOException {
 
-        final InetAddress remoteAddress = InetAddresses.forString(clientIp);
-        checkBlocked(remoteAddress);
-
         int accountingLimit = -1;
         int accountedObjects = 0;
+        final InetAddress remoteAddress = InetAddresses.forString(clientIp);
 
        try {
+           checkBlocked(remoteAddress);
 
            final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
            sourceBuilder.query(getQueryBuilder(fields, term));
@@ -102,6 +107,8 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
            }
 
            return results;
+       } catch (final QueryException e) {
+           return handleQueryException(e);
        } finally {
            if (!accessControlListManager.isUnlimited(remoteAddress) && accountedObjects > 0) {
                accessControlListManager.accountPersonalObjects(remoteAddress, accountedObjects);
@@ -118,7 +125,6 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
     }
 
     private QueryBuilder getQueryBuilder(final String[] fields, final String term) {
-
         if(term.indexOf('*') == -1 && term.indexOf('?') == -1 ) {
             final MultiMatchQueryBuilder multiMatchQuery = new MultiMatchQueryBuilder(term, fields)
                     .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
@@ -132,5 +138,18 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
         }
 
         return wildCardBuilder;
+    }
+
+    private List<RpslObject> handleQueryException(final QueryException e) {
+        if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+            throw tooManyRequests(e.getMessage());
+        } else {
+            LOGGER.error(e.getMessage(), e);
+            throw new IllegalStateException(e.getMessage());
+        }
+    }
+
+    private WebApplicationException tooManyRequests(final String message) {
+        return new WebApplicationException(message, Response.Status.TOO_MANY_REQUESTS);
     }
 }
