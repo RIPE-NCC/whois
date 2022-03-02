@@ -36,7 +36,7 @@ public class ElasticFullTextIndex {
     private ElasticIndexService elasticIndexService;
     private final JdbcTemplate jdbcTemplate;
     private final String source;
-    private final String TASK_NAME = "fulltextIndexUpdate";
+    private final String TASK_NAME = "elasticFulltextIndexUpdate";
 
     @Autowired
     public ElasticFullTextIndex(final ElasticIndexService elasticIndexService,
