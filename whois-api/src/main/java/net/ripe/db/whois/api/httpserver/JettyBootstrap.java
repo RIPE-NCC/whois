@@ -188,6 +188,8 @@ public class JettyBootstrap implements ApplicationService {
 
         //the port in the Server constructor is overridden by the new connector
         connector.setPort(port);
+        LOGGER.info("setting idle connection timeout at connector level to {}", idleTimeout);
+        connector.setIdleTimeout(idleTimeout * 1000);
 
         server.setConnectors( new ServerConnector[] { connector } );
 
