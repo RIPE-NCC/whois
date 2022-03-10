@@ -12,7 +12,6 @@ import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.Slf4jRequestLogWriter;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -48,6 +47,7 @@ public class JettyBootstrap implements ApplicationService {
     private Server server;
 
     private int port = 0;
+    private final int idleTimeout;
 
     private final RewriteEngine rewriteEngine;
     private final String trustedIpRanges;
@@ -64,6 +64,7 @@ public class JettyBootstrap implements ApplicationService {
                           final RewriteEngine rewriteEngine,
                           final DelayShutdownHook delayShutdownHook,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
+                          @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled) throws MalformedObjectNameException {
         this.remoteAddressFilter = remoteAddressFilter;
@@ -76,6 +77,7 @@ public class JettyBootstrap implements ApplicationService {
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled? "en" : "dis");
         this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
         this.dosFilterEnabled = dosFilterEnabled;
+        this.idleTimeout = idleTimeout;
     }
 
     @Override
@@ -178,6 +180,7 @@ public class JettyBootstrap implements ApplicationService {
         server.setRequestLog(createRequestLog());
 
         final HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setIdleTimeout(idleTimeout * 1000);
         httpConfig.addCustomizer( new RemoteAddressCustomizer() );
 
         final HttpConnectionFactory connectionFactory = new HttpConnectionFactory( httpConfig );
