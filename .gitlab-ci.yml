@@ -116,6 +116,8 @@ whois-integration-test:
 
 sonar:
   <<: *it_env
+  services:
+    - mariadb:10.2
   stage: code_quality
   only:
     - schedules
