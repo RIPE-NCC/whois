@@ -42,3 +42,19 @@ mvn clean install -DfailIfNoTests=false -Pintegration -Dit.test=NrtmClientInvali
 
 mvn clean install -Pintegration -pl whois-query
 
+
+## Configure Ajc (AspectJ) Compiler
+
+Whois uses AspectJ to perform compile-time aspect weaving of the code. This is needed for some functionality, e.g. the @RetryFor annotation.
+
+Compile-time weaving works during a command-line Maven build, as the pom.xml uses aspectj-maven-plugin.
+
+Any code that depends on AspectJ will fail if modified in IntelliJ without using the Ajc (AspectJ) compiler.
+
+You can configure Ajc in the Preferences as follows:
+
+* Go to Build, Execution, Deployment -> Compiler -> Java Compiler
+* Choose "Use Compiler: Ajc"
+* Configure Path to aspectjtools.jar, e.g. ~/.m2/repository/org/aspectj/aspectjtools/1.9.8/aspectjtools-1.9.7.jar
+* Press "Test" to confirm it's working.
+
