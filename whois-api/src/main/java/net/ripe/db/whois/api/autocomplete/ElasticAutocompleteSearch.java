@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Conditional(ElasticSearchCondition.class)
-public class ElasticAutocompleteSearch implements  AutoCompleteSearch {
+public class ElasticAutocompleteSearch implements AutocompleteSearch {
 
     private static final int MAX_SEARCH_RESULTS = 10;
     private static final Pattern COMMENT_PATTERN = Pattern.compile("#.*");

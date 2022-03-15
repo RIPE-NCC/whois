@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 public class ElasticSearchHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
+    public static final String ELASTIC_HOSTNAME = System.getProperty("elastic.host");
+    public static final int ELASTIC_PORT = Integer.parseInt(System.getProperty("elastic.port"));
+
     public static void setupElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
 
         try(final RestHighLevelClient esClient = getEsClient()) {
@@ -52,7 +55,7 @@ public class ElasticSearchHelper {
 
     @NotNull
     private static RestHighLevelClient getEsClient() {
-        return new RestHighLevelClient(RestClient.builder(new HttpHost(System.getProperty("elastic.host"), Integer.parseInt(System.getProperty("elastic.port")))));
+        return new RestHighLevelClient(RestClient.builder(new HttpHost(ELASTIC_HOSTNAME, ELASTIC_PORT)));
     }
 
     private static boolean isElasticRunning(final RestHighLevelClient esClient) {

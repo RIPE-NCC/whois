@@ -29,10 +29,10 @@ public class AutocompleteService {
 
     private static final int MINIMUM_PREFIX_LENGTH = 2;
 
-    private final AutoCompleteSearch autoCompleteSearch;
+    private final AutocompleteSearch autoCompleteSearch;
 
     @Autowired
-    public AutocompleteService(final AutoCompleteSearch autoCompleteSearch) {
+    public AutocompleteService(final AutocompleteSearch autoCompleteSearch) {
         this.autoCompleteSearch = autoCompleteSearch;
     }
 
