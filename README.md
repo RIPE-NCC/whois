@@ -53,6 +53,7 @@ Any code that depends on AspectJ will fail if modified in IntelliJ without using
 
 You can configure Ajc in the Preferences as follows:
 
+* First install the AspectJ plugin provided by JetBrains from the IDE plugin repository
 * Go to Build, Execution, Deployment -> Compiler -> Java Compiler
 * Choose "Use Compiler: Ajc"
 * Configure Path to aspectjtools.jar, e.g. ~/.m2/repository/org/aspectj/aspectjtools/1.9.8/aspectjtools-1.9.7.jar
