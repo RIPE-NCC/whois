@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
-import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
+import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -37,7 +37,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
     private final DomainObjectService domainObjectService;
-    private final FullTextSearch fullTextSearch;
+    private final FullTextSearchService fullTextSearch;
     private final BatchUpdatesService batchUpdatesService;
     private final HealthCheckService healthCheckService;
 
@@ -54,7 +54,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final DefaultExceptionMapper defaultExceptionMapper,
                                 final MaintenanceModeFilter maintenanceModeFilter,
                                 final DomainObjectService domainObjectService,
-                                final FullTextSearch fullTextSearch,
+                                final FullTextSearchService fullTextSearch,
                                 final BatchUpdatesService batchUpdatesService,
                                 final HealthCheckService healthCheckService) {
         this.whoisRestService = whoisRestService;

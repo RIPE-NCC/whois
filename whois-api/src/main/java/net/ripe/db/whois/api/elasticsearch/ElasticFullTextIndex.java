@@ -201,6 +201,7 @@ public class ElasticFullTextIndex {
             final RpslObject rpslObject;
             try {
                 rpslObject = RpslObject.parse(objectId, object);
+
             } catch (RuntimeException e) {
                 LOGGER.warn("Unable to parse object with id: {}", objectId, e);
                 return;

@@ -44,7 +44,7 @@ public class ElasticIndexService {
     private final String WHOIS_INDEX;
     private final String METADATA_INDEX;
 
-    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED), AttributeType.class);
+    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
     private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
 
 
@@ -173,7 +173,7 @@ public class ElasticIndexService {
             }
         }
 
-        builder.field("primary-key", filterRpslObject.getKey().toString());
+        builder.field("lookup-key", rpslObject.getKey().toString());
         builder.field("object-type", filterRpslObject.getType().getName());
 
         return builder.endObject();

@@ -75,12 +75,12 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
     }
 
     @Override
-    String getWhoisIndex() {
+    protected String getWhoisIndex() {
         return WHOIS_INDEX;
     }
 
     @Override
-    String getMetadataIndex() {
+    protected String getMetadataIndex() {
         return METADATA_INDEX;
     }
 

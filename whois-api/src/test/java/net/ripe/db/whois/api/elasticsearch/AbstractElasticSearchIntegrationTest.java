@@ -27,7 +27,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     ElasticIndexService elasticIndexService;
 
     @Autowired
-    ElasticFullTextIndex elasticFullTextIndex;
+    public ElasticFullTextIndex elasticFullTextIndex;
 
     @BeforeAll
     public static void setUpElasticCluster() {
@@ -86,7 +86,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
         elasticIndexService.getClient().deleteByQuery(metadata, RequestOptions.DEFAULT);
     }
 
-    abstract String getWhoisIndex();
-    abstract String getMetadataIndex();
+    protected abstract String getWhoisIndex();
+    protected abstract String getMetadataIndex();
 
 }

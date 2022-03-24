@@ -15,6 +15,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
@@ -35,6 +36,7 @@ public class ElasticAutocompleteSearch implements  AutoCompleteSearch {
 
     private static final int MAX_SEARCH_RESULTS = 10;
     private static final Pattern COMMENT_PATTERN = Pattern.compile("#.*");
+    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.keyword").unmappedType("string"));
 
     private final ElasticIndexService elasticIndexService;
 
@@ -66,7 +68,7 @@ public class ElasticAutocompleteSearch implements  AutoCompleteSearch {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(finalQuery);
         sourceBuilder.size(MAX_SEARCH_RESULTS);
-        sourceBuilder.sort(Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("primary-key.keyword")));
+        sourceBuilder.sort(SORT_BUILDERS);
 
         final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWHOIS_INDEX());
         searchRequest.source(sourceBuilder);
@@ -81,7 +83,7 @@ public class ElasticAutocompleteSearch implements  AutoCompleteSearch {
             final Map<String, Object>  attributes = hit.getSourceAsMap();
 
             final Map<String, Object> result = Maps.newLinkedHashMap();
-            result.put("key", attributes.get("primary-key"));
+            result.put("key", attributes.get("lookup-key"));
             result.put("type", attributes.get("object-type"));
 
             for (final AttributeType responseAttribute : responseAttributes) {

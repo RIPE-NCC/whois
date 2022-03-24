@@ -302,7 +302,6 @@ public class FullTextIndex extends RebuildableIndex {
             if (SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
                 continue;
             }
-
             attributes.add(new RpslAttribute(attribute.getKey(), filterRpslAttribute(attribute.getType(), attribute.getValue())));
         }
 
