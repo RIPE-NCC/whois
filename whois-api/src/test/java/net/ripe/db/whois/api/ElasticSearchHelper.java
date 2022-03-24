@@ -2,6 +2,7 @@ package net.ripe.db.whois.api;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
+import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -88,8 +89,13 @@ public class ElasticSearchHelper {
                      .startObject("analyzer")
                          .startObject("fulltext_analyzer")
                             .field("tokenizer", "whitespace")
-                            .field("filter", new String[]{"my_word_delimiter_graph", "english_stop", "lowercase"})
+                            .field("filter", new String[]{"my_word_delimiter_graph", "lowercase", "asciifolding"})
                          .endObject()
+                        .startObject("my_email_analyzer")
+                            .field("type", "custom")
+                            .field("tokenizer", "uax_url_email")
+                            .field("filter", new String[]{"stop", "lowercase"})
+                        .endObject()
                      .endObject()
                     .startObject("filter")
                         .startObject("english_stop")
@@ -116,26 +122,25 @@ public class ElasticSearchHelper {
                 .startObject("properties");
 
          for(AttributeType type : AttributeType.values()) {
-             mappings.startObject(type.getName())
+
+             if(type.getSyntax() == AttributeSyntax.EMAIL_SYNTAX) {
+                 mappings.startObject(type.getName())
+                             .field("type", "text")
+                             .startObject("fields")
+                                 .startObject("custom")
+                                    .field("type", "text")
+                                    .field("analyzer", "my_email_analyzer")
+                                 .endObject()
+                             .endObject()
+                         .endObject();
+             } else {
+                 mappings.startObject(type.getName())
                          .field("type", "text")
                          .field("analyzer", "fulltext_analyzer")
                          .field("search_analyzer", "standard")
-                     .endObject();
+                         .endObject();
+             }
          }
-
-        mappings.startObject("object-type")
-                    .field("type", "text")
-                .startObject("fields")
-                    .startObject("raw")
-                         .field("type", "keyword")
-                    .endObject()
-
-                    .endObject()
-                .endObject();
-        mappings.startObject("lookup-key")
-                .field("type", "text")
-                .endObject();
-/*
 
         mappings.startObject("object-type")
                     .field("type", "text")
@@ -143,11 +148,12 @@ public class ElasticSearchHelper {
                         .startObject("raw")
                              .field("type", "keyword")
                         .endObject()
-
                     .endObject()
                 .endObject();
-*/
 
+        mappings.startObject("lookup-key")
+                .field("type", "text")
+                .endObject();
 
         return mappings.endObject().endObject();
     }
