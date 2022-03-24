@@ -88,7 +88,7 @@ public class ElasticSearchHelper {
                      .startObject("analyzer")
                          .startObject("fulltext_analyzer")
                             .field("tokenizer", "whitespace")
-                            .field("filter", new String[]{"my_word_delimiter_graph", "english_stop", "asciifolding"})
+                            .field("filter", new String[]{"my_word_delimiter_graph", "english_stop", "lowercase"})
                          .endObject()
                      .endObject()
                     .startObject("filter")
@@ -125,6 +125,12 @@ public class ElasticSearchHelper {
 
         mappings.startObject("object-type")
                     .field("type", "text")
+                .startObject("fields")
+                    .startObject("raw")
+                         .field("type", "keyword")
+                    .endObject()
+
+                    .endObject()
                 .endObject();
         mappings.startObject("lookup-key")
                 .field("type", "text")
