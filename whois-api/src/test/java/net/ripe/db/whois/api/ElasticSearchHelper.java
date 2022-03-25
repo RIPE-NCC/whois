@@ -135,9 +135,17 @@ public class ElasticSearchHelper {
                          .endObject();
              } else {
                  mappings.startObject(type.getName())
-                         .field("type", "text")
-                         .field("analyzer", "fulltext_analyzer")
-                         .field("search_analyzer", "standard")
+                             .field("type", "text")
+                             .startObject("fields")
+                                 .startObject("custom")
+                                     .field("type", "text")
+                                     .field("analyzer", "fulltext_analyzer")
+                                     .field("search_analyzer", "standard")
+                                 .endObject()
+                                 .startObject("raw")
+                                      .field("type", "keyword")
+                                 .endObject()
+                             .endObject()
                          .endObject();
              }
          }
@@ -153,6 +161,16 @@ public class ElasticSearchHelper {
 
         mappings.startObject("lookup-key")
                 .field("type", "text")
+                .startObject("fields")
+                    .startObject("custom")
+                        .field("type", "text")
+                        .field("analyzer", "fulltext_analyzer")
+                        .field("search_analyzer", "standard")
+                    .endObject()
+                    .startObject("raw")
+                         .field("type", "keyword")
+                    .endObject()
+                .endObject()
                 .endObject();
 
         return mappings.endObject().endObject();

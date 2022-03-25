@@ -460,7 +460,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
     @Test
     public void search_entity_person_by_handle_is_case_insensitive() {
 
-        final SearchResult response = createResource("entities?handle=Tp2-tESt")       // mixed case in request
+        final SearchResult response = createResource("entities?handle=TP2-TEST")       // mixed case in request
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 

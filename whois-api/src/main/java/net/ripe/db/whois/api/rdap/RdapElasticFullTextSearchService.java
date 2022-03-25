@@ -17,6 +17,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,6 +34,8 @@ import java.util.List;
 @Component
 @Conditional(ElasticSearchCondition.class)
 public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
+
+    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("string"));
 
     private final int maxResultSize;
     private final RpslObjectDao objectDao;
@@ -61,7 +64,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
                 sourceBuilder.query(getQueryBuilder(fields, term));
                 sourceBuilder.size(maxResultSize);
-                sourceBuilder.sort(Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.keyword")));
+                sourceBuilder.sort(SORT_BUILDERS);
 
                 final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWHOIS_INDEX());
                 searchRequest.source(sourceBuilder);
@@ -96,7 +99,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
 
                 final BoolQueryBuilder wildCardBuilder = QueryBuilders.boolQuery();
                 for (String field : fields) {
-                    wildCardBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.keyword", field), term));
+                    wildCardBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.raw", field), term));
                 }
                 return wildCardBuilder;
             }

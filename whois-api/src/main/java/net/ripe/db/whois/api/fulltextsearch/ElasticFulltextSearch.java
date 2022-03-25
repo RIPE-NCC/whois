@@ -162,7 +162,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private QueryStringQueryBuilder getQueryBuilder(final String query) {
-        return QueryBuilders.queryStringQuery(escape(query)).type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);//.analyzer("fulltext_analyzer");
+        return QueryBuilders.queryStringQuery(escape(query)).type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
     }
 
     private SearchResponse.Lst createHighlights(final SearchHit hit) {
@@ -171,12 +171,11 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
         for (final HighlightField highlightField : hit.getHighlightFields().values()) {
-            try {
-                final SearchResponse.Arr arr = new SearchResponse.Arr(highlightField.name());
+
+            if(highlightField.name().contains(".custom")) {
+                final SearchResponse.Arr arr = new SearchResponse.Arr(StringUtils.substringBefore(highlightField.name(), ".custom"));
                 arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
                 documentArrs.add(arr);
-            } catch (Exception e) {
-                LOGGER.warn("Field name: " + highlightField.name() + " value:" + highlightField.getFragments(), e);
             }
         }
 
