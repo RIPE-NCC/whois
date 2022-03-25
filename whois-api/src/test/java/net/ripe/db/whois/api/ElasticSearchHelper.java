@@ -17,21 +17,12 @@ import org.springframework.stereotype.Component;
 public class ElasticSearchHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
-    public String hostname;
-    public int port;
-
-
-    public String getHostname() {
-        return hostname;
-    }
+    private String hostname;
+    private int port;
 
     @Value("${elastic.host:localhost}")
     public void setHostname(String hostname) {
         this.hostname = hostname;
-    }
-
-    public int getPort() {
-        return port;
     }
 
     @Value("${elastic.port:9200}")
