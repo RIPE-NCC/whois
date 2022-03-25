@@ -35,17 +35,9 @@ public class ElasticSearchHelper {
     private String hostname;
     private int port;
 
-    public String getHostname() {
-        return hostname;
-    }
-
     @Value("${elastic.host:localhost}")
     public void setHostname(String hostname) {
         this.hostname = hostname;
-    }
-
-    public int getPort() {
-        return port;
     }
 
     @Value("${elastic.port:9200}")
@@ -93,11 +85,11 @@ public class ElasticSearchHelper {
     }
 
     @NotNull
-    private static RestHighLevelClient getEsClient() {
-        return new RestHighLevelClient(RestClient.builder(new HttpHost(System.getProperty("elastic.host"), Integer.parseInt(System.getProperty("elastic.port")))));
+    private RestHighLevelClient getEsClient() {
+        return new RestHighLevelClient(RestClient.builder(new HttpHost(hostname, port)));
     }
 
-    private static boolean isElasticRunning(final RestHighLevelClient esClient) {
+    private boolean isElasticRunning(final RestHighLevelClient esClient) {
         try {
             return esClient.ping(RequestOptions.DEFAULT);
         } catch (Exception e) {
@@ -106,7 +98,7 @@ public class ElasticSearchHelper {
         }
     }
 
-    private static XContentBuilder getSettings() throws IOException {
+    private XContentBuilder getSettings() throws IOException {
         final XContentBuilder indexSettings =  XContentFactory.jsonBuilder();
         indexSettings.startObject()
                 .startObject("analysis")
@@ -140,7 +132,7 @@ public class ElasticSearchHelper {
         return indexSettings;
     }
 
-    private static XContentBuilder getMappings() throws IOException {
+    private XContentBuilder getMappings() throws IOException {
         final XContentBuilder mappings = XContentFactory.jsonBuilder()
                 .startObject()
                 .startObject("properties");

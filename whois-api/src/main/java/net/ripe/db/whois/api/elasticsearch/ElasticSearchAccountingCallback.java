@@ -11,7 +11,7 @@ import net.ripe.db.whois.query.domain.QueryException;
 import java.io.IOException;
 import java.net.InetAddress;
 
-public abstract class AccountingElasticSearchCallback<T> {
+public abstract class ElasticSearchAccountingCallback<T> {
 
     private final AccessControlListManager accessControlListManager;
     private final InetAddress remoteAddress;
@@ -20,14 +20,14 @@ public abstract class AccountingElasticSearchCallback<T> {
     private int accountingLimit = -1;
     private int accountedObjects = 0;
 
-    private final boolean shouldDoAccounting;
+    private final boolean enabled;
 
-    public AccountingElasticSearchCallback(final AccessControlListManager accessControlListManager,
+    public ElasticSearchAccountingCallback(final AccessControlListManager accessControlListManager,
                                            final String remoteAddress,
                                            final Source source) {
         this.accessControlListManager = accessControlListManager;
         this.remoteAddress = InetAddresses.forString(remoteAddress);
-        this.shouldDoAccounting = !accessControlListManager.isUnlimited(this.remoteAddress);
+        this.enabled = !accessControlListManager.isUnlimited(this.remoteAddress);
         this.source = source;
     }
 
@@ -42,7 +42,7 @@ public abstract class AccountingElasticSearchCallback<T> {
         try {
             return doSearch();
         } finally {
-            if (shouldDoAccounting && accountedObjects > 0) {
+            if (enabled && accountedObjects > 0) {
                 accessControlListManager.accountPersonalObjects(remoteAddress, accountedObjects);
             }
         }
@@ -51,7 +51,7 @@ public abstract class AccountingElasticSearchCallback<T> {
     protected abstract T doSearch() throws IOException;
 
     protected void account(final RpslObject rpslObject) {
-        if (shouldDoAccounting && accessControlListManager.requiresAcl(rpslObject, source)) {
+        if (enabled && accessControlListManager.requiresAcl(rpslObject, source)) {
             if (accountingLimit == -1) {
                 accountingLimit = accessControlListManager.getPersonalObjects(remoteAddress);
             }

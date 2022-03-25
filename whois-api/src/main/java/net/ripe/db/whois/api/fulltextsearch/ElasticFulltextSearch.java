@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.fulltextsearch;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.autocomplete.ElasticSearchCondition;
-import net.ripe.db.whois.api.elasticsearch.AccountingElasticSearchCallback;
+import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
@@ -85,7 +85,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
             throw new IllegalArgumentException("Too many rows");
         }
 
-        return new AccountingElasticSearchCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {
+        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, source) {
 
             @Override
             protected SearchResponse doSearch() throws IOException {

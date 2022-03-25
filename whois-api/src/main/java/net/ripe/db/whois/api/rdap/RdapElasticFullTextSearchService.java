@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.autocomplete.ElasticSearchCondition;
-import net.ripe.db.whois.api.elasticsearch.AccountingElasticSearchCallback;
+import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -56,7 +56,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
     @Override
     public List<RpslObject> performSearch(final String[] fields, final String term, final String clientIp, final Source source) throws IOException {
 
-        return new AccountingElasticSearchCallback<List<RpslObject>>(accessControlListManager, clientIp, source) {
+        return new ElasticSearchAccountingCallback<List<RpslObject>>(accessControlListManager, clientIp, source) {
 
             @Override
             protected List<RpslObject> doSearch() throws IOException {
