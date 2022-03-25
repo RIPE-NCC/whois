@@ -170,6 +170,7 @@ public class ElasticFullTextIndex {
 
     private boolean shouldRebuild() throws IOException {
         if (elasticIndexService.getWhoisDocCount() == 0L) {
+            LOGGER.warn("Whois index count is zero, rebuilding");
             return true;
         }
 

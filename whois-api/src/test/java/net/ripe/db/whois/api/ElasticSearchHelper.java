@@ -15,10 +15,13 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
 
+@Component
 public class ElasticSearchHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
@@ -29,7 +32,28 @@ public class ElasticSearchHelper {
             "such", "t", "that", "the", "their", "then",
             "there", "these", "they", "this", "to", "was", "will", "with");
 
-    public static void setupElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
+    private String hostname;
+    private int port;
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    @Value("${elastic.host:localhost}")
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    @Value("${elastic.port:9200}")
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setupElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
 
         try (final RestHighLevelClient esClient = getEsClient()) {
             if (!isElasticRunning(esClient)) {
@@ -47,7 +71,7 @@ public class ElasticSearchHelper {
         }
     }
 
-    public static void resetElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
+    public void resetElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
         try (final RestHighLevelClient esClient = getEsClient()) {
 
             if (!isElasticRunning(esClient)) {

@@ -24,10 +24,13 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     private static ElasticsearchContainer elasticsearchContainer;
 
     @Autowired
+    ElasticSearchHelper elasticSearchHelper;
+
+    @Autowired
     ElasticIndexService elasticIndexService;
 
     @Autowired
-    public ElasticFullTextIndex elasticFullTextIndex;
+    ElasticFullTextIndex elasticFullTextIndex;
 
     @BeforeAll
     public static void setUpElasticCluster() {
@@ -56,13 +59,13 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     @BeforeEach
     public void setUpIndexes() throws Exception {
-        ElasticSearchHelper.setupElasticIndexes(getWhoisIndex(), getMetadataIndex());
+        elasticSearchHelper.setupElasticIndexes(getWhoisIndex(), getMetadataIndex());
         rebuildIndex();
     }
 
     @AfterEach
     public void tearDownIndexes() throws Exception {
-        ElasticSearchHelper.resetElasticIndexes(getWhoisIndex(), getMetadataIndex());
+        elasticSearchHelper.resetElasticIndexes(getWhoisIndex(), getMetadataIndex());
     }
 
     public void rebuildIndex() {
@@ -86,7 +89,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
         elasticIndexService.getClient().deleteByQuery(metadata, RequestOptions.DEFAULT);
     }
 
-    protected abstract String getWhoisIndex();
-    protected abstract String getMetadataIndex();
+    public abstract String getWhoisIndex();
+    public abstract String getMetadataIndex();
 
 }

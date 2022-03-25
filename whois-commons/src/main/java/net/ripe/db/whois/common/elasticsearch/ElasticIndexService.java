@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +59,12 @@ public class ElasticIndexService {
         RestClientBuilder clientBuilder = RestClient.builder(new HttpHost(elasticHost, elasticPort));
         client = new RestHighLevelClient(clientBuilder);
     }
+
+    @PreDestroy
+    public void preDestroy() throws IOException {
+        client.close();
+    }
+
 
     public boolean isEnabled() {
         if(!isElasticRunning()) {

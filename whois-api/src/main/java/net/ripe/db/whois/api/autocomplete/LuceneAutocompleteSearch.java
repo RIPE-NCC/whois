@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Conditional(LuceneSearchCondition.class)
-public class LuceneAutocompleteSearch implements  AutoCompleteSearch {
+public class LuceneAutocompleteSearch implements AutocompleteSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LuceneAutocompleteSearch.class);
 

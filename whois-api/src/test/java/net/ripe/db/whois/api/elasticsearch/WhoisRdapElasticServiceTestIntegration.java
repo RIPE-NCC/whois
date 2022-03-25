@@ -200,12 +200,12 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
     }
 
     @Override
-    protected String getWhoisIndex() {
+    public String getWhoisIndex() {
         return WHOIS_INDEX;
     }
 
     @Override
-    protected String getMetadataIndex() {
+    public String getMetadataIndex() {
         return METADATA_INDEX;
     }
 

@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @org.junit.jupiter.api.Tag("ElasticSearchTest")
@@ -66,12 +67,12 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Override
-    protected String getWhoisIndex() {
+    public String getWhoisIndex() {
         return WHOIS_INDEX;
     }
 
     @Override
-    protected String getMetadataIndex() {
+    public String getMetadataIndex() {
         return METADATA_INDEX;
     }
 
@@ -326,6 +327,17 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
                                 "  \"type\" : \"mntner\",\n" +
                                 "  \"auth\" : [ \"MD5-PW\", \"PGPKEY-XYZ\", \"MD5-PW\", \"SSO\" ]\n" +
                                 "} ]"));
+    }
+
+    @Test
+    public void wildcard_not_allowed_as_first_character() {
+        databaseHelper.addObject("inetnum: 0.0.0.0 - 255.255.255.255\nsource: TEST");
+        databaseHelper.addObject("inetnum: 81.26.54.100 - 81.26.54.107\nsource: TEST");
+        rebuildIndex();
+
+        final String result = RestTest.target(getPort(), "whois/autocomplete?field=inetnum&query=81.26.54.100+-+").request().get(String.class);
+
+        assertTrue(result.contains("81.26.54.100 - 81.26.54.107"));
     }
 
     @Test
