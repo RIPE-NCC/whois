@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface AutoCompleteSearch {
+public interface AutocompleteSearch {
 
     List<Map<String, Object>> search(final String queryString, final Set<AttributeType> queryAttributes, final Set<AttributeType> responseAttributes, final Set<ObjectType> objectTypes) throws IOException;
 }

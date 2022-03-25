@@ -10,11 +10,36 @@ import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ElasticSearchHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
-    public static void setupElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
+    public String hostname;
+    public int port;
+
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    @Value("${elastic.host:localhost}")
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    @Value("${elastic.port:9200}")
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setupElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
 
         try(final RestHighLevelClient esClient = getEsClient()) {
             if(!isElasticRunning(esClient)) {
@@ -29,7 +54,7 @@ public class ElasticSearchHelper {
         }
     }
 
-    public static void resetElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
+    public void resetElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
         try(final RestHighLevelClient esClient = getEsClient()) {
 
             if(!isElasticRunning(esClient)) {
@@ -51,11 +76,11 @@ public class ElasticSearchHelper {
     }
 
     @NotNull
-    private static RestHighLevelClient getEsClient() {
-        return new RestHighLevelClient(RestClient.builder(new HttpHost(System.getProperty("elastic.host"), Integer.parseInt(System.getProperty("elastic.port")))));
+    private RestHighLevelClient getEsClient() {
+        return new RestHighLevelClient(RestClient.builder(new HttpHost(hostname, port)));
     }
 
-    private static boolean isElasticRunning(final RestHighLevelClient esClient) {
+    private boolean isElasticRunning(final RestHighLevelClient esClient) {
         try {
             return esClient.ping(RequestOptions.DEFAULT);
         } catch (Exception e) {

@@ -20,31 +20,42 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractElasticSearchIntegrationTest extends AbstractIntegrationTest {
 
-    public static final String ENV_DISABLE_TEST_CONTAIENRS = "test.containers.disabled";
+    public static final String ENV_DISABLE_TEST_CONTAINERS = "test.containers.disabled";
     private static ElasticsearchContainer elasticsearchContainer;
 
     @Autowired
     ElasticIndexService elasticIndexService;
 
     @Autowired
+    ElasticSearchHelper elasticSearchHelper;
+
+    @Autowired
     ElasticFullTextIndex elasticFullTextIndex;
 
     @BeforeAll
     public static void setUpElasticCluster() {
-        if (StringUtils.isBlank(System.getProperty(ENV_DISABLE_TEST_CONTAIENRS))) {
+        if (StringUtils.isBlank(System.getProperty(ENV_DISABLE_TEST_CONTAINERS))) {
             if (elasticsearchContainer == null) {
                 elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
                 elasticsearchContainer.start();
             }
 
-            System.setProperty("elastic.host", elasticsearchContainer.getHttpHostAddress().split(":")[0]);
-            System.setProperty("elastic.port", elasticsearchContainer.getHttpHostAddress().split(":")[1]);
+            System.setProperty("elastic.host", getElasticHost());
+            System.setProperty("elastic.port", getElasticPort());
         } else {
             System.setProperty("elastic.host", "elasticsearch");
             System.setProperty("elastic.port", "9200");
         }
 
         System.setProperty("elasticsearch.enabled", "true");
+    }
+
+    private static String getElasticPort() {
+        return elasticsearchContainer.getHttpHostAddress().split(":")[1];
+    }
+
+    private static String getElasticHost() {
+        return elasticsearchContainer.getHttpHostAddress().split(":")[0];
     }
 
     @AfterAll
@@ -56,13 +67,13 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     @BeforeEach
     public void setUpIndexes() throws Exception {
-        ElasticSearchHelper.setupElasticIndexes(getWhoisIndex(), getMetadataIndex());
+        elasticSearchHelper.setupElasticIndexes(getWhoisIndex(), getMetadataIndex());
         rebuildIndex();
     }
 
     @AfterEach
     public void tearDownIndexes() throws Exception {
-        ElasticSearchHelper.resetElasticIndexes(getWhoisIndex(), getMetadataIndex());
+        elasticSearchHelper.resetElasticIndexes(getWhoisIndex(), getMetadataIndex());
     }
 
     public void rebuildIndex() {
