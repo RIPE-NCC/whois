@@ -27,6 +27,9 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     ElasticIndexService elasticIndexService;
 
     @Autowired
+    ElasticSearchHelper elasticSearchHelper;
+
+    @Autowired
     ElasticFullTextIndex elasticFullTextIndex;
 
     @BeforeAll
@@ -64,13 +67,13 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     @BeforeEach
     public void setUpIndexes() throws Exception {
-        ElasticSearchHelper.setupElasticIndexes(getWhoisIndex(), getMetadataIndex());
+        elasticSearchHelper.setupElasticIndexes(getWhoisIndex(), getMetadataIndex());
         rebuildIndex();
     }
 
     @AfterEach
     public void tearDownIndexes() throws Exception {
-        ElasticSearchHelper.resetElasticIndexes(getWhoisIndex(), getMetadataIndex());
+        elasticSearchHelper.resetElasticIndexes(getWhoisIndex(), getMetadataIndex());
     }
 
     public void rebuildIndex() {

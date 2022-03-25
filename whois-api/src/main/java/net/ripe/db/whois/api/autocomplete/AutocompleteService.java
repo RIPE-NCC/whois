@@ -29,11 +29,11 @@ public class AutocompleteService {
 
     private static final int MINIMUM_PREFIX_LENGTH = 2;
 
-    private final AutocompleteSearch autoCompleteSearch;
+    private final AutocompleteSearch autocompleteSearch;
 
     @Autowired
-    public AutocompleteService(final AutocompleteSearch autoCompleteSearch) {
-        this.autoCompleteSearch = autoCompleteSearch;
+    public AutocompleteService(final AutocompleteSearch autocompleteSearch) {
+        this.autocompleteSearch = autocompleteSearch;
     }
 
     /**
@@ -78,12 +78,12 @@ public class AutocompleteService {
                 if (AttributeType.getByNameOrNull(field) == null) {
                     return badRequest("invalid name for field");
                 }
-                return okResponse(autoCompleteSearch.search(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet()));
+                return okResponse(autocompleteSearch.search(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet()));
             } else if (!select.isEmpty() && !where.isEmpty() && !Strings.isNullOrEmpty(like)) {
 
                 // query by attribute(s)
 
-                return okResponse(autoCompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
+                return okResponse(autocompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
             } else {
                 return badRequest("invalid arguments");
             }
