@@ -907,6 +907,7 @@
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
                         <hazelcast.phone.home.enabled>false</hazelcast.phone.home.enabled>
+                        <test.containers.disabled>${test.containers.disabled}</test.containers.disabled>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

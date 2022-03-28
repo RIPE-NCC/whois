@@ -1,12 +1,8 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
-import net.ripe.db.whois.api.fulltextsearch.IndexTemplate;
 import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -16,33 +12,14 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.core.LowerCaseFilter;
-import org.apache.lucene.analysis.core.WhitespaceTokenizer;
-import org.apache.lucene.analysis.miscellaneous.WordDelimiterGraphFilter;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.facet.taxonomy.TaxonomyReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TopDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,7 +44,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
-import static net.ripe.db.whois.api.fulltextsearch.FullTextIndex.LOOKUP_KEY_FIELD_NAME;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 
@@ -78,10 +54,6 @@ public class WhoisRdapService {
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
-    //sort for consistent search results
-    private static final Sort SORT_BY_OBJECT_TYPE =
-            new Sort(new SortField(FullTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING), new SortField(LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
-
     private final int maxResultSize;
 
     private final RdapQueryHandler rdapQueryHandler;
@@ -89,10 +61,9 @@ public class WhoisRdapService {
     private final AbuseCFinder abuseCFinder;
     private final RdapObjectMapper rdapObjectMapper;
     private final DelegatedStatsService delegatedStatsService;
-    private final FullTextIndex fullTextIndex;
+    private final RdapFullTextSearch rdapFullTextSearch;
     private final Source source;
     private final String baseUrl;
-    private final AccessControlListManager accessControlListManager;
     private final RdapRequestValidator rdapRequestValidator;
 
     @Autowired
@@ -101,10 +72,9 @@ public class WhoisRdapService {
                             final AbuseCFinder abuseCFinder,
                             final RdapObjectMapper rdapObjectMapper,
                             final DelegatedStatsService delegatedStatsService,
-                            final FullTextIndex fullTextIndex,
+                            final RdapFullTextSearch rdapFullTextSearch,
                             final SourceContext sourceContext,
                             @Value("${rdap.public.baseUrl:}") final String baseUrl,
-                            final AccessControlListManager accessControlListManager,
                             final RdapRequestValidator rdapRequestValidator,
                             @Value("${rdap.search.max.results:100}") final int maxResultSize) {
         this.rdapQueryHandler = rdapQueryHandler;
@@ -112,10 +82,9 @@ public class WhoisRdapService {
         this.abuseCFinder = abuseCFinder;
         this.rdapObjectMapper = rdapObjectMapper;
         this.delegatedStatsService = delegatedStatsService;
-        this.fullTextIndex = fullTextIndex;
+        this.rdapFullTextSearch = rdapFullTextSearch;
         this.source = sourceContext.getCurrentSource();
         this.baseUrl = baseUrl;
-        this.accessControlListManager = accessControlListManager;
         this.rdapRequestValidator = rdapRequestValidator;
         this.maxResultSize = maxResultSize;
     }
@@ -326,47 +295,7 @@ public class WhoisRdapService {
         }
 
         try {
-            final List<RpslObject> objects = fullTextIndex.search(
-                    new IndexTemplate.AccountingSearchCallback<List<RpslObject>>(accessControlListManager, request.getRemoteAddr(), source) {
-
-                        @Override
-                        protected List<RpslObject> doSearch(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
-                            final Stopwatch stopWatch = Stopwatch.createStarted();
-
-                            final List<RpslObject> results = Lists.newArrayList();
-                            try {
-                                final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
-                                queryParser.setAllowLeadingWildcard(true);
-                                queryParser.setDefaultOperator(QueryParser.Operator.AND);
-
-                                // TODO SB: Yuck, query is case insensitive by default
-                                // but case sensitivity also depends on field type
-                                final org.apache.lucene.search.Query query = queryParser.parse(term.toLowerCase());
-
-                                final TopDocs topDocs = indexSearcher.search(query, maxResultSize, SORT_BY_OBJECT_TYPE);
-                                for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-                                    final Document document = indexSearcher.doc(scoreDoc.doc);
-
-                                    final RpslObject rpslObject;
-                                    try {
-                                        rpslObject = objectDao.getById(getObjectId(document));
-                                    } catch (EmptyResultDataAccessException e) {
-                                        // object was deleted from the database but index was not updated yet
-                                        continue;
-                                    }
-                                    account(rpslObject);
-                                    results.add(rpslObject);
-                                }
-
-                                LOGGER.debug("Found {} objects in {}", results.size(), stopWatch.stop());
-                                return results;
-
-                            } catch (ParseException e) {
-                                LOGGER.error("handleSearch", e);
-                                throw new BadRequestException("cannot parse query " + term);
-                            }
-                        }
-                    });
+            final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
 
             if (objects.isEmpty()) {
                 throw new NotFoundException("not found");
@@ -385,19 +314,6 @@ public class WhoisRdapService {
         catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
             throw new IllegalStateException("search failed");
-        }
-    }
-
-    private class RdapAnalyzer extends Analyzer {
-        @Override
-        protected TokenStreamComponents createComponents(final String fieldName) {
-            final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer();
-            TokenStream tok = new WordDelimiterGraphFilter(
-                    tokenizer,
-                    WordDelimiterGraphFilter.PRESERVE_ORIGINAL,
-                    CharArraySet.EMPTY_SET);
-            tok = new LowerCaseFilter(tok);
-            return new TokenStreamComponents(tokenizer, tok);
         }
     }
 }
