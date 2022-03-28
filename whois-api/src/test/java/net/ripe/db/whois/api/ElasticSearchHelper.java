@@ -99,6 +99,7 @@ public class ElasticSearchHelper {
     }
 
     private XContentBuilder getSettings() throws IOException {
+
         final XContentBuilder indexSettings =  XContentFactory.jsonBuilder();
         indexSettings.startObject()
                 .startObject("analysis")
@@ -133,12 +134,29 @@ public class ElasticSearchHelper {
     }
 
     private XContentBuilder getMappings() throws IOException {
-        final XContentBuilder mappings = XContentFactory.jsonBuilder()
-                .startObject()
-                .startObject("properties");
+        final XContentBuilder mappings = XContentFactory.jsonBuilder().startObject();
 
+         mappings.startArray("dynamic_templates").startObject()
+                    .startObject("default_mapping")
+                       .field("match_mapping_type", "string")
+                       .startObject("mapping")
+                         .field("type", "text")
+                         .startObject("fields")
+                             .startObject("custom")
+                                 .field("type", "text")
+                                 .field("analyzer", "fulltext_analyzer")
+                                 .field("search_analyzer", "standard")
+                             .endObject()
+                             .startObject("raw")
+                                .field("type", "keyword")
+                             .endObject()
+                         .endObject()
+                      .endObject()
+                    .endObject().endObject()
+                 .endArray();
+
+         mappings.startObject("properties");
          for(AttributeType type : AttributeType.values()) {
-
              if(type.getSyntax() == AttributeSyntax.EMAIL_SYNTAX) {
                  mappings.startObject(type.getName())
                              .field("type", "text")
@@ -146,20 +164,6 @@ public class ElasticSearchHelper {
                                  .startObject("custom")
                                     .field("type", "text")
                                     .field("analyzer", "my_email_analyzer")
-                                 .endObject()
-                             .endObject()
-                         .endObject();
-             } else {
-                 mappings.startObject(type.getName())
-                             .field("type", "text")
-                             .startObject("fields")
-                                 .startObject("custom")
-                                     .field("type", "text")
-                                     .field("analyzer", "fulltext_analyzer")
-                                     .field("search_analyzer", "standard")
-                                 .endObject()
-                                 .startObject("raw")
-                                      .field("type", "keyword")
                                  .endObject()
                              .endObject()
                          .endObject();
@@ -173,20 +177,6 @@ public class ElasticSearchHelper {
                              .field("type", "keyword")
                         .endObject()
                     .endObject()
-                .endObject();
-
-        mappings.startObject("lookup-key")
-                .field("type", "text")
-                .startObject("fields")
-                    .startObject("custom")
-                        .field("type", "text")
-                        .field("analyzer", "fulltext_analyzer")
-                        .field("search_analyzer", "standard")
-                    .endObject()
-                    .startObject("raw")
-                         .field("type", "keyword")
-                    .endObject()
-                .endObject()
                 .endObject();
 
         return mappings.endObject().endObject();
