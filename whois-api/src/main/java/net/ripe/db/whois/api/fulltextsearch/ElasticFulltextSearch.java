@@ -111,7 +111,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 SearchHit[] hits = fulltextResponse.getHits().getHits();
 
                 final List<RpslObject> results = new ArrayList<>();
-                int resultSize = hits.length;
+                int resultSize = Math.min(maxResultSize,Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue());
 
                 final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
                 final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
