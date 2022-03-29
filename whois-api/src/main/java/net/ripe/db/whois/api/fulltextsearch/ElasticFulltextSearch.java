@@ -91,7 +91,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
             protected SearchResponse doSearch() throws IOException {
 
                 final int start = Math.max(0, searchRequest.getStart());
-                final int end = Math.min(start + searchRequest.getRows(), maxResultSize);
                 final HighlightBuilder highlightBuilder = new HighlightBuilder()
                         .postTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPost()))
                         .preTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPre()))
@@ -99,7 +98,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
                 final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                         .query(getQueryBuilder(searchRequest.getQuery()))
-                        .size(end).from(start)
+                        .size(searchRequest.getRows()).from(start)
                         .aggregation(AGGREGATION_BUILDER)
                         .sort(SORT_BUILDERS)
                         .highlighter(highlightBuilder);
