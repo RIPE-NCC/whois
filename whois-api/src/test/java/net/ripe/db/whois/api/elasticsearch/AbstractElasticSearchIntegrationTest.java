@@ -40,28 +40,17 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
                 elasticsearchContainer.start();
             }
 
-            System.setProperty("elastic.host", getElasticHost());
-            System.setProperty("elastic.port", getElasticPort());
+            System.setProperty("elastic.host", elasticsearchContainer.getHttpHostAddress());
         } else {
-            System.setProperty("elastic.host", "elasticsearch");
-            System.setProperty("elastic.port", "9200");
+            System.setProperty("elastic.host", "elasticsearch:9200");
         }
 
         System.setProperty("elasticsearch.enabled", "true");
     }
 
-    private static String getElasticPort() {
-        return elasticsearchContainer.getHttpHostAddress().split(":")[1];
-    }
-
-    private static String getElasticHost() {
-        return elasticsearchContainer.getHttpHostAddress().split(":")[0];
-    }
-
     @AfterAll
     public static void resetElasticCluster() {
         System.clearProperty("elastic.host");
-        System.clearProperty("elastic.port");
         System.clearProperty("elasticsearch.enabled");
     }
 

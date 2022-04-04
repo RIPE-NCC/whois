@@ -50,13 +50,12 @@ public class ElasticIndexService {
 
 
     @Autowired
-    public ElasticIndexService(@Value("${elastic.host:localhost}") final String elasticHost,
-                               @Value("${elastic.port:9200}") final int elasticPort,
+    public ElasticIndexService(@Value("#{'${elastic.host:localhost:9200}'.split(',')}") final List<String> elasticHosts,
                                @Value("${elastic.whois.index:whois}") final String whoisIndexName,
                                @Value("${elastic.commit.index:metadata}") final String whoisMetadataIndexName) {
         this.WHOIS_INDEX = whoisIndexName;
         this.METADATA_INDEX = whoisMetadataIndexName;
-        RestClientBuilder clientBuilder = RestClient.builder(new HttpHost(elasticHost, elasticPort));
+        RestClientBuilder clientBuilder = RestClient.builder(elasticHosts.stream().map( (host) -> HttpHost.create(host)).toArray(HttpHost[]::new));
         client = new RestHighLevelClient(clientBuilder);
     }
 

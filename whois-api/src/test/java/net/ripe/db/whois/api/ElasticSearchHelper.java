@@ -33,16 +33,10 @@ public class ElasticSearchHelper {
             "there", "these", "they", "this", "to", "was", "will", "with");
 
     private String hostname;
-    private int port;
 
-    @Value("${elastic.host:localhost}")
+    @Value("${elastic.host}")
     public void setHostname(String hostname) {
         this.hostname = hostname;
-    }
-
-    @Value("${elastic.port:9200}")
-    public void setPort(int port) {
-        this.port = port;
     }
 
     public void setupElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
@@ -86,7 +80,7 @@ public class ElasticSearchHelper {
 
     @NotNull
     private RestHighLevelClient getEsClient() {
-        return new RestHighLevelClient(RestClient.builder(new HttpHost(hostname, port)));
+        return new RestHighLevelClient(RestClient.builder(HttpHost.create(hostname)));
     }
 
     private boolean isElasticRunning(final RestHighLevelClient esClient) {
