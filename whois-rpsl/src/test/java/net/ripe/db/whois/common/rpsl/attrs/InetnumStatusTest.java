@@ -70,7 +70,6 @@ public class InetnumStatusTest {
 
         assertThat(ASSIGNED_PA.isValidOrgType(OrgType.OTHER), is(true));
         assertThat(ASSIGNED_PA.isValidOrgType(OrgType.LIR), is(true));
-        assertThat(ASSIGNED_PA.isValidOrgType(OrgType.WHITEPAGES), is(false));
 
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(OrgType.OTHER), is(true));
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(OrgType.LIR), is(true));
