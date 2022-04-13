@@ -18,6 +18,8 @@ include:
     file: '/templates/release-template.yml'
   - project: 'swe-database-team/gitlab-ci'
     file: '/templates/deployment-template.yml'
+  - project: 'swe-database-team/gitlab-ci'
+    file: '/templates/deployment-salt-template.yml'
 
 stages:
   - build
