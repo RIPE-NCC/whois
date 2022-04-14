@@ -25,7 +25,6 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
 
     private static Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
 
-    private static String RIPEDB_CONFIG = "ripedb_config";        // Special flag for ns.ripe.net
 
     @JsonProperty
     private Params params;
@@ -37,7 +36,6 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         params.setDsInfos(Collections.emptyList());
         params.setNameservers(Collections.emptyList());
         params.setDomain(dnsCheckRequest.getDomain());
-        params.setConfig(RIPEDB_CONFIG);
 
         final RpslObject rpslObject = dnsCheckRequest.getUpdate().getSubmittedObject();
 
@@ -89,12 +87,8 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         private String clientId = "Whois";
         @JsonProperty
         private String domain;
-        @JsonProperty
-        private String profile = "default_profile";
         @JsonProperty("client_version")
-        private String clientVersion = "1.0.1";
-        @JsonProperty
-        private String config;
+        private String clientVersion = "1.0";
         @JsonProperty
         private String id;
         @JsonProperty
@@ -103,8 +97,6 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         private List<Nameserver> nameservers;
         @JsonProperty("ds_info")
         private List<DsInfo> dsInfos;
-        @JsonProperty
-        private boolean advanced = true;
         @JsonProperty
         private boolean ipv4 = true;
         @JsonProperty
@@ -128,10 +120,6 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
 
         public void setDomain(final String domain) {
             this.domain = domain;
-        }
-
-        public void setConfig(final String config) {
-            this.config = config;
         }
 
         @Override
