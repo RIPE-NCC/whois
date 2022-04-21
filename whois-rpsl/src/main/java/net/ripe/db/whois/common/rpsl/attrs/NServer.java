@@ -32,21 +32,25 @@ public final class NServer {
         return ipInterval;
     }
 
+    @CheckForNull
+    public CIString getGlue() {
+        if (ipInterval == null) {
+            return null;
+        }
+
+        final String glue = ipInterval.toString();
+        final int slash = glue.indexOf('/');
+
+        return CIString.ciString((slash != -1) ? glue.substring(0, slash) : glue);
+    }
+
     @Override
     public String toString() {
         final StringBuilder s = new StringBuilder();
         s.append(hostname);
 
         if (ipInterval != null) {
-            s.append(' ');
-
-            String glue = ipInterval.toString();
-            final int idx = glue.indexOf('/');
-            if (idx != -1) {
-                glue = glue.substring(0, idx);
-            }
-
-            s.append(glue);
+            s.append(' ').append(getGlue());
         }
 
         return s.toString();
