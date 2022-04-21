@@ -30,6 +30,7 @@ public class NServerTest {
         final NServer nServer = NServer.parse("dns.comcor.ru");
         assertThat(nServer.getHostname(), is(ciString("dns.comcor.ru")));
         assertNull(nServer.getIpInterval());
+        assertNull(nServer.getGlue());
         assertThat(nServer.toString(), is("dns.comcor.ru"));
     }
 
@@ -38,6 +39,7 @@ public class NServerTest {
         final NServer nServer = NServer.parse("dns.comcor.ru.");
         assertThat(nServer.getHostname(), is(ciString("dns.comcor.ru")));
         assertNull(nServer.getIpInterval());
+        assertNull(nServer.getGlue());
         assertThat(nServer.toString(), is("dns.comcor.ru"));
     }
 
@@ -46,6 +48,7 @@ public class NServerTest {
         final NServer nServer = NServer.parse("dns.comcor.ru 194.0.0.0");
         assertThat(nServer.getHostname(), is(ciString("dns.comcor.ru")));
         assertThat((Ipv4Resource) nServer.getIpInterval(), is(Ipv4Resource.parse("194.0.0.0")));
+        assertThat(nServer.getGlue(), is("194.0.0.0"));
         assertThat(nServer.toString(), is("dns.comcor.ru 194.0.0.0"));
     }
 
@@ -54,7 +57,6 @@ public class NServerTest {
         Assertions.assertThrows(AttributeParseException.class, () -> {
             NServer.parse("dns.comcor.ru 194.0.0.0/24");
         });
-
     }
 
     @Test
@@ -62,6 +64,7 @@ public class NServerTest {
         final NServer nServer = NServer.parse("dns.comcor.ru 194.0.0.0/32");
         assertThat(nServer.getHostname(), is(ciString("dns.comcor.ru")));
         assertThat((Ipv4Resource) nServer.getIpInterval(), is(Ipv4Resource.parse("194.0.0.0")));
+        assertThat(nServer.getGlue(), is("194.0.0.0"));
         assertThat(nServer.toString(), is("dns.comcor.ru 194.0.0.0"));
     }
 
@@ -70,6 +73,7 @@ public class NServerTest {
         final NServer nServer = NServer.parse("dns.comcor.ru. 194.0.0.0");
         assertThat(nServer.getHostname(), is(ciString("dns.comcor.ru")));
         assertThat((Ipv4Resource) nServer.getIpInterval(), is(Ipv4Resource.parse("194.0.0.0")));
+        assertThat(nServer.getGlue(), is("194.0.0.0"));
         assertThat(nServer.toString(), is("dns.comcor.ru 194.0.0.0"));
     }
 
@@ -85,6 +89,7 @@ public class NServerTest {
         final NServer nServer = NServer.parse("194.0.0.0");
         assertThat(nServer.getHostname(), is(ciString("194.0.0.0")));
         assertNull(nServer.getIpInterval());
+        assertNull(nServer.getGlue());
         assertThat(nServer.toString(), is("194.0.0.0"));
     }
 
@@ -93,6 +98,7 @@ public class NServerTest {
         final NServer nServer = NServer.parse("dns.comcor.ru f::1");
         assertThat(nServer.getHostname(), is(ciString("dns.comcor.ru")));
         assertThat((Ipv6Resource) nServer.getIpInterval(), is(Ipv6Resource.parse("f::1")));
+        assertThat(nServer.getGlue(), is("f::1"));
         assertThat(nServer.toString(), is("dns.comcor.ru f::1"));
     }
 
