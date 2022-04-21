@@ -1016,7 +1016,6 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "RIR");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "NIR");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "LIR");
-        verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "WHITEPAGES");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "DIRECT_ASSIGNMENT");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ORG_TYPE, "OTHER");
 
@@ -1029,7 +1028,6 @@ public class AttributeSyntaxTest {
                 "o 'RIR' for Regional Internet Registries\n" +
                 "o 'NIR' for National Internet Registries (there are no NIRs in the RIPE NCC service region)\n" +
                 "o 'LIR' for Local Internet Registries\n" +
-                "o 'WHITEPAGES' for special links to industry people\n" +
                 "o 'DIRECT_ASSIGNMENT' for direct contract with RIPE NCC\n" +
                 "o 'OTHER' for all other organisations.\n\n"));
     }
