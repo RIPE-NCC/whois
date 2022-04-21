@@ -2,7 +2,8 @@ package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.elasticsearch.action.search.SearchRequest;
@@ -83,8 +84,8 @@ public class ElasticAutocompleteSearch implements AutocompleteSearch {
             final Map<String, Object>  attributes = hit.getSourceAsMap();
 
             final Map<String, Object> result = Maps.newLinkedHashMap();
-            result.put("key", attributes.get("lookup-key"));
-            result.put("type", attributes.get("object-type"));
+            result.put("key", attributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME));
+            result.put("type", attributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME));
 
             for (final AttributeType responseAttribute : responseAttributes) {
 

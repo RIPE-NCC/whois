@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.rdap;
 import net.ripe.db.whois.api.autocomplete.ElasticSearchCondition;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
+import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.acl.AccessControlListManager;

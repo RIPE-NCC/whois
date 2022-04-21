@@ -1,8 +1,9 @@
-package net.ripe.db.whois.common.elasticsearch;
+package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -179,8 +180,8 @@ public class ElasticIndexService {
             }
         }
 
-        builder.field("lookup-key", rpslObject.getKey().toString());
-        builder.field("object-type", filterRpslObject.getType().getName());
+        builder.field(FullTextIndex.LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
+        builder.field(FullTextIndex.OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
 
         return builder.endObject();
     }

@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.ElasticSearchHelper;
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -87,5 +86,22 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     }
 
     public abstract String getWhoisIndex();
+
+    public static ElasticsearchContainer getElasticsearchContainer() {
+        return elasticsearchContainer;
+    }
+
+    public ElasticIndexService getElasticIndexService() {
+        return elasticIndexService;
+    }
+
+    public ElasticSearchHelper getElasticSearchHelper() {
+        return elasticSearchHelper;
+    }
+
+    public ElasticFullTextIndex getElasticFullTextIndex() {
+        return elasticFullTextIndex;
+    }
+
     public abstract String getMetadataIndex();
 }

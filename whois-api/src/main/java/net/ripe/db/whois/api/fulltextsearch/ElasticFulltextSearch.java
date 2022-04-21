@@ -6,7 +6,7 @@ import net.ripe.db.whois.api.autocomplete.ElasticSearchCondition;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
+import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -36,7 +36,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -107,18 +106,17 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 fulltextRequest.source(sourceBuilder);
 
                 final org.elasticsearch.action.search.SearchResponse fulltextResponse = elasticIndexService.getClient().search(fulltextRequest, RequestOptions.DEFAULT);
-                SearchHit[] hits = fulltextResponse.getHits().getHits();
+                final SearchHit[] hits = fulltextResponse.getHits().getHits();
 
-                final List<RpslObject> results = new ArrayList<>();
+                final List<RpslObject> results = Lists.newArrayList();
                 int resultSize = Math.min(maxResultSize,Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue());
 
                 final SearchResponse.Lst highlight = new SearchResponse.Lst("highlighting");
                 final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
 
                 for (final SearchHit hit : hits) {
-                    final RpslObject rpslObject;
                     try {
-                        rpslObject = objectDao.getById(Integer.parseInt(hit.getId()));
+                        final RpslObject rpslObject = objectDao.getById(Integer.parseInt(hit.getId()));
                         results.add(rpslObject);
                         account(rpslObject);
 
@@ -216,9 +214,9 @@ public class ElasticFulltextSearch extends FulltextSearch {
             final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
             final List<SearchResponse.Str> attributes = Lists.newArrayList();
 
-            attributes.add(new SearchResponse.Str("primary-key", String.valueOf(rpslObject.getObjectId())));
-            attributes.add(new SearchResponse.Str("object-type", rpslObject.getType().getName()));
-            attributes.add(new SearchResponse.Str("lookup-key", rpslObject.getKey().toString()));
+            attributes.add(new SearchResponse.Str(FullTextIndex.PRIMARY_KEY_FIELD_NAME, String.valueOf(rpslObject.getObjectId())));
+            attributes.add(new SearchResponse.Str(FullTextIndex.OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));
+            attributes.add(new SearchResponse.Str(FullTextIndex.LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString()));
 
             for (final RpslAttribute rpslAttribute : fullTextIndex.filterRpslObject(rpslObject).getAttributes()) {
                 attributes.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));

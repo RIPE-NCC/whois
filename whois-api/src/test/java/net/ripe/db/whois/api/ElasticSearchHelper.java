@@ -1,10 +1,10 @@
 package net.ripe.db.whois.api;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.apache.http.HttpHost;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
@@ -19,18 +19,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.List;
 
 @Component
 public class ElasticSearchHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
-
-    private static final List<String> STOP_WORDS = Lists.newArrayList(
-            "a", "an", "and", "are", "as", "at",
-            "be", "but", "by", "for",
-            "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "s",
-            "such", "t", "that", "the", "their", "then",
-            "there", "these", "they", "this", "to", "was", "will", "with");
 
     private String hostname;
 
@@ -111,7 +103,7 @@ public class ElasticSearchHelper {
                     .startObject("filter")
                         .startObject("english_stop")
                             .field("type", "stop")
-                            .field("stopwords", STOP_WORDS.toArray())
+                            .field("stopwords", EnglishAnalyzer.ENGLISH_STOP_WORDS_SET.toArray())
                         .endObject()
                         .startObject("my_word_delimiter_graph")
                             .field("type", "word_delimiter_graph")
