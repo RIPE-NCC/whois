@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.ElasticSearchHelper;
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -40,28 +39,17 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
                 elasticsearchContainer.start();
             }
 
-            System.setProperty("elastic.host", getElasticHost());
-            System.setProperty("elastic.port", getElasticPort());
+            System.setProperty("elastic.host", elasticsearchContainer.getHttpHostAddress());
         } else {
-            System.setProperty("elastic.host", "elasticsearch");
-            System.setProperty("elastic.port", "9200");
+            System.setProperty("elastic.host", "elasticsearch:9200");
         }
 
         System.setProperty("elasticsearch.enabled", "true");
     }
 
-    private static String getElasticPort() {
-        return elasticsearchContainer.getHttpHostAddress().split(":")[1];
-    }
-
-    private static String getElasticHost() {
-        return elasticsearchContainer.getHttpHostAddress().split(":")[0];
-    }
-
     @AfterAll
     public static void resetElasticCluster() {
         System.clearProperty("elastic.host");
-        System.clearProperty("elastic.port");
         System.clearProperty("elasticsearch.enabled");
     }
 
@@ -97,7 +85,23 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
         elasticIndexService.getClient().deleteByQuery(metadata, RequestOptions.DEFAULT);
     }
 
-    abstract String getWhoisIndex();
-    abstract String getMetadataIndex();
+    public abstract String getWhoisIndex();
 
+    public static ElasticsearchContainer getElasticsearchContainer() {
+        return elasticsearchContainer;
+    }
+
+    public ElasticIndexService getElasticIndexService() {
+        return elasticIndexService;
+    }
+
+    public ElasticSearchHelper getElasticSearchHelper() {
+        return elasticSearchHelper;
+    }
+
+    public ElasticFullTextIndex getElasticFullTextIndex() {
+        return elasticFullTextIndex;
+    }
+
+    public abstract String getMetadataIndex();
 }

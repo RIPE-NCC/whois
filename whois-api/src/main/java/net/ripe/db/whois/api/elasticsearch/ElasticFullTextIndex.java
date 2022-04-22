@@ -5,8 +5,6 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexMetadata;
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,6 +200,7 @@ public class ElasticFullTextIndex {
             final RpslObject rpslObject;
             try {
                 rpslObject = RpslObject.parse(objectId, object);
+
             } catch (RuntimeException e) {
                 LOGGER.warn("Unable to parse object with id: {}", objectId, e);
                 return;
