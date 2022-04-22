@@ -1,7 +1,7 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
-import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
+import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
 import net.ripe.db.whois.api.fulltextsearch.SearchRequest;
 import net.ripe.db.whois.api.fulltextsearch.SearchResponse;
 
@@ -35,7 +35,7 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     private Bootstrap bootstrap;
 
     @Autowired
-    private FullTextSearch fullTextSearch;
+    private FullTextSearchService fullTextSearchService;
 
     @Autowired
     private FullTextIndex fullTextIndex;
@@ -240,7 +240,7 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
 
-        return fullTextSearch.search(
+        return fullTextSearchService.search(
                 new SearchRequest.SearchRequestBuilder()
                     .setQuery(queryStr)
                     .setRows("10")

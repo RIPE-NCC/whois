@@ -1,8 +1,9 @@
-package net.ripe.db.whois.common.elasticsearch;
+package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -45,18 +46,17 @@ public class ElasticIndexService {
     private final String WHOIS_INDEX;
     private final String METADATA_INDEX;
 
-    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED), AttributeType.class);
+    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
     private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
 
 
     @Autowired
-    public ElasticIndexService(@Value("${elastic.host:localhost}") final String elasticHost,
-                               @Value("${elastic.port:9200}") final int elasticPort,
+    public ElasticIndexService(@Value("#{'${elastic.host:localhost:9200}'.split(',')}") final List<String> elasticHosts,
                                @Value("${elastic.whois.index:whois}") final String whoisIndexName,
                                @Value("${elastic.commit.index:metadata}") final String whoisMetadataIndexName) {
         this.WHOIS_INDEX = whoisIndexName;
         this.METADATA_INDEX = whoisMetadataIndexName;
-        RestClientBuilder clientBuilder = RestClient.builder(new HttpHost(elasticHost, elasticPort));
+        RestClientBuilder clientBuilder = RestClient.builder(elasticHosts.stream().map( (host) -> HttpHost.create(host)).toArray(HttpHost[]::new));
         client = new RestHighLevelClient(clientBuilder);
     }
 
@@ -180,8 +180,8 @@ public class ElasticIndexService {
             }
         }
 
-        builder.field("primary-key", filterRpslObject.getKey().toString());
-        builder.field("object-type", filterRpslObject.getType().getName());
+        builder.field(FullTextIndex.LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
+        builder.field(FullTextIndex.OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
 
         return builder.endObject();
     }
