@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.apache.http.HttpHost;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
@@ -26,7 +25,7 @@ public class ElasticSearchHelper {
 
     private String hostname;
 
-    @Value("${elastic.host}")
+    @Value("${elastic.host:elasticsearch:9200}")
     public void setHostname(String hostname) {
         this.hostname = hostname;
     }
@@ -92,7 +91,7 @@ public class ElasticSearchHelper {
                      .startObject("analyzer")
                          .startObject("fulltext_analyzer")
                             .field("tokenizer", "whitespace")
-                            .field("filter", new String[]{"my_word_delimiter_graph", "lowercase", "asciifolding"})
+                            .field("filter", new String[]{"my_word_delimiter_graph", "lowercase", "asciifolding", "english_stop" })
                          .endObject()
                         .startObject("my_email_analyzer")
                             .field("type", "custom")
@@ -103,7 +102,7 @@ public class ElasticSearchHelper {
                     .startObject("filter")
                         .startObject("english_stop")
                             .field("type", "stop")
-                            .field("stopwords", EnglishAnalyzer.ENGLISH_STOP_WORDS_SET.toArray())
+                            .field("stopwords", "_english_")
                         .endObject()
                         .startObject("my_word_delimiter_graph")
                             .field("type", "word_delimiter_graph")
