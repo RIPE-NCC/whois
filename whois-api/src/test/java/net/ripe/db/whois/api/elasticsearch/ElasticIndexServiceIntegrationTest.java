@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Uninterruptibles;
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexMetadata;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Test;
@@ -75,12 +74,12 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
     }
 
     @Override
-    String getWhoisIndex() {
+    public String getWhoisIndex() {
         return WHOIS_INDEX;
     }
 
     @Override
-    String getMetadataIndex() {
+    public String getMetadataIndex() {
         return METADATA_INDEX;
     }
 

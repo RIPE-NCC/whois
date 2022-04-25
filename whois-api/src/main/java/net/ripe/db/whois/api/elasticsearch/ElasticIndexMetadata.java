@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.elasticsearch;
+package net.ripe.db.whois.api.elasticsearch;
 
 public class ElasticIndexMetadata {
     private final Integer serial;
