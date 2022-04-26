@@ -85,50 +85,52 @@ public class ElasticIndexService {
     }
 
     public void addEntry(RpslObject rpslObject) throws IOException {
-        IndexRequest request = new IndexRequest(WHOIS_INDEX);
+        final IndexRequest request = new IndexRequest(whoisIndex);
         request.id(String.valueOf(rpslObject.getObjectId()));
         request.source(json(rpslObject));
         client.index(request, RequestOptions.DEFAULT);
     }
 
     public void deleteEntry(int objectId) throws IOException {
-        DeleteRequest request = new DeleteRequest(WHOIS_INDEX, String.valueOf(objectId));
+        final DeleteRequest request = new DeleteRequest(whoisIndex, String.valueOf(objectId));
         client.delete(request, RequestOptions.DEFAULT);
     }
 
     public void deleteAll() throws IOException {
-        DeleteByQueryRequest request = new DeleteByQueryRequest(WHOIS_INDEX);
+        final DeleteByQueryRequest request = new DeleteByQueryRequest(whoisIndex);
         request.setQuery(QueryBuilders.matchAllQuery());
 
         client.deleteByQuery(request, RequestOptions.DEFAULT);
     }
 
     public long getWhoisDocCount() throws IOException {
-        CountRequest countRequest = new CountRequest(WHOIS_INDEX);
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        final CountRequest countRequest = new CountRequest(whoisIndex);
+        final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-        CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
+        final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
         return countResponse.getCount();
     }
 
     public ElasticIndexMetadata getMetadata() throws IOException {
-        GetRequest request = new GetRequest(METADATA_INDEX, SERIAL_DOC_ID);
-        GetResponse documentFields = client.get(request, RequestOptions.DEFAULT);
+        final GetRequest request = new GetRequest(metadataIndex, SERIAL_DOC_ID);
+        final GetResponse documentFields = client.get(request, RequestOptions.DEFAULT);
         if (documentFields.getSource() == null) {
             return null;
         }
-        return new ElasticIndexMetadata(Integer.parseInt(documentFields.getSource().get("serial").toString()), documentFields.getSource().get("source").toString());
+        return new ElasticIndexMetadata(
+            Integer.parseInt(documentFields.getSource().get("serial").toString()),
+            documentFields.getSource().get("source").toString());
     }
 
     public void updateMetadata(ElasticIndexMetadata metadata) throws IOException {
-        UpdateRequest updateRequest = new UpdateRequest(METADATA_INDEX, SERIAL_DOC_ID);
+        final UpdateRequest updateRequest = new UpdateRequest(metadataIndex, SERIAL_DOC_ID);
 
-        XContentBuilder builder = XContentFactory.jsonBuilder()
+        final XContentBuilder builder = XContentFactory.jsonBuilder()
                 .startObject()
                 .field("serial", metadata.getSerial())
                 .field("source", metadata.getSource())
                 .endObject();
-        UpdateRequest request = updateRequest.doc(builder).upsert(builder);
+        final UpdateRequest request = updateRequest.doc(builder).upsert(builder);
 
         client.update(request, RequestOptions.DEFAULT);
     }
@@ -142,7 +144,7 @@ public class ElasticIndexService {
         }
     }
     private boolean isWhoisIndexExist() {
-        GetIndexRequest request = new GetIndexRequest(WHOIS_INDEX);
+        final GetIndexRequest request = new GetIndexRequest(whoisIndex);
         try {
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
@@ -152,7 +154,7 @@ public class ElasticIndexService {
     }
 
     private boolean isMetaIndexExist() {
-        GetIndexRequest request = new GetIndexRequest(METADATA_INDEX);
+        final GetIndexRequest request = new GetIndexRequest(metadataIndex);
         try {
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
@@ -162,7 +164,7 @@ public class ElasticIndexService {
     }
 
     private XContentBuilder json(final RpslObject rpslObject) throws IOException {
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+        final XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 
         final RpslObject filterRpslObject = filterRpslObject(rpslObject);
         final ObjectTemplate template = ObjectTemplate.getTemplate(filterRpslObject.getType());
@@ -195,7 +197,7 @@ public class ElasticIndexService {
     }
 
     public RpslObject filterRpslObject(final RpslObject rpslObject) {
-        List<RpslAttribute> attributes = Lists.newArrayList();
+        final List<RpslAttribute> attributes = Lists.newArrayList();
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
