@@ -65,22 +65,22 @@ public class ElasticIndexService {
         client.close();
     }
 
-
     public boolean isEnabled() {
-        if(!isElasticRunning()) {
-            LOGGER.info("ES cluster is not running");
+        if (!isElasticRunning()) {
+            LOGGER.debug("Elasticsearch cluster is not running");
             return false;
         }
 
-        if(!isWhoisIndexExist()) {
-            LOGGER.info("ES index does not exists");
+        if (!isWhoisIndexExist()) {
+            LOGGER.debug("Elasticsearch index does not exist");
             return false;
         }
 
-        if(!isMetaIndexExist()) {
-            LOGGER.info("ES metaIndex does not exists");
+        if (!isMetaIndexExist()) {
+            LOGGER.debug("Elasticsearch meta index does not exists");
             return false;
         }
+
         return true;
     }
 
@@ -137,7 +137,7 @@ public class ElasticIndexService {
         try {
             return client.ping(RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.warn("ElasticSearch is not running");
+            LOGGER.info("ElasticSearch is not running, caught {}: {}", e.getClass().getName(), e.getMessage());
             return false;
         }
     }
@@ -146,7 +146,7 @@ public class ElasticIndexService {
         try {
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.warn("Whois index does not exist");
+            LOGGER.info("Whois index does not exist");
             return false;
         }
     }
@@ -156,7 +156,7 @@ public class ElasticIndexService {
         try {
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.warn("Metadata index does not exist");
+            LOGGER.info("Metadata index does not exist");
             return false;
         }
     }
