@@ -31,10 +31,12 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class ElasticFullTextIndex {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFullTextIndex.class);
-    private ElasticIndexService elasticIndexService;
+
+    private static final String TASK_NAME = "elasticFulltextIndexUpdate";
+
+    private final ElasticIndexService elasticIndexService;
     private final JdbcTemplate jdbcTemplate;
     private final String source;
-    private final String TASK_NAME = "elasticFulltextIndexUpdate";
 
     @Autowired
     public ElasticFullTextIndex(final ElasticIndexService elasticIndexService,
@@ -60,7 +62,7 @@ public class ElasticFullTextIndex {
     @SchedulerLock(name = TASK_NAME)
     public void scheduledUpdate() {
         if (!elasticIndexService.isEnabled()) {
-            LOGGER.debug("ES is not enabled");
+            LOGGER.debug("Elasticsearch is not enabled");
             return;
         }
 
@@ -74,7 +76,7 @@ public class ElasticFullTextIndex {
             e.printStackTrace();
         }
 
-        LOGGER.info("Completed updating ES indexes");
+        LOGGER.info("Completed updating Elasticsearch indexes");
     }
 
     protected void update() throws IOException {
@@ -120,15 +122,16 @@ public class ElasticFullTextIndex {
 
     private void rebuild() throws IOException {
         if (!elasticIndexService.isEnabled()) {
-            LOGGER.warn("ES not enabled");
+            LOGGER.info("Elasticsearch not enabled");
             return;
         }
-        LOGGER.info("Rebuilding elastic search indexes");
+        LOGGER.info("Rebuilding Elasticsearch indexes");
 
         elasticIndexService.deleteAll();
         final int maxSerial = JdbcRpslObjectOperations.getSerials(jdbcTemplate).getEnd();
+
         // sadly Executors don't offer a bounded/blocking submit() implementation
-        int numThreads = Runtime.getRuntime().availableProcessors();
+        final int numThreads = Runtime.getRuntime().availableProcessors();
         final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
         final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
                 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
@@ -163,7 +166,7 @@ public class ElasticFullTextIndex {
         }
 
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(maxSerial, source));
-        LOGGER.info("Completed Rebuilding ES indexes");
+        LOGGER.info("Completed Rebuilding Elasticsearch indexes");
     }
 
     private boolean shouldRebuild() throws IOException {
