@@ -71,7 +71,7 @@ public class ElasticAutocompleteSearch implements AutocompleteSearch {
         sourceBuilder.size(MAX_SEARCH_RESULTS);
         sourceBuilder.sort(SORT_BUILDERS);
 
-        final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWHOIS_INDEX());
+        final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWhoisIndex());
         searchRequest.source(sourceBuilder);
         searchRequest.searchType(SearchType.DFS_QUERY_THEN_FETCH);
 

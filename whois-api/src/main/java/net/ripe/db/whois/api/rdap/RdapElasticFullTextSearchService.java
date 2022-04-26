@@ -66,7 +66,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 sourceBuilder.size(maxResultSize);
                 sourceBuilder.sort(SORT_BUILDERS);
 
-                final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWHOIS_INDEX());
+                final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWhoisIndex());
                 searchRequest.source(sourceBuilder);
 
                 final SearchResponse searchResponse = elasticIndexService.getClient().search(searchRequest, RequestOptions.DEFAULT);

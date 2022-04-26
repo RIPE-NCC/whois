@@ -31,10 +31,12 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class ElasticFullTextIndex {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFullTextIndex.class);
-    private ElasticIndexService elasticIndexService;
+
+    private static final String TASK_NAME = "elasticFulltextIndexUpdate";
+
+    private final ElasticIndexService elasticIndexService;
     private final JdbcTemplate jdbcTemplate;
     private final String source;
-    private final String TASK_NAME = "elasticFulltextIndexUpdate";
 
     @Autowired
     public ElasticFullTextIndex(final ElasticIndexService elasticIndexService,
