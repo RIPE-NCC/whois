@@ -102,7 +102,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                         .sort(SORT_BUILDERS)
                         .highlighter(highlightBuilder);
 
-                final org.elasticsearch.action.search.SearchRequest fulltextRequest = new org.elasticsearch.action.search.SearchRequest(elasticIndexService.getWHOIS_INDEX());
+                final org.elasticsearch.action.search.SearchRequest fulltextRequest = new org.elasticsearch.action.search.SearchRequest(elasticIndexService.getWhoisIndex());
                 fulltextRequest.source(sourceBuilder);
 
                 final org.elasticsearch.action.search.SearchResponse fulltextResponse = elasticIndexService.getClient().search(fulltextRequest, RequestOptions.DEFAULT);
