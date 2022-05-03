@@ -68,12 +68,17 @@ public class RewriteEngine {
         syncupdatesVirtualHostRule.addVirtualHost(syncupdatesVirtualHost);
         rewriteHandler.addRule(syncupdatesVirtualHostRule);
 
+        RewriteRegexRule syncupdatesEmptyQueryStringRule = new RewriteRegexRule(
+            "/",
+            String.format("/whois/syncupdates/%s/?HELP=yes", source)
+        );
         RewriteRegexRule syncupdatesRule = new RewriteRegexRule(
             "/(.*)",
             String.format("/whois/syncupdates/%s/$1", source)
         );
 
         syncupdatesRule.setTerminating(true);
+        syncupdatesVirtualHostRule.addRule(syncupdatesEmptyQueryStringRule);
         syncupdatesVirtualHostRule.addRule(syncupdatesRule);
 
         return rewriteHandler;
