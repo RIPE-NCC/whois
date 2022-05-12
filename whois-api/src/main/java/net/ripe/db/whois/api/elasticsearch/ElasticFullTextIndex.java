@@ -96,7 +96,7 @@ public class ElasticFullTextIndex {
             final Stopwatch stopwatch = Stopwatch.createStarted();
 
             for (int serial = last + 1; serial <= end; serial++) {
-                final SerialEntry serialEntry = JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serial);
+                final SerialEntry serialEntry = getSerialEntry(serial);
                 if (serialEntry == null) {
                     // suboptimal;there could be big gaps in serial entries.
                     continue;
@@ -118,6 +118,15 @@ public class ElasticFullTextIndex {
         }
 
         elasticIndexService.updateMetadata(new ElasticIndexMetadata(end, source));
+    }
+
+    private SerialEntry getSerialEntry(int serial) {
+        try {
+            return JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serial);
+        } catch (Exception e) {
+            LOGGER.debug("SerialDao.getById({})", serial, e);
+            return null;
+        }
     }
 
     private void rebuild() throws IOException {
