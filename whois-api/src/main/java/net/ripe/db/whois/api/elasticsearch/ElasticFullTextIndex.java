@@ -124,7 +124,7 @@ public class ElasticFullTextIndex {
         try {
             return JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serial);
         } catch (Exception e) {
-            LOGGER.debug("SerialDao.getById({})", serial, e);
+            LOGGER.debug("Caught exception reading serial {} from the database, Ignoring", serial, e);
             return null;
         }
     }
