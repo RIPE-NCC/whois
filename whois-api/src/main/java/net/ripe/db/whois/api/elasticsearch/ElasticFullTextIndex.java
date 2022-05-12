@@ -190,7 +190,7 @@ public class ElasticFullTextIndex {
             return true;
         }
 
-        if (committedMetadata.getSerial() == null) {
+        if (committedMetadata.getSerial() == 0) {
             LOGGER.warn("Index is missing serial, rebuild");
             return true;
         }
