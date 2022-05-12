@@ -76,6 +76,9 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
     @Test
     public void should_not_throw_error_invalid_objectType_history() throws IOException {
         elasticIndexService.addEntry(RPSL_MNT_PERSON);
+        ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "RIPE");
+        elasticIndexService.updateMetadata(elasticIndexMetadata);
+
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         // one document after adding
         assertEquals(elasticIndexService.getWhoisDocCount(), 1);
