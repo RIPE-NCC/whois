@@ -73,6 +73,37 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
         assertEquals("RIPE", retrievedMetaData.getSource());
     }
 
+    @Test
+    public void should_not_throw_error_invalid_objectType_history() throws IOException {
+        elasticIndexService.addEntry(RPSL_MNT_PERSON);
+        ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "RIPE");
+        elasticIndexService.updateMetadata(elasticIndexMetadata);
+
+        Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
+        // one document after adding
+        assertEquals(elasticIndexService.getWhoisDocCount(), 1);
+
+         whoisTemplate.update("INSERT INTO serials "
+                        + " (serial_id, object_id, sequence_id, atlast, operation) "
+                        + " VALUES "
+                        + " (2, 1880251, 1, 0, 1)");
+
+        whoisTemplate.update("INSERT INTO last "
+                + " (object_id, sequence_id, object, object_type, pkey) "
+                + " VALUES "
+                + " (1880251, 0, '', 8,'LIM-WEBUPDATES')");
+
+        whoisTemplate.update("INSERT INTO history "
+                + " (object_id, sequence_id, object_type, object, pkey) "
+                + " VALUES "
+                + " (1880251, 1, 8,'limerick:     LIM-WEBUPDATES\n" +
+                                    "changed:      limerick-dbm@ripe.net 20021107\n" +
+                                    "source:       RIPE', 'LIM-WEBUPDATES')");
+
+        rebuildIndex();
+        assertEquals(elasticIndexService.getWhoisDocCount(), 1);
+    }
+
     @Override
     public String getWhoisIndex() {
         return WHOIS_INDEX;
