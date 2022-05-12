@@ -48,6 +48,10 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         this.params = params;
     }
 
+    public void setClientVersion(final String version) {
+        this.params.setClientVersion(version);
+    }
+
     private List<StartDomainTestRequest.Nameserver> parseNameservers(final Set<CIString> nserverValues) {
         final List<StartDomainTestRequest.Nameserver> nameservers = Lists.newArrayList();
         for (CIString nserverValue : nserverValues) {
@@ -123,6 +127,10 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
 
         public void setDomain(final String domain) {
             this.domain = domain;
+        }
+
+        public void setClientVersion(final String clientVersion) {
+            this.clientVersion = clientVersion;
         }
 
         @Override
