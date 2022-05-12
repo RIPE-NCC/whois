@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.dns.zonemaster;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Uninterruptibles;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
@@ -43,9 +44,11 @@ public class ZonemasterDnsGateway implements DnsGateway {
     private static final ImmutableList<String> ERROR_LEVELS = ImmutableList.of("CRITICAL", "ERROR");
 
     private final ZonemasterRestClient zonemasterRestClient;
+    private final ApplicationVersion applicationVersion;
 
-    public ZonemasterDnsGateway(final ZonemasterRestClient zonemasterRestClient) {
+    public ZonemasterDnsGateway(final ZonemasterRestClient zonemasterRestClient, final ApplicationVersion applicationVersion) {
         this.zonemasterRestClient = zonemasterRestClient;
+        this.applicationVersion = applicationVersion;
     }
 
     @Override
@@ -87,6 +90,7 @@ public class ZonemasterDnsGateway implements DnsGateway {
          */
         private String makeRequest(final DnsCheckRequest dnsCheckRequest) {
             final StartDomainTestRequest request = new StartDomainTestRequest(dnsCheckRequest);
+            request.setClientVersion(applicationVersion.getVersion());
 
             final StartDomainTestResponse response = zonemasterRestClient
                 .sendRequest(request)
