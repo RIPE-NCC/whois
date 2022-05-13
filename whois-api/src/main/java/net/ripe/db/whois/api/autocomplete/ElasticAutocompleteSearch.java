@@ -2,7 +2,8 @@ package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.elasticsearch.ElasticIndexService;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.elasticsearch.action.search.SearchRequest;
@@ -15,6 +16,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
@@ -35,6 +37,7 @@ public class ElasticAutocompleteSearch implements AutocompleteSearch {
 
     private static final int MAX_SEARCH_RESULTS = 10;
     private static final Pattern COMMENT_PATTERN = Pattern.compile("#.*");
+    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("string"));
 
     private final ElasticIndexService elasticIndexService;
 
@@ -66,9 +69,9 @@ public class ElasticAutocompleteSearch implements AutocompleteSearch {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(finalQuery);
         sourceBuilder.size(MAX_SEARCH_RESULTS);
-        sourceBuilder.sort(Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("primary-key.keyword")));
+        sourceBuilder.sort(SORT_BUILDERS);
 
-        final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWHOIS_INDEX());
+        final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWhoisIndex());
         searchRequest.source(sourceBuilder);
         searchRequest.searchType(SearchType.DFS_QUERY_THEN_FETCH);
 
@@ -81,8 +84,8 @@ public class ElasticAutocompleteSearch implements AutocompleteSearch {
             final Map<String, Object>  attributes = hit.getSourceAsMap();
 
             final Map<String, Object> result = Maps.newLinkedHashMap();
-            result.put("key", attributes.get("primary-key"));
-            result.put("type", attributes.get("object-type"));
+            result.put("key", attributes.get(FullTextIndex.LOOKUP_KEY_FIELD_NAME));
+            result.put("type", attributes.get(FullTextIndex.OBJECT_TYPE_FIELD_NAME));
 
             for (final AttributeType responseAttribute : responseAttributes) {
 

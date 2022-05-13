@@ -1,8 +1,9 @@
-package net.ripe.db.whois.common.elasticsearch;
+package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -20,8 +21,8 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -40,23 +41,23 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class ElasticIndexService {
     private static final Logger LOGGER = getLogger(ElasticIndexService.class);
-    private final RestHighLevelClient client;
-    private static final String SERIAL_DOC_ID = "1";
-    private final String WHOIS_INDEX;
-    private final String METADATA_INDEX;
 
-    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED), AttributeType.class);
+    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
     private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
 
+    private static final String SERIAL_DOC_ID = "1";
+
+    private final RestHighLevelClient client;
+    private final String whoisIndex;
+    private final String metadataIndex;
 
     @Autowired
-    public ElasticIndexService(@Value("${elastic.host:localhost}") final String elasticHost,
-                               @Value("${elastic.port:9200}") final int elasticPort,
+    public ElasticIndexService(@Value("#{'${elastic.host:localhost:9200}'.split(',')}") final List<String> elasticHosts,
                                @Value("${elastic.whois.index:whois}") final String whoisIndexName,
                                @Value("${elastic.commit.index:metadata}") final String whoisMetadataIndexName) {
-        this.WHOIS_INDEX = whoisIndexName;
-        this.METADATA_INDEX = whoisMetadataIndexName;
-        RestClientBuilder clientBuilder = RestClient.builder(new HttpHost(elasticHost, elasticPort));
+        this.whoisIndex = whoisIndexName;
+        this.metadataIndex = whoisMetadataIndexName;
+        final RestClientBuilder clientBuilder = RestClient.builder(elasticHosts.stream().map( (host) -> HttpHost.create(host)).toArray(HttpHost[]::new));
         client = new RestHighLevelClient(clientBuilder);
     }
 
@@ -65,70 +66,72 @@ public class ElasticIndexService {
         client.close();
     }
 
-
     public boolean isEnabled() {
-        if(!isElasticRunning()) {
-            LOGGER.info("ES cluster is not running");
+        if (!isElasticRunning()) {
+            LOGGER.debug("Elasticsearch cluster is not running");
             return false;
         }
 
-        if(!isWhoisIndexExist()) {
-            LOGGER.info("ES index does not exists");
+        if (!isWhoisIndexExist()) {
+            LOGGER.debug("Elasticsearch index does not exist");
             return false;
         }
 
-        if(!isMetaIndexExist()) {
-            LOGGER.info("ES metaIndex does not exists");
+        if (!isMetaIndexExist()) {
+            LOGGER.debug("Elasticsearch meta index does not exists");
             return false;
         }
+
         return true;
     }
 
     public void addEntry(RpslObject rpslObject) throws IOException {
-        IndexRequest request = new IndexRequest(WHOIS_INDEX);
+        final IndexRequest request = new IndexRequest(whoisIndex);
         request.id(String.valueOf(rpslObject.getObjectId()));
         request.source(json(rpslObject));
         client.index(request, RequestOptions.DEFAULT);
     }
 
     public void deleteEntry(int objectId) throws IOException {
-        DeleteRequest request = new DeleteRequest(WHOIS_INDEX, String.valueOf(objectId));
+        final DeleteRequest request = new DeleteRequest(whoisIndex, String.valueOf(objectId));
         client.delete(request, RequestOptions.DEFAULT);
     }
 
     public void deleteAll() throws IOException {
-        DeleteByQueryRequest request = new DeleteByQueryRequest(WHOIS_INDEX);
+        final DeleteByQueryRequest request = new DeleteByQueryRequest(whoisIndex);
         request.setQuery(QueryBuilders.matchAllQuery());
 
         client.deleteByQuery(request, RequestOptions.DEFAULT);
     }
 
     public long getWhoisDocCount() throws IOException {
-        CountRequest countRequest = new CountRequest(WHOIS_INDEX);
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        final CountRequest countRequest = new CountRequest(whoisIndex);
+        final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-        CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
+        final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
         return countResponse.getCount();
     }
 
     public ElasticIndexMetadata getMetadata() throws IOException {
-        GetRequest request = new GetRequest(METADATA_INDEX, SERIAL_DOC_ID);
-        GetResponse documentFields = client.get(request, RequestOptions.DEFAULT);
+        final GetRequest request = new GetRequest(metadataIndex, SERIAL_DOC_ID);
+        final GetResponse documentFields = client.get(request, RequestOptions.DEFAULT);
         if (documentFields.getSource() == null) {
             return null;
         }
-        return new ElasticIndexMetadata(Integer.parseInt(documentFields.getSource().get("serial").toString()), documentFields.getSource().get("source").toString());
+        return new ElasticIndexMetadata(
+            Integer.parseInt(documentFields.getSource().get("serial").toString()),
+            documentFields.getSource().get("source").toString());
     }
 
     public void updateMetadata(ElasticIndexMetadata metadata) throws IOException {
-        UpdateRequest updateRequest = new UpdateRequest(METADATA_INDEX, SERIAL_DOC_ID);
+        final UpdateRequest updateRequest = new UpdateRequest(metadataIndex, SERIAL_DOC_ID);
 
-        XContentBuilder builder = XContentFactory.jsonBuilder()
+        final XContentBuilder builder = XContentFactory.jsonBuilder()
                 .startObject()
                 .field("serial", metadata.getSerial())
                 .field("source", metadata.getSource())
                 .endObject();
-        UpdateRequest request = updateRequest.doc(builder).upsert(builder);
+        final UpdateRequest request = updateRequest.doc(builder).upsert(builder);
 
         client.update(request, RequestOptions.DEFAULT);
     }
@@ -137,32 +140,32 @@ public class ElasticIndexService {
         try {
             return client.ping(RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.warn("ElasticSearch is not running");
+            LOGGER.info("ElasticSearch is not running, caught {}: {}", e.getClass().getName(), e.getMessage());
             return false;
         }
     }
     private boolean isWhoisIndexExist() {
-        GetIndexRequest request = new GetIndexRequest(WHOIS_INDEX);
+        final GetIndexRequest request = new GetIndexRequest(whoisIndex);
         try {
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.warn("Whois index does not exist");
+            LOGGER.info("Whois index does not exist");
             return false;
         }
     }
 
     private boolean isMetaIndexExist() {
-        GetIndexRequest request = new GetIndexRequest(METADATA_INDEX);
+        final GetIndexRequest request = new GetIndexRequest(metadataIndex);
         try {
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
-            LOGGER.warn("Metadata index does not exist");
+            LOGGER.info("Metadata index does not exist");
             return false;
         }
     }
 
     private XContentBuilder json(final RpslObject rpslObject) throws IOException {
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+        final XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 
         final RpslObject filterRpslObject = filterRpslObject(rpslObject);
         final ObjectTemplate template = ObjectTemplate.getTemplate(filterRpslObject.getType());
@@ -180,8 +183,8 @@ public class ElasticIndexService {
             }
         }
 
-        builder.field("primary-key", filterRpslObject.getKey().toString());
-        builder.field("object-type", filterRpslObject.getType().getName());
+        builder.field(FullTextIndex.LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
+        builder.field(FullTextIndex.OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
 
         return builder.endObject();
     }
@@ -190,12 +193,12 @@ public class ElasticIndexService {
         return client;
     }
 
-    public String getWHOIS_INDEX() {
-        return WHOIS_INDEX;
+    public String getWhoisIndex() {
+        return whoisIndex;
     }
 
     public RpslObject filterRpslObject(final RpslObject rpslObject) {
-        List<RpslAttribute> attributes = Lists.newArrayList();
+        final List<RpslAttribute> attributes = Lists.newArrayList();
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
