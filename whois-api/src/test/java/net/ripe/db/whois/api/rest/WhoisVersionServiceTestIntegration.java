@@ -120,21 +120,17 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
 
         final List<WhoisVersion> versions = whoisResources.getVersions().getVersions();
-        assertThat(versions, hasSize(3));
-        assertThat(versions.get(0).getDeletedDate(), is(not(nullValue())));
-        assertThat(versions.get(0).getOperation(), is(nullValue()));
-        assertThat(versions.get(0).getDate(), is(nullValue()));
-        assertThat(versions.get(0).getRevision(), is(nullValue()));
+        assertThat(versions, hasSize(2));
+
+        assertThat(versions.get(0).getDeletedDate(), is(nullValue()));
+        assertThat(versions.get(0).getOperation(), is("ADD/UPD"));
+        assertThat(versions.get(0).getRevision(), is(1));
+        assertThat(versions.get(0).getDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
 
         assertThat(versions.get(1).getDeletedDate(), is(nullValue()));
         assertThat(versions.get(1).getOperation(), is("ADD/UPD"));
-        assertThat(versions.get(1).getRevision(), is(1));
+        assertThat(versions.get(1).getRevision(), is(2));
         assertThat(versions.get(1).getDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
-
-        assertThat(versions.get(2).getDeletedDate(), is(nullValue()));
-        assertThat(versions.get(2).getOperation(), is("ADD/UPD"));
-        assertThat(versions.get(2).getRevision(), is(2));
-        assertThat(versions.get(2).getDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
     }
 
     @Test
@@ -165,21 +161,17 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
 
         final List<WhoisVersion> versions = whoisResources.getVersions().getVersions();
-        assertThat(versions, hasSize(3));
-        assertThat(versions.get(0).getDeletedDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
-        assertThat(versions.get(0).getOperation(), is(nullValue()));
-        assertThat(versions.get(0).getDate(), is(nullValue()));
-        assertThat(versions.get(0).getRevision(), is(nullValue()));
+        assertThat(versions, hasSize(2));
+
+        assertThat(versions.get(0).getDeletedDate(), is(nullValue()));
+        assertThat(versions.get(0).getOperation(), is("ADD/UPD"));
+        assertThat(versions.get(0).getRevision(), is(1));
+        assertThat(versions.get(0).getDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
 
         assertThat(versions.get(1).getDeletedDate(), is(nullValue()));
         assertThat(versions.get(1).getOperation(), is("ADD/UPD"));
-        assertThat(versions.get(1).getRevision(), is(1));
+        assertThat(versions.get(1).getRevision(), is(2));
         assertThat(versions.get(1).getDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
-
-        assertThat(versions.get(2).getDeletedDate(), is(nullValue()));
-        assertThat(versions.get(2).getOperation(), is("ADD/UPD"));
-        assertThat(versions.get(2).getRevision(), is(2));
-        assertThat(versions.get(2).getDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
     }
 
     @Test
@@ -201,11 +193,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
 
         final List<WhoisVersion> versions = whoisResources.getVersions().getVersions();
-        assertThat(versions, hasSize(1));
-        assertThat(versions.get(0).getDeletedDate(), stringMatchesRegexp(VERSION_DATE_PATTERN));
-        assertThat(versions.get(0).getOperation(), is(nullValue()));
-        assertThat(versions.get(0).getDate(), is(nullValue()));
-        assertThat(versions.get(0).getRevision(), is(nullValue()));
+        assertThat(versions, hasSize(0));
     }
 
     @Test
