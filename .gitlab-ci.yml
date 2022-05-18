@@ -91,7 +91,7 @@ whois-groovy-test:
 whois-integration-test:
   <<: *it_env
   services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.17.3
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
       alias: "elasticsearch"
       command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     - mariadb:10.2
