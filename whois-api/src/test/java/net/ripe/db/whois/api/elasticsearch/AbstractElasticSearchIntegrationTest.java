@@ -35,7 +35,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     public static void setUpElasticCluster() {
         if (StringUtils.isBlank(System.getProperty(ENV_DISABLE_TEST_CONTAINERS))) {
             if (elasticsearchContainer == null) {
-                elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.17.3");
+                elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
                 elasticsearchContainer.start();
             }
 
