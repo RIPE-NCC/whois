@@ -96,7 +96,7 @@ public class WhoisVersionService {
         final List<WhoisVersion> mappedVersions = whoisObjectServerMapper.mapVersions(deleted, versions);
         // if an object existed and was later deleted, the 'delete' will show up as the first version in the list --
         // filter it out.
-        while (mappedVersions.size() > 0 && mappedVersions.get(0).getDeletedDate() != null) {
+        while (!mappedVersions.isEmpty() && mappedVersions.get(0).getDeletedDate() != null) {
             mappedVersions.remove(0);
         }
         final WhoisVersions whoisVersions = new WhoisVersions(type, key, mappedVersions);
