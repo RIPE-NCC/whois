@@ -107,6 +107,16 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject(autnum);
         databaseHelper.updateObject("" +
                 "aut-num:        AS102\n" +
+                "as-name:        End-User-3\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.deleteObject(autnum);
+        databaseHelper.addObject(autnum);
+        databaseHelper.updateObject("" +
+                "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
                 "descr:          description\n" +
                 "admin-c:        TP1-TEST\n" +
