@@ -5,6 +5,7 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -91,8 +92,14 @@ public class WhoisVersionService {
                     .build());
         }
 
-        final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-        final WhoisVersions whoisVersions = new WhoisVersions(type, key, whoisObjectServerMapper.mapVersions(deleted, versions));
+        final String type = versions.size() > 0 ? versions.get(0).getType().getName() : deleted.get(0).getType().getName();
+        final List<WhoisVersion> mappedVersions = whoisObjectServerMapper.mapVersions(deleted, versions);
+        // if an object existed and was later deleted, the 'delete' will show up as the first version in the list --
+        // filter it out.
+        while (!mappedVersions.isEmpty() && mappedVersions.get(0).getDeletedDate() != null) {
+            mappedVersions.remove(0);
+        }
+        final WhoisVersions whoisVersions = new WhoisVersions(type, key, mappedVersions);
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setVersions(whoisVersions);
@@ -155,7 +162,7 @@ public class WhoisVersionService {
         }
     }
 
-    private class VersionsResponseHandler extends ApiResponseHandler {
+    private static class VersionsResponseHandler extends ApiResponseHandler {
         final List<VersionResponseObject> versionObjects = Lists.newArrayList();
         final List<DeletedVersionResponseObject> deletedObjects = Lists.newArrayList();
         VersionWithRpslResponseObject versionWithRpslResponseObject;
