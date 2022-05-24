@@ -557,11 +557,6 @@
                 <version>${lucene.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.aspectj</groupId>
-                <artifactId>aspectjrt</artifactId>
-                <version>${aspectj.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-highlighter</artifactId>
                 <version>${lucene.version}</version>
@@ -1016,7 +1011,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.aspectj</groupId>
-                        <artifactId>aspectjrt</artifactId>
+                        <artifactId>aspectjweaver</artifactId>
                         <version>${aspectj.version}</version>
                     </dependency>
                     <dependency>
