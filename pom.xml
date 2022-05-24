@@ -29,7 +29,7 @@
 
         <!-- dependencies -->
 
-        <aspectj.version>1.9.7</aspectj.version>
+        <aspectj.version>1.9.9.1</aspectj.version>
         <awaitility.version>4.1.1</awaitility.version>
 
         <bouncycastle.version>1.70</bouncycastle.version>
@@ -559,7 +559,7 @@
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
-                <version>1.9.8.RC1</version>
+                <version>${aspectj.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
@@ -1017,12 +1017,12 @@
                     <dependency>
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjrt</artifactId>
-                        <version>1.9.8.RC1</version>
+                        <version>${aspectj.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjtools</artifactId>
-                        <version>1.9.8.RC1</version>
+                        <version>${aspectj.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
