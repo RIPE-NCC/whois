@@ -13,7 +13,7 @@ import java.util.zip.GZIPInputStream;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ExportRunner extends AbstractScenarioRunner {
     private static final String EXPORT_DIR = "var" + System.getProperty("jvmId") + "/export";

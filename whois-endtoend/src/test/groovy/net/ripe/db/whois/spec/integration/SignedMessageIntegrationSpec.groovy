@@ -1,12 +1,12 @@
 package net.ripe.db.whois.spec.integration
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import java.time.LocalDateTime
 import org.springframework.test.util.ReflectionTestUtils
 import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
     //FIXME [TP] this workaround with the authenticator and the principalsMap is a hack to...
     //FIXME [TP] ...temporarilly allow hierarchical *mail*updates with power maintainers. Do not replicate this logic.
@@ -2904,7 +2904,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:       -----END CERTIFICATE-----
                 mnt-by:       OWNER-MNT
                 source:       TEST
-                password:     owner
+                override: denis, override1 
              """.stripIndent())
     then:
       syncUpdate new SyncUpdate(data:
@@ -3920,7 +3920,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
 
-  @Ignore("TODO: [ES] We do not support base64 encoded content yet")
   def "pgp signed message with base64 encoded content"() {
     given:
       setTime(LocalDateTime.parse("2021-09-29T11:23:22")) // current time is >1 hour after signing time

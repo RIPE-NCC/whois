@@ -136,6 +136,12 @@
         </dependency>
 
         <!-- testing -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>1.16.2</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>net.ripe.db</groupId>

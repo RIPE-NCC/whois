@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.rest;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
@@ -13,10 +13,11 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.mail.Address;
@@ -42,11 +43,11 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String MNTNER_TEST_MNTNER = "" +
@@ -71,7 +72,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     private IpRanges ipRanges;
 
     @Test
-    public void empty_request() {
+    public void get_empty_request() {
         try {
             RestTest.target(getPort(), "whois/syncupdates/test")
                     .request()
@@ -109,7 +110,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
     }
 
-    @Ignore("TODO: [ES] post without content type returns internal server error")
+    @Disabled("TODO: [ES] post without content type returns internal server error")
     @Test
     public void post_without_content_type() throws Exception {
         assertThat(postWithoutContentType(), not(containsString("Internal Server Error")));
@@ -778,6 +779,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
                 containsString("address:        ???????? ?????,??????"));
+    }
+
+    @Test
+    public void post_empty_body() {
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post( null);
+
+        assertThat(response.getStatus(), is(HttpStatus.BAD_REQUEST_400));
     }
 
     @Test

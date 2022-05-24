@@ -11,12 +11,12 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.ContentType;
@@ -37,12 +37,13 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MessageParserTest {
     @Mock MimeMessage mimeMessage;
     @Mock UpdateContext updateContext;
@@ -50,11 +51,11 @@ public class MessageParserTest {
     @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks MessageParser subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        when(mimeMessage.getContentType()).thenReturn("text/plain");
-        when(mimeMessage.getContent()).thenReturn("1234");
-        when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(ZonedDateTime.now(ZoneOffset.UTC));
+        lenient().when(mimeMessage.getContentType()).thenReturn("text/plain");
+        lenient().when(mimeMessage.getContent()).thenReturn("1234");
+        lenient().when(dateTimeProvider.getCurrentZonedDateTime()).thenReturn(ZonedDateTime.now(ZoneOffset.UTC));
     }
 
     @Test

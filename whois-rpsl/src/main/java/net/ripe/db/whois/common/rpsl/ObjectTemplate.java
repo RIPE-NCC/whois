@@ -64,6 +64,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.FILTER;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FILTER_SET;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FINGERPR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FORM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.GEOFEED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
 import static net.ripe.db.whois.common.rpsl.AttributeType.HOLES;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IFADDR;
@@ -251,6 +252,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NETNAME, MANDATORY, SINGLE, LOOKUP_KEY),
                         new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(COUNTRY, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(GEOFEED, OPTIONAL, SINGLE),
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
@@ -276,6 +278,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NETNAME, MANDATORY, SINGLE, LOOKUP_KEY),
                         new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(COUNTRY, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(GEOFEED, OPTIONAL, SINGLE),
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),

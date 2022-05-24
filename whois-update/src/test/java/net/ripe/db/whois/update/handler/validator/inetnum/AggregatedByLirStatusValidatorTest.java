@@ -15,24 +15,24 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AggregatedByLirStatusValidatorTest {
     @Mock UpdateContext updateContext;
     @Mock PreparedUpdate update;
@@ -41,10 +41,10 @@ public class AggregatedByLirStatusValidatorTest {
     @Mock RpslObjectDao rpslObjectDao;
     @InjectMocks AggregatedByLirStatusValidator subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Lists.newArrayList(new Ipv6Entry(Ipv6Resource.parse("::0/0"), 0)));
-        when(rpslObjectDao.getById(0)).thenReturn(RpslObject.parse("" + "" +
+        lenient().when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Lists.newArrayList(new Ipv6Entry(Ipv6Resource.parse("::0/0"), 0)));
+        lenient().when(rpslObjectDao.getById(0)).thenReturn(RpslObject.parse("" + "" +
                 "inet6num:       0::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "status:         ALLOCATED-BY-RIR\n" +

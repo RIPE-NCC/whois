@@ -1,20 +1,20 @@
 package net.ripe.db.whois.nrtm.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Autowired
@@ -22,12 +22,12 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
     @Autowired
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
 
-    @Before
+    @BeforeEach
     public void before() throws InterruptedException {
         nrtmServer.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         nrtmServer.stop(true);
     }

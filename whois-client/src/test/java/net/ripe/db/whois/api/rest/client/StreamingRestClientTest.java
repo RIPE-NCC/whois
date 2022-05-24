@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.rest.client;
 
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.ExecutorService;

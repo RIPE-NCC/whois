@@ -1,11 +1,12 @@
 package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 
@@ -13,13 +14,13 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WhoisRestApiTest {
     @Mock DateTimeProvider dateTimeProvider;
 
     private WhoisRestApi subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new WhoisRestApi(dateTimeProvider, "127.0.0.1");
     }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.common.source.IllegalSourceException;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.glassfish.jersey.server.ParamException;
 import org.slf4j.Logger;
@@ -72,6 +73,9 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         if (exception instanceof QueryException) {
+            if ( ((QueryException) exception).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+                return createErrorResponse(Response.Status.TOO_MANY_REQUESTS, exception.getMessage());
+            }
             return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
         }
 

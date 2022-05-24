@@ -10,26 +10,26 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OrgAttributeNotChangedValidatorTest {
     @Mock private UpdateContext updateContext;
     @Mock private PreparedUpdate update;
@@ -37,13 +37,13 @@ public class OrgAttributeNotChangedValidatorTest {
     @Mock private Maintainers maintainers;
     @InjectMocks private OrgAttributeNotChangedValidator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(maintainers.isRsMaintainer(ciSet("OTHER-MNT"))).thenReturn(false);
+        /*when(maintainers.isRsMaintainer(ciSet("OTHER-MNT"))).thenReturn(false);
         when(maintainers.isRsMaintainer(ciSet("TEST-MNT"))).thenReturn(false);
         when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-END-MNT"))).thenReturn(true);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"))).thenReturn(true);
+        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);*/
+        lenient().when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"))).thenReturn(true);
     }
 
     @Test
@@ -284,6 +284,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
     @Test
     public void validate_modify_resource_maintained_by_ripe_auth_by_other_mnt_for_aut_num() {
+        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
+
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "org: ORG-RT-TEST\n" +
@@ -392,6 +394,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
     @Test
     public void validate_delete_resource_maintained_by_ripe_auth_by_other_mnt_for_aut_num() {
+        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
+
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "org: ORG-RT-TEST\n" +
@@ -497,7 +501,6 @@ public class OrgAttributeNotChangedValidatorTest {
 
     @Test
     public void validate_resource_maintained_by_ripe_for_aut_num() {
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.TRUE);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
 
         final RpslObject original = RpslObject.parse("" +
@@ -608,8 +611,6 @@ public class OrgAttributeNotChangedValidatorTest {
 
     @Test
     public void validate_resource_not_maintained_by_ripe_override_for_aut_num() {
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
-        when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
 
         final RpslObject original = RpslObject.parse("" +

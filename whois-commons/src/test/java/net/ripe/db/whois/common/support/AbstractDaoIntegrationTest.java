@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -18,7 +18,7 @@ public abstract class AbstractDaoIntegrationTest extends AbstractDatabaseHelperI
     @Autowired protected SourceAwareDataSource sourceAwareDataSource;
     @Autowired protected IpTreeUpdater ipTreeUpdater;
 
-    @Before
+    @BeforeEach
     public void resetIpTrees() {
         ipTreeUpdater.rebuild();
     }

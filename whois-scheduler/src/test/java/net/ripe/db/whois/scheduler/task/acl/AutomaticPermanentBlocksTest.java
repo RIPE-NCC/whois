@@ -6,17 +6,17 @@ import net.ripe.db.whois.common.domain.BlockEvents;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import java.time.LocalDate;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetAddress;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -27,12 +27,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AutomaticPermanentBlocksTest {
 
     private static final String IPV6_PREFIX = "2001:67c:2e8:1:0:0:0:0/64";
@@ -46,11 +47,11 @@ public class AutomaticPermanentBlocksTest {
 
     LocalDate now;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         now = LocalDate.now();
         when(dateTimeProvider.getCurrentDate()).thenReturn(now);
-        when(ipResourceConfiguration.getLimit(any(InetAddress.class))).thenReturn(QUERY_LIMIT);
+        lenient().when(ipResourceConfiguration.getLimit(any(InetAddress.class))).thenReturn(QUERY_LIMIT);
     }
 
     @Test
@@ -62,7 +63,7 @@ public class AutomaticPermanentBlocksTest {
 
     @Test
     public void test_run_no_temporary_blocks() throws Exception {
-        when(accessControlListDao.getTemporaryBlocks(now)).thenReturn(Collections.<BlockEvents>emptyList());
+        lenient().when(accessControlListDao.getTemporaryBlocks(now)).thenReturn(Collections.<BlockEvents>emptyList());
 
         subject.run();
 

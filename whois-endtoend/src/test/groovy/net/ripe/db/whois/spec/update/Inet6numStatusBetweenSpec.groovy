@@ -1,8 +1,8 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {

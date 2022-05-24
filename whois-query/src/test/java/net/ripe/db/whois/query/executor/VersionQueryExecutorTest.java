@@ -10,18 +10,16 @@ import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -31,15 +29,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class VersionQueryExecutorTest {
     @Mock VersionInfo versionInfo1;
     @Mock VersionInfo versionInfo2;
@@ -48,11 +46,6 @@ public class VersionQueryExecutorTest {
 
     @Mock VersionDao versionDao;
     @InjectMocks VersionQueryExecutor subject;
-
-    @Before
-    public void setup() {
-        when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
-    }
 
     @Test
     public void supportTest() {
@@ -63,7 +56,7 @@ public class VersionQueryExecutorTest {
 
     @Test
     public void notFoundList() {
-
+        when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
         subject.execute(Query.parse("--list-versions IRT-THISONE"), responseHandler);
 
@@ -215,8 +208,8 @@ public class VersionQueryExecutorTest {
     }
 
     private void setupVersionMock(final VersionInfo mock, final int objectId, final String timestamp) {
-        when(mock.getOperation()).thenReturn(Operation.UPDATE);
-        when(mock.getTimestamp()).thenReturn(new VersionDateTime(mapTimestampToUtc(timestamp)));
+        lenient().when(mock.getOperation()).thenReturn(Operation.UPDATE);
+        lenient().when(mock.getTimestamp()).thenReturn(new VersionDateTime(mapTimestampToUtc(timestamp)));
     }
 
     // convert timestamp to UTC for consistency (i.e. ignore the timezone difference for testing)

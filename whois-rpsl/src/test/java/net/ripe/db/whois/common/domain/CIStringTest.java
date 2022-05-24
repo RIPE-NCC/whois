@@ -1,16 +1,17 @@
 package net.ripe.db.whois.common.domain;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CIStringTest {
     @Test
@@ -131,13 +132,17 @@ public class CIStringTest {
         assertThat(ciString("312").toInt(), is(312));
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void toInt_empty() {
-        ciString("").toInt();
+        Assertions.assertThrows(NumberFormatException.class, () -> {
+            ciString("").toInt();
+        });
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void toInt_invalid() {
-        ciString("a").toInt();
+        Assertions.assertThrows(NumberFormatException.class, () -> {
+            ciString("a").toInt();
+        });
     }
 }

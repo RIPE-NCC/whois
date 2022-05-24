@@ -3,19 +3,19 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class IndexStrategyAdapterTest {
     public static final AttributeType ATTRIBUTE_TYPE = AttributeType.ORG;
     IndexStrategyAdapter subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new IndexStrategyAdapter(ATTRIBUTE_TYPE) {
         };

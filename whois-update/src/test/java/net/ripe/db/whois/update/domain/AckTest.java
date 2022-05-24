@@ -3,8 +3,8 @@ package net.ripe.db.whois.update.domain;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class AckTest {
     private List<UpdateResult> updateResults;
     private List<Paragraph> ignoredParagraphs;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         updateResults = Lists.newArrayList();
         ignoredParagraphs = Lists.newArrayList();

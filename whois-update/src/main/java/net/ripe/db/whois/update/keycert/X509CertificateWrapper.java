@@ -6,20 +6,25 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import org.bouncycastle.jce.provider.X509CertParser;
-import org.bouncycastle.x509.util.StreamParsingException;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 public final class X509CertificateWrapper implements KeyWrapper {
+
+    private static final Provider PROVIDER = new BouncyCastleProvider();
+
     public static final String X509_HEADER = "-----BEGIN CERTIFICATE-----";
     public static final String X509_FOOTER = "-----END CERTIFICATE-----";
 
@@ -36,31 +41,30 @@ public final class X509CertificateWrapper implements KeyWrapper {
             throw new IllegalArgumentException("The supplied object has no key");
         }
 
-        try {
-            return parse(RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(StandardCharsets.ISO_8859_1));
-        } catch (StreamParsingException e) {
-            throw new IllegalArgumentException("Error parsing X509 certificate from key-cert object", e);
-        }
+        return parse(RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(StandardCharsets.ISO_8859_1));
     }
 
-    static X509CertificateWrapper parse(final String certificate) throws StreamParsingException {
+    static X509CertificateWrapper parse(final String certificate) {
         return parse(certificate.getBytes());
     }
 
-    public static X509CertificateWrapper parse(final byte[] certificate) throws StreamParsingException {
-        // TODO: [ES] Replace deprecated X509CertParser with (new java.security.cert.CertificateFactory()).generateCertificate(new ByteArrayInputStream(certificate))
-        final X509CertParser parser = new X509CertParser();
-        parser.engineInit(new ByteArrayInputStream(certificate));
-        final X509Certificate result = (X509Certificate) parser.engineRead();
-        if (result == null) {
-            throw new IllegalArgumentException("Invalid X509 Certificate");
+    public static X509CertificateWrapper parse(final byte[] certificate) {
+        final X509Certificate result;
+        try {
+            final CertificateFactory factory = CertificateFactory.getInstance("X.509", PROVIDER);
+            result = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(certificate));
+            if (result == null) {
+                throw new IllegalArgumentException("Invalid X509 Certificate");
+            }
+        } catch (CertificateException e) {
+            throw new IllegalArgumentException("Invalid X509 Certificate", e);
         }
         return new X509CertificateWrapper(result);
     }
 
     static boolean looksLikeX509Key(final RpslObject rpslObject) {
         final String pgpKey = RpslObjectFilter.getCertificateFromKeyCert(rpslObject);
-        return pgpKey.indexOf(X509_HEADER) != -1 && pgpKey.indexOf(X509_FOOTER) != -1;
+        return pgpKey.contains(X509_HEADER) && pgpKey.contains(X509_FOOTER);
     }
 
     private String convertFromRfc2253ToCompatFormat(String name) {
@@ -124,9 +128,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
                 builder.append(String.format("%02X", next));
             }
             return builder.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("Invalid X509 Certificate", e);
-        } catch (CertificateEncodingException e) {
+        } catch (NoSuchAlgorithmException | CertificateEncodingException e) {
             throw new IllegalArgumentException("Invalid X509 Certificate", e);
         }
     }

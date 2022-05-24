@@ -15,15 +15,15 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,13 +31,13 @@ import java.util.HashSet;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OrgNameNotChangedValidatorTest {
     @Mock private UpdateContext updateContext;
     @Mock private PreparedUpdate update;
@@ -93,15 +93,12 @@ public class OrgNameNotChangedValidatorTest {
             "org-type: LIR\n" +
             "mnt-by: TEST-MNT");
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-LEGACY-MNT"))).thenReturn(true);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
-        when(maintainers.isRsMaintainer(ciSet("TEST-MNT"))).thenReturn(false);
+        lenient().when(updateContext.getSubject(update)).thenReturn(subjectObject);
     }
 
-    @After
+    @AfterEach
     public void reset() {
         Mockito.reset(subjectObject);
     }
@@ -318,7 +315,7 @@ public class OrgNameNotChangedValidatorTest {
     // helper methods
 
     private void presetRsAuthentication() {
-        when(subjectObject.hasPrincipal(ArgumentMatchers.eq(Principal.RS_MAINTAINER))).thenReturn(true);
+        lenient().when(subjectObject.hasPrincipal(ArgumentMatchers.eq(Principal.RS_MAINTAINER))).thenReturn(true);
     }
 
     private void presetOverrideAuthentication() {
@@ -331,9 +328,9 @@ public class OrgNameNotChangedValidatorTest {
         for (RpslObject referrerObject : referrerObjects) {
             rpslObjectInfos.add(
                     new RpslObjectInfo(referrerObject.getObjectId(), referrerObject.getType(), referrerObject.getKey()));
-            when(objectDao.getById(referrerObject.getObjectId())).thenReturn(referrerObject);
+            lenient().when(objectDao.getById(referrerObject.getObjectId())).thenReturn(referrerObject);
         }
 
-        when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(rpslObjectInfos);
+        lenient().when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(rpslObjectInfos);
     }
 }

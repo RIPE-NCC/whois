@@ -1,10 +1,12 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+import java.time.LocalDateTime
+
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class KeycertSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -146,6 +148,10 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 """,
     ]}
+
+    def setup() {
+      setTime(LocalDateTime.parse("2004-01-01T12:00:00")) // certificate must not have expired
+    }
 
     def "create X509 key-cert object, no gen attrs, no X509 exists, X509-1 created"() {
       expect:
@@ -1980,7 +1986,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
         ack.errorMessagesFor("Modify", "[key-cert] X509-1") == [
-                "Error parsing X509 certificate from key-cert object"]
+                "Invalid X509 Certificate"]
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
     }
@@ -2036,7 +2042,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
-                "Error parsing X509 certificate from key-cert object"]
+                "Invalid X509 Certificate"]
 
         queryObjectNotFound("-rGBT key-cert X509-1", "key-cert", "X509-1")
     }

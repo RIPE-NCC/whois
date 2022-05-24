@@ -14,29 +14,29 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class KeycertValidatorTest {
 
     @Mock PreparedUpdate update;
@@ -46,15 +46,9 @@ public class KeycertValidatorTest {
     @InjectMocks KeycertValidator subject;
     List<Message> messages;
 
-    @Before
+    @BeforeEach
     public void setup() {
         messages = Lists.newArrayList();
-        doAnswer(invocation -> {
-                final Object[] args = invocation.getArguments();
-                messages.add((Message) args[2]);
-                return null;
-            })
-            .when(updateContext).addMessage(any(UpdateContainer.class), any(RpslAttribute.class), any(Message.class));
     }
 
     @Test
@@ -66,7 +60,6 @@ public class KeycertValidatorTest {
     public void getTypes() {
         assertThat(subject.getTypes(), containsInAnyOrder(ObjectType.KEY_CERT));
     }
-
 
     @Test
     public void auto_1_with_x509() throws Exception {
@@ -80,7 +73,13 @@ public class KeycertValidatorTest {
 
     @Test
     public void auto_3_with_pgp() {
-        RpslObject object = RpslObject.parse("" +
+        doAnswer(invocation -> {
+            final Object[] args = invocation.getArguments();
+            messages.add((Message) args[2]);
+            return null;
+        }).when(updateContext).addMessage(any(UpdateContainer.class), any(RpslAttribute.class), any(Message.class));
+
+        final RpslObject object = RpslObject.parse("" +
                 "key-cert:     AUTO-3\n" +
                 "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
                 "certif:       Version: GnuPG v1.4.11 (Darwin)\n" +
@@ -126,14 +125,13 @@ public class KeycertValidatorTest {
 
     @Test
     public void one_public_key_with_multiple_sub_keys() throws Exception {
-        RpslObject object = RpslObject.parse(getResource("keycerts/PGPKEY-MULTIPLE-SUBKEYS.TXT"));
+        final RpslObject object = RpslObject.parse(getResource("keycerts/PGPKEY-MULTIPLE-SUBKEYS.TXT"));
         when(update.getUpdatedObject()).thenReturn(object);
 
         subject.validate(update, updateContext);
 
         assertThat(messages, is(empty()));
     }
-
 
     private String getResource(final String resourceName) throws IOException {
         return IOUtils.toString(new ClassPathResource(resourceName).getInputStream(), Charset.defaultCharset());

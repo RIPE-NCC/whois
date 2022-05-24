@@ -3,17 +3,17 @@ package net.ripe.db.whois.api.rest;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.ClientErrorException;
@@ -24,9 +24,9 @@ import static net.ripe.db.whois.api.RestTest.assertOnlyErrorMessage;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
@@ -39,7 +39,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
     @Autowired
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject(
                 "person:    Test Person\n" +
@@ -51,7 +51,7 @@ public class WhoisRestServiceAclTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("aut-num:   AS102\n" + "source:    TEST\n");
     }
 
-    @After
+    @AfterEach
     public void reset() throws Exception {
         databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
         databaseHelper.getAclTemplate().update("DELETE FROM acl_event");
