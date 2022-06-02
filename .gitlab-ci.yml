@@ -136,7 +136,7 @@ deploy_dev:
   only:
     - /^never$/
 
-deploy_salt_prepdev:
+deploy_prepdev:
   stage: deploy
   only:
     - /^never$/
