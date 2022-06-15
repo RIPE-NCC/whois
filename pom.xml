@@ -67,7 +67,7 @@
         <junit.version>5.8.2</junit.version>
         <jetty.version>10.0.7</jetty.version>
         <jersey.version>2.35</jersey.version>
-        <jackson.version>2.12.6</jackson.version>
+        <jackson.version>2.13.2</jackson.version>
 
         <log4j.version>2.17.1</log4j.version>
 
