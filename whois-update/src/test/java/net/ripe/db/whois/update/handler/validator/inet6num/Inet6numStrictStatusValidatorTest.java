@@ -17,12 +17,12 @@ import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
@@ -31,6 +31,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,7 +39,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 // TODO: [ES] Replace these unmaintainable unit tests with integration tests
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class Inet6numStrictStatusValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -49,10 +50,10 @@ public class Inet6numStrictStatusValidatorTest {
     @Mock Maintainers maintainers;
     @InjectMocks Inet6numStrictStatusValidator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
+        lenient().when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
         when(statusDao.getStatus(anyList())).thenReturn(Collections.emptyMap());
     }
 
@@ -89,7 +90,7 @@ public class Inet6numStrictStatusValidatorTest {
 
     @Test
     public void correct_parent_status_ipv6() {
-        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
+        lenient().when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: 2001::/48\nstatus: ASSIGNED PI\nmnt-by: RIPE-NCC-HM-MNT\n"));
         when(ipv6Tree.findFirstMoreSpecific(any(Ipv6Resource.class))).thenReturn(Lists.newArrayList());
         Ipv6Entry parentEntry = new Ipv6Entry(Ipv6Resource.parse("2001::/24"), 1);

@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -589,6 +589,27 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /FAIL/
         update =~ "Error:   Status ALLOCATED-BY-RIR can only be created by the database\n" +
                 "            administrator"
+    }
+
+    def "create, status requires rs auth with user mnt-by"() {
+      when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num:  2001::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: ES
+                                        admin-c: TEST-PN
+                                        org: ORG-TOL1-TEST
+                                        status: ALLOCATED-BY-RIR
+                                        tech-c: TEST-PN
+                                        mnt-by: RIPE-NCC-HM-MNT
+                                        mnt-by: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                        password: emptypassword
+                                    """.stripIndent()))
+      then:
+        update =~ /SUCCESS/
     }
 
     def "create, status ASSIGNED needs parent status AGGREGATED-BY-LIR"() {

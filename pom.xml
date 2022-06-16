@@ -30,19 +30,15 @@
         <!-- dependencies -->
 
         <aspectj.version>1.9.7</aspectj.version>
-
-        <!-- TODO: awaitility 4.0.3+ depends on Groovy 3 -->
-        <awaitility.version>4.0.2</awaitility.version>
-
-        <aws-java-sdk.version>1.12.17</aws-java-sdk.version>
+        <awaitility.version>4.1.1</awaitility.version>
         <sentry.version>5.1.2</sentry.version>
 
-        <bouncycastle.version>1.69</bouncycastle.version>
+        <bouncycastle.version>1.70</bouncycastle.version>
 
         <c3po.version>0.9.5.5</c3po.version>
         <commons-compress.version>1.21</commons-compress.version>
         <commons-net.version>3.8.0</commons-net.version>
-        <commons-io.version>2.10.0</commons-io.version>
+        <commons-io.version>2.11.0</commons-io.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-email.version>1.5</commons-email.version>
         <commons-collections.version>3.2.2</commons-collections.version>
@@ -54,47 +50,49 @@
 
         <diffutils.version>1.3.0</diffutils.version>
 
-        <ezvcard.version>0.11.2</ezvcard.version>
+        <ezvcard.version>0.11.3</ezvcard.version>
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <guava.version>30.1.1-jre</guava.version>
-        <groovy.version>2.5.14</groovy.version>
+        <guava.version>31.0.1-jre</guava.version>
+        <groovy.version>3.0.9</groovy.version>
 
-        <hazelcast.version>4.1.4</hazelcast.version>
+        <hazelcast.version>4.2.2</hazelcast.version>
         <hamcrest.version>2.2</hamcrest.version>
 
         <jaxb.version>2.3.3</jaxb.version>
         <jflex.version>1.6.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
-        <jsoup.version>1.14.2</jsoup.version>
-        <junit.version>4.13.2</junit.version>
-        <jetty.version>10.0.6</jetty.version>
-        <jersey.version>2.32</jersey.version>
-        <jackson.version>2.12.3</jackson.version>
+        <jsoup.version>1.14.3</jsoup.version>
+        <junit.version>5.8.2</junit.version>
+        <jetty.version>10.0.7</jetty.version>
+        <jersey.version>2.35</jersey.version>
+        <jackson.version>2.13.2</jackson.version>
 
-        <log4j.version>2.14.1</log4j.version>
-        <lucene.version>7.7.2</lucene.version>
+        <log4j.version>2.17.1</log4j.version>
+
+        <!-- Needs to be in sync with the version of Lucene used by the ElasticSearch client -->
+        <lucene.version>8.9.0</lucene.version>
 
         <mail.version>1.6.2</mail.version>
-        <mariadb-java-client.version>2.7.3</mariadb-java-client.version>
-        <mockito.version>3.11.2</mockito.version>
+        <mariadb-java-client.version>2.7.4</mariadb-java-client.version>
+        <mockito.version>3.12.4</mockito.version>
 
-        <!-- Test aws-java-sdk with updated Netty -->
-        <netty.version>4.1.65.Final</netty.version>
+        <netty.version>4.1.70.Final</netty.version>
 
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.32</slf4j.version>
-        <spring.version>5.3.8</spring.version>
+        <spring.version>5.3.20</spring.version>
         <springockito.version>1.0.9</springockito.version>
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
-        <spock.version>1.3-groovy-2.5</spock.version>
+        <spock.version>2.0-groovy-3.0</spock.version>
         <shedlock.version>4.24.0</shedlock.version>
+        <elasticsearch.version>7.15.0</elasticsearch.version>
 
         <validation.version>2.0.1.Final</validation.version>
-        <velocity.version>2.2</velocity.version>
+        <velocity.version>2.3</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
     </properties>
@@ -568,6 +566,19 @@
                 <artifactId>lucene-facet</artifactId>
                 <version>${lucene.version}</version>
             </dependency>
+
+            <!--ElasticSearch -->
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+
             <!-- diffutils -->
             <dependency>
                 <groupId>com.googlecode.java-diff-utils</groupId>
@@ -624,8 +635,14 @@
 
         <!-- common test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -660,6 +677,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
             <version>${hamcrest.version}</version>
@@ -687,6 +710,18 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -773,6 +808,7 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
@@ -817,7 +853,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.2.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -863,15 +899,15 @@
                         <exclude>${test.files.integration}</exclude>
                     </excludes>
                     <runOrder>random</runOrder>
+                    <forkCount>1C</forkCount>
                     <threadCount>1</threadCount>
+                    <!-- TODO: [ES] reuseForks=true causes local integration test build to hang -->
                     <reuseForks>true</reuseForks>
-                    <excludedGroups>
-                        net.ripe.db.whois.common.IntegrationTest,
-                        net.ripe.db.whois.common.ManualTest
-                    </excludedGroups>
+                    <excludedGroups>IntegrationTest,ManualTest,ElasticSearchTest</excludedGroups>
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
                         <hazelcast.phone.home.enabled>false</hazelcast.phone.home.enabled>
+                        <test.containers.disabled>${test.containers.disabled}</test.containers.disabled>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -885,6 +921,10 @@
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
+                    <excludes>
+                        <exclude>${test.files.excludes}</exclude>
+                    </excludes>
+                    <excludedGroups>ManualTest</excludedGroups>
                     <!-- doesnt work (breaks tests)
                     <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
@@ -894,8 +934,9 @@
                     <groups>${test.groups}</groups>
                     <runOrder>random</runOrder> -->
                     <!-- works (tests pass) -->
-                    <groups>${test.groups}</groups>
-                    <forkCount>3</forkCount>
+                   <!-- <groups>${test.groups}</groups>-->
+                    <forkCount>1C</forkCount>
+                    <!-- TODO: [ES] reuseForks=true causes local integration test build to hang -->
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
@@ -944,8 +985,6 @@
                         <exclude>**/net/ripe/db/whois/common/IllegalArgumentExceptionMessage.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
-                        <exclude>**/net/ripe/db/whois/common/IntegrationTest.java</exclude>
-                        <exclude>**/net/ripe/db/whois/common/ManualTest.java</exclude>
                     </excludes>
 
                     <Xlint>warning</Xlint>
@@ -999,7 +1038,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M3</version>
+                <version>3.0.0</version>
                 <configuration>
                     <rules>
                         <dependencyConvergence/>
@@ -1037,38 +1076,52 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>None</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Integration*.class</test.files.integration>
+                <test.files.integration>None</test.files.integration>
+                <test.files.excludes>None</test.files.excludes>
             </properties>
         </profile>
         <profile>
             <id>integration</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.files.unit>**/*Test.class</test.files.unit>
-                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.groups>IntegrationTest</test.groups>
+                <test.files.unit>None</test.files.unit>
+                <test.files.integration>**/*Integration*.class,**/*Spec*.class</test.files.integration>
+                <test.files.excludes>**/*Elastic*.class</test.files.excludes>
+            </properties>
+        </profile>
+        <profile>
+            <id>integrationAll</id>
+            <properties>
+                <test.redirectOutput>true</test.redirectOutput>
+                <test.groups>IntegrationTest,ElasticSearchTest</test.groups>
+                <test.files.unit>None</test.files.unit>
+                <test.files.integration>**/*Integration*.class,**/*Spec*.class</test.files.integration>
+                <test.files.excludes>None</test.files.excludes>
             </properties>
         </profile>
         <profile>
             <id>comparison</id>
             <properties>
                 <test.redirectOutput>false</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
+                <test.groups>ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>
                     **/CompareTwoQueryInstancesByFile.class,
                     **/CompareTwoRestInstancesByFile.class,
                     **/CompareTwoNrtmInstances.class
                 </test.files.integration>
+                <test.files.excludes>None</test.files.excludes>
             </properties>
         </profile>
         <profile>
             <id>all</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.groups>IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.files.excludes>None</test.files.excludes>
             </properties>
         </profile>
         <profile>
@@ -1077,6 +1130,7 @@
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>None</test.files.integration>
+                <test.files.excludes>None</test.files.excludes>
                 <maven.javadoc.skip>true</maven.javadoc.skip>
             </properties>
         </profile>

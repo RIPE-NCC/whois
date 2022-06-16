@@ -10,12 +10,11 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.security.cert.X509Certificate;
@@ -27,7 +26,7 @@ import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class X509CredentialValidatorTest {
 
     @Mock private PreparedUpdate update;
@@ -39,11 +38,11 @@ public class X509CredentialValidatorTest {
     @Mock private LoggerContext loggerContext;
     @InjectMocks private X509CredentialValidator subject;
 
-    @Before
-    public void setup() {
+    @Test
+    public void authentication_success() {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenAnswer(invocation ->
-                    RpslObject.parse("" +
+                RpslObject.parse("" +
                         "key-cert:       AUTO-1\n" +
                         "method:         X509\n" +
                         "owner:          /C=NL/ST=Noord-Holland/O=RIPE NCC/OU=DB/CN=Edward Shryane/EMAILADDRESS=eshryane@ripe.net\n" +
@@ -74,10 +73,7 @@ public class X509CredentialValidatorTest {
                         "source:         TEST\n"));
         when(knownCredential.getKeyId()).thenReturn("X509-1");
         when(offeredCredential.verify(any(X509Certificate.class))).thenReturn(true);
-    }
 
-    @Test
-    public void authentication_success() {
         final boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
 
         assertThat(result, is(true));

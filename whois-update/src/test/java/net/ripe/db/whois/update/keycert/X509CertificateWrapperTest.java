@@ -3,23 +3,24 @@ package net.ripe.db.whois.update.keycert;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class X509CertificateWrapperTest {
 
     @Mock DateTimeProvider dateTimeProvider;
@@ -27,24 +28,23 @@ public class X509CertificateWrapperTest {
     private RpslObject anotherX509Keycert;
     private RpslObject pgpKeycert;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2014-01-02T00:00:00"));
         x509Keycert = RpslObject.parse(getResource("keycerts/X509-3465.TXT"));
         anotherX509Keycert = RpslObject.parse(getResource("keycerts/X509-1.TXT"));
         pgpKeycert = RpslObject.parse(getResource("keycerts/PGPKEY-28F6CD6C.TXT"));
     }
 
     @Test
-    public void isX509Key() throws IOException {
+    public void isX509Key() {
         assertThat(X509CertificateWrapper.looksLikeX509Key(x509Keycert), is(true));
         assertThat(X509CertificateWrapper.looksLikeX509Key(pgpKeycert), is(false));
     }
 
     @Test
     public void isEquals() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
-        X509CertificateWrapper another = X509CertificateWrapper.parse(anotherX509Keycert);
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        final X509CertificateWrapper another = X509CertificateWrapper.parse(anotherX509Keycert);
 
         assertThat(subject.equals(subject), is(true));
         assertThat(subject.equals(another), is(false));
@@ -52,29 +52,29 @@ public class X509CertificateWrapperTest {
 
     @Test
     public void getMethod() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
         assertThat(subject.getMethod(), is("X509"));
     }
 
     @Test
     public void getOwner() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
         assertThat(subject.getOwners(), containsInAnyOrder("/C=NL/ST=Some-State/O=BOGUS"));
     }
 
     @Test
     public void getFingerprint() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
-        assertThat(subject.getFingerprint(),
-                is("16:4F:B6:A4:D9:BC:0C:92:D4:48:13:FE:B6:EF:E2:82"));
+        assertThat(subject.getFingerprint(), is("16:4F:B6:A4:D9:BC:0C:92:D4:48:13:FE:B6:EF:E2:82"));
     }
 
     @Test
     public void notYetValid() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2014-01-02T00:00:00"));
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
         assertThat(subject.isNotYetValid(dateTimeProvider), is(false));
 
@@ -84,7 +84,8 @@ public class X509CertificateWrapperTest {
 
     @Test
     public void isExpired() {
-        X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2014-01-02T00:00:00"));
+        final X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
         assertThat(subject.isExpired(dateTimeProvider), is(false));
 
@@ -92,7 +93,7 @@ public class X509CertificateWrapperTest {
         assertThat(subject.isExpired(dateTimeProvider), is(true));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void invalidCertificateBase64IsTruncated() {
         final RpslObject keycert = RpslObject.parse(
                 "key-cert:        X509-3465\n" +
@@ -106,10 +107,12 @@ public class X509CertificateWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST");
 
-        X509CertificateWrapper.parse(keycert);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            X509CertificateWrapper.parse(keycert);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void invalidCertificateNoBase64Data() {
         final RpslObject keycert = RpslObject.parse(
                 "key-cert:        X509-3465\n" +
@@ -121,10 +124,12 @@ public class X509CertificateWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST");
 
-        X509CertificateWrapper.parse(keycert);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            X509CertificateWrapper.parse(keycert);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void invalidCertificateInvalidBase64Data() {
         final RpslObject keycert = RpslObject.parse(
                 "key-cert:        X509-3465\n" +
@@ -137,10 +142,12 @@ public class X509CertificateWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST");
 
-        X509CertificateWrapper.parse(keycert);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            X509CertificateWrapper.parse(keycert);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void invalidCertificateNoCertifLines() {
         final RpslObject keycert = RpslObject.parse(
                 "key-cert:        X509-3465\n" +
@@ -150,7 +157,9 @@ public class X509CertificateWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST");
 
-        X509CertificateWrapper.parse(keycert);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            X509CertificateWrapper.parse(keycert);
+        });
     }
 
     private String getResource(final String resourceName) throws IOException {

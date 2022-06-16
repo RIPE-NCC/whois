@@ -10,11 +10,12 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GroupObjectTypesFunctionTest {
     private Query query;
 
@@ -34,7 +35,7 @@ public class GroupObjectTypesFunctionTest {
 
     private GroupObjectTypesFunction subject;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         query = Query.parse("foo");
         subject = new GroupObjectTypesFunction(rpslObjectDao, query, Sets.newHashSet(decorator));

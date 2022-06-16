@@ -1,13 +1,14 @@
 package net.ripe.db.whois.spec.integration
 import com.google.common.io.Resources
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
 import java.nio.charset.Charset
+import java.time.LocalDateTime
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -33,6 +34,10 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             source:  TEST
             """
         ];
+    }
+
+    def setup() {
+      setTime(LocalDateTime.parse("2004-01-01T12:00:00")) // certificate must not have expired
     }
 
     def "create keycert success"() {

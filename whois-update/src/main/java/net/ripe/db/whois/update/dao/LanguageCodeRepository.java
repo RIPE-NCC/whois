@@ -9,7 +9,7 @@ import java.util.Set;
 @Component
 public class LanguageCodeRepository {
 
-    @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciImmutableSet('${whois.languagecodes:}')}")
+    @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciImmutableSet('${whois.languagecodes:}'.split(','))}")
     private Set<CIString> languageCodes;
 
     public Set<CIString> getLanguageCodes() {

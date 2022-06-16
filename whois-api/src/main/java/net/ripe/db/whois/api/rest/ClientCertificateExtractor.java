@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.net.util.Base64;
-import org.bouncycastle.x509.util.StreamParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +14,8 @@ public class ClientCertificateExtractor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientCertificateExtractor.class);
 
-    final static String HEADER_SSL_CLIENT_CERT = "SSL_CLIENT_CERT";
-    final static String HEADER_SSL_CLIENT_VERIFY = "SSL_CLIENT_VERIFY";
+    static final String HEADER_SSL_CLIENT_CERT = "SSL_CLIENT_CERT";
+    static final String HEADER_SSL_CLIENT_VERIFY = "SSL_CLIENT_VERIFY";
 
     public static Optional<X509CertificateWrapper> getClientCertificate(final HttpServletRequest request,
                                                                         final DateTimeProvider dateTimeProvider) {
@@ -69,7 +68,7 @@ public class ClientCertificateExtractor {
             }
 
             return Optional.of(x509CertificateWrapper);
-        } catch (StreamParsingException e) {
+        } catch (IllegalArgumentException e) {
             LOGGER.info("Invalid X.509 certificate");
         }
 

@@ -1,5 +1,42 @@
 # next
 
+# 1.103
+
+[update] Fixed "goefeed:" validation when reading object containing multiple remarks: attributes (#975)
+[all] Removed WHITEPAGES org type. (#1003)
+[update] Better Error Message when Changing "mnt-by:" on Allocations (#988)
+[update] Allow user "mnt-by:" when creating inet6num allocations (already allowed for inetnums) (#982)
+[update] Disallow weak keys and hash algorithms (#642, #974)
+[update] Abuse-c is Required for End User Organisations With Resources (#955, #969)
+[update] Domain overlap validator (#956)
+[api] Increase HTTP idle timeout from 30s to 60s (#998)
+[grs] Lacnic GRS import was incorrectly treated as UTF-8 (should have been latin-1). (#958)
+[update] Updated Zonemaster client to match API Changes (#1005)
+[query] Implemented Elasticsearch (#944, #989, #993, #997)
+[all] Updated dependencies
+
+# 1.102.2
+
+[all] Update log4j to 2.17.0 from 2.15.0 (#965)
+
+# 1.102.1
+
+[all] Update log4j to 2.15.0 to address CVE-2021-44228 (#959)
+
+# 1.102
+
+[all] NWI-13: Added support for the "geofeed:" attribute (#937)
+[Update] Support base64 encoded signed update messages (sent by Thunderbird 78+) (#942)
+[all] Updated "geoloc:" help text (#929)
+[api] Log client IP correctly in HTTP request log (#908)
+[api] Filter passwords in HTTP request log (#919)
+[update] Support IDN in outgoing mail update notifications (#888)
+[all] Added graceful shutdown to healthcheck (#896)
+[grs] Fixed APNIC GRS mirror HTTPS download (#871)
+[all] Removed AWS-specific changes
+[all] Require UTC timezone at startup (#857)
+[all] Updated dependencies
+
 # 1.101
 
 [all] Switch RIPE database to UTC timezone

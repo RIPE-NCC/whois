@@ -1,25 +1,26 @@
 package net.ripe.db.whois.update.domain;
 
 import net.ripe.db.whois.common.domain.CIString;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class NicHandleTest {
     CIString source;
     Set<CIString> countryCodes;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         source = ciString("RIPE");
         countryCodes = ciSet("NL", "EN");
@@ -65,14 +66,18 @@ public class NicHandleTest {
         assertThat(nicHandle.toString(), is("DW"));
     }
 
-    @Test(expected = NicHandleParseException.class)
+    @Test
     public void parse_space_too_long() {
-        NicHandle.parse("SPACE", source, countryCodes);
+        Assertions.assertThrows(NicHandleParseException.class, () -> {
+            NicHandle.parse("SPACE", source, countryCodes);
+        });
     }
 
-    @Test(expected = NicHandleParseException.class)
+    @Test
     public void parse_suffix_too_long() {
-        NicHandle.parse("DW-VERYLONGSUFFIX", source, countryCodes);
+        Assertions.assertThrows(NicHandleParseException.class, () -> {
+            NicHandle.parse("DW-VERYLONGSUFFIX", source, countryCodes);
+        });
     }
 
     @Test
@@ -124,9 +129,11 @@ public class NicHandleTest {
         assertThat(nicHandle.getSuffix(), is("apnic"));
     }
 
-    @Test(expected = NicHandleParseException.class)
+    @Test
     public void parse_suffix_invalid() {
-        NicHandle.parse("DW-SOMETHING", source, countryCodes);
+        Assertions.assertThrows(NicHandleParseException.class, () -> {
+            NicHandle.parse("DW-SOMETHING", source, countryCodes);
+        });
     }
 
     @Test

@@ -1,18 +1,18 @@
 package net.ripe.db.whois.common.domain;
 
 import net.ripe.db.whois.common.ip.IpInterval;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class IpRangesTest {
 
     private IpRanges subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new IpRanges();
     }

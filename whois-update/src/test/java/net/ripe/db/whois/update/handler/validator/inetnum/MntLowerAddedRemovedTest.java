@@ -9,15 +9,16 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MntLowerAddedRemovedTest {
     @Mock private PreparedUpdate update;
     @Mock private UpdateContext updateContext;
@@ -33,7 +34,7 @@ public class MntLowerAddedRemovedTest {
 
     @InjectMocks private MntLowerAddedRemoved subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
     }
@@ -198,7 +199,7 @@ public class MntLowerAddedRemovedTest {
 
     @Test
     public void modify_authorisation_succeeds_inetnum() {
-        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
+       lenient().when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-lower: OTHER-MNT"));
         when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("OTHER-MNT"));
@@ -211,7 +212,7 @@ public class MntLowerAddedRemovedTest {
 
     @Test
     public void modify_authorisation_succeeds_inet6num() {
-        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
+        lenient().when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INET6NUM);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffff::/32\nstatus: ASSIGNED ANYCAST\nmnt-lower: OTHER-MNT"));
         when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("OTHER-MNT"));

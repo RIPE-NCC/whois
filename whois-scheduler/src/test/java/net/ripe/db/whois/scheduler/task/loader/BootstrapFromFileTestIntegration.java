@@ -1,19 +1,19 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
-import net.ripe.db.whois.api.fulltextsearch.FullTextSearch;
+import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
 import net.ripe.db.whois.api.fulltextsearch.SearchRequest;
 import net.ripe.db.whois.api.fulltextsearch.SearchResponse;
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.database.diff.Database;
 import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,13 +29,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrationTest {
     @Autowired
     private Bootstrap bootstrap;
 
     @Autowired
-    private FullTextSearch fullTextSearch;
+    private FullTextSearchService fullTextSearchService;
 
     @Autowired
     private FullTextIndex fullTextIndex;
@@ -43,13 +43,13 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     @Autowired
     private RpslObjectUpdateDao rpslObjectUpdateDao;
 
-    @BeforeClass
+    @BeforeAll
     public static void setProperty() {
         // We only enable fulltext indexing here, so it doesn't slow down the rest of the test suite
         System.setProperty("dir.fulltext.index", "var${jvmId:}/idx");
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearProperty() {
         System.clearProperty("dir.fulltext.index");
     }
@@ -240,7 +240,7 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
 
-        return fullTextSearch.search(
+        return fullTextSearchService.search(
                 new SearchRequest.SearchRequestBuilder()
                     .setQuery(queryStr)
                     .setRows("10")

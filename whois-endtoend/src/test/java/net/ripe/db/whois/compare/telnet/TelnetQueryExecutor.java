@@ -11,13 +11,13 @@ import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.compare.common.ComparisonExecutor;
 import net.ripe.db.whois.query.domain.MessageObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TelnetQueryExecutor implements ComparisonExecutor {
     final QueryExecutorConfiguration configuration;

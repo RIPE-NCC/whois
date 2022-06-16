@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_PA;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
@@ -70,7 +70,6 @@ public class InetnumStatusTest {
 
         assertThat(ASSIGNED_PA.isValidOrgType(OrgType.OTHER), is(true));
         assertThat(ASSIGNED_PA.isValidOrgType(OrgType.LIR), is(true));
-        assertThat(ASSIGNED_PA.isValidOrgType(OrgType.WHITEPAGES), is(false));
 
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(OrgType.OTHER), is(true));
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(OrgType.LIR), is(true));

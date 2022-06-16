@@ -1,6 +1,7 @@
 package net.ripe.db.whois.db;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
@@ -9,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -20,6 +22,7 @@ import java.security.Security;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
 @Component
@@ -29,6 +32,9 @@ public class WhoisServer {
     private final ApplicationContext applicationContext;
     private final List<ApplicationService> applicationServices;
     private final ApplicationVersion applicationVersion;
+
+    @Value("${shutdown.pause.sec:10}")
+    private int preShutdownPause;
 
     @Autowired
     public WhoisServer(
@@ -49,8 +55,7 @@ public class WhoisServer {
         Slf4JLogConfiguration.init();
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.RIPE_DEPLOYED);
-
+        final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.DEPLOYED);
         final WhoisServer whoisServer = applicationContext.getBean(WhoisServer.class);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -84,6 +89,10 @@ public class WhoisServer {
     }
 
     public void stop() {
+        // This sleep is needed to also prevent other applicationServices from shutting
+        // within the grace period the jetty server indicates to be taken out of the loadbalancer pool
+        Uninterruptibles.sleepUninterruptibly(preShutdownPause, TimeUnit.SECONDS);
+
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         for (final ApplicationService applicationService : applicationServices) {

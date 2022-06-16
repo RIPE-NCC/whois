@@ -1,25 +1,26 @@
 package net.ripe.db.whois.common.dao.jdbc.index;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class IndexWithMntRoutesIntegrationTest extends IndexIntegrationTestBase {
     private IndexStrategy subject;
 
     private RpslObject maintainer;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         maintainer = RpslObject.parse("mntner: DEV-MNT");
         databaseHelper.addObject(maintainer);
@@ -53,15 +54,18 @@ public class IndexWithMntRoutesIntegrationTest extends IndexIntegrationTestBase 
         assertThat(getNrMntRoutes(), is(1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void add_for_inetnum_unknown_maintainer() {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "inetnum:10.0.0.0 - 10.0.0.255\n" +
-                "netname:netname\n" +
-                "mnt-routes: UNKNOWN-MNT ANY\n");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            final RpslObject rpslObject = RpslObject.parse("" +
+                    "inetnum:10.0.0.0 - 10.0.0.255\n" +
+                    "netname:netname\n" +
+                    "mnt-routes: UNKNOWN-MNT ANY\n");
 
-        final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
-        subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MNT_ROUTES));
+            final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
+            subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MNT_ROUTES));
+
+        });
     }
 
     @Test

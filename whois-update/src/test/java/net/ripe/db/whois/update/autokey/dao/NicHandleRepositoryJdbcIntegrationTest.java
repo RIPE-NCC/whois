@@ -1,10 +1,9 @@
 package net.ripe.db.whois.update.autokey.dao;
 
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
 import net.ripe.db.whois.update.domain.NicHandle;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +13,12 @@ import java.util.Map;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 @Transactional
 public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired NicHandleRepository subject;
@@ -126,7 +125,7 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
 
         for (final Map<String, Object> objectMap : list) {
             for (final Map.Entry<String, Object> entry : objectMap.entrySet()) {
-                assertNotNull(entry.getKey(), entry.getValue());
+                assertNotNull( entry.getValue(), entry.getKey());
             }
 
             final String source = objectMap.get("source").toString();

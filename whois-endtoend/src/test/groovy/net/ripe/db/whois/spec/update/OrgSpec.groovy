@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class OrgSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -159,7 +159,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
-                org:          ORG-OR1-TEST
+                org:          ORG-OFA10-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
@@ -452,7 +452,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 "LIR",
                 "IANA",
                 "RIR",
-                "WHITEPAGES",
                 "DIRECT_ASSIGNMENT"
         ]
     }
@@ -546,40 +545,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 password: hm
                 """.stripIndent()
             )
-
-        then:
-            ack.success
-
-            ack.summary.nrFound == 1
-            ack.summary.assertSuccess(1, 1, 0, 0, 0)
-            ack.summary.assertErrors(0, 0, 0, 0)
-
-            ack.countErrorWarnInfo(0, 0, 0)
-
-            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-    }
-
-    def "create organisation org-type WHITEPAGES with power mntner"() {
-        expect:
-            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-        when:
-           def ack = syncUpdateWithResponse("""
-                organisation:    auto-1
-                org-type:        WHITEPAGES
-                org-name:        First Org
-                address:         RIPE NCC
-                                 Singel 258
-                                 1016 AB Amsterdam
-                                 Netherlands
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          ripe-NCC-hM-mnT
-                source:          TEST
-
-                password: hm
-                """.stripIndent()
-           )
 
         then:
             ack.success
@@ -1968,7 +1933,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
                 ["Authorisation for [organisation] ORG-LIR2-TEST failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",
-                "Attribute \"org-name:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account Details\" under \"My LIR\" to change it.",]
+                "Attribute \"org-name:\" can only be changed via the LIR portal. Please login to https://lirportal.ripe.net and select \"LIR Account\" under \"My LIR\" to change it.",]
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
     }
@@ -2287,18 +2252,19 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         expect:
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "ASSIGNED PA")
-        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
-        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "Organisation for Abuse")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "org-type:\\s*OTHER")
 
         when:
         def message = syncUpdate("""
-                organisation: ORG-OR1-TEST
+                organisation: ORG-OFA10-TEST
                 org-type:     OTHER
-                org-name:     New Other Registry
+                org-name:     New Organisation for Abuse
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
@@ -2316,9 +2282,9 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
-        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
+        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "New Organisation for Abuse")
     }
 
     def "modify organisation, org-type:OTHER, ref from legacy, change org-name"() {

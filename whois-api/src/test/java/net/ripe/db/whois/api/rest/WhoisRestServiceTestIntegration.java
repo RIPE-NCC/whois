@@ -16,7 +16,6 @@ import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.ApplicationVersion;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -37,10 +36,10 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -67,12 +66,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -97,11 +94,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
-@Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
@@ -196,7 +193,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private TestDateTimeProvider testDateTimeProvider;
     @Autowired private ApplicationVersion applicationVersion;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
@@ -295,7 +292,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "source:         TEST")));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void lookup_inet6num_without_prefix_length() throws InterruptedException {
         databaseHelper.addObject(
                 "inet6num:       2001:2002:2003::/48\n" +
@@ -310,7 +307,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         );
         ipTreeUpdater.rebuild();
 
-        RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
+        });
     }
 
     @Test
@@ -715,14 +714,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisObject.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void lookup_object_not_found() {
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+        });
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void lookup_object_wrong_source() {
-        RestTest.target(getPort(), "whois/test-grs/person/TP1-TEST").request().get(String.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test-grs/person/TP1-TEST").request().get(String.class);
+        });
     }
 
     @Test
@@ -1766,7 +1769,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST").containsAttribute(AttributeType.CHANGED), is(false));
     }
 
-    @Ignore("TODO: [ES] #320 confusing error response")
+    @Disabled("TODO: [ES] #320 confusing error response")
     @Test
     public void create_invalid_object_type_on_first_attribute() {
         try {
@@ -2324,25 +2327,42 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void create_bad_input_empty_objects_element() {
-        RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .post(Entity.entity("<whois-resources>\n<objects/>\n</whois-resources>", MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity("<whois-resources>\n<objects/>\n</whois-resources>", MediaType.APPLICATION_XML), String.class);
+
+        });
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void create_bad_input_no_objects_element() {
-        RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .post(Entity.entity("<whois-resources/>", MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity("<whois-resources/>", MediaType.APPLICATION_XML), String.class);
+
+        });
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void create_bad_input_empty_body() {
-        RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .post(Entity.entity("", MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity("", MediaType.APPLICATION_XML), String.class);
+        });
+    }
+
+    @Test
+    public void create_bad_input_null_body() {
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/mntner")
+                    .request()
+                    .post( null, WhoisResources.class);
+        });
     }
 
     @Test
@@ -2513,18 +2533,22 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = NotAllowedException.class)
+    @Test
     public void get_method_without_primary_key_not_allowed() {
-        RestTest.target(getPort(), "whois/ripe/route6")
-                .request()
-                .get(String.class);
+        Assertions.assertThrows(NotAllowedException.class, () -> {
+            RestTest.target(getPort(), "whois/ripe/route6")
+                    .request()
+                    .get(String.class);
+        });
     }
 
-    @Test(expected = NotAllowedException.class)
+    @Test
     public void delete_method_without_primary_key_not_allowed() {
-        RestTest.target(getPort(), "whois/test/person")
-                .request()
-                .delete(String.class);
+        Assertions.assertThrows(NotAllowedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person")
+                    .request()
+                    .delete(String.class);
+        });
     }
 
     @Test
@@ -3343,11 +3367,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void delete_nonexistant() {
-        RestTest.target(getPort(), "whois/test/person/NON-EXISTANT")
-                .request()
-                .delete(String.class);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person/NON-EXISTANT")
+                    .request()
+                    .delete(String.class);
+        });
     }
 
     @Test
@@ -3884,11 +3910,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = NotAllowedException.class)
+    @Test
     public void update_post_not_allowed() {
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
-                .request(MediaType.APPLICATION_XML)
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(NotAllowedException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        });
     }
 
     @Test
@@ -3977,11 +4005,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void update_bad_input_empty_body() {
-        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
-                .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity("", MediaType.APPLICATION_XML), WhoisResources.class);
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity("", MediaType.APPLICATION_XML), WhoisResources.class);
+        });
     }
 
     @Test
@@ -4463,12 +4493,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     // TODO: [AH] also test origin, i.e. maintenanceMode.set("NONE,READONLY")
 
-    @Test(expected = ServiceUnavailableException.class)
+    @Test
     public void maintenance_mode_readonly_update() {
-        maintenanceMode.set("READONLY,READONLY");
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+            maintenanceMode.set("READONLY,READONLY");
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        });
     }
 
     @Test
@@ -4478,18 +4510,22 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
 
-    @Test(expected = ServiceUnavailableException.class)
+    @Test
     public void maintenance_mode_none_update() {
-        maintenanceMode.set("NONE,NONE");
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                .request(MediaType.APPLICATION_XML)
-                .put(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+            maintenanceMode.set("NONE,NONE");
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+        });
     }
 
-    @Test(expected = ServiceUnavailableException.class)
+    @Test
     public void maintenance_mode_none_query() {
-        maintenanceMode.set("NONE,NONE");
-        RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+            maintenanceMode.set("NONE,NONE");
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+        });
     }
 
     @Test
@@ -5260,17 +5296,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     // helper methods
-
-
-    private void insertSyncHistory(final String org, final String mntnr,  final long when, final Boolean syncState) {
-
-        final String email = UUID.randomUUID() + "@ripe.net";
-        final Timestamp timestamp = new Timestamp(when);
-
-        databaseHelper.getInternalsTemplate().update(
-                "INSERT INTO default_maintainer_sync_history (org, mntner, timestamp, email, is_synchronised) VALUES (?, ?, ?, ?, ?)",
-                org, mntnr, timestamp, email, syncState);
-    }
 
     private String encode(final String input) {
         // do not interpret template parameters
