@@ -119,7 +119,6 @@ public class AuthServiceClient {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header("X-API_KEY", apiKey)
                     .get(ValidateTokenResponse.class);
-            LOGGER.info("")
             return response.response.content.id;
 
         } catch (NotFoundException e) {
