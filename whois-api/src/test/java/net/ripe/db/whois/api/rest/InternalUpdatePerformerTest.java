@@ -27,6 +27,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -186,7 +188,7 @@ public class InternalUpdatePerformerTest {
 
     @Test
     public void setSsoSessionToContext_exception_is_logged() {
-        when(ssoTokenTranslatorMock.translateSsoToken("test-token")).thenThrow(new CrowdClientException("exception"));
+        when(ssoTokenTranslatorMock.translateSsoToken("test-token")).thenThrow(new CrowdClientException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "exception"));
 
         try {
             subject.setSsoSessionToContext(updateContextMock, "test-token");

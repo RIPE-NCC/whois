@@ -9,40 +9,19 @@ import javax.ws.rs.WebApplicationException;
 
 public class CrowdClientException extends RuntimeException {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CrowdClientException.class);
+    private final String message;
+    private final int code;
 
-    public CrowdClientException(final String message) {
-        super(message);
+    public CrowdClientException(int code, String message) {
+        this.code = code;
+        this.message = message;
     }
 
-    public CrowdClientException(final Exception e) {
-        super(getMessage(e), e);
+    public String getMessage() {
+        return message;
     }
 
-    private static String getMessage(final Exception e) {
-        if (e instanceof ClientErrorException) {
-            try {
-                final CrowdClient.CrowdError crowdError = ((ClientErrorException)e).getResponse().readEntity(CrowdClient.CrowdError.class);
-                LOGGER.info("{}: {} ({})", e.getClass().getName(), crowdError.getMessage(), crowdError.getReason());
-                return crowdError.getMessage();
-            } catch (ProcessingException pe) {
-                // crowd returned content-type: text/plain
-                final String error = ((ClientErrorException)e).getResponse().readEntity(String.class);
-                LOGGER.warn("{}: {}", e.getClass().getName(), error);
-                return error;
-            }
-        } else {
-            if (e instanceof WebApplicationException) {
-                final String cause = String.format("%s (%s)", e.getClass().getName(), ((WebApplicationException)e).getResponse().readEntity(String.class));
-                LOGGER.info(cause);
-                return cause;
-            } else {
-                final String cause = String.format("%s (%s)", e.getClass().getName(), e.getMessage());
-                LOGGER.info(cause);
-                return cause;
-            }
-        }
+    public int getCode() {
+        return code;
     }
-
-
 }

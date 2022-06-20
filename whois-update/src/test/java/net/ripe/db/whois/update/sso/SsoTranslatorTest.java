@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.sso;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,14 +25,15 @@ public class SsoTranslatorTest {
 
     @Mock UpdateContext updateContext;
     @Mock Update update;
-    @Mock CrowdClient crowdClient;
+    @Mock
+    AuthServiceClient authServiceClient;
 
 
     private SsoTranslator subject;
 
     @BeforeEach
     public void setup() {
-        subject = new SsoTranslator(crowdClient);
+        subject = new SsoTranslator(authServiceClient);
     }
 
     @Test

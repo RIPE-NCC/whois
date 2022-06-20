@@ -6,16 +6,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class SsoTokenTranslator {
 
-    private final CrowdClient crowdClient;
+    private final AuthServiceClient authServiceClient;
 
     @Autowired
-    public SsoTokenTranslator(final CrowdClient crowdClient) {
-        this.crowdClient = crowdClient;
+    public SsoTokenTranslator(final AuthServiceClient authServiceClient) {
+        this.authServiceClient = authServiceClient;
     }
 
-    public UserSession translateSsoToken(final String ssoToken) throws CrowdClientException {
-        final UserSession userSession = crowdClient.getUserSession(ssoToken);
-        userSession.setUuid(crowdClient.getUuid(userSession.getUsername()));
+    public UserSession translateSsoToken(final String ssoToken) {
+        final UserSession userSession = authServiceClient.getUserSession(ssoToken);
+        userSession.setUuid(authServiceClient.getUuid(userSession.getUsername()));
         return userSession;
     }
 }

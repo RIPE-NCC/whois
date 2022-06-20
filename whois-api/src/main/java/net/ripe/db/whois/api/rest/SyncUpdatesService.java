@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
@@ -96,7 +97,7 @@ public class SyncUpdatesService {
             @QueryParam(Command.DIFF) final String diff,
             @QueryParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(decode(data, getCharset(contentType)))
                 .setNew(nnew)
@@ -123,7 +124,7 @@ public class SyncUpdatesService {
             @FormParam(Command.DIFF) final String diff,
             @FormParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
                 .setNew(nnew)
@@ -150,7 +151,7 @@ public class SyncUpdatesService {
             @FormDataParam(Command.DIFF) final String diff,
             @FormDataParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
                 .setNew(nnew)

@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.Collections;
 
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -329,7 +330,7 @@ public class SyncUpdatesServiceTest {
     @Test
     public void handle_multipart_post_invalid_sso_token() {
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
-        when(ssoTokenTranslator.translateSsoToken("invalid-token")).thenThrow(new CrowdClientException("Unknown RIPE NCC Access token: invalid-token"));
+        when(ssoTokenTranslator.translateSsoToken("invalid-token")).thenThrow(new CrowdClientException(UNAUTHORIZED.getStatusCode(),"Unknown RIPE NCC Access token: invalid-token"));
 
         final String data = "person:   Ed Shryane\n" +
                 "address:  Ripe NCC Singel 258\n" +

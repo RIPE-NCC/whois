@@ -24,8 +24,8 @@ import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthTranslator;
-import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import org.apache.commons.lang.StringUtils;
@@ -92,7 +92,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     RpslObjectDao rpslObjectDao;
     RpslObjectUpdateDao rpslObjectUpdateDao;
-    CrowdClient crowdClient;
+    AuthServiceClient authServiceClient;
     private StringValueResolver valueResolver;
 
     @Autowired(required = false)
@@ -120,8 +120,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     // TODO: [AH] autowire these fields once whois-internals has proper wiring set up
     @Autowired
-    public void setCrowdClient(CrowdClient crowdClient) {
-        this.crowdClient = crowdClient;
+    public void setCrowdClient(AuthServiceClient authServiceClient) {
+        this.authServiceClient = authServiceClient;
     }
 
     @Autowired
@@ -338,7 +338,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
                 if (authType.equals("SSO")) {
                     try {
-                        final String uuid = crowdClient.getUuid(authToken);
+                        final String uuid = authServiceClient.getUuid(authToken);
                         return new RpslAttribute(originalAttribute.getKey(), "SSO " + uuid);
                     } catch (CrowdClientException e) {
                         LOGGER.info(e.getMessage());
@@ -545,5 +545,4 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             throw new IllegalStateException("Mariadb innodb_file_per_table must be OFF");
         }
     }
-
 }
