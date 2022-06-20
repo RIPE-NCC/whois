@@ -88,12 +88,13 @@ public class AuthServiceClient {
                     .header("X-API_KEY", apiKey)
                     .get(ValidateTokenResponse.class);
         } catch (NotFoundException e) {
+            LOGGER.info("Failed to validate token {} due to {}:{}\n\tResponse: {}", crowdToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new CrowdClientException(UNAUTHORIZED.getStatusCode(), "Invalid token.");
         } catch (WebApplicationException e) {
-            LOGGER.debug("Failed to validate token {} due to {}:{}\n\tResponse: {}", crowdToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            LOGGER.info("Failed to validate token {} due to {}:{}\n\tResponse: {}", crowdToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new CrowdClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         } catch (ProcessingException e) {
-            LOGGER.debug("Failed to validate token {} due to {}:{}", crowdToken, e.getClass().getName(), e.getMessage());
+            LOGGER.info("Failed to validate token {} due to {}:{}", crowdToken, e.getClass().getName(), e.getMessage());
             throw new CrowdClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         }
     }
@@ -108,6 +109,8 @@ public class AuthServiceClient {
             throw new NotAuthorizedException("Invalid username.");
         }
 
+
+
         try {
             final ValidateTokenResponse response = client.target(restUrl)
                     .path(USER_SEARCH_PATH)
@@ -116,16 +119,17 @@ public class AuthServiceClient {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header("X-API_KEY", apiKey)
                     .get(ValidateTokenResponse.class);
-
+            LOGGER.info("")
             return response.response.content.id;
 
         } catch (NotFoundException e) {
+            LOGGER.info("Failed to get info {} due to {}:{}\n\tResponse: {}", username, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new CrowdClientException(UNAUTHORIZED.getStatusCode(), "Invalid username.");
         } catch (WebApplicationException e) {
-            LOGGER.debug("Failed to get details for email {} due to {}:{}\n\tResponse: {}", username, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            LOGGER.info("Failed to get details for email {} due to {}:{}\n\tResponse: {}", username, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new CrowdClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         } catch (ProcessingException e) {
-            LOGGER.debug("Failed to get details for email {} due to {}:{}", username, e.getClass().getName(), e.getMessage());
+            LOGGER.info("Failed to get details for email {} due to {}:{}", username, e.getClass().getName(), e.getMessage());
             throw new CrowdClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         }
     }

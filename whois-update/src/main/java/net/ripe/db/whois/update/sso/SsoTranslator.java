@@ -9,6 +9,8 @@ import net.ripe.db.whois.common.sso.SsoHelper;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,8 @@ import javax.annotation.CheckForNull;
 @Component
 public class SsoTranslator {
     private final AuthServiceClient authServiceClient;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SsoTranslator.class);
 
     @Autowired
     public SsoTranslator(final AuthServiceClient authServiceClient) {
@@ -54,9 +58,12 @@ public class SsoTranslator {
                 if (authType.equals("SSO")) {
                     if (!updateContext.hasSsoTranslationResult(authToken)) {
                         try {
+                            LOGGER.info("getting details for {}", authToken);
+
                             final String uuid = authServiceClient.getUuid(authToken);
                             updateContext.addSsoTranslationResult(authToken, uuid);
                         } catch (CrowdClientException e) {
+                            LOGGER.info("failed to get details for {}: {}", authToken, e.getMessage());
                             updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
                         }
                     }
