@@ -58,12 +58,9 @@ public class SsoTranslator {
                 if (authType.equals("SSO")) {
                     if (!updateContext.hasSsoTranslationResult(authToken)) {
                         try {
-                            LOGGER.info("getting details for {}", authToken);
-
                             final String uuid = authServiceClient.getUuid(authToken);
                             updateContext.addSsoTranslationResult(authToken, uuid);
                         } catch (CrowdClientException e) {
-                            LOGGER.info("failed to get details for {}: {}", authToken, e.getMessage());
                             updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
                         }
                     }
