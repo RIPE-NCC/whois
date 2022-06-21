@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
-//#TODO: stopwatch
 @Component
 public class AuthServiceClient {
 

@@ -42,7 +42,7 @@ public class RestServiceHelper {
     private static final Set<Class> SKIP_STACK_TRACE = Sets.newHashSet(
                                                         CrowdClientException.class,
                                                         CannotGetJdbcConnectionException.class,
-                                                             PreparedStatementCallback.class);
+                                                        PreparedStatementCallback.class);
 
     private RestServiceHelper() {
         // do not instantiate

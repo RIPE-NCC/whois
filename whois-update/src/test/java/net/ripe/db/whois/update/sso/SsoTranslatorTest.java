@@ -25,8 +25,7 @@ public class SsoTranslatorTest {
 
     @Mock UpdateContext updateContext;
     @Mock Update update;
-    @Mock
-    AuthServiceClient authServiceClient;
+    @Mock AuthServiceClient authServiceClient;
 
 
     private SsoTranslator subject;
