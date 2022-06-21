@@ -26,7 +26,7 @@ import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthTranslator;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -340,7 +340,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                     try {
                         final String uuid = authServiceClient.getUuid(authToken);
                         return new RpslAttribute(originalAttribute.getKey(), "SSO " + uuid);
-                    } catch (CrowdClientException e) {
+                    } catch (AuthServiceClientException e) {
                         LOGGER.info(e.getMessage());
                     }
                 }

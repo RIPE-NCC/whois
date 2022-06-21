@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.rpsl.transform;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.junit.jupiter.api.Assertions;
@@ -13,8 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -184,12 +182,12 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void crowd_client_exception() {
-        Assertions.assertThrows(CrowdClientException.class, () -> {
+        Assertions.assertThrows(AuthServiceClientException.class, () -> {
             final UserSession userSession = new UserSession("user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
             userSession.setUuid("d06e5500-ac91-4336-94f3-76cab38b73eb");
 
             when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
-            when(authServiceClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenThrow(CrowdClientException.class);
+            when(authServiceClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenThrow(AuthServiceClientException.class);
 
             subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, authServiceClient, rpslObjectDao);
             subject.apply(RpslObject.parse("" +
@@ -204,7 +202,7 @@ public class FilterAuthFunctionTest {
         final UserSession userSession = new UserSession("user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
         userSession.setUuid("T2hOz8tlmka5lxoZQxzC1Q00");
 
-        when(ssoTokenTranslator.translateSsoToken("token")).thenThrow(CrowdClientException.class);
+        when(ssoTokenTranslator.translateSsoToken("token")).thenThrow(AuthServiceClientException.class);
 
         subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, authServiceClient, rpslObjectDao);
         final RpslObject result = subject.apply(
@@ -221,7 +219,7 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void sso_token_translator_exception() {
-        when(ssoTokenTranslator.translateSsoToken(any(String.class))).thenThrow(CrowdClientException.class);
+        when(ssoTokenTranslator.translateSsoToken(any(String.class))).thenThrow(AuthServiceClientException.class);
         subject = new FilterAuthFunction(Collections.emptyList(), "token", ssoTokenTranslator, authServiceClient, rpslObjectDao);
 
         final RpslObject result = subject.apply(

@@ -14,7 +14,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang.StringUtils;
@@ -139,7 +139,7 @@ public class FilterAuthFunction implements FilterFunction {
                     if (userSession != null && userSession.getUuid().equals(matcher.group(1))) {
                         return true;
                     }
-                } catch (CrowdClientException e) {
+                } catch (AuthServiceClientException e) {
                     return false;
                 }
             }

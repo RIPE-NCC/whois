@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -330,7 +330,7 @@ public class SyncUpdatesServiceTest {
     @Test
     public void handle_multipart_post_invalid_sso_token() {
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
-        when(ssoTokenTranslator.translateSsoToken("invalid-token")).thenThrow(new CrowdClientException(UNAUTHORIZED.getStatusCode(),"Unknown RIPE NCC Access token: invalid-token"));
+        when(ssoTokenTranslator.translateSsoToken("invalid-token")).thenThrow(new AuthServiceClientException(UNAUTHORIZED.getStatusCode(),"Unknown RIPE NCC Access token: invalid-token"));
 
         final String data = "person:   Ed Shryane\n" +
                 "address:  Ripe NCC Singel 258\n" +

@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthTranslator;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -37,7 +37,7 @@ public class SsoTranslator {
                         try {
                             final String username = authServiceClient.getUsername(authToken);
                             updateContext.addSsoTranslationResult(authToken, username);
-                        } catch (CrowdClientException e) {
+                        } catch (AuthServiceClientException e) {
                             if (!updateContext.getGlobalMessages().getErrors().contains(UpdateMessages.ripeAccessServerUnavailable())) {
                                 updateContext.addGlobalMessage(UpdateMessages.ripeAccessServerUnavailable());
                             }
@@ -60,7 +60,7 @@ public class SsoTranslator {
                         try {
                             final String uuid = authServiceClient.getUuid(authToken);
                             updateContext.addSsoTranslationResult(authToken, uuid);
-                        } catch (CrowdClientException e) {
+                        } catch (AuthServiceClientException e) {
                             updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
                         }
                     }

@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Credential;
@@ -27,7 +27,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -188,11 +187,11 @@ public class InternalUpdatePerformerTest {
 
     @Test
     public void setSsoSessionToContext_exception_is_logged() {
-        when(ssoTokenTranslatorMock.translateSsoToken("test-token")).thenThrow(new CrowdClientException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "exception"));
+        when(ssoTokenTranslatorMock.translateSsoToken("test-token")).thenThrow(new AuthServiceClientException(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "exception"));
 
         try {
             subject.setSsoSessionToContext(updateContextMock, "test-token");
-        } catch (CrowdClientException e) {
+        } catch (AuthServiceClientException e) {
             verify(ssoTokenTranslatorMock.translateSsoToken("test-token"));
             verify(loggerContextMock).log(new Message(Messages.Type.ERROR, "exception"));
             verify(updateContextMock).addGlobalMessage(RestMessages.ssoAuthIgnored());

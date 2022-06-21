@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ProcessingException;
@@ -24,7 +23,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -88,13 +86,13 @@ public class AuthServiceClient {
                     .get(ValidateTokenResponse.class);
         } catch (NotFoundException e) {
             LOGGER.debug("Failed to validate token {} due to {}:{}\n\tResponse: {}", crowdToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
-            throw new CrowdClientException(UNAUTHORIZED.getStatusCode(), "Invalid token.");
+            throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid token.");
         } catch (WebApplicationException e) {
             LOGGER.debug("Failed to validate token {} due to {}:{}\n\tResponse: {}", crowdToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
-            throw new CrowdClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         } catch (ProcessingException e) {
             LOGGER.debug("Failed to validate token {} due to {}:{}", crowdToken, e.getClass().getName(), e.getMessage());
-            throw new CrowdClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         }
     }
 
@@ -122,13 +120,13 @@ public class AuthServiceClient {
 
         } catch (NotFoundException e) {
             LOGGER.debug("Failed to get info {} due to {}:{}\n\tResponse: {}", username, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
-            throw new CrowdClientException(UNAUTHORIZED.getStatusCode(), "Invalid username.");
+            throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid username.");
         } catch (WebApplicationException e) {
             LOGGER.debug("Failed to get details for email {} due to {}:{}\n\tResponse: {}", username, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
-            throw new CrowdClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         } catch (ProcessingException e) {
             LOGGER.debug("Failed to get details for email {} due to {}:{}", username, e.getClass().getName(), e.getMessage());
-            throw new CrowdClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         }
     }
 
@@ -150,10 +148,10 @@ public class AuthServiceClient {
             throw new NotAuthorizedException("Invalid token.");
         } catch (WebApplicationException e) {
             LOGGER.debug("Failed to get details for uuid {} due to {}:{}\n\tResponse: {}", uuid, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
-            throw new CrowdClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         } catch (ProcessingException e) {
             LOGGER.debug("Failed to get details for uuid {} due to {}:{}", uuid, e.getClass().getName(), e.getMessage());
-            throw new CrowdClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         }
     }
 
