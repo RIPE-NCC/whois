@@ -141,8 +141,7 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_sso_different_uuid_filtered() {
-        final UserSession userSession = new UserSession("noreply@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-        userSession.setUuid("76cab38b73eb-ac91-4336-94f3-d06e5500");
+        final UserSession userSession = new UserSession("76cab38b73eb-ac91-4336-94f3-d06e5500","noreply@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
         when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
 
         final RpslObject rpslObject = RpslObject.parse("" +
@@ -161,8 +160,7 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_sso_unfiltered() {
-        final UserSession userSession = new UserSession("user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-        userSession.setUuid("d06e5500-ac91-4336-94f3-76cab38b73eb");
+        final UserSession userSession = new UserSession("d06e5500-ac91-4336-94f3-76cab38b73eb","user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
         when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
         when(authServiceClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenReturn("user@host.org");
 
@@ -183,8 +181,7 @@ public class FilterAuthFunctionTest {
     @Test
     public void crowd_client_exception() {
         Assertions.assertThrows(AuthServiceClientException.class, () -> {
-            final UserSession userSession = new UserSession("user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-            userSession.setUuid("d06e5500-ac91-4336-94f3-76cab38b73eb");
+            final UserSession userSession = new UserSession("d06e5500-ac91-4336-94f3-76cab38b73eb","user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
 
             when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
             when(authServiceClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenThrow(AuthServiceClientException.class);
@@ -199,8 +196,7 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void crowd_client_exception_server_down() {
-        final UserSession userSession = new UserSession("user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-        userSession.setUuid("T2hOz8tlmka5lxoZQxzC1Q00");
+        final UserSession userSession = new UserSession("T2hOz8tlmka5lxoZQxzC1Q00","user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
 
         when(ssoTokenTranslator.translateSsoToken("token")).thenThrow(AuthServiceClientException.class);
 
