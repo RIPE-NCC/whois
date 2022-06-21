@@ -20,9 +20,10 @@ public class UserSession {
     final private String displayName;
     final private boolean isActive;
     final private LocalDateTime expiryDate;
-    private String uuid;
+    final private String uuid;
 
-    public UserSession(final String username, final String displayName, final boolean isActive, final String expiryDate) {
+    public UserSession(final String uuid, final String username, final String displayName, final boolean isActive, final String expiryDate) {
+        this.uuid = uuid;
         this.username = username;
         this.displayName = displayName;
         this.isActive = isActive;
@@ -47,10 +48,6 @@ public class UserSession {
 
     public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(final String uuid) {
-        this.uuid = uuid;
     }
 
     @Override

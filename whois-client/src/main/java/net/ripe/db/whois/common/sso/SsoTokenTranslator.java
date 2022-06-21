@@ -15,7 +15,6 @@ public class SsoTokenTranslator {
 
     public UserSession translateSsoToken(final String ssoToken) {
         final UserSession userSession = authServiceClient.getUserSession(ssoToken);
-        userSession.setUuid(authServiceClient.getUuid(userSession.getUsername()));
         return userSession;
     }
 }

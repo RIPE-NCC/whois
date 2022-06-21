@@ -5,7 +5,7 @@ public class AuthServiceClientException extends RuntimeException {
     private final String message;
     private final int code;
 
-    public AuthServiceClientException(int code, String message) {
+    public AuthServiceClientException(final int code, final String message) {
         this.code = code;
         this.message = message;
     }

@@ -20,8 +20,6 @@ import javax.annotation.CheckForNull;
 public class SsoTranslator {
     private final AuthServiceClient authServiceClient;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SsoTranslator.class);
-
     @Autowired
     public SsoTranslator(final AuthServiceClient authServiceClient) {
         this.authServiceClient = authServiceClient;

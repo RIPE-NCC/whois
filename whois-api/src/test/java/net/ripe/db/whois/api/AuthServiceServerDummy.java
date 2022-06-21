@@ -73,11 +73,11 @@ public class AuthServiceServerDummy implements Stub {
         final Map<String, UserSession> userSessionMap;
         {
             userSessionMap = Maps.newHashMap();
-            userSessionMap.put("valid-token", new UserSession("person@net.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
+            userSessionMap.put("valid-token", new UserSession("aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef","person@net.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
             userSessionMap.put("invalid-token", null);
             // for e2e integration test
-            userSessionMap.put("db_e2e_1", new UserSession("db_e2e_1@ripe.net", "DB E2E_1", true, "2033-01-30T16:38:27.369+11:00"));
-            userSessionMap.put("db_e2e_2", new UserSession("db_e2e_2@ripe.net", "DB E2E_2", true, "2033-01-30T16:38:27.369+11:00"));
+            userSessionMap.put("db_e2e_1", new UserSession("e74ccc29-75f9-4ce1-aee0-690345a56c96","db_e2e_1@ripe.net", "DB E2E_1", true, "2033-01-30T16:38:27.369+11:00"));
+            userSessionMap.put("db_e2e_2", new UserSession("e74ccc29-75f9-4ce1-aee0-690345a56c96","db_e2e_2@ripe.net", "DB E2E_2", true, "2033-01-30T16:38:27.369+11:00"));
         }
 
         @Override
@@ -139,7 +139,7 @@ public class AuthServiceServerDummy implements Stub {
 
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
 
-        final String restUrl = String.format("http://localhost:%s/", getPort());
+        final String restUrl = String.format("http://localhost:%s/authorisation-service/v2/authresource", getPort());
         LOGGER.info("SSO dummy server restUrl: {}", restUrl);
         ReflectionTestUtils.setField(authServiceClient, "restUrl", restUrl);
     }

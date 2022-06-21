@@ -36,9 +36,9 @@ public class AuthServiceClient {
     public static final String TOKEN_KEY = "crowd.token_key";
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthServiceClient.class);
 
-    private static final String VALIDATE_PATH = "/authorisation-service/v2/authresource/validate";
-    private static final String ORGANISATION_MEMBERS_PATH = "/authorisation-service/v2/authresource/members";
-    private static final String USER_SEARCH_PATH = "/authorisation-service/v2/authresource/accounts/";
+    private static final String VALIDATE_PATH = "/validate";
+    private static final String ORGANISATION_MEMBERS_PATH = "/members";
+    private static final String USER_SEARCH_PATH = "/accounts/";
 
     private static final String CONTACT_PATH = "/contacts";
     private static final String EMAIL_PATH = "/email";
@@ -70,8 +70,8 @@ public class AuthServiceClient {
     }
 
     @Nullable
-    public ValidateTokenResponse validateToken(final String crowdToken) {
-        if (StringUtils.isEmpty(crowdToken)) {
+    public ValidateTokenResponse validateToken(final String authToken) {
+        if (StringUtils.isEmpty(authToken)) {
             LOGGER.info("No crowdToken was supplied");
             throw new NotAuthorizedException("Invalid token.");
         }
@@ -79,26 +79,26 @@ public class AuthServiceClient {
         try {
             return client.target(restUrl)
                     .path(VALIDATE_PATH)
-                    .path(crowdToken)
+                    .path(authToken)
                     .queryParam("permission", VALIDATE_TOKEN_PERMISSION)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header("X-API_KEY", apiKey)
                     .get(ValidateTokenResponse.class);
         } catch (NotFoundException e) {
-            LOGGER.debug("Failed to validate token {} due to {}:{}\n\tResponse: {}", crowdToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            LOGGER.debug("Failed to validate token {} due to {}:{}\n\tResponse: {}", authToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid token.");
         } catch (WebApplicationException e) {
-            LOGGER.debug("Failed to validate token {} due to {}:{}\n\tResponse: {}", crowdToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            LOGGER.debug("Failed to validate token {} due to {}:{}\n\tResponse: {}", authToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         } catch (ProcessingException e) {
-            LOGGER.debug("Failed to validate token {} due to {}:{}", crowdToken, e.getClass().getName(), e.getMessage());
+            LOGGER.debug("Failed to validate token {} due to {}:{}", authToken, e.getClass().getName(), e.getMessage());
             throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         }
     }
 
     public UserSession getUserSession(final String token) {
         ValidateTokenResponse response = validateToken(token);
-        return new UserSession(response.response.content.email, response.response.content.getName(), response.response.content.active, null);
+            return new UserSession(response.response.content.id, response.response.content.email, response.response.content.getName(), response.response.content.active, null);
     }
 
     public String getUuid(final String username) {
