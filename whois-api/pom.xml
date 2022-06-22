@@ -136,7 +136,6 @@
         </dependency>
 
         <!-- testing -->
-
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>elasticsearch</artifactId>
