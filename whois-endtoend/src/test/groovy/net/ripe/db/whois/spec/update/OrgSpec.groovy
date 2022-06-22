@@ -452,7 +452,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 "LIR",
                 "IANA",
                 "RIR",
-                "WHITEPAGES",
                 "DIRECT_ASSIGNMENT"
         ]
     }
@@ -546,40 +545,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 password: hm
                 """.stripIndent()
             )
-
-        then:
-            ack.success
-
-            ack.summary.nrFound == 1
-            ack.summary.assertSuccess(1, 1, 0, 0, 0)
-            ack.summary.assertErrors(0, 0, 0, 0)
-
-            ack.countErrorWarnInfo(0, 0, 0)
-
-            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-    }
-
-    def "create organisation org-type WHITEPAGES with power mntner"() {
-        expect:
-            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-        when:
-           def ack = syncUpdateWithResponse("""
-                organisation:    auto-1
-                org-type:        WHITEPAGES
-                org-name:        First Org
-                address:         RIPE NCC
-                                 Singel 258
-                                 1016 AB Amsterdam
-                                 Netherlands
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          ripe-NCC-hM-mnT
-                source:          TEST
-
-                password: hm
-                """.stripIndent()
-           )
 
         then:
             ack.success
