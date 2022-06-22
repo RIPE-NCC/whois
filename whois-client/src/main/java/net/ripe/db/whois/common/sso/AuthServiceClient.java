@@ -170,7 +170,6 @@ public class AuthServiceClient {
                         .path(ORGANISATION_MEMBERS_PATH)
                         .path(String.valueOf(membershipId))
                         .path(CONTACT_PATH)
-                        .queryParam("api-key", apiKey) // TODO remove this when this endpoint supports apikey as a header
                         .request(MediaType.APPLICATION_JSON_TYPE)
                         .header("X-API_KEY", apiKey)
                         .get(MemberContactsResponse.class);
