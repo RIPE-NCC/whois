@@ -69,7 +69,9 @@ public class HealthCheckService {
 
     @GET
     public Response check() {
+        LOGGER.info("XXXXXXXXXXXXXX HealthCgeckService.check");
         boolean isHealthy = readinessUpdater.isLoadBalancerEnabled() && databaseHealthy.get() && filesystemHealthy.get() && ipTreeHealthy.get();
+        LOGGER.info("XXXXXXXXXXXXXX isHealthy " + isHealthy);
 
         return isHealthy ?
                 Response.ok().entity("OK").build() :
