@@ -23,12 +23,12 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static javax.ws.rs.core.Response.Status.*;
 
 @Component
 public class AuthServiceClient {
@@ -73,7 +73,7 @@ public class AuthServiceClient {
     public ValidateTokenResponse validateToken(final String authToken) {
         if (StringUtils.isEmpty(authToken)) {
             LOGGER.info("No crowdToken was supplied");
-            throw new NotAuthorizedException("Invalid token.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"Invalid token.");
         }
 
         try {
@@ -103,7 +103,7 @@ public class AuthServiceClient {
 
     public String getUuid(final String username) {
         if (StringUtils.isEmpty(username)) {
-            throw new NotAuthorizedException("Invalid username.");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "Invalid username.");
         }
 
 
@@ -133,7 +133,7 @@ public class AuthServiceClient {
     public ValidateTokenResponse getUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.info("No uuid was supplied");
-            throw new NotAuthorizedException("Invalid uuid.");
+            new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"Invalid uuid.");
         }
 
         try {
