@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -100,7 +101,7 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
-            @CookieParam("crowd.token_key") final String crowdTokenKey,
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun) {
 
@@ -158,7 +159,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
-            @CookieParam("crowd.token_key") final String crowdTokenKey,
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
             @QueryParam("unformatted") final String unformatted) {
@@ -213,7 +214,7 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
-            @CookieParam("crowd.token_key") final String crowdTokenKey,
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
             @QueryParam("unformatted") final String unformatted) {
@@ -276,7 +277,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
-            @CookieParam("crowd.token_key") final String crowdTokenKey,
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("unformatted") final String unformatted,
             @QueryParam("unfiltered") final String unfiltered,
             @QueryParam("managed-attributes") final String managedAttributes,

@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
@@ -81,7 +82,7 @@ public class DomainObjectService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String sourceParam,
             @QueryParam("password") final List<String> passwords,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         if (resources == null || resources.getWhoisObjects().size() == 0) {
             return Response.status(BAD_REQUEST).entity("WhoisResources is mandatory").build();

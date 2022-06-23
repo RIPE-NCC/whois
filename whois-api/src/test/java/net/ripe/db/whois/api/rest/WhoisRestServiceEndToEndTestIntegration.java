@@ -18,7 +18,7 @@ import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.support.TestUpdateLog;
 import org.junit.jupiter.api.BeforeEach;
@@ -126,7 +126,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
 
     @Autowired
     WhoisObjectMapper whoisObjectMapper;
-    @Autowired CrowdClient crowdClient;
+    @Autowired AuthServiceClient authServiceClient;
 
     @Autowired TestUpdateLog updateLog;
     @Value("${dir.update.audit.log}") String auditLog;
