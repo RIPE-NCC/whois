@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.Update;
@@ -61,7 +62,7 @@ public class BatchUpdatesService {
                        @QueryParam("override") final String override,
                        @QueryParam("dry-run") final String dryRun,
                        @QueryParam("delete-reason") final String reason,
-                       @CookieParam("crowd.token_key") final String crowdTokenKey) {
+                       @CookieParam(AuthServiceClient.TOKEN_KEY)  final String crowdTokenKey) {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
