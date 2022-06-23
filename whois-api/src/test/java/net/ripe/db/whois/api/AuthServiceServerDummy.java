@@ -63,9 +63,9 @@ public class AuthServiceServerDummy implements Stub {
             usermap.put("db_e2e_2@ripe.net", new SSOUser("db_e2e_2@ripe.net", "DB","E2E_2", "e74ccc29-75f9-4ce1-aee0-690345a56c96", true));
 
             // for e2e integration test
-            usermap.put("valid-token", new SSOUser("person@net.net", "Test","User", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef", true));
+            usermap.put("valid-token", new SSOUser("person@net.net", "Test","User", "906635c2-0405-429a-800b-0602bd716124", true));
             usermap.put("invalid-token", null);
-            usermap.put("db_e2e_1", new SSOUser("db_e2e_1@ripe.net", "DB","E2E_1", "e74ccc29-75f9-4ce1-aee0-690345a56c96", true));
+            usermap.put("db_e2e_1", new SSOUser("db_e2e_1@ripe.net", "DB","E2E_1", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef", true));
             usermap.put("db_e2e_2", new SSOUser("db_e2e_2@ripe.net", "DB","E2E_2", "e74ccc29-75f9-4ce1-aee0-690345a56c96", true));
 
         }
