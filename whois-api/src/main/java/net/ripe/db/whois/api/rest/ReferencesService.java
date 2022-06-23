@@ -28,6 +28,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.Update;
@@ -166,7 +167,7 @@ public class ReferencesService {
                 @PathParam("source") final String sourceParam,
                 @Context final HttpServletRequest request,
                 @QueryParam("password") final List<String> passwords,
-                @CookieParam("crowd.token_key") final String crowdTokenKey) {
+                @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         validateWhoisResources(whoisResources);
         validateSource(sourceParam);
@@ -395,7 +396,7 @@ public class ReferencesService {
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
             @QueryParam("override") final String override,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         validateSource(sourceParam);
 

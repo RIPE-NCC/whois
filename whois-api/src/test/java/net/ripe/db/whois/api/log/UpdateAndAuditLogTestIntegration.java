@@ -22,7 +22,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import net.ripe.db.whois.update.support.TestUpdateLog;
@@ -86,7 +86,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     String auditLog;
 
     @Autowired TestUpdateLog updateLog;
-    @Autowired CrowdClient crowdClient;
+    @Autowired AuthServiceClient authServiceClient;
     @Autowired MailUpdatesTestSupport mailUpdatesTestSupport;
     @Autowired MailSenderStub mailSenderStub;
     @Autowired private WhoisObjectMapper whoisObjectMapper;

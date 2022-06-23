@@ -14,7 +14,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.ClientCertificateCredential;
@@ -221,7 +221,7 @@ public class InternalUpdatePerformer {
         if (!StringUtils.isBlank(ssoToken)) {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
-            } catch (CrowdClientException e) {
+            } catch (AuthServiceClientException e) {
                 logError(e);
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
