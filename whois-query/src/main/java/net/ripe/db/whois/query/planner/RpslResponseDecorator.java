@@ -10,7 +10,7 @@ import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
@@ -57,7 +57,7 @@ public class RpslResponseDecorator {
     private final AbuseCInfoDecorator abuseCInfoDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
     private final SsoTokenTranslator ssoTokenTranslator;
-    private final CrowdClient crowdClient;
+    private final AuthServiceClient authServiceClient;
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
 
@@ -71,7 +71,7 @@ public class RpslResponseDecorator {
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final SsoTokenTranslator ssoTokenTranslator,
-                                 final CrowdClient crowdClient,
+                                 final AuthServiceClient authServiceClient,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -79,7 +79,7 @@ public class RpslResponseDecorator {
         this.sourceContext = sourceContext;
         this.abuseCInfoDecorator = abuseCInfoDecorator;
         this.ssoTokenTranslator = ssoTokenTranslator;
-        this.crowdClient = crowdClient;
+        this.authServiceClient = authServiceClient;
         this.validSyntaxFilterFunction = new SyntaxFilterFunction(true);
         this.invalidSyntaxFilterFunction = new SyntaxFilterFunction(false);
         this.filterTagsDecorator = filterTagsDecorator;
@@ -164,7 +164,7 @@ public class RpslResponseDecorator {
         final FilterAuthFunction filterAuthFunction =
                 (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken)) ?
                         FILTER_AUTH_FUNCTION :
-                        new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, crowdClient, rpslObjectDao);
+                        new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, authServiceClient, rpslObjectDao);
 
         return Iterables.transform(objects, input -> {
             if (input instanceof RpslObject) {
