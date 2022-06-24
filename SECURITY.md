@@ -19,4 +19,9 @@ If you find a security vulnerability in Whois.
 * Please provide sufficient information for us to reproduce the issue so that we can resolve it as soon as possible.
 * Please delete all confidential information obtained through the vulnerability as soon as possible after reporting it, but always after consulting us to make sure that we can reproduce the issue.
 
+Disclaimer
+
+The RIPE NCC has started with a formal Bug Bounty program with Intigriti. Currently this is an 'invite-only' program for security researchers that have registered with Intigriti. If you want to participate, please contact Intigriti Support.
+
+You are only eligible for a bounty when participating through the Intigriti program.
 
