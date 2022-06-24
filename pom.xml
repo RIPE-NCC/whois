@@ -88,7 +88,7 @@
         <solrj.version>1.4.1</solrj.version>
         <stax-utils.version>20070216</stax-utils.version>
         <spock.version>2.0-groovy-3.0</spock.version>
-        <shedlock.version>4.24.0</shedlock.version>
+        <shedlock.version>4.37.0</shedlock.version>
         <elasticsearch.version>7.15.0</elasticsearch.version>
 
         <validation.version>2.0.1.Final</validation.version>
@@ -883,7 +883,7 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.12.1</version>
+                <version>1.13.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1037,7 +1037,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
                 <configuration>
                     <rules>
                         <dependencyConvergence/>
@@ -1047,9 +1047,9 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.5</version>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>5.0.0</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
