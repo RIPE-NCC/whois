@@ -114,6 +114,9 @@ whois-integration-test:
 
 sonar:
   <<: *it_env
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   services:
     - mariadb:10.2
   stage: code_quality
