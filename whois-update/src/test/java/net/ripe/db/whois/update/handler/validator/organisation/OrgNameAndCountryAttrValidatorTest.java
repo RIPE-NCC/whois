@@ -38,14 +38,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class OrgNameNotChangedValidatorTest {
+public class OrgNameAndCountryAttrValidatorTest {
     @Mock private UpdateContext updateContext;
     @Mock private PreparedUpdate update;
     @Mock private Subject subjectObject;
     @Mock private RpslObjectUpdateDao updateDao;
     @Mock private RpslObjectDao objectDao;
     @Mock private Maintainers maintainers;
-    @InjectMocks private OrgNameNotChangedValidator subject;
+    @InjectMocks private OrgNameAndCountryAttrValidator subject;
 
     public static final RpslObject ORIGINAL_ORG = RpslObject.parse(10, "" +
             "organisation: ORG-TEST1\n" +

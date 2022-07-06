@@ -8,8 +8,9 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
+import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -26,7 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Component
-public class OrgNameNotChangedValidator implements BusinessRuleValidator {
+public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
@@ -38,7 +39,7 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
     private final Maintainers maintainers;
 
     @Autowired
-    public OrgNameNotChangedValidator(final RpslObjectUpdateDao objectUpdateDao, final RpslObjectDao objectDao, final Maintainers maintainers) {
+    public OrgNameAndCountryAttrValidator(final RpslObjectUpdateDao objectUpdateDao, final RpslObjectDao objectDao, final Maintainers maintainers) {
         this.objectUpdateDao = objectUpdateDao;
         this.objectDao = objectDao;
         this.maintainers = maintainers;
@@ -54,7 +55,9 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
             return;
         }
 
-        if (orgNameDidntChange(originalObject, updatedObject)) {
+        final boolean isOrgNameModified = isAttributeModified(ORG_NAME, originalObject, updatedObject);
+        final boolean isCountryCodeModified = isAttributeModified(COUNTRY, originalObject, updatedObject);
+        if (!isOrgNameModified && !isCountryCodeModified) {
             return;
         }
 
@@ -64,8 +67,13 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
         }
 
         if (isReferencedByRsMaintainedResource(originalObject)) {
-            final RpslAttribute orgNameAttribute = updatedObject.findAttribute(AttributeType.ORG_NAME);
-            updateContext.addMessage(update, orgNameAttribute, UpdateMessages.cantChangeOrgName());
+            if(isOrgNameModified) {
+                updateContext.addMessage(update, updatedObject.findAttribute(ORG_NAME), UpdateMessages.cantChangeOrgName());
+            }
+
+            if(isCountryCodeModified) {
+                updateContext.addMessage(update, updatedObject.findAttribute(COUNTRY), UpdateMessages.cantChangeCountryCode());
+            }
         }
     }
 
@@ -84,14 +92,13 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
         }
         return false;
     }
+    private boolean isAttributeModified(final AttributeType attrType, final RpslObject originalObject, final RpslObject updatedObject) {
+        final CIString originalAttrValue = originalObject.getValueOrNullForAttribute(attrType);
+        final CIString updatedAttrValue = updatedObject.getValueOrNullForAttribute(attrType);
 
-    private boolean orgNameDidntChange(final RpslObject originalObject, final RpslObject updatedObject) {
-        final CIString originalOrgName = originalObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
-        final CIString updatedOrgName = updatedObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
-
-        return (originalOrgName != null) &&
-                (updatedOrgName != null) &&
-                (Objects.equals(originalOrgName.toString(), updatedOrgName.toString()));
+        return (originalAttrValue != null) &&
+                (updatedAttrValue != null) &&
+                (Objects.equals(originalAttrValue.toString(), updatedAttrValue.toString()));
     }
 
     private boolean alreadyHasAllPossibleAuthorisations(final Subject subject) {

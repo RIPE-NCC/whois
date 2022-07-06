@@ -195,6 +195,11 @@ public final class UpdateMessages {
                 "Please contact \"ncc@ripe.net\" to change the name.");
     }
 
+    public static Message cantChangeCountryCode() {
+        return new Message(Type.ERROR, "Organisation country code can only be changed by the RIPE NCC for this organisation.\n" +
+                "Please contact \"ncc@ripe.net\" to change the name.");
+    }
+
     public static Message countryNotRecognised(final CharSequence country) {
         return new Message(Type.ERROR, "Country not recognised: %s", country);
     }
