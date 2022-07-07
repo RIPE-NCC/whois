@@ -104,7 +104,7 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
             return true;
         }
 
-        return !(originalAttrValue.equals(updatedAttrValue.toString()));
+        return !(Objects.equals(originalAttrValue.toString(), updatedAttrValue.toString()));
     }
 
     private boolean alreadyHasAllPossibleAuthorisations(final Subject subject) {
