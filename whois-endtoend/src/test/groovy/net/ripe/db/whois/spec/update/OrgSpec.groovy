@@ -178,12 +178,12 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:      RIPE-NCC-END-MNT
                 source:      TEST
                 """,
-                "ASSIGN-PI-OTHER-OFA10": """\
+                "ASSIGN-PI-OTHER-OFA11": """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
-                org:          ORG-OFA10-TEST
+                org:          ORG-OFA11-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
@@ -3742,16 +3742,16 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
     def "modify organisation, org-type:OTHER, ref from PI, modify country"() {
         given:
-        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER-OFA10"))
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER-OFA11"))
 
         expect:
-        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "org-type:\\s*OTHER")
+        query_object_matches("-r -T organisation ORG-OFA11-TEST", "organisation", "ORG-OFA11-TEST", "org-type:\\s*OTHER")
 
         when:
         def message = syncUpdate("""
-                organisation: ORG-OFA10-TEST
+                organisation: ORG-OFA11-TEST
                 org-type:     OTHER
-                org-name:     Organisation for Abuse
+                org-name:     Organisation for country and Abuse
                 country:      FR
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
@@ -3775,23 +3775,23 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
         ack.countErrorWarnInfo(1, 0, 0)
 
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") ==
                 ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
     }
 
     def "modify organisation, org-type:OTHER, ref from PI, delete country"() {
         given:
-        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER-OFA10"))
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER-OFA11"))
 
         expect:
-        query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "org-type:\\s*OTHER")
+        query_object_matches("-r -T organisation ORG-OFA11-TEST", "organisation", "ORG-OFA11-TEST", "org-type:\\s*OTHER")
 
         when:
         def message = syncUpdate("""
-                organisation: ORG-OFA10-TEST
+                organisation: ORG-OFA11-TEST
                 org-type:     OTHER
-                org-name:     Organisation for Abuse
+                org-name:     Organisation for country and Abuse
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
                 admin-c:      TP1-TEST
@@ -3814,8 +3814,8 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
         ack.countErrorWarnInfo(1, 0, 0)
 
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") ==
                 ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
     }
 }
