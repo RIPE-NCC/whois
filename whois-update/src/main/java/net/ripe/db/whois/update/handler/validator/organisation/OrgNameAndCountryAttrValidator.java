@@ -68,11 +68,11 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
 
         if (isReferencedByRsMaintainedResource(originalObject)) {
             if(isOrgNameModified) {
-                updateContext.addMessage(update, updatedObject.findAttribute(ORG_NAME), UpdateMessages.cantChangeOrgName());
+                updateContext.addMessage(update, updatedObject.findAttribute(ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(ORG_NAME));
             }
 
             if(isCountryCodeModified) {
-                updateContext.addMessage(update, updatedObject.findAttribute(COUNTRY), UpdateMessages.cantChangeCountryCode());
+                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(COUNTRY));
             }
         }
     }
@@ -96,9 +96,15 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
         final CIString originalAttrValue = originalObject.getValueOrNullForAttribute(attrType);
         final CIString updatedAttrValue = updatedObject.getValueOrNullForAttribute(attrType);
 
-        return (originalAttrValue != null) &&
-                (updatedAttrValue != null) &&
-                !(Objects.equals(originalAttrValue.toString(), updatedAttrValue.toString()));
+        if(originalAttrValue == null && updatedAttrValue == null) {
+            return false;
+        }
+
+        if(originalAttrValue == null || updatedAttrValue == null) {
+            return true;
+        }
+
+        return !(originalAttrValue.equals(updatedAttrValue.toString()));
     }
 
     private boolean alreadyHasAllPossibleAuthorisations(final Subject subject) {

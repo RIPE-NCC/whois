@@ -657,6 +657,7 @@ class BasicFixtures {
                 organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
+                country:      NL
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
                 admin-c:      TP1-TEST
