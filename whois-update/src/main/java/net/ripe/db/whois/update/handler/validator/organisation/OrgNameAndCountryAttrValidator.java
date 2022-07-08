@@ -8,8 +8,9 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
+import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -19,6 +20,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Component
-public class OrgNameNotChangedValidator implements BusinessRuleValidator {
+public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
@@ -38,7 +40,7 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
     private final Maintainers maintainers;
 
     @Autowired
-    public OrgNameNotChangedValidator(final RpslObjectUpdateDao objectUpdateDao, final RpslObjectDao objectDao, final Maintainers maintainers) {
+    public OrgNameAndCountryAttrValidator(final RpslObjectUpdateDao objectUpdateDao, final RpslObjectDao objectDao, final Maintainers maintainers) {
         this.objectUpdateDao = objectUpdateDao;
         this.objectDao = objectDao;
         this.maintainers = maintainers;
@@ -54,7 +56,9 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
             return;
         }
 
-        if (orgNameDidntChange(originalObject, updatedObject)) {
+        final boolean isOrgNameModified = isAttributeModified(ORG_NAME, originalObject, updatedObject);
+        final boolean isCountryCodeModified = isAttributeModified(COUNTRY, originalObject, updatedObject);
+        if (!isOrgNameModified && !isCountryCodeModified) {
             return;
         }
 
@@ -64,8 +68,13 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
         }
 
         if (isReferencedByRsMaintainedResource(originalObject)) {
-            final RpslAttribute orgNameAttribute = updatedObject.findAttribute(AttributeType.ORG_NAME);
-            updateContext.addMessage(update, orgNameAttribute, UpdateMessages.cantChangeOrgName());
+            if(isOrgNameModified) {
+                updateContext.addMessage(update, updatedObject.findAttribute(ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(ORG_NAME));
+            }
+
+            if(isCountryCodeModified) {
+                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(COUNTRY));
+            }
         }
     }
 
@@ -84,14 +93,11 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
         }
         return false;
     }
+    private boolean isAttributeModified(final AttributeType attrType, final RpslObject originalObject, final RpslObject updatedObject) {
+        final String originalAttrValue = originalObject.containsAttribute(attrType) ? originalObject.getValueForAttribute(attrType).toString() : null;
+        final String updatedAttrValue = updatedObject.containsAttribute(attrType) ? updatedObject.getValueForAttribute(attrType).toString() : null;
 
-    private boolean orgNameDidntChange(final RpslObject originalObject, final RpslObject updatedObject) {
-        final CIString originalOrgName = originalObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
-        final CIString updatedOrgName = updatedObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
-
-        return (originalOrgName != null) &&
-                (updatedOrgName != null) &&
-                (Objects.equals(originalOrgName.toString(), updatedOrgName.toString()));
+        return !StringUtils.equals(originalAttrValue, updatedAttrValue);
     }
 
     private boolean alreadyHasAllPossibleAuthorisations(final Subject subject) {

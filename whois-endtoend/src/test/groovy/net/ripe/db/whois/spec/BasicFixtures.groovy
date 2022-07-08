@@ -667,6 +667,21 @@ class BasicFixtures {
                 mnt-by:       lir-mnt
                 source:       TEST
                 """,
+            "ORG-OTH-COUNTRY": """\
+                organisation: ORG-OFA11-TEST
+                org-type:     OTHER
+                org-name:     Organisation for country and Abuse
+                country:      NL
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                source:       TEST
+                """,
             "ORG-END-A": """\
                 organisation: ORG-END1-TEST
                 org-type:     OTHER

@@ -38,14 +38,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class OrgNameNotChangedValidatorTest {
+public class OrgNameAndCountryAttrValidatorTest {
     @Mock private UpdateContext updateContext;
     @Mock private PreparedUpdate update;
     @Mock private Subject subjectObject;
     @Mock private RpslObjectUpdateDao updateDao;
     @Mock private RpslObjectDao objectDao;
     @Mock private Maintainers maintainers;
-    @InjectMocks private OrgNameNotChangedValidator subject;
+    @InjectMocks private OrgNameAndCountryAttrValidator subject;
 
     public static final RpslObject ORIGINAL_ORG = RpslObject.parse(10, "" +
             "organisation: ORG-TEST1\n" +
@@ -190,7 +190,7 @@ public class OrgNameNotChangedValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
+        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -205,7 +205,7 @@ public class OrgNameNotChangedValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
+        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-LEGACY-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -223,7 +223,7 @@ public class OrgNameNotChangedValidatorTest {
         // Any mntner from that group could be used to update such objects
         // confirmed by David 2014-10-06
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext, never()).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
+        verify(updateContext, never()).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
         verifyNoMoreInteractions(maintainers);
     }
 
@@ -307,7 +307,7 @@ public class OrgNameNotChangedValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, ORIGINAL_ORG.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
+        verify(updateContext).addMessage(update, ORIGINAL_ORG.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
         verifyNoMoreInteractions(maintainers);
     }

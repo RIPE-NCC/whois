@@ -178,6 +178,20 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:      RIPE-NCC-END-MNT
                 source:      TEST
                 """,
+                "ASSIGN-PI-OTHER-OFA11": """\
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-OFA11-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                """,
         ]
     }
 
@@ -2240,7 +2254,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
-                ["Organisation name can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
+                ["Attribute \"org-name:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
 
         query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
     }
@@ -2365,7 +2379,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
-                ["Organisation name can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
+                ["Attribute \"org-name:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
 
         query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
     }
@@ -3039,16 +3053,12 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         then:
         def ack = ackFor message
-        ack.failed
+        ack.success
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[organisation] AUTO-1" }
-        ack.errorMessagesFor("Create", "[organisation] AUTO-1") ==
-                [ "Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it." ]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
     }
 
     def "create organisation org-type LIR with country, rs maintainer"() {
@@ -3125,16 +3135,12 @@ class OrgSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        ack.failed
+        ack.success
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
-                [ "Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it." ]
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
     }
 
     def "update organisation, remove country, user maintainer"() {
@@ -3176,16 +3182,12 @@ class OrgSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        ack.failed
+        ack.success
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-SO1-TEST") ==
-                [ "Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it." ]
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
     }
 
     def "delete organisation, with country, user maintainer"() {
@@ -3652,4 +3654,168 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 [ "Country not recognised: FF" ]
     }
 
+    def "modify organisation, org-type:OTHER, change country code with user password"() {
+        given:
+        dbfixture(
+                "organisation:    ORG-SO1-TEST\n" +
+                        "org-type:        other\n" +
+                        "org-name:        First Org\n" +
+                        "country:         FF\n" +
+                        "address:         RIPE NCC" +
+                        "                 Singel 258" +
+                        "                 1016 AB Amsterdam" +
+                        "                 Netherlands\n" +
+                        "e-mail:          dbtest@ripe.net\n" +
+                        "mnt-ref:         owner3-mnt\n" +
+                        "mnt-by:          owner2-mnt\n" +
+                        "source:          TEST\n"
+        )
+        expect:
+        queryObject("-r -T organisation ORG-SO1-TEST", "organisation", "ORG-SO1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+            organisation:    ORG-SO1-TEST
+            org-type:        other
+            org-name:        First Org
+            address:         RIPE NCC
+                             Singel 258
+                             1016 AB Amsterdam
+                             Netherlands
+            country:         NL              
+            e-mail:          dbtest@ripe.net
+            mnt-ref:         owner3-mnt
+            mnt-by:          owner2-mnt
+            source:          TEST
+            password: owner2
+            """.stripIndent()
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "modify organisation, org-type:OTHER, ref from PI, add country"() {
+        given:
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER"))
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "ASSIGNED PI")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+            organisation: ORG-OR1-TEST
+            org-type:     OTHER
+            org-name:     Other Registry
+            country:      NL
+            address:      RIPE NCC
+            e-mail:       dbtest@ripe.net
+            admin-c:      TP1-TEST
+            tech-c:       TP1-TEST
+            ref-nfy:      dbtest-org@ripe.net
+            mnt-ref:      owner3-mnt
+            mnt-by:       lir-mnt
+            source:       TEST
+
+            password: lir
+            """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
+                ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:OTHER, ref from PI, modify country"() {
+        given:
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER-OFA11"))
+
+        expect:
+        query_object_matches("-r -T organisation ORG-OFA11-TEST", "organisation", "ORG-OFA11-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OFA11-TEST
+                org-type:     OTHER
+                org-name:     Organisation for country and Abuse
+                country:      FR
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") ==
+                ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
+    def "modify organisation, org-type:OTHER, ref from PI, delete country"() {
+        given:
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER-OFA11"))
+
+        expect:
+        query_object_matches("-r -T organisation ORG-OFA11-TEST", "organisation", "ORG-OFA11-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OFA11-TEST
+                org-type:     OTHER
+                org-name:     Organisation for country and Abuse
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                abuse-c:      AH1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") ==
+                ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
 }
