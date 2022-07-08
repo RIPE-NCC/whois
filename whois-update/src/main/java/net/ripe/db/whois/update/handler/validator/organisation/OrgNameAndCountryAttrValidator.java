@@ -20,6 +20,7 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -93,18 +94,10 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
         return false;
     }
     private boolean isAttributeModified(final AttributeType attrType, final RpslObject originalObject, final RpslObject updatedObject) {
-        final CIString originalAttrValue = originalObject.getValueOrNullForAttribute(attrType);
-        final CIString updatedAttrValue = updatedObject.getValueOrNullForAttribute(attrType);
+        final String originalAttrValue = originalObject.containsAttribute(attrType) ? originalObject.getValueForAttribute(attrType).toString() : null;
+        final String updatedAttrValue = updatedObject.containsAttribute(attrType) ? updatedObject.getValueForAttribute(attrType).toString() : null;
 
-        if(originalAttrValue == null && updatedAttrValue == null) {
-            return false;
-        }
-
-        if(originalAttrValue == null || updatedAttrValue == null) {
-            return true;
-        }
-
-        return !(Objects.equals(originalAttrValue.toString(), updatedAttrValue.toString()));
+        return !StringUtils.equals(originalAttrValue, updatedAttrValue);
     }
 
     private boolean alreadyHasAllPossibleAuthorisations(final Subject subject) {
