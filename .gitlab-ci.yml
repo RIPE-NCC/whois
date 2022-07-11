@@ -135,7 +135,12 @@ deploy_dev:
   only:
     - /^never$/
 
-# deploy_prepdev:
-#   stage: deploy
-#   only:
-#     - /^never$/
+deploy_prepdev:
+  stage: deploy
+  only:
+    - /^never$/
+
+deploy_salt_prod:
+  stage: deploy
+  only:
+    - /^never$/
