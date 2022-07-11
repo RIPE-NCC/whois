@@ -490,9 +490,9 @@ public interface AttributeSyntax extends Documented {
             "An address prefix is represented as an IPv4 address followed\n" +
             "by the character slash \"/\" followed by an integer in the\n" +
             "range from 0 to 32.  The following are valid address\n" +
-            "prefixes: 128.9.128.5/32, 128.9.0.0/16, 0.0.0.0/0; and the\n" +
-            "following address prefixes are invalid: 0/0, 128.9/16 since\n" +
-            "0 or 128.9 are not strings containing four integers.\n");
+            "prefixes: 192.0.2.5/32, 192.0.2.0/24, 0.0.0.0/0; and the\n" +
+            "following address prefixes are invalid: 0/0, 192.0.2/24 since\n" +
+            "0 or 192.0.2 are not strings containing four integers.\n");
 
     AttributeSyntax ROUTE6_SYNTAX = new AttributeSyntaxParser(new AttributeParser.Route6ResourceParser(), "" +
             "<ipv6-address>/<prefix>\n");
@@ -571,9 +571,9 @@ public interface AttributeSyntax extends Documented {
                             "An address prefix is represented as an IPv4 address followed\n" +
                             "by the character slash \"/\" followed by an integer in the\n" +
                             "range from 0 to 32.  The following are valid address\n" +
-                            "prefixes: 128.9.128.5/32, 128.9.0.0/16, 0.0.0.0/0; and the\n" +
-                            "following address prefixes are invalid: 0/0, 128.9/16 since\n" +
-                            "0 or 128.9 are not strings containing four integers.";
+                            "prefixes: 192.0.2.5/32, 192.0.2.0/24, 0.0.0.0/0; and the\n" +
+                            "following address prefixes are invalid: 0/0, 192.0.2/24 since\n" +
+                            "0 or 192.0.2 are not strings containing four integers.";
                 case ROUTE6:
                     return "" +
                             "<ipv6-address>/<prefix>";
