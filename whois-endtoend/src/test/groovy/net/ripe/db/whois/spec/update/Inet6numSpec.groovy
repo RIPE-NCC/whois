@@ -1434,12 +1434,11 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       ripe-ncc-hm-MNT
-                mnt-by:       ripe-ncc-hm2-MNT
                 mnt-lower:    liR2-MNT
                 status:       ALLOCATED-BY-RIR
                 source:       TEST
 
-                password: hm2
+                password: hm
                 password: owner2
                 password: owner3
                 """.stripIndent()
@@ -1474,7 +1473,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       ripe-ncc-hm-MNT
-                mnt-by:       ripe-ncc-hm2-MNT
                 mnt-by:       liR2-MNT
                 mnt-by:       liR3-MNT
                 mnt-lower:    liR2-MNT
@@ -1490,7 +1488,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       ripe-ncc-hm-MNT
-                mnt-by:       ripe-ncc-hm2-MNT
                 mnt-by:       liR2-MNT
                 mnt-by:       liR3-MNT
                 mnt-lower:    liR2-MNT

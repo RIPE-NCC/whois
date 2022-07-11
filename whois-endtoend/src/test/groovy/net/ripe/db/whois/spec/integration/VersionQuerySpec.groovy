@@ -162,17 +162,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 mnt-by:      RIPE-NCC-HM-MNT
                 source:      TEST
                 """,
-                "RIPE-NCC-HM2-MNT": """\
-                mntner:      RIPE-NCC-HM2-MNT
-                descr:       hostmaster MNTNER
-                admin-c:     TP1-TEST
-                upd-to:      updto_hm@ripe.net
-                mnt-nfy:     mntnfy_hm@ripe.net
-                notify:      notify_hm@ripe.net
-                auth:        MD5-PW \$1\$GAdTrvdG\$SEqxCNjKkR3ogcIq7teRv0  #hm2
-                mnt-by:      RIPE-NCC-HM2-MNT
-                source:      TEST
-                """,
                 "LIR-MNT": """\
                 mntner:      LIR-MNT
                 descr:       used for lir
