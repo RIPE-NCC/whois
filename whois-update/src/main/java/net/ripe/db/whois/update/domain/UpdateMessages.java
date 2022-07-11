@@ -243,10 +243,12 @@ public final class UpdateMessages {
     public static Message authorisationRequiredForAttrChange(final AttributeType attributeType) {
         return new Message(Type.ERROR, "Changing \"%s:\" value requires administrative authorisation", attributeType.getName());
     }
-
     public static Message canOnlyBeChangedByRipeNCC(final AttributeType attributeType) {
         return new Message(Type.ERROR, "Attribute \"%s:\" can only be changed by the RIPE NCC for this object.\n" +
                 "Please contact \"ncc@ripe.net\" to change it.", attributeType.getName());
+    }
+    public static Message canNotAddCommentsInManagedAttr(final AttributeType attributeType) {
+        return new Message(Type.ERROR, "Comments are not allowed on RIPE NCC managed Attribute \"%s:\"" , attributeType.getName());
     }
 
     public static Message canOnlyBeChangedinLirPortal(final AttributeType attributeType) {

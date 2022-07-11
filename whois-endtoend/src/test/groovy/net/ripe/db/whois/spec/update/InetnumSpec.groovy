@@ -2085,6 +2085,77 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "updated")
     }
 
+    def "modify resource, add comment not allowed in managed attributes"() {
+        given:
+        syncUpdate(getTransient("ASSPI") + "password: hm")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI #test comment
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       lir-MNT
+                remarks:      just added
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
+                "Comments are not allowed on RIPE NCC managed Attribute \"status:\""]
+
+    }
+
+    def "modify resource LEGACY, add comment allowed in only user maintained resource"() {
+        given:
+        syncUpdate(getTransient("LEGACY-USER-ONLY") + "override: denis,override1")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST # test comment
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertErrors(0, 0, 0, 0)
+    }
+
     def "delete assignment, parent with mnt-lower mnt-routes mnt-domains, diff pw to mnt-by, no parent pw supplied, assignment pw supplied"() {
       given:
         syncUpdate(getTransient("P-LOW-R-D") + "password: hm\npassword: owner3")

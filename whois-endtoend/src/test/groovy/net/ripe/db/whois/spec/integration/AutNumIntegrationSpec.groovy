@@ -4,6 +4,7 @@ package net.ripe.db.whois.spec.integration
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
+import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.junit.jupiter.api.Tag
 
@@ -305,6 +306,30 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /SUCCESS/
     }
 
+    def "create, add comment in managed attribute fails"() {
+        given:
+        def update = new SyncUpdate(data: """\
+                        aut-num:        AS400
+                        as-name:        End-User-2 # add comment
+                        member-of:      AS-TESTSET
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        notify:         noreply@ripe.net
+                        mnt-routes:     UPD-MNT
+                        mnt-by:         UPD-MNT
+                        source:         TEST
+                        password: update
+                        password: emptypassword
+                        """.stripIndent())
+        when:
+        def response = syncUpdate(update);
+
+        then:
+        response =~ /FAIL/
+        response =~ /Error:   Authorisation for \[as-block\] AS300 - AS500 failed/
+    }
+
     def "create, authentication against asblock's mnt-by and local mnt-by fail"() {
         given:
         def update = new SyncUpdate(data: """\
@@ -398,6 +423,57 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         updateResponse =~ /SUCCESS/
+    }
+
+    def "modify, add comment in managed attribute fails"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                        aut-num:        AS400
+                        as-name:        End-User-2
+                        status:         OTHER
+                        member-of:      AS-TESTSET
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        notify:         noreply@ripe.net
+                        mnt-routes:     UPD-MNT
+                        mnt-by:         UPD-MNT
+                        source:         TEST
+                        password: emptypassword
+                        password: update
+                        """.stripIndent()));
+        expect:
+        insertResponse =~ /SUCCESS/
+
+        when:
+        def message = send new Message(
+                        subject: "",
+                        body: """\
+                        aut-num:        AS400
+                        as-name:        End-User-2
+                        status:         OTHER
+                        member-of:      AS-TESTSET
+                        descr:          other description
+                        org:            ORG-NCC1-RIPE #test comment
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        notify:         noreply@ripe.net
+                        mnt-routes:     UPD-MNT
+                        mnt-by:         UPD-MNT
+                        source:         TEST
+                        password: emptypassword
+                        password: update
+                        """.stripIndent());
+
+        then:
+        def ack = ackFor message
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS400" }
+        ack.errorMessagesFor("Modify", "[aut-num] AS400") == [
+                "Comments are not allowed on RIPE NCC managed Attribute \"org:\""]
     }
 
     def "modify, added member-of validation fail"() {
