@@ -16,10 +16,6 @@
             <artifactId>whois-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>javax.mail-api</artifactId>
         </dependency>

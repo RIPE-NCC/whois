@@ -307,27 +307,35 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create, add comment in managed attribute fails"() {
-        given:
-        def update = new SyncUpdate(data: """\
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
                         aut-num:        AS400
-                        as-name:        End-User-2 # add comment
+                        as-name:        End-User-2
+                        status:         OTHER
                         member-of:      AS-TESTSET
-                        descr:          description
+                        descr:          other description
+                        org:            ORG-NCC1-RIPE #test comment
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         notify:         noreply@ripe.net
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
                         source:         TEST
-                        password: update
                         password: emptypassword
-                        """.stripIndent())
-        when:
-        def response = syncUpdate(update);
+                        password: update
+                        """.stripIndent());
 
         then:
-        response =~ /FAIL/
-        response =~ /Error:   Authorisation for \[as-block\] AS300 - AS500 failed/
+        def ack = ackFor message
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS400" }
+        ack.errorMessagesFor("Create", "[aut-num] AS400") == [
+                "Comments are not allowed on RIPE NCC managed Attribute \"org:\""]
     }
 
     def "create, authentication against asblock's mnt-by and local mnt-by fail"() {

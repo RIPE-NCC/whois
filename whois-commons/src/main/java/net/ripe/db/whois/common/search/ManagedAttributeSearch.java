@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest.search;
+package net.ripe.db.whois.common.search;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
