@@ -717,11 +717,11 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM2-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
 
-                password: hm2
+                password: hm
                 password: owner2
                 password: owner3
                 password: lir

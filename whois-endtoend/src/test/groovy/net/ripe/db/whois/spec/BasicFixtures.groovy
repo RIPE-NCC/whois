@@ -164,17 +164,6 @@ class BasicFixtures {
                 mnt-by:  TST-MNT
                 source:  TEST
                 """,
-            "RIPE-NCC-HM2-MNT": """\
-                mntner:      RIPE-NCC-HM2-MNT
-                descr:       hostmaster MNTNER
-                admin-c:     TP1-TEST
-                upd-to:      updto_hm@ripe.net
-                mnt-nfy:     mntnfy_hm@ripe.net
-                notify:      notify_hm@ripe.net
-                auth:        MD5-PW \$1\$GAdTrvdG\$SEqxCNjKkR3ogcIq7teRv0  #hm2
-                mnt-by:      RIPE-NCC-HM2-MNT
-                source:      TEST
-                """,
             "LOWER-MNT": """\
                 mntner:      LOWER-MNT
                 descr:       used for mnt-lower
