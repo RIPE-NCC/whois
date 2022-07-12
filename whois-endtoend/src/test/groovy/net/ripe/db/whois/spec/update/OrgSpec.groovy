@@ -3967,6 +3967,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
+                mnt-by:          ripe-NCC-hM-mnT
                 source:          TEST
                 password:        owner2
                 """.stripIndent()
