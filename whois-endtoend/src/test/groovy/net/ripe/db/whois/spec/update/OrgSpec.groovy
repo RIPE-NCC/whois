@@ -62,6 +62,21 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          owner2-mnt
                 source:          TEST
                 """,
+                "ORG-NAME-COMMENT"       : """\
+                organisation:    ORG-FO1-COMMENT
+                org-type:        other
+                org-name:        First Org #test comment
+                org:             ORG-FO1-COMMENT
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                mnt-by:          ripe-NCC-hM-mnT
+                source:          TEST
+                """,
                 "ALLOC-PA"       : """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -3819,7 +3834,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ["Attribute \"country:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
     }
 
-    def "create organisation, add comment in managed attribute"() {
+    def "create organisation, add comment not in managed attribute"() {
         expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
@@ -3855,7 +3870,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 "Comments are not allowed on RIPE NCC managed Attribute \"org-name:\""]
     }
 
-    def "modify organisation, add comment in managed attribute"() {
+    def "modify organisation, add comment not allowed in managed attribute by end user"() {
         given:
         databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER-OFA11"))
 
@@ -3895,5 +3910,110 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") == [
                 "Comments are not allowed on RIPE NCC managed Attribute \"org-name:\""]
+    }
+
+    def "modify organisation, add comment allowed in managed attribute by override"() {
+        given:
+        syncUpdate(getTransient("ORG") + "password: owner2\npassword: hm")
+
+        expect:
+        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def message = syncUpdate("""\
+                organisation:    ORG-FO1-TEST
+                org-type:        LIR
+                org-name:        First Org #test comment
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          ripe-ncc-hm-mnt
+                source:          TEST
+                override:        denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+    }
+
+    def "modify organisation, remove comment allowed in managed attribute by end user"() {
+        given:
+        databaseHelper.addObject(getTransient("ORG-NAME-COMMENT"))
+
+        expect:
+        query_object_matches("-r -T organisation ORG-FO1-COMMENT", "organisation", "ORG-FO1-COMMENT", "First Org")
+
+        when:
+        def message = syncUpdate("""\
+                organisation:    ORG-FO1-COMMENT
+                org-type:        other
+                org-name:        First Org
+                org:             ORG-FO1-COMMENT
+                remarks:          remove comment 
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                source:          TEST
+                password:        owner2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+    }
+
+    def "modify organisation, add comment allowed in managed attribute by RS maintainer"() {
+        given:
+        databaseHelper.addObject(getTransient("ORG-NAME-COMMENT"))
+
+        expect:
+        query_object_matches("-r -T organisation ORG-FO1-COMMENT", "organisation", "ORG-FO1-COMMENT", "First Org")
+
+        when:
+        def message = syncUpdate("""\
+                organisation:    ORG-FO1-COMMENT
+                org-type:        other
+                org-name:        First Org
+                org:             ORG-FO1-COMMENT #add comment
+                remarks:         add comment 
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                mnt-by:          ripe-NCC-hM-mnT
+                source:          TEST
+                password:        hm
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
     }
 }

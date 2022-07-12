@@ -2085,7 +2085,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "updated")
     }
 
-    def "modify resource, add comment not allowed in managed attributes"() {
+    def "modify resource, add comment not allowed in managed attributes by end user"() {
         given:
         syncUpdate(getTransient("ASSPI") + "password: hm")
 
