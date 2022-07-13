@@ -287,7 +287,7 @@ public final class RpslAttribute {
             if (type != attribute.type) {
                 return false;
             }
-            return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues());
+            return getValue().equals(attribute.getValue());
         }
     }
 
