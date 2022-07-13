@@ -158,7 +158,6 @@ public class WhoisSearchService {
         checkForInvalidFlags(request, separateFlags);
 
         final QueryBuilder queryBuilder = new QueryBuilder();
-        queryBuilder.addFlag(QueryFlag.SHOW_TAG_INFO);
         queryBuilder.addCommaList(QueryFlag.SOURCES, sources);
         queryBuilder.addCommaList(QueryFlag.SELECT_TYPES, types);
         queryBuilder.addCommaList(QueryFlag.INVERSE, inverseAttributes);
