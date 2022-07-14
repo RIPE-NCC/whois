@@ -378,7 +378,7 @@ public class RpslObjectTest {
 
     @Test
     public void compareRpslObjects_single() {
-       /* assertThat(RpslObject.parse("mntner: mnt"), is(RpslObject.parse("mntner: mnt")));
+        assertThat(RpslObject.parse("mntner: mnt"), is(RpslObject.parse("mntner: mnt")));
         assertThat(RpslObject.parse("mntner: mnt"), is(RpslObject.parse("mntner: mnt\n")));
         assertThat(RpslObject.parse("mntner: mnt"), is(not(RpslObject.parse("mntner: mnt\n\ta"))));
         assertThat(RpslObject.parse("mntner: mnt\n a"), is(RpslObject.parse("mntner: mnt\n\ta")));
@@ -390,8 +390,10 @@ public class RpslObjectTest {
         assertThat(RpslObject.parse("mntner: mnt # comment"), is(RpslObject.parse("mntner: mnt # comment")));
         assertThat(RpslObject.parse("mntner: mnt# comment"), is(RpslObject.parse("mntner: mnt # comment")));
         assertThat(RpslObject.parse("mntner: mnt # com  ment"), is(RpslObject.parse("mntner: mnt # com ment")));
-        assertThat(RpslObject.parse("mntner: mnt # com  ment"), is(RpslObject.parse("mntner: mnt #com ment")));*/
+        assertThat(RpslObject.parse("mntner: mnt # com  ment"), is(RpslObject.parse("mntner: mnt #com ment")));
+/*
         assertThat(RpslObject.parse("mntner: mnt two three four"), is(RpslObject.parse("mntner: mnt # one\n two\n+ three\n\tfour")));
+*/
     }
 
     @Test
