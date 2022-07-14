@@ -263,6 +263,26 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
                 "***Info:    Authorisation override used")
     }
 
+    def "comment is not a noop for whois update"() {
+        given:
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        data = (data =~ /address:      street 5/).replaceFirst("address:      street 5 #test comment noop")
+
+        def update = new SyncUpdate(data: data)
+
+        when:
+        def result = syncUpdate update
+
+        then:
+        !result.contains("Warning: Submitted object identical to database object\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+        result.contains("Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
+                "\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+    }
+
     def "override is noop on case-sensitive change with update-on-noop set to false"() {
         given:
         def data = fixtures["ORG1"].stripIndent() + "override:denis,override1, {update-on-noop=false}"

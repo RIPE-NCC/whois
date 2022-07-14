@@ -288,7 +288,7 @@ public final class RpslAttribute {
             if (type != attribute.type) {
                 return false;
             }
-            return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues()) && StringUtils.equalsIgnoreCase(getCleanComment(),getCleanComment());
+            return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues()) && StringUtils.equalsIgnoreCase(getCleanComment(), attribute.getCleanComment());
         }
     }
 
