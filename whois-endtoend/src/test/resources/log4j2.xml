@@ -130,7 +130,7 @@
             <!-- don't log RDAP info -->
         </Logger>
 
-        <Logger name="net.ripe.db.whois.api.rest.search.ManagedAttributeSearch" level="error">
+        <Logger name="net.ripe.db.whois.common.search.ManagedAttributeSearch" level="error">
             <!-- don't log invalid status -->
         </Logger>
 

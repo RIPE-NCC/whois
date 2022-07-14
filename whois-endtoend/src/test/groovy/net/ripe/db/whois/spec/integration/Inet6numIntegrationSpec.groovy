@@ -247,6 +247,42 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /No operation: \[inet6num\] 2001::\/64/
     }
 
+    def "modify, inet6num with comment on managed attribute"() {
+        given:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                       inet6num: 2001::/64
+                                       netname: RIPE-NCC 
+                                       descr: some descr
+                                       country: DK
+                                       admin-c:  TEST-PN
+                                       tech-c: TEST-PN
+                                       status: ASSIGNED
+                                       mnt-by: TEST-MNT
+                                       source: TEST
+                                       password: update
+                                       password: emptypassword
+                                    """.stripIndent()))
+        expect:
+        insert =~ /SUCCESS/
+
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                       inet6num: 2001::/64
+                                       netname: RIPE-NCC 
+                                       descr: some descr
+                                       country: DK
+                                       admin-c:  TEST-PN
+                                       tech-c: TEST-PN
+                                       status: ASSIGNED # add comment
+                                       mnt-by: TEST-MNT
+                                       source: TEST
+                                       password: update
+                                       password: emptypassword
+                                    """.stripIndent()))
+        then:
+        update =~ /SUCCESS/
+    }
+
     def "modify, status changed"() {
       given:
         def insert = syncUpdate(new SyncUpdate(data: """\

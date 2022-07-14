@@ -408,14 +408,14 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         when:
         def ack = syncUpdateWithResponse("""
                 ${resourceType}: ${resourceValue}
-                netname:      TEST-NET-NAME-CHANGED # changed
+                netname:      TEST-NET-NAME-CHANGED
                 country:      NL
-                org:          ORG-LIRA-TEST         # changed
+                org:          ORG-LIRA-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
-                mnt-by:       LIR2-MNT              # changed
+                mnt-by:       LIR2-MNT
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
                 password: owner3
@@ -572,7 +572,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                sponsoring-org: ORG-LIR1-TEST # added
+                sponsoring-org: ORG-LIR1-TEST
                 source:       TEST
                 password: lir
                 password: owner3
@@ -816,7 +816,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
-                sponsoring-org: ORG-LIR1-TEST      # added
+                sponsoring-org: ORG-LIR1-TEST 
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ${resourceStatus}

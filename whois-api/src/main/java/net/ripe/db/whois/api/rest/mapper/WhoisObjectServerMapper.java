@@ -7,7 +7,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.search.AbuseContactSearch;
-import net.ripe.db.whois.api.rest.search.ManagedAttributeSearch;
+import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.api.rest.search.ResourceHolderSearch;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
