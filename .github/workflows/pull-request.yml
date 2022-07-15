@@ -1,2 +1,9 @@
-- name: Add Pull Request Reviewer
-  uses: AveryCameronUofR/add-reviewer-gh-action@1.0.4
+name: Add Reviewers to Pull Requests
+on:
+  pull_request:
+    types: [opened]
+jobs:
+  add_reviewers:
+    steps:
+      - name: Add Pull Request Reviewer
+        uses: AveryCameronUofR/add-reviewer-gh-action@1.0.4
