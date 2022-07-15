@@ -391,9 +391,8 @@ public class RpslObjectTest {
         assertThat(RpslObject.parse("mntner: mnt# comment"), is(RpslObject.parse("mntner: mnt # comment")));
         assertThat(RpslObject.parse("mntner: mnt # com  ment"), is(RpslObject.parse("mntner: mnt # com ment")));
         assertThat(RpslObject.parse("mntner: mnt # com  ment"), is(RpslObject.parse("mntner: mnt #com ment")));
-/*
-        assertThat(RpslObject.parse("mntner: mnt two three four"), is(RpslObject.parse("mntner: mnt # one\n two\n+ three\n\tfour")));
-*/
+        assertThat(RpslObject.parse("mntner: mnt two three four # one"), is(RpslObject.parse("mntner: mnt # one\n two\n+ three\n\tfour")));
+        assertThat(RpslObject.parse("mntner: mnt two three four"), is(RpslObject.parse("mntner: mnt two\n+ three\n\tfour")));
     }
 
     @Test
