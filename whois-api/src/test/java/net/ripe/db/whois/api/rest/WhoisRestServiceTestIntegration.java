@@ -286,10 +286,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "mntner:         OWNER-MNT\n" +
                 "descr:          Owner Maintainer\n" +
                 "admin-c:        TP1-TEST\n" +
-                "auth:           MD5-PW\n" +
-                "auth:           SSO\n" +
+                "auth:           MD5-PW # Filtered\n" +
+                "auth:           SSO # Filtered\n" +
                 "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST")));
+                "source:         TEST # Filtered")));
     }
 
     @Test
@@ -4015,7 +4015,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_comment_is_noop_and_returns_old_object() {
+    public void update_comment_is_not_noop() {
         assertThat(TEST_PERSON.findAttributes(AttributeType.REMARKS), hasSize(0));
         final RpslObjectBuilder builder = new RpslObjectBuilder(TEST_PERSON);
         final RpslAttribute remarks = new RpslAttribute(AttributeType.REMARKS, "updated # comment");
@@ -4032,7 +4032,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(builder.sort().get()), MediaType.APPLICATION_XML), WhoisResources.class);
 
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
-        assertThat(object.getAttributes(), hasItem(new Attribute("remarks", "updated", "comment", null, null, null)));
+        assertThat(object.getAttributes(), hasItem(new Attribute("remarks", "updated", "new comment", null, null, null)));
     }
 
     @Test
