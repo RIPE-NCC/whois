@@ -48,7 +48,7 @@ public class ElasticIndexService {
 
     private static final String SERIAL_DOC_ID = "1";
 
-    private RestHighLevelClient client;
+    private final RestHighLevelClient client;
     private final String whoisAliasIndex;
     private final String metadataIndex;
 
@@ -58,15 +58,16 @@ public class ElasticIndexService {
                                @Value("${elastic.commit.index:metadata}") final String whoisMetadataIndexName) {
         this.whoisAliasIndex = whoisAliasName;
         this.metadataIndex = whoisMetadataIndexName;
-        getEsClient(elasticHosts);
+        this.client = getEsClient(elasticHosts);
     }
 
-    private void getEsClient(final List<String> elasticHosts) {
+    private RestHighLevelClient getEsClient(final List<String> elasticHosts) {
         try {
             final RestClientBuilder clientBuilder = RestClient.builder(elasticHosts.stream().map((host) -> HttpHost.create(host)).toArray(HttpHost[]::new));
-            client = new RestHighLevelClient(clientBuilder);
+            return new RestHighLevelClient(clientBuilder);
         } catch (Exception e) {
             LOGGER.warn("Failed to tsrat the ES client {}", e.getMessage());
+            return null;
         }
     }
 
