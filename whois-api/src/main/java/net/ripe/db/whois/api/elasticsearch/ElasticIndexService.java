@@ -150,7 +150,7 @@ public class ElasticIndexService {
 
     private boolean isElasticRunning() {
         try {
-            return client.ping(RequestOptions.DEFAULT);
+            return client !=null && client.ping(RequestOptions.DEFAULT);
         } catch (Exception e) {
             LOGGER.info("ElasticSearch is not running, caught {}: {}", e.getClass().getName(), e.getMessage());
             return false;
