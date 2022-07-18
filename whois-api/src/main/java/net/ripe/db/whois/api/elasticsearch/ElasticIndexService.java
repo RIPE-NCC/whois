@@ -48,23 +48,33 @@ public class ElasticIndexService {
 
     private static final String SERIAL_DOC_ID = "1";
 
-    private final RestHighLevelClient client;
-    private final String whoisIndex;
+    private RestHighLevelClient client;
+    private final String whoisAliasIndex;
     private final String metadataIndex;
 
     @Autowired
-    public ElasticIndexService(@Value("#{'${elastic.host:localhost:9200}'.split(',')}") final List<String> elasticHosts,
-                               @Value("${elastic.whois.index:whois}") final String whoisIndexName,
+    public ElasticIndexService(@Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts,
+                               @Value("${elastic.whois.index:whois}") final String whoisAliasName,
                                @Value("${elastic.commit.index:metadata}") final String whoisMetadataIndexName) {
-        this.whoisIndex = whoisIndexName;
+        this.whoisAliasIndex = whoisAliasName;
         this.metadataIndex = whoisMetadataIndexName;
-        final RestClientBuilder clientBuilder = RestClient.builder(elasticHosts.stream().map( (host) -> HttpHost.create(host)).toArray(HttpHost[]::new));
-        client = new RestHighLevelClient(clientBuilder);
+        getEsClient(elasticHosts);
+    }
+
+    private void getEsClient(final List<String> elasticHosts) {
+        try {
+            final RestClientBuilder clientBuilder = RestClient.builder(elasticHosts.stream().map((host) -> HttpHost.create(host)).toArray(HttpHost[]::new));
+            client = new RestHighLevelClient(clientBuilder);
+        } catch (Exception e) {
+            LOGGER.warn("Failed to tsrat the ES client {}", e.getMessage());
+        }
     }
 
     @PreDestroy
     public void preDestroy() throws IOException {
-        client.close();
+        if (isElasticRunning()) {
+            client.close();
+        }
     }
 
     public boolean isEnabled() {
@@ -87,26 +97,26 @@ public class ElasticIndexService {
     }
 
     public void addEntry(RpslObject rpslObject) throws IOException {
-        final IndexRequest request = new IndexRequest(whoisIndex);
+        final IndexRequest request = new IndexRequest(whoisAliasIndex);
         request.id(String.valueOf(rpslObject.getObjectId()));
         request.source(json(rpslObject));
         client.index(request, RequestOptions.DEFAULT);
     }
 
     public void deleteEntry(int objectId) throws IOException {
-        final DeleteRequest request = new DeleteRequest(whoisIndex, String.valueOf(objectId));
+        final DeleteRequest request = new DeleteRequest(whoisAliasIndex, String.valueOf(objectId));
         client.delete(request, RequestOptions.DEFAULT);
     }
 
     public void deleteAll() throws IOException {
-        final DeleteByQueryRequest request = new DeleteByQueryRequest(whoisIndex);
+        final DeleteByQueryRequest request = new DeleteByQueryRequest(whoisAliasIndex);
         request.setQuery(QueryBuilders.matchAllQuery());
 
         client.deleteByQuery(request, RequestOptions.DEFAULT);
     }
 
     public long getWhoisDocCount() throws IOException {
-        final CountRequest countRequest = new CountRequest(whoisIndex);
+        final CountRequest countRequest = new CountRequest(whoisAliasIndex);
         final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
         final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
@@ -146,7 +156,7 @@ public class ElasticIndexService {
         }
     }
     private boolean isWhoisIndexExist() {
-        final GetIndexRequest request = new GetIndexRequest(whoisIndex);
+        final GetIndexRequest request = new GetIndexRequest(whoisAliasIndex);
         try {
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
@@ -194,8 +204,8 @@ public class ElasticIndexService {
         return client;
     }
 
-    public String getWhoisIndex() {
-        return whoisIndex;
+    public String getWhoisAliasIndex() {
+        return whoisAliasIndex;
     }
 
     public RpslObject filterRpslObject(final RpslObject rpslObject) {
