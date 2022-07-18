@@ -64,7 +64,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 netname:      ASSIGNED-192-168-1
                 country:      NL
                 org:          ORG-LIR1-TEST
-                sponsoring-org: ORG-LIR1-TEST  # changed
+                sponsoring-org: ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI

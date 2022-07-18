@@ -2130,7 +2130,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 org:          ORG-OTO1-TEST
                 mnt-by:       lir-MNT
                 mnt-irt:      irt-test
-                status:       AGGREGATED-BY-LIR  #this is # aggregated space
+                status:       AGGREGATED-BY-LIR
                 assignment-size: 65
                 mnt-lower:    owner2-mnt
                 mnt-domains:    owner-mnt

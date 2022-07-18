@@ -19,10 +19,10 @@ class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
                 ${resourceType}: ${resourceValue}
                 netname:      TEST-NET-NAME
                 country:      NL
-                org:          ORG-LIR2-TEST         # changed
+                org:          ORG-LIR2-TEST 
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ${differentStatus}    # changed
+                status:       ${differentStatus}  
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
                 source:       TEST
@@ -94,7 +94,7 @@ class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ${differentStatus}     # changed
+                status:       ${differentStatus} 
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
                 source:       TEST
