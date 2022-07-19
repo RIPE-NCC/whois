@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest;
+package net.ripe.db.whois.api.rest.marshal;
 
 public interface StreamingMarshal {
     void open();

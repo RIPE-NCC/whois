@@ -113,12 +113,4 @@ public class TelnetWhoisClient {
         }
     }
 
-    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset) {
-        return sendQuery(query, function, charset, DEFAULT_TIMEOUT);
-    }
-
-    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function) {
-        return sendQuery(query, function, DEFAULT_CHARSET);
-    }
-
 }

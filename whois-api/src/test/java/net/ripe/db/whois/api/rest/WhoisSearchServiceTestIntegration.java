@@ -17,7 +17,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.common.ApplicationVersion;
-
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -34,7 +33,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
@@ -216,6 +214,28 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisObject.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
+    @Test
+    public void search_accept_text_plain() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n" +
+                "created:        2017-05-16T11:18:05Z\n" +
+                "last-modified:  2017-05-16T11:18:05Z"));
+        final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        //assertThat(whoisResources.getErrorMessages(), is(empty()));
+        //assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        //final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(2);
+       // assertThat(whoisObject.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+    }
     @Test
     public void search_json_extension() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=OWNER-MNT&source=TEST")

@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest;
+package net.ripe.db.whois.api.rest.marshal;
 
 import com.google.common.collect.ImmutableList;
 import com.sun.xml.bind.marshaller.CharacterEscapeHandler;

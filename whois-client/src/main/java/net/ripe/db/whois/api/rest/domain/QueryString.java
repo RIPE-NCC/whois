@@ -27,4 +27,9 @@ public class QueryString {
     public String getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

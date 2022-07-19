@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest;
+package net.ripe.db.whois.api.rest.marshal;
 
 import com.google.common.base.Splitter;
 import org.slf4j.Logger;
@@ -11,11 +11,14 @@ import java.io.OutputStream;
 
 public class StreamingHelper {
 
+
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamingHelper.class);
 
     private static final Splitter COMMA_SPLITTER = Splitter.on(',');
 
-    public static StreamingMarshal getStreamingMarshal(final HttpServletRequest request, final OutputStream outputStream) {
+    public static StreamingMarshal getStreamingMarshal(final HttpServletRequest request,
+                                                       final OutputStream outputStream
+    ) {
         final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
         if (acceptHeader != null) {
             for (final String accept : COMMA_SPLITTER.split(acceptHeader)) {
@@ -26,6 +29,8 @@ public class StreamingHelper {
                         return new StreamingMarshalJson(outputStream);
                     } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
                         return new StreamingMarshalXml(outputStream, "whois-resources");
+                    } else if (subtype.equals("plain") || subtype.endsWith("+plain")){
+                        return new StreamingMarshalTextPlain(outputStream);
                     }
                 } catch (IllegalArgumentException ignored) {
                     LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
