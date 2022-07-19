@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.List;
@@ -61,6 +62,7 @@ public class ElasticIndexService {
         this.client = getEsClient(elasticHosts);
     }
 
+    @Nullable
     private RestHighLevelClient getEsClient(final List<String> elasticHosts) {
         try {
             final RestClientBuilder clientBuilder = RestClient.builder(elasticHosts.stream().map((host) -> HttpHost.create(host)).toArray(HttpHost[]::new));
@@ -97,26 +99,42 @@ public class ElasticIndexService {
         return true;
     }
 
-    public void addEntry(RpslObject rpslObject) throws IOException {
+    protected void addEntry(final RpslObject rpslObject) throws IOException {
+        if (!isElasticRunning()) {
+            return;
+        }
+
         final IndexRequest request = new IndexRequest(whoisAliasIndex);
         request.id(String.valueOf(rpslObject.getObjectId()));
         request.source(json(rpslObject));
         client.index(request, RequestOptions.DEFAULT);
     }
 
-    public void deleteEntry(int objectId) throws IOException {
+    protected void deleteEntry(final int objectId) throws IOException {
+        if (!isElasticRunning()) {
+           return;
+        }
+
         final DeleteRequest request = new DeleteRequest(whoisAliasIndex, String.valueOf(objectId));
         client.delete(request, RequestOptions.DEFAULT);
     }
 
-    public void deleteAll() throws IOException {
+    protected void deleteAll() throws IOException {
+        if (!isElasticRunning()) {
+            return;
+        }
+
         final DeleteByQueryRequest request = new DeleteByQueryRequest(whoisAliasIndex);
         request.setQuery(QueryBuilders.matchAllQuery());
 
         client.deleteByQuery(request, RequestOptions.DEFAULT);
     }
 
-    public long getWhoisDocCount() throws IOException {
+    protected long getWhoisDocCount() throws IOException {
+        if (!isElasticRunning()) {
+            throw new IOException("ES is not running");
+        }
+
         final CountRequest countRequest = new CountRequest(whoisAliasIndex);
         final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
@@ -124,7 +142,11 @@ public class ElasticIndexService {
         return countResponse.getCount();
     }
 
-    public ElasticIndexMetadata getMetadata() throws IOException {
+    protected ElasticIndexMetadata getMetadata() throws IOException {
+        if (!isElasticRunning()) {
+            throw new IOException("ES is not running");
+        }
+
         final GetRequest request = new GetRequest(metadataIndex, SERIAL_DOC_ID);
         final GetResponse documentFields = client.get(request, RequestOptions.DEFAULT);
         if (documentFields.getSource() == null) {
@@ -135,7 +157,11 @@ public class ElasticIndexService {
             documentFields.getSource().get("source").toString());
     }
 
-    public void updateMetadata(ElasticIndexMetadata metadata) throws IOException {
+    protected void updateMetadata(final ElasticIndexMetadata metadata) throws IOException {
+        if (!isElasticRunning()) {
+          return;
+        }
+
         final UpdateRequest updateRequest = new UpdateRequest(metadataIndex, SERIAL_DOC_ID);
 
         final XContentBuilder builder = XContentFactory.jsonBuilder()
