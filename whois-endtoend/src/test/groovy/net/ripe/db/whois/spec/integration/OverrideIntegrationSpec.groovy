@@ -51,7 +51,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
             organisation: ORG-TOL1-TEST
             org-name:     Test Organisation Ltd
             org-type:     OTHER
-            descr:        test org
+            descr:        test org #comment
             address:      street 5
             e-mail:       org1@test.com
             mnt-ref:      TST-MNT
@@ -263,6 +263,66 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
                 "***Info:    Authorisation override used")
     }
 
+    def "add comment is not a noop for whois update"() {
+        given:
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        data = (data =~ /address:      street 5/).replaceFirst("address:      street 5 #test comment noop")
+
+        def update = new SyncUpdate(data: data)
+
+        when:
+        def result = syncUpdate update
+
+        then:
+        !result.contains("Warning: Submitted object identical to database object\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+        result.contains("Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
+                "\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+    }
+
+    def "modify comment is not a noop for whois update"() {
+        given:
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        data = (data =~ /descr:        test org #comment/).replaceFirst("descr:        test org #updated")
+
+        def update = new SyncUpdate(data: data)
+
+        when:
+        def result = syncUpdate update
+
+        then:
+        !result.contains("Warning: Submitted object identical to database object\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+        result.contains("Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
+                "\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+    }
+
+    def "remove comment is not a noop for whois update"() {
+        given:
+        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        data = (data =~ /descr:        test org #comment/).replaceFirst("descr:        test org")
+
+        def update = new SyncUpdate(data: data)
+
+        when:
+        def result = syncUpdate update
+
+        then:
+        !result.contains("Warning: Submitted object identical to database object\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+        result.contains("Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
+                "\n" +
+                "\n" +
+                "***Info:    Authorisation override used")
+    }
+
     def "override is noop on case-sensitive change with update-on-noop set to false"() {
         given:
         def data = fixtures["ORG1"].stripIndent() + "override:denis,override1, {update-on-noop=false}"
@@ -292,22 +352,6 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         result.contains("Modify SUCCEEDED: [organisation] ORG-TOL1-TEST\n" +
                 "\n" +
-                "\n" +
-                "***Info:    Authorisation override used")
-    }
-
-    def "override on comment changes change with update-on-noop set to false"() {
-        given:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1, {update-on-noop=false}"
-        data = (data =~ /org-name:     Test Organisation Ltd/).replaceFirst("org-name:     Test Organisation Ltd #comment")
-
-        def update = new SyncUpdate(data: data)
-
-        when:
-        def result = syncUpdate update
-
-        then:
-        result.contains("Warning: Submitted object identical to database object\n" +
                 "\n" +
                 "***Info:    Authorisation override used")
     }

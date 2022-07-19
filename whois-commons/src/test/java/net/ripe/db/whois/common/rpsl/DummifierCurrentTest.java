@@ -180,7 +180,7 @@ public class DummifierCurrentTest {
                 new RpslAttribute("auth", "SSO # Filtered"),
                 new RpslAttribute("notify", "***@ripe.net"),
                 new RpslAttribute("mnt-by", "AARDVARK-MNT"),
-                new RpslAttribute("source", "RIPE")
+                new RpslAttribute("source", "RIPE # Filtered")
         ));
     }
 

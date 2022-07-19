@@ -46,7 +46,7 @@ public class LacnicGrsSourceTest {
                         "aut-num:        AS278\n" +
                         "descr:          FUNDAÇÃO DE AMPARO À PESQUISA DO ESTADO SÃO PAULO\n" +
                         "country:        MX\n" +
-                        "created:        19890331 # created\n" +
+                        "created:        19890331\n" +
                         "source:         LACNIC\n"),
 
                 RpslObject.parse("" +
@@ -55,7 +55,7 @@ public class LacnicGrsSourceTest {
                         "descr:          Description\n" +
                         "country:        AR\n" +
                         "tech-c:\n" +
-                        "created:        19990312 # created\n" +
+                        "created:        19990312\n" +
                         "source:         LACNIC\n"),
 
                 RpslObject.parse("" +
@@ -65,7 +65,7 @@ public class LacnicGrsSourceTest {
                         "country:        MX\n" +
                         "tech-c:         IIM\n" +
                         "abuse-c:        IIM\n" +
-                        "created:        20061106 # created\n" +
+                        "created:        20061106\n" +
                         "source:         LACNIC\n")
         ));
     }
