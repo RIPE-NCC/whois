@@ -44,6 +44,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +57,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -226,15 +230,15 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:         TEST\n" +
                 "created:        2017-05-16T11:18:05Z\n" +
                 "last-modified:  2017-05-16T11:18:05Z"));
-        final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST")
+        final String rpslObjects = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST")
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
 
-        //assertThat(whoisResources.getErrorMessages(), is(empty()));
-        //assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        List<String> rpslList= Arrays.asList(rpslObjects.split("\n\n"));
 
-        //final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(2);
-       // assertThat(whoisObject.getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertNotNull(rpslList);
+        assertFalse(rpslList.isEmpty());
+        assertEquals(2, rpslList.size());
     }
     @Test
     public void search_json_extension() {

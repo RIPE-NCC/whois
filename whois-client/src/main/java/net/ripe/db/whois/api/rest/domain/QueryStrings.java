@@ -31,12 +31,4 @@ public class QueryStrings {
         return queryStrings;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (QueryString queryString:queryStrings) {
-            sb.append(queryString.toString()).append(",");
-        }
-        return sb.deleteCharAt(sb.length() - 1).toString();
-    }
 }

@@ -78,7 +78,6 @@ public class RpslObjectStreamer {
         private final InetAddress remoteAddress;
         private final Parameters parameters;
         private final Service service;
-
         private  StreamingMarshal streamingMarshal;
 
 
