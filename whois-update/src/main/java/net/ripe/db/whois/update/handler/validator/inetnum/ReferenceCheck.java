@@ -72,7 +72,7 @@ public class ReferenceCheck implements BusinessRuleValidator {
     }
 
     private RpslObject findOrgReference(final RpslAttribute org) {
-        final RpslObjectInfo referencedOrganisationInfo = rpslObjectUpdateDao.getAttributeReference(org.getType(), org.getCleanValue());
+        final RpslObjectInfo referencedOrganisationInfo = rpslObjectDao.getAttributeReference(org.getType(), org.getCleanValue());
 
         return (referencedOrganisationInfo == null ? null : rpslObjectDao.getByKey(ObjectType.ORGANISATION, referencedOrganisationInfo.getKey()));
     }

@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -36,14 +35,12 @@ public class AbuseValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ORGANISATION, INETNUM, INET6NUM, AUT_NUM);
 
     private final RpslObjectDao objectDao;
-    private final RpslObjectUpdateDao updateDao;
     private Maintainers maintainers;
 
     @Autowired
-    public AbuseValidator(final RpslObjectDao objectDao, final RpslObjectUpdateDao updateDao, final Maintainers maintainers) {
+    public AbuseValidator(final RpslObjectDao objectDao, final Maintainers maintainers) {
         this.objectDao = objectDao;
         this.maintainers = maintainers;
-        this.updateDao = updateDao;
     }
 
     @Override
@@ -106,7 +103,7 @@ public class AbuseValidator implements BusinessRuleValidator {
     }
 
     private boolean isOrgReferencedByRsMaintainedResources(final RpslObject updatedObject) {
-        return updateDao.getReferences(updatedObject)
+        return objectDao.getReferences(updatedObject)
             .stream()
             .filter(Objects::nonNull)
             .filter(rpslObjectInfo -> ObjectType.RESOURCE_TYPES.contains(rpslObjectInfo.getObjectType()))

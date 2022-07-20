@@ -19,7 +19,6 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.AttributeTemplate;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -41,6 +40,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -93,7 +93,6 @@ public class ReferencesService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferencesService.class);
 
     private final RpslObjectDao rpslObjectDao;
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final SourceContext sourceContext;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
@@ -104,8 +103,7 @@ public class ReferencesService {
 
     @Autowired
     public ReferencesService(
-            final RpslObjectDao rpslObjectDao,
-            final RpslObjectUpdateDao rpslObjectUpdateDao,
+            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
             final SourceContext sourceContext,
             final InternalUpdatePerformer updatePerformer,
             final SsoTranslator ssoTranslator,
@@ -114,7 +112,6 @@ public class ReferencesService {
             final @Value("#{${whois.dummy}}") Map<String, String> dummyMap) {
 
         this.rpslObjectDao = rpslObjectDao;
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.sourceContext = sourceContext;
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
@@ -572,7 +569,7 @@ public class ReferencesService {
 
         for (final Map.Entry<RpslObjectInfo, RpslObject> entry : references.entrySet()) {
             final RpslObject reference = entry.getValue();
-            for (final RpslObjectInfo referenceToReference : rpslObjectUpdateDao.getReferences(reference)) {
+            for (final RpslObjectInfo referenceToReference : rpslObjectDao.getReferences(reference)) {
                 if (!referenceMatches(referenceToReference, primaryObject) && !references.keySet().contains(referenceToReference)) {
                     throw new IllegalArgumentException("Referencing object " + reference.getKey()  + " itself is referenced by " + referenceToReference.getKey());
                 }
@@ -718,7 +715,7 @@ public class ReferencesService {
     private Map<RpslObjectInfo, RpslObject> findReferences(final RpslObject rpslObject) {
         final Map<RpslObjectInfo, RpslObject> references = Maps.newHashMap();
         try {
-            for (final RpslObjectInfo rpslObjectInfo : rpslObjectUpdateDao.getReferences(rpslObject)) {
+            for (final RpslObjectInfo rpslObjectInfo : rpslObjectDao.getReferences(rpslObject)) {
                 references.put(rpslObjectInfo, rpslObjectDao.getById(rpslObjectInfo.getObjectId()));
             }
         } catch (EmptyResultDataAccessException e) {

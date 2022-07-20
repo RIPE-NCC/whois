@@ -129,7 +129,7 @@ public class AbuseValidatorTest {
     public void allow_remove_abuse_contact_when_non_LIR_no_referencing_objects() {
         when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
-        when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Collections.EMPTY_SET);
+        when(objectDao.getReferences(update.getUpdatedObject())).thenReturn(Collections.EMPTY_SET);
 
         subject.validate(update, updateContext);
 
@@ -143,7 +143,7 @@ public class AbuseValidatorTest {
         final RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.PERSON, "AS6");
         when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
-        when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
+        when(objectDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
 
         subject.validate(update, updateContext);
 
@@ -156,7 +156,7 @@ public class AbuseValidatorTest {
         final RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.AUT_NUM, "AS6");
         when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
-        when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
+        when(objectDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
         when(objectDao.getById(info.getObjectId())).thenReturn(RESOURCE_NOT_RS_MAINTAINED);
 
         subject.validate(update, updateContext);
@@ -173,7 +173,7 @@ public class AbuseValidatorTest {
         final RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.AUT_NUM, "AS6");
         when(update.getReferenceObject()).thenReturn(OTHER_ORG_WITH_ABUSE_C);
         when(update.getUpdatedObject()).thenReturn(OTHER_ORG_WITHOUT_ABUSE_C);
-        when(updateDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
+        when(objectDao.getReferences(update.getUpdatedObject())).thenReturn(Sets.newHashSet(info));
         when(objectDao.getById(info.getObjectId())).thenReturn(RESOURCE_RS_MAINTAINED);
 
         subject.validate(update, updateContext);

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -25,15 +24,16 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ROLE);
 
     private static final Set<ObjectType> REFERENCED_OBJECT_TYPES = ImmutableSet.of(
-        ObjectType.ORGANISATION, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM
+        ObjectType.ORGANISATION,
+        ObjectType.INETNUM,
+        ObjectType.INET6NUM,
+        ObjectType.AUT_NUM
     );
 
-    private final RpslObjectUpdateDao updateObjectDao;
     private final RpslObjectDao objectDao;
 
     @Autowired
-    public MustKeepAbuseMailboxIfReferencedValidator(final RpslObjectUpdateDao updateObjectDao, final RpslObjectDao objectDao) {
-        this.updateObjectDao = updateObjectDao;
+    public MustKeepAbuseMailboxIfReferencedValidator(final RpslObjectDao objectDao) {
         this.objectDao = objectDao;
     }
 
@@ -46,7 +46,7 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
             return;
         }
 
-        for (final RpslObjectInfo referenceInfo : updateObjectDao.getReferences(update.getUpdatedObject())) {
+        for (final RpslObjectInfo referenceInfo : objectDao.getReferences(update.getUpdatedObject())) {
             if (REFERENCED_OBJECT_TYPES.contains(referenceInfo.getObjectType())) {
                 final Set<CIString> abuseCAttributes = objectDao.getById(referenceInfo.getObjectId()).getValuesForAttribute(AttributeType.ABUSE_C);
                 if (!abuseCAttributes.isEmpty() && abuseCAttributes.contains(update.getUpdatedObject().getValueForAttribute(AttributeType.NIC_HDL))) {

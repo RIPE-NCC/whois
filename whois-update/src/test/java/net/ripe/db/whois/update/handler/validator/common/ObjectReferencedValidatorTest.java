@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -24,7 +24,7 @@ public class ObjectReferencedValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 
-    @Mock RpslObjectUpdateDao rpslObjectUpdateDao;
+    @Mock RpslObjectDao rpslObjectDao;
     @InjectMocks ObjectReferencedValidator subject;
 
     @Test
@@ -54,7 +54,7 @@ public class ObjectReferencedValidatorTest {
         when(update.getType()).thenReturn(ObjectType.MNTNER);
         when(update.hasOriginalObject()).thenReturn(true);
         when(update.getReferenceObject()).thenReturn(object);
-        when(rpslObjectUpdateDao.isReferenced(object)).thenReturn(true);
+        when(rpslObjectDao.isReferenced(object)).thenReturn(true);
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.objectInUse(object));
@@ -62,7 +62,7 @@ public class ObjectReferencedValidatorTest {
 
     @Test
     public void validate_referenced_autnum() {
-        final RpslObject object = RpslObject.parse("aut-num: AS1");
+        final RpslObject object = RpslObject.parse("aut-num: AS1");     // TODO: unused?
 
         when(update.getType()).thenReturn(ObjectType.AUT_NUM);
         when(update.hasOriginalObject()).thenReturn(true);

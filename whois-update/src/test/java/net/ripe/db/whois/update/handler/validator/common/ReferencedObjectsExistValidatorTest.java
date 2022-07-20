@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -32,7 +32,7 @@ public class ReferencedObjectsExistValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 
-    @Mock RpslObjectUpdateDao rpslObjectUpdateDao;
+    @Mock RpslObjectDao rpslObjectDao;
     @InjectMocks ReferencedObjectsExistValidator subject;
 
     private RpslObject object;
@@ -50,7 +50,7 @@ public class ReferencedObjectsExistValidatorTest {
     @Test
     public void validate_no_invalid_references() {
         when(update.getUpdatedObject()).thenReturn(object);
-        when(rpslObjectUpdateDao.getInvalidReferences(object)).thenReturn(Collections.<RpslAttribute, Set<CIString>>emptyMap());
+        when(rpslObjectDao.getInvalidReferences(object)).thenReturn(Collections.<RpslAttribute, Set<CIString>>emptyMap());
         subject.validate(update, updateContext);
 
         verify(updateContext).getMessages(update);
@@ -68,7 +68,7 @@ public class ReferencedObjectsExistValidatorTest {
         invalidReferences.put(invalidAttribute, invalidAttribute.getCleanValues());
 
         when(updateContext.getMessages(update)).thenReturn(new ObjectMessages());
-        when(rpslObjectUpdateDao.getInvalidReferences(object)).thenReturn(invalidReferences);
+        when(rpslObjectDao.getInvalidReferences(object)).thenReturn(invalidReferences);
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, invalidAttribute, UpdateMessages.unknownObjectReferenced("ADMIN_NC"));
