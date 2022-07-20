@@ -48,6 +48,8 @@ public class ElasticIndexService {
     private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
 
     private static final String SERIAL_DOC_ID = "1";
+    public static final String SERIAL = "serial";
+    public static final String SOURCE = "source";
 
     private final RestHighLevelClient client;
     private final String whoisAliasIndex;
@@ -68,7 +70,7 @@ public class ElasticIndexService {
             final RestClientBuilder clientBuilder = RestClient.builder(elasticHosts.stream().map((host) -> HttpHost.create(host)).toArray(HttpHost[]::new));
             return new RestHighLevelClient(clientBuilder);
         } catch (Exception e) {
-            LOGGER.warn("Failed to tsrat the ES client {}", e.getMessage());
+            LOGGER.warn("Failed to start the ES client {}", e.getMessage());
             return null;
         }
     }
@@ -132,7 +134,7 @@ public class ElasticIndexService {
 
     protected long getWhoisDocCount() throws IOException {
         if (!isElasticRunning()) {
-            throw new IOException("ES is not running");
+            throw new IllegalStateException("ES is not running");
         }
 
         final CountRequest countRequest = new CountRequest(whoisAliasIndex);
@@ -144,17 +146,18 @@ public class ElasticIndexService {
 
     protected ElasticIndexMetadata getMetadata() throws IOException {
         if (!isElasticRunning()) {
-            throw new IOException("ES is not running");
+            throw new IllegalStateException("ES is not running");
         }
 
         final GetRequest request = new GetRequest(metadataIndex, SERIAL_DOC_ID);
         final GetResponse documentFields = client.get(request, RequestOptions.DEFAULT);
         if (documentFields.getSource() == null) {
-            return null;
+            throw new IllegalStateException("Source is not set properly");
         }
+
         return new ElasticIndexMetadata(
-            Integer.parseInt(documentFields.getSource().get("serial").toString()),
-            documentFields.getSource().get("source").toString());
+            Integer.parseInt(documentFields.getSource().get(SERIAL).toString()),
+            documentFields.getSource().get(SOURCE).toString());
     }
 
     protected void updateMetadata(final ElasticIndexMetadata metadata) throws IOException {
@@ -166,8 +169,8 @@ public class ElasticIndexService {
 
         final XContentBuilder builder = XContentFactory.jsonBuilder()
                 .startObject()
-                .field("serial", metadata.getSerial())
-                .field("source", metadata.getSource())
+                .field(SERIAL, metadata.getSerial())
+                .field(SOURCE, metadata.getSource())
                 .endObject();
         final UpdateRequest request = updateRequest.doc(builder).upsert(builder);
 
@@ -248,11 +251,9 @@ public class ElasticIndexService {
     }
 
     public String filterRpslAttribute(final AttributeType attributeType, final String attributeValue) {
-
         if (FILTERED_ATTRIBUTES.contains(attributeType)) {
             return sanitise(filterAttribute(attributeValue.trim()));
         }
-
         return sanitise(attributeValue.trim());
     }
 
