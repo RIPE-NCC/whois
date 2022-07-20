@@ -152,7 +152,7 @@ public class ElasticIndexService {
         final GetRequest request = new GetRequest(metadataIndex, SERIAL_DOC_ID);
         final GetResponse documentFields = client.get(request, RequestOptions.DEFAULT);
         if (documentFields.getSource() == null) {
-            throw new IllegalStateException("Source is not set properly");
+            return null;
         }
 
         return new ElasticIndexMetadata(
