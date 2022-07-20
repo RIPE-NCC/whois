@@ -9,8 +9,8 @@ import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.api.rest.marshal.AbstractStreamingMarshal;
 import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
-import net.ripe.db.whois.api.rest.marshal.StreamingMarshal;
 import net.ripe.db.whois.api.rest.marshal.StreamingMarshalTextPlain;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
@@ -78,7 +78,7 @@ public class RpslObjectStreamer {
         private final InetAddress remoteAddress;
         private final Parameters parameters;
         private final Service service;
-        private  StreamingMarshal streamingMarshal;
+        private AbstractStreamingMarshal streamingMarshal;
 
 
         public Streamer(
@@ -103,7 +103,7 @@ public class RpslObjectStreamer {
                 queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
 
                 if (!responseHandler.rpslObjectFound()) {
-                    streamingMarshal.returnCustomError(request, responseHandler.flushAndGetErrors());
+                    streamingMarshal.throwCustomError(request, responseHandler.flushAndGetErrors());
                 }
 
                 responseHandler.flushAndGetErrors();
@@ -202,9 +202,9 @@ public class RpslObjectStreamer {
                 whoisObjectServerMapper.mapManagedAttributes(whoisObject, parameters, rpslObject);
                 whoisObjectServerMapper.mapResourceHolder(whoisObject, parameters, rpslObject);
 
-                if(streamingMarshal instanceof StreamingMarshalTextPlain){
+                if (streamingMarshal instanceof StreamingMarshalTextPlain) {
                     streamingMarshal.writeArray(rpslObject);
-                }else {
+                } else {
                     streamingMarshal.writeArray(whoisObject);
                 }
                 tagResponseObject = null;

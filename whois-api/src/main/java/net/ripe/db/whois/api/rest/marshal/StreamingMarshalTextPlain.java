@@ -12,9 +12,8 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static net.ripe.db.whois.api.rest.RestServiceHelper.createErrorStringEntity;
 
-public class StreamingMarshalTextPlain extends AbstractStreamingMarshalCommon {
+public class StreamingMarshalTextPlain extends AbstractStreamingMarshal {
 
     private final OutputStreamWriter outputStreamWriter;
 
@@ -41,7 +40,7 @@ public class StreamingMarshalTextPlain extends AbstractStreamingMarshalCommon {
         }
     }
     @Override
-    public <T> void returnCustomError(HttpServletRequest request, List<Message> errorMessages) {
+    public <T> void throwCustomError(HttpServletRequest request, List<Message> errorMessages) {
         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
                 .entity(createErrorStringEntity(request, errorMessages))
                 .build());

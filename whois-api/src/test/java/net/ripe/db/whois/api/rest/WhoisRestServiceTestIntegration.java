@@ -77,8 +77,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
-import static net.ripe.db.whois.api.util.TestUtil.TEST_PERSON;
-import static net.ripe.db.whois.api.util.TestUtil.TEST_PERSON_STRING;
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -104,6 +102,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 @org.junit.jupiter.api.Tag("IntegrationTest")
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
+    public static final String TEST_PERSON_STRING = "" +
+            "person:         Test Person\n" +
+            "address:        Singel 258\n" +
+            "phone:          +31 6 12345678\n" +
+            "nic-hdl:        TP1-TEST\n" +
+            "mnt-by:         OWNER-MNT\n" +
+            "source:         TEST\n";
+
+    public static final RpslObject TEST_PERSON = RpslObject.parse(TEST_PERSON_STRING);
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
             "person:    Pauleth Palthen\n" +
             "address:   Singel 258\n" +
@@ -162,15 +169,16 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "upd-to:         noreply@ripe.net\n" +
             "source:         TEST");
 
-    private static final RpslObject TEST_ROLE = RpslObject.parse("" +
-            "role:      Test Role\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31 6 12345678\n" +
-            "nic-hdl:   TR1-TEST\n" +
-            "admin-c:   TR1-TEST\n" +
-            "abuse-mailbox: abuse@test.net\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
+    private static String TEST_ROLE_STRING = "" +
+            "role:           Test Role\n" +
+            "address:        Singel 258\n" +
+            "phone:          +31 6 12345678\n" +
+            "nic-hdl:        TR1-TEST\n" +
+            "admin-c:        TR1-TEST\n" +
+            "abuse-mailbox:  abuse@test.net\n" +
+            "mnt-by:         OWNER-MNT\n" +
+            "source:         TEST\n";
+    private static final RpslObject TEST_ROLE = RpslObject.parse(TEST_ROLE_STRING);
 
     private static final RpslObject TEST_IRT = RpslObject.parse("" +
             "irt:          irt-test\n" +
@@ -181,6 +189,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "auth:         MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "mnt-by:       OWNER-MNT\n" +
             "source:       TEST\n");
+    public static final String INETNUM_OBJECT = "inetnum:        10.0.0.0 - 10.0.0.255\n" +
+            "status:         ALLOCATED PA\n" +
+            "org:            ORG-TO1-TEST\n" +
+            "mnt-by:         OWNER-MNT\n" +
+            "mnt-by:         RIPE-NCC-HM-MNT\n" +
+            "source:         TEST\n";
 
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private MaintenanceMode maintenanceMode;
@@ -616,6 +630,37 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_inetnum_text_plain() {
+        databaseHelper.addObject(
+                "mntner:       RIPE-NCC-HM-MNT\n" +
+                        "source:   TEST");
+        databaseHelper.addObject(
+                "organisation: ORG-TO1-TEST\n" +
+                        "org-name:     Test Organisation\n" +
+                        "abuse-c:      TR1-TEST\n" +
+                        "source:       TEST");
+        databaseHelper.addObject(INETNUM_OBJECT);
+        final String response = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0%20-%2010.0.0" +
+                        ".255?managed-attributes&resource-holder&abuse-contact")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+        String expectedResult = INETNUM_OBJECT + '\n';
+        assertEquals(expectedResult, response);
+    }
+
+    @Test
+    public void lookup_role_text_plain() {
+        final String response = RestTest.target(getPort(), "whois/test/role/TR1-TEST")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+        String expectedResult = TEST_ROLE_STRING + '\n';
+        assertEquals(expectedResult, response);
+
+
+
+    }
+
+    @Test
     public void lookup_object_text_plain_Not_found() {
         try {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST")
@@ -633,6 +678,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
         }
     }
+
+
+
     @Test
     public void lookup_person_json() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
@@ -1615,12 +1663,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                  "abuse-c:      TR1-TEST\n" +
                  "source:       TEST");
         databaseHelper.addObject(
-                "inetnum:       10.0.0.0 - 10.0.0.255\n" +
-                 "status:   ALLOCATED PA\n" +
-                 "org:      ORG-TO1-TEST\n" +
-                 "mnt-by:   OWNER-MNT\n" +
-                 "mnt-by:   RIPE-NCC-HM-MNT\n" +
-                 "source:   TEST");
+                INETNUM_OBJECT);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0%20-%2010.0.0.255?managed-attributes&resource-holder&abuse-contact")
                 .request(MediaType.APPLICATION_XML_TYPE)

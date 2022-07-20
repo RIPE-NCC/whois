@@ -47,10 +47,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static net.ripe.db.whois.api.util.TestUtil.AS102;
-import static net.ripe.db.whois.api.util.TestUtil.AS102_STRING;
-import static net.ripe.db.whois.api.util.TestUtil.TEST_PERSON;
-import static net.ripe.db.whois.api.util.TestUtil.TEST_PERSON_STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -77,7 +73,27 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
 
+    public static final String TEST_PERSON_STRING = "" +
+            "person:         Test Person\n" +
+            "address:        Singel 258\n" +
+            "phone:          +31 6 12345678\n" +
+            "nic-hdl:        TP1-TEST\n" +
+            "mnt-by:         OWNER-MNT\n" +
+            "source:         TEST\n";
 
+    public static final RpslObject TEST_PERSON = RpslObject.parse(TEST_PERSON_STRING);
+    public static final String AS102_STRING = "" +
+            "aut-num:        AS102\n" +
+            "as-name:        End-User-2\n" +
+            "descr:          description #testComment\n" +
+            "admin-c:        TP1-TEST\n" +
+            "tech-c:         TP1-TEST\n" +
+            "mnt-by:         OWNER-MNT #testComment\n" +
+            "source:         TEST\n" +
+            "created:        2017-05-16T11:18:05Z\n" +
+            "last-modified:  2017-05-16T11:18:05Z\n";
+
+    public static final RpslObject AS102 = RpslObject.parse(AS102_STRING);
     public static final String OWNER_MNT_STRING = "" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
