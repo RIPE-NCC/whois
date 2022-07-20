@@ -70,10 +70,8 @@ public class ElasticFullTextIndex {
 
         try {
             update();
-        } catch (DataAccessException e) {
+        } catch (DataAccessException | IOException | IllegalStateException e) {
             LOGGER.warn("Unable to update fulltext index due to {}: {}", e.getClass(), e.getMessage());
-        } catch (IOException | IllegalStateException e) {
-            e.printStackTrace();
         }
 
         LOGGER.info("Completed updating Elasticsearch indexes");
