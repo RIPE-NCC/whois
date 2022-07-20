@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static net.ripe.db.whois.api.rest.domain.WhoisResources.TERMS_AND_CONDITIONS;
+
 public class RestServiceHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestServiceHelper.class);
@@ -125,6 +127,21 @@ public class RestServiceHelper {
         return whoisResources;
     }
 
+    public static String createErrorStringEntity(final HttpServletRequest request,
+                                                   final List<Message> errorMessages) {
+        return getRequestURL(request).replaceFirst("/whois", "") + "\n"+
+                createErrorStringMessages(errorMessages) + "\n" +
+                TERMS_AND_CONDITIONS;
+    }
+    private static String createErrorStringMessages(final List<Message> messages){
+        StringBuilder sb = new StringBuilder();
+        for (Message message : messages) {
+            sb.append(message.getType()!= null ? "Severity: " + message.getType().toString() + '\n' : null);
+            sb.append("Text: ").append(message.getText());
+            sb.append(message.getArgs()!= null && message.getArgs().length!=0 ? Arrays.toString(message.getArgs()) : null);
+        }
+        return sb.toString();
+    }
     public static List<ErrorMessage> createErrorMessages(final List<Message> messages) {
         final List<ErrorMessage> errorMessages = Lists.newArrayList();
 

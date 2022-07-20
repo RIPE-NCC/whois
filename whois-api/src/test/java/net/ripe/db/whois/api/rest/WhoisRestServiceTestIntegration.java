@@ -77,6 +77,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import static net.ripe.db.whois.api.util.TestUtil.TEST_PERSON;
+import static net.ripe.db.whois.api.util.TestUtil.TEST_PERSON_STRING;
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -94,6 +96,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -158,14 +161,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "mnt-by:         SSO-PASSWORD-MNT\n" +
             "upd-to:         noreply@ripe.net\n" +
             "source:         TEST");
-
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
-            "person:    Test Person\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31 6 12345678\n" +
-            "nic-hdl:   TP1-TEST\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
 
     private static final RpslObject TEST_ROLE = RpslObject.parse("" +
             "role:      Test Role\n" +
@@ -611,6 +606,34 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_object_text_plain() {
+        final String rpslObject = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        String expectedOutput = TEST_PERSON_STRING + '\n';
+        assertEquals(expectedOutput, rpslObject);
+    }
+
+    @Test
+    public void lookup_object_text_plain_Not_found() {
+        try {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                    .request(MediaType.TEXT_PLAIN)
+                    .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is(String.format("http://localhost:%s/test/person/PP1-TEST\n" +
+                    "Severity: Error\n" +
+                    "Text: ERROR:101: no entries found\n" +
+                    "\n" +
+                    "No entries found in source %%s.\n" +
+                    "[TEST]\n" +
+                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+        }
+    }
+    @Test
     public void lookup_person_json() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -630,6 +653,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
+
 
     @Test
     public void lookup_person_head() {

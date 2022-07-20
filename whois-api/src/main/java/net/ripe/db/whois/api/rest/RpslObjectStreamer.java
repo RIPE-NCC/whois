@@ -103,9 +103,7 @@ public class RpslObjectStreamer {
                 queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
 
                 if (!responseHandler.rpslObjectFound()) {
-                    throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                            .entity(RestServiceHelper.createErrorEntity(request, responseHandler.flushAndGetErrors()))
-                            .build());
+                    streamingMarshal.returnCustomError(request, responseHandler.flushAndGetErrors());
                 }
 
                 responseHandler.flushAndGetErrors();

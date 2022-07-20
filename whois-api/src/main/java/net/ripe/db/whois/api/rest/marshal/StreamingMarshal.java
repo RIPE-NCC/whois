@@ -1,5 +1,10 @@
 package net.ripe.db.whois.api.rest.marshal;
 
+import net.ripe.db.whois.common.Message;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
 public interface StreamingMarshal {
     void open();
 
@@ -12,6 +17,8 @@ public interface StreamingMarshal {
     <T> void writeArray(T t);
     <T> void startArray(String name);
     <T> void endArray();
+
+    <T> void returnCustomError(final HttpServletRequest request, final List<Message> errorMessages);
 
     void close();
 

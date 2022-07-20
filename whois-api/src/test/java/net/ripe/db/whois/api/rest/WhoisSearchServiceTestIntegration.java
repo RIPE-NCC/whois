@@ -44,10 +44,13 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static net.ripe.db.whois.api.util.TestUtil.AS102;
+import static net.ripe.db.whois.api.util.TestUtil.AS102_STRING;
+import static net.ripe.db.whois.api.util.TestUtil.TEST_PERSON;
+import static net.ripe.db.whois.api.util.TestUtil.TEST_PERSON_STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -58,8 +61,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -68,6 +69,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
 
+
     @Autowired
     private AccessControlListManager accessControlListManager;
     @Autowired
@@ -75,7 +77,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
 
-    private static final RpslObject OWNER_MNT = RpslObject.parse("" +
+
+    public static final String OWNER_MNT_STRING = "" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
             "admin-c:     TP1-TEST\n" +
@@ -83,7 +86,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "source:      TEST\n");
+            "source:      TEST\n";
+
+
+    private static final RpslObject OWNER_MNT = RpslObject.parse(OWNER_MNT_STRING);
 
     private static final RpslObject RIPE_NCC_HM_MNT = RpslObject.parse("" +
             "mntner:      RIPE-NCC-HM-MNT\n" +
@@ -95,13 +101,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "mnt-by:      RIPE-NCC-HM-MNT\n" +
             "source:      TEST\n");
 
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
-            "person:    Test Person\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31 6 12345678\n" +
-            "nic-hdl:   TP1-TEST\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
 
     private static final RpslObject TEST_ROLE = RpslObject.parse("" +
             "role:      Test Role\n" +
@@ -220,26 +219,14 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_accept_text_plain() {
-        databaseHelper.addObject(RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n" +
-                "created:        2017-05-16T11:18:05Z\n" +
-                "last-modified:  2017-05-16T11:18:05Z"));
-        final String rpslObjects = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST")
+        final String rpslObject = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
 
-        List<String> rpslList= Arrays.asList(rpslObjects.split("\n\n"));
-
-        assertNotNull(rpslList);
-        assertFalse(rpslList.isEmpty());
-        assertEquals(2, rpslList.size());
+        String expectedOutput = TEST_PERSON_STRING + '\n';
+        assertEquals(expectedOutput, rpslObject);
     }
+
     @Test
     public void search_json_extension() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=OWNER-MNT&source=TEST")
@@ -1023,6 +1010,24 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_accept_text_plain_Not_found() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=invalid&source=TEST")
+                    .request(MediaType.TEXT_PLAIN)
+                    .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is(String.format("http://localhost:%s/search?query-string=invalid&source=TEST\n" +
+                    "Severity: Error\n" +
+                    "Text: ERROR:101: no entries found\n" +
+                    "\n" +
+                    "No entries found in source %%s.\n" +
+                    "[TEST]\n" +
+                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+        }
+    }
+    @Test
     public void search_multiple_objects_json_format() {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
@@ -1167,6 +1172,19 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         ));
     }
 
+    @Test
+    public void search_multiple_objects_text_plain() {
+        databaseHelper.addObject(AS102);
+
+        final String rpslObjects = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        String expectedResult = AS102_STRING + "\n" + TEST_PERSON_STRING +"\n";
+
+        assertEquals(expectedResult, rpslObjects);
+
+    }
     @Test
     public void search_multiple_objects_xml_format() {
         databaseHelper.addObject("" +

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class StreamingMarshalXml implements StreamingMarshal {
+class StreamingMarshalXml extends AbstractStreamingMarshalCommon {
     private static final List<Namespace> NAMESPACES = ImmutableList.<Namespace>of(new NamespaceEvent("xlink", Link.XLINK_URI));
     private static final NewlineEscapeHandler NEWLINE_ESCAPE_HANDLER = new NewlineEscapeHandler();
 
@@ -107,15 +107,6 @@ class StreamingMarshalXml implements StreamingMarshal {
     @Override
     public <T> void writeArray(T t) {
         write("object", t);
-    }
-
-    @Override
-    public <T> void startArray(final String name) {
-        // deliberately not implemented
-    }
-
-    public <T> void endArray() {
-        // deliberately not implemented
     }
 
     @Override
