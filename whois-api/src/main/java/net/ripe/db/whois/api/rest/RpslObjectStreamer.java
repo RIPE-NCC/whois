@@ -103,7 +103,7 @@ public class RpslObjectStreamer {
                 queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
 
                 if (!responseHandler.rpslObjectFound()) {
-                    streamingMarshal.throwCustomError(request, responseHandler.flushAndGetErrors());
+                    streamingMarshal.throwNotFoundError(request, responseHandler.flushAndGetErrors());
                 }
 
                 responseHandler.flushAndGetErrors();

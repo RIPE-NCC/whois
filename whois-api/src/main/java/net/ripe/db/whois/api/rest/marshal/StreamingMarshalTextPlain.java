@@ -40,7 +40,7 @@ public class StreamingMarshalTextPlain extends AbstractStreamingMarshal {
         }
     }
     @Override
-    public <T> void throwCustomError(HttpServletRequest request, List<Message> errorMessages) {
+    public <T> void throwNotFoundError(HttpServletRequest request, List<Message> errorMessages) {
         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
                 .entity(createErrorStringEntity(request, errorMessages))
                 .build());
