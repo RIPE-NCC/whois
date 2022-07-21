@@ -48,13 +48,13 @@ public class ElasticFullTextIndex {
     }
 
     @PostConstruct
-    public void init() throws IOException {
-        if (!elasticIndexService.isEnabled()) {
-            return;
-        }
-
-        if(shouldRebuild()) {
-            rebuild();
+    public void init() {
+        if (elasticIndexService.isEnabled() && shouldRebuild()) {
+            try {
+                rebuild();
+            } catch (IOException | IllegalStateException ex) {
+                LOGGER.info("Failed to update the ES indexes {}", ex.getMessage());
+            }
         }
     }
 
@@ -70,17 +70,15 @@ public class ElasticFullTextIndex {
 
         try {
             update();
-        } catch (DataAccessException e) {
+        } catch (DataAccessException | IOException | IllegalStateException e) {
             LOGGER.warn("Unable to update fulltext index due to {}: {}", e.getClass(), e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         LOGGER.info("Completed updating Elasticsearch indexes");
     }
 
     protected void update() throws IOException {
-        if(shouldRebuild()) {
+        if (shouldRebuild()) {
             rebuild();
             return;
         }
@@ -151,6 +149,7 @@ public class ElasticFullTextIndex {
                         "WHERE sequence_id != 0 ",
                 new ResultSetExtractor<Void>() {
                     private static final int LOG_EVERY = 500000;
+
                     @Override
                     public Void extractData(final ResultSet rs) throws SQLException, DataAccessException {
                         int nrIndexed = 0;
@@ -178,23 +177,26 @@ public class ElasticFullTextIndex {
         LOGGER.info("Completed Rebuilding Elasticsearch indexes");
     }
 
-    private boolean shouldRebuild() throws IOException {
-        if (elasticIndexService.getWhoisDocCount() == 0L) {
-            LOGGER.warn("Whois index count is zero, rebuilding");
-            return true;
-        }
+    private boolean shouldRebuild() {
+        try {
+            if (elasticIndexService.getWhoisDocCount() == 0L) {
+                LOGGER.warn("Whois index count is zero, rebuilding");
+                return true;
+            }
 
-        final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
-        if (committedMetadata == null || committedMetadata.getSerial() == null) {
-            LOGGER.warn("Index has invalid or null source, rebuild");
-            return true;
-        }
+            final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
+            if (committedMetadata == null || committedMetadata.getSerial() == null) {
+                LOGGER.warn("Index has invalid or null source, rebuild");
+                return true;
+            }
 
-        if (committedMetadata.getSerial() == 0) {
-            LOGGER.warn("Index is missing serial, rebuild");
-            return true;
+            if (committedMetadata.getSerial() == 0) {
+                LOGGER.warn("Index is missing serial, rebuild");
+                return true;
+            }
+        } catch (IOException | IllegalStateException ex) {
+            LOGGER.info("Failed to check if ES index needs rebuilding {}", ex.getMessage());
         }
-
         return false;
     }
 

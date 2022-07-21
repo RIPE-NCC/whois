@@ -386,12 +386,13 @@ public class RpslObjectTest {
         assertThat(RpslObject.parse("mntner: \t  mnt  \t \n \t     a"), is(RpslObject.parse("mntner: mnt\n\ta")));
         assertThat(RpslObject.parse("mntner: \t  one \t two \t \n \t     a"), is(RpslObject.parse("mntner: one two\n\ta")));
         assertThat(RpslObject.parse("mntner:one \t two \t \n \t     a"), is(RpslObject.parse("mntner: one two\n\ta")));
-        assertThat(RpslObject.parse("mntner: mnt # comment"), is(RpslObject.parse("mntner: mnt")));
+        assertThat(RpslObject.parse("mntner: mnt # comment"), is(RpslObject.parse("mntner: mnt # comment")));
         assertThat(RpslObject.parse("mntner: mnt # comment"), is(RpslObject.parse("mntner: mnt # comment")));
         assertThat(RpslObject.parse("mntner: mnt# comment"), is(RpslObject.parse("mntner: mnt # comment")));
         assertThat(RpslObject.parse("mntner: mnt # com  ment"), is(RpslObject.parse("mntner: mnt # com ment")));
         assertThat(RpslObject.parse("mntner: mnt # com  ment"), is(RpslObject.parse("mntner: mnt #com ment")));
-        assertThat(RpslObject.parse("mntner: mnt two three four"), is(RpslObject.parse("mntner: mnt # one\n two\n+ three\n\tfour")));
+        assertThat(RpslObject.parse("mntner: mnt two three four # one"), is(RpslObject.parse("mntner: mnt # one\n two\n+ three\n\tfour")));
+        assertThat(RpslObject.parse("mntner: mnt two three four"), is(RpslObject.parse("mntner: mnt two\n+ three\n\tfour")));
     }
 
     @Test
@@ -399,7 +400,7 @@ public class RpslObjectTest {
         assertThat(RpslObject.parse("mntner: mnt\nsource: RIPE"), is(RpslObject.parse("mntner: mnt\nsource:  RIPE\n")));
         assertThat(RpslObject.parse("mntner: mnt\nsource: RIPE"), is(RpslObject.parse("mntner: mnt\nsource:\tRIPE\n")));
         assertThat(RpslObject.parse("mntner: mnt\n+one\nsource: RIPE"), is(RpslObject.parse("mntner: mnt\n\tone\nsource:\tRIPE\n")));
-        assertThat(RpslObject.parse("mntner: mnt\n+#one\nsource: RIPE"), is(RpslObject.parse("mntner: mnt\n\t #two\nsource:\tRIPE\n")));
+        assertThat(RpslObject.parse("mntner: mnt\n+#one\nsource: RIPE"), not(RpslObject.parse("mntner: mnt\n\t #two\nsource:\tRIPE\n")));
     }
 
     @Test

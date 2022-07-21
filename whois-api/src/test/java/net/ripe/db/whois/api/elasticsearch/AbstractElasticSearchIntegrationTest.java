@@ -11,6 +11,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
@@ -19,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractElasticSearchIntegrationTest extends AbstractIntegrationTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractElasticSearchIntegrationTest.class);
     public static final String ENV_DISABLE_TEST_CONTAINERS = "test.containers.disabled";
     private static ElasticsearchContainer elasticsearchContainer;
 
@@ -69,7 +72,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
             elasticFullTextIndex.update();
             Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.info("Failed to update the ES indexes {}", e.getMessage());
         }
     }
 
