@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -62,10 +63,12 @@ public class ObjectReferencedValidatorTest {
 
     @Test
     public void validate_referenced_autnum() {
-        final RpslObject object = RpslObject.parse("aut-num: AS1");     // TODO: unused?
+        final RpslObject object = RpslObject.parse("aut-num: AS1");
 
         when(update.getType()).thenReturn(ObjectType.AUT_NUM);
         when(update.hasOriginalObject()).thenReturn(true);
+        lenient().when(update.getReferenceObject()).thenReturn(object);
+        lenient().when(rpslObjectDao.isReferenced(object)).thenReturn(true);
 
         subject.validate(update, updateContext);
 
