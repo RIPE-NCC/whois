@@ -9,6 +9,9 @@ import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.api.rest.marshal.AbstractStreamingMarshal;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
+import net.ripe.db.whois.api.rest.marshal.StreamingMarshalTextPlain;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.Message;
@@ -75,7 +78,8 @@ public class RpslObjectStreamer {
         private final InetAddress remoteAddress;
         private final Parameters parameters;
         private final Service service;
-        private StreamingMarshal streamingMarshal;
+        private AbstractStreamingMarshal streamingMarshal;
+
 
         public Streamer(
                 final HttpServletRequest request,
@@ -93,17 +97,15 @@ public class RpslObjectStreamer {
         @Override
         public void write(final OutputStream output) throws IOException, WebApplicationException {
             streamingMarshal = StreamingHelper.getStreamingMarshal(request, output);
-
             final SearchResponseHandler responseHandler = new SearchResponseHandler();
             try {
                 final int contextId = System.identityHashCode(Thread.currentThread());
                 queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
 
                 if (!responseHandler.rpslObjectFound()) {
-                    throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                            .entity(RestServiceHelper.createErrorEntity(request, responseHandler.flushAndGetErrors()))
-                            .build());
+                    streamingMarshal.throwNotFoundError(request, responseHandler.flushAndGetErrors());
                 }
+
                 responseHandler.flushAndGetErrors();
 
             } catch (StreamingException ignored) {
@@ -200,7 +202,11 @@ public class RpslObjectStreamer {
                 whoisObjectServerMapper.mapManagedAttributes(whoisObject, parameters, rpslObject);
                 whoisObjectServerMapper.mapResourceHolder(whoisObject, parameters, rpslObject);
 
-                streamingMarshal.writeArray(whoisObject);
+                if (streamingMarshal instanceof StreamingMarshalTextPlain) {
+                    streamingMarshal.writeArray(rpslObject);
+                } else {
+                    streamingMarshal.writeArray(whoisObject);
+                }
                 tagResponseObject = null;
             }
 

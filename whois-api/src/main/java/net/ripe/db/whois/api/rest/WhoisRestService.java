@@ -269,7 +269,7 @@ public class WhoisRestService {
      * @return
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @Path("/{source}/{objectType}/{key:.*}")
     public Response lookup(
             @Context final HttpServletRequest request,

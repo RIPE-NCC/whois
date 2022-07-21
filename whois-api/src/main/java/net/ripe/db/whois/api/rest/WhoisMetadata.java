@@ -9,6 +9,7 @@ import net.ripe.db.whois.api.rest.domain.Template;
 import net.ripe.db.whois.api.rest.domain.TemplateAttribute;
 import net.ripe.db.whois.api.rest.domain.TemplateResources;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -43,7 +44,6 @@ public class WhoisMetadata {
     private final List<Source> SOURCES;
 
     private final Map<String, Template> ATTRIBUTE_TEMPLATES;
-
     @Autowired
     public WhoisMetadata(final SourceContext sourceContext) {
         SOURCES = new ArrayList<>();

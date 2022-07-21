@@ -329,7 +329,7 @@ public class DummifierNrtmTest {
 
         final RpslObject dummified = subject.dummify(3, mntner);
 
-        assertThat(dummified.findAttribute(AttributeType.AUTH), is(new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.")));
+        assertThat(dummified.findAttribute(AttributeType.AUTH), is(new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security")));
         assertThat(dummified.getValueForAttribute(AttributeType.CREATED).toString(), is("2001-02-04T17:00:00Z"));
         assertThat(dummified.getValueForAttribute(AttributeType.LAST_MODIFIED).toString(), is("2001-02-04T17:00:00Z"));
     }

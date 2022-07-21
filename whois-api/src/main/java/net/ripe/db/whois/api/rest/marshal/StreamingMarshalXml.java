@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest;
+package net.ripe.db.whois.api.rest.marshal;
 
 import com.google.common.collect.ImmutableList;
 import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class StreamingMarshalXml implements StreamingMarshal {
+class StreamingMarshalXml extends AbstractStreamingMarshal {
     private static final List<Namespace> NAMESPACES = ImmutableList.<Namespace>of(new NamespaceEvent("xlink", Link.XLINK_URI));
     private static final NewlineEscapeHandler NEWLINE_ESCAPE_HANDLER = new NewlineEscapeHandler();
 
@@ -107,15 +107,6 @@ class StreamingMarshalXml implements StreamingMarshal {
     @Override
     public <T> void writeArray(T t) {
         write("object", t);
-    }
-
-    @Override
-    public <T> void startArray(final String name) {
-        // deliberately not implemented
-    }
-
-    public <T> void endArray() {
-        // deliberately not implemented
     }
 
     @Override

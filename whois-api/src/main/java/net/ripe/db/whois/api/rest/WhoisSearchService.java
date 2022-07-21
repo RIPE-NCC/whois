@@ -132,7 +132,7 @@ public class WhoisSearchService {
      *
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @Path("/search")
     public Response search(
             @Context final HttpServletRequest request,

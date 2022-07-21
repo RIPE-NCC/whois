@@ -209,7 +209,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .lookup(ObjectType.MNTNER, "SSO-MNT");
 
         assertThat(object.findAttributes(AttributeType.AUTH),
-                hasItems(new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/"),
+                hasItems(new RpslAttribute(AttributeType.AUTH, "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test"),
                         new RpslAttribute(AttributeType.AUTH, "SSO random@ripe.net")));
     }
 
