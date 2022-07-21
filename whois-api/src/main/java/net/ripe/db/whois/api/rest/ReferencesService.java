@@ -15,6 +15,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -101,7 +102,6 @@ public class ReferencesService {
     private final WhoisObjectMapper whoisObjectMapper;
     private final Map dummyMap;
     private final String dummyRole;
-
     @Autowired
     public ReferencesService(
             final RpslObjectDao rpslObjectDao,

@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest;
+package net.ripe.db.whois.api.rest.marshal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -14,8 +14,8 @@ import net.ripe.db.whois.api.rest.client.StreamingException;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class StreamingMarshalJson implements StreamingMarshal {
-    private static JsonFactory jsonFactory;
+class StreamingMarshalJson extends AbstractStreamingMarshal {
+    private static final JsonFactory jsonFactory;
 
     static {
         final ObjectMapper objectMapper = new ObjectMapper()

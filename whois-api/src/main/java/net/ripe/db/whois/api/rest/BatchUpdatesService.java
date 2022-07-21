@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
@@ -36,7 +37,6 @@ import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 @Component
 @Path("/batch")
 public class BatchUpdatesService {
-
     private final static String DELETE_REASON = "Batch Delete";
 
     private final LoggerContext loggerContext;
