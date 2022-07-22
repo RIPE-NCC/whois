@@ -1,9 +1,9 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -30,13 +30,13 @@ public class ReferenceCheck implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);
 
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final RpslObjectDao rpslObjectDao;
+    private final ReferencesDao referencesDao;
 
     @Autowired
-    public ReferenceCheck(final RpslObjectUpdateDao rpslObjectUpdateDao, final RpslObjectDao rpslObjectDao) {
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
+    public ReferenceCheck(final RpslObjectDao rpslObjectDao, final ReferencesDao referencesDao) {
         this.rpslObjectDao = rpslObjectDao;
+        this.referencesDao = referencesDao;
     }
 
     @Override
@@ -72,7 +72,7 @@ public class ReferenceCheck implements BusinessRuleValidator {
     }
 
     private RpslObject findOrgReference(final RpslAttribute org) {
-        final RpslObjectInfo referencedOrganisationInfo = rpslObjectDao.getAttributeReference(org.getType(), org.getCleanValue());
+        final RpslObjectInfo referencedOrganisationInfo = referencesDao.getAttributeReference(org.getType(), org.getCleanValue());
 
         return (referencedOrganisationInfo == null ? null : rpslObjectDao.getByKey(ObjectType.ORGANISATION, referencedOrganisationInfo.getKey()));
     }

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
@@ -42,6 +43,7 @@ public class OrgNameAndCountryAttrValidatorTest {
     @Mock private PreparedUpdate update;
     @Mock private Subject subjectObject;
     @Mock private RpslObjectDao objectDao;
+    @Mock private ReferencesDao referencesDao;
     @Mock private Maintainers maintainers;
     @InjectMocks private OrgNameAndCountryAttrValidator subject;
 
@@ -127,7 +129,7 @@ public class OrgNameAndCountryAttrValidatorTest {
     public void orgname_changed_not_referenced_at_all() {
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-        when(objectDao.getReferences(ORIGINAL_ORG)).thenReturn(Collections.EMPTY_SET);
+        when(referencesDao.getReferences(ORIGINAL_ORG)).thenReturn(Collections.EMPTY_SET);
 
         subject.validate(update, updateContext);
 
@@ -155,7 +157,7 @@ public class OrgNameAndCountryAttrValidatorTest {
     public void orgname_changed_not_referenced_by_resource() {
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-        when(objectDao.getReferences(ORIGINAL_ORG)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.PERSON, "TEST-NIC")));
+        when(referencesDao.getReferences(ORIGINAL_ORG)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.PERSON, "TEST-NIC")));
 
         subject.validate(update, updateContext);
 
@@ -329,6 +331,6 @@ public class OrgNameAndCountryAttrValidatorTest {
             lenient().when(objectDao.getById(referrerObject.getObjectId())).thenReturn(referrerObject);
         }
 
-        lenient().when(objectDao.getReferences(ORIGINAL_ORG)).thenReturn(rpslObjectInfos);
+        lenient().when(referencesDao.getReferences(ORIGINAL_ORG)).thenReturn(rpslObjectInfos);
     }
 }

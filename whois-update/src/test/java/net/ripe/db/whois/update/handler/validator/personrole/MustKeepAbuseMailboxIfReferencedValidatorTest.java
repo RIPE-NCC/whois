@@ -1,9 +1,9 @@
 package net.ripe.db.whois.update.handler.validator.personrole;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -11,15 +11,14 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -28,7 +27,7 @@ import static org.mockito.Mockito.when;
 public class MustKeepAbuseMailboxIfReferencedValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
-    @Mock JdbcRpslObjectUpdateDao updateDao;
+    @Mock ReferencesDao referencesDao;
     @Mock JdbcRpslObjectDao objectDao;
 
     @InjectMocks MustKeepAbuseMailboxIfReferencedValidator subject;
@@ -60,7 +59,7 @@ public class MustKeepAbuseMailboxIfReferencedValidatorTest {
 
         when(update.getReferenceObject()).thenReturn(originalObject);
         when(update.getUpdatedObject()).thenReturn(updatedObject);
-        when(objectDao.getReferences(updatedObject)).thenReturn(Sets.newHashSet());
+        when(referencesDao.getReferences(updatedObject)).thenReturn(Sets.newHashSet());
         subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
@@ -86,7 +85,7 @@ public class MustKeepAbuseMailboxIfReferencedValidatorTest {
 
         when(update.getReferenceObject()).thenReturn(originalObject);
         when(update.getUpdatedObject()).thenReturn(updatedObject);
-        when(objectDao.getReferences(updatedObject)).thenReturn(Sets.newHashSet(new RpslObjectInfo(1, ObjectType.ORGANISATION, "ORG-TEST1")));
+        when(referencesDao.getReferences(updatedObject)).thenReturn(Sets.newHashSet(new RpslObjectInfo(1, ObjectType.ORGANISATION, "ORG-TEST1")));
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("organisation: ORG-TEST1\nabuse-c: TEST-NIC"));
 
         subject.validate(update, updateContext);

@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.personrole;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
@@ -31,10 +32,12 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
     );
 
     private final RpslObjectDao objectDao;
+    private final ReferencesDao referencesDao;
 
     @Autowired
-    public MustKeepAbuseMailboxIfReferencedValidator(final RpslObjectDao objectDao) {
+    public MustKeepAbuseMailboxIfReferencedValidator(final RpslObjectDao objectDao, final ReferencesDao referencesDao) {
         this.objectDao = objectDao;
+        this.referencesDao = referencesDao;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
             return;
         }
 
-        for (final RpslObjectInfo referenceInfo : objectDao.getReferences(update.getUpdatedObject())) {
+        for (final RpslObjectInfo referenceInfo : referencesDao.getReferences(update.getUpdatedObject())) {
             if (REFERENCED_OBJECT_TYPES.contains(referenceInfo.getObjectType())) {
                 final Set<CIString> abuseCAttributes = objectDao.getById(referenceInfo.getObjectId()).getValuesForAttribute(AttributeType.ABUSE_C);
                 if (!abuseCAttributes.isEmpty() && abuseCAttributes.contains(update.getUpdatedObject().getValueForAttribute(AttributeType.NIC_HDL))) {

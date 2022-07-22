@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
-import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -25,7 +27,7 @@ public class ObjectReferencedValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 
-    @Mock RpslObjectDao rpslObjectDao;
+    @Mock ReferencesDao referencesDao;
     @InjectMocks ObjectReferencedValidator subject;
 
     @Test
@@ -43,6 +45,9 @@ public class ObjectReferencedValidatorTest {
     @Test
     public void validate_not_referenced() {
         final RpslObject object = RpslObject.parse("mntner: TST-MNT");
+        lenient().when(update.getReferenceObject()).thenReturn(object);
+        lenient().when(referencesDao.getInvalidReferences(object)).thenReturn(Collections.emptyMap());
+
         subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
@@ -55,7 +60,7 @@ public class ObjectReferencedValidatorTest {
         when(update.getType()).thenReturn(ObjectType.MNTNER);
         when(update.hasOriginalObject()).thenReturn(true);
         when(update.getReferenceObject()).thenReturn(object);
-        when(rpslObjectDao.isReferenced(object)).thenReturn(true);
+        when(referencesDao.isReferenced(object)).thenReturn(true);
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.objectInUse(object));
@@ -68,7 +73,7 @@ public class ObjectReferencedValidatorTest {
         when(update.getType()).thenReturn(ObjectType.AUT_NUM);
         when(update.hasOriginalObject()).thenReturn(true);
         lenient().when(update.getReferenceObject()).thenReturn(object);
-        lenient().when(rpslObjectDao.isReferenced(object)).thenReturn(true);
+        lenient().when(referencesDao.isReferenced(object)).thenReturn(true);
 
         subject.validate(update, updateContext);
 

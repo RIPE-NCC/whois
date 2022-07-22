@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
@@ -36,11 +37,13 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
 
     private final RpslObjectDao objectDao;
     private final Maintainers maintainers;
+    private final ReferencesDao referencesDao;
 
     @Autowired
-    public OrgNameAndCountryAttrValidator(final RpslObjectDao objectDao, final Maintainers maintainers) {
+    public OrgNameAndCountryAttrValidator(final RpslObjectDao objectDao, final Maintainers maintainers, final ReferencesDao referencesDao) {
         this.objectDao = objectDao;
         this.maintainers = maintainers;
+        this.referencesDao = referencesDao;
     }
 
     @Override
@@ -80,7 +83,7 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
     }
 
     private boolean isReferencedByRsMaintainedResource(final RpslObject rpslObject) {
-        for (RpslObjectInfo referencedObjectInfo : objectDao.getReferences(rpslObject)) {
+        for (RpslObjectInfo referencedObjectInfo : referencesDao.getReferences(rpslObject)) {
             if (RESOURCE_OBJECT_TYPES.contains(referencedObjectInfo.getObjectType())) {
                 final RpslObject referencedObject = objectDao.getById(referencedObjectInfo.getObjectId());
                 if (isMaintainedByRs(referencedObject)) {

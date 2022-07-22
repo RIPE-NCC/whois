@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -25,18 +25,18 @@ public class ReferencedObjectsExistValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.copyOf(ObjectType.values());
 
-    private final RpslObjectDao rpslObjectDao;
+    private final ReferencesDao referencesDao;
 
     @Autowired
-    public ReferencedObjectsExistValidator(final RpslObjectDao rpslObjectDao) {
-        this.rpslObjectDao = rpslObjectDao;
+    public ReferencedObjectsExistValidator(final ReferencesDao referencesDao) {
+        this.referencesDao = referencesDao;
     }
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
 
-        final Map<RpslAttribute, Set<CIString>> invalidReferences = rpslObjectDao.getInvalidReferences(updatedObject);
+        final Map<RpslAttribute, Set<CIString>> invalidReferences = referencesDao.getInvalidReferences(updatedObject);
         final ObjectMessages objectMessages = updateContext.getMessages(update);
         for (final Map.Entry<RpslAttribute, Set<CIString>> invalidReferenceEntry : invalidReferences.entrySet()) {
             final RpslAttribute attribute = invalidReferenceEntry.getKey();
