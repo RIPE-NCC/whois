@@ -37,7 +37,7 @@ public class JdbcReferencesDao implements ReferencesDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public JdbcReferencesDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource) {
+    public JdbcReferencesDao(@Qualifier("whoisSlaveDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
