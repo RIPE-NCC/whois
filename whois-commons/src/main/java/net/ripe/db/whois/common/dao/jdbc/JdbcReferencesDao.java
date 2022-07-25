@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,12 +33,13 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
-public class JdbcReferencesDao implements ReferencesDao {
+public class JdbcReferencesDao extends JdbcRpslObjectDao implements ReferencesDao {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public JdbcReferencesDao(@Qualifier("whoisSlaveDataSource") final DataSource dataSource) {
+    public JdbcReferencesDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource, final SourceContext sourceContext) {
+        super(dataSource, sourceContext);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
