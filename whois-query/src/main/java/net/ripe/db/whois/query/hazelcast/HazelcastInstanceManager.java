@@ -60,7 +60,9 @@ public class HazelcastInstanceManager {
                 .setProperty("hazelcast.phone.home.enabled", "false")
                 .setProperty("hazelcast.memcache.enabled","false")
                 .setProperty("hazelcast.redo.giveup.threshold","10")
-                .setProperty("hazelcast.logging.type","slf4j");
+                .setProperty("hazelcast.logging.type","slf4j")
+                .setProperty("hazelcast.shutdownhook.enabled","false")
+                .setProperty("hazelcast.graceful.shutdown.max.wait","60");
 
         return config;
     }
