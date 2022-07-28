@@ -6,9 +6,9 @@ import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import java.time.LocalDateTime;
 
 import javax.annotation.Nullable;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;

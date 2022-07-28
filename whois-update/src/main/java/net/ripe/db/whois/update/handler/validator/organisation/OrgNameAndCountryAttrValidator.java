@@ -2,14 +2,12 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
-import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
@@ -24,8 +22,10 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
 import java.util.Set;
+
+import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
 
 @Component
 public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
@@ -35,15 +35,15 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
 
     private static final Set<ObjectType> RESOURCE_OBJECT_TYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM);
 
-    private final RpslObjectUpdateDao objectUpdateDao;
     private final RpslObjectDao objectDao;
     private final Maintainers maintainers;
+    private final ReferencesDao referencesDao;
 
     @Autowired
-    public OrgNameAndCountryAttrValidator(final RpslObjectUpdateDao objectUpdateDao, final RpslObjectDao objectDao, final Maintainers maintainers) {
-        this.objectUpdateDao = objectUpdateDao;
+    public OrgNameAndCountryAttrValidator(final RpslObjectDao objectDao, final Maintainers maintainers, final ReferencesDao referencesDao) {
         this.objectDao = objectDao;
         this.maintainers = maintainers;
+        this.referencesDao = referencesDao;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class OrgNameAndCountryAttrValidator implements BusinessRuleValidator {
     }
 
     private boolean isReferencedByRsMaintainedResource(final RpslObject rpslObject) {
-        for (RpslObjectInfo referencedObjectInfo : objectUpdateDao.getReferences(rpslObject)) {
+        for (RpslObjectInfo referencedObjectInfo : referencesDao.getReferences(rpslObject)) {
             if (RESOURCE_OBJECT_TYPES.contains(referencedObjectInfo.getObjectType())) {
                 final RpslObject referencedObject = objectDao.getById(referencedObjectInfo.getObjectId());
                 if (isMaintainedByRs(referencedObject)) {
