@@ -66,7 +66,7 @@ public class HazelcastInstanceManager {
                 .setProperty("hazelcast.shutdownhook.enabled","false")
                 .setProperty("hazelcast.graceful.shutdown.max.wait","60");
 
-        config.setCPSubsystemConfig(new CPSubsystemConfig().setPersistenceEnabled(false));
+        config.getCPSubsystemConfig().setPersistenceEnabled(false);
 
         return config;
     }
