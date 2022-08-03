@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.dao.AuthoritativeResourceDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
@@ -65,7 +64,6 @@ public class WhoisFixture {
     protected MailUpdatesTestSupport mailUpdatesTestSupport;
     protected RpslObjectDao rpslObjectDao;
     protected RpslObjectUpdateDao rpslObjectUpdateDao;
-    protected TagsDao tagsDao;
     protected AuthoritativeResourceDao authoritativeResourceDao;
     protected AuthoritativeResourceData authoritativeResourceData;
     protected MailGateway mailGateway;
@@ -117,7 +115,6 @@ public class WhoisFixture {
 
         rpslObjectDao = applicationContext.getBean(RpslObjectDao.class);
         rpslObjectUpdateDao = applicationContext.getBean(RpslObjectUpdateDao.class);
-        tagsDao = applicationContext.getBean(TagsDao.class);
         authoritativeResourceDao = applicationContext.getBean(AuthoritativeResourceDao.class);
         authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
         mailGateway = applicationContext.getBean(MailGateway.class);
@@ -239,10 +236,6 @@ public class WhoisFixture {
 
     public DatabaseHelper getDatabaseHelper() {
         return databaseHelper;
-    }
-
-    public TagsDao getTagsDao() {
-        return tagsDao;
     }
 
     public AuthoritativeResourceDao getAuthoritativeResourceDao() {

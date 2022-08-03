@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest.client;
 
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;

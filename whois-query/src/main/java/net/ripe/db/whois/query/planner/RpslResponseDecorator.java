@@ -17,7 +17,6 @@ import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
-import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,6 @@ public class RpslResponseDecorator {
     private final BriefAbuseCFunction briefAbuseCFunction;
     private final SyntaxFilterFunction validSyntaxFilterFunction;
     private final SyntaxFilterFunction invalidSyntaxFilterFunction;
-    private final FilterTagsDecorator filterTagsDecorator;
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final AbuseCInfoDecorator abuseCInfoDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
@@ -67,7 +65,6 @@ public class RpslResponseDecorator {
                                  final DummifyDecorator dummifyDecorator,
                                  final SourceContext sourceContext,
                                  final AbuseCFinder abuseCFinder,
-                                 final FilterTagsDecorator filterTagsDecorator,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final SsoTokenTranslator ssoTokenTranslator,
@@ -82,7 +79,6 @@ public class RpslResponseDecorator {
         this.authServiceClient = authServiceClient;
         this.validSyntaxFilterFunction = new SyntaxFilterFunction(true);
         this.invalidSyntaxFilterFunction = new SyntaxFilterFunction(false);
-        this.filterTagsDecorator = filterTagsDecorator;
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
         this.briefAbuseCFunction = new BriefAbuseCFunction(abuseCFinder);
         this.decorators = Sets.newHashSet(decorators);
@@ -95,7 +91,6 @@ public class RpslResponseDecorator {
         decoratedResult = dummifyDecorator.decorate(query, decoratedResult);
 
         decoratedResult = groupRelatedObjects(query, decoratedResult);
-        decoratedResult = filterTagsDecorator.decorate(query, decoratedResult);
         decoratedResult = filterPersonalDecorator.decorate(query, decoratedResult);
         decoratedResult = abuseCInfoDecorator.decorate(query, decoratedResult);
 

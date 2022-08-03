@@ -15,7 +15,6 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
-import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.executor.decorators.ResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
@@ -59,7 +58,6 @@ public class RpslResponseDecoratorTest {
     @Mock PrimaryObjectDecorator decorator;
     @Mock AbuseCFinder abuseCFinder;
     @Mock DummifyDecorator dummifyDecorator;
-    @Mock FilterTagsDecorator filterTagsDecorator;
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     @Mock SsoTokenTranslator ssoTokenTranslator;
     @Mock AuthServiceClient authServiceClient;
@@ -80,7 +78,6 @@ public class RpslResponseDecoratorTest {
                 dummifyDecorator,
                 sourceContext,
                 abuseCFinder,
-                filterTagsDecorator,
                 filterPlaceholdersDecorator,
                 abuseCInfoDecorator,
                 ssoTokenTranslator,
@@ -91,7 +88,7 @@ public class RpslResponseDecoratorTest {
         lenient().when(sourceContext.isMain()).thenReturn(true);
         Fixture.mockRpslObjectDaoLoadingBehavior(rpslObjectDaoMock);
 
-        decoratorPassthrough(filterPersonalDecorator, filterPlaceholdersDecorator, filterTagsDecorator, dummifyDecorator);
+        decoratorPassthrough(filterPersonalDecorator, filterPlaceholdersDecorator, dummifyDecorator);
     }
 
     private static void decoratorPassthrough(ResponseDecorator... responseDecorator) {

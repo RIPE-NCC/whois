@@ -39,8 +39,7 @@ public class WhoisSearchServiceTest {
 
     @Test
     public void search_disallowedFlags() {
-        final List<String> disallowedFlags = ImmutableList.of("t", "template", "v", "verbose", "V", "client", "G", "no-grouping", "no-tag-info",
-                "show-tag-info", "a", "all-sources", "q", "list-sources", "diff-versions", "list-versions", "show-version", "k", "persistent-connection");
+        final List<String> disallowedFlags = ImmutableList.of("t", "template", "v", "verbose", "V", "client", "G", "no-grouping", "a", "all-sources", "q", "list-sources", "diff-versions", "list-versions", "show-version", "k", "persistent-connection");
         for (String disallowedFlag : disallowedFlags) {
             try {
                 subject.search(
@@ -49,8 +48,6 @@ public class WhoisSearchServiceTest {
                         "AARDVARK-MNT",
                         Collections.EMPTY_SET,
                         null,
-                        Collections.EMPTY_SET,
-                        Collections.EMPTY_SET,
                         Collections.EMPTY_SET,
                         Sets.newHashSet(disallowedFlag),
                         null,

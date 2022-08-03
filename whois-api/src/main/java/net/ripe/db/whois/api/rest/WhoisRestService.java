@@ -294,7 +294,6 @@ public class WhoisRestService {
                 addFlag(QueryFlag.EXACT).
                 addFlag(QueryFlag.NO_GROUPING).
                 addFlag(QueryFlag.NO_REFERENCED).
-                addFlag(QueryFlag.SHOW_TAG_INFO).
                 addCommaList(QueryFlag.SOURCES, source).
                 addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName());
 

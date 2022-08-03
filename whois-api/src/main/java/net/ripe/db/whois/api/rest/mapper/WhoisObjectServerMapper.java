@@ -4,17 +4,14 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.search.AbuseContactSearch;
 import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.api.rest.search.ResourceHolderSearch;
-import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
-import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -60,17 +57,6 @@ public class WhoisObjectServerMapper {
     public WhoisObject map(final RpslObject rpslObject, final Parameters parameters) {
         final Class<? extends AttributeMapper> attributeMapper = getServerAttributeMapper(Boolean.TRUE.equals(parameters.getUnformatted()));
         return whoisObjectMapper.map(rpslObject, attributeMapper);
-    }
-
-    public void mapTags(final WhoisObject whoisObject, final TagResponseObject tagResponseObject) {
-        if (tagResponseObject != null && !tagResponseObject.getTags().isEmpty()) {
-            final List<Tag> tags = tagResponseObject.getTags();
-            final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
-            for (final Tag tag : tags) {
-                whoisTags.add(new WhoisTag(tag.getType().toString(), tag.getValue()));
-            }
-            whoisObject.setTags(whoisTags);
-        }
     }
 
     public void mapResourceHolder(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject) {
