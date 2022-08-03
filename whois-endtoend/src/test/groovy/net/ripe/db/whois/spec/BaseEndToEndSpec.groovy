@@ -317,10 +317,6 @@ ${response}
         return whoisFixture.getRpslObjectDao()
     }
 
-    def getTagsDao() {
-        return whoisFixture.getTagsDao()
-    }
-
     def getAuthoritativeResourceDao() {
         return whoisFixture.getAuthoritativeResourceDao()
     }

@@ -103,10 +103,6 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
         string
     }
 
-    def addTag(String pkey, String tag, String data) {
-        getDatabaseHelper().getWhoisTemplate().update("INSERT INTO tags(object_id, tag_id, data) SELECT object_id, \"${tag}\", \"${data}\" from last where pkey='${pkey}'");
-    }
-
     def grepQueryLog(String pattern) {
         boolean result = false;
         getTestWhoisLog().messages.each { line ->
