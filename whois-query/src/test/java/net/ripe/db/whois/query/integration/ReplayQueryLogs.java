@@ -8,6 +8,7 @@ import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.support.QueryExecutor;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@org.junit.jupiter.api.Tag("ManualTest")
+@Tag("ManualTest")
 public class ReplayQueryLogs {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReplayQueryLogs.class);
     private static String whoisHost;

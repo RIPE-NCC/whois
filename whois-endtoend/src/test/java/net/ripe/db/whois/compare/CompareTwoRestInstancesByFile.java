@@ -5,11 +5,12 @@ import net.ripe.db.whois.compare.common.ComparisonRunnerFactory;
 import net.ripe.db.whois.compare.common.TargetInterface;
 import net.ripe.db.whois.compare.rest.RestQueryReader;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-@org.junit.jupiter.api.Tag("ManualTest")
+@Tag("ManualTest")
 public class CompareTwoRestInstancesByFile {
 
     @Test

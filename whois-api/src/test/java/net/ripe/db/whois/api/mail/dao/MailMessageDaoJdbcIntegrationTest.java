@@ -7,6 +7,7 @@ import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
 import net.ripe.db.whois.update.domain.DequeueStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
     private MailMessageDao subject;
     @Autowired private MessageDequeue messageDequeue;

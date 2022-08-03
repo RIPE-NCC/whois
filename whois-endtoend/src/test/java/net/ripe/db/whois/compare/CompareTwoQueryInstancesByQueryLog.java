@@ -5,6 +5,7 @@ import net.ripe.db.whois.compare.common.ComparisonExecutorConfig;
 import net.ripe.db.whois.compare.common.ComparisonRunnerFactory;
 import net.ripe.db.whois.compare.common.QueryReader;
 import net.ripe.db.whois.compare.common.TargetInterface;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import org.springframework.core.io.FileSystemResource;
 
 import java.io.File;
 
-@org.junit.jupiter.api.Tag("ManualTest")
+@Tag("ManualTest")
 public class CompareTwoQueryInstancesByQueryLog {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompareTwoQueryInstancesByQueryLog.class);
 

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.scheduler;
 
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
@@ -10,7 +11,7 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class SchedulerConfigIntegrationTest extends AbstractSchedulerIntegrationTest {
 
     @Autowired
