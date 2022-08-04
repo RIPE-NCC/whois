@@ -59,16 +59,16 @@ public class RpslObjectStreamer {
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
         this.version = new Version(
-                applicationVersion.getVersion(),
-                applicationVersion.getTimestamp(),
-                applicationVersion.getCommitId());
+            applicationVersion.getVersion(),
+            applicationVersion.getTimestamp(),
+            applicationVersion.getCommitId());
     }
 
     public Response handleQueryAndStreamResponse(final Query query,
-                                                 final HttpServletRequest request,
-                                                 final InetAddress remoteAddress,
-                                                 final Parameters parameters,
-                                                 @Nullable final Service service) {
+                                                  final HttpServletRequest request,
+                                                  final InetAddress remoteAddress,
+                                                  final Parameters parameters,
+                                                  @Nullable final Service service) {
         return Response.ok(new Streamer(request, query, remoteAddress, parameters, service)).build();
     }
 
@@ -105,7 +105,6 @@ public class RpslObjectStreamer {
                 if (!responseHandler.rpslObjectFound()) {
                     streamingMarshal.throwNotFoundError(request, responseHandler.flushAndGetErrors());
                 }
-
                 responseHandler.flushAndGetErrors();
             } catch (StreamingException ignored) {
                 LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
@@ -133,7 +132,6 @@ public class RpslObjectStreamer {
         }
 
         private class SearchResponseHandler extends ApiResponseHandler {
-
             private boolean rpslObjectFound;
 
             // tags come separately
@@ -242,7 +240,6 @@ public class RpslObjectStreamer {
                 streamingMarshal.close();
                 return errors;
             }
-
         }
 
     }

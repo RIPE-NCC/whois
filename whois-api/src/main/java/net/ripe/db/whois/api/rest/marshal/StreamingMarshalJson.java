@@ -16,7 +16,6 @@ import java.io.OutputStream;
 
 public class StreamingMarshalJson implements StreamingMarshal {
     private static final JsonFactory jsonFactory;
-    private final JsonGenerator generator;
 
     static {
         final ObjectMapper objectMapper = new ObjectMapper()
@@ -31,6 +30,7 @@ public class StreamingMarshalJson implements StreamingMarshal {
         jsonFactory = objectMapper.getFactory();
     }
 
+    private final JsonGenerator generator;
 
     StreamingMarshalJson(OutputStream outputStream) {
         try {
