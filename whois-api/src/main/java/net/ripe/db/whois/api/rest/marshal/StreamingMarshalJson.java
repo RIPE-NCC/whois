@@ -14,7 +14,7 @@ import net.ripe.db.whois.api.rest.client.StreamingException;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class StreamingMarshalJson extends AbstractStreamingMarshal {
+public class StreamingMarshalJson implements StreamingMarshal {
     private static final JsonFactory jsonFactory;
 
     static {
@@ -40,7 +40,6 @@ public class StreamingMarshalJson extends AbstractStreamingMarshal {
         }
     }
 
-    @Override
     public void open() {
         try {
             generator.writeStartObject();

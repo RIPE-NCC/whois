@@ -9,8 +9,8 @@ import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
-import net.ripe.db.whois.api.rest.marshal.AbstractStreamingMarshal;
 import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
+import net.ripe.db.whois.api.rest.marshal.StreamingMarshal;
 import net.ripe.db.whois.api.rest.marshal.StreamingMarshalTextPlain;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
@@ -41,6 +41,7 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 
+
 @Component
 public class RpslObjectStreamer {
 
@@ -58,16 +59,16 @@ public class RpslObjectStreamer {
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
         this.version = new Version(
-            applicationVersion.getVersion(),
-            applicationVersion.getTimestamp(),
-            applicationVersion.getCommitId());
+                applicationVersion.getVersion(),
+                applicationVersion.getTimestamp(),
+                applicationVersion.getCommitId());
     }
 
     public Response handleQueryAndStreamResponse(final Query query,
-                                                  final HttpServletRequest request,
-                                                  final InetAddress remoteAddress,
-                                                  final Parameters parameters,
-                                                  @Nullable final Service service) {
+                                                 final HttpServletRequest request,
+                                                 final InetAddress remoteAddress,
+                                                 final Parameters parameters,
+                                                 @Nullable final Service service) {
         return Response.ok(new Streamer(request, query, remoteAddress, parameters, service)).build();
     }
 
@@ -78,8 +79,7 @@ public class RpslObjectStreamer {
         private final InetAddress remoteAddress;
         private final Parameters parameters;
         private final Service service;
-        private AbstractStreamingMarshal streamingMarshal;
-
+        private StreamingMarshal streamingMarshal;
 
         public Streamer(
                 final HttpServletRequest request,
@@ -107,7 +107,6 @@ public class RpslObjectStreamer {
                 }
 
                 responseHandler.flushAndGetErrors();
-
             } catch (StreamingException ignored) {
                 LOGGER.debug("{}: {}", ignored.getClass().getName(), ignored.getMessage());
             } catch (QueryException queryException) {
@@ -134,6 +133,7 @@ public class RpslObjectStreamer {
         }
 
         private class SearchResponseHandler extends ApiResponseHandler {
+
             private boolean rpslObjectFound;
 
             // tags come separately
@@ -242,9 +242,9 @@ public class RpslObjectStreamer {
                 streamingMarshal.close();
                 return errors;
             }
+
         }
 
     }
-
 
 }

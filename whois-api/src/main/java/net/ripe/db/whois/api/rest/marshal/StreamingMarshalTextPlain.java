@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
-public class StreamingMarshalTextPlain extends AbstractStreamingMarshal {
+public class StreamingMarshalTextPlain implements StreamingMarshal {
 
     private final OutputStreamWriter outputStreamWriter;
 
@@ -39,13 +39,7 @@ public class StreamingMarshalTextPlain extends AbstractStreamingMarshal {
             throw new StreamingException(e);
         }
     }
-    @Override
-    public <T> void throwNotFoundError(HttpServletRequest request, List<Message> errorMessages) {
-        throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                .entity(createErrorStringEntity(request, errorMessages))
-                .build());
-    }
-    @Override
+
     public <T> void singleton(T t) {
         try {
             outputStreamWriter.write(t.toString());
