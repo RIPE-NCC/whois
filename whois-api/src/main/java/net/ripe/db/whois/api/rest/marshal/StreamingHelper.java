@@ -16,7 +16,7 @@ public class StreamingHelper {
 
     private static final Splitter COMMA_SPLITTER = Splitter.on(',');
 
-    public static AbstractStreamingMarshal getStreamingMarshal(final HttpServletRequest request,
+    public static StreamingMarshal getStreamingMarshal(final HttpServletRequest request,
                                                                final OutputStream outputStream
     ) {
         final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
@@ -41,7 +41,7 @@ public class StreamingHelper {
         return new StreamingMarshalXml(outputStream, "whois-resources");
     }
 
-    public static AbstractStreamingMarshal getStreamingMarshalJson(final OutputStream outputStream){
+    public static StreamingMarshal getStreamingMarshalJson(final OutputStream outputStream){
         return new StreamingMarshalJson(outputStream);
     }
 }
