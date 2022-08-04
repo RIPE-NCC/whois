@@ -16,6 +16,7 @@ import java.io.OutputStream;
 
 public class StreamingMarshalJson implements StreamingMarshal {
     private static final JsonFactory jsonFactory;
+    private final JsonGenerator generator;
 
     static {
         final ObjectMapper objectMapper = new ObjectMapper()
@@ -30,7 +31,6 @@ public class StreamingMarshalJson implements StreamingMarshal {
         jsonFactory = objectMapper.getFactory();
     }
 
-    private final JsonGenerator generator;
 
     StreamingMarshalJson(OutputStream outputStream) {
         try {
@@ -40,9 +40,38 @@ public class StreamingMarshalJson implements StreamingMarshal {
         }
     }
 
+    @Override
     public void open() {
         try {
             generator.writeStartObject();
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
+    }
+
+    @Override
+    public void close() {
+        try {
+            generator.close();
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
+    }
+
+    @Override
+    public void startArray(final String name) {
+        try {
+            generator.writeFieldName(name);
+            generator.writeStartArray();
+        } catch (IOException e) {
+            throw new StreamingException(e);
+        }
+    }
+
+    @Override
+    public void endArray() {
+        try {
+            generator.writeEndArray();
         } catch (IOException e) {
             throw new StreamingException(e);
         }
@@ -57,16 +86,6 @@ public class StreamingMarshalJson implements StreamingMarshal {
         }
     }
 
-    public void startArray(final String name) {
-        try {
-            generator.writeFieldName(name);
-            generator.writeStartArray();
-        } catch (IOException e) {
-            throw new StreamingException(e);
-        }
-    }
-
-
     @Override
     public void end(final String name) {
         try {
@@ -76,23 +95,7 @@ public class StreamingMarshalJson implements StreamingMarshal {
         }
     }
 
-    public void endArray() {
-        try {
-            generator.writeEndArray();
-        } catch (IOException e) {
-            throw new StreamingException(e);
-        }
-    }
-
     @Override
-    public <T> void write(final String name, final T t) {
-        try {
-            generator.writeObjectField(name, t);
-        } catch (IOException e) {
-            throw new StreamingException(e);
-        }
-    }
-
     public <T> void writeArray(final T t) {
         try {
             generator.writeObject(t);
@@ -102,9 +105,9 @@ public class StreamingMarshalJson implements StreamingMarshal {
     }
 
     @Override
-    public void close() {
+    public <T> void write(final String name, final T t) {
         try {
-            generator.close();
+            generator.writeObjectField(name, t);
         } catch (IOException e) {
             throw new StreamingException(e);
         }
