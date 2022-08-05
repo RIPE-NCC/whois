@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class StreamingMarshalXml extends AbstractStreamingMarshal {
+public class StreamingMarshalXml implements StreamingMarshal {
+
     private static final List<Namespace> NAMESPACES = ImmutableList.<Namespace>of(new NamespaceEvent("xlink", Link.XLINK_URI));
     private static final NewlineEscapeHandler NEWLINE_ESCAPE_HANDLER = new NewlineEscapeHandler();
 
@@ -119,7 +120,6 @@ class StreamingMarshalXml extends AbstractStreamingMarshal {
         }
     }
 
-    @Override
     public <T> void singleton(T t) {
         try {
             XMLWriterUtils.writeStartDocument("1.0", "UTF-8", xmlOut);

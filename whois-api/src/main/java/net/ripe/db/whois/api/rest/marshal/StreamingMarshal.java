@@ -1,21 +1,38 @@
 package net.ripe.db.whois.api.rest.marshal;
 
+import net.ripe.db.whois.api.rest.RestServiceHelper;
+import net.ripe.db.whois.common.Message;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import java.util.List;
+
+
 public interface StreamingMarshal {
 
-    void open();
+    default void open() {}
 
     void close();
 
-    void start(String name);
+    default void startArray(String name) {}
 
-    void end(String name);
+    default void endArray() {}
 
-    <T> void write(String name, T t);
+    default void start(String name) {}
+
+    default void end(String name) {}
 
     <T> void writeArray(T t);
 
-    void startArray(String name);
+    default <T> void write(String name, T t) {}
 
-    void endArray();
+    default <T> void singleton(T t) {}
+
+    default void throwNotFoundError(HttpServletRequest request, List<Message> errorMessages) {
+        throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                .entity(RestServiceHelper.createErrorEntity(request, errorMessages))
+                .build());
+    }
 
 }
