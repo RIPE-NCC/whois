@@ -36,6 +36,11 @@ public class RestTest {
         return client.target(String.format("http://localhost:%d/%s", port, path));
     }
 
+    public static final WebTarget target(final int port, final String path, String queryParam) {
+        return client.target(String.format("http://localhost:%d/%s?%s", port, path,
+                StringUtils.isBlank(queryParam) ? "" : queryParam));
+    }
+
     public static final WebTarget target(final int port, final String path, String queryParam, final String apiKey) {
         return client.target(String.format("http://localhost:%d/%s?%sapiKey=%s", port, path,
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",

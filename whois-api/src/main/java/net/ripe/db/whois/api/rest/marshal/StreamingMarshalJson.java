@@ -14,7 +14,7 @@ import net.ripe.db.whois.api.rest.client.StreamingException;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class StreamingMarshalJson extends AbstractStreamingMarshal {
+public class StreamingMarshalJson extends AbstractStreamingMarshal {
     private static final JsonFactory jsonFactory;
 
     static {

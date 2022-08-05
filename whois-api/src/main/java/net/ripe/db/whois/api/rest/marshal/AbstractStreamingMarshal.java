@@ -12,42 +12,35 @@ import java.util.List;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.getRequestURL;
 import static net.ripe.db.whois.api.rest.domain.WhoisResources.TERMS_AND_CONDITIONS;
 
-public abstract class AbstractStreamingMarshal {
+public abstract class AbstractStreamingMarshal implements StreamingMarshal {
 
     public void open() {
         // deliberately not implemented
     }
 
-
     public void start(String name) {
         // deliberately not implemented
     }
-
 
     public void end(String name) {
         // deliberately not implemented
     }
 
-
     public <T> void write(String name, T t) {
         // deliberately not implemented
     }
-
 
     public <T> void writeArray(T t) {
         // deliberately not implemented
     }
 
-
-    public <T> void startArray(String name) {
+    public void startArray(String name) {
         // deliberately not implemented
     }
 
-
-    public <T> void endArray() {
+    public void endArray() {
         // deliberately not implemented
     }
-
 
     public <T> void throwNotFoundError(HttpServletRequest request, List<Message> errorMessages) {
         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
@@ -55,11 +48,9 @@ public abstract class AbstractStreamingMarshal {
                 .build());
     }
 
-
     public void close() {
         // deliberately not implemented
     }
-
 
     public <T> void singleton(T t) {
         // deliberately not implemented
@@ -71,6 +62,7 @@ public abstract class AbstractStreamingMarshal {
                 createErrorStringMessages(errorMessages) + "\n" +
                 TERMS_AND_CONDITIONS;
     }
+
     static String createErrorStringMessages(final List<Message> messages){
         StringBuilder sb = new StringBuilder();
         for (Message message : messages) {
