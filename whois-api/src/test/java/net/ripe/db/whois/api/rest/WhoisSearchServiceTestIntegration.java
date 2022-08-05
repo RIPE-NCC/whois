@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -15,11 +14,9 @@ import net.ripe.db.whois.api.rest.domain.Sources;
 import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
@@ -32,6 +29,7 @@ import org.glassfish.jersey.message.GZipEncoder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -45,7 +43,6 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -60,11 +57,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
-
 
     @Autowired
     private AccessControlListManager accessControlListManager;
@@ -302,7 +298,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_with_short_and_long_options_together() {
+    public void search_with_invalid_flag() {
         databaseHelper.addObject("" +
                 "person:    Lo Person\n" +
                 "admin-c:   TP1-TEST\n" +
@@ -312,12 +308,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:    TEST\n");
 
         try {
-            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=show-tag-inforG")
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=show-tag-info")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "Invalid search flag '%s' (in parameter '%s')", "h", "show-tag-inforG");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Invalid search flag '%s' (in parameter '%s')", "h", "show-tag-info");
         }
     }
 
@@ -343,203 +339,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Disallowed search flag '%s'", "q");
         }
-    }
-
-    @Test
-    public void search_tags_in_response() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
-    }
-
-    @Test
-    public void search_tags_in_json_response() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final String result = RestTest.target(getPort(),
-                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_JSON)
-                .get(String.class);
-
-        assertThat(result, containsString("" +
-                "\"tags\" : {\n" +
-                "    \"tag\" : [ {\n" +
-                "      \"id\" : \"foobar\",\n" +
-                "      \"data\" : \"description\"\n" +
-                "    }, {\n" +
-                "      \"id\" : \"other\",\n" +
-                "      \"data\" : \"other stuff\"\n" +
-                "    }, {\n" +
-                "      \"id\" : \"unref\",\n" +
-                "      \"data\" : \"28\"\n" +
-                "    } ]\n" +
-                "  }"));
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_JSON)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
-    }
-
-    @Test
-    public void search_include_tag_param() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
-        assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("aut-num", "AS102"),
-                new Attribute("as-name", "End-User-2"),
-                new Attribute("descr", "description"),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("source", "TEST")
-        ));
-    }
-
-    @Test
-    public void search_include_tag_param_no_results() {
-        databaseHelper.addObject(RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n"));
-
-        Assertions.assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(),
-                            "whois/search?source=TEST&query-string=AS102&include-tag=foobar")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-        });
-    }
-
-    @Test
-    public void search_include_and_exclude_tags_params_no_results() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        Assertions.assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(),
-                            "whois/search?source=TEST&query-string=AS102&exclude-tag=foobar&include-tag=unref&include-tag=other")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-        });
-    }
-
-    @Test
-    public void search_include_and_exclude_tags_params() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&exclude-tag=other&include-tag=unref&include-tag=foobar")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getLink(), is(Link.create("http://rest-test.db.ripe.net/test/aut-num/AS102")));
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "foobar"),
-                new WhoisTag("unref", "28")));
-        assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("aut-num", "AS102"),
-                new Attribute("as-name", "End-User-2"),
-                new Attribute("descr", "description"),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("source", "TEST")
-        ));
     }
 
     @Test

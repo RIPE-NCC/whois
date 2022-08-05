@@ -2,7 +2,6 @@ package net.ripe.db.whois.db;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.DateTimeProvider;
-
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.jdbc.IndexDao;
@@ -17,8 +16,8 @@ import net.ripe.db.whois.common.support.database.diff.Row;
 import net.ripe.db.whois.common.support.database.diff.Table;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,14 +29,14 @@ import java.util.List;
 import java.util.Map;
 
 import static net.ripe.db.whois.common.support.database.diff.Rows.with;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 
 @Disabled("[ES] TODO fix integration build [SB] build hangs when this integration test runs, we'll have to figure out why")
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 

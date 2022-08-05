@@ -1,17 +1,17 @@
 package net.ripe.db.whois.update.dao;
 
 
-
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class LanguageCodeRepositoryIntegrationTest extends AbstractUpdateDaoIntegrationTest {
 
     @Autowired

@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,7 +33,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("ElasticSearchTest")
+@Tag("ElasticSearchTest")
 public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois_autocomplete";

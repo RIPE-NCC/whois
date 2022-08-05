@@ -5,18 +5,18 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv6Entry;
 import net.ripe.db.whois.query.dao.Inet6numDao;
 import org.junit.jupiter.api.BeforeEach;
-
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.UnknownHostException;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class JdbcInet6numDaoIntegrationTest extends AbstractQueryDaoIntegrationTest {
 
     @Autowired Inet6numDao subject;

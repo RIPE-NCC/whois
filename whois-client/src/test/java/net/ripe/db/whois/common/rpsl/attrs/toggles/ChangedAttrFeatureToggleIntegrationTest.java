@@ -2,12 +2,13 @@ package net.ripe.db.whois.common.rpsl.attrs.toggles;
 
 import net.ripe.db.whois.api.rest.AbstractJUnit5SpringContextTests;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-toggles-test.xml"})
 public class ChangedAttrFeatureToggleIntegrationTest extends AbstractJUnit5SpringContextTests {
 

@@ -11,7 +11,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
@@ -22,8 +21,8 @@ import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.support.TestUpdateLog;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -40,6 +39,7 @@ import java.util.Deque;
 import java.util.List;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.hasSize;
@@ -47,11 +47,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ActiveProfiles(profiles = WhoisProfile.TEST, inheritProfiles = false)
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegrationTest {
 
     public static final String USER1 = "db_e2e_1@ripe.net";

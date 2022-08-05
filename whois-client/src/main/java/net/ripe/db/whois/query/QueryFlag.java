@@ -85,21 +85,6 @@ public enum QueryFlag {
 
     NO_VALID_SYNTAX(new Builder("no-valid-syntax")
             .describedAs("Returns only syntactically incorrect objects")),
-    /* -------------------------------------------------------------------------------------------------------------- */
-
-    NO_TAG_INFO(new Builder("no-tag-info")
-            .describedAs("Switches off tagging information.")),
-
-    SHOW_TAG_INFO(new Builder("show-tag-info")
-            .describedAs("Switches on tagging information.")),
-
-    FILTER_TAG_INCLUDE(new Builder("filter-tag-include")
-            .describedAs("Show only objects with given tag(s)")
-            .requiresArgument(String.class)),
-
-    FILTER_TAG_EXCLUDE(new Builder("filter-tag-exclude")
-            .describedAs("Do not show objects with given tag(s)")
-            .requiresArgument(String.class)),
 
     /* -------------------------------------------------------------------------------------------------------------- */
 

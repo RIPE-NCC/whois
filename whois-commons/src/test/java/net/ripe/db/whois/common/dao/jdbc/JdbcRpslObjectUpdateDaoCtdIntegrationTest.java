@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
 
-
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -12,20 +11,20 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class JdbcRpslObjectUpdateDaoCtdIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired RpslObjectUpdateDao subject;
 

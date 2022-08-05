@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.domain.Hosts;
 import org.apache.commons.lang.StringUtils;
 
 import java.net.InetAddress;
-import java.util.Set;
 
 import static net.ripe.db.whois.common.Messages.Type;
 
@@ -313,39 +312,6 @@ public final class QueryMessages {
                 + "WARNING:902: useless IP flag passed\n"
                 + "\n"
                 + "An IP flag (-l, -L, -m, -M, -x, -d or -b) used without an IP key.");
-    }
-
-    public static Message tagInfoStart(final CharSequence pkey) {
-        return new QueryMessage(Type.INFO, "Tags relating to '%s'", pkey);
-    }
-
-    public static Message tagInfo(final CharSequence tagType, final CharSequence tagValue) {
-        if (tagValue != null && tagValue.length() > 0) {
-            return new QueryMessage(Type.INFO, "%s # %s", tagType, tagValue);
-        } else {
-            return new QueryMessage(Type.INFO, "%s", tagType);
-        }
-    }
-
-    public static Message unreferencedTagInfo(final CharSequence pkey, final CharSequence value) {
-        return new QueryMessage(Type.INFO, "Unreferenced # '%s' will be deleted in %s days", pkey, value);
-    }
-
-    public static Message filterTagNote(final Set<? extends CharSequence> includeArgs, final Set<? extends CharSequence> excludeArgs) {
-        final StringBuilder message = new StringBuilder("Note: tag filtering is enabled,\n");
-
-        if (!includeArgs.isEmpty()) {
-            message.append("      Only showing objects WITH tag(s): ").append(JOINER.join(includeArgs));
-            if (!excludeArgs.isEmpty()) {
-                message.append('\n');
-            }
-        }
-
-        if (!excludeArgs.isEmpty()) {
-            message.append("      Only showing objects WITHOUT tag(s): ").append(JOINER.join(excludeArgs));
-        }
-
-        return new QueryMessage(Type.INFO, message.toString());
     }
 
     // FIXME: [AH] this message should be '*HAS* invalid syntax'

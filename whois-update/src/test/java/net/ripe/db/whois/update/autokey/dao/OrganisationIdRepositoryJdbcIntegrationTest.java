@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.autokey.dao;
 
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
 import net.ripe.db.whois.update.domain.OrganisationId;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 @Transactional
 public class OrganisationIdRepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired OrganisationIdRepository subject;

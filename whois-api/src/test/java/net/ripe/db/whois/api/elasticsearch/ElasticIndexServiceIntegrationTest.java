@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-@org.junit.jupiter.api.Tag("ElasticSearchTest")
+@Tag("ElasticSearchTest")
 public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois";

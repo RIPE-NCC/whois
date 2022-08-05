@@ -858,11 +858,9 @@ public class QueryTest {
         final String[] invalidQueries = {
                 "--show-version 1 AS12 -B",
                 "--list-versions AS12 -G",
-                "--list-versions AS12 -V fred --no-tag-info",
                 "--list-versions AS12 -k --show-version 1 AS12",
                 "--diff-versions 1:2 AS12 -k --show-version 1",
-                "--diff-versions 1:2 AS12 -B",
-                "--diff-versions 1:2 AS12 -V fred --no-tag-info"
+                "--diff-versions 1:2 AS12 -B"
         };
 
         for (String query : invalidQueries) {
@@ -882,73 +880,6 @@ public class QueryTest {
         assertThat(query.isVersionDiff(), is(true));
     }
 
-    @Test
-    public void filter_tag_include_no_query() {
-        try {
-            Query.parse("--filter-tag-include unref");
-            fail("Expected exception");
-        } catch (QueryException e) {
-            assertThat(e.getMessages(), contains(QueryMessages.noSearchKeySpecified()));
-        }
-    }
-
-    @Test
-    public void filter_tag_exclude_no_query() {
-        try {
-            Query.parse("--filter-tag-exclude unref");
-            fail("Expected exception");
-        } catch (QueryException e) {
-            assertThat(e.getMessages(), contains(QueryMessages.noSearchKeySpecified()));
-        }
-    }
-
-    @Test
-    public void filter_tag_include_unref() {
-        final Query query = Query.parse("--filter-tag-include unref test");
-        assertThat(query.hasOption(QueryFlag.FILTER_TAG_INCLUDE), is(true));
-    }
-
-    @Test
-    public void filter_tag_exclude_unref() {
-        final Query query = Query.parse("--filter-tag-exclude unref test");
-        assertThat(query.hasOption(QueryFlag.FILTER_TAG_EXCLUDE), is(true));
-    }
-
-
-    @Test
-    public void filter_tag_include_unref_different_casing() {
-        final Query query = Query.parse("--filter-tag-include UnReF test");
-        assertThat(query.hasOption(QueryFlag.FILTER_TAG_INCLUDE), is(true));
-    }
-
-    @Test
-    public void filter_tag_exclude_unref_different_casing() {
-        final Query query = Query.parse("--filter-tag-exclude UnReF test");
-        assertThat(query.hasOption(QueryFlag.FILTER_TAG_EXCLUDE), is(true));
-    }
-
-
-    @Test
-    public void show_tag_info() {
-        final Query query = Query.parse("--show-tag-info TEST-MNT");
-        assertThat(query.hasOption(QueryFlag.SHOW_TAG_INFO), is(true));
-    }
-
-    @Test
-    public void no_tag_info() {
-        final Query query = Query.parse("--no-tag-info TEST-MNT");
-        assertThat(query.hasOption(QueryFlag.NO_TAG_INFO), is(true));
-    }
-
-    @Test
-    public void no_tag_info_and_show_tag_info_in_the_same_query() {
-        try {
-            Query.parse("--no-tag-info --show-tag-info TEST-MNT");
-            fail();
-        } catch (QueryException e) {
-            assertThat(e.getMessage(), containsString("The flags \"--show-tag-info\" and \"--no-tag-info\" cannot be used together."));
-        }
-    }
 
     @Test
     public void grs_search_types_specified_none() {

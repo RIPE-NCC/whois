@@ -11,8 +11,8 @@ import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -22,14 +22,14 @@ import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired RpslObjectDao subject;
     @Value("${whois.source}") protected String source;

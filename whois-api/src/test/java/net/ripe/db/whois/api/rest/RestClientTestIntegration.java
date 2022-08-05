@@ -4,7 +4,6 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
-
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -14,8 +13,8 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -40,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +

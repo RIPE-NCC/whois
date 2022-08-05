@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -11,14 +10,12 @@ import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Source;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -39,6 +36,7 @@ import org.glassfish.jersey.uri.UriComponent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +67,6 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -99,7 +96,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     public static final String TEST_PERSON_STRING = "" +
@@ -731,7 +728,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources, not(containsString("errormessages")));
         assertThat(whoisResources, containsString("{\"objects\":{\"object\":[ {\n  \"type\" : \"person\","));
-        assertThat(whoisResources, not(containsString("\"tags\" : { }")));
         assertThat(whoisResources, containsString("" +
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
@@ -850,36 +846,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey(), contains(new Attribute("aut-num", "AS102")));
         assertThat(whoisResources.getWhoisObjects().get(0).getSource(), is(new Source("test-grs")));
-    }
-
-    @Test
-    public void lookup_autnum_includes_tags() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/TEST/aut-num/AS102")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
     }
 
     @Test

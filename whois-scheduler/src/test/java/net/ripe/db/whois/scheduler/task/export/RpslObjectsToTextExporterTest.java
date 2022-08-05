@@ -1,8 +1,6 @@
 package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.dao.TagsDao;
-import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportCallbackHandler;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportDao;
@@ -30,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 
@@ -41,8 +38,6 @@ public class RpslObjectsToTextExporterTest {
 
     @Mock ExportFileWriterFactory exportFileWriterFactory;
     @Mock ExportDao exportDao;
-    @Mock TagsDao tagsDao;
-
     RpslObjectsExporter subject;
     File exportDir;
     File tmpDir;
@@ -54,7 +49,7 @@ public class RpslObjectsToTextExporterTest {
 
         when(exportFileWriterFactory.isExportDir(any(File.class))).thenReturn(true);
 
-        subject = new RpslObjectsExporter(exportFileWriterFactory, exportDao, tagsDao, exportDir.toPath().toString(), tmpDir.toPath().toString(), true);
+        subject = new RpslObjectsExporter(exportFileWriterFactory, exportDao, exportDir.toPath().toString(), tmpDir.toPath().toString(), true);
     }
 
     //TempDir is not cleaned up properly after each test run.
@@ -93,8 +88,6 @@ public class RpslObjectsToTextExporterTest {
     public void export_objects() throws IOException {
         final ExportFileWriter exportFileWriter1 = Mockito.mock(ExportFileWriter.class);
         final ExportFileWriter exportFileWriter2 = Mockito.mock(ExportFileWriter.class);
-        @SuppressWarnings("unchecked")
-        final List<Tag> emptyList = Collections.EMPTY_LIST;
 
         when(exportFileWriterFactory.createExportFileWriters(tmpDir, 0)).thenReturn(Lists.newArrayList(exportFileWriter1, exportFileWriter2));
 
@@ -114,25 +107,20 @@ public class RpslObjectsToTextExporterTest {
             }
         }).when(exportDao).exportObjects(any(ExportCallbackHandler.class));
 
-        when(tagsDao.getTags(anyInt())).thenReturn(emptyList);
-
         subject.export();
 
-        Mockito.verify(exportFileWriter1).write(rpslObject1, emptyList);
-        Mockito.verify(exportFileWriter1).write(rpslObject2, emptyList);
+        Mockito.verify(exportFileWriter1).write(rpslObject1);
+        Mockito.verify(exportFileWriter1).write(rpslObject2);
         Mockito.verify(exportFileWriter1).close();
 
-        Mockito.verify(exportFileWriter2).write(rpslObject1, emptyList);
-        Mockito.verify(exportFileWriter2).write(rpslObject2, emptyList);
+        Mockito.verify(exportFileWriter2).write(rpslObject1);
+        Mockito.verify(exportFileWriter2).write(rpslObject2);
         Mockito.verify(exportFileWriter2).close();
     }
 
     @Test
     public void export_objects_exception() throws IOException {
         final ExportFileWriter exportFileWriter = Mockito.mock(ExportFileWriter.class);
-        @SuppressWarnings("unchecked")
-        final List<Tag> emptyList = Collections.EMPTY_LIST;
-
         when(exportFileWriterFactory.createExportFileWriters(tmpDir, 0)).thenReturn(Lists.newArrayList(exportFileWriter));
 
         final RpslObject rpslObject1 = RpslObject.parse(2, "mntner: DEV-MNT1");
@@ -150,9 +138,8 @@ public class RpslObjectsToTextExporterTest {
             }
         }).when(exportDao).exportObjects(any(ExportCallbackHandler.class));
 
-        Mockito.doThrow(IOException.class).when(exportFileWriter).write(rpslObject1, emptyList);
+        Mockito.doThrow(IOException.class).when(exportFileWriter).write(rpslObject1);
 
-        when(tagsDao.getTags(2)).thenReturn(emptyList);
 
         try {
             subject.export();
@@ -160,8 +147,8 @@ public class RpslObjectsToTextExporterTest {
         } catch (RuntimeException ignored) {
         }
 
-        Mockito.verify(exportFileWriter).write(rpslObject1, emptyList);
-        Mockito.verify(exportFileWriter, Mockito.never()).write(rpslObject2, emptyList);
+        Mockito.verify(exportFileWriter).write(rpslObject1);
+        Mockito.verify(exportFileWriter, Mockito.never()).write(rpslObject2);
         Mockito.verify(exportFileWriter).close();
     }
 
