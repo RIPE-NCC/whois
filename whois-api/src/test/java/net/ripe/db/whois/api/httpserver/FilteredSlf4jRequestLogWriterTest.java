@@ -17,7 +17,7 @@ public class FilteredSlf4jRequestLogWriterTest {
     @Before
     public void setup() throws Exception {
         this.logger = mock(Logger.class);
-        this.subject = new FilteredSlf4jRequestLogWriter("password");
+        this.subject = new FilteredSlf4jRequestLogWriter();
         FieldUtils.writeField(subject, "logger", logger, true);
     }
 
