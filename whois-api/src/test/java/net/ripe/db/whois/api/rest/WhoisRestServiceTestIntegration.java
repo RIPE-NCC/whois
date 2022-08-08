@@ -91,7 +91,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -617,17 +616,25 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_object_text_plain() {
+    public void lookup_object_text_plain_accept_header() {
         final String rpslObject = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
 
-        String expectedOutput = TEST_PERSON_STRING + '\n';
-        assertEquals(expectedOutput, rpslObject);
+        assertThat(rpslObject, is(TEST_PERSON_STRING + '\n'));
     }
 
     @Test
-    public void lookup_inetnum_text_plain() {
+    public void lookup_object_text_plain_extension() {
+        final String rpslObject = RestTest.target(getPort(), "whois/test/person/TP1-TEST.txt")
+                .request()
+                .get(String.class);
+
+        assertThat(rpslObject, is(TEST_PERSON_STRING + '\n'));
+    }
+
+    @Test
+    public void lookup_inetnum_text_plain_accept_header() {
         databaseHelper.addObject(
                 "mntner:       RIPE-NCC-HM-MNT\n" +
                         "source:   TEST");
@@ -637,28 +644,55 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "abuse-c:      TR1-TEST\n" +
                         "source:       TEST");
         databaseHelper.addObject(INETNUM_OBJECT);
+
         final String response = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0%20-%2010.0.0" +
                         ".255?managed-attributes&resource-holder&abuse-contact")
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
-        String expectedResult = INETNUM_OBJECT + '\n';
-        assertEquals(expectedResult, response);
+
+        assertThat(response, is(INETNUM_OBJECT + '\n'));
     }
 
     @Test
-    public void lookup_role_text_plain() {
+    public void lookup_inetnum_text_plain_extension() {
+        databaseHelper.addObject(
+                "mntner:       RIPE-NCC-HM-MNT\n" +
+                        "source:   TEST");
+        databaseHelper.addObject(
+                "organisation: ORG-TO1-TEST\n" +
+                        "org-name:     Test Organisation\n" +
+                        "abuse-c:      TR1-TEST\n" +
+                        "source:       TEST");
+        databaseHelper.addObject(INETNUM_OBJECT);
+
+        final String response = RestTest.target(getPort(), "whois/test/inetnum/10.0.0.0%20-%2010.0.0" +
+                        ".255.txt?managed-attributes&resource-holder&abuse-contact")
+                .request()
+                .get(String.class);
+
+        assertThat(response, is(INETNUM_OBJECT + '\n'));
+    }
+
+    @Test
+    public void lookup_role_text_plain_accept_header() {
         final String response = RestTest.target(getPort(), "whois/test/role/TR1-TEST")
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
-        String expectedResult = TEST_ROLE_STRING + '\n';
-        assertEquals(expectedResult, response);
 
-
-
+        assertThat(response, is(TEST_ROLE_STRING + '\n'));
     }
 
     @Test
-    public void lookup_object_text_plain_Not_found() {
+    public void lookup_role_text_plain_extension() {
+        final String response = RestTest.target(getPort(), "whois/test/role/TR1-TEST.txt")
+                .request()
+                .get(String.class);
+
+        assertThat(response, is(TEST_ROLE_STRING + '\n'));
+    }
+
+    @Test
+    public void lookup_object_text_plain_not_found_accept_header() {
         try {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                     .request(MediaType.TEXT_PLAIN)
@@ -676,7 +710,24 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-
+    @Test
+    public void lookup_object_text_plain_not_found_extension() {
+        try {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST.txt")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is(String.format("http://localhost:%s/test/person/PP1-TEST\n" +
+                    "Severity: Error\n" +
+                    "Text: ERROR:101: no entries found\n" +
+                    "\n" +
+                    "No entries found in source %%s.\n" +
+                    "[TEST]\n" +
+                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+        }
+    }
 
     @Test
     public void lookup_person_json() {

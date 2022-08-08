@@ -53,7 +53,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -235,8 +234,16 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
 
-        String expectedOutput = TEST_PERSON_STRING + '\n';
-        assertEquals(expectedOutput, rpslObject);
+        assertThat(rpslObject, is(TEST_PERSON_STRING + '\n'));
+    }
+
+    @Test
+    public void search_accept_text_plain_extension() {
+        final String rpslObject = RestTest.target(getPort(), "whois/search.txt?query-string=TP1-TEST&source=TEST")
+                .request()
+                .get(String.class);
+
+        assertThat(rpslObject, is(TEST_PERSON_STRING + '\n'));
     }
 
     @Test
@@ -825,7 +832,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_accept_text_plain_Not_found() {
+    public void search_accept_text_plain_not_found() {
         try {
             RestTest.target(getPort(), "whois/search?query-string=invalid&source=TEST")
                     .request(MediaType.TEXT_PLAIN)
@@ -842,6 +849,26 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                     "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
         }
     }
+
+    @Test
+    public void search_accept_text_plain_not_found_extension() {
+        try {
+            RestTest.target(getPort(), "whois/search.txt?query-string=invalid&source=TEST")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is(String.format("http://localhost:%s/search?query-string=invalid&source=TEST\n" +
+                    "Severity: Error\n" +
+                    "Text: ERROR:101: no entries found\n" +
+                    "\n" +
+                    "No entries found in source %%s.\n" +
+                    "[TEST]\n" +
+                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+        }
+    }
+
     @Test
     public void search_multiple_objects_json_format() {
         databaseHelper.addObject("" +
@@ -995,11 +1022,20 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
 
-        String expectedResult = AS102_STRING + "\n" + TEST_PERSON_STRING +"\n";
-
-        assertEquals(expectedResult, rpslObjects);
-
+        assertThat(rpslObjects, is(AS102_STRING + "\n" + TEST_PERSON_STRING +"\n"));
     }
+
+    @Test
+    public void search_multiple_objects_text_plain_extension() {
+        databaseHelper.addObject(AS102);
+
+        final String rpslObjects = RestTest.target(getPort(), "whois/search.txt?query-string=AS102&source=TEST")
+                .request()
+                .get(String.class);
+
+        assertThat(rpslObjects, is(AS102_STRING + "\n" + TEST_PERSON_STRING +"\n"));
+    }
+
     @Test
     public void search_multiple_objects_xml_format() {
         databaseHelper.addObject("" +
