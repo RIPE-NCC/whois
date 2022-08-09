@@ -26,7 +26,8 @@ public class ExtensionOverridesAcceptHeaderFilter implements Filter {
 
     private static final Map<String, String> EXTENSION_TO_MEDIA_TYPE = ImmutableMap.of(
             "xml", MediaType.APPLICATION_XML,
-            "json", MediaType.APPLICATION_JSON
+            "json", MediaType.APPLICATION_JSON,
+            "txt", MediaType.TEXT_PLAIN
     );
 
     @Override
