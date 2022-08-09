@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-public class FilteredSlf4jRequestLogWriter extends Slf4jRequestLogWriter {
+public class FilteredPasswordSlf4jRequestLogWriter extends Slf4jRequestLogWriter {
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("(?<=(?i)(password=))([^&]*)");
 

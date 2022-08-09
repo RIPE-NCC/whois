@@ -9,15 +9,15 @@ import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class FilteredSlf4jRequestLogWriterTest {
+public class FilteredPasswordSlf4jRequestLogWriterTest {
 
     private Logger logger;
-    private FilteredSlf4jRequestLogWriter subject;
+    private FilteredPasswordSlf4jRequestLogWriter subject;
 
     @Before
     public void setup() throws Exception {
         this.logger = mock(Logger.class);
-        this.subject = new FilteredSlf4jRequestLogWriter();
+        this.subject = new FilteredPasswordSlf4jRequestLogWriter();
         FieldUtils.writeField(subject, "logger", logger, true);
     }
 
