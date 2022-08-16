@@ -1,14 +1,11 @@
 package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.rdap.domain.Entity;
-
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.MediaType;
@@ -16,7 +13,6 @@ import javax.ws.rs.core.MediaType;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
 
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";

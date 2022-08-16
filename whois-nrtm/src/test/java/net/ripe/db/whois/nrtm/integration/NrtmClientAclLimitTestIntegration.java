@@ -15,12 +15,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.net.InetAddress;
 
 @Tag("IntegrationTest")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBase {
 
     private static final String LOCALHOST = "127.0.0.1";

@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("IntegrationTest")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+
 public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest {
 
     private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";

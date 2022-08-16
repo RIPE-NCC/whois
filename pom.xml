@@ -899,8 +899,9 @@
                         <exclude>${test.files.integration}</exclude>
                     </excludes>
                     <runOrder>random</runOrder>
-                    <forkCount>1C</forkCount>
-                    <threadCount>1</threadCount>
+                    <parallel>classesAndMethods</parallel>
+                    <useUnlimitedThreads>true</useUnlimitedThreads>
+                    <threadCountClasses>3</threadCountClasses>
                     <reuseForks>true</reuseForks>
                     <excludedGroups>IntegrationTest,ManualTest,ElasticSearchTest</excludedGroups>
                     <systemPropertyVariables>
@@ -924,6 +925,9 @@
                         <exclude>${test.files.excludes}</exclude>
                     </excludes>
                     <excludedGroups>ManualTest</excludedGroups>
+                    <parallel>classesAndMethods</parallel>
+                    <useUnlimitedThreads>true</useUnlimitedThreads>
+                    <threadCountClasses>3</threadCountClasses>
                     <!-- doesnt work (breaks tests)
                     <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
@@ -934,10 +938,8 @@
                     <runOrder>random</runOrder> -->
                     <!-- works (tests pass) -->
                    <!-- <groups>${test.groups}</groups>-->
-                    <forkCount>1C</forkCount>
                     <!-- TODO: [ES] reuseForks=true causes local integration test build to hang -->
                     <reuseForks>true</reuseForks>
-                    <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
                     <testFailureIgnore>false</testFailureIgnore>
                 </configuration>

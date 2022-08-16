@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+
 public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Autowired AuthoritativeResourceData authoritativeResourceData;

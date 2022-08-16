@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -26,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import static org.hamcrest.Matchers.is;
 
 @Tag("IntegrationTest")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
     private static final RpslObject MNTNER = RpslObject.parse("" +
