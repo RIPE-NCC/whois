@@ -5,8 +5,6 @@ import net.ripe.db.whois.update.domain.NicHandle;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -24,14 +22,12 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     @Autowired NicHandleRepository subject;
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimSpecified_empty_database() {
         assertThat(subject.claimSpecified(new NicHandle("DW", 0, "RIPE")), is(true));
         assertRows(1);
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimSpecified_twice() {
         final NicHandle nicHandle = new NicHandle("DW", 0, "RIPE");
         assertTrue(subject.claimSpecified(nicHandle));
@@ -42,7 +38,6 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimNextAvailableIndex_empty_database() {
         for (int i = 1; i < 10; i++) {
             assertThat(subject.claimNextAvailableIndex("DW", "RIPE").getIndex(), is(i));
@@ -51,7 +46,6 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimNextAvailableIndex_empty_database_no_suffix() {
         for (int i = 1; i <= 10; i++) {
             assertThat(subject.claimNextAvailableIndex("DW", null).getIndex(), is(i));
@@ -60,7 +54,6 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimNextAvailableIndex_different_space() {
         assertThat(subject.claimNextAvailableIndex("DW", "RIPE").getIndex(), is(1));
         assertRows(1);
@@ -70,7 +63,6 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimNextAvailableIndex_different_suffix() {
         assertThat(subject.claimNextAvailableIndex("DW", "ABC").getIndex(), is(1));
         assertRows(1);
@@ -80,7 +72,6 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimNextAvailableIndex_closing_gap() {
         subject.createRange("DW", null, 0, 10);
         subject.createRange("DW", null, 12, 20);
@@ -93,7 +84,6 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimNextAvailableIndex_closing_gap_beginning() {
         subject.createRange("DW", null, 2, 10);
 
@@ -105,7 +95,6 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimNextAvailableIndex_closing_all_gaps() {
         subject.createRange("DW", null, 1, 3);
         subject.createRange("DW", null, 4, 5);

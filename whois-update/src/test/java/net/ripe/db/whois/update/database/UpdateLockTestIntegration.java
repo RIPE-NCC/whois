@@ -7,8 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,7 +43,6 @@ public class UpdateLockTestIntegration extends AbstractUpdateDaoIntegrationTest 
      */
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void test_global_update_lock() throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(threads);
         for (int cnt = 0; cnt < threads; ++cnt) {
