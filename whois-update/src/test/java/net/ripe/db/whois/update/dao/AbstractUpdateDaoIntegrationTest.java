@@ -6,6 +6,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,16 +19,24 @@ public abstract class AbstractUpdateDaoIntegrationTest extends AbstractDaoIntegr
     @Autowired(required = false) protected List<ApplicationService> applicationServices = Collections.emptyList();
 
     @BeforeEach
-    public void startServer() throws Exception {
+    public void startServer() {
         for (final ApplicationService applicationService : applicationServices) {
-            applicationService.start();
+            try {
+                applicationService.start();
+            } catch (IllegalTransactionStateException illegalTransactionStateException){
+                System.out.println("Service already working");
+            }
         }
     }
 
     @AfterEach
-    public void stopServer() throws Exception {
+    public void stopServer() {
         for (final ApplicationService applicationService : applicationServices) {
-            applicationService.stop(true);
+            try {
+                applicationService.stop(true);
+            } catch (IllegalTransactionStateException illegalTransactionStateException){
+                System.out.println("Service already stopped");
+            }
         }
     }
 }
