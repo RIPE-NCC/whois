@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 
@@ -18,6 +20,7 @@ public class TransactionTestIntegration extends AbstractUpdateDaoIntegrationTest
     @Autowired @Qualifier("sourceAwareDataSource") DataSource dataSource;
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRED)
     public void isolation_level_is_read_committed_so_that_global_locks_work_as_expected() throws Exception {
         assertThat(new JdbcTemplate(dataSource).queryForObject("select @@tx_isolation", String.class), is("READ-COMMITTED"));
     }
