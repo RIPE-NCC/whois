@@ -6,13 +6,11 @@ import net.ripe.db.whois.update.domain.X509KeycertId;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 @Tag("IntegrationTest")
-@Transactional
 public class X509RepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired X509Repository subject;
 

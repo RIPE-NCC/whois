@@ -5,7 +5,6 @@ import net.ripe.db.whois.update.domain.OrganisationId;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,6 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Tag("IntegrationTest")
-@Transactional
 public class OrganisationIdRepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired OrganisationIdRepository subject;
 

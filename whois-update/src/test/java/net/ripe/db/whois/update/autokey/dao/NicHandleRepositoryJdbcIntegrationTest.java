@@ -5,7 +5,6 @@ import net.ripe.db.whois.update.domain.NicHandle;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("IntegrationTest")
-@Transactional
 public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired NicHandleRepository subject;
 
