@@ -26,7 +26,6 @@ import java.util.Properties;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles(WhoisProfile.TEST)
 @TestExecutionListeners(listeners = {TransactionalTestExecutionListener.class})
-@Transactional(propagation = Propagation.NEVER)
 public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUnit5SpringContextTests {
     @Autowired protected TestDateTimeProvider testDateTimeProvider;
     @Autowired protected List<Stub> stubs;
@@ -75,6 +74,7 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
     }
 
     @BeforeEach
+    @Transactional(propagation = Propagation.REQUIRED)
     public void resetStubs() {
         for (final Stub stub : stubs) {
             stub.reset();
