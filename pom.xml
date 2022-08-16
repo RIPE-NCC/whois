@@ -927,7 +927,7 @@
                     <parallel>classesAndMethods</parallel>
                     <useUnlimitedThreads>true</useUnlimitedThreads>
                     <threadCountClasses>3</threadCountClasses>
-                    <reuseForks>true</reuseForks>
+                    <!-- <reuseForks>true</reuseForks> -->
                     <runOrder>random</runOrder>
                     <testFailureIgnore>false</testFailureIgnore>
                 </configuration>
