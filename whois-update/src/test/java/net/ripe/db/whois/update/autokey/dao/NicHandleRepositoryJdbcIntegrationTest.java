@@ -51,6 +51,7 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRED)
     public void claimNextAvailableIndex_empty_database_no_suffix() {
         for (int i = 1; i <= 10; i++) {
             assertThat(subject.claimNextAvailableIndex("DW", null).getIndex(), is(i));

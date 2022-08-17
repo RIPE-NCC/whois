@@ -899,8 +899,11 @@
                         <exclude>${test.files.integration}</exclude>
                     </excludes>
                     <runOrder>random</runOrder>
-                    <forkCount>1C</forkCount>
-                    <threadCount>1</threadCount>
+                    <!-- parallelize -->
+                    <parallel>classesAndMethods</parallel>
+                    <useUnlimitedThreads>true</useUnlimitedThreads>
+                    <threadCountClasses>3</threadCountClasses>
+
                     <reuseForks>true</reuseForks>
                     <excludedGroups>IntegrationTest,ManualTest,ElasticSearchTest</excludedGroups>
                     <systemPropertyVariables>
@@ -924,9 +927,13 @@
                         <exclude>${test.files.excludes}</exclude>
                     </excludes>
                     <excludedGroups>ManualTest</excludedGroups>
+
+                    <!-- parallelize -->
                     <parallel>classesAndMethods</parallel>
                     <useUnlimitedThreads>true</useUnlimitedThreads>
                     <threadCountClasses>3</threadCountClasses>
+                    <threadCountMethods>7</threadCountMethods>
+                    
                     <!-- <reuseForks>true</reuseForks> -->
                     <runOrder>random</runOrder>
                     <testFailureIgnore>false</testFailureIgnore>
