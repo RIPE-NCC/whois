@@ -23,11 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-api-test.xml"}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class MailMessageDaoTestIntegration extends AbstractIntegrationTest {
-    @Autowired
-    MailMessageDao subject;
-    @Autowired
-    @ReplaceWithMock
-    private MessageDequeue messageDequeue;
+    @Autowired MailMessageDao subject;
+    @Autowired @ReplaceWithMock private MessageDequeue messageDequeue;
 
     @Test
     public void claim_multiple_threads() throws Exception {
