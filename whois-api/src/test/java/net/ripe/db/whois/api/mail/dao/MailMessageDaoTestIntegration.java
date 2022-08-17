@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.kubek2k.springockito.annotations.ReplaceWithMock;
 import org.kubek2k.springockito.annotations.SpringockitoContextLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.mail.internet.MimeMessage;
@@ -18,11 +19,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-api-test.xml"}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class MailMessageDaoTestIntegration extends AbstractIntegrationTest {
-    @Autowired MailMessageDao subject;
-    @Autowired @ReplaceWithMock private MessageDequeue messageDequeue;
+    @Autowired
+    MailMessageDao subject;
+    @Autowired
+    @ReplaceWithMock
+    private MessageDequeue messageDequeue;
 
     @Test
     public void claim_multiple_threads() throws Exception {

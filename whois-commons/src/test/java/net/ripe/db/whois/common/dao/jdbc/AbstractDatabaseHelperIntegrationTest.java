@@ -14,8 +14,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,8 +25,10 @@ import java.util.Properties;
 @ActiveProfiles(WhoisProfile.TEST)
 @TestExecutionListeners(listeners = {TransactionalTestExecutionListener.class})
 public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUnit5SpringContextTests {
-    @Autowired protected TestDateTimeProvider testDateTimeProvider;
-    @Autowired protected List<Stub> stubs;
+    @Autowired
+    protected TestDateTimeProvider testDateTimeProvider;
+    @Autowired
+    protected List<Stub> stubs;
 
     protected JdbcTemplate whoisTemplate;
     protected JdbcTemplate internalsTemplate;
@@ -74,7 +74,6 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
     }
 
     @BeforeEach
-    @Transactional(propagation = Propagation.REQUIRED)
     public void resetStubs() {
         for (final Stub stub : stubs) {
             stub.reset();

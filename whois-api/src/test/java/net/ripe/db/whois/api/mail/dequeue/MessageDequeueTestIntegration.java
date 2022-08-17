@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
-
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
@@ -10,7 +9,6 @@ import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.jupiter.api.BeforeAll;
-
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.kubek2k.springockito.annotations.ReplaceWithMock;
@@ -30,16 +28,20 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
-
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-api-test.xml"}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class MessageDequeueTestIntegration extends AbstractIntegrationTest {
 
     private static final int CLIENTS = 8;
 
-    @Autowired private MailSenderStub mailSender;
-    @Autowired private MailUpdatesTestSupport mailUpdatesTestSupport;
-    @Autowired @ReplaceWithMock private UpdateRequestHandler messageHandler;
+    @Autowired
+    private MailSenderStub mailSender;
+    @Autowired
+    private MailUpdatesTestSupport mailUpdatesTestSupport;
+    @Autowired
+    @ReplaceWithMock
+    private UpdateRequestHandler messageHandler;
 
     @BeforeAll
     public static void setNumberOfThreads() {

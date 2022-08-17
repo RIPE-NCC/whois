@@ -6,6 +6,7 @@ import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.MediaType;
@@ -13,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
 
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
@@ -30,8 +32,8 @@ class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
 
             try {
                 createResource("entity/PP1-TEST")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .get(Entity.class);
                 fail();
             } catch (ClientErrorException e) {
                 assertErrorStatus(e, 429);

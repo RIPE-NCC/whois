@@ -5,7 +5,6 @@ import net.ripe.db.whois.update.domain.OrganisationId;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -18,11 +17,12 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Tag("IntegrationTest")
+@Transactional
 public class OrganisationIdRepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
-    @Autowired OrganisationIdRepository subject;
+    @Autowired
+    OrganisationIdRepository subject;
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimSpecified() {
         final boolean availableAndCreated = subject.claimSpecified(new OrganisationId("AK", 4, "RIPE"));
         assertThat(availableAndCreated, is(true));
@@ -36,7 +36,6 @@ public class OrganisationIdRepositoryJdbcIntegrationTest extends AbstractUpdateD
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void claimNextAvailableIndex_empty_database() {
         for (int i = 1; i < 10; i++) {
             assertThat(subject.claimNextAvailableIndex("AK", "RIPE").getIndex(), is(i));

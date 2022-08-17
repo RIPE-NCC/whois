@@ -9,11 +9,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientInvalidHostTestIntegration extends AbstractNrtmIntegrationBase {
 
-    @Autowired protected NrtmImporter nrtmImporter;
+    @Autowired
+    protected NrtmImporter nrtmImporter;
     private static final RpslObject mntner = RpslObject.parse("" +
             "mntner: TEST-MNT\n" +
             "source: TEST");

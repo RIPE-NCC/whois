@@ -16,13 +16,11 @@ import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
-
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -52,7 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired
@@ -689,14 +687,15 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .request()
                 .get(Entity.class);
 
-        assertThat(entity.getHandle(), equalTo("PP1-TEST"));assertCommon(entity);
+        assertThat(entity.getHandle(), equalTo("PP1-TEST"));
+        assertCommon(entity);
     }
 
     @Test
     public void lookup_entity_logged_in_query_log() {
         createResource("entity/PP1-TEST")
-                        .request()
-                        .get(Entity.class);
+                .request()
+                .get(Entity.class);
 
         assertThat(queryLog.getMessages(), hasSize(1));
         assertThat(queryLog.getMessage(0), containsString(" PW-API-INFO <1+0+0> "));
@@ -742,7 +741,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
 
-        assertTnCNotice(notices.get(2),"https://rdap.db.ripe.net/entity/FR1-TEST");
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/FR1-TEST");
     }
 
     // domain
@@ -760,12 +759,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(domain.getNameservers(), hasSize(2));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
-                    containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
+                containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
-                    containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
+                containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getIpAddresses(), domain.getNameservers().get(1).getIpAddresses()),
-                    containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
-                                        new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
+                containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
+                        new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
 
         assertThat(domain.getSecureDNS().isDelegationSigned(), is(Boolean.TRUE));
         assertThat(domain.getSecureDNS().getDsData(), hasSize(3));
@@ -1153,7 +1152,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "source:        TEST");
 
         databaseHelper.getInternalsTemplate().update(
-           "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
+                "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
         );
 
         final Autnum autnum = createResource("autnum/102")
@@ -1161,9 +1160,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Autnum.class);
 
         assertThat(
-            autnum.getRemarks().get(0).getDescription(),
-            contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
-                    "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
+                autnum.getRemarks().get(0).getDescription(),
+                contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
+                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
         );
     }
 
@@ -1173,8 +1172,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     public void lookup_invalid_type() {
         try {
             createResource("unknown/example.com")
-                .request("application/rdap+json")
-                .get(Entity.class);
+                    .request("application/rdap+json")
+                    .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
             final Entity response = e.getResponse().readEntity(Entity.class);
@@ -1185,7 +1184,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void multiple_modification_gives_correct_events() {
         final String response = syncupdate(
-                        "aut-num:   AS102\n" +
+                "aut-num:   AS102\n" +
                         "as-name:   AS-TEST\n" +
                         "descr:     Modified ASN\n" +
                         "admin-c:   TP1-TEST\n" +
@@ -1374,8 +1373,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "source:        TEST");
 
         Entity entity = createResource("entity/AZRT")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("AZRT"));
     }
@@ -1504,7 +1503,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void lookup_nameserver_not_found() {
         try {
-              createResource("nameserver/test")
+            createResource("nameserver/test")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
             fail();
@@ -1575,8 +1574,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         try {
             createResource("entities?fn=T%EBst%20Person3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
             // expected - Jetty uses UTF-8 when decoding characters, not latin1
@@ -1602,8 +1601,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         try {
             createResource("entities?fn=Test%20Person3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
             // expected (no character substitution)
@@ -1774,20 +1773,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(SearchResult.class);
 
         assertThat(
-            result.getEntitySearchResults()
-                .stream()
-                .map(Entity::getHandle)
-                .collect(Collectors.toList()),
-            containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
+                result.getEntitySearchResults()
+                        .stream()
+                        .map(Entity::getHandle)
+                        .collect(Collectors.toList()),
+                containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
         assertThat(
-            result.getEntitySearchResults()
-                .stream()
-                .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
-                .map(RdapObject::getNotices)
-                .flatMap(Collection::stream)
-                .map(Notice::getTitle)
-                .collect(Collectors.toList()),
-            containsInAnyOrder("Source", "Filtered"));
+                result.getEntitySearchResults()
+                        .stream()
+                        .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
+                        .map(RdapObject::getNotices)
+                        .flatMap(Collection::stream)
+                        .map(Notice::getTitle)
+                        .collect(Collectors.toList()),
+                containsInAnyOrder("Source", "Filtered"));
         assertThat(result.getNotices(), hasSize(1));
         assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
@@ -1843,7 +1842,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET","OPTIONS"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET", "OPTIONS"));
     }
 
     @Test

@@ -42,9 +42,14 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTest {
-    @Autowired @ReplaceWithMock private QueryHandler queryHandler;
-    @Autowired @ReplaceWithMock private AccessControlListManager accessControlListManager;
+    @Autowired
+    @ReplaceWithMock
+    private QueryHandler queryHandler;
+    @Autowired
+    @ReplaceWithMock
+    private AccessControlListManager accessControlListManager;
 
     @BeforeEach
     public void setUp() throws Exception {

@@ -24,9 +24,14 @@ import static org.mockito.Mockito.verify;
 
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-scheduler-test.xml"}, inheritLocations = false)
 @Tag("IntegrationTest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ScheduledTasksTestIntegration extends AbstractSchedulerIntegrationTest {
-    @ReplaceWithMock @Autowired private AccessControlListDao jdbcAccessControlListDao;
-    @ReplaceWithMock @Autowired private IpTreeCacheManager ipTreeCacheManager;
+    @ReplaceWithMock
+    @Autowired
+    private AccessControlListDao jdbcAccessControlListDao;
+    @ReplaceWithMock
+    @Autowired
+    private IpTreeCacheManager ipTreeCacheManager;
 
     @Test
     public void testIpResourceConfiguration() throws Exception {

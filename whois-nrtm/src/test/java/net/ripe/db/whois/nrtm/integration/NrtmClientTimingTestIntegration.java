@@ -18,7 +18,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.time.LocalDateTime;
 
 @Tag("IntegrationTest")
-
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Autowired
