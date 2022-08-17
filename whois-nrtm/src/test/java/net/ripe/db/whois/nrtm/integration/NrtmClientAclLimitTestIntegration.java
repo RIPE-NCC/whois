@@ -81,7 +81,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     }
 
     @Test
-    public void acl_denied() {
+    public void acl_denied()  {
         databaseHelper.insertAclIpDenied(LOCALHOST_WITH_PREFIX);
         ipResourceConfiguration.reload();
 

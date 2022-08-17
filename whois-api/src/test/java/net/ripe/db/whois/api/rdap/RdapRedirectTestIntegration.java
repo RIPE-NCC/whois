@@ -27,10 +27,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
-    @Autowired
-    AuthoritativeResourceData authoritativeResourceData;
-    @Autowired
-    DailySchedulerDao dailySchedulerDao;
+    @Autowired AuthoritativeResourceData authoritativeResourceData;
+    @Autowired DailySchedulerDao dailySchedulerDao;
 
     @BeforeAll
     public static void setProperties() throws IOException {
@@ -122,8 +120,8 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     public void inetnum_exact_match_redirect() {
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/193.0.0.0/21"))
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(String.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
             fail();
         } catch (final RedirectionException e) {
             assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one.net/ip/193.0.0.0/21"));
@@ -134,8 +132,8 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     public void inetnum_child_redirect() {
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/193.0.0.1"))
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(String.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
             fail();
         } catch (final RedirectionException e) {
             assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one.net/ip/193.0.0.1"));
@@ -146,8 +144,8 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     public void inetnum_outside_range() {
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/192.0.0.1"))
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(String.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
             fail();
         } catch (final NotFoundException e) {
             // expected
@@ -160,8 +158,8 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     public void inet6num_exact_match_redirect() {
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/2001:67c:370::/48"))
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(String.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
             fail();
         } catch (final RedirectionException e) {
             assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one.net/ip/2001:67c:370::/48"));
@@ -172,8 +170,8 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     public void inet6num_child_redirect() {
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/2001:67c:370::1234"))
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(String.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
             fail();
         } catch (final RedirectionException e) {
             assertThat(e.getResponse().getHeaders().getFirst("Location").toString(), is("https://rdap.one.net/ip/2001:67c:370::1234"));
@@ -184,8 +182,8 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     public void inet6num_outside_range() {
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/2002::/32"))
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(String.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
             fail();
         } catch (final NotFoundException e) {
             // expected

@@ -21,8 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Tag("IntegrationTest")
 @Transactional
 public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
-    @Autowired
-    NicHandleRepository subject;
+    @Autowired NicHandleRepository subject;
 
     @Test
     public void claimSpecified_empty_database() {
@@ -126,7 +125,7 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
 
         for (final Map<String, Object> objectMap : list) {
             for (final Map.Entry<String, Object> entry : objectMap.entrySet()) {
-                assertNotNull(entry.getValue(), entry.getKey());
+                assertNotNull( entry.getValue(), entry.getKey());
             }
 
             final String source = objectMap.get("source").toString();

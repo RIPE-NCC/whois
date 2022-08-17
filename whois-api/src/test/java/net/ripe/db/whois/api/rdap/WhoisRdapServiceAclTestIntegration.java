@@ -1,8 +1,10 @@
 package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.rdap.domain.Entity;
+
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +34,8 @@ class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
 
             try {
                 createResource("entity/PP1-TEST")
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .get(Entity.class);
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
                 fail();
             } catch (ClientErrorException e) {
                 assertErrorStatus(e, 429);

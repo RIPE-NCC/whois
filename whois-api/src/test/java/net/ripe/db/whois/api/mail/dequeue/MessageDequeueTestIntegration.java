@@ -35,13 +35,9 @@ public class MessageDequeueTestIntegration extends AbstractIntegrationTest {
 
     private static final int CLIENTS = 8;
 
-    @Autowired
-    private MailSenderStub mailSender;
-    @Autowired
-    private MailUpdatesTestSupport mailUpdatesTestSupport;
-    @Autowired
-    @ReplaceWithMock
-    private UpdateRequestHandler messageHandler;
+    @Autowired private MailSenderStub mailSender;
+    @Autowired private MailUpdatesTestSupport mailUpdatesTestSupport;
+    @Autowired @ReplaceWithMock private UpdateRequestHandler messageHandler;
 
     @BeforeAll
     public static void setNumberOfThreads() {

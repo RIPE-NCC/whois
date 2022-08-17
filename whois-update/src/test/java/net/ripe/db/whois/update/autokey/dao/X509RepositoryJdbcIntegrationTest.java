@@ -14,8 +14,7 @@ import static org.hamcrest.core.Is.is;
 @Tag("IntegrationTest")
 @Transactional
 public class X509RepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
-    @Autowired
-    X509Repository subject;
+    @Autowired X509Repository subject;
 
     @Test
     public void claimSpecified() {

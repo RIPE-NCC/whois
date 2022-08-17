@@ -24,21 +24,20 @@ import static org.junit.jupiter.api.Assertions.fail;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
 
-    @Autowired
-    IpRanges ipRanges;
+    @Autowired IpRanges ipRanges;
 
     @BeforeEach
     public void setup() {
         databaseHelper.addObject(
                 "person:    Test Person\n" +
-                        "nic-hdl:   TP1-TEST\n" +
-                        "source:    TEST");
+                "nic-hdl:   TP1-TEST\n" +
+                "source:    TEST");
         databaseHelper.addObject(
                 "mntner:    OWNER-MNT\n" +
-                        "source:    TEST");
+                "source:    TEST");
         databaseHelper.addObject(
                 "aut-num:   AS102\n" +
-                        "source:    TEST\n");
+                "source:    TEST\n");
         databaseHelper.addObject(RpslObject.parse("" +
                 "organisation: ORG-SPONSOR\n" +
                 "org-name:     Sponsoring Org Ltd\n" +
@@ -76,12 +75,12 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST\n"));
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:        SSO-MNT\n" +
-                        "descr:         description\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "upd-to:        noreply@ripe.net\n" +
-                        "auth:          SSO person@net.net\n" +
-                        "mnt-by:        SSO-MNT\n" +
-                        "source:        TEST"));
+                "descr:         description\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          SSO person@net.net\n" +
+                "mnt-by:        SSO-MNT\n" +
+                "source:        TEST"));
     }
 
     // inverse lookup on sponsoring org attribute
@@ -103,7 +102,7 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void inverse_lookup_sponsoring_org_from_trusted_range_succeeds() {
-        ipRanges.setTrusted("127/8", "::1");
+        ipRanges.setTrusted("127/8","::1");
         final String response = RestTest.target(getPort(), "whois/search?query-string=ORG-SPONSOR&inverse-attribute=sponsoring-org").request().get(String.class);
         assertThat(response, containsString("<attribute name=\"inetnum\" value=\"194.0.0.0 - 194.255.255.255\"/>"));
     }
@@ -115,7 +114,7 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
         ipRanges.setTrusted("127/8", "::1");
 
         final WhoisResources whoisResources = RestTest.target(getPort(),
-                        "whois/search?query-string=SSO%20906635c2-0405-429a-800b-0602bd716124&inverse-attribute=auth&flags=rB")
+                "whois/search?query-string=SSO%20906635c2-0405-429a-800b-0602bd716124&inverse-attribute=auth&flags=rB")
                 .request()
                 .get(WhoisResources.class);
 

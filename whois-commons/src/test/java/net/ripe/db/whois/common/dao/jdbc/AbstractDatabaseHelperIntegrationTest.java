@@ -25,10 +25,8 @@ import java.util.Properties;
 @ActiveProfiles(WhoisProfile.TEST)
 @TestExecutionListeners(listeners = {TransactionalTestExecutionListener.class})
 public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUnit5SpringContextTests {
-    @Autowired
-    protected TestDateTimeProvider testDateTimeProvider;
-    @Autowired
-    protected List<Stub> stubs;
+    @Autowired protected TestDateTimeProvider testDateTimeProvider;
+    @Autowired protected List<Stub> stubs;
 
     protected JdbcTemplate whoisTemplate;
     protected JdbcTemplate internalsTemplate;

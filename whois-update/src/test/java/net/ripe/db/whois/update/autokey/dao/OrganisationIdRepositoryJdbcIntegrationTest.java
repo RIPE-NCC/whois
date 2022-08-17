@@ -19,8 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Tag("IntegrationTest")
 @Transactional
 public class OrganisationIdRepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
-    @Autowired
-    OrganisationIdRepository subject;
+    @Autowired OrganisationIdRepository subject;
 
     @Test
     public void claimSpecified() {
