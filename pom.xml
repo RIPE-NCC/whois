@@ -931,8 +931,10 @@
 
                     <!-- parallelize -->
                     <parallel>classesAndMethods</parallel>
+                    <useUnlimitedThreads>true</useUnlimitedThreads>
                     <threadCountClasses>6</threadCountClasses>
                     <threadCountMethods>2</threadCountMethods>
+
                     <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
 
