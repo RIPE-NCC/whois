@@ -21,7 +21,7 @@ import java.util.Set;
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */
-public  class StartDomainTestRequest extends ZonemasterRequest {
+public class StartDomainTestRequest extends ZonemasterRequest {
 
     @JsonProperty
     private Params params;
@@ -32,7 +32,7 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         final StartDomainTestRequest.Params params = new StartDomainTestRequest.Params();
         params.setDsInfos(Collections.emptyList());
         params.setNameservers(Collections.emptyList());
-        params.setDomain(dnsCheckRequest.getDomain());
+        params.setDomain(splitDomainLastDot(dnsCheckRequest.getDomain()));
 
         final RpslObject rpslObject = dnsCheckRequest.getUpdate().getSubmittedObject();
 
@@ -52,6 +52,9 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         this.params.setClientVersion(version);
     }
 
+    public Params getParams(){
+        return this.params;
+    }
     private List<StartDomainTestRequest.Nameserver> parseNameservers(final Set<CIString> nserverValues) {
         final List<StartDomainTestRequest.Nameserver> nameservers = Lists.newArrayList();
         for (CIString nserverValue : nserverValues) {
@@ -68,6 +71,10 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         return nameservers;
     }
 
+    private String splitDomainLastDot(String domain) {
+        return domain.replaceAll("^(.*)\\.$","$1");
+
+    }
     private List<StartDomainTestRequest.DsInfo> parseDsRdata(final Set<CIString> dsRdataValues) {
         final List<StartDomainTestRequest.DsInfo> dsInfos = Lists.newArrayList();
         for (CIString dsRdataValue : dsRdataValues) {
@@ -129,6 +136,9 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
             this.domain = domain;
         }
 
+        public String getDomain(){
+            return this.domain;
+        }
         public void setClientVersion(final String clientVersion) {
             this.clientVersion = clientVersion;
         }
