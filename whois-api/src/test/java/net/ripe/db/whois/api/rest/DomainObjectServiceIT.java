@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest {
+public class DomainObjectServiceIT extends AbstractIntegrationTest {
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
@@ -127,7 +128,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             RestTest.target(getPort(), "whois/domain-objects/TEST")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
-                    .post(Entity.entity(mapRpslObjects(new RpslObject[]{domain}), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
@@ -159,7 +160,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             RestTest.target(getPort(), "whois/domain-objects/TEST")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
-                    .post(Entity.entity(mapRpslObjects(new RpslObject[]{domain}), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
@@ -197,7 +198,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             RestTest.target(getPort(), "whois/domain-objects/TEST")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
-                    .post(Entity.entity(mapRpslObjects(new RpslObject[]{domain}), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
@@ -230,7 +231,30 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                     "Unrecognized token 'bad': was expecting", "1", "32");
         }
     }
+    @Test
+    public void create_domain_object_fail_nserver_with_bad_prefix() {
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        e.0.0.0.a.1.ip6.arpa\n" +
+                "descr:         Reverse delegation for 1a00:fb8::/23\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns.ripe.net\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        NON-EXISTING-MNT\n" +
+                "source:        TEST");
 
+        try {
+            RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final String message = e.getResponse().readEntity(String.class);
+            Assertions.assertEquals("Is not allowed to use that prefix with ns.ripe.net name server", message);
+        }
+    }
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
