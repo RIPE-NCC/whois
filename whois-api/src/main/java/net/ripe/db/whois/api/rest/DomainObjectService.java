@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.rest.checks.ServicesInputChecker;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
@@ -63,17 +62,15 @@ public class DomainObjectService {
     private final InternalUpdatePerformer updatePerformer;
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
-    private final ServicesInputChecker servicesInputChecker;
 
     @Autowired
     public DomainObjectService(
             final WhoisObjectMapper whoisObjectMapper,
             final InternalUpdatePerformer updatePerformer,
-            final LoggerContext loggerContext, final ServicesInputChecker servicesInputChecker) {
+            final LoggerContext loggerContext) {
         this.whoisObjectMapper = whoisObjectMapper;
         this.updatePerformer = updatePerformer;
         this.loggerContext = loggerContext;
-        this.servicesInputChecker = servicesInputChecker;
     }
 
     @POST
@@ -102,8 +99,6 @@ public class DomainObjectService {
             final Credentials credentials = createCredentials(updateContext, passwords);
 
             final List<Update> updates = extractUpdates(resources, credentials);
-
-            servicesInputChecker.checkNserverCorrectPrefixes(updates);
 
             final WhoisResources updatedResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NEW, request);
 
