@@ -39,6 +39,22 @@ public class ServicesInputCheckerTest {
     }
 
     @Test
+    void test_ripe_nserver_incorrect_prefixes_ipv6_with_different_ns(){
+        final Paragraph paragraph = new Paragraph(" ");
+        final RpslObject submittedObject = new RpslObject(List.of(new RpslAttribute(AttributeType.DOMAIN,
+                        CIString.ciString("e.0.0.0.a.1.ip6.arpa")), new RpslAttribute(AttributeType.DESCR,
+                        CIString.ciString("Reverse delegation for 1a00:fb8::/23")),
+                new RpslAttribute(AttributeType.NSERVER, CIString.ciString("ns.test.net"))));
+
+        List<Update> updates = List.of(new Update(paragraph, Operation.UNSPECIFIED, List.of(" "), submittedObject));
+        try {
+            servicesInputChecker.checkNserverCorrectPrefixes(updates);
+        } catch (IllegalArgumentException e) {
+            Assertions.assertEquals("Is not allowed to use that prefix with ns.ripe.net name server", e.getMessage());
+        }
+    }
+
+    @Test
     void test_ripe_nserver_correct_prefixes_ipv6(){
         final Paragraph paragraph = new Paragraph(" ");
         final RpslObject submittedObject = new RpslObject(List.of(new RpslAttribute(AttributeType.DOMAIN,
@@ -67,6 +83,21 @@ public class ServicesInputCheckerTest {
         }
     }
 
+    @Test
+    void test_ripe_nserver_incorrect_prefixes_ipv4_with_different_ns(){
+        final Paragraph paragraph = new Paragraph(" ");
+        final RpslObject submittedObject = new RpslObject(List.of(new RpslAttribute(AttributeType.DOMAIN,
+                        CIString.ciString("33.33.33.in-addr.arpa")), new RpslAttribute(AttributeType.DESCR,
+                        CIString.ciString("Reverse delegation for 33.33.33.0/24")),
+                new RpslAttribute(AttributeType.NSERVER, CIString.ciString("ns.test.net"))));
+
+        List<Update> updates = List.of(new Update(paragraph, Operation.UNSPECIFIED, List.of(" "), submittedObject));
+        try {
+            servicesInputChecker.checkNserverCorrectPrefixes(updates);
+        } catch (IllegalArgumentException e) {
+            Assertions.assertEquals("Is not allowed to use that prefix with ns.ripe.net name server", e.getMessage());
+        }
+    }
     @Test
     void test_ripe_nserver_correct_prefixes_ipv4(){
         final Paragraph paragraph = new Paragraph(" ");
