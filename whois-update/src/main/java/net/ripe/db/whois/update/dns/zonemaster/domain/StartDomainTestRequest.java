@@ -32,7 +32,7 @@ public class StartDomainTestRequest extends ZonemasterRequest {
         final StartDomainTestRequest.Params params = new StartDomainTestRequest.Params();
         params.setDsInfos(Collections.emptyList());
         params.setNameservers(Collections.emptyList());
-        params.setDomain(removeDomainLastDot(dnsCheckRequest.getDomain()));
+        params.setDomain(removeTrailingDot(dnsCheckRequest.getDomain()));
 
         final RpslObject rpslObject = dnsCheckRequest.getUpdate().getSubmittedObject();
 
@@ -71,7 +71,7 @@ public class StartDomainTestRequest extends ZonemasterRequest {
         return nameservers;
     }
 
-    private String removeDomainLastDot(String domain) {
+    private String removeTrailingDot(String domain) {
         return domain.replaceAll("^(.*)\\.$","$1");
 
     }
