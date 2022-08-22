@@ -934,7 +934,10 @@
                     <useUnlimitedThreads>true</useUnlimitedThreads>
 
                     <forkCount>1C</forkCount>
-                    <reuseForks>true</reuseForks>
+
+
+                    <!-- TODO: [ES] reuseForks=true causes local integration test build to hang -->
+                    <!-- <reuseForks>true</reuseForks> -->
 
                     <runOrder>random</runOrder>
                     <testFailureIgnore>false</testFailureIgnore>
