@@ -204,8 +204,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(2));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0"));
+        assertThat(ip.getRdapConformance(), hasSize(3));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("nro_rdap_profile_0", "rdap_level_0", "cidr0"));
 
 
         final List<Remark> remarks = ip.getRemarks();
@@ -444,7 +444,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getCidr0_cidrs().get(1).getV4prefix(), is("192.132.76.0"));
         assertThat(ip.getCidr0_cidrs().get(1).getLength(), is(23));
 
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0"));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "nro_rdap_profile_0", "rdap_level_0"));
     }
 
     @Test
@@ -517,11 +517,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getCidr0_cidrs().size(), is(1));
         assertThat(ip.getCidr0_cidrs().get(0).getV6prefix(), is("2001:2002:2003::"));
         assertThat(ip.getCidr0_cidrs().get(0).getLength(), is(48));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0"));
-
+        assertThat(ip.getRdapConformance(), hasSize(3));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "nro_rdap_profile_0","rdap_level_0"));
         assertThat(ip.getPort43(), is("whois.ripe.net"));
-        assertThat(ip.getRdapConformance(), hasSize(2));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0"));
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -706,7 +704,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .request()
                 .get(Entity.class);
 
-        assertThat(entity.getHandle(), equalTo("PP1-TEST"));assertCommon(entity);
+        assertThat(entity.getHandle(), equalTo("PP1-TEST"));
+        assertCommon(entity);
     }
 
     @Test
@@ -1006,7 +1005,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
-        assertThat(entity, containsString("\"rdapConformance\" : [ \"rdap_level_0\" ]"));
+        assertThat(entity, containsString("\"rdapConformance\" : [ \"nro_rdap_profile_0\", \"rdap_level_0\" ]"));
     }
 
     @Test
@@ -1018,7 +1017,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
-        assertThat(entity, containsString("\"rdapConformance\" : [ \"rdap_level_0\" ]"));
+        assertThat(entity, containsString("\"rdapConformance\" : [ \"nro_rdap_profile_0\", \"rdap_level_0\" ]"));
     }
 
     @Test
@@ -1965,8 +1964,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
-        assertThat(object.getRdapConformance(), hasSize(1));
-        assertThat(object.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(object.getRdapConformance(), hasSize(2));
+        assertThat(object.getRdapConformance(), containsInAnyOrder("nro_rdap_profile_0","rdap_level_0"));
     }
 
     private void assertCopyrightLink(final List<Link> links, final String value) {
