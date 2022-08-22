@@ -1,11 +1,14 @@
-package net.ripe.db.whois.api;
+package net.ripe.db.whois.api.zonemasterservice;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.hazelcast.internal.json.Json;
+import com.hazelcast.internal.json.JsonObject;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.update.dns.zonemaster.ZonemasterRestClient;
+import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -53,14 +56,28 @@ public class ZonemasterDummy implements Stub {
         @Override
         public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
             final String requestBody = getRequestBody(request);
+            final JsonObject jsonObject = Json.parse(requestBody).asObject();
+            ZonemasterRequest.Method method;
+            try {
+                method = ZonemasterRequest.Method.getObjectByMethod(jsonObject.get("method").asString());
+            } catch (IllegalArgumentException ex){
+                throw new IllegalStateException("request not handled: " + requestBody);
+            }
+
             for (Map.Entry<String, List<String>> entry : RESPONSES.entrySet()) {
-                if (requestBody.contains(entry.getKey())) {
+                if (ZonemasterRequest.Method.START_DOMAIN_TEST.equals(method) &&
+                        jsonObject.get("params").asObject().get("domain").asString().equals(entry.getKey())){
                     putResponseBody(response, removeFirst(entry.getValue()));
                     return;
                 }
+                if (ZonemasterRequest.Method.VERSION_INFO.equals(method) &&
+                        jsonObject.get("id").asInt() == Integer.parseInt(entry.getKey())) {
+                    putResponseBody(response, removeFirst(entry.getValue()));
+                    return;
+                }
+                throw new IllegalStateException("request not handled: " + requestBody);
             }
 
-            throw new IllegalStateException("request not handled: " + requestBody);
         }
 
         private String getRequestBody(final HttpServletRequest request) throws IOException {
