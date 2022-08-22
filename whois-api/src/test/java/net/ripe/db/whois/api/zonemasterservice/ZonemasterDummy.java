@@ -2,8 +2,7 @@ package net.ripe.db.whois.api.zonemasterservice;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.hazelcast.internal.json.Json;
-import com.hazelcast.internal.json.JsonObject;
+import com.google.gson.Gson;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
@@ -56,22 +55,16 @@ public class ZonemasterDummy implements Stub {
         @Override
         public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
             final String requestBody = getRequestBody(request);
-            final JsonObject jsonObject = Json.parse(requestBody).asObject();
-            ZonemasterRequest.Method method;
-            try {
-                method = ZonemasterRequest.Method.getObjectByMethod(jsonObject.get("method").asString());
-            } catch (IllegalArgumentException ex){
-                throw new IllegalStateException("request not handled: " + requestBody);
-            }
+            final ZonemasterResponseDTO zonemasterResponseDTO = new Gson().fromJson(requestBody, ZonemasterResponseDTO.class);
 
             for (Map.Entry<String, List<String>> entry : RESPONSES.entrySet()) {
-                if (ZonemasterRequest.Method.START_DOMAIN_TEST.equals(method) &&
-                        jsonObject.get("params").asObject().get("domain").asString().equals(entry.getKey())){
+                if (ZonemasterRequest.Method.START_DOMAIN_TEST.getMethod().equals(zonemasterResponseDTO.getMethod()) &&
+                        entry.getKey().equals(zonemasterResponseDTO.getDomainParam())){
                     putResponseBody(response, removeFirst(entry.getValue()));
                     return;
                 }
-                if (ZonemasterRequest.Method.VERSION_INFO.equals(method) &&
-                        jsonObject.get("id").asInt() == Integer.parseInt(entry.getKey())) {
+                if (ZonemasterRequest.Method.VERSION_INFO.getMethod().equals(zonemasterResponseDTO.getMethod()) &&
+                        entry.getKey().equals(zonemasterResponseDTO.getId())) {
                     putResponseBody(response, removeFirst(entry.getValue()));
                     return;
                 }
