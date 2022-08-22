@@ -52,9 +52,6 @@ public class StartDomainTestRequest extends ZonemasterRequest {
         this.params.setClientVersion(version);
     }
 
-    public Params getParams(){
-        return this.params;
-    }
     private List<StartDomainTestRequest.Nameserver> parseNameservers(final Set<CIString> nserverValues) {
         final List<StartDomainTestRequest.Nameserver> nameservers = Lists.newArrayList();
         for (CIString nserverValue : nserverValues) {
