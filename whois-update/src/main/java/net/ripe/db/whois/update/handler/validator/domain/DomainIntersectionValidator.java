@@ -6,11 +6,14 @@ import net.ripe.db.whois.common.etree.NestedIntervalMap.Key;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Domain.Type.INADDR;
 
@@ -73,5 +77,28 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
     @Override
     public ImmutableList<ObjectType> getTypes() {
         return TYPES;
+    }
+
+    @Override
+    public void checkNserverCorrectPrefixes(List<Update> updates){
+        List<RpslObject> rpslObjects = updates.stream().map(Update::getSubmittedObject).collect(Collectors.toList());
+
+        for (RpslObject rpslObject: rpslObjects) {
+            if (hasRipeNserver(rpslObject) && hasIncorrectPrefixes(rpslObject, isIpv6(rpslObject))){
+                throw new IllegalArgumentException("Is not allowed to use that prefix with ns.ripe.net name server");
+            }
+        }
+    }
+
+    private boolean isIpv6(RpslObject rpslObject){
+        return rpslObject.findAttribute(AttributeType.DOMAIN).getValue().contains("ip6");
+    }
+    private boolean hasIncorrectPrefixes(RpslObject rpslObject, boolean isIpv6) {
+        RpslAttribute rpslAttribute = rpslObject.findAttribute(AttributeType.DESCR);
+        return !rpslAttribute.getValue().contains("/32") && isIpv6 || !rpslAttribute.getValue().contains("/16") && !isIpv6;
+    }
+
+    private boolean hasRipeNserver(RpslObject rpslObject) {
+        return rpslObject.findAttributes(AttributeType.NSERVER).stream().anyMatch(nserver -> nserver.getValue().equals("ns.ripe.net"));
     }
 }

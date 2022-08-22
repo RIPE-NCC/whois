@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class DomainObjectServiceIT extends AbstractIntegrationTest {
+public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
@@ -231,8 +231,33 @@ public class DomainObjectServiceIT extends AbstractIntegrationTest {
                     "Unrecognized token 'bad': was expecting", "1", "32");
         }
     }
+
     @Test
-    public void create_domain_object_fail_nserver_with_bad_prefix() {
+    public void create_domain_object_fail_nserver_with_bad_prefix_ipv4() {
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.33.in-addr.arpa\n" +
+                "descr:         Reverse delegation for 33.33.33.0/24\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns.ripe.net\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        NON-EXISTING-MNT\n" +
+                "source:        TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final String message = e.getResponse().readEntity(String.class);
+            Assertions.assertEquals("Is not allowed to use that prefix with ns.ripe.net name server", message);
+        }
+    }
+    @Test
+    public void create_domain_object_fail_nserver_with_bad_prefix_ipv6() {
         final RpslObject domain = RpslObject.parse("" +
                 "domain:        e.0.0.0.a.1.ip6.arpa\n" +
                 "descr:         Reverse delegation for 1a00:fb8::/23\n" +

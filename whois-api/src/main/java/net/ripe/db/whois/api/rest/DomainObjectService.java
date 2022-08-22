@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.rest.checks.ServiceInputChecker;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
@@ -23,6 +22,8 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
+import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import net.ripe.db.whois.update.handler.validator.domain.DomainIntersectionValidator;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -64,17 +65,17 @@ public class DomainObjectService {
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
 
-    private final ServiceInputChecker servicesInputChecker;
+    private final BusinessRuleValidator businessRuleValidator;
 
     @Autowired
     public DomainObjectService(
             final WhoisObjectMapper whoisObjectMapper,
             final InternalUpdatePerformer updatePerformer,
-            final LoggerContext loggerContext, final ServiceInputChecker serviceInputChecker) {
+            final LoggerContext loggerContext, final DomainIntersectionValidator businessRuleValidator) {
         this.whoisObjectMapper = whoisObjectMapper;
         this.updatePerformer = updatePerformer;
         this.loggerContext = loggerContext;
-        this.servicesInputChecker = serviceInputChecker;
+        this.businessRuleValidator = businessRuleValidator;
     }
 
     @POST
@@ -104,7 +105,7 @@ public class DomainObjectService {
 
             final List<Update> updates = extractUpdates(resources, credentials);
 
-            servicesInputChecker.checkNserverCorrectPrefixes(updates);
+            businessRuleValidator.checkNserverCorrectPrefixes(updates);
             
             final WhoisResources updatedResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NEW, request);
 
