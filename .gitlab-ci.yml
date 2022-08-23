@@ -109,9 +109,6 @@ whois-api-integration-test:
 whois-client-integration-test:
   <<: *it_env
   services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     - mariadb:10.2
   tags:
     - whois
@@ -129,9 +126,6 @@ whois-client-integration-test:
 whois-commons-integration-test:
   <<: *it_env
   services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     - mariadb:10.2
   tags:
     - whois
@@ -149,9 +143,6 @@ whois-commons-integration-test:
 whois-db-integration-test:
   <<: *it_env
   services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     - mariadb:10.2
   tags:
     - whois
@@ -168,9 +159,6 @@ whois-db-integration-test:
 whois-nrtm-integration-test:
   <<: *it_env
   services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     - mariadb:10.2
   tags:
     - whois
@@ -188,9 +176,6 @@ whois-nrtm-integration-test:
 whois-query-integration-test:
   <<: *it_env
   services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     - mariadb:10.2
   tags:
     - whois
@@ -208,9 +193,6 @@ whois-query-integration-test:
 whois-rpsl-integration-test:
   <<: *it_env
   services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     - mariadb:10.2
   tags:
     - whois
@@ -228,9 +210,6 @@ whois-rpsl-integration-test:
 whois-scheduler-integration-test:
   <<: *it_env
   services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     - mariadb:10.2
   tags:
     - whois
@@ -248,9 +227,6 @@ whois-scheduler-integration-test:
 whois-update-integration-test:
   <<: *it_env
   services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     - mariadb:10.2
   tags:
     - whois
