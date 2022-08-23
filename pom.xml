@@ -929,16 +929,12 @@
                     </excludes>
                     <excludedGroups>ManualTest</excludedGroups>
 
-                    <!-- parallelize -->
-                    <parallel>classes</parallel>
-                    <useUnlimitedThreads>true</useUnlimitedThreads>
 
-                    <forkCount>1C</forkCount>
-
-
-                    <!-- TODO: [ES] reuseForks=true causes local integration test build to hang -->
-                    <!-- <reuseForks>true</reuseForks> -->
-
+                    <!-- TODO: [ES] set forkCount=1 due to concurrency issues with integration tests -->
+                    <forkCount>1</forkCount>
+                    <!-- [ES] TODO temporary fix -->
+                    <reuseForks>false</reuseForks>
+                    <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
                     <testFailureIgnore>false</testFailureIgnore>
                 </configuration>

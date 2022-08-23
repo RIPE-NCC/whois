@@ -146,6 +146,38 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
+                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml ${failsafe.jacoco.args}</argLine>
+                    <includes>
+                        <include>${test.files.integration}</include>
+                    </includes>
+                    <excludes>
+                        <exclude>${test.files.excludes}</exclude>
+                    </excludes>
+                    <excludedGroups>ManualTest</excludedGroups>
+                    <parallel>classesAndMethods</parallel>
+                    <useUnlimitedThreads>true</useUnlimitedThreads>
+                    <threadCountClasses>3</threadCountClasses>
+
+                    <forkCount>1C</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <runOrder>random</runOrder>
+                    <testFailureIgnore>false</testFailureIgnore>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <resources>
             <resource>
