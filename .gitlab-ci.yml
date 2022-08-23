@@ -86,7 +86,8 @@ whois-groovy-test:
     - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-endtoend
 
-whois-integration-test:
+
+whois-api-integration-test:
   <<: *it_env
   services:
     - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
@@ -95,6 +96,7 @@ whois-integration-test:
     - mariadb:10.2
   tags:
     - whois
+  stage: integration-test
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: always
@@ -102,8 +104,158 @@ whois-integration-test:
       allow_failure: true
   script:
     - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb -Dtest.containers.disabled=true verify -PintegrationAll -pl whois-api
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -T 1C
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-api
+
+whois-client-integration-test:
+  <<: *it_env
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    - mariadb:10.2
+  tags:
+    - whois
+  stage: integration-test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
+      allow_failure: true
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-client
+
+
+whois-commons-integration-test:
+  <<: *it_env
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    - mariadb:10.2
+  tags:
+    - whois
+  stage: integration-test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
+      allow_failure: true
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-commons
+
+
+whois-db-integration-test:
+  <<: *it_env
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    - mariadb:10.2
+  tags:
+    - whois
+  stage: integration-test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
+      allow_failure: true
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-db
+
+whois-nrtm-integration-test:
+  <<: *it_env
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    - mariadb:10.2
+  tags:
+    - whois
+  stage: integration-test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
+      allow_failure: true
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
+
+
+whois-query-integration-test:
+  <<: *it_env
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    - mariadb:10.2
+  tags:
+    - whois
+  stage: integration-test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
+      allow_failure: true
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-query
+
+
+whois-rpsl-integration-test:
+  <<: *it_env
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    - mariadb:10.2
+  tags:
+    - whois
+  stage: integration-test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
+      allow_failure: true
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rpsl
+
+
+whois-scheduler-integration-test:
+  <<: *it_env
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    - mariadb:10.2
+  tags:
+    - whois
+  stage: integration-test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
+      allow_failure: true
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
+
+
+whois-update-integration-test:
+  <<: *it_env
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    - mariadb:10.2
+  tags:
+    - whois
+  stage: integration-test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: manual
+      allow_failure: true
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-update
+
 
 sonar:
   <<: *it_env
