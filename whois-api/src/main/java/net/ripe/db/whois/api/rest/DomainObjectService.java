@@ -113,6 +113,9 @@ public class DomainObjectService {
         } catch (UpdateFailedException e) {
             return createResponse(e.status, e.whoisResources);
 
+        } catch (IllegalArgumentException e) {
+            return createResponse(BAD_REQUEST, e.getMessage());
+
         } catch (Exception e) {
             updatePerformer.logError(e);
             LOGGER.error("Unexpected", e);
