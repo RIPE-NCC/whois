@@ -104,7 +104,7 @@ whois-api-integration-test:
       allow_failure: true
   script:
     - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-api -T 1C
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api -T 1C
 
 whois-client-integration-test:
   <<: *it_env
