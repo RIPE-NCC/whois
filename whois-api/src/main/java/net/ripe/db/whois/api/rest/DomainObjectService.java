@@ -22,8 +22,6 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
-import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import net.ripe.db.whois.update.handler.validator.domain.DomainIntersectionValidator;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -65,17 +63,15 @@ public class DomainObjectService {
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
 
-    private final BusinessRuleValidator businessRuleValidator;
 
     @Autowired
     public DomainObjectService(
             final WhoisObjectMapper whoisObjectMapper,
             final InternalUpdatePerformer updatePerformer,
-            final LoggerContext loggerContext, final DomainIntersectionValidator businessRuleValidator) {
+            final LoggerContext loggerContext) {
         this.whoisObjectMapper = whoisObjectMapper;
         this.updatePerformer = updatePerformer;
         this.loggerContext = loggerContext;
-        this.businessRuleValidator = businessRuleValidator;
     }
 
     @POST
@@ -104,8 +100,6 @@ public class DomainObjectService {
             final Credentials credentials = createCredentials(updateContext, passwords);
 
             final List<Update> updates = extractUpdates(resources, credentials);
-
-            businessRuleValidator.checkNserverCorrectPrefixes(updates);
             
             final WhoisResources updatedResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NEW, request);
 
@@ -118,9 +112,6 @@ public class DomainObjectService {
 
         } catch (UpdateFailedException e) {
             return createResponse(e.status, e.whoisResources);
-
-        } catch (IllegalArgumentException e) {
-            return createResponse(BAD_REQUEST, e.getMessage());
 
         } catch (Exception e) {
             updatePerformer.logError(e);

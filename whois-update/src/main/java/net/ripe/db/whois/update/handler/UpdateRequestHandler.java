@@ -178,11 +178,7 @@ public class UpdateRequestHandler {
     }
 
     private void processUpdateQueueBatchUpdate(final UpdateRequest updateRequest, final UpdateContext updateContext) {
-        try {
             multipleUpdateHandler.handle(updateRequest, updateContext);
-        } catch (RuntimeException e) {
-            // already handled
-        }
     }
 
 }

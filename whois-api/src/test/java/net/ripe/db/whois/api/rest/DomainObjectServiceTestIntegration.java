@@ -242,7 +242,8 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "zone-c:        JAAP-TEST\n" +
                 "nserver:       ns.ripe.net\n" +
                 "nserver:       ns2.example.com\n" +
-                "mnt-by:        NON-EXISTING-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
 
         try {
@@ -253,7 +254,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             fail();
         } catch (BadRequestException e) {
             final String message = e.getResponse().readEntity(String.class);
-            Assertions.assertEquals("Is not allowed to use that prefix with ns.ripe.net name server", message);
+            Assertions.assertTrue(message.contains("33.33.33.in-addr.arpa"));
         }
     }
     @Test
@@ -266,7 +267,8 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "zone-c:        JAAP-TEST\n" +
                 "nserver:       ns.ripe.net\n" +
                 "nserver:       ns2.example.com\n" +
-                "mnt-by:        NON-EXISTING-MNT\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
                 "source:        TEST");
 
         try {
@@ -277,7 +279,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             fail();
         } catch (BadRequestException e) {
             final String message = e.getResponse().readEntity(String.class);
-            Assertions.assertEquals("Is not allowed to use that prefix with ns.ripe.net name server", message);
+            Assertions.assertTrue(message.contains("e.0.0.0.a.1.ip6.arpa"));
         }
     }
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {

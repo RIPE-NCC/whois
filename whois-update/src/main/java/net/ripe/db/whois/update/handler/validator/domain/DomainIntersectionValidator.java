@@ -20,8 +20,8 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.BadRequestException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Domain.Type.INADDR;
 
@@ -45,10 +45,11 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final Domain domain = Domain.parse(update.getUpdatedObject().getKey());
         if (domain.getType() != INADDR) {
+            validateNserverCorrectPrefixes(update.getUpdate(), false);
             return;
         }
-
         validateIntersections(update, updateContext, (Ipv4Resource)domain.getReverseIp());
+        validateNserverCorrectPrefixes(update.getUpdate(), true);
     }
 
     private void validateIntersections(final PreparedUpdate update, final UpdateContext updateContext, final Ipv4Resource ipv4Resource) {
@@ -79,23 +80,16 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
         return TYPES;
     }
 
-    @Override
-    public void checkNserverCorrectPrefixes(List<Update> updates){
-        List<RpslObject> rpslObjects = updates.stream().map(Update::getSubmittedObject).collect(Collectors.toList());
 
-        for (RpslObject rpslObject: rpslObjects) {
-            if (hasRipeNserver(rpslObject) && hasIncorrectPrefixes(rpslObject, isIpv6(rpslObject))){
-                throw new IllegalArgumentException("Is not allowed to use that prefix with ns.ripe.net name server");
-            }
+    private void validateNserverCorrectPrefixes(Update update, boolean isIpv4){
+        if (hasRipeNserver(update.getSubmittedObject()) && hasIncorrectPrefixes(update.getSubmittedObject(), isIpv4)){
+            throw new BadRequestException();
         }
     }
 
-    private boolean isIpv6(RpslObject rpslObject){
-        return rpslObject.findAttribute(AttributeType.DOMAIN).getValue().contains("ip6");
-    }
-    private boolean hasIncorrectPrefixes(RpslObject rpslObject, boolean isIpv6) {
+    private boolean hasIncorrectPrefixes(RpslObject rpslObject, boolean isIpv4) {
         RpslAttribute rpslAttribute = rpslObject.findAttribute(AttributeType.DESCR);
-        return !rpslAttribute.getValue().contains("/32") && isIpv6 || !rpslAttribute.getValue().contains("/16") && !isIpv6;
+        return !rpslAttribute.getValue().contains("/32") && !isIpv4 || !rpslAttribute.getValue().contains("/16") && isIpv4;
     }
 
     private boolean hasRipeNserver(RpslObject rpslObject) {
