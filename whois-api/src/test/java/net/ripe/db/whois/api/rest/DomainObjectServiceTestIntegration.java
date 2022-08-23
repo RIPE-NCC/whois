@@ -231,19 +231,51 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                     "Unrecognized token 'bad': was expecting", "1", "32");
         }
     }
-
     @Test
-    public void create_domain_object_fail_nserver_with_bad_prefix_ipv4() {
+    public void create_domain_object_fail_nserver_with_correct_prefix_ipv4() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.0.0/16\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
+                "source:        TEST");
+
         final RpslObject domain = RpslObject.parse("" +
-                "domain:        33.33.33.in-addr.arpa\n" +
-                "descr:         Reverse delegation for 33.33.33.0/24\n" +
+                "domain:        0.33.33.in-addr.arpa\n" +
                 "admin-c:       JAAP-TEST\n" +
                 "tech-c:        JAAP-TEST\n" +
                 "zone-c:        JAAP-TEST\n" +
                 "nserver:       ns.ripe.net\n" +
                 "nserver:       ns2.example.com\n" +
                 "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(1));
+    }
+    @Test
+    public void create_domain_object_fail_nserver_with_bad_prefix_ipv4() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.33.0/24\n" +
+                "mnt-by:        TEST-MNT\n" +
                 "mnt-domains:   TEST2-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns.ripe.net\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
                 "source:        TEST");
 
         try {
@@ -257,18 +289,48 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             Assertions.assertTrue(message.contains("33.33.33.in-addr.arpa"));
         }
     }
+
     @Test
-    public void create_domain_object_fail_nserver_with_bad_prefix_ipv6() {
+    public void create_domain_object_fail_nserver_with_correct_prefix_ipv6() {
+        databaseHelper.addObject("" +
+                "inet6num:      1a00:fb81::/32\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
+                "source:        TEST");
         final RpslObject domain = RpslObject.parse("" +
-                "domain:        e.0.0.0.a.1.ip6.arpa\n" +
-                "descr:         Reverse delegation for 1a00:fb8::/23\n" +
+                "domain:        1.8.b.f.0.0.a.1.ip6.arpa\n" +
                 "admin-c:       JAAP-TEST\n" +
                 "tech-c:        JAAP-TEST\n" +
                 "zone-c:        JAAP-TEST\n" +
                 "nserver:       ns.ripe.net\n" +
                 "nserver:       ns2.example.com\n" +
                 "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(1));
+    }
+    @Test
+    public void create_domain_object_fail_nserver_with_bad_prefix_ipv6() {
+        databaseHelper.addObject("" +
+                "inet6num:      1a00:fb8::/23\n" +
+                "mnt-by:        TEST-MNT\n" +
                 "mnt-domains:   TEST2-MNT\n" +
+                "source:        TEST");
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        e.0.0.0.a.1.ip6.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns.ripe.net\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
                 "source:        TEST");
 
         try {

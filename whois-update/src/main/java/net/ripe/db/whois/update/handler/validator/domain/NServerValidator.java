@@ -9,10 +9,15 @@ import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
+
+import javax.ws.rs.BadRequestException;
+
+import static net.ripe.db.whois.common.rpsl.attrs.Domain.Type.INADDR;
 
 @Component
 public class NServerValidator implements BusinessRuleValidator {
@@ -44,6 +49,8 @@ public class NServerValidator implements BusinessRuleValidator {
                 case INADDR:
                 case IP6:
                 {
+                    validateNserverCorrectPrefixes(update.getUpdate(), domain.getReverseIp().getPrefixLength(),
+                            domain.getType().equals(INADDR));
                     final boolean endsWithDomain = domain.endsWithDomain(nServer.getHostname());
 
                     if (endsWithDomain && nServer.getIpInterval() == null) {
@@ -65,5 +72,20 @@ public class NServerValidator implements BusinessRuleValidator {
     @Override
     public ImmutableList<ObjectType> getTypes() {
         return TYPES;
+    }
+
+
+    private void validateNserverCorrectPrefixes(Update update, int prefixLength, boolean isIpv4){
+        if (hasRipeNserver(update.getSubmittedObject()) && hasIncorrectPrefixes(prefixLength, isIpv4)){
+            throw new BadRequestException();
+        }
+    }
+
+    private boolean hasIncorrectPrefixes(int prefixLength, boolean isIpv4) {
+        return prefixLength!=32 && !isIpv4 || prefixLength!=16 && isIpv4;
+    }
+
+    private boolean hasRipeNserver(RpslObject rpslObject) {
+        return rpslObject.findAttributes(AttributeType.NSERVER).stream().anyMatch(nserver -> nserver.getValue().equals("ns.ripe.net"));
     }
 }
