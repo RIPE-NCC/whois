@@ -241,7 +241,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "source:        TEST");
 
         final RpslObject domain = RpslObject.parse("" +
-                "domain:        0.33.33.in-addr.arpa\n" +
+                "domain:        33.33.in-addr.arpa\n" +
                 "admin-c:       JAAP-TEST\n" +
                 "tech-c:        JAAP-TEST\n" +
                 "zone-c:        JAAP-TEST\n" +

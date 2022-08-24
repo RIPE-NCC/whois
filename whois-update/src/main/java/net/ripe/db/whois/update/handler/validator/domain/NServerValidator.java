@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
@@ -49,7 +48,7 @@ public class NServerValidator implements BusinessRuleValidator {
                 case INADDR:
                 case IP6:
                 {
-                    validateNserverCorrectPrefixes(update.getUpdate(), domain.getReverseIp().getPrefixLength(),
+                    validateNserverCorrectPrefixes(update.getUpdatedObject(), domain.getReverseIp().getPrefixLength(),
                             domain.getType().equals(INADDR));
                     final boolean endsWithDomain = domain.endsWithDomain(nServer.getHostname());
 
@@ -75,8 +74,8 @@ public class NServerValidator implements BusinessRuleValidator {
     }
 
 
-    private void validateNserverCorrectPrefixes(Update update, int prefixLength, boolean isIpv4){
-        if (hasRipeNserver(update.getSubmittedObject()) && hasIncorrectPrefixes(prefixLength, isIpv4)){
+    private void validateNserverCorrectPrefixes(RpslObject rpslObject, int prefixLength, boolean isIpv4){
+        if (hasRipeNserver(rpslObject) && hasIncorrectPrefixes(prefixLength, isIpv4)){
             throw new BadRequestException();
         }
     }
