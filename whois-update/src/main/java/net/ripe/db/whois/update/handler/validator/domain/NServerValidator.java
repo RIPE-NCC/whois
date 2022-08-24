@@ -48,7 +48,7 @@ public class NServerValidator implements BusinessRuleValidator {
                 {
                     final boolean endsWithDomain = domain.endsWithDomain(nServer.getHostname());
                     if (domain.getReverseIp() != null) {
-                        validateNserverCorrectPrefixes(domain, update, domain.getType().equals(INADDR),
+                        validateRipeNsServerPrefixLength(domain, update, domain.getType().equals(INADDR),
                                 nServerAttribute, updateContext);
                     }
                     if (endsWithDomain && nServer.getIpInterval() == null) {
@@ -73,15 +73,15 @@ public class NServerValidator implements BusinessRuleValidator {
     }
 
 
-    private void validateNserverCorrectPrefixes(final Domain domain, final PreparedUpdate update,
-                                                final boolean isIpv4, final RpslAttribute nServerAttribute, final UpdateContext updateContext){
-        if ("ns.ripe.net".equalsIgnoreCase(nServerAttribute.getValue()) && hasIncorrectPrefixes(domain.getReverseIp().getPrefixLength(),
+    private void validateRipeNsServerPrefixLength(final Domain domain, final PreparedUpdate update,
+                                                  final boolean isIpv4, final RpslAttribute nServerAttribute, final UpdateContext updateContext){
+        if ("ns.ripe.net".equalsIgnoreCase(nServerAttribute.getValue()) && hasIncorrectPrefixForRipeNsServer(domain.getReverseIp().getPrefixLength(),
                 isIpv4)){
-            updateContext.addMessage(update, nServerAttribute, UpdateMessages.hostNameMustEndWith(domain.getValue()));
+            updateContext.addMessage(update, nServerAttribute, UpdateMessages.incorrectPrefixForRipeNsServer());
         }
     }
 
-    private boolean hasIncorrectPrefixes(final int prefixLength, final boolean isIpv4) {
+    private boolean hasIncorrectPrefixForRipeNsServer(final int prefixLength, final boolean isIpv4) {
         return prefixLength!=32 && !isIpv4 || prefixLength!=16 && isIpv4;
     }
 

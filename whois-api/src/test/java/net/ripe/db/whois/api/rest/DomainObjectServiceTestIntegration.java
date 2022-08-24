@@ -315,8 +315,8 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(response, 1);
-            RestTest.assertErrorMessage(response, 0, "Error", "Glue records only allowed if hostname ends with %s",
-                    "33.33.33.in-addr.arpa");
+            RestTest.assertErrorMessage(response, 0, "Error", "Prefix length must be /16 for IPv4 or /32 for IPv6 if ns.ripe.net is used as " +
+                            "a nameserver.");
         }
     }
 
@@ -372,8 +372,8 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(response, 1);
-            RestTest.assertErrorMessage(response, 0, "Error", "Glue records only allowed if hostname ends with %s",
-                    "e.0.0.0.a.1.ip6.arpa");
+            RestTest.assertErrorMessage(response, 0, "Error", "Prefix length must be /16 for IPv4 or /32 for IPv6 if ns.ripe.net is used as " +
+                    "a nameserver.");
         }
     }
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
