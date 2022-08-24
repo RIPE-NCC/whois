@@ -63,7 +63,6 @@ public class DomainObjectService {
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
 
-
     @Autowired
     public DomainObjectService(
             final WhoisObjectMapper whoisObjectMapper,

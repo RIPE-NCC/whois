@@ -14,8 +14,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.BadRequestException;
-
 import static net.ripe.db.whois.common.rpsl.attrs.Domain.Type.INADDR;
 
 @Component
@@ -48,10 +46,11 @@ public class NServerValidator implements BusinessRuleValidator {
                 case INADDR:
                 case IP6:
                 {
-                    validateNserverCorrectPrefixes(update.getUpdatedObject(), domain.getReverseIp().getPrefixLength(),
-                            domain.getType().equals(INADDR));
                     final boolean endsWithDomain = domain.endsWithDomain(nServer.getHostname());
-
+                    if (domain.getReverseIp() != null) {
+                        validateNserverCorrectPrefixes(domain, update, domain.getType().equals(INADDR),
+                                nServerAttribute, updateContext);
+                    }
                     if (endsWithDomain && nServer.getIpInterval() == null) {
                         updateContext.addMessage(update, nServerAttribute, UpdateMessages.glueRecordMandatory(domain.getValue()));
                     } else if (!endsWithDomain && nServer.getIpInterval() != null) {
@@ -74,17 +73,16 @@ public class NServerValidator implements BusinessRuleValidator {
     }
 
 
-    private void validateNserverCorrectPrefixes(RpslObject rpslObject, int prefixLength, boolean isIpv4){
-        if (hasRipeNserver(rpslObject) && hasIncorrectPrefixes(prefixLength, isIpv4)){
-            throw new BadRequestException();
+    private void validateNserverCorrectPrefixes(final Domain domain, final PreparedUpdate update,
+                                                final boolean isIpv4, final RpslAttribute nServerAttribute, final UpdateContext updateContext){
+        if ("ns.ripe.net".equalsIgnoreCase(nServerAttribute.getValue()) && hasIncorrectPrefixes(domain.getReverseIp().getPrefixLength(),
+                isIpv4)){
+            updateContext.addMessage(update, nServerAttribute, UpdateMessages.hostNameMustEndWith(domain.getValue()));
         }
     }
 
-    private boolean hasIncorrectPrefixes(int prefixLength, boolean isIpv4) {
+    private boolean hasIncorrectPrefixes(final int prefixLength, final boolean isIpv4) {
         return prefixLength!=32 && !isIpv4 || prefixLength!=16 && isIpv4;
     }
 
-    private boolean hasRipeNserver(RpslObject rpslObject) {
-        return rpslObject.findAttributes(AttributeType.NSERVER).stream().anyMatch(nserver -> nserver.getValue().equals("ns.ripe.net"));
-    }
 }
