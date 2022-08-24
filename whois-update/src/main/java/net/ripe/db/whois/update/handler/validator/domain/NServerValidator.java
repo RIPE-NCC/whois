@@ -15,6 +15,7 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
 import static net.ripe.db.whois.common.rpsl.attrs.Domain.Type.INADDR;
+import static net.ripe.db.whois.common.rpsl.attrs.Domain.Type.IP6;
 
 @Component
 public class NServerValidator implements BusinessRuleValidator {
@@ -48,8 +49,7 @@ public class NServerValidator implements BusinessRuleValidator {
                 {
                     final boolean endsWithDomain = domain.endsWithDomain(nServer.getHostname());
                     if (domain.getReverseIp() != null) {
-                        validateRipeNsServerPrefixLength(domain, update, domain.getType().equals(INADDR),
-                                nServerAttribute, updateContext);
+                        validateRipeNsServerPrefixLength(domain, update, nServerAttribute, updateContext);
                     }
                     if (endsWithDomain && nServer.getIpInterval() == null) {
                         updateContext.addMessage(update, nServerAttribute, UpdateMessages.glueRecordMandatory(domain.getValue()));
@@ -74,15 +74,15 @@ public class NServerValidator implements BusinessRuleValidator {
 
 
     private void validateRipeNsServerPrefixLength(final Domain domain, final PreparedUpdate update,
-                                                  final boolean isIpv4, final RpslAttribute nServerAttribute, final UpdateContext updateContext){
+                                                  final RpslAttribute nServerAttribute, final UpdateContext updateContext){
         if ("ns.ripe.net".equalsIgnoreCase(nServerAttribute.getValue()) && hasIncorrectPrefixForRipeNsServer(domain.getReverseIp().getPrefixLength(),
-                isIpv4)){
+                domain.getType())){
             updateContext.addMessage(update, nServerAttribute, UpdateMessages.incorrectPrefixForRipeNsServer());
         }
     }
 
-    private boolean hasIncorrectPrefixForRipeNsServer(final int prefixLength, final boolean isIpv4) {
-        return prefixLength!=32 && !isIpv4 || prefixLength!=16 && isIpv4;
+    private boolean hasIncorrectPrefixForRipeNsServer(final int prefixLength, Domain.Type type) {
+        return prefixLength!=32 && type.equals(IP6) || prefixLength!=16 && type.equals(INADDR);
     }
 
 }

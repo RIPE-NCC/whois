@@ -230,8 +230,37 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                     "Unrecognized token 'bad': was expecting", "1", "32");
         }
     }
+
     @Test
-    public void create_domain_object_fail_nserver_with_correct_prefix_ipv4() {
+    public void create_domain_object_no_ripe_nserver() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.0.0/16\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.example.com\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(1));
+    }
+    @Test
+    public void create_domain_object_ripe_nserver_with_correct_prefix_ipv4() {
 
         databaseHelper.addObject("" +
                 "inetnum:      33.33.0.0/16\n" +
@@ -260,35 +289,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void create_domain_object_fail_nserver_with_another_nserver() {
-
-        databaseHelper.addObject("" +
-                "inetnum:      33.33.0.0/16\n" +
-                "mnt-by:        TEST-MNT\n" +
-                "mnt-domains:   TEST2-MNT\n" +
-                "source:        TEST");
-
-        final RpslObject domain = RpslObject.parse("" +
-                "domain:        33.33.in-addr.arpa\n" +
-                "admin-c:       JAAP-TEST\n" +
-                "tech-c:        JAAP-TEST\n" +
-                "zone-c:        JAAP-TEST\n" +
-                "nserver:       ns1.example.com\n" +
-                "nserver:       ns2.example.com\n" +
-                "mnt-by:        TEST-MNT\n" +
-                "source:        TEST");
-
-
-        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
-                .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
-
-        RestTest.assertErrorCount(response, 0);
-        assertThat(response.getWhoisObjects(), hasSize(1));
-    }
-    @Test
-    public void create_domain_object_fail_nserver_with_bad_prefix_ipv4() {
+    public void create_domain_object_ripe_nserver_with_bad_prefix_ipv4() {
 
         databaseHelper.addObject("" +
                 "inetnum:      33.33.33.0/24\n" +
@@ -321,7 +322,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void create_domain_object_fail_nserver_with_correct_prefix_ipv6() {
+    public void create_domain_object_ripe_nserver_with_correct_prefix_ipv6() {
         databaseHelper.addObject("" +
                 "inet6num:      1a00:fb81::/32\n" +
                 "mnt-by:        TEST-MNT\n" +
@@ -347,7 +348,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(response.getWhoisObjects(), hasSize(1));
     }
     @Test
-    public void create_domain_object_fail_nserver_with_bad_prefix_ipv6() {
+    public void create_domain_object_ripe_nserver_with_bad_prefix_ipv6() {
         databaseHelper.addObject("" +
                 "inet6num:      1a00:fb8::/23\n" +
                 "mnt-by:        TEST-MNT\n" +
