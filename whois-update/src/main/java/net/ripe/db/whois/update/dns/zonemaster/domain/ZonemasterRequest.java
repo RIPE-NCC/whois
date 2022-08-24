@@ -52,15 +52,6 @@ public abstract class ZonemasterRequest {
             this.id = id;
         }
 
-        public static Method getObjectByMethod(String method){
-            for (ZonemasterRequest.Method object: Method.values()) {
-                if (method.equals(object.method)) {
-                    return object;
-                }
-
-            }
-            return null;
-        }
         public String getMethod() {
             return method;
         }

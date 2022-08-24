@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.zonemasterservice.ZonemasterDummy;
+import net.ripe.db.whois.api.ZonemasterDummy;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.zonemaster.ZonemasterRestClient;
@@ -56,7 +56,7 @@ public class ZonemasterTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getResult(), is("b3a92c89c92414ed"));
     }
     @Test
-    public void start_domain_test_with_final_dot() {
+    public void start_domain_test_with_trailing_dot() {
         zonemasterDummy.whenThen("1.0.10.in-addr.arpa", "{\"jsonrpc\":\"2.0\",\"id\":4,\"result\":\"b3a92c89c92414ed\"}\n");
         final RpslObject domainObject = RpslObject.parse(
                 "domain:    1.0.10.in-addr.arpa.\n" +

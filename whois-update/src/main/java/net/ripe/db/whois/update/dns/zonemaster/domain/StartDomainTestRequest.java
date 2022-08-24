@@ -69,7 +69,7 @@ public class StartDomainTestRequest extends ZonemasterRequest {
     }
 
     private String removeTrailingDot(String domain) {
-        return domain.replaceAll("^(.*)\\.$","$1");
+        return domain.replaceAll("\\.+$","");
 
     }
     private List<StartDomainTestRequest.DsInfo> parseDsRdata(final Set<CIString> dsRdataValues) {
