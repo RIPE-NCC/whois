@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.zonemasterservice;
+package net.ripe.db.whois.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
