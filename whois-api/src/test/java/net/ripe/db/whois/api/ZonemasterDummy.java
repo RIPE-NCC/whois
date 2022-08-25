@@ -1,11 +1,13 @@
 package net.ripe.db.whois.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.update.dns.zonemaster.ZonemasterRestClient;
+import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -34,6 +36,7 @@ import java.util.Map;
 @Component
 public class ZonemasterDummy implements Stub {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDummy.class);
 
     private static final Map<String, List<String>> RESPONSES = Maps.newHashMap();
@@ -53,14 +56,25 @@ public class ZonemasterDummy implements Stub {
         @Override
         public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
             final String requestBody = getRequestBody(request);
+            Map<String, Object> map = OBJECT_MAPPER.readValue(requestBody, Map.class);
+
+
             for (Map.Entry<String, List<String>> entry : RESPONSES.entrySet()) {
-                if (requestBody.contains(entry.getKey())) {
+                if (ZonemasterRequest.Method.START_DOMAIN_TEST.getMethod().equals(map.get("method"))){
+                    Map<String, String> parameters = OBJECT_MAPPER.convertValue(map.get("params"), Map.class);
+                    if(entry.getKey().equals(parameters.get("domain"))){
+                        putResponseBody(response, removeFirst(entry.getValue()));
+                        return;
+                    }
+                }
+                if (ZonemasterRequest.Method.VERSION_INFO.getMethod().equals(map.get("method")) &&
+                        entry.getKey().equals(String.valueOf(map.get("id")))) {
                     putResponseBody(response, removeFirst(entry.getValue()));
                     return;
                 }
+                throw new IllegalStateException("request not handled: " + requestBody);
             }
 
-            throw new IllegalStateException("request not handled: " + requestBody);
         }
 
         private String getRequestBody(final HttpServletRequest request) throws IOException {
