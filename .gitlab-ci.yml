@@ -71,174 +71,83 @@ release:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
-whois-groovy-test:
+.itest_template: &itest_commands
   <<: *it_env
   services:
     - mariadb:10.2
   tags:
     - whois
+  stage: integration-test
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: always
     - when: manual
       allow_failure: true
+  artifacts:
+    context:
+      - */target/*.jar
+
+
+whois-groovy-test:
+  <<: *itest_commands
   script:
-    - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-endtoend
 
 
-whois-api-integration-test:
-  <<: *it_env
+whois-api-itest:
+  <<: *itest_commands
   services:
     - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
       alias: "elasticsearch"
       command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-    - mariadb:10.2
-  tags:
-    - whois
-  stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
   script:
-    - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api -T 1C
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
 
-whois-client-integration-test:
-  <<: *it_env
-  services:
-    - mariadb:10.2
-  tags:
-    - whois
-  stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
+whois-client-itest:
+  <<: *itest_commands
   script:
-    - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-client -T 1
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-client
 
 
-whois-commons-integration-test:
-  <<: *it_env
-  services:
-    - mariadb:10.2
-  tags:
-    - whois
-  stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
+whois-commons-itest:
+  <<: *itest_commands
   script:
-    - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-commons -T 1
 
 
-whois-db-integration-test:
-  <<: *it_env
-  services:
-    - mariadb:10.2
-  tags:
-    - whois
-  stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
+whois-db-itest:
+  <<: *itest_commands
   script:
-    - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-db -T 1
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-db
 
-whois-nrtm-integration-test:
-  <<: *it_env
-  services:
-    - mariadb:10.2
-  tags:
-    - whois
-  stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
+whois-nrtm-itest:
+  <<: *itest_commands
   script:
-    - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm -T 1
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
 
 
-whois-query-integration-test:
-  <<: *it_env
-  services:
-    - mariadb:10.2
-  tags:
-    - whois
-  stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
+whois-query-itest:
+  <<: *itest_commands
   script:
-    - mvn -DskipTests install
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-query -T 1
 
 
-whois-rpsl-integration-test:
-  <<: *it_env
-  services:
-    - mariadb:10.2
-  tags:
-    - whois
-  stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
+whois-rpsl-itest:
+  <<: *itest_commands
   script:
-    - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rpsl -T 1
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rpsl
 
 
-whois-scheduler-integration-test:
-  <<: *it_env
-  services:
-    - mariadb:10.2
-  tags:
-    - whois
-  stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
+whois-scheduler-itest:
+  <<: *itest_commands
   script:
-    - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler -T 1
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
 
 
-whois-update-integration-test:
-  <<: *it_env
-  services:
-    - mariadb:10.2
-  tags:
-    - whois
-  stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
+whois-update-itest:
+  <<: *itest_commands
   script:
-    - mvn -DskipTests install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-update -T 1
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-update
 
 
 sonar:
