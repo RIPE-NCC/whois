@@ -72,9 +72,8 @@ public class ZonemasterDummy implements Stub {
                     putResponseBody(response, removeFirst(entry.getValue()));
                     return;
                 }
-                throw new IllegalStateException("request not handled: " + requestBody);
             }
-
+            throw new IllegalStateException("request not handled: " + requestBody);
         }
 
         private String getRequestBody(final HttpServletRequest request) throws IOException {
