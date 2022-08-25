@@ -46,6 +46,7 @@ public abstract class ZonemasterRequest {
         private String method;
         private int id;
 
+
         Method(final String method, final int id) {
             this.method = method;
             this.id = id;
@@ -54,7 +55,6 @@ public abstract class ZonemasterRequest {
         public String getMethod() {
             return method;
         }
-
         public int getId() {
             return id;
         }
