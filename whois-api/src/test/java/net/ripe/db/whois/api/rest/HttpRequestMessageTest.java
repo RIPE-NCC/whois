@@ -96,8 +96,7 @@ public class HttpRequestMessageTest {
     }
 
     private Enumeration<String> enumeration(final String ... values) {
-        final Vector<String> vector = new Vector<>();
-        vector.addAll(Arrays.asList(values));
+        final Vector<String> vector = new Vector<>(Arrays.asList(values));
         return vector.elements();
     }
 
