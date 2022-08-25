@@ -12,4 +12,5 @@ public interface BusinessRuleValidator {
     ImmutableList<ObjectType> getTypes();
 
     void validate(PreparedUpdate update, UpdateContext updateContext);
+
 }

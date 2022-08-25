@@ -99,7 +99,7 @@ public class DomainObjectService {
             final Credentials credentials = createCredentials(updateContext, passwords);
 
             final List<Update> updates = extractUpdates(resources, credentials);
-
+            
             final WhoisResources updatedResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NEW, request);
 
             validateUpdates(updateContext, updates, updatedResources);
