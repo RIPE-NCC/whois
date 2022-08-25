@@ -40,7 +40,7 @@ public final class OverrideCredential implements Credential {
 
     @Override
     public String toString() {
-        if (!overrideValues.isPresent()){
+        if (overrideValues.isEmpty()){
             return "OverrideCredential{NOT_VALID}";
         }
 
