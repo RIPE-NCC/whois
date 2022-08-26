@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 
@@ -61,8 +62,8 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() {
-        removeLog4jAppender();
+    public void tearDown() throws IOException {
+        clearRequestLog();
     }
     
     @AfterAll
@@ -79,7 +80,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         // request log (default format)
         // 127.0.0.1 - - [27/Sep/2019:13:18:39 +0200] "GET /whois/test/person/TP1-TEST HTTP/1.1" 200 1002 "-" "Jersey/2.12 (HttpUrlConnection 1.8.0_161)" 182
 
-        assertThat(fileToString(getRequestLogFilename()), containsString("\"GET /whois/test/person/TP1-TEST HTTP/1.1\" 200"));
+        assertThat(fileToString(getRequestLog()), containsString("\"GET /whois/test/person/TP1-TEST HTTP/1.1\" 200"));
     }
 
     @Test
@@ -89,7 +90,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
                 .get(WhoisResources.class);
 
-        final String requestLongContent = fileToString(getRequestLogFilename());
+        final String requestLongContent = fileToString(getRequestLog());
         assertThat(requestLongContent, containsString("10.20.30.40"));
     }
 
@@ -101,7 +102,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
 
-        String actual = fileToString(getRequestLogFilename());
+        String actual = fileToString(getRequestLog());
         assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED"));
         assertThat(actual, not(containsString("some-api_key-123")));
     }
@@ -113,7 +114,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
 
-        String actual = fileToString(getRequestLogFilename());
+        String actual = fileToString(getRequestLog());
         assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&password=FILTERED"));
         assertThat(actual, not(containsString("pass1")));
         assertThat(actual, not(containsString("pass2")));
@@ -126,7 +127,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
 
-        String actual = fileToString(getRequestLogFilename());
+        String actual = fileToString(getRequestLog());
         assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&key=value"));
         assertThat(actual, containsString("key=value"));
         assertThat(actual, not(containsString("pass1")));
@@ -139,7 +140,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
 
-        String actual = fileToString(getRequestLogFilename());
+        String actual = fileToString(getRequestLog());
         assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?key=value&password=FILTERED"));
         assertThat(actual, containsString("key=value"));
         assertThat(actual, not(containsString("pass1")));
@@ -152,7 +153,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
 
-        String actual = fileToString(getRequestLogFilename());
+        String actual = fileToString(getRequestLog());
         assertThat(actual.toLowerCase(), containsString("password=FILTERED".toLowerCase()));
         assertThat(actual, not(containsString("pass1")));
     }
@@ -198,18 +199,21 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         ctx.updateLoggers();
     }
 
-    private void removeLog4jAppender() {
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(true);
-        Configuration config = ctx.getConfiguration();
-        config.getRootLogger().removeAppender("requestLogAppender");
-        ctx.updateLoggers();
-    }
-
     private String getRequestLogFilename() {
         return String.format("%s/%s", requestLogDirectory, "request.log");
     }
 
-    private String fileToString(final String filename) throws IOException {
-        return new String(Files.readAllBytes(new File(filename).toPath()));
+    private File getRequestLog() {
+        return new File(getRequestLogFilename());
+    }
+
+    private void clearRequestLog() throws IOException {
+        var fw = new FileWriter(getRequestLog());
+        fw.write("");
+        fw.close();
+    }
+
+    private String fileToString(final File logFile) throws IOException {
+        return new String(Files.readAllBytes(logFile.toPath()));
     }
 }
