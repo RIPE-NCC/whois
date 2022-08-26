@@ -83,7 +83,7 @@ release:
     - when: manual
       allow_failure: true
   artifacts:
-    context:
+    paths:
       - "*/target/*.jar"
 
 .mariadb_service:
