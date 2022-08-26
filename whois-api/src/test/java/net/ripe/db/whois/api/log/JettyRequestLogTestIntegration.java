@@ -109,6 +109,30 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void password_and_override_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=some-api_key-123&override=SOME-USER,some-users-password,reason")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLog());
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&override=SOME-USER,FILTERED,reason"));
+        assertThat(actual, not(containsString("some-api_key-123")));
+    }
+
+    @Test
+    public void password_and_encoded_override_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=some-api_key-123&override=SOME-USER%2Csome-users-password%2Creason")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLog());
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&override=SOME-USER,FILTERED,reason"));
+        assertThat(actual, not(containsString("some-api_key-123")));
+    }
+
+    @Test
     public void multiple_password_filtered() throws Exception {
         RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=pass1&password=pass2")
                 .request()

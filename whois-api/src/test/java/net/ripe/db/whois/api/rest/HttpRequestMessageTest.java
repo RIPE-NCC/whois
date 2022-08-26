@@ -64,9 +64,9 @@ public class HttpRequestMessageTest {
 
     @Test
     public void log_encoded_query_parameter() {
-        when(request.getQueryString()).thenReturn("password=p%3Fssword%26");
+        when(request.getQueryString()).thenReturn("overRIDE=username,user%3fSecret&password=p%3Fssword%26");
 
-        assertThat(toString(request), is("GET /some/path?password=FILTERED\n"));
+        assertThat(toString(request), is("GET /some/path?overRIDE=username,FILTERED&password=FILTERED\n"));
     }
 
     @Test
@@ -80,11 +80,11 @@ public class HttpRequestMessageTest {
         when(request.getQueryString()).thenReturn("password=secret&password=other");
         assertThat(toString(request), is("GET /some/path?password=FILTERED&password=FILTERED\n"));
 
-        when(request.getQueryString()).thenReturn("password=secret&password=other&param=value");
-        assertThat(toString(request), is("GET /some/path?password=FILTERED&password=FILTERED&param=value\n"));
+        when(request.getQueryString()).thenReturn("override=username,USER123PASS&override=username2,USER123PASS,reason%20text&password=secret&password=other&param=value");
+        assertThat(toString(request), is("GET /some/path?override=username,FILTERED&override=username2,FILTERED,reason%20text&password=FILTERED&password=FILTERED&param=value\n"));
 
-        when(request.getQueryString()).thenReturn("param=value&password=secret&password=other");
-        assertThat(toString(request), is("GET /some/path?param=value&password=FILTERED&password=FILTERED\n"));
+        when(request.getQueryString()).thenReturn("param=value&override=username,secretuserpass&password=secret&password=other&override=username2%2Csecretuserpass&");
+        assertThat(toString(request), is("GET /some/path?param=value&override=username,FILTERED&password=FILTERED&password=FILTERED&override=username2,FILTERED&\n"));
 
         when(request.getQueryString()).thenReturn("param=value&password=secret&param=password");
         assertThat(toString(request), is("GET /some/path?param=value&password=FILTERED&param=password\n"));
