@@ -71,10 +71,12 @@ release:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
+<<<<<<< Updated upstream
 .itest_template: &itest_commands
+=======
+.itest_template: &itest_configuration
+>>>>>>> Stashed changes
   <<: *it_env
-  services:
-    - mariadb:10.2
   tags:
     - whois
   stage: integration-test
@@ -85,67 +87,92 @@ release:
       allow_failure: true
   artifacts:
     context:
-      - */target/*.jar
+      - "*/target/*.jar"
 
+.mariadb_service:
+  services: &mariadb_configuration
+    - mariadb:10.2
+
+.elastic_service:
+  services: &elastic_configuration
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
 whois-groovy-test:
-  <<: *itest_commands
+  <<: *itest_configuration
+  services: *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-endtoend
 
 
 whois-api-itest:
-  <<: *itest_commands
+  <<: *itest_configuration
   services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    - *mariadb_configuration
+    - *elastic_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
 
 whois-client-itest:
-  <<: *itest_commands
+  <<: *itest_configuration
+  services:
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-client
 
 
 whois-commons-itest:
-  <<: *itest_commands
+  <<: *itest_configuration
+  services:
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-commons -T 1
 
 
 whois-db-itest:
-  <<: *itest_commands
+  <<: *itest_configuration
+  services:
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-db
 
 whois-nrtm-itest:
-  <<: *itest_commands
+  <<: *itest_configuration
+  services:
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
 
 
 whois-query-itest:
-  <<: *itest_commands
+  <<: *itest_configuration
+  services:
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-query -T 1
 
 
 whois-rpsl-itest:
-  <<: *itest_commands
+  <<: *itest_configuration
+  services:
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rpsl
 
 
 whois-scheduler-itest:
-  <<: *itest_commands
+  <<: *itest_configuration
+  services:
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
 
 
 whois-update-itest:
-  <<: *itest_commands
+  <<: *itest_configuration
+  services:
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-update
 
@@ -155,8 +182,7 @@ sonar:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-  services:
-    - mariadb:10.2
+  services: *mariadb_configuration
   stage: code_quality
   only:
     - schedules
