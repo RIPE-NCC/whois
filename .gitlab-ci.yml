@@ -71,11 +71,8 @@ release:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
-<<<<<<< Updated upstream
-.itest_template: &itest_commands
-=======
+
 .itest_template: &itest_configuration
->>>>>>> Stashed changes
   <<: *it_env
   tags:
     - whois
