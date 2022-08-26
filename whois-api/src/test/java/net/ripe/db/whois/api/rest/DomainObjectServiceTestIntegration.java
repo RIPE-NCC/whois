@@ -127,7 +127,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             RestTest.target(getPort(), "whois/domain-objects/TEST")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
-                    .post(Entity.entity(mapRpslObjects(new RpslObject[]{domain}), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
@@ -159,7 +159,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             RestTest.target(getPort(), "whois/domain-objects/TEST")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
-                    .post(Entity.entity(mapRpslObjects(new RpslObject[]{domain}), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
@@ -197,7 +197,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             RestTest.target(getPort(), "whois/domain-objects/TEST")
                     .request()
                     .cookie("crowd.token_key", "valid-token")
-                    .post(Entity.entity(mapRpslObjects(new RpslObject[]{domain}), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
@@ -231,6 +231,152 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
         }
     }
 
+    @Test
+    public void create_domain_object_no_ripe_nserver() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.0.0/16\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns1.example.com\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(1));
+    }
+    @Test
+    public void create_domain_object_ripe_nserver_with_correct_prefix_ipv4() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.0.0/16\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns.ripe.net\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test
+    public void create_domain_object_ripe_nserver_with_bad_prefix_ipv4() {
+
+        databaseHelper.addObject("" +
+                "inetnum:      33.33.33.0/24\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
+                "source:        TEST");
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        33.33.33.in-addr.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       NS.RIPE.NET\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(response, 1);
+            RestTest.assertErrorMessage(response, 0, "Error", "Prefix length must be /16 for IPv4 or /32 for IPv6 if ns.ripe.net is used as " +
+                            "a nameserver.");
+        }
+    }
+
+    @Test
+    public void create_domain_object_ripe_nserver_with_correct_prefix_ipv6() {
+        databaseHelper.addObject("" +
+                "inet6num:      1a00:fb81::/32\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
+                "source:        TEST");
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        1.8.b.f.0.0.a.1.ip6.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns.ripe.net\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(1));
+    }
+    @Test
+    public void create_domain_object_ripe_nserver_with_bad_prefix_ipv6() {
+        databaseHelper.addObject("" +
+                "inet6num:      1a00:fb8::/23\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "mnt-domains:   TEST2-MNT\n" +
+                "source:        TEST");
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:        e.0.0.0.a.1.ip6.arpa\n" +
+                "admin-c:       JAAP-TEST\n" +
+                "tech-c:        JAAP-TEST\n" +
+                "zone-c:        JAAP-TEST\n" +
+                "nserver:       ns.ripe.net\n" +
+                "nserver:       ns2.example.com\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/domain-objects/TEST")
+                    .request()
+                    .cookie("crowd.token_key", "valid-token")
+                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(response, 1);
+            RestTest.assertErrorMessage(response, 0, "Error", "Prefix length must be /16 for IPv4 or /32 for IPv6 if ns.ripe.net is used as " +
+                    "a nameserver.");
+        }
+    }
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }

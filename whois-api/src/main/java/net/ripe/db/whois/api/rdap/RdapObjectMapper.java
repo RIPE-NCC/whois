@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rdap;
 
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -13,6 +15,7 @@ import net.ripe.db.whois.api.rdap.domain.Domain;
 import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rdap.domain.Event;
 import net.ripe.db.whois.api.rdap.domain.Ip;
+import net.ripe.db.whois.api.rdap.domain.IpCidr0;
 import net.ripe.db.whois.api.rdap.domain.Link;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
@@ -180,6 +183,7 @@ class RdapObjectMapper {
             case INETNUM:
             case INET6NUM:
                 rdapResponse = createIp(rpslObject);
+                rdapResponse.getRdapConformance().add("cidr0");
                 break;
             case PERSON:
             case ROLE:
@@ -240,9 +244,27 @@ class RdapObjectMapper {
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
 
+        ip.setCidr0_cidrs(getIpCidr0Notation(toIpRange(ipInterval)));
         ip.getEntitySearchResults().addAll(createContactEntities(rpslObject));
 
         return ip;
+    }
+
+    private List<IpCidr0> getIpCidr0Notation(final AbstractIpRange ipRange) {
+       return Lists.newArrayList(
+               Iterables.transform(ipRange.splitToPrefixes(), (Function<AbstractIpRange, IpCidr0>) ipv6s -> {
+                   final String[] cidrNotation = ipv6s.toStringInCidrNotation().split("/");
+
+                   final IpCidr0 ipCidr0 = new IpCidr0();
+                   ipCidr0.setLength(Integer.parseInt(cidrNotation[1]));
+
+                   if(ipv6s instanceof Ipv4Range) {
+                       ipCidr0.setV4prefix(cidrNotation[0]);
+                   } else {
+                       ipCidr0.setV6prefix(cidrNotation[0]);
+                   }
+                   return ipCidr0;
+               }));
     }
 
     private static AbstractIpRange toIpRange(IpInterval interval) {
