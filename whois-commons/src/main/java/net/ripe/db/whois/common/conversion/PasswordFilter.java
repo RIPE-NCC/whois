@@ -15,8 +15,13 @@ public class PasswordFilter {
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings();
     private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
 
+    private static final String PASSWORD_LOWER_STRING = "password";
+    private static final String OVERRIDE_LOWER_STRING = "override";
+
     //from logsearch tweaked
     private static final Pattern PASSWORD_PATTERN_FOR_CONTENT = Pattern.compile("(?im)^(override|password)(:|%3A)\\s*(.+)\\s*$");
+    private static final Pattern URI_PASSWORD_PATTERN_PASSWORD_FOR_URL = Pattern.compile("(?<=)(password|override)(:|=|%3A)([^&]*)", Pattern.CASE_INSENSITIVE);
+
     public static String filterPasswordsInContents(final String contents) {
         String result = contents;
         if (contents != null) {
@@ -26,15 +31,16 @@ public class PasswordFilter {
         return result;
     }
 
-    private static final Pattern URI_PASSWORD_PATTERN_PASSWORD_FOR_URL = Pattern.compile("(?<=)(password|override)(:|=|%3A)([^&]*)", Pattern.CASE_INSENSITIVE);
-
     public static String filterPasswordsInUrl(final String url) {
-        String result = url;
-        if (url != null) {
-            final Matcher matcher = URI_PASSWORD_PATTERN_PASSWORD_FOR_URL.matcher(url);
-            result = replacePassword(matcher);
+        if (url == null) {
+            return null;
         }
-        return result;
+        final String lurl = url.toLowerCase();
+        if (!lurl.contains(PASSWORD_LOWER_STRING) && !lurl.contains(OVERRIDE_LOWER_STRING)) {
+            return url;
+        }
+        final Matcher matcher = URI_PASSWORD_PATTERN_PASSWORD_FOR_URL.matcher(url);
+        return replacePassword(matcher);
     }
 
     public static String removePasswordsInUrl(final String url) {
@@ -42,10 +48,9 @@ public class PasswordFilter {
         String separator = "";
         for (String next : AMPERSAND_SPLITTER.split(url)) {
             final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
-            if (iterator.hasNext() && iterator.next().equalsIgnoreCase("password")) {
+            if (iterator.hasNext() && iterator.next().equalsIgnoreCase(PASSWORD_LOWER_STRING)) {
                 continue;
             }
-
             builder.append(separator).append(next);
             separator = "&";
         }
@@ -57,9 +62,9 @@ public class PasswordFilter {
         final StringBuilder result = new StringBuilder();
         while (matcher.find()) {
             final String match = matcher.group(1).toLowerCase();
-            if (match.endsWith("password")) {
+            if (match.endsWith(PASSWORD_LOWER_STRING)) {
                 matcher.appendReplacement(result, matcher.group(1) + matcher.group(2) + "FILTERED");
-            } else if (match.endsWith("override")) {
+            } else if (match.endsWith(OVERRIDE_LOWER_STRING)) {
                 // try comma
                 List<String> override = COMMA_SPLITTER.splitToList(matcher.group(3));
                 if (override.size() <= 1) {
