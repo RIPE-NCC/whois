@@ -63,6 +63,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
     @AfterEach
     public void tearDown() throws IOException {
+        removeLog4jAppender();
         clearRequestLog();
     }
     
@@ -196,6 +197,13 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .createLogger(false, Level.TRACE, RequestLog.class.getName(), "true", refs, null, config, null);
         loggerConfig.addAppender(appender, null, null);
         config.addLogger(RequestLog.class.getName(), loggerConfig);
+        ctx.updateLoggers();
+    }
+
+    private void removeLog4jAppender() {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(true);
+        Configuration config = ctx.getConfiguration();
+        config.getRootLogger().removeAppender("requestLogAppender");
         ctx.updateLoggers();
     }
 
