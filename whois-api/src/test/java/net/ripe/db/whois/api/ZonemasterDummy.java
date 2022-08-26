@@ -39,7 +39,7 @@ public class ZonemasterDummy implements Stub {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDummy.class);
 
-    private static final Map<String, List<String>> RESPONSES = Maps.newHashMap();
+    private  final Map<String, List<String>> responses = Maps.newHashMap();
 
     private Server server;
     private int port = 0;
@@ -51,7 +51,7 @@ public class ZonemasterDummy implements Stub {
         this.zonemasterClient = zonemasterClient;
     }
 
-    private static class ZonemasterHandler extends AbstractHandler {
+    private class ZonemasterHandler extends AbstractHandler {
 
         @Override
         public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
@@ -59,7 +59,7 @@ public class ZonemasterDummy implements Stub {
             Map<String, Object> map = OBJECT_MAPPER.readValue(requestBody, Map.class);
 
 
-            for (Map.Entry<String, List<String>> entry : RESPONSES.entrySet()) {
+            for (Map.Entry<String, List<String>> entry : responses.entrySet()) {
                 if (ZonemasterRequest.Method.START_DOMAIN_TEST.getMethod().equals(map.get("method"))){
                     Map<String, String> parameters = OBJECT_MAPPER.convertValue(map.get("params"), Map.class);
                     if(entry.getKey().equals(parameters.get("domain"))){
@@ -123,11 +123,11 @@ public class ZonemasterDummy implements Stub {
     }
 
     public void whenThen(final String when, final String then) {
-        final List<String> values = RESPONSES.get(when);
+        final List<String> values = responses.get(when);
         if (values != null) {
             values.add(then);
         } else {
-            RESPONSES.put(when, Lists.newArrayList(then));
+            responses.put(when, Lists.newArrayList(then));
         }
     }
 
@@ -142,6 +142,6 @@ public class ZonemasterDummy implements Stub {
 
     @Override
     public void reset() {
-
+        responses.clear();
     }
 }
