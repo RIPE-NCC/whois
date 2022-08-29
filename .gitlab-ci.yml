@@ -72,7 +72,7 @@ release:
     paths:
       - "*/target/*.jar"
 
-.mariadb_service: &mariadb_configuration
+.mariadb_template: &mariadb_configuration
   variables:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
@@ -82,7 +82,7 @@ release:
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
-  services:
+  services: &mariadb_service
     - mariadb:10.2
 
 
@@ -99,6 +99,7 @@ whois-api:
     - *it_env
     - *mariadb_configuration
   services:
+    - *mariadb_service
     - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
       alias: "elasticsearch"
       command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
