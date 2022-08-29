@@ -43,7 +43,6 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
         if (domain.getType() != INADDR) {
             return;
         }
-
         validateIntersections(update, updateContext, (Ipv4Resource)domain.getReverseIp());
     }
 
@@ -74,4 +73,5 @@ public class DomainIntersectionValidator implements BusinessRuleValidator {
     public ImmutableList<ObjectType> getTypes() {
         return TYPES;
     }
+
 }

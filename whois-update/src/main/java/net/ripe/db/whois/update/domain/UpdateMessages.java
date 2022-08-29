@@ -690,4 +690,9 @@ public final class UpdateMessages {
     public static Message eitherGeofeedOrRemarksIsAllowed() {
         return new Message(Type.ERROR, "Only one between the \"geofeed:\" and \"remark: geofeed:\" attributes is allowed.");
     }
+
+    public static Message incorrectPrefixForRipeNsServer() {
+        return new Message(Type.ERROR, "Prefix length must be /16 for IPv4 or /32 for IPv6 if ns.ripe.net is used as " +
+                "a nameserver.");
+    }
 }
