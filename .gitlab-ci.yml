@@ -59,9 +59,6 @@ release:
   tags:
     - whois
   stage: integration-test
-  variables:
-    MYSQL_ROOT_PASSWORD: root
-    TZ: Europe/Amsterdam
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: always
@@ -76,6 +73,9 @@ release:
       - "*/target/*.jar"
 
 .mariadb_service: &mariadb_configuration
+  variables:
+    MYSQL_ROOT_PASSWORD: root
+    TZ: Europe/Amsterdam
   before_script:
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
@@ -171,8 +171,6 @@ whois-update:
 sonar:
   <<: *mariadb_configuration
   variables:
-    MYSQL_ROOT_PASSWORD: root
-    TZ: Europe/Amsterdam
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   stage: code_quality
