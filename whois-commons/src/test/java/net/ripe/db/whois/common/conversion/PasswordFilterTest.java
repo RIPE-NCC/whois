@@ -74,18 +74,18 @@ public class PasswordFilterTest {
     }
 
     @Test
-    public void testFilterOverrideAndPasswordsInMessage() {
+    public void testFilterMixedCaseOverrideAndPasswordsInMessage() {
         final String input = "" +
                 "red: adsfasdf\n" +
                 "purple: override\n" +
-                "override:user,pass\n" +
-                "password:test\n";
+                "oveRride:user,pass\n" +
+                "pasSword:test\n";
 
         assertThat(PasswordFilter.filterPasswordsInContents(input), containsString("" +
                 "red: adsfasdf\n" +
                 "purple: override\n" +
-                "override:user,FILTERED\n" +
-                "password:FILTERED")); // eol stripped
+                "oveRride:user,FILTERED\n" +
+                "pasSword:FILTERED")); // eol stripped
      }
 
 
@@ -149,6 +149,9 @@ public class PasswordFilterTest {
 
         assertThat( PasswordFilter.filterPasswordsInUrl("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0Aoverride:+admin,teamred,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"),
                 is("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0Aoverride:+admin,FILTERED,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"));
+
+        assertThat( PasswordFilter.filterPasswordsInUrl("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0AovErrIde:+admin,teamred,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"),
+                is("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0AovErrIde:+admin,FILTERED,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"));
     }
 
     @Test
