@@ -252,9 +252,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
     }
 
     private void clearRequestLog() throws IOException {
-        var fw = new FileWriter(getRequestLog());
-        fw.write("");
-        fw.close();
+        new FileWriter(getRequestLog()).close();
     }
 
     private String fileToString(final File logFile) throws IOException {
