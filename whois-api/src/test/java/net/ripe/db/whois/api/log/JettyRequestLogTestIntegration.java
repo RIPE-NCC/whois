@@ -183,6 +183,18 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         assertThat(actual, not(containsString("pass1")));
     }
 
+    @Test
+    public void override_filtered_case_insensitive() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?oVeRrIdE=overrideUser,overPASS1")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLog());
+        assertThat(actual.toLowerCase(), containsString("override=overrideUser,FILTERED".toLowerCase()));
+        assertThat(actual, not(containsString("overPASS1")));
+    }
+
     // helper methods
 
     private static void cleanupRequestLogDirectory() throws IOException {
