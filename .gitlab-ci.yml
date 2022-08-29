@@ -55,7 +55,7 @@ release:
   extends: .release_template
 
 
-.itest_template: &itest_configuration
+.it_template: &it_env
   tags:
     - whois
   stage: integration-test
@@ -85,87 +85,84 @@ release:
   services:
     - mariadb:10.2
 
-.elastic_service:
-  services: &elastic_configuration
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
-      alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
-whois-groovy-test:
+whois-groovy:
   <<:
-    - *itest_configuration
+    - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-endtoend
 
 
-whois-api-itest:
+whois-api:
   <<:
-    - *itest_configuration
+    - *it_env
     - *mariadb_configuration
   services:
-    - *elastic_configuration
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
 
-whois-client-itest:
+whois-client:
   <<:
-    - *itest_configuration
+    - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-client
 
 
-whois-commons-itest:
+whois-commons:
   <<:
-    - *itest_configuration
+    - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-commons -T 1
 
 
-whois-db-itest:
+whois-db:
   <<:
-    - *itest_configuration
+    - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-db
 
-whois-nrtm-itest:
+whois-nrtm:
   <<:
-    - *itest_configuration
+    - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
 
 
-whois-query-itest:
+whois-query:
   <<:
-    - *itest_configuration
+    - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-query -T 1
 
 
-whois-rpsl-itest:
+whois-rpsl:
   <<:
-    - *itest_configuration
+    - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rpsl
 
 
-whois-scheduler-itest:
+whois-scheduler:
   <<:
-    - *itest_configuration
+    - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
 
 
-whois-update-itest:
+whois-update:
   <<:
-    - *itest_configuration
+    - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-update
