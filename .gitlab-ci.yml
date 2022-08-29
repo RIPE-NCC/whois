@@ -75,14 +75,14 @@ release:
     paths:
       - "*/target/*.jar"
 
-.mariadb_service:
+.mariadb_service: &mariadb_configuration
   before_script:
     - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
     - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
-  services: &mariadb_configuration
+  services:
     - mariadb:10.2
 
 .elastic_service:
@@ -93,78 +93,70 @@ release:
 
 whois-groovy-test:
   <<: *itest_configuration
-  services: *mariadb_configuration
+  <<: *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-endtoend
 
 
 whois-api-itest:
   <<: *itest_configuration
+  <<: *mariadb_configuration
   services:
-    - *mariadb_configuration
     - *elastic_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
 
 whois-client-itest:
   <<: *itest_configuration
-  services:
-    - *mariadb_configuration
+  <<: *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-client
 
 
 whois-commons-itest:
   <<: *itest_configuration
-  services:
-    - *mariadb_configuration
+  <<: *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-commons -T 1
 
 
 whois-db-itest:
   <<: *itest_configuration
-  services:
-    - *mariadb_configuration
+  <<: *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-db
 
 whois-nrtm-itest:
   <<: *itest_configuration
-  services:
-    - *mariadb_configuration
+  <<: *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
 
 
 whois-query-itest:
   <<: *itest_configuration
-  services:
-    - *mariadb_configuration
+  <<: *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-query -T 1
 
 
 whois-rpsl-itest:
   <<: *itest_configuration
-  services:
-    - *mariadb_configuration
+  <<: *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rpsl
 
 
 whois-scheduler-itest:
   <<: *itest_configuration
-  services:
-    - *mariadb_configuration
+  <<: *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
 
 
 whois-update-itest:
   <<: *itest_configuration
-  services:
-    - *mariadb_configuration
+  <<: *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-update
 
@@ -191,6 +183,7 @@ sonar:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
+
 deploy_dev:
   stage: deploy
   only:
