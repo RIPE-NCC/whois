@@ -180,7 +180,7 @@ public class JettyBootstrap implements ApplicationService {
         server.setRequestLog(createRequestLog());
 
         final HttpConfiguration httpConfig = new HttpConfiguration();
-        httpConfig.setIdleTimeout(idleTimeout * 1000);
+        httpConfig.setIdleTimeout(idleTimeout * 1000L);
         httpConfig.addCustomizer( new RemoteAddressCustomizer() );
 
         final HttpConnectionFactory connectionFactory = new HttpConnectionFactory( httpConfig );
@@ -189,7 +189,7 @@ public class JettyBootstrap implements ApplicationService {
         //the port in the Server constructor is overridden by the new connector
         connector.setPort(port);
         LOGGER.info("setting idle connection timeout at connector level to {}", idleTimeout);
-        connector.setIdleTimeout(idleTimeout * 1000);
+        connector.setIdleTimeout(idleTimeout * 1000L);
 
         server.setConnectors( new ServerConnector[] { connector } );
 
@@ -221,6 +221,6 @@ public class JettyBootstrap implements ApplicationService {
 
     // Log requests to org.eclipse.jetty.server.RequestLog
     private RequestLog createRequestLog() {
-        return new CustomRequestLog(new FilteredPasswordSlf4jRequestLogWriter(), EXTENDED_RIPE_LOG_FORMAT);
+        return new CustomRequestLog(new FilteredSlf4RequestLogWriter(), EXTENDED_RIPE_LOG_FORMAT);
     }
 }

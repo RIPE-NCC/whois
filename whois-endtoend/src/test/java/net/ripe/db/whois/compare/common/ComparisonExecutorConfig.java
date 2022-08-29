@@ -5,8 +5,8 @@ import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 public class ComparisonExecutorConfig extends QueryExecutorConfiguration {
     public enum ResponseFormat {COMPACT, DEFAULT}
 
-    public static ComparisonExecutorConfig PRE1 = new ComparisonExecutorConfig("hereford.prepdev.ripe.net", 1043, 1044, 1080, 1081, ResponseFormat.DEFAULT);
-    public static ComparisonExecutorConfig PRE2 = new ComparisonExecutorConfig("wagyu.prepdev.ripe.net", 1043, 1044, 1080, 1081, ResponseFormat.DEFAULT);
+    public static ComparisonExecutorConfig PRE1 = new ComparisonExecutorConfig("sussex.prepdev.ripe.net", 1043, 1044, 1080, 1081, ResponseFormat.DEFAULT);
+    public static ComparisonExecutorConfig PRE2 = new ComparisonExecutorConfig("texon.prepdev.ripe.net", 1043, 1044, 1080, 1081, ResponseFormat.DEFAULT);
 
     final int ripePort;
     final int testPort;

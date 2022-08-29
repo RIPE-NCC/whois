@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 
@@ -61,8 +62,9 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws IOException {
         removeLog4jAppender();
+        clearRequestLog();
     }
     
     @AfterAll
@@ -79,7 +81,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         // request log (default format)
         // 127.0.0.1 - - [27/Sep/2019:13:18:39 +0200] "GET /whois/test/person/TP1-TEST HTTP/1.1" 200 1002 "-" "Jersey/2.12 (HttpUrlConnection 1.8.0_161)" 182
 
-        assertThat(fileToString(getRequestLogFilename()), containsString("\"GET /whois/test/person/TP1-TEST HTTP/1.1\" 200"));
+        assertThat(fileToString(getRequestLog()), containsString("\"GET /whois/test/person/TP1-TEST HTTP/1.1\" 200"));
     }
 
     @Test
@@ -89,7 +91,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
                 .get(WhoisResources.class);
 
-        final String requestLongContent = fileToString(getRequestLogFilename());
+        final String requestLongContent = fileToString(getRequestLog());
         assertThat(requestLongContent, containsString("10.20.30.40"));
     }
 
@@ -101,8 +103,32 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
 
-        String actual = fileToString(getRequestLogFilename());
+        String actual = fileToString(getRequestLog());
         assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED"));
+        assertThat(actual, not(containsString("some-api_key-123")));
+    }
+
+    @Test
+    public void password_and_override_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=some-api_key-123&override=SOME-USER,some-users-password,reason")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLog());
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&override=SOME-USER,FILTERED,reason"));
+        assertThat(actual, not(containsString("some-api_key-123")));
+    }
+
+    @Test
+    public void password_and_encoded_override_filtered() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=some-api_key-123&override=SOME-USER%2Csome-users-password%2Creason")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLog());
+        assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&override=SOME-USER,FILTERED,reason"));
         assertThat(actual, not(containsString("some-api_key-123")));
     }
 
@@ -113,7 +139,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
 
-        String actual = fileToString(getRequestLogFilename());
+        String actual = fileToString(getRequestLog());
         assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&password=FILTERED"));
         assertThat(actual, not(containsString("pass1")));
         assertThat(actual, not(containsString("pass2")));
@@ -126,7 +152,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
 
-        String actual = fileToString(getRequestLogFilename());
+        String actual = fileToString(getRequestLog());
         assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?password=FILTERED&key=value"));
         assertThat(actual, containsString("key=value"));
         assertThat(actual, not(containsString("pass1")));
@@ -139,7 +165,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
 
-        String actual = fileToString(getRequestLogFilename());
+        String actual = fileToString(getRequestLog());
         assertThat(actual, containsString("GET /whois/test/person/TP1-TEST?key=value&password=FILTERED"));
         assertThat(actual, containsString("key=value"));
         assertThat(actual, not(containsString("pass1")));
@@ -152,9 +178,21 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
                 .get(WhoisResources.class);
 
 
-        String actual = fileToString(getRequestLogFilename());
-        assertThat(actual.toLowerCase(), containsString("password=FILTERED".toLowerCase()));
+        String actual = fileToString(getRequestLog());
+        assertThat(actual, containsString("PassWord=FILTERED"));
         assertThat(actual, not(containsString("pass1")));
+    }
+
+    @Test
+    public void override_filtered_case_insensitive() throws Exception {
+        RestTest.target(getPort(), "whois/test/person/TP1-TEST?oVeRrIdE=overrideUser,overPASS1")
+                .request()
+                .get(WhoisResources.class);
+
+
+        String actual = fileToString(getRequestLog());
+        assertThat(actual, containsString("oVeRrIdE=overrideUser,FILTERED"));
+        assertThat(actual, not(containsString("overPASS1")));
     }
 
     // helper methods
@@ -209,7 +247,15 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         return String.format("%s/%s", requestLogDirectory, "request.log");
     }
 
-    private String fileToString(final String filename) throws IOException {
-        return new String(Files.readAllBytes(new File(filename).toPath()));
+    private File getRequestLog() {
+        return new File(getRequestLogFilename());
+    }
+
+    private void clearRequestLog() throws IOException {
+        new FileWriter(getRequestLog()).close();
+    }
+
+    private String fileToString(final File logFile) throws IOException {
+        return new String(Files.readAllBytes(logFile.toPath()));
     }
 }
