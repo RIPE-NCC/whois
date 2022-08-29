@@ -54,39 +54,34 @@ release:
     - mvn -DskipTests -DskipITs -Prelease deploy
   extends: .release_template
 
-.it_template: &it_env
-  variables:
-    MYSQL_ROOT_PASSWORD: root
-    TZ: Europe/Amsterdam
-  stage: integration-test
-  before_script:
-    - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
-    - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
-  artifacts:
-    reports:
-      junit:
-        - "*/target/surefire-reports/TEST-*.xml"
-        - "*/target/failsafe-reports/TEST-*.xml"
-
 
 .itest_template: &itest_configuration
-  <<: *it_env
   tags:
     - whois
   stage: integration-test
+  variables:
+    MYSQL_ROOT_PASSWORD: root
+    TZ: Europe/Amsterdam
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: always
     - when: manual
       allow_failure: true
   artifacts:
+    reports:
+      junit:
+        - "*/target/surefire-reports/TEST-*.xml"
+        - "*/target/failsafe-reports/TEST-*.xml"
     paths:
       - "*/target/*.jar"
 
 .mariadb_service:
+  before_script:
+    - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
+    - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
+    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
+    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
+    - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
   services: &mariadb_configuration
     - mariadb:10.2
 
@@ -175,8 +170,9 @@ whois-update-itest:
 
 
 sonar:
-  <<: *it_env
   variables:
+    MYSQL_ROOT_PASSWORD: root
+    TZ: Europe/Amsterdam
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   services: *mariadb_configuration
@@ -190,7 +186,11 @@ sonar:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -fn # ignore failing (non deterministic) tests, we want QA output regardless
     - echo PWD=$PWD
     - mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectName=whois -Dsonar.coverage.jacoco.xmlReportPaths=$PWD/whois-api/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-client/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-commons/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-db/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-query/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-rpsl/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-scheduler/target/site/jacoco-merged-test-coverage-report/jacoco.xml -Dsonar.test.exclusions=**/test/*
-
+  artifacts:
+    reports:
+      junit:
+        - "*/target/surefire-reports/TEST-*.xml"
+        - "*/target/failsafe-reports/TEST-*.xml"
 deploy_dev:
   stage: deploy
   only:
