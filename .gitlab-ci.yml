@@ -92,82 +92,92 @@ release:
       command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
 whois-groovy-test:
-  <<: *itest_configuration
-  <<: *mariadb_configuration
+  <<:
+    - *itest_configuration
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-endtoend
 
 
 whois-api-itest:
-  <<: *itest_configuration
-  <<: *mariadb_configuration
+  <<:
+    - *itest_configuration
+    - *mariadb_configuration
   services:
     - *elastic_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
 
 whois-client-itest:
-  <<: *itest_configuration
-  <<: *mariadb_configuration
+  <<:
+    - *itest_configuration
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-client
 
 
 whois-commons-itest:
-  <<: *itest_configuration
-  <<: *mariadb_configuration
+  <<:
+    - *itest_configuration
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-commons -T 1
 
 
 whois-db-itest:
-  <<: *itest_configuration
-  <<: *mariadb_configuration
+  <<:
+    - *itest_configuration
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-db
 
 whois-nrtm-itest:
-  <<: *itest_configuration
-  <<: *mariadb_configuration
+  <<:
+    - *itest_configuration
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
 
 
 whois-query-itest:
-  <<: *itest_configuration
-  <<: *mariadb_configuration
+  <<:
+    - *itest_configuration
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-query -T 1
 
 
 whois-rpsl-itest:
-  <<: *itest_configuration
-  <<: *mariadb_configuration
+  <<:
+    - *itest_configuration
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rpsl
 
 
 whois-scheduler-itest:
-  <<: *itest_configuration
-  <<: *mariadb_configuration
+  <<:
+    - *itest_configuration
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
 
 
 whois-update-itest:
-  <<: *itest_configuration
-  <<: *mariadb_configuration
+  <<:
+    - *itest_configuration
+    - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-update
 
 
 sonar:
+  <<: *mariadb_configuration
   variables:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-  services: *mariadb_configuration
   stage: code_quality
   only:
     - schedules
