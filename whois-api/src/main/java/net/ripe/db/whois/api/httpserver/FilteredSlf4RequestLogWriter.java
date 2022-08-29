@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 
 
-public class FilteredPasswordSlf4jRequestLogWriter extends Slf4jRequestLogWriter {
+public class FilteredSlf4RequestLogWriter extends Slf4jRequestLogWriter {
 
     @Override
     public void write(@Nonnull final String requestEntry) throws IOException {

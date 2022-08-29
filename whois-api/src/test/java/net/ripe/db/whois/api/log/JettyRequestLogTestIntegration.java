@@ -179,7 +179,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
 
         String actual = fileToString(getRequestLog());
-        assertThat(actual.toLowerCase(), containsString("password=FILTERED".toLowerCase()));
+        assertThat(actual, containsString("PassWord=FILTERED"));
         assertThat(actual, not(containsString("pass1")));
     }
 
@@ -191,7 +191,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
 
         String actual = fileToString(getRequestLog());
-        assertThat(actual.toLowerCase(), containsString("override=overrideUser,FILTERED".toLowerCase()));
+        assertThat(actual, containsString("oVeRrIdE=overrideUser,FILTERED"));
         assertThat(actual, not(containsString("overPASS1")));
     }
 

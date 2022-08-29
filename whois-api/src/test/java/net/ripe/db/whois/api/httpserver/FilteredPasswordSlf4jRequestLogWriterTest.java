@@ -12,12 +12,12 @@ import static org.mockito.Mockito.verify;
 public class FilteredPasswordSlf4jRequestLogWriterTest {
 
     private Logger logger;
-    private FilteredPasswordSlf4jRequestLogWriter subject;
+    private FilteredSlf4RequestLogWriter subject;
 
     @Before
     public void setup() throws Exception {
         this.logger = mock(Logger.class);
-        this.subject = new FilteredPasswordSlf4jRequestLogWriter();
+        this.subject = new FilteredSlf4RequestLogWriter();
         FieldUtils.writeField(subject, "logger", logger, true);
     }
 
