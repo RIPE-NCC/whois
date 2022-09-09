@@ -1,0 +1,19 @@
+<ehcache>
+
+    <cache name="ssoValidateToken"
+           maxEntriesLocalHeap="10000"
+           eternal="false"
+           timeToLiveSeconds="300"/>
+
+    <cache name="ssoUuid"
+           maxEntriesLocalHeap="10000"
+           eternal="false"
+           timeToLiveSeconds="300"/>
+
+    <cache name="ssoUserDetails"
+           maxEntriesLocalHeap="10000"
+           eternal="false"
+           timeToLiveSeconds="300"/>
+
+
+</ehcache>
