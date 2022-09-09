@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
 @Component
-@EnableCaching
 public class WhoisServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisServer.class);
 
