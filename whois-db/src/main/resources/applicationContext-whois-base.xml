@@ -15,8 +15,6 @@
 
     <import resource="applicationContext-nrtm.xml"/>
 
-    <import resource="applicationContext-client.xml"/>
-
     <bean class="net.ripe.db.whois.scheduler.SchedulerConfig" />
 
 </beans>
