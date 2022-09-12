@@ -44,7 +44,6 @@ import static net.ripe.db.whois.query.QueryFlag.DIFF_VERSIONS;
 import static net.ripe.db.whois.query.QueryFlag.LIST_SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.LIST_SOURCES_OR_VERSION;
 import static net.ripe.db.whois.query.QueryFlag.LIST_VERSIONS;
-import static net.ripe.db.whois.query.QueryFlag.NO_GROUPING;
 import static net.ripe.db.whois.query.QueryFlag.PERSISTENT_CONNECTION;
 import static net.ripe.db.whois.query.QueryFlag.PRIMARY_KEYS;
 import static net.ripe.db.whois.query.QueryFlag.SELECT_TYPES;
@@ -64,7 +63,6 @@ public class WhoisSearchService {
             PERSISTENT_CONNECTION,
 
             // port43 filter flags that make no sense in xml/json
-            NO_GROUPING,
             BRIEF,
             ABUSE_CONTACT,
             PRIMARY_KEYS,

@@ -591,7 +591,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_flags_json() {
-        final String str = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
+        final String str = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCxG")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
         assertThat(str, containsString("" +
@@ -604,14 +604,16 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "      \"value\" : \"no-irt\"\n" +
                 "    }, {\n" +
                 "      \"value\" : \"exact\"\n" +
+                "    }, {\n" +
+                "      \"value\" : \"no-grouping\"\n" +
                 "    } ]\n" +
                 "  },"));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCxG")
                 .request(MediaType.APPLICATION_JSON)
                 .get(WhoisResources.class);
 
-        assertThat(whoisResources.getParameters().getFlags().getFlags(), hasSize(4));
+        assertThat(whoisResources.getParameters().getFlags().getFlags(), hasSize(5));
     }
 
     @Test
