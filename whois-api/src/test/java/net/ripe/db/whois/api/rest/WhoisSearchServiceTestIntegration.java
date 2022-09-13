@@ -2046,7 +2046,90 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             // ensure no stack trace in response
             assertThat(e.getResponse().readEntity(String.class), not(containsString("Caused by:")));
         }
+    }
 
+    @Test
+    public void search_inetnum_without_grouping_flag() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   FIRST-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        databaseHelper.addObject(
+                "inetnum:   10.1.0.0 - 10.1.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   SECOND-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.255.255.255&flags=M")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(6));
+        assertThat(response.getWhoisObjects().get(0).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(response.getWhoisObjects().get(1).getType(), is("organisation"));
+        assertThat(response.getWhoisObjects().get(1).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(2).getType(), is("person"));
+        assertThat(response.getWhoisObjects().get(2).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.getWhoisObjects().get(3).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(3).getPrimaryKey().get(0).getValue(), is("10.1.0.0 - 10.1.0.255"));
+        assertThat(response.getWhoisObjects().get(4).getType(), is("organisation"));
+        assertThat(response.getWhoisObjects().get(4).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(5).getType(), is("person"));
+        assertThat(response.getWhoisObjects().get(5).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+    }
+
+    @Test
+    public void search_inetnum_with_grouping_flag() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   FIRST-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        databaseHelper.addObject(
+                "inetnum:   10.1.0.0 - 10.1.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   SECOND-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.255.255.255&flags=MG")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(4));
+        assertThat(response.getWhoisObjects().get(0).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(response.getWhoisObjects().get(1).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(1).getPrimaryKey().get(0).getValue(), is("10.1.0.0 - 10.1.0.255"));
+        assertThat(response.getWhoisObjects().get(2).getType(), is("organisation"));
+        assertThat(response.getWhoisObjects().get(2).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(3).getType(), is("person"));
+        assertThat(response.getWhoisObjects().get(3).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     // helper methods
