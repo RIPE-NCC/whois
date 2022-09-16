@@ -2,22 +2,25 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:cache="http://www.springframework.org/schema/cache"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/tx
                            http://www.springframework.org/schema/tx/spring-tx.xsd
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd
-                           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+                           http://www.springframework.org/schema/cache
+                           http://www.springframework.org/schema/cache/spring-cache.xsd">
 
     <!-- TODO: this is loaded many many times on context init, which slows down startup process -->
     <!-- @Transactional CAN be used on private methods with mode="aspectj". However, annotations on interfaces will NOT work! -->
     <tx:annotation-driven mode="aspectj"/>
 
     <context:spring-configured/>
-
     <context:component-scan base-package="net.ripe.db.whois.common"/>
+
+    <context:annotation-config/>
+    <cache:annotation-driven/>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="sourceAwareDataSource"/>
@@ -69,6 +72,14 @@
         <property name="jdbcUrl" value="${whois.db.slave.url}"/>
         <property name="user" value="${whois.db.slave.username}"/>
         <property name="password" value="${whois.db.slave.password}"/>
+    </bean>
+
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" ref="ehcacheManager"/>
+    </bean>
+    <bean id="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:/ehcache.xml"/>
+        <property name="shared" value="true"/>
     </bean>
 
 </beans>
