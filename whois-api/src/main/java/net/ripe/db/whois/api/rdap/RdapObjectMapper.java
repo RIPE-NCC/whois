@@ -395,7 +395,7 @@ class RdapObjectMapper {
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
 
-        final Long asNumber = Long.parseLong(StringUtils.substringAfter(rpslObject.getKey().toString(), "AS"));
+        final Long asNumber = Long.parseLong(StringUtils.substringAfter(rpslObject.getKey().toUpperCase(), "AS"));
         autnum.setStartAutnum(asNumber);
         autnum.setEndAutnum(asNumber);
 
