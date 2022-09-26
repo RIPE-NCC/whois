@@ -911,10 +911,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Autnum.class);
 
         assertThat(autnum.getHandle(), equalTo("AS102"));
-        assertThat(autnum.getStartAutnum(), is(nullValue()));
-        assertThat(autnum.getEndAutnum(), is(nullValue()));
+        assertThat(autnum.getStartAutnum(), is(102L));
+        assertThat(autnum.getEndAutnum(), is(102L));
         assertThat(autnum.getName(), equalTo("AS-TEST"));
-        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
         assertThat(autnum.getObjectClassName(), is("autnum"));
 
         final List<Event> events = autnum.getEvents();
@@ -953,7 +952,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(autnum.getStartAutnum(), equalTo(100L));
         assertThat(autnum.getEndAutnum(), equalTo(200L));
         assertThat(autnum.getName(), equalTo("AS100-AS200"));
-        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
         assertThat(autnum.getObjectClassName(), is("autnum"));
 
         assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("ORG-TEST1-TEST"));
@@ -977,7 +975,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(autnum.getStartAutnum(), equalTo(0L));
         assertThat(autnum.getEndAutnum(), equalTo(6L));
         assertThat(autnum.getName(), equalTo("AS0-AS6"));
-        assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
         assertThat(autnum.getObjectClassName(), is("autnum"));
 
         assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("ORG-TEST1-TEST"));
@@ -1994,3 +1991,5 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
 }
+
+
