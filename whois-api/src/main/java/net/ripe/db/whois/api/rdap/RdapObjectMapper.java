@@ -44,6 +44,7 @@ import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.planner.AbuseContact;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -393,7 +394,11 @@ class RdapObjectMapper {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
-        autnum.setType(DIRECT_ALLOCATION);
+
+        final Long asNumber = Long.parseLong(StringUtils.substringAfter(rpslObject.getKey().toUpperCase(), "AS"));
+        autnum.setStartAutnum(asNumber);
+        autnum.setEndAutnum(asNumber);
+
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         return autnum;
     }
@@ -410,7 +415,6 @@ class RdapObjectMapper {
         autnum.setName(asName);
         autnum.setStartAutnum(blockRange.getBegin());
         autnum.setEndAutnum(blockRange.getEnd());
-        autnum.setType(DIRECT_ALLOCATION);
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         return autnum;
     }

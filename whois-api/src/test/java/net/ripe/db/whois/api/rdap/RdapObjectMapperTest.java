@@ -187,10 +187,9 @@ public class RdapObjectMapperTest {
                 "source:         TEST\n")));
 
         assertThat(result.getHandle(), is("AS102"));
-        assertThat(result.getStartAutnum(), is(nullValue()));
-        assertThat(result.getEndAutnum(), is(nullValue()));
+        assertThat(result.getStartAutnum(), is(102L));
+        assertThat(result.getEndAutnum(), is(102L));
         assertThat(result.getName(), is("End-User-2"));
-        assertThat(result.getType(), is("DIRECT ALLOCATION"));
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getCountry(), is(nullValue()));
 
@@ -244,7 +243,6 @@ public class RdapObjectMapperTest {
         assertThat(result.getStartAutnum(), is(100L));
         assertThat(result.getEndAutnum(), is(200L));
         assertThat(result.getName(), is("AS100-AS200"));
-        assertThat(result.getType(), is("DIRECT ALLOCATION"));
         assertThat(result.getStatus(), is(emptyIterable()));
         assertThat(result.getCountry(), is(nullValue()));
 
