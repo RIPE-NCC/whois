@@ -80,6 +80,24 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
         response.contains("Poetic-form must only be maintained by 'RIPE-DBM-MNT'")
     }
 
+    def "add poetic form incorrect mntner"() {
+        given:
+        def update = new SyncUpdate(data: """\
+            poetic-form:     FORM-SONNET-INDONESIAN
+            admin-c:         TEST-RIPE
+            mnt-by:          UPD-MNT
+            source:          TEST
+            password:        update2
+            """.stripIndent())
+
+        when:
+        def response = syncUpdate update
+
+        then:
+        response.contains("Create FAILED: [poetic-form] FORM-SONNET-INDONESIAN")
+        response.contains("Poetic-form must only be maintained by 'RIPE-DBM-MNT'")
+    }
+
     def "add poetic form multiple mntners"() {
         given:
         def update = new SyncUpdate(data: """\
@@ -96,7 +114,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         response.contains("Create FAILED: [poetic-form] FORM-SONNET-INDONESIAN")
-        response.contains("Poetic-form must only be maintained by 'RIPE-DBM-MNT'")
+        response.contains("Attribute \"mnt-by\" appears more than once")
     }
 
     def "modify poetic form"() {
