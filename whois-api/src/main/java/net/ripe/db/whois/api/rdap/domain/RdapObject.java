@@ -95,6 +95,10 @@ public class RdapObject implements Serializable {
         this.lang = value;
     }
 
+    public void setStatus(List<Object> status) {
+        this.status = status;
+    }
+
     public List<String> getRdapConformance() {
         if (rdapConformance == null) {
             rdapConformance = Lists.newArrayList();
