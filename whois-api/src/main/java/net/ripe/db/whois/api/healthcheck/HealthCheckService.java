@@ -22,17 +22,13 @@ public class HealthCheckService {
 
     @GET
     public Response check() {
-        boolean healthy = true;
         for (HealthCheck healthCheck : healthChecks) {
             if (!healthCheck.check()) {
-                healthy = false;
-                break;
+                return Response.status(Status.SERVICE_UNAVAILABLE).entity("DISABLED").build();
             }
         }
 
-        return healthy ?
-                Response.ok().entity("OK").build() :
-                Response.status(Status.SERVICE_UNAVAILABLE).entity("DISABLED").build();
+        return Response.ok().entity("OK").build();
     }
 
 
