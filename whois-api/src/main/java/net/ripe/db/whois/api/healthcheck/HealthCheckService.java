@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.healthcheck;
 
+import net.ripe.db.whois.common.HealthCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

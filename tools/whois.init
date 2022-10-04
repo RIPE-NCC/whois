@@ -68,7 +68,7 @@ function check_server() {
         my_log 'Waiting for the server to come up... (If you know what you are doing, hit ESC to skip waiting)'
         NUM=0
         key=""; escape=$'\x1b';
-        
+
         while ! server_up; do
         	print_status
 
@@ -89,10 +89,10 @@ function check_server() {
                         return
                 fi
         done
-	
+
 	my_log
         my_log "$SERVICE started successfully."
-        
+
         # record size of console log file
         LOGPOS=$(stat -c %s $LOG)
 }
@@ -117,7 +117,7 @@ case "$1" in
 		if [[ $PID ]]; then
 			kill $PID	# also kills sleep
 		fi
-		
+
 		# kill jvm
 		PID=$(pgrep -f "$COMMAND_REGEXP")
 		if [[ $PID ]]; then
@@ -169,11 +169,11 @@ case "$1" in
                 ;;
         disable)
           PID=$(pgrep -f "$COMMAND_REGEXP")
-          echo -e "bean net.ripe.db.whois:name=ReadinessUpdater && run up" | java -jar $JMXTERMPATH --url $PID
+          echo -e "bean net.ripe.db.whois:name=HealthCheck && run disable" | java -jar $JMXTERMPATH --url $PID
           ;;
         enable)
           PID=$(pgrep -f "$COMMAND_REGEXP")
-          echo -e "bean net.ripe.db.whois:name=ReadinessUpdater && run down" | java -jar $JMXTERMPATH --url $PID
+          echo -e "bean net.ripe.db.whois:name=HealthCheck && run enable" | java -jar $JMXTERMPATH --url $PID
           ;;
 	restart)
 		$0 stop

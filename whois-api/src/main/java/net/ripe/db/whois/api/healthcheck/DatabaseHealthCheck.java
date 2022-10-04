@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.healthcheck;
 
+import net.ripe.db.whois.common.HealthCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import javax.sql.DataSource;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
-public class DatabaseHealthCheck implements HealthCheck{
+public class DatabaseHealthCheck implements HealthCheck {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHealthCheck.class);
 

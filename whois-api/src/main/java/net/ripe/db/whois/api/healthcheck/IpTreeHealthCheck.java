@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.healthcheck;
 
+import net.ripe.db.whois.common.HealthCheck;
 import net.ripe.db.whois.common.iptree.IpTreeCacheManager;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;

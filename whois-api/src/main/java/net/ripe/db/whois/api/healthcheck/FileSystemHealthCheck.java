@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.healthcheck;
 
+import net.ripe.db.whois.common.HealthCheck;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
