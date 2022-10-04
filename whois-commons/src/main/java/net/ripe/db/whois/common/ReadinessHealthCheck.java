@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ShutdownHealthCheck implements HealthCheck {
+public class ReadinessHealthCheck implements HealthCheck {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownHealthCheck.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReadinessHealthCheck.class);
 
     private boolean loadBalancerEnabled = true;
 
