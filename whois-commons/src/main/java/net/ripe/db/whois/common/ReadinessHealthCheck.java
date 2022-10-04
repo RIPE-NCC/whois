@@ -5,11 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReadinessUpdater {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReadinessUpdater.class);
+public class ReadinessHealthCheck implements HealthCheck {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReadinessHealthCheck.class);
+
     private boolean loadBalancerEnabled = true;
 
-    public void up(){
+    public void up() {
         this.loadBalancerEnabled = true;
         LOGGER.info("Marked service as ready to receive traffic");
     }
@@ -19,8 +21,8 @@ public class ReadinessUpdater {
         LOGGER.info("Marked service as not ready to receive traffic");
     }
 
-    public boolean isLoadBalancerEnabled() {
+    @Override
+    public boolean check() {
         return loadBalancerEnabled;
     }
-
 }
