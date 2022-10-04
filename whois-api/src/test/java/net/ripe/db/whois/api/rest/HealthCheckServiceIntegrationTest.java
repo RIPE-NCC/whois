@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.rest;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
-import net.ripe.db.whois.common.ReadinessUpdater;
+import net.ripe.db.whois.common.ShutdownHealthCheck;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +21,13 @@ public class HealthCheckServiceIntegrationTest extends AbstractIntegrationTest {
     RestClient restClient;
 
     @Autowired
-    ReadinessUpdater readinessUpdater;
+    ShutdownHealthCheck shutdownHealthCheck;
 
     @Test
-    public void testHealthyLBEnabled() {
-        readinessUpdater.up();
-        Response response = RestTest.target(getPort(), "whois/healthcheck")
+    public void loadbalancerEnabledWhenRunning() {
+        shutdownHealthCheck.up();
+
+        final Response response = RestTest.target(getPort(), "whois/healthcheck")
                 .request()
                 .get(Response.class);
 
@@ -35,9 +36,10 @@ public class HealthCheckServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testHealthyLBDisabled() {
-        readinessUpdater.down();
-        Response response = RestTest.target(getPort(), "whois/healthcheck")
+    public void loadbalancerDisabledWhenShutdown() {
+        shutdownHealthCheck.down();
+
+        final Response response = RestTest.target(getPort(), "whois/healthcheck")
                 .request()
                 .get(Response.class);
 

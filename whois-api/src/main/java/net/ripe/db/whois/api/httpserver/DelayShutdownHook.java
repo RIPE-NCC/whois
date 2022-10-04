@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.util.concurrent.Uninterruptibles;
-import net.ripe.db.whois.common.ReadinessUpdater;
+import net.ripe.db.whois.common.ShutdownHealthCheck;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.thread.ShutdownThread;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +16,11 @@ public class DelayShutdownHook extends AbstractLifeCycle {
     @Value("${shutdown.pause.sec:10}")
     private int preShutdownPause;
 
-    private final ReadinessUpdater readinessUpdater;
-
+    private final ShutdownHealthCheck shutdownHealthCheck;
 
     @Autowired
-    public DelayShutdownHook(ReadinessUpdater readinessUpdater) {
-        this.readinessUpdater = readinessUpdater;
+    public DelayShutdownHook(final ShutdownHealthCheck shutdownHealthCheck) {
+        this.shutdownHealthCheck = shutdownHealthCheck;
     }
 
     public void register() {
@@ -37,12 +36,12 @@ public class DelayShutdownHook extends AbstractLifeCycle {
     @Override
     protected void doStart() throws Exception {
         super.doStart();
-        readinessUpdater.up();
+        shutdownHealthCheck.up();
     }
 
     @Override
     protected void doStop() throws Exception {
-        readinessUpdater.down();
+        shutdownHealthCheck.down();
         Uninterruptibles.sleepUninterruptibly(preShutdownPause, TimeUnit.SECONDS);
         super.doStop();
     }
