@@ -190,16 +190,6 @@ sonar:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
 
-deploy_dev:
-  stage: deploy
-  only:
-    - /^never$/
-
-deploy_prepdev:
-  stage: deploy
-  only:
-    - /^never$/
-
 deploy_salt_prod:
   stage: deploy
   only:
