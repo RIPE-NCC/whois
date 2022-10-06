@@ -19,6 +19,7 @@ import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.planner.AbuseContact;
+import net.ripe.db.whois.update.domain.ReservedResources;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,6 +54,8 @@ public class RdapObjectMapperTest {
     @Mock
     private RpslObjectDao rpslObjectDao;
     @Mock
+    private ReservedResources reservedResources;
+    @Mock
     private Ipv4Tree ipv4Tree;
     @Mock
     private Ipv6Tree ipv6Tree;
@@ -63,7 +66,7 @@ public class RdapObjectMapperTest {
     public void setup() {
         lenient().when(noticeFactory.generateTnC(REQUEST_URL)).thenReturn(getTnCNotice());
 
-        this.mapper = new RdapObjectMapper(noticeFactory, rpslObjectDao, ipv4Tree, ipv6Tree, "whois.ripe.net");
+        this.mapper = new RdapObjectMapper(noticeFactory, rpslObjectDao, reservedResources, ipv4Tree, ipv6Tree, "whois.ripe.net");
     }
 
     @Test
@@ -190,7 +193,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getStartAutnum(), is(102L));
         assertThat(result.getEndAutnum(), is(102L));
         assertThat(result.getName(), is("End-User-2"));
-        assertThat(result.getStatus(), is(emptyIterable()));
+        assertThat(result.getStatus().get(0), is("active"));
         assertThat(result.getCountry(), is(nullValue()));
 
         final List<Entity> entities = result.getEntitySearchResults();
@@ -243,7 +246,7 @@ public class RdapObjectMapperTest {
         assertThat(result.getStartAutnum(), is(100L));
         assertThat(result.getEndAutnum(), is(200L));
         assertThat(result.getName(), is("AS100-AS200"));
-        assertThat(result.getStatus(), is(emptyIterable()));
+        assertThat(result.getStatus().get(0), is("active"));
         assertThat(result.getCountry(), is(nullValue()));
 
         final List<Entity> entities = result.getEntitySearchResults();
