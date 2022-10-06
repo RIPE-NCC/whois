@@ -62,7 +62,7 @@
         <hamcrest.version>2.2</hamcrest.version>
 
         <jaxb.version>2.3.3</jaxb.version>
-        <jflex.version>1.6.1</jflex.version>
+        <jflex.version>1.8.2</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsoup.version>1.15.3</jsoup.version>
         <junit.version>5.8.2</junit.version>
