@@ -212,7 +212,7 @@ public class WhoisRdapService {
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
         return Query.parse(
                 String.format("%s %s %s %s %s %s",
-                        QueryFlag.NO_GROUPING.getLongFlag(),
+                            QueryFlag.NO_GROUPING.getLongFlag(),
                         QueryFlag.NO_REFERENCED.getLongFlag(),
                         QueryFlag.SELECT_TYPES.getLongFlag(),
                         objectTypesToString(objectTypes),
@@ -231,12 +231,6 @@ public class WhoisRdapService {
 
 
         final RpslObject resultObject = result.get(0);
-
-        if (resultObject.getKey().equals(CIString.ciString("0.0.0.0 - 255.255.255.255")) ||
-                resultObject.getKey().equals(CIString.ciString("::/0"))) {
-            // TODO: handle root object in RIPE space
-            throw new NotFoundException("not found");
-        }
 
         return Response.ok(
                 rdapObjectMapper.map(

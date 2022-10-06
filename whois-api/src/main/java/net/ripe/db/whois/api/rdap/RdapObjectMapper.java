@@ -44,6 +44,7 @@ import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.planner.AbuseContact;
+import net.ripe.db.whois.update.domain.ReservedResources;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,6 +55,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import javax.ws.rs.InternalServerErrorException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,6 +64,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
+import static net.ripe.db.whois.api.rdap.domain.Status.ADMINISTRATIVE;
+import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
@@ -85,7 +90,6 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 @Component
 class RdapObjectMapper {
-    private static final String DIRECT_ALLOCATION = "DIRECT ALLOCATION";
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
@@ -103,6 +107,7 @@ class RdapObjectMapper {
 
     private final NoticeFactory noticeFactory;
     private final RpslObjectDao rpslObjectDao;
+    private final ReservedResources reservedResources;
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
@@ -111,6 +116,7 @@ class RdapObjectMapper {
     public RdapObjectMapper(
             final NoticeFactory noticeFactory,
             @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
+            final ReservedResources reservedResources,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
             @Value("${rdap.port43:}") final String port43) {
@@ -119,6 +125,7 @@ class RdapObjectMapper {
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
+        this.reservedResources = reservedResources;
     }
 
     public Object map(final String requestUrl,
@@ -240,8 +247,12 @@ class RdapObjectMapper {
         ip.setEndAddress(toIpRange(ipInterval).end().toString());
         ip.setName(rpslObject.getValueForAttribute(AttributeType.NETNAME).toString());
         ip.setType(rpslObject.getValueForAttribute(AttributeType.STATUS).toString());
-        ip.setParentHandle(lookupParentHandle(ipInterval));
 
+        if(!isIANABlock(rpslObject)) {
+            ip.setParentHandle(lookupParentHandle(ipInterval));
+        }
+
+        ip.setStatus(getResourceStatus(rpslObject));
         handleLanguageAttribute(rpslObject, ip);
         handleCountryAttribute(rpslObject, ip);
 
@@ -249,6 +260,31 @@ class RdapObjectMapper {
         ip.getEntitySearchResults().addAll(createContactEntities(rpslObject));
 
         return ip;
+    }
+
+    private List<Object> getResourceStatus(final RpslObject rpslObject) {
+
+        switch (rpslObject.getType()) {
+            case AUT_NUM:
+                final Long asn = Long.parseLong(StringUtils.substringAfter(rpslObject.getKey().toUpperCase(), "AS"));
+                return reservedResources.isReservedAsNumber(asn) ? Arrays.asList(RESERVED.getValue()) : Arrays.asList(ACTIVE.getValue());
+
+            case AS_BLOCK:
+                return reservedResources.isReservedAsBlock(rpslObject.getKey().toUpperCase()) ? Arrays.asList(RESERVED.getValue()) : Arrays.asList(ACTIVE.getValue());
+
+            case INETNUM:
+            case INET6NUM:
+                return  isIANABlock(rpslObject) ? Arrays.asList(ADMINISTRATIVE.getValue()) :
+                        reservedResources.isBogon(rpslObject.getKey().toString()) ? Arrays.asList(RESERVED.getValue()) :
+                                Arrays.asList(ACTIVE.getValue());
+
+            default:
+                throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
+        }
+    }
+
+    private boolean isIANABlock(final RpslObject rpslObject) {
+        return rpslObject.getKey().toString().equals("::/0") || rpslObject.getKey().toString().equals("0.0.0.0 - 255.255.255.255");
     }
 
     private List<IpCidr0> getIpCidr0Notation(final AbstractIpRange ipRange) {
@@ -390,7 +426,7 @@ class RdapObjectMapper {
         return entity;
     }
 
-    private static Autnum createAutnumResponse(final RpslObject rpslObject) {
+    private Autnum createAutnumResponse(final RpslObject rpslObject) {
         final Autnum autnum = new Autnum();
         autnum.setHandle(rpslObject.getKey().toString());
         autnum.setName(rpslObject.getValueForAttribute(AttributeType.AS_NAME).toString().replace(" ", ""));
@@ -398,12 +434,13 @@ class RdapObjectMapper {
         final Long asNumber = Long.parseLong(StringUtils.substringAfter(rpslObject.getKey().toUpperCase(), "AS"));
         autnum.setStartAutnum(asNumber);
         autnum.setEndAutnum(asNumber);
+        autnum.setStatus(getResourceStatus(rpslObject));
 
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         return autnum;
     }
 
-    private static Autnum createAsBlockResponse(final RpslObject rpslObject) {
+    private Autnum createAsBlockResponse(final RpslObject rpslObject) {
         final Autnum autnum = new Autnum();
 
         final String key = rpslObject.getValueForAttribute(AttributeType.AS_BLOCK).toString();
@@ -415,11 +452,13 @@ class RdapObjectMapper {
         autnum.setName(asName);
         autnum.setStartAutnum(blockRange.getBegin());
         autnum.setEndAutnum(blockRange.getEnd());
+        autnum.setStatus(getResourceStatus(rpslObject));
+
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
         return autnum;
     }
 
-    private static Domain createDomain(final RpslObject rpslObject) {
+    private Domain createDomain(final RpslObject rpslObject) {
         final Domain domain = new Domain();
         domain.setHandle(rpslObject.getKey().toString());
         domain.setLdhName(rpslObject.getKey().toString());

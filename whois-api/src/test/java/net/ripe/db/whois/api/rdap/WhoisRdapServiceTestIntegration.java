@@ -16,13 +16,11 @@ import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
-
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -175,7 +173,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     // Ref. draft-ietf-weirds-json-response, section 5.9 "An Example"
     @Test
-    public void lookup_inetnum_range() {
+    public void lookup_inetnum_range_reserved() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.2.0 - 192.0.2.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -202,6 +200,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getType(), is("OTHER"));
         assertThat(ip.getObjectClassName(), is("ip network"));
         assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
+        assertThat(ip.getStatus(), contains("reserved"));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
         assertThat(ip.getRdapConformance(), hasSize(2));
@@ -232,7 +231,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
-    public void lookup_inetnum_less_specific() {
+    public void lookup_inetnum_less_specific_active_status() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.0.0 - 192.255.255.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -257,8 +256,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getLang(), is(nullValue()));
         assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
+        assertThat(ip.getStatus(), contains("active"));
     }
-
 
     @Test
     public void lookup_inetnum_multiple_country_codes() {
@@ -401,15 +400,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_inetnum_not_found() {
-        try {
-            createResource("ip/193.0.0.0")
+        final Ip ip = createResource("ip/193.0.0.0")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
-            fail();
-        } catch (final NotFoundException e) {
-            // expected
-            assertErrorTitle(e, "not found");
-        }
+
+        assertThat(ip.getHandle(), is("0.0.0.0 - 255.255.255.255"));
+        assertThat(ip.getIpVersion(), is("v4"));
+        assertThat(ip.getStatus(), contains("administrative"));
+
     }
 
     @Test
@@ -513,6 +511,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getType(), is("ASSIGNED PA"));
         assertThat(ip.getObjectClassName(), is("ip network"));
         assertThat(ip.getParentHandle(), is("::/0"));
+        assertThat(ip.getStatus(), contains("active"));
 
         assertThat(ip.getCidr0_cidrs().size(), is(1));
         assertThat(ip.getCidr0_cidrs().get(0).getV6prefix(), is("2001:2002:2003::"));
@@ -597,6 +596,31 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void lookup_inet6num_status_reserved() {
+        final RpslObject inet6num = RpslObject.parse("" +
+                "inet6num: ff00::/8\n" +
+                "netname: RIPE-NCC\n" +
+                "descr: some description\n" +
+                "country: DK\n" +
+                "admin-c: TP1-TEST\n" +
+                "tech-c: TP1-TEST\n" +
+                "status: ASSIGNED\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST\n");
+        databaseHelper.addObject(inet6num);
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/ff00::/8")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("ff00::/8"));
+        assertThat(ip.getStatus(), contains("reserved"));
+        assertThat(ip.getIpVersion(), is("v6"));
+    }
+
+
+    @Test
     public void lookup_inet6num_is_case_insensitive() {
         databaseHelper.addObject("" +
                 "inet6num:       2001:200a::/48\n" +
@@ -623,14 +647,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void lookup_inet6num_not_found() {
-        try {
-            createResource("ip/2001:2002:2003::/48")
+        final Ip ip = createResource("ip/2001:2002:2003::/48")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
-            fail();
-        } catch (final NotFoundException e) {
-            assertErrorTitle(e, "not found");
-        }
+
+        assertThat(ip.getHandle(), is("::/0"));
+        assertThat(ip.getIpVersion(), is("v6"));
+        assertThat(ip.getStatus(), contains("administrative"));
     }
 
     // person entity
@@ -706,7 +729,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .request()
                 .get(Entity.class);
 
-        assertThat(entity.getHandle(), equalTo("PP1-TEST"));assertCommon(entity);
+        assertThat(entity.getHandle(), equalTo("PP1-TEST"));
+        assertCommon(entity);
     }
 
     @Test
@@ -915,6 +939,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(autnum.getEndAutnum(), is(102L));
         assertThat(autnum.getName(), equalTo("AS-TEST"));
         assertThat(autnum.getObjectClassName(), is("autnum"));
+        assertThat(autnum.getStatus(), contains("active"));
 
         final List<Event> events = autnum.getEvents();
         assertThat(events, hasSize(1));
@@ -940,6 +965,28 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         final List<Remark> remarks = autnum.getRemarks();
         assertThat(remarks, hasSize(1));
         assertThat(remarks.get(0).getDescription().get(0), is("A single ASN"));
+    }
+
+    @Test
+    public void lookup_reserved_autnum() {
+        databaseHelper.addObject("" +
+                "aut-num:       AS64496\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final Autnum autnum = createResource("autnum/64496")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Autnum.class);
+
+        assertThat(autnum.getObjectClassName(), is("autnum"));
+        assertThat(autnum.getHandle(), equalTo("AS64496"));
+
+        assertThat(autnum.getStatus(), contains("reserved"));
     }
 
     @Test
@@ -976,6 +1023,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(autnum.getEndAutnum(), equalTo(6L));
         assertThat(autnum.getName(), equalTo("AS0-AS6"));
         assertThat(autnum.getObjectClassName(), is("autnum"));
+        assertThat(autnum.getStatus(), contains("reserved"));
 
         assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("ORG-TEST1-TEST"));
         assertThat(autnum.getEntitySearchResults().get(0).getRoles(), contains(Role.REGISTRANT));
