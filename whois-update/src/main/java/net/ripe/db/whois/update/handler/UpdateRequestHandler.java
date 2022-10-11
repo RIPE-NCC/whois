@@ -181,7 +181,7 @@ public class UpdateRequestHandler {
         try {
             multipleUpdateHandler.handle(updateRequest, updateContext);
         } catch (RuntimeException e) {
-            LOGGER.error("Process Update Queue batch update error", e);
+            // already handled
         }
     }
 
