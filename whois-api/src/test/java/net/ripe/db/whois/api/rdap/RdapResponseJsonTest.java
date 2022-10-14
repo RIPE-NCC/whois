@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -21,7 +22,7 @@ import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -250,8 +251,8 @@ public class RdapResponseJsonTest {
 
         domain.setSecureDNS(secureDNS);
 
-        assertThat(marshal(domain), equalTo("" +
-                "{\n" +
+        assertThat(marshal(domain), equalTo("" + 
+                "{\n" + 
                 "  \"handle\" : \"XXXX\",\n" +
                 "  \"ldhName\" : \"192.in-addr.arpa\",\n" +
                 "  \"nameServers\" : [ {\n" +
@@ -280,14 +281,6 @@ public class RdapResponseJsonTest {
                 "      \"type\" : \"email\"\n" +
                 "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
                 "    \"roles\" : [ \"registrant\" ],\n" +
-                "    \"remarks\" : [ {\n" +
-                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-                "    } ],\n" +
-                "    \"links\" : [ {\n" +
-                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
-                "      \"rel\" : \"self\",\n" +
-                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
-                "    } ],\n" +
                 "    \"events\" : [ {\n" +
                 "      \"eventAction\" : \"registration\",\n" +
                 "      \"eventDate\" : \"2013-06-26T02:48:44Z\"\n" +
@@ -296,15 +289,15 @@ public class RdapResponseJsonTest {
                 "      \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
                 "      \"eventActor\" : \"joe@example.com\"\n" +
                 "    } ],\n" +
-                "    \"objectClassName\" : \"entity\"\n" +
-                "  } ],\n" +
-                "  \"remarks\" : [ {\n" +
-                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-                "  } ],\n" +
-                "  \"links\" : [ {\n" +
-                "    \"value\" : \"http://example.net/domain/XXXX\",\n" +
-                "    \"rel\" : \"self\",\n" +
-                "    \"href\" : \"http://example.net/domain/XXXXX\"\n" +
+                "    \"links\" : [ {\n" +
+                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
+                "      \"rel\" : \"self\",\n" +
+                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
+                "    } ],\n" +
+                "    \"objectClassName\" : \"entity\",\n" +
+                "    \"remarks\" : [ {\n" +
+                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "    } ]\n" +
                 "  } ],\n" +
                 "  \"events\" : [ {\n" +
                 "    \"eventAction\" : \"registration\",\n" +
@@ -314,7 +307,15 @@ public class RdapResponseJsonTest {
                 "    \"eventDate\" : \"2013-06-26T02:48:44Z\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
-                "  \"objectClassName\" : \"domain\"\n" +
+                "  \"links\" : [ {\n" +
+                "    \"value\" : \"http://example.net/domain/XXXX\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"http://example.net/domain/XXXXX\"\n" +
+                "  } ],\n" +
+                "  \"objectClassName\" : \"domain\",\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "  } ]\n" +
                 "}"));
     }
 
@@ -494,6 +495,7 @@ public class RdapResponseJsonTest {
 
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);
+        objectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
 
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
