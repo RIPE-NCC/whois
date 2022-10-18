@@ -125,6 +125,7 @@
         <module>whois-scheduler</module>
         <module>whois-db</module>
         <module>whois-endtoend</module>
+        <module>whois-nrtm4</module>
     </modules>
 
     <dependencyManagement>

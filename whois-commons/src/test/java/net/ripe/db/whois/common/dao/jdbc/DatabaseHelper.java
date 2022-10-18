@@ -149,7 +149,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
 
     private static String dbBaseName;
-    private static Map<String, String> grsDatabaseNames = Maps.newHashMap();
+    private static final Map<String, String> grsDatabaseNames = Maps.newHashMap();
 
     public static synchronized void setupDatabase() {
         if (dbBaseName != null) {
@@ -169,6 +169,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "mailupdates.database", "MAILUPDATES", "mailupdates_schema.sql");
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
+        setupDatabase(jdbcTemplate, "nrtm.database", "NRTM", "nrtm_schema.sql", "nrtm_data.sql");
 
         final String masterUrl = String.format("jdbc:log:mariadb://%s/%s_WHOIS;driver=%s", DB_HOST, dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
@@ -249,9 +250,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     static void ensureLocalhost(final JdbcTemplate jdbcTemplate) {
-        final boolean isLocalhostOrRdonly = jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
+        final boolean isLocalhostOrRdonly = Boolean.TRUE.equals(jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
             @Override
-            public Boolean doInConnection(Connection con) throws SQLException, DataAccessException {
+            public Boolean doInConnection(final Connection con) throws SQLException, DataAccessException {
                 final DatabaseMetaData metaData = con.getMetaData();
                 final String url = metaData.getURL();
                 final String username = metaData.getUserName();
@@ -261,7 +262,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                         || url.contains("127.0.0.1")
                         || username.startsWith("rdonly");
             }
-        });
+        }));
 
         Validate.isTrue(isLocalhostOrRdonly, "Must be local connection or user rdonly");
     }
@@ -485,40 +486,37 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     public static void dumpSchema(final DataSource datasource) {
-        new JdbcTemplate(datasource).execute(new StatementCallback<Object>() {
-            @Override
-            public Object doInStatement(Statement statement) throws SQLException, DataAccessException {
-                final ResultSet resultSet = statement.executeQuery("SHOW TABLES");
-                final List<String> tables = Lists.newArrayList();
+        new JdbcTemplate(datasource).execute((StatementCallback<Object>) statement -> {
+            final ResultSet resultSet = statement.executeQuery("SHOW TABLES");
+            final List<String> tables = Lists.newArrayList();
 
-                while (resultSet.next()) {
-                    tables.add(resultSet.getString(1));
-                }
+            while (resultSet.next()) {
+                tables.add(resultSet.getString(1));
+            }
 
-                resultSet.close();
+            resultSet.close();
 
-                for (final String table : tables) {
-                    final ResultSet tableResultSet = statement.executeQuery("SELECT * FROM " + table);
-                    while (tableResultSet.next()) {
-                        ResultSetMetaData metadata = tableResultSet.getMetaData();
-                        if (tableResultSet.isFirst()) {
-                            System.out.println("\nTABLE: " + table.toUpperCase());
-                            for (int column = 1; column <= metadata.getColumnCount(); column++) {
-                                System.out.print(metadata.getColumnName(column) + " | ");
-                            }
-                            System.out.println();
-                        }
-
+            for (final String table : tables) {
+                final ResultSet tableResultSet = statement.executeQuery("SELECT * FROM " + table);
+                while (tableResultSet.next()) {
+                    ResultSetMetaData metadata = tableResultSet.getMetaData();
+                    if (tableResultSet.isFirst()) {
+                        System.out.println("\nTABLE: " + table.toUpperCase());
                         for (int column = 1; column <= metadata.getColumnCount(); column++) {
-                            System.out.print(tableResultSet.getString(column) + " | ");
+                            System.out.print(metadata.getColumnName(column) + " | ");
                         }
-
                         System.out.println();
                     }
-                }
 
-                return null;
+                    for (int column = 1; column <= metadata.getColumnCount(); column++) {
+                        System.out.print(tableResultSet.getString(column) + " | ");
+                    }
+
+                    System.out.println();
+                }
             }
+
+            return null;
         });
     }
 
@@ -541,7 +539,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             return rs.getBoolean(1);
         });
 
-        if (filePerTable) {
+        if (Boolean.TRUE.equals(filePerTable)) {
             throw new IllegalStateException("Mariadb innodb_file_per_table must be OFF");
         }
     }
