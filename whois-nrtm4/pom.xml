@@ -25,6 +25,11 @@
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-commons</artifactId>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
 
 </project>
