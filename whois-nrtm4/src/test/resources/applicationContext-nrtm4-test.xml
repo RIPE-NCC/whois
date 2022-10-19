@@ -9,9 +9,9 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:annotation-config />
+    <import resource="applicationContext-commons.xml"/>
 
-    <context:component-scan base-package="net.ripe.db.whois"/>
+    <context:component-scan base-package="net.ripe.db.nrtm4"/>
 
     <context:property-placeholder
             location="classpath:whois.version.properties,classpath:whois.properties"

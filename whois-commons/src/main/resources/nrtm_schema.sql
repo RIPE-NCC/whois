@@ -26,7 +26,6 @@ create table `version_information`
     `source_id`  int(11) unsigned NOT NULL,
     `version`    int(10) unsigned NOT NULL DEFAULT '0',
     `session_id` varchar(128)     NOT NULL DEFAULT '',
-    `timestamp`  int(10) unsigned NOT NULL DEFAULT '0',
     PRIMARY KEY (`id`),
     UNIQUE KEY `version_information__source_version_uk` (`source_id`, `version`),
     CONSTRAINT FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)

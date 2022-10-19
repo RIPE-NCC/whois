@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4.persist;
 
 import java.util.UUID;
-import net.ripe.db.whois.common.domain.Timestamp;
 
 public class VersionInformation {
 
@@ -9,25 +8,22 @@ public class VersionInformation {
     private NrtmSource source;
     private Long version;
     private UUID sessionID;
-    private Timestamp timestamp;
 
     VersionInformation(
             final Long id,
             final NrtmSource source,
             final Long version,
-            final UUID sessionID,
-            final Timestamp timestamp
+            final UUID sessionID
     ) {
         this.id = id;
         this.source = source;
         this.version = version;
         this.sessionID = sessionID;
-        this.timestamp = timestamp;
     }
 
-    public VersionInformation incrementVersion() {
-        return new VersionInformation(0L, this.source, this.version + 1, this.sessionID, Timestamp.fromMilliseconds(System.currentTimeMillis()));
-    }
+//    public VersionInformation incrementVersion() {
+//        return new VersionInformation(0L, this.source, this.version + 1, this.sessionID, Timestamp.fromMilliseconds(System.currentTimeMillis()));
+//    }
 
     public Long getId() {
         return id;

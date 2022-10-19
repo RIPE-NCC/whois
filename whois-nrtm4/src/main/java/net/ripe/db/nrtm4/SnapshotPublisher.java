@@ -23,8 +23,8 @@ public class SnapshotPublisher {
         if (version.isEmpty()) {
             versionControl.createNewSource(source);
             // TODO publish the snapshot
-        } else {
-            final VersionInformation nextVersion = versionControl.publishVersion(version.get());
+//        } else {
+//            final VersionInformation nextVersion = versionControl.publishVersion(version.get());
         }
     }
 

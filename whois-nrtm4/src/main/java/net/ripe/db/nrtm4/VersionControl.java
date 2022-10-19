@@ -24,8 +24,4 @@ public class VersionControl {
         return Optional.empty();
     }
 
-    public VersionInformation publishVersion(final VersionInformation versionInformation) {
-        return versionInformation.incrementVersion();
-    }
-
 }
