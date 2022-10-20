@@ -1,8 +1,6 @@
-package net.ripe.db.nrtm4;
+package net.ripe.db.nrtm4.persist;
 
-import net.ripe.db.nrtm4.persist.NrtmSource;
-import net.ripe.db.nrtm4.persist.NrtmVersionDao;
-import net.ripe.db.nrtm4.persist.VersionInformation;
+import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -21,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
-public class NrtmDaoIntegrationTest extends AbstractNrtm4IntegrationBase {
+public class NrtmDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
 
     @Autowired
     private NrtmVersionDao nrtmVersionDao;
@@ -40,7 +38,7 @@ public class NrtmDaoIntegrationTest extends AbstractNrtm4IntegrationBase {
     @Test
     public void source_is_unique() {
         nrtmVersionDao.createNew(NrtmSource.RIPE);
-        Exception thrown = assertThrows(
+        final Exception thrown = assertThrows(
                 DuplicateKeyException.class,
                 () -> nrtmVersionDao.createNew(NrtmSource.RIPE),
                 "Expected nrtmVersionDao.createNew(...) to throw DuplicateKeyException"
@@ -53,6 +51,7 @@ public class NrtmDaoIntegrationTest extends AbstractNrtm4IntegrationBase {
         nrtmVersionDao.createNew(NrtmSource.RIPE);
         final Optional<VersionInformation> version = nrtmVersionDao.findLastVersion(NrtmSource.RIPE);
         assertThat(version.isPresent(), is(true));
+        assertThat(version.get().getSource(), is(NrtmSource.RIPE));
         assertThat(version.get().getVersion(), is(1L));
     }
 

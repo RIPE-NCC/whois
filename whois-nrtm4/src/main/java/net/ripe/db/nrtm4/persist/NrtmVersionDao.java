@@ -17,8 +17,15 @@ import java.util.UUID;
 @Repository
 public class NrtmVersionDao {
 
-    private final JdbcTemplate jdbcTemplate;
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionDao.class);
+    private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<VersionInformation> rowMapper = (rs, rowNum) ->
+            new VersionInformation(
+                    rs.getLong(1),
+                    NrtmSource.valueOf(rs.getString(2)),
+                    rs.getLong(3),
+                    UUID.fromString(rs.getString(4))
+            );
 
     @Autowired
     public NrtmVersionDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
@@ -32,7 +39,7 @@ public class NrtmVersionDao {
                             "from version_information vi join source src on src.id = vi.source_id " +
                             "where src.name = ? " +
                             "order by vi.version desc limit 1",
-                    rowMapper(),
+                    rowMapper,
                     source.name())
             );
         } catch (final EmptyResultDataAccessException ex) {
@@ -43,28 +50,17 @@ public class NrtmVersionDao {
 
     public void createNew(final NrtmSource source) {
 
-        jdbcTemplate.update(
-                "insert into source (name) values (?)",
-                source.name());
-        final Long sourceID = jdbcTemplate.queryForObject("select id from source where name = ?", (rs, rowNum) -> rs.getLong(1), source.name());
-        final UUID sessionID = UUID.randomUUID();
+        jdbcTemplate.update("insert into source (name) values (?)", source.name());
+        final Long sourceID = jdbcTemplate.queryForObject("select id from source where name = ?",
+                (rs, rowNum) -> rs.getLong(1), source.name());
         final long version = 1L;
+        final UUID sessionID = UUID.randomUUID();
         jdbcTemplate.update(
                 "insert into version_information (source_id, version, session_id) " +
                         "values (?, ?, ?)",
                 sourceID,
                 version,
                 sessionID.toString()
-        );
-
-    }
-
-    private RowMapper<VersionInformation> rowMapper() {
-        return (rs, rowNum) -> new VersionInformation(
-                rs.getLong(1),
-                NrtmSource.valueOf(rs.getString(2)),
-                rs.getLong(3),
-                UUID.fromString(rs.getString(4))
         );
     }
 

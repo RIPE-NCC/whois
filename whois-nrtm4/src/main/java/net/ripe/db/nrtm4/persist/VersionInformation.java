@@ -4,11 +4,15 @@ import java.util.UUID;
 
 public class VersionInformation {
 
-    private Long id;
-    private NrtmSource source;
-    private Long version;
-    private UUID sessionID;
+    private final Long id;
+    private final NrtmSource source;
+    private final Long version;
+    private final UUID sessionID;
 
+    // It doesn't make sense to allow construction of these objects with
+    // arbitrary parameters, since they are bound to published versions of the
+    // NRTM repo. Consider a private constructor and a builder which the DAO
+    // can use.
     VersionInformation(
             final Long id,
             final NrtmSource source,
@@ -21,40 +25,20 @@ public class VersionInformation {
         this.sessionID = sessionID;
     }
 
-//    public VersionInformation incrementVersion() {
-//        return new VersionInformation(0L, this.source, this.version + 1, this.sessionID, Timestamp.fromMilliseconds(System.currentTimeMillis()));
-//    }
-
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public NrtmSource getSource() {
         return source;
     }
 
-    public void setSource(final NrtmSource source) {
-        this.source = source;
-    }
-
     public Long getVersion() {
         return version;
     }
 
-    public void setVersion(final Long version) {
-        this.version = version;
-    }
-
     public UUID getSessionID() {
         return sessionID;
-    }
-
-    public void setSessionID(final UUID sessionID) {
-        this.sessionID = sessionID;
     }
 
 }
