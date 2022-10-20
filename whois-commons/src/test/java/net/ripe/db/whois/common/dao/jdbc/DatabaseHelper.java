@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.EmbeddedValueResolverAware;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.StatementCallback;
@@ -47,11 +46,9 @@ import org.springframework.util.StringValueResolver;
 
 import javax.annotation.CheckForNull;
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -256,20 +253,20 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     static void ensureLocalhost(final JdbcTemplate jdbcTemplate) {
-        final boolean isLocalhostOrRdonly = Boolean.TRUE.equals(jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
-            @Override
-            public Boolean doInConnection(final Connection con) throws SQLException, DataAccessException {
-                final DatabaseMetaData metaData = con.getMetaData();
-                final String url = metaData.getURL();
-                final String username = metaData.getUserName();
+        final Boolean result = jdbcTemplate.execute((ConnectionCallback<Boolean>) con -> {
+            final DatabaseMetaData metaData = con.getMetaData();
+            final String url = metaData.getURL();
+            final String username = metaData.getUserName();
 
-                return url.contains("localhost")
-                        || url.contains("mariadb")
-                        || url.contains("127.0.0.1")
-                        || username.startsWith("rdonly");
-            }
-        }));
-
+            return url.contains("localhost")
+                    || url.contains("mariadb")
+                    || url.contains("127.0.0.1")
+                    || username.startsWith("rdonly");
+        });
+        if (result == null) {
+            throw new NullPointerException("Result of query was null in 'ensureLocalhost(...)'");
+        }
+        boolean isLocalhostOrRdonly = result;
         Validate.isTrue(isLocalhostOrRdonly, "Must be local connection or user rdonly");
     }
 
@@ -548,8 +545,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             }
             return rs.getBoolean(1);
         });
-
-        if (Boolean.TRUE.equals(filePerTable)) {
+        if (filePerTable == null) {
+            throw new IllegalStateException("Mariadb innodb_file_per_table is null");
+        } else if (filePerTable) {
             throw new IllegalStateException("Mariadb innodb_file_per_table must be OFF");
         }
     }
