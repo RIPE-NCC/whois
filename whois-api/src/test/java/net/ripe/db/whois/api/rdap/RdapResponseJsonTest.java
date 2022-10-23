@@ -151,7 +151,7 @@ public class RdapResponseJsonTest {
         lastChangedEvent.setEventActor("joe@example.com");
         nameserver.getEvents().add(lastChangedEvent);
 
-                assertThat(marshal(nameserver), equalTo("" +
+        assertThat(marshal(nameserver), equalTo("" +
                 "{\n" +
                 "  \"handle\" : \"handle\",\n" +
                 "  \"ldhName\" : \"ns1.xn--fo-5ja.example\",\n" +
