@@ -383,7 +383,6 @@ public class RdapResponseJsonTest {
                 "  \"type\" : \"DIRECT ALLOCATION\",\n" +
                 "  \"country\" : \"AU\",\n" +
                 "  \"parentHandle\" : \"YYYY-RIR\",\n" +
-                "  \"status\" : [ \"allocated\" ],\n" +
                 "  \"entities\" : [ {\n" +
                 "    \"handle\" : \"XXXX\",\n" +
                 "    \"vcardArray\" : [ \"vcard\", [ " +
@@ -400,14 +399,6 @@ public class RdapResponseJsonTest {
                 "      \"type\" : \"email\"\n" +
                 "    }, \"text\", \"joe.user@example.com\" ] ] ],\n" +
                 "    \"roles\" : [ \"registrant\" ],\n" +
-                "    \"remarks\" : [ {\n" +
-                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-                "    } ],\n" +
-                "    \"links\" : [ {\n" +
-                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
-                "      \"rel\" : \"self\",\n" +
-                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
-                "    } ],\n" +
                 "    \"events\" : [ {\n" +
                 "      \"eventAction\" : \"registration\",\n" +
                 "      \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
@@ -416,10 +407,23 @@ public class RdapResponseJsonTest {
                 "      \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
                 "      \"eventActor\" : \"joe@example.com\"\n" +
                 "    } ],\n" +
-                "    \"objectClassName\" : \"entity\"\n" +
+                "    \"links\" : [ {\n" +
+                "      \"value\" : \"http://example.net/entity/xxxx\",\n" +
+                "      \"rel\" : \"self\",\n" +
+                "      \"href\" : \"http://example.net/entity/xxxx\"\n" +
+                "    } ],\n" +
+                "    \"objectClassName\" : \"entity\",\n" +
+                "    \"remarks\" : [ {\n" +
+                "      \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "    } ]\n" +
                 "  } ],\n" +
-                "  \"remarks\" : [ {\n" +
-                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "  \"events\" : [ {\n" +
+                "    \"eventAction\" : \"registration\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
+                "  }, {\n" +
+                "    \"eventAction\" : \"last changed\",\n" +
+                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
+                "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
                 "  \"links\" : [ {\n" +
                 "    \"value\" : \"http://example.net/ip/2001:db8::/48\",\n" +
@@ -430,15 +434,11 @@ public class RdapResponseJsonTest {
                 "    \"rel\" : \"up\",\n" +
                 "    \"href\" : \"http://example.net/ip/2001:C00::/23\"\n" +
                 "  } ],\n" +
-                "  \"events\" : [ {\n" +
-                "    \"eventAction\" : \"registration\",\n" +
-                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
-                "  }, {\n" +
-                "    \"eventAction\" : \"last changed\",\n" +
-                "    \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
-                "    \"eventActor\" : \"joe@example.com\"\n" +
+                "  \"objectClassName\" : \"ip network\",\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
                 "  } ],\n" +
-                "  \"objectClassName\" : \"ip network\"\n" +
+                "  \"status\" : [ \"allocated\" ]\n" +
                 "}"));
     }
 
