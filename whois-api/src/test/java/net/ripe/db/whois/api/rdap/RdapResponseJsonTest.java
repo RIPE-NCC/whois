@@ -151,7 +151,7 @@ public class RdapResponseJsonTest {
         lastChangedEvent.setEventActor("joe@example.com");
         nameserver.getEvents().add(lastChangedEvent);
 
-        assertThat(marshal(nameserver), equalTo("" +
+                assertThat(marshal(nameserver), equalTo("" +
                 "{\n" +
                 "  \"handle\" : \"handle\",\n" +
                 "  \"ldhName\" : \"ns1.xn--fo-5ja.example\",\n" +
@@ -160,15 +160,6 @@ public class RdapResponseJsonTest {
                 "    \"ipv4\" : [ \"192.0.2.1\", \"192.0.2.2\" ],\n" +
                 "    \"ipv6\" : [ \"2001:db8::123\" ]\n" +
                 "  },\n" +
-                "  \"status\" : [ \"active\" ],\n" +
-                "  \"remarks\" : [ {\n" +
-                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
-                "  } ],\n" +
-                "  \"links\" : [ {\n" +
-                "    \"value\" : \"http://example.net/nameserver/xxxx\",\n" +
-                "    \"rel\" : \"self\",\n" +
-                "    \"href\" : \"http://example.net/nameserver/xxxx\"\n" +
-                "  } ],\n" +
                 "  \"events\" : [ {\n" +
                 "    \"eventAction\" : \"registration\",\n" +
                 "    \"eventDate\" : \"" + DATE_TIME_UTC + "\"\n" +
@@ -177,8 +168,17 @@ public class RdapResponseJsonTest {
                 "    \"eventDate\" : \"" + DATE_TIME_UTC + "\",\n" +
                 "    \"eventActor\" : \"joe@example.com\"\n" +
                 "  } ],\n" +
+                 "  \"links\" : [ {\n" +
+                "    \"value\" : \"http://example.net/nameserver/xxxx\",\n" +
+                "    \"rel\" : \"self\",\n" +
+                "    \"href\" : \"http://example.net/nameserver/xxxx\"\n" +
+                "  } ],\n" +
+                "  \"objectClassName\" : \"nameserver\",\n" +
                 "  \"port43\" : \"whois.example.net\",\n" +
-                "  \"objectClassName\" : \"nameserver\"\n" +
+                "  \"remarks\" : [ {\n" +
+                "    \"description\" : [ \"She sells sea shells down by the sea shore.\", \"Originally written by Terry Sullivan.\" ]\n" +
+                "  } ],\n" +
+                "  \"status\" : [ \"active\" ]\n" +
                 "}"));
     }
 
