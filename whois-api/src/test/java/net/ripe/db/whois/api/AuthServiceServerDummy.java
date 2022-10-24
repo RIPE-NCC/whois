@@ -86,20 +86,23 @@ public class AuthServiceServerDummy implements Stub {
             response.setContentType("text/xml;charset=utf-8");
             baseRequest.setHandled(true);
 
-            if(request.getRequestURI().contains("/authorisation-service/v2/authresource/")) {
-
-                final SSOUser user = usermap.get(StringUtils.substringAfterLast(request.getRequestURI(), "/"));
-                if (user == null) {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                } else {
-                    response.setStatus(HttpServletResponse.SC_OK);
-                    response.setContentType("application/json");
-                    response.getWriter().println(serializeUuid(user));
-                }
-            }
-            else {
+            if(!request.getRequestURI().contains("/authorisation-service/v2/authresource/")) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
             }
+
+            final String userKey = request.getRequestURI().contains("validate") ? StringUtils.substringAfter(request.getHeader("Authorization"), "Bearer").trim() :
+                                                        StringUtils.substringAfterLast(request.getRequestURI(), "/");
+
+            final SSOUser user = usermap.get(userKey);
+            if (user == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("application/json");
+            response.getWriter().println(serializeUuid(user));
         }
 
         private String serializeUuid(final SSOUser user) {
