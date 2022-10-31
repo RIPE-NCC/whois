@@ -21,8 +21,9 @@ public class SnapshotFile extends PublishableNrtmDocument {
         return isEmpty(objects) ? "[]" : objects;
     }
 
-    public void setObjectsString(final String objectStr) {
+    public SnapshotFile setObjectsString(final String objectStr) {
         objects = objectStr;
+        return this;
     }
 
 }

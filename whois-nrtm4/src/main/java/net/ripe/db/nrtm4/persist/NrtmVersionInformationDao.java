@@ -7,17 +7,21 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.Optional;
 import java.util.UUID;
 
 
 @Repository
-public class NrtmVersionDao {
+public class NrtmVersionInformationDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionInformationDao.class);
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<VersionInformation> rowMapper = (rs, rowNum) ->
             new VersionInformation(
@@ -29,7 +33,7 @@ public class NrtmVersionDao {
             );
 
     @Autowired
-    public NrtmVersionDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public NrtmVersionInformationDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
@@ -52,21 +56,37 @@ public class NrtmVersionDao {
     public VersionInformation createNew(final NrtmSource source) {
 
         jdbcTemplate.update("insert into source (name) values (?)", source.name());
-        final Long sourceID = jdbcTemplate.queryForObject("select id from source where name = ?",
-                (rs, rowNum) -> rs.getLong(1), source.name());
         final long version = 1L;
         final UUID sessionID = UUID.randomUUID();
         final NrtmDocumentType type = NrtmDocumentType.snapshot;
-        jdbcTemplate.update(
-                "insert into version_information (source_id, version, session_id, type) " +
-                        "values (?, ?, ?, ?)",
-                sourceID,
-                version,
-                sessionID.toString(),
-                type.name()
+        return save(source, version, sessionID, type);
+    }
+
+    public VersionInformation save(final VersionInformation version) {
+        return save(version.getSource(), version.getVersion(), version.getSessionID(), version.getType());
+    }
+
+    private VersionInformation save(
+            final NrtmSource source,
+            final long version,
+            final UUID sessionID,
+            final NrtmDocumentType type) {
+        final Long sourceID = jdbcTemplate.queryForObject("select id from source where name = ?",
+                (rs, rowNum) -> rs.getLong(1), source.name());
+        final KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+                    final String sql = "insert into version_information (source_id, version, session_id, type) " +
+                            "values (?, ?, ?, ?)";
+                    final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                    pst.setLong(1, sourceID);
+                    pst.setLong(2, version);
+                    pst.setString(2, sessionID.toString());
+                    pst.setString(2, type.name());
+                    return pst;
+                }, keyHolder
         );
         // TODO: get the ID and return it here
-        return new VersionInformation(0L, source, version, sessionID, type);
+        return new VersionInformation(keyHolder.getKeyAs(Long.class), source, version, sessionID, type);
     }
 
 }

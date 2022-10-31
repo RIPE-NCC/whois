@@ -29,6 +29,7 @@ create table `version_information`
     `type`       varchar(128)     NOT NULL DEFAULT '',
     PRIMARY KEY (`id`),
     UNIQUE KEY `version_information__source_version_uk` (`source_id`, `version`),
+    UNIQUE KEY `version_information__session_version_uk` (`session_id`, `version`),
     CONSTRAINT FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = latin1;
