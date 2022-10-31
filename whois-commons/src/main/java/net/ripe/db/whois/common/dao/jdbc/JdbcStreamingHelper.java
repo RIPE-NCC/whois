@@ -29,7 +29,12 @@ public class JdbcStreamingHelper {
                     // [AK] Creating a statement with criteria below is currently the only way to
                     // get database streaming results rather than preloading the entire resultset in memory.
                     ps = con.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-                    ps.setFetchSize(Integer.MIN_VALUE);
+
+                    // TODO: [ES] new mariadb driver fails with "invalid fetch size" when MIN_VALUE is used.
+                    //  default is zero, need to re-test and either remove this logic or specify a different value.
+                    // Ref. https://youtrack.jetbrains.com/issue/DBE-15654/wrong-use-of-setFetchSize-when-using-mariadb-driver
+                    // Ref. https://jira.mariadb.org/browse/CONJ-977
+                    // ps.setFetchSize(Integer.MIN_VALUE);
 
                     return callback.doInPreparedStatement(ps);
                 } finally {
