@@ -24,14 +24,14 @@ public class NotificationFileGenerationService {
     // TODO: Add a global lock to ensure that no other instance can run until this method exits
     public SnapshotFile generateSnapshot(final NrtmSource source) {
 
-        // Get last version from database. If it's a delta then use this version. If it's a snapshot then increment it.
+        // Get last version from database.
         final Optional<VersionInformation> lastVersion = versionDao.findLastVersion(source);
         VersionInformation version = lastVersion.isEmpty()
                 ? versionDao.createNew(source)
                 : lastVersion.get();
+        // If it's a delta then use this version. If it's a snapshot then increment it.
         if (version.getType() == NrtmDocumentType.snapshot) {
-            version = version.increment();
-            versionDao.save(version);
+            version = versionDao.save(version.increment());
         }
         final SnapshotFile snapshotFile = new SnapshotFile(version);
         return snapshotFile.setObjectsString("");
