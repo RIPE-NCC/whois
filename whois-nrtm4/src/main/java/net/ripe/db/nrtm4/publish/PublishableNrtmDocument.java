@@ -1,7 +1,9 @@
 package net.ripe.db.nrtm4.publish;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
+import net.ripe.db.nrtm4.persist.VersionInformation;
 
 
 public abstract class PublishableNrtmDocument {
@@ -12,18 +14,15 @@ public abstract class PublishableNrtmDocument {
     private NrtmSource source;
     @JsonProperty("session_id")
     private String sessionID;
-    private final int version;
+    private final long version;
 
     PublishableNrtmDocument(
-            final NrtmDocumentType type,
-            final NrtmSource source,
-            final String sessionID,
-            final int version
+            final VersionInformation version
     ) {
-        this.type = type;
-        this.source = source;
-        this.sessionID = sessionID;
-        this.version = version;
+        this.type = version.getType();
+        this.source = version.getSource();
+        this.sessionID = version.getSessionID().toString();
+        this.version = version.getVersion();
     }
 
     public int getNrtmVersion() {
@@ -42,7 +41,7 @@ public abstract class PublishableNrtmDocument {
         return sessionID;
     }
 
-    public int getVersion() {
+    public long getVersion() {
         return version;
     }
 
