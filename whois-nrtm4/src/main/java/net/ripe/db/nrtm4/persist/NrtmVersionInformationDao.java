@@ -80,8 +80,8 @@ public class NrtmVersionInformationDao {
                     final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                     pst.setLong(1, sourceID);
                     pst.setLong(2, version);
-                    pst.setString(2, sessionID.toString());
-                    pst.setString(2, type.name());
+                    pst.setString(3, sessionID.toString());
+                    pst.setString(4, type.name());
                     return pst;
                 }, keyHolder
         );
