@@ -57,7 +57,7 @@ public class WhoisRdapService {
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
     private final int maxResultSize;
-
+    private final int maxEntityResultSize;
     private final RdapQueryHandler rdapQueryHandler;
     private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
@@ -78,7 +78,8 @@ public class WhoisRdapService {
                             final SourceContext sourceContext,
                             @Value("${rdap.public.baseUrl:}") final String baseUrl,
                             final RdapRequestValidator rdapRequestValidator,
-                            @Value("${rdap.search.max.results:100}") final int maxResultSize) {
+                            @Value("${rdap.search.max.results:100}") final int maxResultSize,
+                            @Value("${rdap.entity.max.results:4}") final int maxEntityResultSize) {
         this.rdapQueryHandler = rdapQueryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
@@ -89,6 +90,7 @@ public class WhoisRdapService {
         this.baseUrl = baseUrl;
         this.rdapRequestValidator = rdapRequestValidator;
         this.maxResultSize = maxResultSize;
+        this.maxEntityResultSize = maxEntityResultSize;
     }
 
     @GET
@@ -213,7 +215,7 @@ public class WhoisRdapService {
 
     protected Response lookupForOrganisation(final HttpServletRequest request, final Set<ObjectType> objectTypes,
                                              final String key) {
-        Query q = Query.parse(
+        Query autnumInetnumForOrganisationQuery = Query.parse(
                 String.format("%s %s %s %s %s %s %s %s",
                         QueryFlag.NO_GROUPING.getLongFlag(),
                         QueryFlag.NO_REFERENCED.getLongFlag(),
@@ -223,8 +225,13 @@ public class WhoisRdapService {
                         QueryFlag.INVERSE.getLongFlag(),
                         AttributeType.ORG.getName(),
                         key));
-        List<RpslObject> organisationResult =  rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key), request);
-        List<RpslObject> organisationAsResult =  rdapQueryHandler.handleQuery(q,
+        List<RpslObject> organisationResult = rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key), request);
+
+        if (organisationResult.size() > 1){
+            throw new IllegalStateException("Unexpected result size: " + organisationResult.size());
+        }
+
+        List<RpslObject> organisationAsResult = rdapQueryHandler.handleQuery(autnumInetnumForOrganisationQuery,
                 request);
 
         List<RpslObject> result = new ArrayList<>();
@@ -253,7 +260,7 @@ public class WhoisRdapService {
                         getRequestUrl(request),
                         result,
                         lastUpdated,
-                        maxResultSize))
+                        maxEntityResultSize))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }

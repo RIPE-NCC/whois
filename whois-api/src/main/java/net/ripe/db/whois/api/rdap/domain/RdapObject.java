@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -176,7 +177,11 @@ public class RdapObject implements Serializable {
         this.autnums = autnums;
     }
 
-    public void setNetworks(List<Ip> networks) {
+    public void setNetworks(List<Ip> ipv4Networks, List<Ip> ipv6Networks) {
+        List<Ip> networks = new ArrayList<>();
+        networks.addAll(ipv4Networks);
+        networks.addAll(ipv6Networks);
+
         this.networks = networks;
     }
 }

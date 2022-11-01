@@ -1432,8 +1432,54 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "source:        TEST");
 
         databaseHelper.addObject("" +
-                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "inetnum:      109.111.192.0 - 109.111.223.255\n" +
                 "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST");
+
+
+        final Entity response = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertFalse(response.getAutnums().isEmpty());
+        assertFalse(response.getNetworks().isEmpty());
+
+        assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
+        assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
+    }
+    @Test
+    public void lookup_org_max_inetnum_handle() {
+        databaseHelper.addObject("" +
+                "aut-num:       AS64496\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.193.192 - 109.111.193.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.192.0 - 109.111.223.255\n" +
+                "netname:      TEST-NET-NAME-TOP-LEVEL\n" +
                 "descr:        TEST network\n" +
                 "org:          ORG-TEST1-TEST\n" +
                 "country:      NL\n" +
@@ -1449,10 +1495,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
         assertFalse(response.getAutnums().isEmpty());
         assertFalse(response.getNetworks().isEmpty());
+        assertThat(response.getAutnums().size(), equalTo(1));
 
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
-        assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
+        assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME-TOP-LEVEL"));
     }
+
+
     @Test
     public void lookup_org_not_found() {
         try {

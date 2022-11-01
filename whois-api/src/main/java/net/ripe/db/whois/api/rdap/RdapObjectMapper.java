@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.commons.ip.Ipv6Range;
+import net.ripe.db.whois.api.TopLevelFilter;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -158,25 +159,59 @@ class RdapObjectMapper {
         return mapCommons(searchResult, requestUrl);
     }
 
-    public Object mapMergeSearch(final String requestUrl, final List<RpslObject> objects,
+    public Object mapMergeSearch(final String requestUrl, List<RpslObject> objects,
                                  final Iterable<LocalDateTime> localDateTimes, final int maxResultSize){
         RdapObject organisation = new RdapObject();
-        List<Ip> networks = new ArrayList<>();
+        List<Ip> ipv4Networks = new ArrayList<>();
+        List<Ip> ipv6Networks = new ArrayList<>();
         List<Autnum> autnums = new ArrayList<>();
         final Iterator<LocalDateTime> iterator = localDateTimes.iterator();
+        Notice outOfLimitNotice = null;
+
+        if(objects.size() > maxResultSize){
+            List<RpslObject> autnumRpsl = objects.stream().filter(rpsl -> ObjectType.AUT_NUM.equals(rpsl.getType()))
+                    .collect(Collectors.toList());
+            List<RpslObject> organisationRpsl =
+                    objects.stream().filter(rpsl -> ObjectType.ORGANISATION.equals(rpsl.getType()))
+                    .collect(Collectors.toList());
+            List<RpslObject> ipv4Rpsl = TopLevelFilter.filter(objects.stream().filter(rpsl -> ObjectType.INETNUM.equals(rpsl.getType()))
+                    .collect(Collectors.toList()), ObjectType.INETNUM);
+            List<RpslObject> ipv6Rpsl = TopLevelFilter.filter(objects.stream().filter(rpsl -> ObjectType.INET6NUM.equals(rpsl.getType()))
+                    .collect(Collectors.toList()), ObjectType.INET6NUM);
+
+            objects = new ArrayList<>();
+            objects.addAll(autnumRpsl);
+            objects.addAll(organisationRpsl);
+            objects.addAll(ipv4Rpsl);
+            objects.addAll(ipv6Rpsl);
+
+            outOfLimitNotice = new Notice();
+            outOfLimitNotice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
+            organisation.getNotices().add(outOfLimitNotice);
+        }
+
+
         for (final RpslObject object : objects) {
             if (object.getType() == AUT_NUM ) {
                 autnums.add((Autnum) getRdapObject(requestUrl, object, iterator.next(),
                         Optional.empty()));
-            } else if (object.getType() == INET6NUM || object.getType() == ObjectType.INETNUM) {
-                networks.add((Ip) getRdapObject(requestUrl, object, iterator.next(),
+            } else if (object.getType() == ObjectType.INETNUM) {
+                ipv4Networks.add((Ip) getRdapObject(requestUrl, object, iterator.next(),
+                        Optional.empty()));
+            } else if (object.getType() == INET6NUM ) {
+                ipv6Networks.add((Ip) getRdapObject(requestUrl, object, iterator.next(),
                         Optional.empty()));
             } else if (object.getType() == ObjectType.ORGANISATION) {
                 organisation = getRdapObject(requestUrl, object, iterator.next(), Optional.empty());
             }
         }
+
         organisation.setAutnums(autnums);
-        organisation.setNetworks(networks);
+        organisation.setNetworks(ipv4Networks, ipv6Networks);
+
+        if(outOfLimitNotice != null){
+            organisation.getNotices().add(outOfLimitNotice);
+        }
 
         return mapCommons(organisation, requestUrl);
     }
