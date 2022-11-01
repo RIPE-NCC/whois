@@ -14,6 +14,8 @@ import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "rdapObject", propOrder = {
+    "networks",
+    "autnums",
     "status",
     "entities",
     "remarks",
@@ -27,13 +29,13 @@ import java.util.List;
 @XmlSeeAlso({
     Nameserver.class,
     Entity.class,
-    Ip.class,
-    Autnum.class,
     Domain.class
 })
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RdapObject implements Serializable {
+    protected List<Ip> networks;
+    protected List<Autnum> autnums;
     protected List<Object> status;
     protected List<Entity> entities;
     protected List<Remark> remarks;
@@ -89,6 +91,20 @@ public class RdapObject implements Serializable {
 
     public String getLang() {
         return lang;
+    }
+
+    public List<Ip> getNetworks() {
+        if (networks == null) {
+            networks = Lists.newArrayList();
+        }
+        return networks;
+    }
+
+    public List<Autnum> getAutnums() {
+        if (autnums == null) {
+            autnums = Lists.newArrayList();
+        }
+        return autnums;
     }
 
     public void setLang(final String value) {
@@ -154,5 +170,13 @@ public class RdapObject implements Serializable {
 
     public void setObjectClassName(final String value) {
         this.objectClassName = value;
+    }
+
+    public void setAutnums(final List<Autnum> autnums){
+        this.autnums = autnums;
+    }
+
+    public void setNetworks(List<Ip> networks) {
+        this.networks = networks;
     }
 }

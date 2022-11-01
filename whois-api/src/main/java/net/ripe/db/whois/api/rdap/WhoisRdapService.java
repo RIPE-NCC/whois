@@ -7,6 +7,7 @@ import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -38,6 +39,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -119,7 +121,7 @@ public class WhoisRdapService {
             }
             case ENTITY: {
                 rdapRequestValidator.validateEntity(key);
-                return lookupObject(request, whoisObjectTypes, key);
+                return key.startsWith("ORG-") ? lookupForOrganisation(request, whoisObjectTypes, key) : lookupObject(request, whoisObjectTypes, key);
             }
             case NAMESERVER: {
                 throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
@@ -209,6 +211,28 @@ public class WhoisRdapService {
         return getResponse(request, result);
     }
 
+    protected Response lookupForOrganisation(final HttpServletRequest request, final Set<ObjectType> objectTypes,
+                                             final String key) {
+        Query q = Query.parse(
+                String.format("%s %s %s %s %s %s %s %s",
+                        QueryFlag.NO_GROUPING.getLongFlag(),
+                        QueryFlag.NO_REFERENCED.getLongFlag(),
+                        QueryFlag.SELECT_TYPES.getLongFlag(),
+                        objectTypesToString(List.of(AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM)),
+                        QueryFlag.NO_FILTERING.getLongFlag(),
+                        QueryFlag.INVERSE.getLongFlag(),
+                        AttributeType.ORG.getName(),
+                        key));
+        List<RpslObject> organisationResult =  rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key), request);
+        List<RpslObject> organisationAsResult =  rdapQueryHandler.handleQuery(q,
+                request);
+
+        List<RpslObject> result = new ArrayList<>();
+        result.addAll(organisationResult);
+        result.addAll(organisationAsResult);
+
+        return getMergedResponse(request, result);
+    }
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
         return Query.parse(
                 String.format("%s %s %s %s %s %s",
@@ -220,6 +244,19 @@ public class WhoisRdapService {
                         key));
     }
 
+    private Response getMergedResponse(HttpServletRequest request, List<RpslObject> result) {
+        if (result.isEmpty()) {
+            throw new NotFoundException("not found");
+        }
+        final Iterable<LocalDateTime> lastUpdated = result.stream().map(input -> objectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
+        return Response.ok(rdapObjectMapper.mapMergeSearch(
+                        getRequestUrl(request),
+                        result,
+                        lastUpdated,
+                        maxResultSize))
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
+    }
     private Response getResponse(HttpServletRequest request, List<RpslObject> result) {
         if (result.isEmpty()) {
             throw new NotFoundException("not found");

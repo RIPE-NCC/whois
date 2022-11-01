@@ -46,6 +46,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -1341,8 +1342,117 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertTrue(response.getAutnums().isEmpty());
+        assertTrue(response.getNetworks().isEmpty());
     }
 
+    @Test
+    public void lookup_org_autnum_entity_handle() {
+        databaseHelper.addObject("" +
+                "aut-num:       AS64496\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final Entity response = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertFalse(response.getAutnums().isEmpty());
+        assertTrue(response.getNetworks().isEmpty());
+
+        assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
+    }
+
+    @Test
+    public void lookup_org_inetnum_entity_handle() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST");
+
+        final Entity response = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertTrue(response.getAutnums().isEmpty());
+        assertFalse(response.getNetworks().isEmpty());
+
+        assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
+    }
+
+    @Test
+    public void lookup_org_inet6num_entity_handle() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "language:       EN\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "org:            ORG-TEST1-TEST\n" +
+                "source:         TEST");
+
+        final Entity response = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertTrue(response.getAutnums().isEmpty());
+        assertFalse(response.getNetworks().isEmpty());
+
+        assertThat(response.getNetworks().get(0).getName(), equalTo("RIPE-NCC"));
+    }
+
+    @Test
+    public void lookup_org_inetnum_autnum_entity_handle() {
+        databaseHelper.addObject("" +
+                "aut-num:       AS64496\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST");
+
+        final Entity response = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertFalse(response.getAutnums().isEmpty());
+        assertFalse(response.getNetworks().isEmpty());
+
+        assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
+        assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
+    }
     @Test
     public void lookup_org_not_found() {
         try {

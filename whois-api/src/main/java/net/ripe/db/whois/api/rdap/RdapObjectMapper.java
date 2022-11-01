@@ -55,6 +55,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import javax.ws.rs.InternalServerErrorException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -85,6 +86,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.PHONE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
@@ -154,6 +156,29 @@ class RdapObjectMapper {
         }
 
         return mapCommons(searchResult, requestUrl);
+    }
+
+    public Object mapMergeSearch(final String requestUrl, final List<RpslObject> objects,
+                                 final Iterable<LocalDateTime> localDateTimes, final int maxResultSize){
+        RdapObject organisation = new RdapObject();
+        List<Ip> networks = new ArrayList<>();
+        List<Autnum> autnums = new ArrayList<>();
+        final Iterator<LocalDateTime> iterator = localDateTimes.iterator();
+        for (final RpslObject object : objects) {
+            if (object.getType() == AUT_NUM ) {
+                autnums.add((Autnum) getRdapObject(requestUrl, object, iterator.next(),
+                        Optional.empty()));
+            } else if (object.getType() == INET6NUM || object.getType() == ObjectType.INETNUM) {
+                networks.add((Ip) getRdapObject(requestUrl, object, iterator.next(),
+                        Optional.empty()));
+            } else if (object.getType() == ObjectType.ORGANISATION) {
+                organisation = getRdapObject(requestUrl, object, iterator.next(), Optional.empty());
+            }
+        }
+        organisation.setAutnums(autnums);
+        organisation.setNetworks(networks);
+
+        return mapCommons(organisation, requestUrl);
     }
 
     public RdapObject mapError(final int errorCode, final String errorTitle, final List<String> errorDescriptions) {

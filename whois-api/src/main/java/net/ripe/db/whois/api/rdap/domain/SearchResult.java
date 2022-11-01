@@ -14,7 +14,9 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "entity", propOrder = {
         "entityResults",
-        "domainResults"
+        "domainResults",
+        "autnumResults",
+        "networkResults"
 })
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -25,6 +27,12 @@ public class SearchResult extends RdapObject implements Serializable {
 
     @XmlElement(name = "domainSearchResults")
     protected List<Domain> domainResults;
+
+    @XmlElement(name = "autnumSearchResults")
+    protected List<Autnum> autnumResults;
+
+    @XmlElement(name = "networkSearchResults")
+    protected List<Ip> networkResults;
 
     public List<Entity> getEntitySearchResults() {
         return entityResults;
@@ -46,5 +54,19 @@ public class SearchResult extends RdapObject implements Serializable {
             domainResults = Lists.newArrayList();
         }
         domainResults.add(domain);
+    }
+
+    public void addAutnumSeachResult(final Autnum autnum){
+        if (autnumResults == null){
+            autnumResults = Lists.newArrayList();
+        }
+        autnumResults.add(autnum);
+    }
+
+    public void addNetworkSeachResult(final Ip ip){
+        if (networkResults == null){
+            networkResults = Lists.newArrayList();
+        }
+        networkResults.add(ip);
     }
 }
