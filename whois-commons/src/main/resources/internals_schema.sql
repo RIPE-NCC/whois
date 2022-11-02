@@ -72,15 +72,17 @@ CREATE TABLE `default_maintainer_sync_history` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
-DROP TABLE IF EXISTS `default_maintainer`;
-CREATE TABLE `default_maintainer` (
+DROP TABLE IF EXISTS `default_maintainer_in_progress`;
+CREATE TABLE `default_maintainer_in_progress` (
     `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `org` varchar(256) NOT NULL,
     `mntner` varchar(256) NOT NULL,
     `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `uuid` varchar(256) NOT NULL,
     `email` varchar(256),
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `org_idx` (`org`),
+    UNIQUE KEY `mntner_idx` (`mntner`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `default_maintainer_sync`;
