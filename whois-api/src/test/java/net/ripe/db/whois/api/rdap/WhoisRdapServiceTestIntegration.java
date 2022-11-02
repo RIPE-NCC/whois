@@ -1456,6 +1456,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
     @Test
     public void lookup_org_max_inetnum_handle() {
+        System.setProperty("rdap.entity.max.results", "4");
         databaseHelper.addObject("" +
                 "aut-num:       AS64496\n" +
                 "as-name:       AS-TEST\n" +

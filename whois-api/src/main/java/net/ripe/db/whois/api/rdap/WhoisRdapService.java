@@ -79,7 +79,7 @@ public class WhoisRdapService {
                             @Value("${rdap.public.baseUrl:}") final String baseUrl,
                             final RdapRequestValidator rdapRequestValidator,
                             @Value("${rdap.search.max.results:100}") final int maxResultSize,
-                            @Value("${rdap.entity.max.results:4}") final int maxEntityResultSize) {
+                            @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize) {
         this.rdapQueryHandler = rdapQueryHandler;
         this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
@@ -215,7 +215,10 @@ public class WhoisRdapService {
 
     protected Response lookupForOrganisation(final HttpServletRequest request, final Set<ObjectType> objectTypes,
                                              final String key) {
-        Query autnumInetnumForOrganisationQuery = Query.parse(
+        final List<RpslObject> organisationResult = rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key),
+                request);
+
+        final Query autnumInetnumForOrganisationQuery = Query.parse(
                 String.format("%s %s %s %s %s %s %s %s",
                         QueryFlag.NO_GROUPING.getLongFlag(),
                         QueryFlag.NO_REFERENCED.getLongFlag(),
@@ -225,20 +228,19 @@ public class WhoisRdapService {
                         QueryFlag.INVERSE.getLongFlag(),
                         AttributeType.ORG.getName(),
                         key));
-        List<RpslObject> organisationResult = rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key), request);
 
         if (organisationResult.size() > 1){
             throw new IllegalStateException("Unexpected result size: " + organisationResult.size());
         }
 
-        List<RpslObject> organisationAsResult = rdapQueryHandler.handleQuery(autnumInetnumForOrganisationQuery,
+        final List<RpslObject> organisationAsResult = rdapQueryHandler.handleQuery(autnumInetnumForOrganisationQuery,
                 request);
 
         List<RpslObject> result = new ArrayList<>();
         result.addAll(organisationResult);
         result.addAll(organisationAsResult);
 
-        return getMergedResponse(request, result);
+        return getOrganisationResponse(request, result);
     }
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
         return Query.parse(
@@ -251,12 +253,12 @@ public class WhoisRdapService {
                         key));
     }
 
-    private Response getMergedResponse(HttpServletRequest request, List<RpslObject> result) {
+    private Response getOrganisationResponse(HttpServletRequest request, List<RpslObject> result) {
         if (result.isEmpty()) {
             throw new NotFoundException("not found");
         }
         final Iterable<LocalDateTime> lastUpdated = result.stream().map(input -> objectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
-        return Response.ok(rdapObjectMapper.mapMergeSearch(
+        return Response.ok(rdapObjectMapper.mapOrganisationEntity(
                         getRequestUrl(request),
                         result,
                         lastUpdated,
