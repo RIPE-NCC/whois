@@ -81,10 +81,10 @@ public class AuthServiceClient {
         try {
             return client.target(restUrl)
                     .path(VALIDATE_PATH)
-                    .path(authToken)
                     .queryParam("permission", VALIDATE_TOKEN_PERMISSION)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header("X-API_KEY", apiKey)
+                    .header("Authorization", String.format("Bearer %s", authToken))
                     .get(ValidateTokenResponse.class);
         } catch (NotFoundException e) {
             LOGGER.debug("Failed to validate token {} due to {}:{}\n\tResponse: {}", authToken, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
