@@ -44,10 +44,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
@@ -236,14 +234,15 @@ public class WhoisRdapService {
 
     protected Response lookupForOrganisation(final HttpServletRequest request, final Set<ObjectType> objectTypes,
                                              final String key) {
-        final Iterable<RpslObject> organisationResult = rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key),
+        final List<RpslObject> organisationStream = rdapQueryHandler.handleQuery(getQueryObject(objectTypes,
+                        key),
                 request);
 
-        if(!organisationResult.iterator().hasNext()){
+        if(organisationStream.isEmpty()){
             throw new NotFoundException("not found");
         }
-        if (Iterators.size(organisationResult.iterator()) > 1){
-            throw new IllegalStateException("Unexpected result size: " + Iterators.size(organisationResult.iterator()));
+        if (organisationStream.size() > 1){
+            throw new IllegalStateException("Unexpected result size: " + organisationStream.size());
         }
 
         final Query autnumInetnumForOrganisationQuery = Query.parse(
@@ -257,14 +256,14 @@ public class WhoisRdapService {
                         AttributeType.ORG.getName(),
                         key));
 
-        final Iterable<RpslObject> organisationAsResult = rdapQueryHandler.handleQuery(autnumInetnumForOrganisationQuery,
+        final Stream.Builder<RpslObject> resourcesStream = rdapQueryHandler.handleQueryIter(autnumInetnumForOrganisationQuery,
                 request);
-        return getOrganisationResponse(request, joinResults(organisationResult, organisationAsResult));
+        return getOrganisationResponse(request, joinResults(organisationStream, resourcesStream));
     }
 
-    private Iterable<RpslObject> joinResults(Iterable<RpslObject> organisationResult, Iterable<RpslObject> organisationAsResult) {
-        return StreamSupport.stream(Iterables.concat(organisationResult,
-                organisationAsResult).spliterator(), false).collect(Collectors.toList());
+    private Iterator<RpslObject> joinResults(List<RpslObject> organisationResult,
+                                             Stream.Builder<RpslObject> organisationAsResult) {
+        return Stream.concat(organisationResult.stream(), organisationAsResult.build()).iterator();
     }
 
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
@@ -278,14 +277,11 @@ public class WhoisRdapService {
                         key));
     }
 
-    private Response getOrganisationResponse(HttpServletRequest request, Iterable<RpslObject> result) {
-        final Iterable<LocalDateTime> lastUpdated = StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(result.iterator(), Spliterator.ORDERED),
-                false).map(input -> objectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
+    private Response getOrganisationResponse(HttpServletRequest request, Iterator<RpslObject> result) {
         return Response.ok(rdapObjectMapper.mapOrganisationEntity(
                         getRequestUrl(request),
                         result,
-                        lastUpdated,
+                        objectDao,
                         maxEntityResultSize))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
