@@ -56,7 +56,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import javax.ws.rs.InternalServerErrorException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -166,9 +165,9 @@ class RdapObjectMapper {
     public Object mapOrganisationEntity(final String requestUrl, Iterator<RpslObject> objects,
                                         final RpslObjectDao objectDao, final int maxResultSize){
 
-        List<Autnum> autnums = new ArrayList<>();
-        final List<Ip> ipv4Networks = new ArrayList<>();
-        final List<Ip> ipv6Networks = new ArrayList<>();
+        final List<Autnum> autnums = Lists.newArrayList();
+        final List<Ip> ipv4Networks = Lists.newArrayList();
+        final List<Ip> ipv6Networks = Lists.newArrayList();
         RdapObject organisation = new RdapObject();
         for (Iterator<RpslObject> it = getTopLevelObjects(objects); it.hasNext(); ) {
             final RpslObject object = it.next();
