@@ -164,10 +164,6 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
         return result;
     }
 
-    private K mapToKey(Collection<InternalNode<K, V>> nodes) {
-        return nodes.stream().findFirst().isPresent() ? nodes.stream().findFirst().get().getInterval() : null;
-    }
-
     private InternalNode<K, V> internalFindExactOrFirstLessSpecific(K range) {
         List<InternalNode<K, V>> list = internalFindExactAndAllLessSpecific(range);
         return list.isEmpty() ? null : list.get(list.size() - 1);
