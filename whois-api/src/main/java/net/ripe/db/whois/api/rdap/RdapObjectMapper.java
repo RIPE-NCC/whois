@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -115,6 +116,8 @@ class RdapObjectMapper {
     private final Ipv6Tree ipv6Tree;
     private final String port43;
 
+    private final TopLevelFilter topLevelFilter;
+
     @Autowired
     public RdapObjectMapper(
             final NoticeFactory noticeFactory,
@@ -129,6 +132,7 @@ class RdapObjectMapper {
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
+        this.topLevelFilter = new TopLevelFilter();
     }
 
     public Object map(final String requestUrl,
@@ -159,18 +163,17 @@ class RdapObjectMapper {
         return mapCommons(searchResult, requestUrl);
     }
 
-    public Object mapOrganisationEntity(final String requestUrl, List<RpslObject> objects,
+    public Object mapOrganisationEntity(final String requestUrl, Iterable<RpslObject> objects,
                                         final Iterable<LocalDateTime> localDateTimes, final int maxResultSize){
 
 
         List<Autnum> autnums = new ArrayList<>();
         final Iterator<LocalDateTime> iterator = localDateTimes.iterator();
-        Notice outOfLimitNotice = null;
+        Notice outOfLimitNotice = new Notice();
 
-        if(objects.size() > maxResultSize){
+        if(Iterators.size(objects.iterator()) > maxResultSize){
             objects = getTopLevelObjects(objects);
 
-            outOfLimitNotice = new Notice();
             outOfLimitNotice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
         }
 
@@ -195,30 +198,43 @@ class RdapObjectMapper {
         organisation.setAutnums(autnums);
         organisation.setNetworks(ipv4Networks, ipv6Networks);
 
-        if(outOfLimitNotice != null){
+        if(outOfLimitNotice.getTitle() != null){
             organisation.getNotices().add(outOfLimitNotice);
         }
 
         return mapCommons(organisation, requestUrl);
     }
 
-    private List<RpslObject> getTopLevelObjects(final List<RpslObject> objects) {
+    private List<RpslObject> getTopLevelObjects(final Iterable<RpslObject> objects) {
 
-        List<RpslObject> autnumRpsl = objects.stream().filter(rpsl -> ObjectType.AUT_NUM.equals(rpsl.getType()))
-                .collect(Collectors.toList());
-        List<RpslObject> organisationRpsl =
-                objects.stream().filter(rpsl -> ObjectType.ORGANISATION.equals(rpsl.getType()))
-                .collect(Collectors.toList());
-        List<RpslObject> ipv4Rpsl = TopLevelFilter.filter(objects.stream().filter(rpsl -> ObjectType.INETNUM.equals(rpsl.getType()))
-                .collect(Collectors.toList()), ObjectType.INETNUM);
-        List<RpslObject> ipv6Rpsl = TopLevelFilter.filter(objects.stream().filter(rpsl -> ObjectType.INET6NUM.equals(rpsl.getType()))
-                .collect(Collectors.toList()), ObjectType.INET6NUM);
+        final List<RpslObject> autnumRpsl = Lists.newArrayList();
+        final List<RpslObject> organisationRpsl = Lists.newArrayList();
+        final List<RpslObject> ipv4Rpsl = Lists.newArrayList();
+        final List<RpslObject> ipv6Rpsl = Lists.newArrayList();
 
-        List<RpslObject> topLevelObjects = new ArrayList<>();
-        topLevelObjects.addAll(autnumRpsl);
+        objects.iterator().forEachRemaining(rpsl -> {
+            switch (rpsl.getType()){
+                case AUT_NUM:
+                    autnumRpsl.add(rpsl);
+                    break;
+                case ORGANISATION:
+                    organisationRpsl.add(rpsl);
+                    break;
+                case INETNUM:
+                    ipv4Rpsl.add(rpsl);
+                    break;
+                case INET6NUM:
+                    ipv6Rpsl.add(rpsl);
+                    break;
+                default:
+                    throw new IllegalStateException("Incorrect object type " + rpsl.getType());
+            }
+        });
+
+        List<RpslObject> topLevelObjects = Lists.newArrayList(autnumRpsl);
         topLevelObjects.addAll(organisationRpsl);
-        topLevelObjects.addAll(ipv4Rpsl);
-        topLevelObjects.addAll(ipv6Rpsl);
+        topLevelObjects.addAll(topLevelFilter.filter(ipv4Rpsl));
+        topLevelObjects.addAll(topLevelFilter.filter(ipv6Rpsl));
         return topLevelObjects;
     }
 

@@ -108,7 +108,6 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
         Validate.notNull(key);
         return mapToValues(internalFindFirstMoreSpecific(key));
     }
-
     @Override
     public List<V> findAllMoreSpecific(K key) {
         Validate.notNull(key);
@@ -163,6 +162,10 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
             result.add(node.getValue());
         }
         return result;
+    }
+
+    private K mapToKey(Collection<InternalNode<K, V>> nodes) {
+        return nodes.stream().findFirst().isPresent() ? nodes.stream().findFirst().get().getInterval() : null;
     }
 
     private InternalNode<K, V> internalFindExactOrFirstLessSpecific(K range) {

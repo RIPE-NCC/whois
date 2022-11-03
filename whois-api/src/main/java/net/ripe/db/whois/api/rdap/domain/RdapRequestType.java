@@ -7,14 +7,14 @@ import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.Response;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
+import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
-import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
-import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 
 public enum RdapRequestType {
 
@@ -38,7 +38,7 @@ public enum RdapRequestType {
 
     ENTITY {
         public Set<ObjectType> getWhoisObjectTypes(String key) {
-            return key.startsWith("ORG-") ? ImmutableSet.of(ORGANISATION) : ImmutableSet.of(PERSON, ROLE, MNTNER);
+            return key.toUpperCase().startsWith("ORG-") ? ImmutableSet.of(ORGANISATION) : ImmutableSet.of(PERSON, ROLE, MNTNER);
         }
     },
 

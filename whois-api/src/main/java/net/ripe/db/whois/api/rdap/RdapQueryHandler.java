@@ -33,7 +33,7 @@ public class RdapQueryHandler {
         this.queryHandler = queryHandler;
     }
 
-    public List<RpslObject> handleQuery(final Query query, final HttpServletRequest request) {
+    public Iterable<RpslObject> handleQuery(final Query query, final HttpServletRequest request) {
 
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final List<RpslObject> result = Lists.newArrayList();
