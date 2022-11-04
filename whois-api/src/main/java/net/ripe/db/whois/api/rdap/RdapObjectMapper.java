@@ -193,10 +193,10 @@ class RdapObjectMapper {
             }
         });
 
-        final List<Ip> networks = mergeTopLevelResources(requestUrl, objectDao, ipv4Rpsl, ipv6Rpsl);
+        final List<Ip> networks = mergeTopLevelResources(requestUrl, objectDao, ipv4Rpsl, ipv6Rpsl, maxResultSize);
         organisation.setNetworks(networks);
 
-        if (networks.size() + autnums.size()  > maxResultSize) {
+        if (networks.size() > maxResultSize) {
             final Notice outOfLimitNotice = new Notice();
             outOfLimitNotice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
             organisation.getNotices().add(outOfLimitNotice);
@@ -207,10 +207,10 @@ class RdapObjectMapper {
     }
 
     private List<Ip> mergeTopLevelResources(final String requestUrl, final RpslObjectDao objectDao,
-                                            final List<RpslObject> ipv4Rpsl, final List<RpslObject> ipv6Rpsl) {
+                                            final List<RpslObject> ipv4Rpsl, final List<RpslObject> ipv6Rpsl, final int maxResultSize) {
         return ((Stream<RpslObject>)StreamSupport.stream(Iterables.concat(topLevelFilter.filter(ipv4Rpsl),
                 topLevelFilter.filter(ipv6Rpsl)).spliterator(), false)).map(rpslObject -> (Ip) getRdapObject(requestUrl,
-                rpslObject, objectDao.getLastUpdated(rpslObject.getObjectId()), Optional.empty())).collect(Collectors.toList());
+                rpslObject, objectDao.getLastUpdated(rpslObject.getObjectId()), Optional.empty())).limit(maxResultSize).collect(Collectors.toList());
     }
 
     public RdapObject mapError(final int errorCode, final String errorTitle, final List<String> errorDescriptions) {
