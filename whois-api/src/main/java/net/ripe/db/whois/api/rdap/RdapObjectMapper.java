@@ -165,8 +165,7 @@ class RdapObjectMapper {
                                         final RpslObjectDao objectDao, final int maxResultSize){
 
         final List<Autnum> autnums = Lists.newArrayList();
-        final List<Ip> ipv4Networks = Lists.newArrayList();
-        final List<Ip> ipv6Networks = Lists.newArrayList();
+        final List<Ip> networks = Lists.newArrayList();
         RdapObject organisation = new RdapObject();
         for (Iterator<RpslObject> it = getTopLevelObjects(objects); it.hasNext(); ) {
             final RpslObject object = it.next();
@@ -177,11 +176,8 @@ class RdapObjectMapper {
                             Optional.empty()));
                     break;
                 case INETNUM:
-                    ipv4Networks.add((Ip) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
-                            Optional.empty()));
-                    break;
                 case INET6NUM:
-                    ipv6Networks.add((Ip) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
+                    networks.add((Ip) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
                             Optional.empty()));
                     break;
                 case ORGANISATION:
@@ -194,10 +190,9 @@ class RdapObjectMapper {
         }
 
         organisation.setAutnums(autnums);
-        organisation.setIpv4(ipv4Networks);
-        organisation.setIpv6(ipv6Networks);
+        organisation.setNetworks(networks);
 
-        if (ipv4Networks.size() + ipv6Networks.size() + autnums.size()  > maxResultSize) {
+        if (networks.size() + autnums.size()  > maxResultSize) {
             final Notice outOfLimitNotice = new Notice();
             outOfLimitNotice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
             organisation.getNotices().add(outOfLimitNotice);

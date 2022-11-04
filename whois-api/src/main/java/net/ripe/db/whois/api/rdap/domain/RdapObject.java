@@ -178,17 +178,10 @@ public class RdapObject implements Serializable {
         this.autnums = autnums;
     }
 
-    public void setIpv4(final List<Ip> ipv4Networks) {
-        if (networks == null) {
-            networks = Lists.newArrayList();
+    public void setNetworks(final List<Ip> networks) {
+        if (this.networks == null) {
+            this.networks = Lists.newArrayList();
         }
-        networks.addAll(ipv4Networks);
-    }
-
-    public void setIpv6(final List<Ip> ipv6Networks) {
-        if (networks == null) {
-            networks = Lists.newArrayList();
-        }
-        networks.addAll(ipv6Networks);
+        this.networks.addAll(networks);
     }
 }
