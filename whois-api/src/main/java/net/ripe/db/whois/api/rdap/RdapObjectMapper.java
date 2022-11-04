@@ -206,7 +206,8 @@ class RdapObjectMapper {
         return mapCommons(organisation, requestUrl);
     }
 
-    private List<Ip> mergeTopLevelResources(String requestUrl, RpslObjectDao objectDao, List<RpslObject> ipv4Rpsl, List<RpslObject> ipv6Rpsl) {
+    private List<Ip> mergeTopLevelResources(final String requestUrl, final RpslObjectDao objectDao,
+                                            final List<RpslObject> ipv4Rpsl, final List<RpslObject> ipv6Rpsl) {
         return ((Stream<RpslObject>) Streams.concat(topLevelFilter.filter(ipv4Rpsl).stream(),
                 topLevelFilter.filter(ipv6Rpsl).stream())).map(rpslObject -> (Ip) getRdapObject(requestUrl,
                 rpslObject, objectDao.getLastUpdated(rpslObject.getObjectId()), Optional.empty())).collect(Collectors.toList());
