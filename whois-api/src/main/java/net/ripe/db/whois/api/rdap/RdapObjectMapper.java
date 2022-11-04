@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.collect.Streams;
 import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.commons.ip.Ipv6Range;
@@ -66,6 +65,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.ADMINISTRATIVE;
@@ -208,8 +208,8 @@ class RdapObjectMapper {
 
     private List<Ip> mergeTopLevelResources(final String requestUrl, final RpslObjectDao objectDao,
                                             final List<RpslObject> ipv4Rpsl, final List<RpslObject> ipv6Rpsl) {
-        return ((Stream<RpslObject>) Streams.concat(topLevelFilter.filter(ipv4Rpsl).stream(),
-                topLevelFilter.filter(ipv6Rpsl).stream())).map(rpslObject -> (Ip) getRdapObject(requestUrl,
+        return ((Stream<RpslObject>)StreamSupport.stream(Iterables.concat(topLevelFilter.filter(ipv4Rpsl),
+                topLevelFilter.filter(ipv6Rpsl)).spliterator(), false)).map(rpslObject -> (Ip) getRdapObject(requestUrl,
                 rpslObject, objectDao.getLastUpdated(rpslObject.getObjectId()), Optional.empty())).collect(Collectors.toList());
     }
 
