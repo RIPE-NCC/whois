@@ -34,7 +34,7 @@ public class RdapQueryHandler {
         this.queryHandler = queryHandler;
     }
 
-    public Stream.Builder<RpslObject> handleQueryIter(final Query query, final HttpServletRequest request) {
+    public final Stream<RpslObject> handleQueryStream(final Query query, final HttpServletRequest request) {
         Stream.Builder<RpslObject> out = Stream.builder();
 
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
@@ -60,7 +60,7 @@ public class RdapQueryHandler {
                 }
             }
         });
-        return out;
+        return out.build();
     }
 
 

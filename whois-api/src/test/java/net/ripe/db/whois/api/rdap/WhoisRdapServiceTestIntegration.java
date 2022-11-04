@@ -1082,7 +1082,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Autnum.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "Redirect URI not found");
         }
     }
 
@@ -1574,7 +1574,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "Requested organisation not found: ORG-NONE-TEST");
         }
     }
 
@@ -1743,7 +1743,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "Result is empty");
         }
     }
 
@@ -1826,7 +1826,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "Result is empty");
         }
     }
 
@@ -1904,7 +1904,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "Result is empty");
         }
     }
 
@@ -1939,7 +1939,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "Result is empty");
         }
     }
 

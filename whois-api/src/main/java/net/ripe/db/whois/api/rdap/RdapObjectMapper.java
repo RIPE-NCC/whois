@@ -186,7 +186,8 @@ class RdapObjectMapper {
         }
 
         organisation.setAutnums(autnums);
-        organisation.setNetworks(ipv4Networks, ipv6Networks);
+        organisation.setIpv4(ipv4Networks);
+        organisation.setIpv6(ipv6Networks);
 
         if (ipv4Networks.size() + ipv6Networks.size() + autnums.size()  > maxResultSize) {
             Notice outOfLimitNotice = new Notice();

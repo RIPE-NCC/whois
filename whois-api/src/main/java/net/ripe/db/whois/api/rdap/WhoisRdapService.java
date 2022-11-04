@@ -233,15 +233,15 @@ public class WhoisRdapService {
 
     protected Response lookupForOrganisation(final HttpServletRequest request, final Set<ObjectType> objectTypes,
                                              final String key) {
-        final List<RpslObject> organisationStream = rdapQueryHandler.handleQuery(getQueryObject(objectTypes,
+        final List<RpslObject> organisationResult = rdapQueryHandler.handleQuery(getQueryObject(objectTypes,
                         key),
                 request);
 
-        if(organisationStream.isEmpty()){
-            throw new NotFoundException("not found");
+        if(organisationResult.isEmpty()){
+            throw new NotFoundException("Requested organisation not found: " + key);
         }
-        if (organisationStream.size() > 1){
-            throw new IllegalStateException("Unexpected result size: " + organisationStream.size());
+        if (organisationResult.size() > 1){
+            throw new IllegalStateException("Unexpected result size: " + organisationResult.size());
         }
 
         final Query autnumInetnumForOrganisationQuery = Query.parse(
@@ -255,14 +255,14 @@ public class WhoisRdapService {
                         AttributeType.ORG.getName(),
                         key));
 
-        final Stream.Builder<RpslObject> resourcesStream = rdapQueryHandler.handleQueryIter(autnumInetnumForOrganisationQuery,
+        final Stream<RpslObject> resourcesResult = rdapQueryHandler.handleQueryStream(autnumInetnumForOrganisationQuery,
                 request);
-        return getOrganisationResponse(request, joinResults(organisationStream, resourcesStream));
+        return getOrganisationResponse(request, joinResults(organisationResult, resourcesResult));
     }
 
     private Iterator<RpslObject> joinResults(List<RpslObject> organisationResult,
-                                             Stream.Builder<RpslObject> organisationAsResult) {
-        return Stream.concat(organisationResult.stream(), organisationAsResult.build()).iterator();
+                                             Stream<RpslObject> organisationAsResult) {
+        return Stream.concat(organisationResult.stream(), organisationAsResult).iterator();
     }
 
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
@@ -289,7 +289,7 @@ public class WhoisRdapService {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
         if (!rpslIterator.hasNext()) {
-            throw new NotFoundException("not found");
+            throw new NotFoundException("Result is empty");
         }
 
         final RpslObject resultObject = rpslIterator.next();
@@ -314,7 +314,7 @@ public class WhoisRdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
         } catch (WebApplicationException e) {
-            throw new NotFoundException("not found");
+            throw new NotFoundException("Redirect URI not found");
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -358,7 +358,7 @@ public class WhoisRdapService {
             final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
 
             if (objects.isEmpty()) {
-                throw new NotFoundException("not found");
+                throw new NotFoundException("Result is empty");
             }
 
             final Iterable<LocalDateTime> lastUpdateds = objects.stream().map(input -> objectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
