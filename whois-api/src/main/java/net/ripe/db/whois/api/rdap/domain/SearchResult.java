@@ -28,12 +28,6 @@ public class SearchResult extends RdapObject implements Serializable {
     @XmlElement(name = "domainSearchResults")
     protected List<Domain> domainResults;
 
-    @XmlElement(name = "autnumSearchResults")
-    protected List<Autnum> autnumResults;
-
-    @XmlElement(name = "networkSearchResults")
-    protected List<Ip> networkResults;
-
     public List<Entity> getEntitySearchResults() {
         return entityResults;
     }
