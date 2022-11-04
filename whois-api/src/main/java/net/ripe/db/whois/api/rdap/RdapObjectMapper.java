@@ -87,7 +87,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.PHONE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
-import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
@@ -171,18 +170,27 @@ class RdapObjectMapper {
         RdapObject organisation = new RdapObject();
         for (Iterator<RpslObject> it = getTopLevelObjects(objects); it.hasNext(); ) {
             final RpslObject object = it.next();
-            if (object.getType() == AUT_NUM ) {
-                autnums.add((Autnum) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
-                        Optional.empty()));
-            } else if (object.getType() == ObjectType.INETNUM) {
-                ipv4Networks.add((Ip) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
-                        Optional.empty()));
-            } else if (object.getType() == INET6NUM ) {
-                ipv6Networks.add((Ip) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
-                        Optional.empty()));
-            } else if (object.getType() == ObjectType.ORGANISATION) {
-                organisation = getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()), Optional.empty());
+
+            switch (object.getType()) {
+                case AUT_NUM:
+                    autnums.add((Autnum) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
+                            Optional.empty()));
+                    break;
+                case INETNUM:
+                    ipv4Networks.add((Ip) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
+                            Optional.empty()));
+                    break;
+                case INET6NUM:
+                    ipv6Networks.add((Ip) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
+                            Optional.empty()));
+                    break;
+                case ORGANISATION:
+                    organisation = getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()), Optional.empty());
+                    break;
+                default:
+                    throw new IllegalStateException("Incorrect object type " + object.getType());
             }
+
         }
 
         organisation.setAutnums(autnums);
