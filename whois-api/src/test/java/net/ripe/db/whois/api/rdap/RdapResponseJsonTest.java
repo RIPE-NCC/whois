@@ -3,11 +3,11 @@ package net.ripe.db.whois.api.rdap;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.google.common.collect.Lists;
@@ -39,8 +39,8 @@ import java.util.TimeZone;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 public class RdapResponseJsonTest {
 
@@ -486,7 +486,9 @@ public class RdapResponseJsonTest {
     }
 
     private JsonFactory createJsonFactory() {
-        final ObjectMapper objectMapper = new ObjectMapper();
+        final ObjectMapper objectMapper = JsonMapper.builder()
+                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+                .build();
 
         objectMapper.setAnnotationIntrospector(
                 new AnnotationIntrospectorPair(
@@ -494,8 +496,6 @@ public class RdapResponseJsonTest {
                         new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
 
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);
-        objectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
 
         final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
