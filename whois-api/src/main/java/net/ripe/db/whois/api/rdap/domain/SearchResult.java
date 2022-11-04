@@ -55,18 +55,4 @@ public class SearchResult extends RdapObject implements Serializable {
         }
         domainResults.add(domain);
     }
-
-    public void addAutnumSeachResult(final Autnum autnum){
-        if (autnumResults == null){
-            autnumResults = Lists.newArrayList();
-        }
-        autnumResults.add(autnum);
-    }
-
-    public void addNetworkSeachResult(final Ip ip){
-        if (networkResults == null){
-            networkResults = Lists.newArrayList();
-        }
-        networkResults.add(ip);
-    }
 }

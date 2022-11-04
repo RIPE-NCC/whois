@@ -38,43 +38,12 @@ public class RdapQueryHandler {
         final Stream.Builder<RpslObject> out = Stream.builder();
 
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-        queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
-            @Override
-            public void handle(final ResponseObject responseObject) {
-                if (responseObject instanceof RpslObject) {
-                    final ObjectType objectType = ((RpslObject) responseObject).getType();
-
-                    switch (objectType) {
-                        case PERSON:
-                        case MNTNER:
-                        case ROLE: {
-                            if (((RpslObject) responseObject).getKey().equals(query.getSearchValue())) {
-                                out.add((RpslObject) responseObject);
-                            }
-                            break;
-                        }
-                        default: {
-                            out.add((RpslObject) responseObject);
-                        }
-                    }
-                }
-            }
-        });
-        return out.build();
-    }
-
-
-    public List<RpslObject> handleQuery(final Query query, final HttpServletRequest request) {
-
-        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-        final List<RpslObject> result = Lists.newArrayList();
-
         try {
             queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {
-                        ObjectType objectType = ((RpslObject) responseObject).getType();
+                        final ObjectType objectType = ((RpslObject) responseObject).getType();
 
                         switch (objectType) {
                             case PERSON:
@@ -84,23 +53,21 @@ public class RdapQueryHandler {
                                 break;
                             }
                             default: {
-                                result.add((RpslObject) responseObject);
+                                out.add((RpslObject) responseObject);
                             }
                         }
                     }
                 }
-
                 private void addIfPrimaryObject(final RpslObject responseObject) {
                     if(responseObject.getKey().equals(query.getSearchValue())) {
-                        result.add(responseObject);
+                        out.add(responseObject);
                     }
                 }
             });
-
-            return result;
         } catch (final QueryException e) {
-            return handleQueryException(e);
+            return handleQueryException(e).stream();
         }
+        return out.build();
     }
 
     public List<RpslObject> handleAutNumQuery(final Query query, final HttpServletRequest request) {

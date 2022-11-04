@@ -227,15 +227,16 @@ public class WhoisRdapService {
     }
 
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
-        final Iterable<RpslObject> result =  rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key), request);
+        final Iterable<RpslObject> result =  rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, key),
+                request).collect(Collectors.toList());
         return getResponse(request, result);
     }
 
     protected Response lookupForOrganisation(final HttpServletRequest request, final Set<ObjectType> objectTypes,
                                              final String key) {
-        final List<RpslObject> organisationResult = rdapQueryHandler.handleQuery(getQueryObject(objectTypes,
+        final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes,
                         key),
-                request);
+                request).collect(Collectors.toList());
 
         if (organisationResult.isEmpty()){
             throw new NotFoundException("Requested organisation not found: " + key);
@@ -257,13 +258,9 @@ public class WhoisRdapService {
 
         final Stream<RpslObject> resourcesResult = rdapQueryHandler.handleQueryStream(autnumInetnumForOrganisationQuery,
                 request);
-        return getOrganisationResponse(request, joinResults(organisationResult, resourcesResult));
+        return getOrganisationResponse(request, resourcesResult, organisationResult);
     }
 
-    private Iterator<RpslObject> joinResults(List<RpslObject> organisationResult,
-                                             Stream<RpslObject> organisationAsResult) {
-        return Stream.concat(organisationResult.stream(), organisationAsResult).iterator();
-    }
 
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
         return Query.parse(
@@ -276,10 +273,12 @@ public class WhoisRdapService {
                         key));
     }
 
-    private Response getOrganisationResponse(HttpServletRequest request, Iterator<RpslObject> result) {
+    private Response getOrganisationResponse(final HttpServletRequest request, final Stream<RpslObject> resourcesResult,
+                                             final List<RpslObject> organisationResult) {
         return Response.ok(rdapObjectMapper.mapOrganisationEntity(
                         getRequestUrl(request),
-                        result,
+                        resourcesResult,
+                        organisationResult,
                         objectDao,
                         maxEntityResultSize))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)

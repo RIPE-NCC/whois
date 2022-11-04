@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Streams;
 import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.commons.ip.Ipv6Range;
@@ -161,35 +162,38 @@ class RdapObjectMapper {
         return mapCommons(searchResult, requestUrl);
     }
 
-    public Object mapOrganisationEntity(final String requestUrl, Iterator<RpslObject> objects,
+    public Object mapOrganisationEntity(final String requestUrl, final Stream<RpslObject> resourcesResult,
+                                        final List<RpslObject> organisationResult,
                                         final RpslObjectDao objectDao, final int maxResultSize){
 
         final List<Autnum> autnums = Lists.newArrayList();
-        final List<Ip> networks = Lists.newArrayList();
-        RdapObject organisation = new RdapObject();
-        for (Iterator<RpslObject> it = getTopLevelObjects(objects); it.hasNext(); ) {
-            final RpslObject object = it.next();
 
+        final List<RpslObject> ipv4Rpsl = Lists.newArrayList();
+        final List<RpslObject> ipv6Rpsl = Lists.newArrayList();
+
+        final RpslObject organisationObject = organisationResult.get(0);
+        final RdapObject organisation = getRdapObject(requestUrl, organisationObject,
+                objectDao.getLastUpdated(organisationObject.getObjectId()), Optional.empty());
+
+
+        resourcesResult.forEach(object -> {
             switch (object.getType()) {
                 case AUT_NUM:
                     autnums.add((Autnum) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
                             Optional.empty()));
                     break;
                 case INETNUM:
-                case INET6NUM:
-                    networks.add((Ip) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
-                            Optional.empty()));
+                    ipv4Rpsl.add(object);
                     break;
-                case ORGANISATION:
-                    organisation = getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()), Optional.empty());
+                case INET6NUM:
+                    ipv6Rpsl.add(object);
                     break;
                 default:
                     throw new IllegalStateException("Incorrect object type " + object.getType());
             }
+        });
 
-        }
-
-        organisation.setAutnums(autnums);
+        final List<Ip> networks = mergeTopLevelResources(requestUrl, objectDao, ipv4Rpsl, ipv6Rpsl);
         organisation.setNetworks(networks);
 
         if (networks.size() + autnums.size()  > maxResultSize) {
@@ -197,37 +201,15 @@ class RdapObjectMapper {
             outOfLimitNotice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
             organisation.getNotices().add(outOfLimitNotice);
         }
+        organisation.setAutnums(autnums);
+
         return mapCommons(organisation, requestUrl);
     }
 
-    private Iterator<RpslObject> getTopLevelObjects(final Iterator<RpslObject> objects) {
-
-        final List<RpslObject> autnumRpsl = Lists.newArrayList();
-        final List<RpslObject> organisationRpsl = Lists.newArrayList();
-        final List<RpslObject> ipv4Rpsl = Lists.newArrayList();
-        final List<RpslObject> ipv6Rpsl = Lists.newArrayList();
-
-        objects.forEachRemaining(rpsl -> {
-            switch (rpsl.getType()){
-                case AUT_NUM:
-                    autnumRpsl.add(rpsl);
-                    break;
-                case ORGANISATION:
-                    organisationRpsl.add(rpsl);
-                    break;
-                case INETNUM:
-                    ipv4Rpsl.add(rpsl);
-                    break;
-                case INET6NUM:
-                    ipv6Rpsl.add(rpsl);
-                    break;
-                default:
-                    throw new IllegalStateException("Incorrect object type " + rpsl.getType());
-            }
-        });
-
-        return Stream.concat(Stream.concat(Stream.concat(autnumRpsl.stream(), organisationRpsl.stream()),
-                topLevelFilter.filter(ipv4Rpsl).stream()), topLevelFilter.filter(ipv6Rpsl).stream()).iterator();
+    private List<Ip> mergeTopLevelResources(String requestUrl, RpslObjectDao objectDao, List<RpslObject> ipv4Rpsl, List<RpslObject> ipv6Rpsl) {
+        return ((Stream<RpslObject>) Streams.concat(topLevelFilter.filter(ipv4Rpsl).stream(),
+                topLevelFilter.filter(ipv6Rpsl).stream())).map(rpslObject -> (Ip) getRdapObject(requestUrl,
+                rpslObject, objectDao.getLastUpdated(rpslObject.getObjectId()), Optional.empty())).collect(Collectors.toList());
     }
 
     public RdapObject mapError(final int errorCode, final String errorTitle, final List<String> errorDescriptions) {
