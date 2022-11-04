@@ -56,7 +56,7 @@ public class RdapObject implements Serializable {
     @XmlElement(name = "description")
     protected List<String> errorDescription;
 
-    public final List<Object> getStatus() {
+    public List<Object> getStatus() {
         if (status == null) {
             status = Lists.newArrayList();
         }
@@ -70,122 +70,122 @@ public class RdapObject implements Serializable {
         return this.entities;
     }
 
-    public final List<Remark> getRemarks() {
+    public List<Remark> getRemarks() {
         if (remarks == null) {
             remarks = Lists.newArrayList();
         }
         return this.remarks;
     }
 
-    public final List<Link> getLinks() {
+    public List<Link> getLinks() {
         if (links == null) {
             links = Lists.newArrayList();
         }
         return this.links;
     }
 
-    public final List<Event> getEvents() {
+    public List<Event> getEvents() {
         if (events == null) {
             events = Lists.newArrayList();
         }
         return this.events;
     }
 
-    public final String getLang() {
+    public String getLang() {
         return lang;
     }
 
-    public final List<Ip> getNetworks() {
+    public List<Ip> getNetworks() {
         if (networks == null) {
             networks = Lists.newArrayList();
         }
         return networks;
     }
 
-    public final List<Autnum> getAutnums() {
+    public List<Autnum> getAutnums() {
         if (autnums == null) {
             autnums = Lists.newArrayList();
         }
         return autnums;
     }
 
-    public final void setLang(final String value) {
+    public void setLang(final String value) {
         this.lang = value;
     }
 
-    public final void setStatus(List<Object> status) {
+    public void setStatus(List<Object> status) {
         this.status = status;
     }
 
-    public final List<String> getRdapConformance() {
+    public List<String> getRdapConformance() {
         if (rdapConformance == null) {
             rdapConformance = Lists.newArrayList();
         }
         return this.rdapConformance;
     }
 
-    public final List<Notice> getNotices() {
+    public List<Notice> getNotices() {
         if (notices == null) {
             notices = Lists.newArrayList();
         }
         return this.notices;
     }
 
-    public final String getPort43() {
+    public String getPort43() {
         return port43;
     }
 
-    public final void setPort43(final String value) {
+    public void setPort43(final String value) {
         this.port43 = value;
     }
 
-    public final Integer getErrorCode() {
+    public Integer getErrorCode() {
         return errorCode;
     }
 
-    public final void setErrorCode(final Integer errorCode) {
+    public void setErrorCode(final Integer errorCode) {
         this.errorCode = errorCode;
     }
 
-    public final String getErrorTitle() {
+    public String getErrorTitle() {
         return errorTitle;
     }
 
-    public final void setErrorTitle(final String errorTitle) {
+    public void setErrorTitle(final String errorTitle) {
         this.errorTitle = errorTitle;
     }
 
-    public final List<String> getDescription() {
+    public List<String> getDescription() {
         if (errorDescription == null) {
             errorDescription = Lists.newArrayList();
         }
         return this.errorDescription;
     }
 
-    public final void setDescription(final List<String> description) {
+    public void setDescription(final List<String> description) {
         this.errorDescription = description;
     }
 
-    public final String getObjectClassName() {
+    public String getObjectClassName() {
         return objectClassName;
     }
 
-    public final void setObjectClassName(final String value) {
+    public void setObjectClassName(final String value) {
         this.objectClassName = value;
     }
 
-    public final void setAutnums(final List<Autnum> autnums){
+    public void setAutnums(final List<Autnum> autnums){
         this.autnums = autnums;
     }
 
-    public final void setIpv4(List<Ip> ipv4Networks) {
+    public void setIpv4(final List<Ip> ipv4Networks) {
         if (networks == null) {
             networks = Lists.newArrayList();
         }
         networks.addAll(ipv4Networks);
     }
 
-    public final void setIpv6(List<Ip> ipv6Networks) {
+    public void setIpv6(final List<Ip> ipv6Networks) {
         if (networks == null) {
             networks = Lists.newArrayList();
         }

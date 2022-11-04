@@ -227,7 +227,7 @@ public class WhoisRdapService {
     }
 
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
-        Iterable<RpslObject> result =  rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key), request);
+        final Iterable<RpslObject> result =  rdapQueryHandler.handleQuery(getQueryObject(objectTypes, key), request);
         return getResponse(request, result);
     }
 
@@ -237,7 +237,7 @@ public class WhoisRdapService {
                         key),
                 request);
 
-        if(organisationResult.isEmpty()){
+        if (organisationResult.isEmpty()){
             throw new NotFoundException("Requested organisation not found: " + key);
         }
         if (organisationResult.size() > 1){

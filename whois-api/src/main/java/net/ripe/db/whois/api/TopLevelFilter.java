@@ -20,14 +20,14 @@ public class TopLevelFilter<T extends Interval<T>>  {
 
     }
 
-    private List<RpslObject> matchRpslWithTree(List<RpslObject> rpslObjects, NestedIntervalMap<T, CIString> tree) {
+    private List<RpslObject> matchRpslWithTree(final List<RpslObject> rpslObjects, final NestedIntervalMap<T, CIString> tree) {
         return rpslObjects.stream().filter(rpslObject -> !tree.findExact((T) IpInterval.parse(rpslObject.getKey())).isEmpty()).collect(Collectors.toList());
     }
 
-    private void buildTree(List<RpslObject> rpslObjects, NestedIntervalMap<T, CIString> tree) {
+    private void buildTree(final List<RpslObject> rpslObjects, final NestedIntervalMap<T, CIString> tree) {
         for (RpslObject rpslObject : rpslObjects) {
             final T key = (T) IpInterval.parse(rpslObject.getKey());
-            List<CIString> moreSpecific = tree.findFirstMoreSpecific(key);
+            final List<CIString> moreSpecific = tree.findFirstMoreSpecific(key);
             if (!moreSpecific.isEmpty()){
                 final T moreSpecificKey = (T) IpInterval.parse(moreSpecific.get(0));
                 tree.remove(moreSpecificKey);

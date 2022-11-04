@@ -34,15 +34,15 @@ public class RdapQueryHandler {
         this.queryHandler = queryHandler;
     }
 
-    public final Stream<RpslObject> handleQueryStream(final Query query, final HttpServletRequest request) {
-        Stream.Builder<RpslObject> out = Stream.builder();
+    public Stream<RpslObject> handleQueryStream(final Query query, final HttpServletRequest request) {
+        final Stream.Builder<RpslObject> out = Stream.builder();
 
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
             @Override
             public void handle(final ResponseObject responseObject) {
                 if (responseObject instanceof RpslObject) {
-                    ObjectType objectType = ((RpslObject) responseObject).getType();
+                    final ObjectType objectType = ((RpslObject) responseObject).getType();
 
                     switch (objectType) {
                         case PERSON:

@@ -198,7 +198,7 @@ class RdapObjectMapper {
         organisation.setIpv6(ipv6Networks);
 
         if (ipv4Networks.size() + ipv6Networks.size() + autnums.size()  > maxResultSize) {
-            Notice outOfLimitNotice = new Notice();
+            final Notice outOfLimitNotice = new Notice();
             outOfLimitNotice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
             organisation.getNotices().add(outOfLimitNotice);
         }

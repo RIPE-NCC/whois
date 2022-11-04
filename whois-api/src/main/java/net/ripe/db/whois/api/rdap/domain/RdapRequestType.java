@@ -19,34 +19,34 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 public enum RdapRequestType {
 
     AUTNUM {
-        public final Set<ObjectType> getWhoisObjectTypes(String key) {
+        public Set<ObjectType> getWhoisObjectTypes(final String key) {
             return ImmutableSet.of(AUT_NUM, AS_BLOCK);
         }
     },
 
     DOMAIN {
-        public final Set<ObjectType> getWhoisObjectTypes(String key) {
+        public Set<ObjectType> getWhoisObjectTypes(final String key) {
             return ImmutableSet.of(ObjectType.DOMAIN);
         }
     },
 
     IP {
-        public final Set<ObjectType> getWhoisObjectTypes(String key) {
+        public Set<ObjectType> getWhoisObjectTypes(final String key) {
             return key.contains(":") ? ImmutableSet.of(INET6NUM) : ImmutableSet.of(INETNUM);
         }
     },
 
     ENTITY {
-        public final Set<ObjectType> getWhoisObjectTypes(String key) {
+        public Set<ObjectType> getWhoisObjectTypes(final String key) {
             return key.toUpperCase().startsWith("ORG-") ? ImmutableSet.of(ORGANISATION) : ImmutableSet.of(PERSON, ROLE, MNTNER);
         }
     },
 
     NAMESERVER {
-        public final Set<ObjectType> getWhoisObjectTypes(String key) {
+        public Set<ObjectType> getWhoisObjectTypes(final String key) {
             throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
         }
     };
 
-    abstract  public Set<ObjectType> getWhoisObjectTypes(String key);
+    abstract public Set<ObjectType> getWhoisObjectTypes(final String key);
 }
