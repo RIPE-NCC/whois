@@ -36,6 +36,7 @@ import java.util.List;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RdapObject implements Serializable {
+
     protected List<Ip> networks;
     protected List<Autnum> autnums;
     protected List<Object> status;

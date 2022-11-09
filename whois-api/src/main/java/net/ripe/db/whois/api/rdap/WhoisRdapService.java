@@ -81,9 +81,10 @@ public class WhoisRdapService {
      * @param sourceContext
      * @param baseUrl
      * @param rdapRequestValidator
-     * @param maxResultSize: used for domain maximum results notification
-     * @param maxEntityResultSize: used for organisation maximum retrieved objects, if we retrieve more objects than
-     *                           the maximum value we add a notification in the response.
+     * @param maxResultSize: If the domain response is bigger than maxResultSize we truncate the response and we add
+     *                     a notification
+     * @param maxEntityResultSize: used for networks maximum retrieved objects, if we retrieve more objects than
+     *                           the maximum value we truncate the response and we add a notification in the response.
      */
     @Autowired
     public WhoisRdapService(final RdapQueryHandler rdapQueryHandler,

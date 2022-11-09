@@ -65,7 +65,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.ADMINISTRATIVE;
@@ -115,7 +114,6 @@ class RdapObjectMapper {
     private final Ipv6Tree ipv6Tree;
     private final String port43;
 
-    private final TopLevelFilter topLevelFilter;
 
     @Autowired
     public RdapObjectMapper(
@@ -131,7 +129,6 @@ class RdapObjectMapper {
         this.ipv6Tree = ipv6Tree;
         this.port43 = port43;
         this.reservedResources = reservedResources;
-        this.topLevelFilter = new TopLevelFilter();
     }
 
     public Object map(final String requestUrl,
@@ -165,53 +162,67 @@ class RdapObjectMapper {
     public Object mapOrganisationEntity(final String requestUrl, final Stream<RpslObject> resourcesResult,
                                         final List<RpslObject> organisationResult,
                                         final RpslObjectDao objectDao, final int maxResultSize){
-
-        final List<Autnum> autnums = Lists.newArrayList();
-
-        final List<RpslObject> ipv4Rpsl = Lists.newArrayList();
-        final List<RpslObject> ipv6Rpsl = Lists.newArrayList();
-
         final RpslObject organisationObject = organisationResult.get(0);
+
+        final List<RpslObject> autnumsRpsl = Lists.newArrayList();
+        final TopLevelFilter ipv6TopLevelTree = new TopLevelFilter();
+        final TopLevelFilter ipv4TopLevelTree = new TopLevelFilter();
+
+        extractObjectsFromStream(resourcesResult, autnumsRpsl, ipv6TopLevelTree, ipv4TopLevelTree);
+
+        final List<Autnum> autnumsRdap = autnumsRpsl.stream().map(autnumRpsl -> (Autnum)getRdapObject(requestUrl,
+                autnumRpsl,
+                objectDao.getLastUpdated(autnumRpsl.getObjectId()),
+                Optional.empty())).collect(Collectors.toList());
+
+        final List<Ip> ipv4Rdap = ((List<RpslObject>)ipv4TopLevelTree.filter()).stream().map(ipv4TopLevelRpsl -> (Ip)getRdapObject(requestUrl,
+                ipv4TopLevelRpsl,
+                objectDao.getLastUpdated(ipv4TopLevelRpsl.getObjectId()),
+                Optional.empty())).collect(Collectors.toList());
+
+        final List<Ip> ipv6Rdap = ((List<RpslObject>)ipv6TopLevelTree.filter()).stream().map(ipv6TopLevelRpsl -> (Ip)getRdapObject(requestUrl,
+                ipv6TopLevelRpsl,
+                objectDao.getLastUpdated(ipv6TopLevelRpsl.getObjectId()),
+                Optional.empty())).collect(Collectors.toList());
+
         final RdapObject organisation = getRdapObject(requestUrl, organisationObject,
                 objectDao.getLastUpdated(organisationObject.getObjectId()), Optional.empty());
 
 
+        List<Ip> networksRdap = Lists.newArrayList(ipv4Rdap);
+        networksRdap.addAll(ipv6Rdap);
+
+        if (networksRdap.size() > maxResultSize) {
+            final Notice outOfLimitNotice = new Notice();
+            networksRdap = networksRdap.stream().limit(maxResultSize).collect(Collectors.toList());
+            outOfLimitNotice.setTitle(String.format("limited networks attribute results to %s maximum" ,
+                    maxResultSize));
+            organisation.getNotices().add(outOfLimitNotice);
+        }
+        organisation.setNetworks(networksRdap);
+        organisation.setAutnums(autnumsRdap);
+
+        return mapCommons(organisation, requestUrl);
+    }
+
+    private void extractObjectsFromStream(final Stream<RpslObject> resourcesResult, final List<RpslObject> autnumRpsl,
+                                          final TopLevelFilter ipv6TopLevelTree,
+                                          final TopLevelFilter ipv4TopLevelTree) {
         resourcesResult.forEach(object -> {
             switch (object.getType()) {
                 case AUT_NUM:
-                    autnums.add((Autnum) getRdapObject(requestUrl, object, objectDao.getLastUpdated(object.getObjectId()),
-                            Optional.empty()));
+                    autnumRpsl.add(object);
                     break;
                 case INETNUM:
-                    ipv4Rpsl.add(object);
+                    ipv4TopLevelTree.addElementToTree(object);
                     break;
                 case INET6NUM:
-                    ipv6Rpsl.add(object);
+                    ipv6TopLevelTree.addElementToTree(object);
                     break;
                 default:
                     throw new IllegalStateException("Incorrect object type " + object.getType());
             }
         });
-
-        List<Ip> networks = mergeTopLevelResources(requestUrl, objectDao, ipv4Rpsl, ipv6Rpsl);
-
-        if (networks.size() > maxResultSize) {
-            final Notice outOfLimitNotice = new Notice();
-            networks = networks.stream().limit(maxResultSize).collect(Collectors.toList());
-            outOfLimitNotice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
-            organisation.getNotices().add(outOfLimitNotice);
-        }
-        organisation.setNetworks(networks);
-        organisation.setAutnums(autnums);
-
-        return mapCommons(organisation, requestUrl);
-    }
-
-    private List<Ip> mergeTopLevelResources(final String requestUrl, final RpslObjectDao objectDao,
-                                            final List<RpslObject> ipv4Rpsl, final List<RpslObject> ipv6Rpsl) {
-        return ((Stream<RpslObject>)StreamSupport.stream(Iterables.concat(topLevelFilter.filter(ipv4Rpsl),
-                topLevelFilter.filter(ipv6Rpsl)).spliterator(), false)).map(rpslObject -> (Ip) getRdapObject(requestUrl,
-                rpslObject, objectDao.getLastUpdated(rpslObject.getObjectId()), Optional.empty())).collect(Collectors.toList());
     }
 
     public RdapObject mapError(final int errorCode, final String errorTitle, final List<String> errorDescriptions) {
