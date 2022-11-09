@@ -2,8 +2,10 @@ package net.ripe.db.nrtm4;
 
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.springframework.stereotype.Component;
 
 
+@Component
 public class RpslObjectFilter {
 
     private final DummifierNrtm dummifierNrtm;
