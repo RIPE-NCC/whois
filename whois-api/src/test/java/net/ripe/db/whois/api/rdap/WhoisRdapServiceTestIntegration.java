@@ -217,7 +217,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Notice> notices = ip.getNotices();
-        assertThat(notices, hasSize(3));
+        assertThat(notices, hasSize(4));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(0).getDescription(), contains("This output has been filtered."));
@@ -287,7 +287,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
 
         final List<Notice> notices = ip.getNotices();
-        assertThat(notices, hasSize(4));
+        assertThat(notices, hasSize(5));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Multiple country attributes found"));
@@ -325,7 +325,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
 
         final List<Notice> notices = ip.getNotices();
-        assertThat(notices, hasSize(4));
+        assertThat(notices, hasSize(5));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Multiple language attributes found"));
@@ -361,7 +361,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getLang(), is("DK"));
 
         final List<Notice> notices = entity.getNotices();
-        assertThat(notices, hasSize(4));
+        assertThat(notices, hasSize(5));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Multiple language attributes found"));
@@ -443,6 +443,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getCidr0_cidrs().get(1).getLength(), is(23));
 
         assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0"));
+
+        var notices = ip.getNotices();
+        var inaccuracyNotice = notices.get(3);
+        assertThat(inaccuracyNotice.getTitle(), is("Whois Inaccuracy Reporting"));
+        assertThat(inaccuracyNotice.getDescription().size(), is(1));
+        assertThat(inaccuracyNotice.getDescription().get(1), is("If you see inaccuracies in the results, please visit: "));
+        assertThat(inaccuracyNotice.getLinks().size(), is(1));
+        assertThat(inaccuracyNotice.getLinks().get(1).getRel(), is("inaccuracy-report"));
+        assertThat(inaccuracyNotice.getLinks().get(1).getHref(), is("https://www.ripe.net/resources/registry/whois/inaccuracy_reporting/"));
+
     }
 
     @Test
@@ -532,7 +542,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Notice> notices = ip.getNotices();
-        assertThat(notices, hasSize(3));
+        assertThat(notices, hasSize(4));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
@@ -688,7 +698,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Notice> notices = entity.getNotices();
-        assertThat(notices, hasSize(3));
+        assertThat(notices, hasSize(4));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
@@ -778,7 +788,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getRemarks(), hasSize(0));
 
         final List<Notice> notices = entity.getNotices();
-        assertThat(notices, hasSize(3));
+        assertThat(notices, hasSize(4));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
@@ -831,7 +841,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entities.get(1).getHandle(), is("TP1-TEST"));
 
         final List<Notice> notices = domain.getNotices();
-        assertThat(notices, hasSize(3));
+        assertThat(notices, hasSize(4));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
@@ -956,7 +966,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertCopyrightLink(autnum.getLinks(), "https://rdap.db.ripe.net/autnum/102");
 
         final List<Notice> notices = autnum.getNotices();
-        assertThat(notices, hasSize(3));
+        assertThat(notices, hasSize(4));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
@@ -1500,7 +1510,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getRemarks().get(0).getDescription(), contains("Test organisation"));
 
         final List<Notice> notices = entity.getNotices();
-        assertThat(notices, hasSize(3));
+        assertThat(notices, hasSize(4));
         Collections.sort(notices);
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));

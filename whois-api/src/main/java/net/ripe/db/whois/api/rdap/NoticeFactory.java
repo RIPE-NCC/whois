@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 
@@ -60,6 +61,17 @@ class NoticeFactory {
             filtered.getDescription().add(this.filterDescription);
             notices.add(filtered);
         }
+
+        final Notice inaccuracyNotice = new Notice();
+        inaccuracyNotice.setTitle("Whois Inaccuracy Reporting");
+        inaccuracyNotice.getLinks().add(new Link(
+                "https://rdap.ripe.net",
+                Notice.INACCURACY_REPORT_NOTICE,
+                "https://www.ripe.net",
+                null,
+                MediaType.TEXT_HTML
+        ));
+        notices.add(inaccuracyNotice);
 
         final Notice source = new Notice();
         source.setTitle(this.sourceTitle);
