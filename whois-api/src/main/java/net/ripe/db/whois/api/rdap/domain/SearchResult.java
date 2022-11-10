@@ -14,9 +14,7 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "entity", propOrder = {
         "entityResults",
-        "domainResults",
-        "autnumResults",
-        "networkResults"
+        "domainResults"
 })
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
