@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Component
@@ -73,13 +73,7 @@ public class DummifierNrtm implements Dummifier {
         final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
         final Set<AttributeType> mandatoryAttributes = objectTemplate.getMandatoryAttributes();
 
-        for (Iterator<RpslAttribute> iterator = attributes.iterator(); iterator.hasNext(); ) {
-            final RpslAttribute attribute = iterator.next();
-
-            if (!mandatoryAttributes.contains(attribute.getType()) && !ATTRIBUTES_TO_KEEP.contains(attribute.getType())) {
-                iterator.remove();
-            }
-        }
+        attributes.removeIf(attribute -> !mandatoryAttributes.contains(attribute.getType()) && !ATTRIBUTES_TO_KEEP.contains(attribute.getType()));
     }
 
     private void dummifyRemainingAttributes(final List<RpslAttribute> attributes, final CIString key) {
@@ -104,11 +98,7 @@ public class DummifierNrtm implements Dummifier {
             attributes.set(i, replacement);
         }
 
-        for (Iterator<RpslAttribute> iterator = attributes.iterator(); iterator.hasNext(); ) {
-            if (iterator.next() == null) {
-                iterator.remove();
-            }
-        }
+        attributes.removeIf(Objects::isNull);
     }
 
     private void insertPlaceholder(List<RpslAttribute> attributes) {
