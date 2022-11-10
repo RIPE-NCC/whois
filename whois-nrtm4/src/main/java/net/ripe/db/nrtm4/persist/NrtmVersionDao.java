@@ -22,7 +22,7 @@ public class NrtmVersionDao {
     private final RowMapper<VersionInformation> rowMapper = (rs, rowNum) ->
             new VersionInformation(
                     rs.getLong(1),
-                    NrtmSource.valueOf(rs.getString(2)),
+                    NrtmSourceHolder.valueOf(rs.getString(2)),
                     rs.getLong(3),
                     UUID.fromString(rs.getString(4))
             );
