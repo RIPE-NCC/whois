@@ -10,9 +10,9 @@ import static org.hamcrest.Matchers.is;
 
 
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
-public class RpslObjectFilterTest {
+public class RpslAttributeTransformerTest {
 
-    private RpslObjectFilter rpslObjectFilter = new RpslObjectFilter(new DummifierNrtm());
+    private final RpslAttributeTransformer rpslAttributeTransformer = new RpslAttributeTransformer(new DummifierNrtm());
 
     @Test
     public void test_filtering_works() {
@@ -55,7 +55,7 @@ public class RpslObjectFilterTest {
                 "remarks:        ****************************\n";
         final RpslObject inetnumRpsl = RpslObject.parse(inetnumStr);
 
-        final RpslObject actual = rpslObjectFilter.filter(inetnumRpsl);
+        final RpslObject actual = rpslAttributeTransformer.filter(inetnumRpsl);
         final RpslObject expected = RpslObject.parse(expectedStr);
 
         assertThat(actual, is(expected));

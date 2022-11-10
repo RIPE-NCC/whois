@@ -5,14 +5,17 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.stereotype.Component;
 
 
+/**
+ * Replaces some attribute values with dummy values to prevent leaking potentially sensitive information
+ */
 @Component
-public class RpslObjectFilter {
+public class RpslAttributeTransformer {
 
     private final DummifierNrtm dummifierNrtm;
 
     private final static int nrtmVersionNumber = 4;
 
-    RpslObjectFilter(final DummifierNrtm dummifierNrtm) {
+    RpslAttributeTransformer(final DummifierNrtm dummifierNrtm) {
         this.dummifierNrtm = dummifierNrtm;
     }
 
