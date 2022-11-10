@@ -196,8 +196,3 @@ sonar:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
-
-deploy_salt_prod:
-  stage: deploy
-  only:
-    - /^never$/

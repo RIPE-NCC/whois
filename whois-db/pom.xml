@@ -25,6 +25,10 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
             <artifactId>whois-api</artifactId>
             <!-- The reason we add this exclusion is that the common-beanutils (or commons-beanutils-core) jar
             contain some classes which are identical and come from the commons-collections jars. The whois-api
