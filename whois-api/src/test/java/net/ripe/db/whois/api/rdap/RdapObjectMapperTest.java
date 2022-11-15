@@ -47,6 +47,8 @@ import static org.mockito.Mockito.when;
 public class RdapObjectMapperTest {
 
     private static final LocalDateTime VERSION_TIMESTAMP = LocalDateTime.parse("2044-04-26T00:02:03.000");
+
+    private static final LocalDateTime REGISTRATION_TIMESTAMP = LocalDateTime.parse("2044-04-26T00:02:03.000");
     public static final String REQUEST_URL = "http://localhost/";
 
     @Mock
@@ -566,11 +568,11 @@ public class RdapObjectMapperTest {
     @Test
     public void mapSearch_twoObjects() {
         final List<RpslObject> objects = Lists.newArrayList(
-                RpslObject.parse("organisation: ORG-TOL-TEST\norg-name: Test Organisation\nstatus: OTHER\ndescr: comment 1\nsource: TEST"),
-                RpslObject.parse("organisation: ORG-TST-TEST\norg-name: Test Company\nstatus: OTHER\ndescr: comment 2\nsource: TEST")
+                RpslObject.parse("organisation: ORG-TOL-TEST\norg-name: Test Organisation\nstatus: OTHER\ndescr: comment 1\nsource: TEST\ncreated: 1996-02-05T03:52:05.938\nlast-modified: 1970-04-14T09:22:14.857"),
+                RpslObject.parse("organisation: ORG-TST-TEST\norg-name: Test Company\nstatus: OTHER\ndescr: comment 2\nsource: TEST\ncreated: 1996-02-05T03:52:05.938\nlast-modified: 1970-04-14T09:22:14.857")
         );
 
-        final SearchResult response = (SearchResult)mapSearch(objects, Lists.newArrayList(LocalDateTime.parse("1970-04-14T09:22:14.857"), LocalDateTime.parse("1996-02-05T03:52:05.938")));
+        final SearchResult response = (SearchResult)mapSearch(objects);
 
         assertThat(response.getEntitySearchResults(), hasSize(2));
 
@@ -718,11 +720,11 @@ public class RdapObjectMapperTest {
     }
 
     private Object map(final RpslObject rpslObject, final Optional<AbuseContact> optionalAbuseContact) {
-        return mapper.map(REQUEST_URL, rpslObject, VERSION_TIMESTAMP, optionalAbuseContact);
+        return mapper.map(REQUEST_URL, rpslObject, optionalAbuseContact);
     }
 
-    private Object mapSearch(final List<RpslObject> objects, final Iterable<LocalDateTime> lastUpdateds) {
-        return mapper.mapSearch(REQUEST_URL, objects, lastUpdateds, 10);
+    private Object mapSearch(final List<RpslObject> objects) {
+        return mapper.mapSearch(REQUEST_URL, objects, 10);
     }
 
     private Notice getTnCNotice() {
