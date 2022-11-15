@@ -20,7 +20,7 @@ public class NoticePropertyValues {
     private final String inaccuracyNoticeLinkRel;
     private final String inaccuracyNoticeTitle;
     private final String inaccuracyNoticeDescription;
-    private final String inaccuracyNoticePage;
+    private final String inaccuracyNoticeLinkHref;
 
     public NoticePropertyValues(
             @Value("${rdap.tnc.title:}") final String tncTitle,
@@ -36,7 +36,7 @@ public class NoticePropertyValues {
             @Value("${rdap.inaccuracy_notice.linkrel:}") final String inaccuracyNoticeLinkRel,
             @Value("${rdap.inaccuracy_notice.title:}") final String inaccuracyNoticeTitle,
             @Value("${rdap.inaccuracy_notice.description:}") final String inaccuracyNoticeDescription,
-            @Value("${rdap.inaccuracy_notice.page:}") final String inaccuracyNoticePage
+            @Value("${rdap.inaccuracy_notice.linkhref:}") final String inaccuracyNoticeLinkHref
     ) {
         this.tncTitle = tncTitle;
         this.tncDescription = tncDescription;
@@ -51,7 +51,7 @@ public class NoticePropertyValues {
         this.inaccuracyNoticeLinkRel = inaccuracyNoticeLinkRel;
         this.inaccuracyNoticeTitle = inaccuracyNoticeTitle;
         this.inaccuracyNoticeDescription = inaccuracyNoticeDescription;
-        this.inaccuracyNoticePage = inaccuracyNoticePage;
+        this.inaccuracyNoticeLinkHref = inaccuracyNoticeLinkHref;
     }
 
     public String getTncTitle() {
@@ -106,8 +106,8 @@ public class NoticePropertyValues {
         return inaccuracyNoticeDescription;
     }
 
-    public String getInaccuracyNoticePage() {
-        return inaccuracyNoticePage;
+    public String getInaccuracyNoticeLinkHref() {
+        return inaccuracyNoticeLinkHref;
     }
 
 }

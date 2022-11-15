@@ -39,7 +39,7 @@ class NoticeFactory {
         inaccuracyNotice.getLinks().add(new Link(
                 selfLink,
                 this.noticePropertyValues.getInaccuracyNoticeLinkRel(),
-                this.noticePropertyValues.getInaccuracyNoticePage(),
+                this.noticePropertyValues.getInaccuracyNoticeLinkHref(),
                 null,
                 MediaType.TEXT_HTML
         ));
