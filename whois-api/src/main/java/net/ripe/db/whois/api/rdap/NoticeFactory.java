@@ -65,7 +65,7 @@ class NoticeFactory {
         final Notice inaccuracyNotice = new Notice();
         inaccuracyNotice.setTitle("Whois Inaccuracy Reporting");
         inaccuracyNotice.getLinks().add(new Link(
-                "https://rdap.ripe.net",
+                selfLink,
                 Notice.INACCURACY_REPORT_NOTICE,
                 "https://www.ripe.net",
                 null,
