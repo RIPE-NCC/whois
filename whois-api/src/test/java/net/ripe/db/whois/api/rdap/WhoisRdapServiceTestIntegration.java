@@ -1859,7 +1859,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .flatMap(Collection::stream)
                 .map(Notice::getTitle)
                 .collect(Collectors.toList()),
-            containsInAnyOrder("Source", "Filtered"));
+            containsInAnyOrder("Source", "Filtered", "Whois Inaccuracy Reporting"));
         assertThat(result.getNotices(), hasSize(1));
         assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
