@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -23,63 +23,63 @@ public class FilteredPasswordSlf4jRequestLogWriterTest {
 
     @Test
     public void no_query_params() throws Exception {
-        subject.write(requestEntry("/whois/test/person/TP1-TEST"));
+        subject.write(request("/whois/test/person/TP1-TEST"));
 
-        verify(logger).info(contains("/whois/test/person/TP1-TEST"));
+        verify(logger).info(eq(request("/whois/test/person/TP1-TEST")));
     }
 
     @Test
     public void single_password_param() throws Exception {
-        subject.write(requestEntry("/whois/test/person/TP1-TEST?password=test"));
+        subject.write(request("/whois/test/person/TP1-TEST?password=test"));
 
-        verify(logger).info(contains("/whois/test/person/TP1-TEST?password=FILTERED"));
+        verify(logger).info(eq(request("/whois/test/person/TP1-TEST?password=FILTERED")));
     }
 
     @Test
     public void single_unformatted_param() throws Exception {
-        subject.write(requestEntry("/whois/test/person/TP1-TEST?unformatted"));
+        subject.write(request("/whois/test/person/TP1-TEST?unformatted"));
 
-        verify(logger).info(contains("/whois/test/person/TP1-TEST?unformatted"));
+        verify(logger).info(eq(request("/whois/test/person/TP1-TEST?unformatted")));
     }
 
     @Test
     public void password_and_unformatted_params() throws Exception {
-        subject.write(requestEntry("/whois/test/person/TP1-TEST?password=test&unformatted"));
+        subject.write(request("/whois/test/person/TP1-TEST?password=test&unformatted"));
 
-        verify(logger).info(contains("/whois/test/person/TP1-TEST?password=FILTERED&unformatted"));
+        verify(logger).info(eq(request("/whois/test/person/TP1-TEST?password=FILTERED&unformatted")));
     }
 
     @Test
     public void unformatted_and_password_params() throws Exception {
-        subject.write(requestEntry("/whois/test/person/TP1-TEST?unformatted&password=test"));
+        subject.write(request("/whois/test/person/TP1-TEST?unformatted&password=test"));
 
-        verify(logger).info(contains("/whois/test/person/TP1-TEST?unformatted&password=FILTERED"));
+        verify(logger).info(eq(request("/whois/test/person/TP1-TEST?unformatted&password=FILTERED")));
     }
 
     @Test
     public void multiple_password_params() throws Exception {
-        subject.write(requestEntry("/whois/test/person/TP1-TEST?password=test&password=tset"));
+        subject.write(request("/whois/test/person/TP1-TEST?password=test&password=tset"));
 
-        verify(logger).info(contains("/whois/test/person/TP1-TEST?password=FILTERED&password=FILTERED"));
+        verify(logger).info(eq(request("/whois/test/person/TP1-TEST?password=FILTERED&password=FILTERED")));
     }
 
     @Test
     public void multiple_dry_run_and_passwords_and_unformatted_params() throws Exception {
-        subject.write(requestEntry("/whois/test/person/TP1-TEST?dry-run=true&password=test&password=tset&unformatted"));
+        subject.write(request("/whois/test/person/TP1-TEST?dry-run=true&password=test&password=tset&unformatted"));
 
-        verify(logger).info(contains("/whois/test/person/TP1-TEST?dry-run=true&password=FILTERED&password=FILTERED&unformatted"));
+        verify(logger).info(eq(request("/whois/test/person/TP1-TEST?dry-run=true&password=FILTERED&password=FILTERED&unformatted")));
     }
 
     @Test
     public void multiple_password_and_unformatted_and_dry_run_and_password_params() throws Exception {
-        subject.write(requestEntry("/whois/test/person/TP1-TEST?password=test&unformatted&dry-run=true&password=tset"));
+        subject.write(request("/whois/test/person/TP1-TEST?password=test&unformatted&dry-run=true&password=tset"));
 
-        verify(logger).info(contains("/whois/test/person/TP1-TEST?password=FILTERED&unformatted&dry-run=true&password=FILTERED"));
+        verify(logger).info(eq(request("/whois/test/person/TP1-TEST?password=FILTERED&unformatted&dry-run=true&password=FILTERED")));
     }
 
     // helper methods
 
-    private String requestEntry(final String resource) {
+    private String request(final String resource) {
         return String.format(
             "127.0.0.1 " +
             "localhost:54632 " +

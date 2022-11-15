@@ -20,7 +20,7 @@ public class PasswordFilter {
 
     //from logsearch tweaked
     private static final Pattern PASSWORD_PATTERN_FOR_CONTENT = Pattern.compile("(?im)^(override|password)(:|%3A)\\s*(.+)\\s*$");
-    private static final Pattern URI_PASSWORD_PATTERN_PASSWORD_FOR_URL = Pattern.compile("(?<=)(password|override)(:|=|%3A)([^&]*)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern URI_PASSWORD_PATTERN_PASSWORD_FOR_URL = Pattern.compile("(?<=)(password|override)(:|=|%3A)([^&^\\s]*)", Pattern.CASE_INSENSITIVE);
 
     public static String filterPasswordsInContents(final String contents) {
         String result = contents;
