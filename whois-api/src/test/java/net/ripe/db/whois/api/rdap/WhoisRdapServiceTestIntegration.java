@@ -445,14 +445,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0"));
 
         var notices = ip.getNotices();
-        var inaccuracyNotice = notices.get(3);
+        var inaccuracyNotice = notices.get(1);
         assertThat(inaccuracyNotice.getTitle(), is("Whois Inaccuracy Reporting"));
         assertThat(inaccuracyNotice.getDescription().size(), is(1));
-        assertThat(inaccuracyNotice.getDescription().get(1), is("If you see inaccuracies in the results, please visit: "));
+        assertThat(inaccuracyNotice.getDescription().get(0), is("If you see inaccuracies in the results, please visit:"));
         assertThat(inaccuracyNotice.getLinks().size(), is(1));
-        assertThat(inaccuracyNotice.getLinks().get(1).getRel(), is("inaccuracy-report"));
-        assertThat(inaccuracyNotice.getLinks().get(1).getHref(), is("https://www.ripe.net/resources/registry/whois/inaccuracy_reporting/"));
-
+        assertThat(inaccuracyNotice.getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/192.132.75.165"));
+        assertThat(inaccuracyNotice.getLinks().get(0).getRel(), is("inaccuracy-report"));
+        assertThat(inaccuracyNotice.getLinks().get(0).getHref(), is("https://www.ripe.net/contact-form?topic=ripe_dbm&show_form=true"));
     }
 
     @Test

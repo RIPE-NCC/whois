@@ -20,7 +20,6 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Notice implements Serializable, Comparable<Notice> {
 
-    public static final String INACCURACY_REPORT_NOTICE = "inaccuracy-report";
     protected String title;
     protected List<String> description;
     protected List<Link> links;
