@@ -47,7 +47,7 @@ public class NrtmDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTes
                 () -> nrtmVersionDao.createNew(nrtmSourceHolder.getSource()),
                 "Expected nrtmVersionDao.createNew(...) to throw DuplicateKeyException"
         );
-        assertThat(thrown.getMessage(), containsString("Duplicate entry 'RIPE'"));
+        assertThat(thrown.getMessage(), containsString("Duplicate entry 'TEST'"));
     }
 
     @Test

@@ -36,7 +36,7 @@ public class NrtmVersionDao {
     public Optional<VersionInformation> findLastVersion(final NrtmSource source) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(
-                    "select vi.id, src.name, vi.version, vi.session_id " +
+                    "select vi.id, src.name, vi.version, vi.session_id, vi.type " +
                             "from version_information vi join source src on src.id = vi.source_id " +
                             "where src.name = ? " +
                             "order by vi.version desc limit 1",
@@ -57,11 +57,12 @@ public class NrtmVersionDao {
         final long version = 1L;
         final UUID sessionID = UUID.randomUUID();
         jdbcTemplate.update(
-                "insert into version_information (source_id, version, session_id) " +
-                        "values (?, ?, ?)",
+                "insert into version_information (source_id, version, session_id, type) " +
+                        "values (?, ?, ?, ?)",
                 sourceID,
                 version,
-                sessionID.toString()
+                sessionID.toString(),
+                NrtmDocumentType.snapshot.name()
         );
     }
 
