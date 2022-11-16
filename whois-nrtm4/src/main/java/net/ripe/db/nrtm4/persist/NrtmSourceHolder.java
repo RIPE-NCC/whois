@@ -10,23 +10,23 @@ import java.util.Map;
 @Component
 public class NrtmSourceHolder {
 
-    private final NrtmSource mainSource;
+    private final NrtmSource source;
     private final NrtmSource nonauthSource;
 
     private static final Map<String, NrtmSource> map = new HashMap<>();
 
     NrtmSourceHolder(
-            @Value("whois.source") final String mainSource,
+            @Value("whois.source") final String source,
             @Value("whois.nonauth.source") final String nonauthSource
     ) {
-        this.mainSource = new NrtmSource(mainSource);
+        this.source = new NrtmSource(source);
         this.nonauthSource = new NrtmSource(nonauthSource);
-        map.put(mainSource, this.mainSource);
+        map.put(source, this.source);
         map.put(nonauthSource, this.nonauthSource);
     }
 
-    public NrtmSource getMainSource() {
-        return mainSource;
+    public NrtmSource getSource() {
+        return source;
     }
 
     public NrtmSource getNonauthSource() {

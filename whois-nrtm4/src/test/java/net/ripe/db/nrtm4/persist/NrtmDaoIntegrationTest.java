@@ -34,16 +34,16 @@ public class NrtmDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTes
 
     @Test
     public void result_is_not_present_when_source_is_not_populated() {
-        final Optional<VersionInformation> version = nrtmVersionDao.findLastVersion(nrtmSourceHolder.getMainSource());
+        final Optional<VersionInformation> version = nrtmVersionDao.findLastVersion(nrtmSourceHolder.getSource());
         assertThat(version.isPresent(), is(false));
     }
 
     @Test
     public void source_is_unique() {
-        nrtmVersionDao.createNew(nrtmSourceHolder.getMainSource());
+        nrtmVersionDao.createNew(nrtmSourceHolder.getSource());
         final Exception thrown = assertThrows(
                 DuplicateKeyException.class,
-                () -> nrtmVersionDao.createNew(nrtmSourceHolder.getMainSource()),
+                () -> nrtmVersionDao.createNew(nrtmSourceHolder.getSource()),
                 "Expected nrtmVersionDao.createNew(...) to throw DuplicateKeyException"
         );
         assertThat(thrown.getMessage(), containsString("Duplicate entry 'RIPE'"));
@@ -51,10 +51,10 @@ public class NrtmDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTes
 
     @Test
     public void first_version_is_one() {
-        nrtmVersionDao.createNew(nrtmSourceHolder.getMainSource());
-        final Optional<VersionInformation> version = nrtmVersionDao.findLastVersion(nrtmSourceHolder.getMainSource());
+        nrtmVersionDao.createNew(nrtmSourceHolder.getSource());
+        final Optional<VersionInformation> version = nrtmVersionDao.findLastVersion(nrtmSourceHolder.getSource());
         assertThat(version.isPresent(), is(true));
-        assertThat(version.get().getSource(), is(nrtmSourceHolder.getMainSource()));
+        assertThat(version.get().getSource(), is(nrtmSourceHolder.getSource()));
         assertThat(version.get().getVersion(), is(1L));
     }
 
