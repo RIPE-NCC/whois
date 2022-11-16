@@ -212,10 +212,6 @@ class RdapObjectMapper {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
-        if (!rpslObject.containsAttribute(AttributeType.CREATED) || !rpslObject.containsAttribute(AttributeType.LAST_MODIFIED)){
-            throw new IllegalStateException("Object without created or last-modified attribute, object id: " + rpslObject.getObjectId());
-        }
-
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
         rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
 
