@@ -25,6 +25,7 @@ import net.ripe.db.whois.api.rdap.domain.Remark;
 import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
+import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -58,7 +59,6 @@ import javax.ws.rs.InternalServerErrorException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -133,20 +133,18 @@ class RdapObjectMapper {
 
     public Object map(final String requestUrl,
                       final RpslObject rpslObject,
-                      final LocalDateTime lastChangedTimestamp,
                       final Optional<AbuseContact> abuseContact) {
-        return mapCommons(getRdapObject(requestUrl, rpslObject, lastChangedTimestamp, abuseContact), requestUrl);
+        return mapCommons(getRdapObject(requestUrl, rpslObject, abuseContact), requestUrl);
     }
 
-    public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final Iterable<LocalDateTime> localDateTimes, final int maxResultSize) {
+    public Object mapSearch(final String requestUrl, final List<RpslObject> objects, final int maxResultSize) {
         final SearchResult searchResult = new SearchResult();
-        final Iterator<LocalDateTime> iterator = localDateTimes.iterator();
 
         for (final RpslObject object : objects) {
             if (object.getType() == DOMAIN) {
-                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, iterator.next(), Optional.empty()));
+                searchResult.addDomainSearchResult((Domain) getRdapObject(requestUrl, object, Optional.empty()));
             } else {
-                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, iterator.next(), Optional.empty()));
+                searchResult.addEntitySearchResult((Entity) getRdapObject(requestUrl, object, Optional.empty()));
             }
         }
 
@@ -162,8 +160,7 @@ class RdapObjectMapper {
     public Object mapOrganisationEntity(final String requestUrl, final RpslObject organisationObject,
                                         final Stream<RpslObject> autnumResult,
                                         final Stream<RpslObject> inetnumResult,
-                                        final Stream<RpslObject> inet6numResult,
-                                        final RpslObjectDao objectDao, final int maxResultSize){
+                                        final Stream<RpslObject> inet6numResult, final int maxResultSize){
 
 
         final TopLevelFilter ipv4TopLevelTree = new TopLevelFilter(inetnumResult);
@@ -171,21 +168,17 @@ class RdapObjectMapper {
 
         final List<Autnum> autnumsRdap = autnumResult.map(autnumRpsl -> (Autnum)getRdapObject(requestUrl,
                 autnumRpsl,
-                objectDao.getLastUpdated(autnumRpsl.getObjectId()),
                 Optional.empty())).collect(Collectors.toList());
 
         final List<Ip> ipv4Rdap = ((List<RpslObject>)ipv4TopLevelTree.getTopLevelValues()).stream().map(ipv4TopLevelRpsl -> (Ip)getRdapObject(requestUrl,
                 ipv4TopLevelRpsl,
-                objectDao.getLastUpdated(ipv4TopLevelRpsl.getObjectId()),
                 Optional.empty())).collect(Collectors.toList());
 
         final List<Ip> ipv6Rdap = ((List<RpslObject>)ipv6TopLevelTree.getTopLevelValues()).stream().map(ipv6TopLevelRpsl -> (Ip)getRdapObject(requestUrl,
                 ipv6TopLevelRpsl,
-                objectDao.getLastUpdated(ipv6TopLevelRpsl.getObjectId()),
                 Optional.empty())).collect(Collectors.toList());
 
-        final RdapObject organisation = getRdapObject(requestUrl, organisationObject,
-                objectDao.getLastUpdated(organisationObject.getObjectId()), Optional.empty());
+        final RdapObject organisation = getRdapObject(requestUrl, organisationObject,Optional.empty());
 
 
         List<Ip> networksRdap = Lists.newArrayList(ipv4Rdap);
@@ -222,7 +215,6 @@ class RdapObjectMapper {
 
     private RdapObject getRdapObject(final String requestUrl,
                                      final RpslObject rpslObject,
-                                     final LocalDateTime lastChangedTimestamp,
                                      final Optional<AbuseContact> optionalAbuseContact) {
         RdapObject rdapResponse;
         final ObjectType rpslObjectType = rpslObject.getType();
@@ -264,7 +256,8 @@ class RdapObjectMapper {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
-        rdapResponse.getEvents().add(createEvent(lastChangedTimestamp));
+        rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
+        rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
 
         rdapResponse.getNotices().addAll(noticeFactory.generateNotices(requestUrl, rpslObject));
 
@@ -422,9 +415,9 @@ class RdapObjectMapper {
         return !rpslObject.getValuesForAttribute(AttributeType.DESCR).isEmpty();
     }
 
-    private static Event createEvent(final LocalDateTime lastChanged) {
+    private static Event createEvent(final LocalDateTime lastChanged, final Action action) {
         final Event lastChangedEvent = new Event();
-        lastChangedEvent.setEventAction(Action.LAST_CHANGED);
+        lastChangedEvent.setEventAction(action);
         lastChangedEvent.setEventDate(lastChanged);
         return lastChangedEvent;
     }

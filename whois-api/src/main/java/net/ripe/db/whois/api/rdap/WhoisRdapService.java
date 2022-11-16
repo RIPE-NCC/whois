@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -20,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +37,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -63,7 +60,6 @@ public class WhoisRdapService {
     private final int maxResultSize;
     private final int maxEntityResultSize;
     private final RdapQueryHandler rdapQueryHandler;
-    private final RpslObjectDao objectDao;
     private final AbuseCFinder abuseCFinder;
     private final RdapObjectMapper rdapObjectMapper;
     private final DelegatedStatsService delegatedStatsService;
@@ -90,7 +86,6 @@ public class WhoisRdapService {
      */
     @Autowired
     public WhoisRdapService(final RdapQueryHandler rdapQueryHandler,
-                            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
                             final AbuseCFinder abuseCFinder,
                             final RdapObjectMapper rdapObjectMapper,
                             final DelegatedStatsService delegatedStatsService,
@@ -101,7 +96,6 @@ public class WhoisRdapService {
                             @Value("${rdap.search.max.results:100}") final int maxResultSize,
                             @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize) {
         this.rdapQueryHandler = rdapQueryHandler;
-        this.objectDao = objectDao;
         this.abuseCFinder = abuseCFinder;
         this.rdapObjectMapper = rdapObjectMapper;
         this.delegatedStatsService = delegatedStatsService;
@@ -295,7 +289,7 @@ public class WhoisRdapService {
         return Response.ok(rdapObjectMapper.mapOrganisationEntity(
                         getRequestUrl(request), organisationResult,
                         autnumResult, inetnumResult,
-                        inet6numResult, objectDao,
+                        inet6numResult,
                         maxEntityResultSize))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
@@ -317,7 +311,6 @@ public class WhoisRdapService {
                 rdapObjectMapper.map(
                         getRequestUrl(request),
                         resultObject,
-                        objectDao.getLastUpdated(resultObject.getObjectId()),
                         abuseCFinder.getAbuseContact(resultObject)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
@@ -376,12 +369,9 @@ public class WhoisRdapService {
                 throw new NotFoundException("Result is empty");
             }
 
-            final Iterable<LocalDateTime> lastUpdateds = objects.stream().map(input -> objectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
-
             return Response.ok(rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
                     objects,
-                    lastUpdateds,
                     maxResultSize))
                     .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
