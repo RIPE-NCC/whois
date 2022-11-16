@@ -45,6 +45,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -264,7 +265,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                     || username.startsWith("rdonly");
         });
         if (isLocalhostOrRdonly == null) {
-            throw new NullPointerException("Result of query was null in 'ensureLocalhost(...)'");
+            throw new IllegalStateException("Result of query was null in 'ensureLocalhost(...)'");
         }
         Validate.isTrue(isLocalhostOrRdonly, "Must be local connection or user rdonly");
     }
@@ -318,6 +319,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return internalsTemplate;
     }
 
+    @Nullable
     public JdbcTemplate getNrtmTemplate() {
         return nrtmTemplate;
     }
