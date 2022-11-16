@@ -37,7 +37,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -232,11 +231,11 @@ public class WhoisRdapService {
 
         final RpslObject resultObject = result.get(0);
 
+
         return Response.ok(
                 rdapObjectMapper.map(
                         getRequestUrl(request),
                         resultObject,
-                        objectDao.getLastUpdated(resultObject.getObjectId()),
                         abuseCFinder.getAbuseContact(resultObject)))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
@@ -295,12 +294,9 @@ public class WhoisRdapService {
                 throw new NotFoundException("not found");
             }
 
-            final Iterable<LocalDateTime> lastUpdateds = objects.stream().map(input -> objectDao.getLastUpdated(input.getObjectId())).collect(Collectors.toList());
-
             return Response.ok(rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
                     objects,
-                    lastUpdateds,
                     maxResultSize))
                     .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
