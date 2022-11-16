@@ -221,6 +221,6 @@ public class JettyBootstrap implements ApplicationService {
 
     // Log requests to org.eclipse.jetty.server.RequestLog
     private RequestLog createRequestLog() {
-        return new CustomRequestLog(new FilteredSlf4RequestLogWriter(), EXTENDED_RIPE_LOG_FORMAT);
+        return new CustomRequestLog(new FilteredPasswordSlf4RequestLogWriter(), EXTENDED_RIPE_LOG_FORMAT);
     }
 }
