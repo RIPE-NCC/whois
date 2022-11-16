@@ -174,12 +174,12 @@ class RdapObjectMapper {
                 objectDao.getLastUpdated(autnumRpsl.getObjectId()),
                 Optional.empty())).collect(Collectors.toList());
 
-        final List<Ip> ipv4Rdap = ((List<RpslObject>)ipv4TopLevelTree.filter()).stream().map(ipv4TopLevelRpsl -> (Ip)getRdapObject(requestUrl,
+        final List<Ip> ipv4Rdap = ((List<RpslObject>)ipv4TopLevelTree.getTopLevelValues()).stream().map(ipv4TopLevelRpsl -> (Ip)getRdapObject(requestUrl,
                 ipv4TopLevelRpsl,
                 objectDao.getLastUpdated(ipv4TopLevelRpsl.getObjectId()),
                 Optional.empty())).collect(Collectors.toList());
 
-        final List<Ip> ipv6Rdap = ((List<RpslObject>)ipv6TopLevelTree.filter()).stream().map(ipv6TopLevelRpsl -> (Ip)getRdapObject(requestUrl,
+        final List<Ip> ipv6Rdap = ((List<RpslObject>)ipv6TopLevelTree.getTopLevelValues()).stream().map(ipv6TopLevelRpsl -> (Ip)getRdapObject(requestUrl,
                 ipv6TopLevelRpsl,
                 objectDao.getLastUpdated(ipv6TopLevelRpsl.getObjectId()),
                 Optional.empty())).collect(Collectors.toList());

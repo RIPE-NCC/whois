@@ -11,22 +11,22 @@ import java.util.stream.Stream;
 
 public class TopLevelFilter<T extends Interval<T>>  {
     private NestedIntervalMap<T, RpslObject> tree;
-    public TopLevelFilter(Stream<RpslObject> rpslObjectStream){
+    public TopLevelFilter(final Stream<RpslObject> rpslObjectStream){
         this.buildTree(rpslObjectStream);
     }
 
-    public List<RpslObject> filter() {
+    public List<RpslObject> getTopLevelValues() {
         if(tree == null){
             return Collections.emptyList();
         }
         return tree.mapToValues();
 
     }
-    private void buildTree(Stream<RpslObject> rpslObjects) {
+    private void buildTree(final Stream<RpslObject> rpslObjects) {
+        this.tree = new NestedIntervalMap<>();
         rpslObjects.forEach(rpslObject -> {
-            this.tree = new NestedIntervalMap<>();
             final T key = (T) IpInterval.parse(rpslObject.getKey());
-            List<RpslObject> moreSpecific = tree.findFirstMoreSpecific(key);
+            final List<RpslObject> moreSpecific = tree.findFirstMoreSpecific(key);
             if (!moreSpecific.isEmpty()) {
                 final T moreSpecificKey = (T) IpInterval.parse(moreSpecific.get(0).getKey());
                 tree.remove(moreSpecificKey);
