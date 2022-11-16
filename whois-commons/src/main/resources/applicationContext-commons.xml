@@ -74,12 +74,6 @@
         <property name="password" value="${whois.db.slave.password}"/>
     </bean>
 
-    <bean id="nrtmDataSource" parent="abstractDataSource">
-        <property name="jdbcUrl" value="${nrtm.database.url}"/>
-        <property name="user" value="${nrtm.database.username}"/>
-        <property name="password" value="${nrtm.database.password}"/>
-    </bean>
-
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
         <property name="cacheManager" ref="ehcacheManager"/>
     </bean>

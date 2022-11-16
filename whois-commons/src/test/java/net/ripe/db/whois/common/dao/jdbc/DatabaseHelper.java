@@ -253,7 +253,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     static void ensureLocalhost(final JdbcTemplate jdbcTemplate) {
-        final Boolean result = jdbcTemplate.execute((ConnectionCallback<Boolean>) con -> {
+        final Boolean isLocalhostOrRdonly = jdbcTemplate.execute((ConnectionCallback<Boolean>) con -> {
             final DatabaseMetaData metaData = con.getMetaData();
             final String url = metaData.getURL();
             final String username = metaData.getUserName();
@@ -263,10 +263,9 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                     || url.contains("127.0.0.1")
                     || username.startsWith("rdonly");
         });
-        if (result == null) {
+        if (isLocalhostOrRdonly == null) {
             throw new NullPointerException("Result of query was null in 'ensureLocalhost(...)'");
         }
-        boolean isLocalhostOrRdonly = result;
         Validate.isTrue(isLocalhostOrRdonly, "Must be local connection or user rdonly");
     }
 

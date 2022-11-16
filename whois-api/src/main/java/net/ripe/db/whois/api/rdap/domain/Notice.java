@@ -19,6 +19,7 @@ import java.util.List;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Notice implements Serializable, Comparable<Notice> {
+
     protected String title;
     protected List<String> description;
     protected List<Link> links;
