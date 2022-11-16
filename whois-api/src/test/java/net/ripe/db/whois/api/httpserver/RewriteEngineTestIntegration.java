@@ -69,6 +69,8 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                     "mnt-by:        TEST-MNT\n" +
                     "nic-hdl:       PP1-TEST\n" +
                     "remarks:       remark\n" +
+                    "created:         2022-08-14T11:48:28Z\n" +
+                    "last-modified:   2022-10-25T12:22:39Z\n" +
                     "source:        TEST\n");
 
     @BeforeAll
@@ -85,7 +87,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @BeforeEach
     public void setup() {
-        databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST\nsource: TEST\n");
+        databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST\ncreated:         2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST\n");
         final RpslObject mntner = RpslObject.parse(
                 "mntner:        TEST-MNT\n" +
                         "descr:         Test maintainer\n" +
@@ -94,6 +96,8 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
                         "source:        TEST"
         );
         databaseHelper.addObject(mntner);
