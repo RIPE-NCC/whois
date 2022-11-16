@@ -212,15 +212,12 @@ class RdapObjectMapper {
             rdapResponse.getRemarks().add(createRemark(rpslObject));
         }
 
-        if (rpslObject.containsAttribute(AttributeType.CREATED)){
-            rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
+        if (!rpslObject.containsAttribute(AttributeType.CREATED) || !rpslObject.containsAttribute(AttributeType.LAST_MODIFIED)){
+            throw new IllegalStateException("Object without created or last-modified attribute, object id: " + rpslObject.getObjectId());
         }
 
-        if (rpslObject.containsAttribute(AttributeType.LAST_MODIFIED)){
-            rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
-        }
-
-
+        rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.CREATED)), Action.REGISTRATION));
+        rdapResponse.getEvents().add(createEvent(DateUtil.fromString(rpslObject.getValueForAttribute(AttributeType.LAST_MODIFIED)), Action.LAST_CHANGED));
 
         rdapResponse.getNotices().addAll(noticeFactory.generateNotices(requestUrl, rpslObject));
 

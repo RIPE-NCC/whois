@@ -155,12 +155,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "admin-c:       PP1-TEST\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "as-block:       AS100 - AS200\n" +
                 "descr:          ARIN ASN block\n" +
                 "org:            ORG-TEST1-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
         databaseHelper.addObject("" +
                 "inetnum:        0.0.0.0 - 255.255.255.255\n" +
@@ -171,6 +175,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "admin-c:        TP1-TEST\n" +
                 "status:         OTHER\n" +
                 "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
         databaseHelper.addObject("" +
                 "inet6num:       ::/0\n" +
@@ -181,6 +187,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "admin-c:        TP1-TEST\n" +
                 "status:         OTHER\n" +
                 "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
         ipTreeUpdater.rebuild();
     }
@@ -199,6 +207,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
@@ -228,7 +238,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(remarks.get(0).getDescription(), contains("TEST network"));
 
         final List<Event> events = ip.getEvents();
-        assertThat(events, hasSize(0));
+        assertThat(events, hasSize(2));
 
         final List<Notice> notices = ip.getNotices();
         assertThat(notices, hasSize(4));
@@ -254,6 +264,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
+                "created:      2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
@@ -284,6 +296,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
@@ -322,6 +336,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
@@ -392,6 +408,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         databaseHelper.addObject("" +
                 "person:        Test Person case\n" +
                 "nic-hdl:       gruk-RIPE\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         final Entity upperCaseEntity = createResource("entity/GRUK-RIPE")
@@ -412,8 +430,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(mixedCaseEntity.getHandle(), equalTo("gruk-RIPE"));
     }
-
-
+    
     @Test
     public void lookup_inetnum_not_found() {
         final Ip ip = createResource("ip/193.0.0.0")
@@ -437,6 +454,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:       TEST");
         ipTreeUpdater.rebuild();
 
@@ -520,6 +539,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "status:         ASSIGNED PA\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "mnt-lower:      OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
@@ -553,7 +574,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(remarks.get(0).getDescription(), contains("Private Network"));
 
         final List<Event> events = ip.getEvents();
-        assertThat(events, hasSize(0));
+        assertThat(events, hasSize(2));
 
 
         final List<Notice> notices = ip.getNotices();
@@ -577,6 +598,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "status:         ASSIGNED PA\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "mnt-lower:      OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
@@ -604,6 +627,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "status:         ASSIGNED PA\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "mnt-lower:      OWNER-MNT\n" +
+                "created:      2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
@@ -631,6 +656,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c: TP1-TEST\n" +
                 "status: ASSIGNED\n" +
                 "mnt-by: OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source: TEST\n");
         databaseHelper.addObject(inet6num);
         ipTreeUpdater.rebuild();
@@ -655,6 +682,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "status:         ASSIGNED PA\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "mnt-lower:      OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
         ipTreeUpdater.rebuild();
 
@@ -1014,6 +1043,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         final Autnum autnum = createResource("autnum/64496")
@@ -1045,11 +1076,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void lookup_as_block_for_reserved_autnum() {
         databaseHelper.addObject("" +
-                "as-block:       AS0 - AS6\n" +
-                "descr:          RIPE NCC block\n" +
-                "org:            ORG-TEST1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST");
+                "as-block:          AS0 - AS6\n" +
+                "descr:             RIPE NCC block\n" +
+                "org:               ORG-TEST1-TEST\n" +
+                "mnt-by:            OWNER-MNT\n" +
+                "created:           2022-08-14T11:48:28Z\n" +
+                "last-modified:     2022-10-25T12:22:39Z\n" +
+                "source:            TEST");
 
         final Autnum autnum = createResource("autnum/0")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -1126,6 +1159,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "e-mail:        personal@test.com\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "organisation:  ORG-TO2-TEST\n" +
@@ -1139,6 +1174,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "fax-no:        +01-000-000-000\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.updateObject("" +
                 "aut-num:       AS102\n" +
@@ -1148,6 +1185,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         final Autnum autnum = createResource("autnum/102")
@@ -1189,6 +1228,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "e-mail:        personal@test.com\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         databaseHelper.updateObject("" +
@@ -1200,6 +1241,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "abuse-c:       AB-TEST\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         final Autnum autnum = createResource("autnum/102")
@@ -1239,6 +1282,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "e-mail:        personal@test.com\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         databaseHelper.updateObject("" +
@@ -1249,6 +1294,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "abuse-c:       AB-TEST\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         databaseHelper.getInternalsTemplate().update(
@@ -1291,6 +1338,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                         "tech-c:    TP1-TEST\n" +
                         "mnt-by:    OWNER-MNT\n" +
                         "source:    TEST\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
                         "password: test");
         assertThat(response, containsString("Modify SUCCEEDED: [aut-num] AS102"));
 
@@ -1299,9 +1348,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Autnum.class);
 
         final List<Event> events = autnum.getEvents();
-        assertThat(events, hasSize(1));
-        assertThat(events.get(0).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(events, hasSize(2));
+
+        assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
         assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+
+        assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
+        assertTrue(events.get(1).getEventDate().isBefore(LocalDateTime.now()));
     }
 
     @Test
@@ -1313,6 +1366,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "nic-hdl:       AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "organisation:  ORG-TO2-TEST\n" +
@@ -1326,6 +1381,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "fax-no:        +01-000-000-000\n" +
                 "e-mail:        org@test.com\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
         databaseHelper.addObject("" +
                 "inetnum:      192.0.0.0 - 192.255.255.255\n" +
@@ -1336,6 +1393,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:       TP1-TEST\n" +
                 "status:       OTHER\n" +
                 "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:       TEST");
 
         ipTreeUpdater.rebuild();
@@ -1451,6 +1510,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "referral-by:   OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         databaseHelper.addObject("" +
@@ -1461,6 +1522,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:        PP1-TEST\n" +
                 "nic-hdl:       FR2-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         databaseHelper.addObject("" +
@@ -1471,6 +1534,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "tech-c:        PP1-TEST\n" +
                 "nic-hdl:       FR3-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
 
         Entity entity = createResource("entity/AZRT")
@@ -1666,7 +1731,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_umlaut() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl:TP3-TEST\ncreated:2022-08-14T11:48:28Z\nlast-modified:2022-10-25T12:22:39Z\nsource: TEST");
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=Tëst%20Person3")
@@ -1678,7 +1743,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_umlaut_latin1_encoded() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl:TP3-TEST\ncreated:2022-08-14T11:48:28Z\nlast-modified:2022-10-25T12:22:39Z\nsource: TEST");
         fullTextIndex.rebuild();
 
         try {
@@ -1693,7 +1758,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
     @Test
     public void search_entity_person_umlaut_utf8_encoded() {
-        databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\nsource: TEST");
+        databaseHelper.addObject("person: Tëst Person3\nnic-hdl:TP3-TEST\ncreated:2022-08-14T11:48:28Z\nlast-modified:2022-10-25T12:22:39Z\nsource: TEST");
         fullTextIndex.rebuild();
 
         final SearchResult response = createResource("entities?fn=T%C3%ABst%20Person3")
