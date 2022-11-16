@@ -50,6 +50,8 @@ import java.util.stream.Stream;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 
 @Component
 @Path("/")
@@ -246,22 +248,33 @@ public class WhoisRdapService {
             throw new IllegalStateException("Unexpected result size: " + organisationResult.size());
         }
 
-        final Query autnumInetnumForOrganisationQuery = Query.parse(
+        // Doing separately, instead of in one Stream for readability and to avoid big streams
+        final Query autnumQuery = getInverseQueryObject(Set.of(AUT_NUM), key);
+        final Query inetnumQuery = getInverseQueryObject(Set.of(INETNUM), key);
+        final Query inet6numQuery = getInverseQueryObject(Set.of(INET6NUM), key);
+
+        final Stream<RpslObject> autnumResult = rdapQueryHandler.handleQueryStream(autnumQuery,
+                request);
+        final Stream<RpslObject> inetnumResult = rdapQueryHandler.handleQueryStream(inetnumQuery,
+                request);
+        final Stream<RpslObject> inet6numResult = rdapQueryHandler.handleQueryStream(inet6numQuery,
+                request);
+
+        return getOrganisationResponse(request, organisationResult.get(0), autnumResult, inetnumResult, inet6numResult);
+    }
+
+    private Query getInverseQueryObject(final Set<ObjectType> objectTypes, final String key){
+        return Query.parse(
                 String.format("%s %s %s %s %s %s %s %s",
                         QueryFlag.NO_GROUPING.getLongFlag(),
                         QueryFlag.NO_REFERENCED.getLongFlag(),
                         QueryFlag.SELECT_TYPES.getLongFlag(),
-                        objectTypesToString(List.of(AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM)),
+                        objectTypesToString(objectTypes),
                         QueryFlag.NO_FILTERING.getLongFlag(),
                         QueryFlag.INVERSE.getLongFlag(),
                         AttributeType.ORG.getName(),
                         key));
-
-        final Stream<RpslObject> resourcesResult = rdapQueryHandler.handleQueryStream(autnumInetnumForOrganisationQuery,
-                request);
-        return getOrganisationResponse(request, resourcesResult, organisationResult);
     }
-
 
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
         return Query.parse(
@@ -274,13 +287,15 @@ public class WhoisRdapService {
                         key));
     }
 
-    private Response getOrganisationResponse(final HttpServletRequest request, final Stream<RpslObject> resourcesResult,
-                                             final List<RpslObject> organisationResult) {
+    private Response getOrganisationResponse(final HttpServletRequest request,
+                                             final RpslObject organisationResult,
+                                             final Stream<RpslObject> autnumResult,
+                                             final Stream<RpslObject> inetnumResult,
+                                             final Stream<RpslObject> inet6numResult) {
         return Response.ok(rdapObjectMapper.mapOrganisationEntity(
-                        getRequestUrl(request),
-                        resourcesResult,
-                        organisationResult,
-                        objectDao,
+                        getRequestUrl(request), organisationResult,
+                        autnumResult, inetnumResult,
+                        inet6numResult, objectDao,
                         maxEntityResultSize))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();

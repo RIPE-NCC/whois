@@ -1,43 +1,42 @@
 package net.ripe.db.whois.api;
 
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.etree.NestedIntervalMap;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.commons.compress.utils.Lists;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TopLevelFilter<T extends Interval<T>>  {
-    private final NestedIntervalMap<T, CIString> tree;
-    private final List<RpslObject> rpslObjects = Lists.newArrayList();
-    public TopLevelFilter(){
-        this.tree = new NestedIntervalMap<>();
+    private NestedIntervalMap<T, RpslObject> tree;
+    public TopLevelFilter(Stream<RpslObject> rpslObjectStream){
+        this.buildTree(rpslObjectStream);
     }
 
     public List<RpslObject> filter() {
-        return matchRpslWithTree(this.rpslObjects);
-
-    }
-
-    public void addElementToTree(final RpslObject rpslObject) {
-        final T key = (T) IpInterval.parse(rpslObject.getKey());
-        final List<CIString> moreSpecific = tree.findFirstMoreSpecific(key);
-        if (!moreSpecific.isEmpty()){
-            final T moreSpecificKey = (T) IpInterval.parse(moreSpecific.get(0));
-            tree.remove(moreSpecificKey);
-            tree.put(key, rpslObject.getKey());
-        } else {
-            if (tree.findExactAndAllLessSpecific(key).isEmpty()){
-                tree.put(key, rpslObject.getKey());
-            }
+        if(tree == null){
+            return Collections.emptyList();
         }
-        rpslObjects.add(rpslObject);
+        return tree.mapToValues();
+
+    }
+    private void buildTree(Stream<RpslObject> rpslObjects) {
+        rpslObjects.forEach(rpslObject -> {
+            this.tree = new NestedIntervalMap<>();
+            final T key = (T) IpInterval.parse(rpslObject.getKey());
+            List<RpslObject> moreSpecific = tree.findFirstMoreSpecific(key);
+            if (!moreSpecific.isEmpty()) {
+                final T moreSpecificKey = (T) IpInterval.parse(moreSpecific.get(0).getKey());
+                tree.remove(moreSpecificKey);
+                tree.put(key, rpslObject);
+            } else {
+                if (tree.findExactAndAllLessSpecific(key).isEmpty()) {
+                    tree.put(key, rpslObject);
+                }
+            }
+        });
     }
 
-    private List<RpslObject> matchRpslWithTree(final List<RpslObject> rpslObjects) {
-        return rpslObjects.stream().filter(rpslObject -> !tree.findExact((T) IpInterval.parse(rpslObject.getKey())).isEmpty()).collect(Collectors.toList());
-    }
 }

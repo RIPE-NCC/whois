@@ -159,18 +159,17 @@ class RdapObjectMapper {
         return mapCommons(searchResult, requestUrl);
     }
 
-    public Object mapOrganisationEntity(final String requestUrl, final Stream<RpslObject> resourcesResult,
-                                        final List<RpslObject> organisationResult,
+    public Object mapOrganisationEntity(final String requestUrl, final RpslObject organisationObject,
+                                        final Stream<RpslObject> autnumResult,
+                                        final Stream<RpslObject> inetnumResult,
+                                        final Stream<RpslObject> inet6numResult,
                                         final RpslObjectDao objectDao, final int maxResultSize){
-        final RpslObject organisationObject = organisationResult.get(0);
 
-        final List<RpslObject> autnumsRpsl = Lists.newArrayList();
-        final TopLevelFilter ipv6TopLevelTree = new TopLevelFilter();
-        final TopLevelFilter ipv4TopLevelTree = new TopLevelFilter();
 
-        extractObjectsFromStream(resourcesResult, autnumsRpsl, ipv6TopLevelTree, ipv4TopLevelTree);
+        final TopLevelFilter ipv4TopLevelTree = new TopLevelFilter(inetnumResult);
+        final TopLevelFilter ipv6TopLevelTree = new TopLevelFilter(inet6numResult);
 
-        final List<Autnum> autnumsRdap = autnumsRpsl.stream().map(autnumRpsl -> (Autnum)getRdapObject(requestUrl,
+        final List<Autnum> autnumsRdap = autnumResult.map(autnumRpsl -> (Autnum)getRdapObject(requestUrl,
                 autnumRpsl,
                 objectDao.getLastUpdated(autnumRpsl.getObjectId()),
                 Optional.empty())).collect(Collectors.toList());
@@ -205,25 +204,6 @@ class RdapObjectMapper {
         return mapCommons(organisation, requestUrl);
     }
 
-    private void extractObjectsFromStream(final Stream<RpslObject> resourcesResult, final List<RpslObject> autnumRpsl,
-                                          final TopLevelFilter ipv6TopLevelTree,
-                                          final TopLevelFilter ipv4TopLevelTree) {
-        resourcesResult.forEach(object -> {
-            switch (object.getType()) {
-                case AUT_NUM:
-                    autnumRpsl.add(object);
-                    break;
-                case INETNUM:
-                    ipv4TopLevelTree.addElementToTree(object);
-                    break;
-                case INET6NUM:
-                    ipv6TopLevelTree.addElementToTree(object);
-                    break;
-                default:
-                    throw new IllegalStateException("Incorrect object type " + object.getType());
-            }
-        });
-    }
 
     public RdapObject mapError(final int errorCode, final String errorTitle, final List<String> errorDescriptions) {
         if (Strings.isNullOrEmpty(errorTitle)) {
