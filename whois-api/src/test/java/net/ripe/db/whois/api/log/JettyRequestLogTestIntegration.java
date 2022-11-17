@@ -22,6 +22,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.annotation.DirtiesContext;
 
 
 import java.io.File;
@@ -33,6 +34,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @Tag("IntegrationTest")
 public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
 
@@ -66,7 +68,7 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         removeLog4jAppender();
         clearRequestLog();
     }
-    
+
     @AfterAll
     public static void cleanUp() throws Exception {
         cleanupRequestLogDirectory();
