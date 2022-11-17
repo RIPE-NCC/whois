@@ -16,8 +16,8 @@ public class NrtmSourceHolder {
     private static final Map<String, NrtmSource> map = new HashMap<>();
 
     NrtmSourceHolder(
-            @Value("whois.source") final String source,
-            @Value("whois.nonauth.source") final String nonauthSource
+            @Value("${whois.source}") final String source,
+            @Value("${whois.nonauth.source}") final String nonauthSource
     ) {
         this.source = new NrtmSource(source);
         this.nonauthSource = new NrtmSource(nonauthSource);
