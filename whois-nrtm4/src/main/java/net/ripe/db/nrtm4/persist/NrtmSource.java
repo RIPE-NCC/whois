@@ -1,9 +1,14 @@
 package net.ripe.db.nrtm4.persist;
 
-public enum NrtmSource {
+public class NrtmSource {
 
-    RIPE,
-    RIPE_NONAUTH,
-    TEST,
+    private final String value;
 
+    public NrtmSource(final String value) {
+        this.value = value;
+    }
+
+    public String name() {
+        return value;
+    }
 }

@@ -52,4 +52,5 @@ public class VersionInformation {
     public VersionInformation increment() {
         return new VersionInformation(0L, this.source, this.version + 1, this.sessionID, this.type);
     }
+
 }
