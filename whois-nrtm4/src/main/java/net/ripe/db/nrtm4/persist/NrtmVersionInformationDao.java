@@ -62,8 +62,8 @@ public class NrtmVersionInformationDao {
         return save(source, version, sessionID, type);
     }
 
-    public VersionInformation save(final VersionInformation version) {
-        return save(version.getSource(), version.getVersion(), version.getSessionID(), version.getType());
+    public VersionInformation incrementAndSave(final VersionInformation version) {
+        return save(version.getSource(), version.getVersion() + 1, version.getSessionID(), version.getType());
     }
 
     private VersionInformation save(

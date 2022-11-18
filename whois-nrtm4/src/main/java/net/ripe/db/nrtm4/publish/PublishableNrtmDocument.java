@@ -5,11 +5,13 @@ import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.VersionInformation;
 
+import static net.ripe.db.nrtm4.Constants.NRTM_VERSION;
+
 
 public abstract class PublishableNrtmDocument {
 
     @JsonProperty("nrtm_version")
-    private int nrtmVersion = 4;
+    private int nrtmVersion = NRTM_VERSION;
     private NrtmDocumentType type;
     private NrtmSource source;
     @JsonProperty("session_id")

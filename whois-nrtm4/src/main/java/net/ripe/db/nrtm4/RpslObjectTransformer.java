@@ -4,23 +4,23 @@ import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.stereotype.Component;
 
+import static net.ripe.db.nrtm4.Constants.NRTM_VERSION;
+
 
 /**
  * Replaces some attribute values with dummy values to prevent leaking potentially sensitive information
  */
 @Component
-public class RpslAttributeTransformer {
+public class RpslObjectTransformer {
 
     private final DummifierNrtm dummifierNrtm;
 
-    private final static int nrtmVersionNumber = 4;
-
-    RpslAttributeTransformer(final DummifierNrtm dummifierNrtm) {
+    RpslObjectTransformer(final DummifierNrtm dummifierNrtm) {
         this.dummifierNrtm = dummifierNrtm;
     }
 
     RpslObject filter(final RpslObject in) {
-        return dummifierNrtm.dummify(nrtmVersionNumber, in);
+        return dummifierNrtm.dummify(NRTM_VERSION, in);
     }
 
 }

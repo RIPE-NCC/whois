@@ -33,7 +33,7 @@ public class NotificationFileGenerationService {
             version = lastVersion.get();
             // If it's a delta then use this version. If it's a snapshot then increment it.
             if (version.getType() == NrtmDocumentType.snapshot) {
-                version = versionDao.save(version.increment());
+                version = versionDao.incrementAndSave(version);
             }
         }
         final SnapshotFile snapshotFile = new SnapshotFile(version);
