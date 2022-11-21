@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.collect.Streams;
 import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.commons.ip.Ipv6Range;
@@ -162,36 +161,25 @@ class RdapObjectMapper {
                                         final Stream<RpslObject> autnumResult,
                                         final Stream<RpslObject> inetnumResult,
                                         final Stream<RpslObject> inet6numResult, final int maxResultSize){
-        final TopLevelFilter ipv4TopLevelTree = new TopLevelFilter(inetnumResult);
-        final TopLevelFilter ipv6TopLevelTree = new TopLevelFilter(inet6numResult);
-
-        final List<Autnum> autnums = autnumResult.map(autnumRpsl -> (Autnum)getRdapObject(requestUrl,
+         final List<Autnum> autnums = autnumResult.map(autnumRpsl -> (Autnum)getRdapObject(requestUrl,
                 autnumRpsl,
                 Optional.empty())).collect(Collectors.toList());
 
-        final List<Ip> ipv4 = ((List<RpslObject>)ipv4TopLevelTree.getTopLevelValues()).stream().map(ipv4TopLevelRpsl -> (Ip)getRdapObject(requestUrl,
-                ipv4TopLevelRpsl,
-                Optional.empty())).collect(Collectors.toList());
-
-        final List<Ip> ipv6 = ((List<RpslObject>)ipv6TopLevelTree.getTopLevelValues()).stream().map(ipv6TopLevelRpsl -> (Ip)getRdapObject(requestUrl,
-                ipv6TopLevelRpsl,
-                Optional.empty())).collect(Collectors.toList());
+        final List<Ip> networks = getTopLevelAndMerge(requestUrl, inetnumResult, inet6numResult, maxResultSize);
 
         final RdapObject organisation = getRdapObject(requestUrl, organisationObject,Optional.empty());
-        final List<Ip> networksRdap = Streams.concat(ipv4.stream(), ipv6.stream()).limit(maxResultSize).collect(Collectors.toList());
 
-        if (networksRdap.size() > maxResultSize) {
+        if (networks.size() > maxResultSize) {
             final Notice outOfLimitNotice = new Notice();
             outOfLimitNotice.setTitle(String.format("limited networks attribute results to %s maximum" ,
                     maxResultSize));
             organisation.getNotices().add(outOfLimitNotice);
         }
-        organisation.setNetworks(networksRdap);
+        organisation.setNetworks(networks);
         organisation.setAutnums(autnums);
 
         return mapCommons(organisation, requestUrl);
     }
-
 
     public RdapObject mapError(final int errorCode, final String errorTitle, final List<String> errorDescriptions) {
         if (Strings.isNullOrEmpty(errorTitle)) {
@@ -208,6 +196,12 @@ class RdapObjectMapper {
         return mapCommons(new RdapObject(), requestUrl);
     }
 
+    private List<Ip> getTopLevelAndMerge(String requestUrl, Stream<RpslObject> inetnumResult, Stream<RpslObject> inet6numResult, int maxResultSize) {
+        return Stream.concat((Stream<RpslObject>) new TopLevelFilter(inetnumResult).getTopLevelValues().stream(),
+                        (Stream<RpslObject>) new TopLevelFilter(inet6numResult).getTopLevelValues().stream())
+                .limit(maxResultSize)
+                .map(topLevelRpsl -> (Ip) getRdapObject(requestUrl, topLevelRpsl, Optional.empty())).collect(Collectors.toList());
+    }
     private RdapObject getRdapObject(final String requestUrl,
                                      final RpslObject rpslObject,
                                      final Optional<AbuseContact> optionalAbuseContact) {
