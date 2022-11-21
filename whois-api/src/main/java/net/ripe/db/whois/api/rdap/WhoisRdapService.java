@@ -71,7 +71,6 @@ public class WhoisRdapService {
     /**
      *
      * @param rdapQueryHandler
-     * @param objectDao
      * @param abuseCFinder
      * @param rdapObjectMapper
      * @param delegatedStatsService
