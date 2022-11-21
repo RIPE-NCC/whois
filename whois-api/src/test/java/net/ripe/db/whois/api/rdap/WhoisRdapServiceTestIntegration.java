@@ -47,7 +47,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -1469,7 +1468,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertFalse(response.getAutnums().isEmpty());
         assertTrue(response.getNetworks().isEmpty());
 
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
@@ -1496,7 +1494,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
         assertTrue(response.getAutnums().isEmpty());
-        assertFalse(response.getNetworks().isEmpty());
 
         assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
     }
@@ -1524,7 +1521,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
         assertTrue(response.getAutnums().isEmpty());
-        assertFalse(response.getNetworks().isEmpty());
 
         assertThat(response.getNetworks().get(0).getName(), equalTo("RIPE-NCC"));
     }
@@ -1562,8 +1558,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertFalse(response.getAutnums().isEmpty());
-        assertFalse(response.getNetworks().isEmpty());
 
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
         assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
@@ -1613,8 +1607,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertFalse(response.getAutnums().isEmpty());
-        assertFalse(response.getNetworks().isEmpty());
         assertThat(response.getAutnums().size(), equalTo(1));
 
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
@@ -1679,8 +1671,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertFalse(response.getAutnums().isEmpty());
-        assertFalse(response.getNetworks().isEmpty());
         assertThat(response.getAutnums().size(), equalTo(1));
 
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
