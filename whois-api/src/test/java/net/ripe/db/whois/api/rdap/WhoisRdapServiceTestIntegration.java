@@ -1869,7 +1869,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "Result is empty");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -1952,7 +1952,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "Result is empty");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -2030,7 +2030,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "Result is empty");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -2065,7 +2065,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "Result is empty");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 

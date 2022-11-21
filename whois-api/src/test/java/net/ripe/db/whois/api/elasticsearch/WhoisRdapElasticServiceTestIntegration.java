@@ -337,7 +337,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -396,7 +396,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -469,7 +469,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -501,7 +501,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 

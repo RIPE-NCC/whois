@@ -296,7 +296,7 @@ public class WhoisRdapService {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
         if (!rpslIterator.hasNext()) {
-            throw new NotFoundException("Result is empty");
+            throw new NotFoundException("404 Not Found");
         }
 
         final RpslObject resultObject = rpslIterator.next();
@@ -364,7 +364,7 @@ public class WhoisRdapService {
             final List<RpslObject> objects = rdapFullTextSearch.performSearch(fields, term, request.getRemoteAddr(), source);
 
             if (objects.isEmpty()) {
-                throw new NotFoundException("Result is empty");
+                throw new NotFoundException("404 Not Found");
             }
 
             return Response.ok(rdapObjectMapper.mapSearch(
