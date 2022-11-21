@@ -165,7 +165,7 @@ class RdapObjectMapper {
                 autnumRpsl,
                 Optional.empty())).collect(Collectors.toList());
 
-        final List<Ip> networks = getTopLevelAndMerge(requestUrl, inetnumResult, inet6numResult, maxResultSize);
+        final List<Ip> networks = getTruncatedTopLevelPs(requestUrl, inetnumResult, inet6numResult, maxResultSize);
 
         final RdapObject organisation = getRdapObject(requestUrl, organisationObject,Optional.empty());
 
@@ -196,7 +196,8 @@ class RdapObjectMapper {
         return mapCommons(new RdapObject(), requestUrl);
     }
 
-    private List<Ip> getTopLevelAndMerge(String requestUrl, Stream<RpslObject> inetnumResult, Stream<RpslObject> inet6numResult, int maxResultSize) {
+    private List<Ip> getTruncatedTopLevelPs(String requestUrl, Stream<RpslObject> inetnumResult,
+                                            Stream<RpslObject> inet6numResult, int maxResultSize) {
         return Stream.concat((Stream<RpslObject>) new TopLevelFilter(inetnumResult).getTopLevelValues().stream(),
                         (Stream<RpslObject>) new TopLevelFilter(inet6numResult).getTopLevelValues().stream())
                 .limit(maxResultSize)
