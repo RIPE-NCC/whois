@@ -180,9 +180,6 @@ public class RdapObject implements Serializable {
     }
 
     public void setNetworks(final List<Ip> networks) {
-        if (this.networks == null) {
-            this.networks = Lists.newArrayList();
-        }
-        this.networks.addAll(networks);
+        this.networks = networks;
     }
 }
