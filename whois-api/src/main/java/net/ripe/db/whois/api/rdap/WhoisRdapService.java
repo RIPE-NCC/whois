@@ -136,7 +136,7 @@ public class WhoisRdapService {
             }
             case ENTITY: {
                 rdapRequestValidator.validateEntity(key);
-                return key.toUpperCase().startsWith("ORG-") ? lookupForOrganisation(request, whoisObjectTypes, key) :
+                return key.toUpperCase().startsWith("ORG-") ? lookupForOrganisation(request, key) :
                         lookupObject(request, whoisObjectTypes, key);
             }
             case NAMESERVER: {
@@ -228,9 +228,8 @@ public class WhoisRdapService {
         return getResponse(request, result);
     }
 
-    protected Response lookupForOrganisation(final HttpServletRequest request, final Set<ObjectType> objectTypes,
-                                             final String key) {
-        final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes,
+    protected Response lookupForOrganisation(final HttpServletRequest request, final String key) {
+        final List<RpslObject> organisationResult = rdapQueryHandler.handleQueryStream(getQueryObject(Set.of(ObjectType.ORGANISATION),
                         key),
                 request).collect(Collectors.toList());
 
