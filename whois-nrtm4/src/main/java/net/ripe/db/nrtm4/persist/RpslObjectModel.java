@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 
 public class RpslObjectModel {
 
-    final long id;
+    final long objectId;
     final long sequenceId;
     final long timestamp;
     final ObjectType objectType;
@@ -14,14 +14,14 @@ public class RpslObjectModel {
     final String pkey;
 
     public RpslObjectModel(
-            final long id,
+            final long objectId,
             final long sequenceId,
             final long timestamp,
             final ObjectType objectType,
             final RpslObject object,
             final String pkey
     ) {
-        this.id = id;
+        this.objectId = objectId;
         this.sequenceId = sequenceId;
         this.timestamp = timestamp;
         this.objectType = objectType;
@@ -29,8 +29,8 @@ public class RpslObjectModel {
         this.pkey = pkey;
     }
 
-    public long getId() {
-        return id;
+    public long getObjectId() {
+        return objectId;
     }
 
     public long getSequenceId() {

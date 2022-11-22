@@ -130,6 +130,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.javatuples</groupId>
+                <artifactId>javatuples</artifactId>
+                <version>1.2</version>
+            </dependency>
             <!-- whois modules' artifacts -->
             <dependency>
                 <groupId>net.ripe.db</groupId>

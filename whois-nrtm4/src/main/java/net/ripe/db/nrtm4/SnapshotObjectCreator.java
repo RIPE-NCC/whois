@@ -1,22 +1,16 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.persist.SerialModel;
-import net.ripe.db.nrtm4.persist.WhoisSlaveDao;
-
-import java.util.List;
+import net.ripe.db.nrtm4.persist.WhoisSlaveRepository;
 
 
 public class SnapshotObjectCreator {
 
-    private DeltaProcessor deltaProcessor;
-    private final WhoisSlaveDao whoisSlaveDao;
+    private final WhoisSlaveRepository whoisSlaveRepository;
 
     public SnapshotObjectCreator(
-            final DeltaProcessor deltaProcessor,
-            final WhoisSlaveDao whoisSlaveDao
-            ) {
-        this.deltaProcessor = deltaProcessor;
-        this.whoisSlaveDao = whoisSlaveDao;
+            final WhoisSlaveRepository whoisSlaveRepository
+    ) {
+        this.whoisSlaveRepository = whoisSlaveRepository;
     }
 
     public void initializeSnapshot() {
@@ -39,8 +33,6 @@ public class SnapshotObjectCreator {
     public void synchronizeObjects() {
 
         // Find serials since the one given
-        final int lastSerialId = deltaProcessor.findLastSerialId();
-        final List<SerialModel> serials = whoisSlaveDao.findSerialsSince(lastSerialId);
 
         // Create a delta
 

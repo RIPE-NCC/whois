@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 
 
 @Repository
-public class DeltaFileDao {
+public class DeltaFileRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<DeltaFile> rowMapper = (rs, rowNum) ->
@@ -25,7 +25,7 @@ public class DeltaFileDao {
             );
 
     @Autowired
-    public DeltaFileDao(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public DeltaFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
