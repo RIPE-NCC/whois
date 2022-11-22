@@ -172,7 +172,8 @@ whois-update:
 
 
 sonar:
-  <<: *it_env
+  tags:
+    - whois
   stage: code_quality
   script:
     - echo PWD=$PWD
