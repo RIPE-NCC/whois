@@ -10,11 +10,11 @@ import javax.sql.DataSource;
 
 
 @Repository
-public class DeltaFileRepository {
+public class DeltaFileModelRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<DeltaFile> rowMapper = (rs, rowNum) ->
-            new DeltaFile(
+    private final RowMapper<DeltaFileModel> rowMapper = (rs, rowNum) ->
+            new DeltaFileModel(
                     rs.getLong(1),
                     rs.getLong(2),
                     rs.getString(3),
@@ -25,11 +25,11 @@ public class DeltaFileRepository {
             );
 
     @Autowired
-    public DeltaFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public DeltaFileModelRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public DeltaFile findLastChange() {
+    public DeltaFileModel findLastChange() {
         final String sql = "" +
                 "select id, version_id, name, payload, hash, last_serial_id, created from delta_file " +
                 "where last_serial_id = (select max(last_serial_id) from delta_file)";

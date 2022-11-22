@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4.persist;
 
-public class DeltaFile {
+public class DeltaFileModel {
 
     private final long id;
     private final long versionId;
@@ -10,7 +10,7 @@ public class DeltaFile {
     private final int lastSerialId;
     private final long created;
 
-    public DeltaFile(
+    public DeltaFileModel(
             final long id,
             final long versionId,
             final String name,
