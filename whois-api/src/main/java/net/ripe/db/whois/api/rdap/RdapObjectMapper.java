@@ -493,7 +493,7 @@ class RdapObjectMapper {
     private Domain createDomain(final RpslObject rpslObject) {
         final Domain domain = new Domain();
         domain.setHandle(rpslObject.getKey().toString());
-        domain.setLdhName(rpslObject.getKey().toString());
+        domain.setLdhName(IpInterval.addTrailingDot(rpslObject.getKey().toString()));
 
         final Map<CIString, Set<IpInterval>> hostnameMap = new HashMap<>();
 
