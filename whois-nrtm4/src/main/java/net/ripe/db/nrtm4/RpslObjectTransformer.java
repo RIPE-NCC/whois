@@ -24,4 +24,8 @@ public class RpslObjectTransformer {
         return dummifierNrtm.dummify(NRTM_VERSION, in);
     }
 
+    boolean isAllowed(final RpslObject in) {
+        return dummifierNrtm.isAllowed(NRTM_VERSION, in);
+    }
+
 }

@@ -10,17 +10,20 @@ import org.javatuples.Pair;
 import java.util.List;
 
 
-public class SnapshotObjectCreator {
+public class NrtmProcessor {
 
     private final DeltaFileModelRepository deltaFileModelRepository;
+    private final DeltaProcessor deltaProcessor;
     private final WhoisSlaveDao whoisSlaveDao;
 
-    public SnapshotObjectCreator(
+    public NrtmProcessor(
             final WhoisSlaveDao whoisSlaveDao,
-            final DeltaFileModelRepository deltaFileModelRepository
+            final DeltaFileModelRepository deltaFileModelRepository,
+            final DeltaProcessor deltaProcessor
     ) {
         this.whoisSlaveDao = whoisSlaveDao;
         this.deltaFileModelRepository = deltaFileModelRepository;
+        this.deltaProcessor = deltaProcessor;
     }
 
     public void initializeSnapshot() {
@@ -40,18 +43,18 @@ public class SnapshotObjectCreator {
         // different json structures might actually contain the same objects)
     }
 
-    public void synchronizeObjects() {
+    public void processDeltas() {
 
-        // Find serials since the one given
-
+        // Find changes since the last delta
         final DeltaFileModel deltaFileModel = deltaFileModelRepository.findLastChange();
         final int lastSerialId = deltaFileModel.getLastSerialId();
         final List<Pair<SerialModel, RpslObjectModel>> changes = whoisSlaveDao.findSerialsAndObjectsSinceSerial(lastSerialId);
 
-        // Create a delta
+        // TODO: Create a delta file
+        final List<DeltaChange> deltaChangeList = deltaProcessor.process(changes);
 
+        // TODO: apply changes to the snapshot
         // if 'operation' is '1' (add) then add to snapshot table
-
         // if 'operation' is '2' (del) then remove from snapshot table
 
     }
