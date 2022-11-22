@@ -62,8 +62,6 @@ release:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: always
-    - when: manual
-      allow_failure: true
   artifacts:
     reports:
       junit:
