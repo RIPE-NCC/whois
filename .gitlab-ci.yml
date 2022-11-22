@@ -179,8 +179,6 @@ whois-update:
 sonar:
   <<: *mariadb_configuration
   stage: code_quality
-  only:
-    - schedules
   tags:
     - whois
   script:
