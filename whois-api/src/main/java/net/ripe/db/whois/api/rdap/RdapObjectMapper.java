@@ -95,7 +95,9 @@ class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
-    private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
+    private static final List<String> COMMON_RDAP_CONFORMANCE = Lists.newArrayList(RdapConformanceEnum.CIRD_0.name(),
+            RdapConformanceEnum.LEVEL_0.name(),
+            RdapConformanceEnum.FLAT_MODEL.name());
 
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
 
@@ -193,7 +195,9 @@ class RdapObjectMapper {
     }
 
     public RdapObject mapHelp(final String requestUrl) {
-        return mapCommons(new RdapObject(), requestUrl);
+        RdapObject rdapObject =  mapCommons(new RdapObject(), requestUrl);
+        rdapObject.setRdapConformance(COMMON_RDAP_CONFORMANCE);
+        return rdapObject;
     }
 
     private List<Ip> filterTopLevelIps(String requestUrl, Stream<RpslObject> inetnumResult,
@@ -222,7 +226,7 @@ class RdapObjectMapper {
             case INETNUM:
             case INET6NUM:
                 rdapResponse = createIp(rpslObject);
-                rdapResponse.getRdapConformance().add("cidr0");
+                rdapResponse.getRdapConformance().add(RdapConformanceEnum.CIRD_0.name());
                 break;
             case PERSON:
             case ROLE:
@@ -257,7 +261,7 @@ class RdapObjectMapper {
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
         rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
 
-        rdapResponse.getRdapConformance().addAll(RDAP_CONFORMANCE_LEVEL);
+        rdapResponse.getRdapConformance().add(RdapConformanceEnum.LEVEL_0.name());
 
         if (requestUrl != null) {
             rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null));
@@ -469,6 +473,7 @@ class RdapObjectMapper {
         autnum.setStatus(getResourceStatus(rpslObject));
 
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
+        autnum.getRdapConformance().add(RdapConformanceEnum.FLAT_MODEL.name());
         return autnum;
     }
 

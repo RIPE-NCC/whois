@@ -118,6 +118,9 @@ public class RdapObject implements Serializable {
         this.status = status;
     }
 
+    public void setRdapConformance(List<String> rdapConformance) {
+        this.rdapConformance = rdapConformance;
+    }
     public List<String> getRdapConformance() {
         if (rdapConformance == null) {
             rdapConformance = Lists.newArrayList();
