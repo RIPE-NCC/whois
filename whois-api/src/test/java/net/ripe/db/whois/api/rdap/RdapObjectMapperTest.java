@@ -311,7 +311,7 @@ public class RdapObjectMapperTest {
                 "source:          TEST")));
 
         assertThat(result.getHandle(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
-        assertThat(result.getLdhName(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa."));
+        assertThat(result.getLdhName(), is("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
         assertThat(result.getUnicodeName(), is(nullValue()));
 
         assertThat(result.getNameservers(), hasSize(2));
@@ -381,7 +381,7 @@ public class RdapObjectMapperTest {
                 "source:   TEST\n")));
 
         assertThat(result.getHandle(), is("31.12.202.in-addr.arpa"));
-        assertThat(result.getLdhName(), is("31.12.202.in-addr.arpa."));
+        assertThat(result.getLdhName(), is("31.12.202.in-addr.arpa"));
         assertThat(result.getUnicodeName(), is(nullValue()));
 
         assertThat(result.getNameservers(), hasSize(3));
