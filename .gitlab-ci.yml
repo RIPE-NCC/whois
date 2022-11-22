@@ -59,9 +59,6 @@ release:
   tags:
     - whois
   stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
   artifacts:
     reports:
       junit:
