@@ -6,11 +6,11 @@ import net.ripe.db.nrtm4.persist.VersionInformation;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 
-public class SnapshotFile extends PublishableNrtmDocument {
+public class PublishableSnapshotFile extends PublishableNrtmDocument {
 
     private String objects;
 
-    public SnapshotFile(
+    public PublishableSnapshotFile(
             final VersionInformation version
     ) {
         super(version);
@@ -21,7 +21,7 @@ public class SnapshotFile extends PublishableNrtmDocument {
         return isEmpty(objects) ? "[]" : objects;
     }
 
-    public SnapshotFile setObjectsString(final String objectStr) {
+    public PublishableSnapshotFile setObjectsString(final String objectStr) {
         objects = objectStr;
         return this;
     }

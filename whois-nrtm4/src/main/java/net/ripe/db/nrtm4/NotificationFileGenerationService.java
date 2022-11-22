@@ -4,7 +4,7 @@ import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInformationDao;
 import net.ripe.db.nrtm4.persist.VersionInformation;
-import net.ripe.db.nrtm4.publish.SnapshotFile;
+import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,7 +22,7 @@ public class NotificationFileGenerationService {
     }
 
     // TODO: Add a global lock to ensure that no other instance can run until this method exits
-    public SnapshotFile generateSnapshot(final NrtmSource source) {
+    public PublishableSnapshotFile generateSnapshot(final NrtmSource source) {
 
         // Get last version from database.
         final Optional<VersionInformation> lastVersion = versionDao.findLastVersion(source);
@@ -32,12 +32,13 @@ public class NotificationFileGenerationService {
         } else {
             version = lastVersion.get();
             // If it's a delta then use this version. If it's a snapshot then increment it.
+            // TODO: don't increment -- just skip it -- no new snapshots if has it not changed (see RFC)
             if (version.getType() == NrtmDocumentType.snapshot) {
                 version = versionDao.incrementAndSave(version);
             }
         }
-        final SnapshotFile snapshotFile = new SnapshotFile(version);
-        return snapshotFile.setObjectsString("");
+        final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
+        return publishableSnapshotFile.setObjectsString("");
     }
 
 }

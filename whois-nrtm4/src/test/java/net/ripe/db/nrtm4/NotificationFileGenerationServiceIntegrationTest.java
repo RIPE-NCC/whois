@@ -2,7 +2,7 @@ package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
 import net.ripe.db.nrtm4.persist.NrtmVersionInformationDao;
-import net.ripe.db.nrtm4.publish.SnapshotFile;
+import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -38,28 +38,28 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
     public void snapshot_file_is_generated() {
         String sessionID;
         {
-            final SnapshotFile snapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
-            assertThat(snapshotFile.getVersion(), is(1L));
-            sessionID = snapshotFile.getSessionID();
-            assertThat(snapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
-            assertThat(snapshotFile.getNrtmVersion(), is(4));
-            assertThat(snapshotFile.getType(), is(snapshot));
+            final PublishableSnapshotFile publishableSnapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
+            assertThat(publishableSnapshotFile.getVersion(), is(1L));
+            sessionID = publishableSnapshotFile.getSessionID();
+            assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
+            assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
+            assertThat(publishableSnapshotFile.getType(), is(snapshot));
         }
         {
-            final SnapshotFile snapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
-            assertThat(snapshotFile.getVersion(), is(2L));
-            assertThat(sessionID, is(snapshotFile.getSessionID()));
-            assertThat(snapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
-            assertThat(snapshotFile.getNrtmVersion(), is(4));
-            assertThat(snapshotFile.getType(), is(snapshot));
+            final PublishableSnapshotFile publishableSnapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
+            assertThat(publishableSnapshotFile.getVersion(), is(2L));
+            assertThat(sessionID, is(publishableSnapshotFile.getSessionID()));
+            assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
+            assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
+            assertThat(publishableSnapshotFile.getType(), is(snapshot));
         }
         {
-            final SnapshotFile snapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
-            assertThat(snapshotFile.getVersion(), is(3L));
-            assertThat(sessionID, is(snapshotFile.getSessionID()));
-            assertThat(snapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
-            assertThat(snapshotFile.getNrtmVersion(), is(4));
-            assertThat(snapshotFile.getType(), is(snapshot));
+            final PublishableSnapshotFile publishableSnapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
+            assertThat(publishableSnapshotFile.getVersion(), is(3L));
+            assertThat(sessionID, is(publishableSnapshotFile.getSessionID()));
+            assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
+            assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
+            assertThat(publishableSnapshotFile.getType(), is(snapshot));
         }
 
     }

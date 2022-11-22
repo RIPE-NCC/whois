@@ -58,7 +58,8 @@ create table `delta_file`
     `last_serial_id` int             NOT NULL DEFAULT '0',
     `created`        bigint unsigned not null default unix_timestamp(),
     PRIMARY KEY (`id`),
-    CONSTRAINT `delta_file__version_information_fk` FOREIGN KEY (`version_id`) REFERENCES `version_information` (`id`)
+    CONSTRAINT `delta_file__version_information_fk` FOREIGN KEY (`version_id`) REFERENCES `version_information` (`id`),
+    UNIQUE KEY `delta_file__last_serial_id_uk` (last_serial_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
@@ -69,11 +70,10 @@ create table `snapshot_object`
     `whois_pkey` varchar(256) NOT NULL DEFAULT '',
     `payload`    longblob     NOT NULL DEFAULT '',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `snapshot_object__whois_pkey` (`whois_pkey`)
+    UNIQUE KEY `snapshot_object__whois_pkey_uk` (`whois_pkey`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE = @OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE = @OLD_SQL_MODE */;

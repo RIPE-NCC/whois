@@ -20,6 +20,7 @@ public class RpslObjectTransformer {
     }
 
     RpslObject filter(final RpslObject in) {
+        // do we need to convert latin1 to utf8? nrtm db is utf8 (coz we serve json as utf8)
         return dummifierNrtm.dummify(NRTM_VERSION, in);
     }
 
