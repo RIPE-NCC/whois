@@ -178,9 +178,6 @@ whois-update:
 
 sonar:
   <<: *mariadb_configuration
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   stage: code_quality
   only:
     - schedules
