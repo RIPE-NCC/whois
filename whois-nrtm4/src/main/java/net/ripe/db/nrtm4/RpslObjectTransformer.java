@@ -19,13 +19,13 @@ public class RpslObjectTransformer {
         this.dummifierNrtm = dummifierNrtm;
     }
 
-    RpslObject filter(final RpslObject in) {
+    RpslObject filter(final RpslObject rpslObject) {
         // do we need to convert latin1 to utf8? nrtm db is utf8 (coz we serve json as utf8)
-        return dummifierNrtm.dummify(NRTM_VERSION, in);
+        return dummifierNrtm.dummify(NRTM_VERSION, rpslObject);
     }
 
-    boolean isAllowed(final RpslObject in) {
-        return dummifierNrtm.isAllowed(NRTM_VERSION, in);
+    boolean isAllowed(final RpslObject rpslObject) {
+        return dummifierNrtm.isAllowed(NRTM_VERSION, rpslObject);
     }
 
 }

@@ -6,10 +6,12 @@ import net.ripe.db.nrtm4.persist.RpslObjectModel;
 import net.ripe.db.nrtm4.persist.SerialModel;
 import net.ripe.db.nrtm4.persist.WhoisSlaveDao;
 import org.javatuples.Pair;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 
+@Service
 public class NrtmProcessor {
 
     private final DeltaFileModelRepository deltaFileModelRepository;

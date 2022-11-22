@@ -33,7 +33,7 @@ public class WhoisSlaveRepository {
                             rs.getLong(2),
                             rs.getLong(3),
                             rs.getBoolean(4),
-                            Operation.valueOf(rs.getString(5))
+                            Operation.getByCode(rs.getInt(5))
                     ),
                     new RpslObjectModel(
                             rs.getInt(6),

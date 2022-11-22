@@ -36,7 +36,7 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
 
     @Test
     public void snapshot_file_is_generated() {
-        String sessionID;
+        final String sessionID;
         {
             final PublishableSnapshotFile publishableSnapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
             assertThat(publishableSnapshotFile.getVersion(), is(1L));
