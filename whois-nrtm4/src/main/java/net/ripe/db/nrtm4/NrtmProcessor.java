@@ -16,16 +16,19 @@ public class NrtmProcessor {
 
     private final DeltaFileModelRepository deltaFileModelRepository;
     private final DeltaProcessor deltaProcessor;
+    private final SnapshotSynchronizer snapshotSynchronizer;
     private final WhoisSlaveDao whoisSlaveDao;
 
     public NrtmProcessor(
             final WhoisSlaveDao whoisSlaveDao,
             final DeltaFileModelRepository deltaFileModelRepository,
-            final DeltaProcessor deltaProcessor
+            final DeltaProcessor deltaProcessor,
+            final SnapshotSynchronizer snapshotSynchronizer
     ) {
         this.whoisSlaveDao = whoisSlaveDao;
         this.deltaFileModelRepository = deltaFileModelRepository;
         this.deltaProcessor = deltaProcessor;
+        this.snapshotSynchronizer = snapshotSynchronizer;
     }
 
     public void initializeSnapshot() {
@@ -50,14 +53,11 @@ public class NrtmProcessor {
         // Find changes since the last delta
         final DeltaFileModel deltaFileModel = deltaFileModelRepository.findLastChange();
         final int lastSerialId = deltaFileModel.getLastSerialId();
-        final List<Pair<SerialModel, RpslObjectModel>> changes = whoisSlaveDao.findSerialsAndObjectsSinceSerial(lastSerialId);
+        final List<Pair<SerialModel, RpslObjectModel>> whoisChanges = whoisSlaveDao.findSerialsAndObjectsSinceSerial(lastSerialId);
 
         // TODO: Create a delta file
-        final List<DeltaChange> deltaChangeList = deltaProcessor.process(changes);
-
-        // TODO: apply changes to the snapshot
-        // if 'operation' is '1' (add) then add to snapshot table
-        // if 'operation' is '2' (del) then remove from snapshot table
+        final List<DeltaChange> deltas = deltaProcessor.process(whoisChanges);
+        snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
 
     }
 
