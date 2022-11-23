@@ -58,11 +58,6 @@ release:
   tags:
     - whois
   stage: integration-test
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: manual
-      allow_failure: true
   artifacts:
     reports:
       junit:
@@ -178,8 +173,6 @@ sonar:
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   stage: code_quality
-  only:
-    - schedules
   tags:
     - whois
   script:
