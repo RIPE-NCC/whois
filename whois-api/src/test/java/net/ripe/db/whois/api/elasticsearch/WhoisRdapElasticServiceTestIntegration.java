@@ -244,7 +244,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
         assertCommon(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
 
         assertThat(domain.getNameservers(), hasSize(2));
@@ -298,7 +298,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
         assertCommon(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
     }
 
