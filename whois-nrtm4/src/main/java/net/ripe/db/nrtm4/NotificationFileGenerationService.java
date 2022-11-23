@@ -2,7 +2,7 @@ package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
-import net.ripe.db.nrtm4.persist.NrtmVersionInformationDao;
+import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.persist.VersionInformation;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import org.springframework.stereotype.Service;
@@ -13,12 +13,12 @@ import java.util.Optional;
 @Service
 public class NotificationFileGenerationService {
 
-    private final NrtmVersionInformationDao versionDao;
+    private final NrtmVersionInfoRepository versionDao;
 
     public NotificationFileGenerationService(
-            final NrtmVersionInformationDao nrtmVersionInformationDao
+        final NrtmVersionInfoRepository nrtmVersionInfoRepository
     ) {
-        versionDao = nrtmVersionInformationDao;
+        versionDao = nrtmVersionInfoRepository;
     }
 
     // TODO: Add a global lock to ensure that no other instance can run until this method exits
@@ -31,14 +31,15 @@ public class NotificationFileGenerationService {
             version = versionDao.createNew(source);
         } else {
             version = lastVersion.get();
-            // If it's a delta then use this version. If it's a snapshot then increment it.
-            // TODO: don't increment -- just skip it -- no new snapshots if has it not changed (see RFC)
+            // TODO: don't increment -- just skip it -- no new snapshots if has it not changed
+            //       since the last snapshot (see RFC)
             if (version.getType() == NrtmDocumentType.snapshot) {
                 version = versionDao.incrementAndSave(version);
             }
         }
         final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
-        return publishableSnapshotFile.setObjectsString("");
+        publishableSnapshotFile.setObjectsString("");
+        return publishableSnapshotFile;
     }
 
 }

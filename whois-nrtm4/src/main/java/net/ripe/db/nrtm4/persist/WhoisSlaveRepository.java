@@ -19,30 +19,30 @@ public class WhoisSlaveRepository {
     private final JdbcTemplate jdbcTemplate;
 
     final String sqlSerialAndRpslTemplate = "" +
-            "select " +
-            "s.serial_id, s.object_id, s.sequence_id, s.atlast, s.operation, " +
-            "r.object_id, r.sequence_id, r.timestamp, r.object_type, r.object, r.pkey " +
-            "from serials s join %s r on r.object_id = s.object_id and r.sequence_id = s.sequence_id " +
-            "where s.serial_id > ? " +
-            "order by s.serial_id asc";
+        "SELECT " +
+        "s.serial_id, s.object_id, s.sequence_id, s.atlast, s.operation, " +
+        "r.object_id, r.sequence_id, r.timestamp, r.object_type, r.object, r.pkey " +
+        "FROM serials s JOIN %s r ON r.object_id = s.object_id and r.sequence_id = s.sequence_id " +
+        "WHERE s.serial_id > ? " +
+        "ORDER BY s.serial_id ASC";
 
     private final RowMapper<Pair<SerialModel, RpslObjectModel>> serialAndRpslObjectMapper = (rs, n) ->
-            new Pair<>(
-                    new SerialModel(
-                            rs.getInt(1),
-                            rs.getLong(2),
-                            rs.getLong(3),
-                            rs.getBoolean(4),
-                            Operation.getByCode(rs.getInt(5))
-                    ),
-                    new RpslObjectModel(
-                            rs.getInt(6),
-                            rs.getLong(7),
-                            rs.getLong(8),
-                            ObjectTypeIds.getType(rs.getInt(9)),
-                            RpslObject.parse(rs.getString(10)),
-                            rs.getString(11))
-            );
+        new Pair<>(
+            new SerialModel(
+                rs.getInt(1),
+                rs.getLong(2),
+                rs.getLong(3),
+                rs.getBoolean(4),
+                Operation.getByCode(rs.getInt(5))
+            ),
+            new RpslObjectModel(
+                rs.getInt(6),
+                rs.getLong(7),
+                rs.getLong(8),
+                ObjectTypeIds.getType(rs.getInt(9)),
+                RpslObject.parse(rs.getString(10)),
+                rs.getString(11))
+        );
 
     WhoisSlaveRepository(@Qualifier("whoisSlaveDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);

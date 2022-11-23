@@ -11,13 +11,13 @@ public class DeltaFileModel {
     private final long created;
 
     public DeltaFileModel(
-            final long id,
-            final long versionId,
-            final String name,
-            final String payload,
-            final String hash,
-            final int lastSerialId,
-            final long created) {
+        final long id,
+        final long versionId,
+        final String name,
+        final String payload,
+        final String hash,
+        final int lastSerialId,
+        final long created) {
         this.id = id;
         this.versionId = versionId;
         this.name = name;

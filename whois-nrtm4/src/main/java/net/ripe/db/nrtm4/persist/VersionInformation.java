@@ -16,11 +16,11 @@ public class VersionInformation {
     // NRTM repo. Consider a private constructor and a builder which the DAO
     // can use.
     VersionInformation(
-            final Long id,
-            final NrtmSource source,
-            final Long version,
-            final UUID sessionID,
-            final NrtmDocumentType type
+        final Long id,
+        final NrtmSource source,
+        final Long version,
+        final UUID sessionID,
+        final NrtmDocumentType type
     ) {
         this.id = id;
         this.source = source;

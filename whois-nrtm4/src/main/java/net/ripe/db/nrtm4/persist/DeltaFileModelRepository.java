@@ -14,15 +14,15 @@ public class DeltaFileModelRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<DeltaFileModel> rowMapper = (rs, rowNum) ->
-            new DeltaFileModel(
-                    rs.getLong(1),
-                    rs.getLong(2),
-                    rs.getString(3),
-                    rs.getString(4),
-                    rs.getString(5),
-                    rs.getInt(6),
-                    rs.getLong(7)
-            );
+        new DeltaFileModel(
+            rs.getLong(1),
+            rs.getLong(2),
+            rs.getString(3),
+            rs.getString(4),
+            rs.getString(5),
+            rs.getInt(6),
+            rs.getLong(7)
+        );
 
     @Autowired
     public DeltaFileModelRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
@@ -31,8 +31,8 @@ public class DeltaFileModelRepository {
 
     public DeltaFileModel findLastChange() {
         final String sql = "" +
-                "select id, version_id, name, payload, hash, last_serial_id, created from delta_file " +
-                "where last_serial_id = (select max(last_serial_id) from delta_file)";
+            "SELECT id, version_id, name, payload, hash, last_serial_id, created FROM delta_file " +
+            "WHERE last_serial_id = (SELECT MAX(last_serial_id) FROM delta_file)";
         return jdbcTemplate.queryForObject(sql, rowMapper);
     }
 

@@ -14,12 +14,12 @@ public class RpslObjectModel {
     final String pkey;
 
     public RpslObjectModel(
-            final long objectId,
-            final long sequenceId,
-            final long timestamp,
-            final ObjectType objectType,
-            final RpslObject object,
-            final String pkey
+        final long objectId,
+        final long sequenceId,
+        final long timestamp,
+        final ObjectType objectType,
+        final RpslObject object,
+        final String pkey
     ) {
         this.objectId = objectId;
         this.sequenceId = sequenceId;

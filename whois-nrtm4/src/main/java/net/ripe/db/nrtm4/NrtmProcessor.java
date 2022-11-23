@@ -20,10 +20,10 @@ public class NrtmProcessor {
     private final WhoisSlaveDao whoisSlaveDao;
 
     public NrtmProcessor(
-            final WhoisSlaveDao whoisSlaveDao,
-            final DeltaFileModelRepository deltaFileModelRepository,
-            final DeltaProcessor deltaProcessor,
-            final SnapshotSynchronizer snapshotSynchronizer
+        final WhoisSlaveDao whoisSlaveDao,
+        final DeltaFileModelRepository deltaFileModelRepository,
+        final DeltaProcessor deltaProcessor,
+        final SnapshotSynchronizer snapshotSynchronizer
     ) {
         this.whoisSlaveDao = whoisSlaveDao;
         this.deltaFileModelRepository = deltaFileModelRepository;
@@ -58,7 +58,6 @@ public class NrtmProcessor {
         // TODO: Create a delta file
         final List<DeltaChange> deltas = deltaProcessor.process(whoisChanges);
         snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
-
     }
 
 }

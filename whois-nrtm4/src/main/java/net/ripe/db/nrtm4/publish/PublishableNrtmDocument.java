@@ -19,7 +19,7 @@ public abstract class PublishableNrtmDocument {
     private final long version;
 
     PublishableNrtmDocument(
-            final VersionInformation version
+        final VersionInformation version
     ) {
         this.type = version.getType();
         this.source = version.getSource();

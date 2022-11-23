@@ -12,11 +12,11 @@ public class SerialModel {
     final Operation operation;
 
     public SerialModel(
-            final int serialId,
-            final long objectId,
-            final long sequenceId,
-            final boolean atlast,
-            final Operation operation
+        final int serialId,
+        final long objectId,
+        final long sequenceId,
+        final boolean atlast,
+        final Operation operation
     ) {
         this.serialId = serialId;
         this.objectId = objectId;

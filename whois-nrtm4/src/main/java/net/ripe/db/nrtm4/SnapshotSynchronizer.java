@@ -13,7 +13,8 @@ public class SnapshotSynchronizer {
         // if 'operation' is '1' (add) then add to snapshot table
         // if 'operation' is '2' (del) then remove from snapshot table
 
-        // TODO: throw exception (NrtmProcessException?) if operation can't be done
-        //  ...indicates we've gone out of sync -- re-initialize the source and publish snapshot 1
+        // TODO: throw exception (NrtmProcessException?) if operation can't be done coz it
+        //       indicates we've gone out of sync -- re-initialize the source and publish snapshot 1
     }
+
 }

@@ -22,11 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class NrtmDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
 
     @Autowired
-    private NrtmVersionDao nrtmVersionDao;
+    private NrtmVersionRepository nrtmVersionRepository;
 
     @Autowired
     private NrtmSourceHolder nrtmSourceHolder;
-
 
     @BeforeEach
     public void setUp() {
@@ -35,25 +34,25 @@ public class NrtmDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTes
 
     @Test
     public void result_is_not_present_when_source_is_not_populated() {
-        final Optional<VersionInformation> version = nrtmVersionDao.findLastVersion(nrtmSourceHolder.getSource());
+        final Optional<VersionInformation> version = nrtmVersionRepository.findLastVersion(nrtmSourceHolder.getSource());
         assertThat(version.isPresent(), is(false));
     }
 
     @Test
     public void source_is_unique() {
-        nrtmVersionDao.createNew(nrtmSourceHolder.getSource());
+        nrtmVersionRepository.createNew(nrtmSourceHolder.getSource());
         final Exception thrown = assertThrows(
-                DuplicateKeyException.class,
-                () -> nrtmVersionDao.createNew(nrtmSourceHolder.getSource()),
-                "Expected nrtmVersionDao.createNew(...) to throw DuplicateKeyException"
+            DuplicateKeyException.class,
+            () -> nrtmVersionRepository.createNew(nrtmSourceHolder.getSource()),
+            "Expected nrtmVersionDao.createNew(...) to throw DuplicateKeyException"
         );
         assertThat(thrown.getMessage(), containsString("Duplicate entry 'TEST'"));
     }
 
     @Test
     public void first_version_is_one() {
-        nrtmVersionDao.createNew(nrtmSourceHolder.getSource());
-        final Optional<VersionInformation> version = nrtmVersionDao.findLastVersion(nrtmSourceHolder.getSource());
+        nrtmVersionRepository.createNew(nrtmSourceHolder.getSource());
+        final Optional<VersionInformation> version = nrtmVersionRepository.findLastVersion(nrtmSourceHolder.getSource());
         assertThat(version.isPresent(), is(true));
         assertThat(version.get().getSource(), is(nrtmSourceHolder.getSource()));
         assertThat(version.get().getVersion(), is(1L));

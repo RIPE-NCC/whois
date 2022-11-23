@@ -11,7 +11,7 @@ public class PublishableSnapshotFile extends PublishableNrtmDocument {
     private String objects;
 
     public PublishableSnapshotFile(
-            final VersionInformation version
+        final VersionInformation version
     ) {
         super(version);
     }
@@ -21,9 +21,8 @@ public class PublishableSnapshotFile extends PublishableNrtmDocument {
         return isEmpty(objects) ? "[]" : objects;
     }
 
-    public PublishableSnapshotFile setObjectsString(final String objectStr) {
+    public void setObjectsString(final String objectStr) {
         objects = objectStr;
-        return this;
     }
 
 }

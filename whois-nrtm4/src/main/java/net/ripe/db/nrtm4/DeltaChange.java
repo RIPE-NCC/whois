@@ -20,10 +20,10 @@ public class DeltaChange {
     private final RpslObject object;
 
     public DeltaChange(
-            final Action action,
-            final ObjectType objectClass,
-            final String primaryKey,
-            final RpslObject rpslObject
+        final Action action,
+        final ObjectType objectClass,
+        final String primaryKey,
+        final RpslObject rpslObject
     ) {
         this.action = action;
         this.objectClass = objectClass;

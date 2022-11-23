@@ -14,7 +14,7 @@ public class WhoisSlaveDao {
     private final WhoisSlaveRepository whoisSlaveRepository;
 
     public WhoisSlaveDao(
-            final WhoisSlaveRepository whoisSlaveRepository
+        final WhoisSlaveRepository whoisSlaveRepository
     ) {
         this.whoisSlaveRepository = whoisSlaveRepository;
     }
