@@ -261,7 +261,8 @@ class RdapObjectMapper {
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
         rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
 
-        rdapResponse.getRdapConformance().add(RdapConformance.LEVEL_0.getValue());
+        rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.LEVEL_0.getValue(),
+                RdapConformance.PROFILE_0.getValue()));
 
         if (requestUrl != null) {
             rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null));
