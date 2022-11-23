@@ -184,4 +184,4 @@ sonar:
   artifacts:
     reports:
       junit:
-        - "*/target/failsafe-reports/TEST-*.xml"
+        - target/failsafe-reports/TEST-*.xml
