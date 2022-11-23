@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.commons.ip.Ipv6Range;
+import net.ripe.db.whois.api.TopLevelFilter;
 import net.ripe.db.whois.api.rdap.domain.Action;
 import net.ripe.db.whois.api.rdap.domain.Autnum;
 import net.ripe.db.whois.api.rdap.domain.Domain;
@@ -63,6 +64,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.ADMINISTRATIVE;
@@ -112,6 +114,7 @@ class RdapObjectMapper {
     private final Ipv6Tree ipv6Tree;
     private final String port43;
 
+
     @Autowired
     public RdapObjectMapper(
             final NoticeFactory noticeFactory,
@@ -154,6 +157,30 @@ class RdapObjectMapper {
         return mapCommons(searchResult, requestUrl);
     }
 
+    public Object mapOrganisationEntity(final String requestUrl, final RpslObject organisationObject,
+                                        final Stream<RpslObject> autnumResult,
+                                        final Stream<RpslObject> inetnumResult,
+                                        final Stream<RpslObject> inet6numResult, final int maxResultSize){
+         final List<Autnum> autnums = autnumResult.map(autnumRpsl -> (Autnum)getRdapObject(requestUrl,
+                autnumRpsl,
+                Optional.empty())).collect(Collectors.toList());
+
+        final List<Ip> networks = filterTopLevelIps(requestUrl, inetnumResult, inet6numResult, maxResultSize);
+
+        final RdapObject organisation = getRdapObject(requestUrl, organisationObject,Optional.empty());
+
+        if (networks.size() > maxResultSize) {
+            final Notice outOfLimitNotice = new Notice();
+            outOfLimitNotice.setTitle(String.format("limited networks attribute results to %s maximum" ,
+                    maxResultSize));
+            organisation.getNotices().add(outOfLimitNotice);
+        }
+        organisation.setNetworks(networks);
+        organisation.setAutnums(autnums);
+
+        return mapCommons(organisation, requestUrl);
+    }
+
     public RdapObject mapError(final int errorCode, final String errorTitle, final List<String> errorDescriptions) {
         if (Strings.isNullOrEmpty(errorTitle)) {
             throw new IllegalStateException("title is mandatory");
@@ -169,6 +196,13 @@ class RdapObjectMapper {
         return mapCommons(new RdapObject(), requestUrl);
     }
 
+    private List<Ip> filterTopLevelIps(String requestUrl, Stream<RpslObject> inetnumResult,
+                                       Stream<RpslObject> inet6numResult, int maxResultSize) {
+        return Stream.concat((Stream<RpslObject>) new TopLevelFilter(inetnumResult).getTopLevelValues().stream(),
+                        (Stream<RpslObject>) new TopLevelFilter(inet6numResult).getTopLevelValues().stream())
+                .limit(maxResultSize)
+                .map(topLevelRpsl -> (Ip) getRdapObject(requestUrl, topLevelRpsl, Optional.empty())).collect(Collectors.toList());
+    }
     private RdapObject getRdapObject(final String requestUrl,
                                      final RpslObject rpslObject,
                                      final Optional<AbuseContact> optionalAbuseContact) {
@@ -459,7 +493,7 @@ class RdapObjectMapper {
     private Domain createDomain(final RpslObject rpslObject) {
         final Domain domain = new Domain();
         domain.setHandle(rpslObject.getKey().toString());
-        domain.setLdhName(rpslObject.getKey().toString());
+        domain.setLdhName(IpInterval.addTrailingDot(rpslObject.getKey().toString()));
 
         final Map<CIString, Set<IpInterval>> hostnameMap = new HashMap<>();
 
