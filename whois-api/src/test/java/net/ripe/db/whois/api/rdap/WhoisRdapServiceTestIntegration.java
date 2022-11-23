@@ -18,6 +18,7 @@ import net.ripe.db.whois.api.rdap.domain.Role;
 import net.ripe.db.whois.api.rdap.domain.SearchResult;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     FullTextIndex fullTextIndex;
     @Autowired
     TestWhoisLog queryLog;
+
+
+    @BeforeAll
+    public static void beforeClass() {
+        System.setProperty("rdap.entity.max.results", "3");
+    }
 
     @BeforeEach
     public void setup() {
@@ -857,7 +864,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertCommon(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
 
         assertThat(domain.getNameservers(), hasSize(2));
@@ -912,7 +919,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertCommon(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
-        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
     }
 
@@ -1145,7 +1152,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Autnum.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "Redirect URI not found");
         }
     }
 
@@ -1438,6 +1445,236 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertTrue(response.getAutnums().isEmpty());
+        assertTrue(response.getNetworks().isEmpty());
+    }
+
+    @Test
+    public void lookup_org_autnum_entity_handle() {
+        databaseHelper.addObject("" +
+                "aut-num:       AS64496\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        final Entity response = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertTrue(response.getNetworks().isEmpty());
+
+        assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
+    }
+
+    @Test
+    public void lookup_org_inetnum_entity_handle() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        final Entity response = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertTrue(response.getAutnums().isEmpty());
+
+        assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
+    }
+
+    @Test
+    public void lookup_org_inet6num_entity_handle() {
+        databaseHelper.addObject("" +
+                "inet6num:       2001:2002:2003::/48\n" +
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "language:       EN\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "org:            ORG-TEST1-TEST\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        final Entity response = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertTrue(response.getAutnums().isEmpty());
+
+        assertThat(response.getNetworks().get(0).getName(), equalTo("RIPE-NCC"));
+    }
+
+    @Test
+    public void lookup_org_inetnum_autnum_entity_handle() {
+        databaseHelper.addObject("" +
+                "aut-num:       AS64496\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.192.0 - 109.111.223.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+
+        final Entity response = createResource("entity/ORG-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+
+        assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
+        assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
+    }
+    @Test
+    public void lookup_org_max_inetnum_handle() {
+        databaseHelper.addObject("" +
+                "aut-num:       AS64496\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.193.192 - 109.111.193.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.192.0 - 109.111.223.255\n" +
+                "netname:      TEST-NET-NAME-TOP-LEVEL\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        final Entity response = createResource("entity/org-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertThat(response.getAutnums().size(), equalTo(1));
+
+        assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
+        assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME-TOP-LEVEL"));
+    }
+
+    @Test
+    public void lookup_org_max_inetnum_with_legacy_handle() {
+        databaseHelper.addObject("" +
+                "aut-num:       AS64496\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.193.192 - 109.111.193.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.192.0 - 109.111.223.255\n" +
+                "netname:      TEST-NET-NAME-TOP-LEVEL\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        databaseHelper.addObject("" +
+                "inetnum:      109.111.193.0 - 109.111.200.255\n" +
+                "netname:      TEST-NET-NAME-LEGACY\n" +
+                "descr:        TEST network\n" +
+                "org:          ORG-TEST1-TEST\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       LEGACY\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+
+        final Entity response = createResource("entity/org-TEST1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
+        assertThat(response.getAutnums().size(), equalTo(1));
+
+        assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
+        assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME-TOP-LEVEL"));
     }
 
     @Test
@@ -1448,7 +1685,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "Requested organisation not found: ORG-NONE-TEST");
         }
     }
 
@@ -1632,7 +1869,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -1715,7 +1952,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -1793,7 +2030,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 
@@ -1828,7 +2065,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "404 Not Found");
         }
     }
 

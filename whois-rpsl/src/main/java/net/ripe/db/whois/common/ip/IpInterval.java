@@ -15,6 +15,13 @@ public abstract class IpInterval<K extends Interval<K>> implements Interval<K> {
         return address;
     }
 
+    public static String addTrailingDot(final String address){
+        if (!address.endsWith(".")){
+            return address.concat(".");
+        }
+        return address;
+    }
+
     public abstract AttributeType getAttributeType();
 
     public static IpInterval<?> parse(final CIString prefix) {
