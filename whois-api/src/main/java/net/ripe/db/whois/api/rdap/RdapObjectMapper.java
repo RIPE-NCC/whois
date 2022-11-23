@@ -95,7 +95,8 @@ class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
-    private static final List<String> COMMON_RDAP_CONFORMANCE = Lists.newArrayList(RdapConformance.CIDR_0.getValue(),
+    private static final List<String> COMMON_RDAP_CONFORMANCE =
+            Lists.newArrayList(RdapConformance.PROFILE_0.getValue(), RdapConformance.CIDR_0.getValue(),
             RdapConformance.LEVEL_0.getValue(),
             RdapConformance.FLAT_MODEL.getValue());
 
@@ -226,7 +227,6 @@ class RdapObjectMapper {
             case INETNUM:
             case INET6NUM:
                 rdapResponse = createIp(rpslObject);
-                rdapResponse.getRdapConformance().add(RdapConformance.CIDR_0.getValue());
                 break;
             case PERSON:
             case ROLE:
@@ -261,7 +261,8 @@ class RdapObjectMapper {
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
         rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
 
-        rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.LEVEL_0.getValue(),
+        rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.CIDR_0.getValue(),
+                RdapConformance.LEVEL_0.getValue(),
                 RdapConformance.PROFILE_0.getValue()));
 
         if (requestUrl != null) {
