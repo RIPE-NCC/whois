@@ -237,8 +237,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
         assertThat(ip.getRdapConformance(), hasSize(2));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder(RdapConformanceEnum.LEVEL_0.name(),
-                RdapConformanceEnum.CIRD_0));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0"));
 
 
         final List<Remark> remarks = ip.getRemarks();
@@ -485,8 +484,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getCidr0_cidrs().get(1).getV4prefix(), is("192.132.76.0"));
         assertThat(ip.getCidr0_cidrs().get(1).getLength(), is(23));
 
-        assertThat(ip.getRdapConformance(), containsInAnyOrder(RdapConformanceEnum.CIRD_0.name(),
-                RdapConformanceEnum.LEVEL_0.name()));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0"));
 
         var notices = ip.getNotices();
         var inaccuracyNotice = notices.get(1);
@@ -573,13 +571,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getCidr0_cidrs().size(), is(1));
         assertThat(ip.getCidr0_cidrs().get(0).getV6prefix(), is("2001:2002:2003::"));
         assertThat(ip.getCidr0_cidrs().get(0).getLength(), is(48));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder(RdapConformanceEnum.CIRD_0.name(),
-                RdapConformanceEnum.LEVEL_0.name()));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0"));
 
         assertThat(ip.getPort43(), is("whois.ripe.net"));
         assertThat(ip.getRdapConformance(), hasSize(2));
-        assertThat(ip.getRdapConformance(), containsInAnyOrder(RdapConformanceEnum.CIRD_0.name(),
-                RdapConformanceEnum.LEVEL_0.name()));
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0"));
 
         final List<Remark> remarks = ip.getRemarks();
         assertThat(remarks, hasSize(1));
@@ -1044,7 +1040,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(remarks, hasSize(1));
         assertThat(remarks.get(0).getDescription().get(0), is("A single ASN"));
 
-        assertThat(RdapConformanceEnum.FLAT_MODEL.name(), is(autnum.getRdapConformance().get(0)));
+        assertThat("nro_rdap_profile_asn_flat_0", is(autnum.getRdapConformance().get(0)));
     }
 
     @Test
@@ -1135,7 +1131,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
-        assertThat(entity, containsString("\"rdapConformance\" : [ \"rdap_level_0\" ]"));
+        assertThat(entity, containsString("\"rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"rdap_level_0\" " +
+                "]"));
     }
 
     @Test
@@ -1147,7 +1144,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
         final String entity = response.readEntity(String.class);
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
-        assertThat(entity, containsString("\"rdapConformance\" : [ \"rdap_level_0\" ]"));
+        assertThat(entity, containsString("\"rdapConformance\" : [ \"nro_rdap_profile_asn_flat_0\", \"rdap_level_0\" " +
+                "]"));
     }
 
     @Test
@@ -2356,9 +2354,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(help.getPort43(), is("whois.ripe.net"));
         assertThat(help.getRdapConformance(), hasSize(3));
-        assertThat(help.getRdapConformance().get(0), equalTo(RdapConformanceEnum.CIRD_0.name()));
-        assertThat(help.getRdapConformance().get(1), equalTo(RdapConformanceEnum.LEVEL_0.name()));
-        assertThat(help.getRdapConformance().get(2), equalTo(RdapConformanceEnum.FLAT_MODEL.name()));
+        assertThat(help.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_asn_flat_0"));
 
         final List<Notice> notices = help.getNotices();
         assertThat(notices, hasSize(1));

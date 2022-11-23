@@ -95,9 +95,9 @@ class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
-    private static final List<String> COMMON_RDAP_CONFORMANCE = Lists.newArrayList(RdapConformanceEnum.CIRD_0.name(),
-            RdapConformanceEnum.LEVEL_0.name(),
-            RdapConformanceEnum.FLAT_MODEL.name());
+    private static final List<String> COMMON_RDAP_CONFORMANCE = Lists.newArrayList(RdapConformance.CIDR_0.getValue(),
+            RdapConformance.LEVEL_0.getValue(),
+            RdapConformance.FLAT_MODEL.getValue());
 
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
 
@@ -226,7 +226,7 @@ class RdapObjectMapper {
             case INETNUM:
             case INET6NUM:
                 rdapResponse = createIp(rpslObject);
-                rdapResponse.getRdapConformance().add(RdapConformanceEnum.CIRD_0.name());
+                rdapResponse.getRdapConformance().add(RdapConformance.CIDR_0.getValue());
                 break;
             case PERSON:
             case ROLE:
@@ -261,7 +261,7 @@ class RdapObjectMapper {
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
         rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
 
-        rdapResponse.getRdapConformance().add(RdapConformanceEnum.LEVEL_0.name());
+        rdapResponse.getRdapConformance().add(RdapConformance.LEVEL_0.getValue());
 
         if (requestUrl != null) {
             rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null));
@@ -473,7 +473,7 @@ class RdapObjectMapper {
         autnum.setStatus(getResourceStatus(rpslObject));
 
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
-        autnum.getRdapConformance().add(RdapConformanceEnum.FLAT_MODEL.name());
+        autnum.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
         return autnum;
     }
 
