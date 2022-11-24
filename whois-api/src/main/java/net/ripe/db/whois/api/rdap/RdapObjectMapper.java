@@ -95,10 +95,6 @@ class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
-    private static final List<String> COMMON_RDAP_CONFORMANCE =
-            Lists.newArrayList(RdapConformance.PROFILE_0.getValue(), RdapConformance.CIDR_0.getValue(),
-            RdapConformance.LEVEL_0.getValue(),
-            RdapConformance.FLAT_MODEL.getValue());
 
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
 
@@ -196,9 +192,9 @@ class RdapObjectMapper {
     }
 
     public RdapObject mapHelp(final String requestUrl) {
-        RdapObject rdapObject =  mapCommons(new RdapObject(), requestUrl);
-        rdapObject.setRdapConformance(COMMON_RDAP_CONFORMANCE);
-        return rdapObject;
+        final RdapObject rdapObject =  mapCommons(new RdapObject(), requestUrl);
+        rdapObject.setRdapConformance(Lists.newArrayList(RdapConformance.values()).stream().map(RdapConformance::getValue).collect(Collectors.toList()));
+        return rdapObject
     }
 
     private List<Ip> filterTopLevelIps(String requestUrl, Stream<RpslObject> inetnumResult,
@@ -263,7 +259,7 @@ class RdapObjectMapper {
 
         rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.CIDR_0.getValue(),
                 RdapConformance.LEVEL_0.getValue(),
-                RdapConformance.PROFILE_0.getValue()));
+                RdapConformance.NRO_PROFILE_0.getValue()));
 
         if (requestUrl != null) {
             rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null));
