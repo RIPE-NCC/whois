@@ -29,10 +29,10 @@ create table `version_information`
     `type`           varchar(128) NOT NULL DEFAULT '',
     `last_serial_id` int          NOT NULL DEFAULT '0',
     PRIMARY KEY (`id`),
+    CONSTRAINT `version_information__source_fk` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
     UNIQUE KEY `version_information__source__version_uk` (`source_id`, `version`),
     UNIQUE KEY `version_information__session__version_uk` (`session_id`, `version`),
-    UNIQUE KEY `version_information__type__last_serial_id_uk` (`type`, `last_serial_id`),
-    CONSTRAINT `version_information__source_fk` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
+    UNIQUE KEY `version_information__type__last_serial_id_uk` (`type`, `last_serial_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
@@ -59,7 +59,7 @@ create table `delta_file`
     `hash`       varchar(128)    NOT NULL DEFAULT '',
     `created`    bigint unsigned not null default unix_timestamp(),
     PRIMARY KEY (`id`),
-    CONSTRAINT `delta_file__version_information_fk` FOREIGN KEY (`version_id`) REFERENCES `version_information` (`id`),
+    CONSTRAINT `delta_file__version_information_fk` FOREIGN KEY (`version_id`) REFERENCES `version_information` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 

@@ -3,6 +3,7 @@ package net.ripe.db.nrtm4;
 import net.ripe.db.nrtm4.persist.DeltaFileModel;
 import net.ripe.db.nrtm4.persist.DeltaFileModelRepository;
 import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
+import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.persist.RpslObjectModel;
 import net.ripe.db.nrtm4.persist.SerialModel;
 import net.ripe.db.nrtm4.persist.WhoisSlaveDao;
@@ -39,6 +40,9 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
     @Autowired
     private NrtmProcessor nrtmProcessor;
 
+    @Autowired
+    private NrtmVersionInfoRepository versionDao;
+
     @BeforeEach
     public void setUp() {
         truncateTables(databaseHelper.getWhoisTemplate());
@@ -48,6 +52,10 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
         loadScripts(whoisTemplate, sampleFile);
         whoisTemplate.update("UPDATE last SET timestamp = ?", Timestamp.from(testDateTimeProvider.getCurrentDateTime()).getValue());
         whoisTemplate.update("UPDATE history SET timestamp = ?", Timestamp.from(testDateTimeProvider.getCurrentDateTime()).getValue());
+    }
+
+    private void insertSnapshot() {
+        versionDao.createInitialSnapshot(NrtmSourceHolder.valueOf("TEST"), 0);
     }
 
     @Test
@@ -67,6 +75,7 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
     @Test
     public void test_delta_file_generation() {
         loadSerials("nrtm_sample_sm.sql");
+        insertSnapshot();
         final DeltaFileModel deltas = nrtmProcessor.generateDeltaFile(NrtmSourceHolder.valueOf("TEST"));
         assertThat(deltas.getPayload(), is("[]"));
     }

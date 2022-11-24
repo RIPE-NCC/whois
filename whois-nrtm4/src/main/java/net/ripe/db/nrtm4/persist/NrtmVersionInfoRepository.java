@@ -30,7 +30,7 @@ public class NrtmVersionInfoRepository {
             rs.getLong(3),
             UUID.fromString(rs.getString(4)),
             NrtmDocumentType.valueOf(rs.getString(5)),
-            rs.getInt(5)
+            rs.getInt(6)
         );
 
     @Autowired
