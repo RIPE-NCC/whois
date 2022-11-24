@@ -152,7 +152,6 @@ class RdapObjectMapper {
             notice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
             searchResult.getNotices().add(notice);
         }
-
         return mapCommons(searchResult, requestUrl);
     }
 
@@ -185,6 +184,7 @@ class RdapObjectMapper {
             throw new IllegalStateException("title is mandatory");
         }
         final RdapObject rdapObject = mapCommons(new RdapObject(), null);
+
         rdapObject.setErrorCode(errorCode);
         rdapObject.setErrorTitle(errorTitle);
         rdapObject.setDescription(errorDescriptions);
@@ -192,8 +192,8 @@ class RdapObjectMapper {
     }
 
     public RdapObject mapHelp(final String requestUrl) {
-        final RdapObject rdapObject =  mapCommons(new RdapObject(), requestUrl);
-        rdapObject.setRdapConformance(Lists.newArrayList(RdapConformance.values()).stream().map(RdapConformance::getValue).collect(Collectors.toList()));
+        final RdapObject rdapObject =  mapCommonNoticesLinksAndPort(new RdapObject(), requestUrl);
+        rdapObject.getRdapConformance().addAll(Stream.of(RdapConformance.values()).map(RdapConformance::getValue).collect(Collectors.toList()));
         return rdapObject;
     }
 
@@ -253,13 +253,13 @@ class RdapObjectMapper {
 
         return rdapResponse;
     }
-
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
-        rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
+        final RdapObject rdapObject = mapCommonNoticesLinksAndPort(rdapResponse, requestUrl);
+        return mapCommonConformances(rdapObject);
+    }
 
-        rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.CIDR_0.getValue(),
-                RdapConformance.LEVEL_0.getValue(),
-                RdapConformance.NRO_PROFILE_0.getValue()));
+    private RdapObject mapCommonNoticesLinksAndPort(final RdapObject rdapResponse, final String requestUrl){
+        rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
 
         if (requestUrl != null) {
             rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null));
@@ -268,6 +268,13 @@ class RdapObjectMapper {
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
 
         rdapResponse.setPort43(port43);
+        return rdapResponse;
+    }
+
+
+    private RdapObject mapCommonConformances(final RdapObject rdapResponse) {
+        rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.CIDR_0.getValue(),
+            RdapConformance.LEVEL_0.getValue(), RdapConformance.NRO_PROFILE_0.getValue()));
         return rdapResponse;
     }
 
