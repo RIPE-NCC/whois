@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.stereotype.Component;
 
-import static net.ripe.db.nrtm4.Constants.NRTM_VERSION;
+import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
 
 /**

@@ -48,7 +48,7 @@ public class NrtmVersionInfoRepository {
                 source.name())
             );
         } catch (final EmptyResultDataAccessException ex) {
-            LOGGER.debug("findLastVersion threw exception: {}", ex.getMessage());
+            LOGGER.debug("findLastVersion found no entries, and so threw exception: {}", ex.getMessage());
             return Optional.empty();
         }
     }

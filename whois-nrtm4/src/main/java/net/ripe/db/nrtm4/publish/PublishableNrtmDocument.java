@@ -5,7 +5,7 @@ import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.VersionInformation;
 
-import static net.ripe.db.nrtm4.Constants.NRTM_VERSION;
+import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
 
 public abstract class PublishableNrtmDocument {

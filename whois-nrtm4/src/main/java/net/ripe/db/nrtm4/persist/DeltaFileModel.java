@@ -17,7 +17,8 @@ public class DeltaFileModel {
         final String payload,
         final String hash,
         final int lastSerialId,
-        final long created) {
+        final long created
+    ) {
         this.id = id;
         this.versionId = versionId;
         this.name = name;
