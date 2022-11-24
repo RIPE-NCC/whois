@@ -194,7 +194,7 @@ class RdapObjectMapper {
     public RdapObject mapHelp(final String requestUrl) {
         final RdapObject rdapObject =  mapCommons(new RdapObject(), requestUrl);
         rdapObject.setRdapConformance(Lists.newArrayList(RdapConformance.values()).stream().map(RdapConformance::getValue).collect(Collectors.toList()));
-        return rdapObject
+        return rdapObject;
     }
 
     private List<Ip> filterTopLevelIps(String requestUrl, Stream<RpslObject> inetnumResult,
