@@ -28,13 +28,13 @@ public class NotificationFileGenerationService {
         final Optional<VersionInformation> lastVersion = versionDao.findLastVersion(source);
         VersionInformation version;
         if (lastVersion.isEmpty()) {
-            version = versionDao.createNew(source);
+            version = versionDao.createInitialSnapshot(source, 0);
         } else {
             version = lastVersion.get();
             // TODO: don't increment -- just skip it -- no new snapshots if has it not changed
             //       since the last snapshot (see RFC)
-            if (version.getType() == NrtmDocumentType.snapshot) {
-                version = versionDao.incrementAndSave(version);
+            if (version.getType() == NrtmDocumentType.delta) {
+                version = versionDao.copyAsSnapshotVersion(version);
             }
         }
         final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);

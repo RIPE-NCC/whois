@@ -40,10 +40,10 @@ public class NrtmVersionInfoRepositoryIntegrationTest extends AbstractDatabaseHe
 
     @Test
     public void source_is_unique() {
-        nrtmVersionInfoRepository.createNew(nrtmSourceHolder.getSource());
+        nrtmVersionInfoRepository.createInitialSnapshot(nrtmSourceHolder.getSource(), 1);
         final Exception thrown = assertThrows(
             DuplicateKeyException.class,
-            () -> nrtmVersionInfoRepository.createNew(nrtmSourceHolder.getSource()),
+            () -> nrtmVersionInfoRepository.createInitialSnapshot(nrtmSourceHolder.getSource(), 2),
             "Expected nrtmVersionDao.createNew(...) to throw DuplicateKeyException"
         );
         assertThat(thrown.getMessage(), containsString("Duplicate entry 'TEST'"));
@@ -51,7 +51,7 @@ public class NrtmVersionInfoRepositoryIntegrationTest extends AbstractDatabaseHe
 
     @Test
     public void first_version_is_one() {
-        nrtmVersionInfoRepository.createNew(nrtmSourceHolder.getSource());
+        nrtmVersionInfoRepository.createInitialSnapshot(nrtmSourceHolder.getSource(), 1);
         final Optional<VersionInformation> version = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
         assertThat(version.isPresent(), is(true));
         assertThat(version.get().getSource(), is(nrtmSourceHolder.getSource()));

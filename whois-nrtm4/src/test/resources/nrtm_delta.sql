@@ -1,0 +1,2 @@
+INSERT INTO `last` VALUES (11044891,1,1335191602,6,'inetnum:         37.74.65.216 - 37.74.65.219\nnetname:         Netname\ndescr:           Description\ncountry:         NL\nadmin-c:         TEST-RIPE\ntech-c:          TEST-RIPE\nstatus:          ASSIGNED PA\nnotify:          test@test.net\nmnt-by:          TEST-MNT\nsource:          RIPE\n','37.74.65.216 - 37.74.65.219');
+INSERT INTO `serials` VALUES (21486012,11044889,1,1,1);

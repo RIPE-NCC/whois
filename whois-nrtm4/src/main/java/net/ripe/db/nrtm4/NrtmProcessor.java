@@ -38,7 +38,7 @@ public class NrtmProcessor {
         this.whoisSlaveDao = whoisSlaveDao;
     }
 
-    public void initializeSnapshot() {
+    public void initializeSnapshot(final NrtmSource source) {
 
         // Find whois objects which are in the 'last' table
 
@@ -51,31 +51,28 @@ public class NrtmProcessor {
         // Find whois objects which are in the 'last' table
 
         // Serialize them and compare with what's in the snapshot table -- compare only primary keys?
-        // ...or hash? if hash then it must only hash the object data, not the json data (since two
-        // different json structures might actually contain the same objects)
+        // ...or hash?
     }
 
-    public DeltaFileModel processDeltas(final NrtmSource source) {
+    public DeltaFileModel generateDeltaFile(final NrtmSource source) {
 
         // Find changes since the last delta
-        final int lastSerialId = deltaFileModelRepository.findLastChange().getLastSerialId();
-        final List<Pair<SerialModel, RpslObjectModel>> whoisChanges = whoisSlaveDao.findSerialsAndObjectsSinceSerial(lastSerialId);
-
-        // TODO: Create a delta file
-        final List<DeltaChange> deltas = deltaProcessor.process(whoisChanges);
-        snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
         final Optional<VersionInformation> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
         if (lastVersion.isEmpty()) {
             throw new IllegalStateException("Cannot create a delta without an initial snapshot");
         }
-        final VersionInformation nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get());
+        final List<Pair<SerialModel, RpslObjectModel>> whoisChanges = whoisSlaveDao.findSerialsAndObjectsSinceSerial(lastVersion.get().getLastSerialId());
+
+        final List<DeltaChange> deltas = deltaProcessor.process(whoisChanges);
+        snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
+        final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getValue0().getSerialId();
+        final VersionInformation nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
+        final PayloadProcessor processor = new PayloadProcessor(deltas);
         return deltaFileModelRepository.save(
             nextVersion.getId(),
-            "", // TODO: generate file name for url
-            "", // TODO: JSON of deltas
-            "", // TODO: calculate hash
-            whoisChanges.get(whoisChanges.size() - 1).getValue0().getSerialId(),
-            System.currentTimeMillis()
+            "nrtm-delta.1.784a2a65aba22e001fd25a1b9e8544e058fbc703.json", // TODO: generate file name for url
+            processor.getJson(),
+            processor.getHash()
         );
     }
 

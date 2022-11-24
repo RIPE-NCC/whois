@@ -10,6 +10,7 @@ public class VersionInformation {
     private final Long version;
     private final UUID sessionID;
     private final NrtmDocumentType type;
+    private final Integer lastSerialId;
 
     // It doesn't make sense to allow construction of these objects with
     // arbitrary parameters, since they are bound to published versions of the
@@ -20,13 +21,15 @@ public class VersionInformation {
         final NrtmSource source,
         final Long version,
         final UUID sessionID,
-        final NrtmDocumentType type
+        final NrtmDocumentType type,
+        final Integer lastSerialId
     ) {
         this.id = id;
         this.source = source;
         this.version = version;
         this.sessionID = sessionID;
         this.type = type;
+        this.lastSerialId = lastSerialId;
     }
 
     public Long getId() {
@@ -47,6 +50,10 @@ public class VersionInformation {
 
     public NrtmDocumentType getType() {
         return type;
+    }
+
+    public Integer getLastSerialId() {
+        return lastSerialId;
     }
 
 }

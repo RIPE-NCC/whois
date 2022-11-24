@@ -7,7 +7,6 @@ public class DeltaFileModel {
     private final String name;
     private final String payload;
     private final String hash;
-    private final int lastSerialId;
     private final long created;
 
     public DeltaFileModel(
@@ -16,7 +15,6 @@ public class DeltaFileModel {
         final String name,
         final String payload,
         final String hash,
-        final int lastSerialId,
         final long created
     ) {
         this.id = id;
@@ -24,7 +22,6 @@ public class DeltaFileModel {
         this.name = name;
         this.payload = payload;
         this.hash = hash;
-        this.lastSerialId = lastSerialId;
         this.created = created;
     }
 
@@ -46,10 +43,6 @@ public class DeltaFileModel {
 
     public String getHash() {
         return hash;
-    }
-
-    public int getLastSerialId() {
-        return lastSerialId;
     }
 
     public long getCreated() {

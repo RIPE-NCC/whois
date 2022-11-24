@@ -22,14 +22,16 @@ create table `source`
 DROP TABLE IF EXISTS `version_information`;
 create table `version_information`
 (
-    `id`         int unsigned NOT NULL AUTO_INCREMENT,
-    `source_id`  int unsigned NOT NULL,
-    `version`    int unsigned NOT NULL DEFAULT '0',
-    `session_id` varchar(128) NOT NULL DEFAULT '',
-    `type`       varchar(128) NOT NULL DEFAULT '',
+    `id`             int unsigned NOT NULL AUTO_INCREMENT,
+    `source_id`      int unsigned NOT NULL,
+    `version`        int unsigned NOT NULL DEFAULT '0',
+    `session_id`     varchar(128) NOT NULL DEFAULT '',
+    `type`           varchar(128) NOT NULL DEFAULT '',
+    `last_serial_id` int          NOT NULL DEFAULT '0',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `version_information__source_version_uk` (`source_id`, `version`),
-    UNIQUE KEY `version_information__session_version_uk` (`session_id`, `version`),
+    UNIQUE KEY `version_information__source__version_uk` (`source_id`, `version`),
+    UNIQUE KEY `version_information__session__version_uk` (`session_id`, `version`),
+    UNIQUE KEY `version_information__type__last_serial_id_uk` (`type`, `last_serial_id`),
     CONSTRAINT `version_information__source_fk` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
@@ -50,16 +52,14 @@ create table `snapshot_file`
 DROP TABLE IF EXISTS `delta_file`;
 create table `delta_file`
 (
-    `id`             int unsigned    NOT NULL AUTO_INCREMENT,
-    `version_id`     int unsigned    NOT NULL DEFAULT '0',
-    `name`           varchar(256)    NOT NULL DEFAULT '',
-    `payload`        longblob        NOT NULL DEFAULT '',
-    `hash`           varchar(128)    NOT NULL DEFAULT '',
-    `last_serial_id` int             NOT NULL DEFAULT '0',
-    `created`        bigint unsigned not null default unix_timestamp(),
+    `id`         int unsigned    NOT NULL AUTO_INCREMENT,
+    `version_id` int unsigned    NOT NULL DEFAULT '0',
+    `name`       varchar(256)    NOT NULL DEFAULT '',
+    `payload`    longblob        NOT NULL DEFAULT '',
+    `hash`       varchar(128)    NOT NULL DEFAULT '',
+    `created`    bigint unsigned not null default unix_timestamp(),
     PRIMARY KEY (`id`),
     CONSTRAINT `delta_file__version_information_fk` FOREIGN KEY (`version_id`) REFERENCES `version_information` (`id`),
-    UNIQUE KEY `delta_file__last_serial_id_uk` (last_serial_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
