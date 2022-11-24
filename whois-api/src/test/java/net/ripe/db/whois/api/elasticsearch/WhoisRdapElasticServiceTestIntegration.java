@@ -676,8 +676,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     private void assertCommon(RdapObject object) {
         assertThat(object.getPort43(), is("whois.ripe.net"));
-        assertThat(object.getRdapConformance(), hasSize(1));
-        assertThat(object.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(object.getRdapConformance(), hasSize(3));
+        assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
     }
 
     private void assertCopyrightLink(final List<Link> links, final String value) {
