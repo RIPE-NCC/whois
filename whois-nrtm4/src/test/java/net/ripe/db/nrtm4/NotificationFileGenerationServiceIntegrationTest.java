@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
-import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,9 +21,6 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
 
     @Autowired
     private NotificationFileGenerationService notificationFileGenerationService;
-
-    @Autowired
-    private NrtmVersionInfoRepository nrtmVersionInfoRepository;
 
     @Autowired
     private NrtmSourceHolder nrtmSourceHolder;

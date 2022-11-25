@@ -13,28 +13,28 @@ import java.util.Optional;
 @Service
 public class NotificationFileGenerationService {
 
-    private final NrtmVersionInfoRepository versionDao;
+    private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
 
     public NotificationFileGenerationService(
         final NrtmVersionInfoRepository nrtmVersionInfoRepository
     ) {
-        versionDao = nrtmVersionInfoRepository;
+        this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
     }
 
     // TODO: Add a global lock to ensure that no other instance can run until this method exits
     public PublishableSnapshotFile generateSnapshot(final NrtmSource source) {
 
         // Get last version from database.
-        final Optional<VersionInformation> lastVersion = versionDao.findLastVersion(source);
+        final Optional<VersionInformation> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
         VersionInformation version;
         if (lastVersion.isEmpty()) {
-            version = versionDao.createInitialSnapshot(source, 0);
+            version = nrtmVersionInfoRepository.createInitialSnapshot(source, 0);
         } else {
             version = lastVersion.get();
             // TODO: don't increment -- just skip it -- no new snapshots if has it not changed
             //       since the last snapshot (see RFC)
             if (version.getType() == NrtmDocumentType.delta) {
-                version = versionDao.copyAsSnapshotVersion(version);
+                version = nrtmVersionInfoRepository.copyAsSnapshotVersion(version);
             }
         }
         final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);

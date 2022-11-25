@@ -67,7 +67,7 @@ public class NrtmProcessor {
         snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
         final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getValue0().getSerialId();
         final VersionInformation nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
-        final PayloadProcessor processor = new PayloadProcessor(deltas);
+        final PayloadProcessor processor = new PayloadProcessor(deltas.toArray(new DeltaChange[0]));
         return deltaFileModelRepository.save(
             nextVersion.getId(),
             "nrtm-delta.1.784a2a65aba22e001fd25a1b9e8544e058fbc703.json", // TODO: generate file name for url
