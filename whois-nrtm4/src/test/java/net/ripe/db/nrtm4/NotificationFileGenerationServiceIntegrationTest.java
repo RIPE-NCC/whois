@@ -39,7 +39,7 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
             sessionID = publishableSnapshotFile.getSessionID();
             assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
             assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
-            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT));
+            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT.nameToLowerCase()));
         }
         {
             final PublishableSnapshotFile publishableSnapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
@@ -47,7 +47,7 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
             assertThat(sessionID, is(publishableSnapshotFile.getSessionID()));
             assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
             assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
-            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT));
+            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT.nameToLowerCase()));
         }
         {
             final PublishableSnapshotFile publishableSnapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
@@ -55,7 +55,7 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
             assertThat(sessionID, is(publishableSnapshotFile.getSessionID()));
             assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
             assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
-            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT));
+            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT.nameToLowerCase()));
         }
     }
 

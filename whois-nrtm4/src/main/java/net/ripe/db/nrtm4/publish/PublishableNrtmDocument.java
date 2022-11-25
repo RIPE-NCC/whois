@@ -20,7 +20,7 @@ public abstract class PublishableNrtmDocument {
     PublishableNrtmDocument(
         final VersionInformation version
     ) {
-        this.type = version.getType().lowerName();
+        this.type = version.getType().nameToLowerCase();
         this.source = version.getSource();
         this.sessionID = version.getSessionID().toString();
         this.version = version.getVersion();
