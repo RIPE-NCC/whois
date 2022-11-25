@@ -733,12 +733,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getVCardArray().size(), is(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entity.getVCardArray().get(1).toString(), equalTo("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, Pauleth Palthen], " +
-                "[kind, {}, text, individual], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31-1234567890], " +
-                "[email, {type=email}, text, noreply@ripe.net]]"));
+                "[[version, {pref=, language=, altid=}, text, 4.0], " +
+                "[fn, {pref=, language=, altid=}, text, Pauleth Palthen], " +
+                "[kind, {pref=, language=, altid=}, text, individual], " +
+                "[adr, {pref=, language=, label=Singel 258, type=work, altid=}, text, [, , , , , , ]], " +
+                "[tel, {pref=, language=, type=voice, altid=}, text, +31-1234567890], " +
+                "[email, {pref=, language=, type=email, work, altid=}, text, noreply@ripe.net]]"));
 
         assertThat(entity.getObjectClassName(), is("entity"));
 
@@ -823,11 +823,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getVCardArray().size(), is(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entity.getVCardArray().get(1).toString(), equalTo("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, First Role], " +
-                "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[email, {type=email}, text, dbtest@ripe.net]]"));
+                "[[version, {pref=, language=, altid=}, text, 4.0], " +
+                "[fn, {pref=, language=, altid=}, text, First Role], " +
+                "[kind, {pref=, language=, altid=}, text, group], " +
+                "[adr, {pref=, language=, label=Singel 258, type=work, altid=}, text, [, , , , , , ]], " +
+                "[email, {pref=, language=, type=email, work, altid=}, text, dbtest@ripe.net]]"));
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
         assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
@@ -1218,14 +1218,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entities.get(3).getVCardArray(), hasSize(2));
         assertThat(entities.get(3).getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entities.get(3).getVCardArray().get(1).toString(), is("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, Abuse Contact], " +
-                "[kind, {}, text, group], " +
-                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, work@test.com], " +
-                "[email, {type=email}, text, personal@test.com], " +
-                "[email, {type=abuse}, text, abuse@test.net]]"));
+                "[[version, {pref=, language=, altid=}, text, 4.0], " +
+                "[fn, {pref=, language=, altid=}, text, Abuse Contact], " +
+                "[kind, {pref=, language=, altid=}, text, group], " +
+                "[adr, {pref=, language=, label=Singel 358, type=work, altid=}, text, [, , , , , , ]], " +
+                "[tel, {pref=, language=, type=voice, altid=}, text, +31 6 12345678], " +
+                "[email, {pref=, language=, type=email, work, altid=}, text, work@test.com], " +
+                "[email, {pref=, language=, type=email, work, altid=}, text, personal@test.com], " +
+                "[email, {pref=, language=, type=abuse, work, altid=}, text, abuse@test.net]]"));
     }
 
     @Test
@@ -1272,14 +1272,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entities.get(3).getVCardArray(), hasSize(2));
         assertThat(entities.get(3).getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entities.get(3).getVCardArray().get(1).toString(), is("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, Abuse Contact], " +
-                "[kind, {}, text, group], " +
-                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=email}, text, work@test.com], " +
-                "[email, {type=email}, text, personal@test.com], " +
-                "[email, {type=abuse}, text, abuse@test.net]]"));
+                "[[version, {pref=, language=, altid=}, text, 4.0], " +
+                "[fn, {pref=, language=, altid=}, text, Abuse Contact], " +
+                "[kind, {pref=, language=, altid=}, text, group], " +
+                "[adr, {pref=, language=, label=Singel 358, type=work, altid=}, text, [, , , , , , ]], " +
+                "[tel, {pref=, language=, type=voice, altid=}, text, +31 6 12345678], " +
+                "[email, {pref=, language=, type=email, work, altid=}, text, work@test.com], " +
+                "[email, {pref=, language=, type=email, work, altid=}, text, personal@test.com], " +
+                "[email, {pref=, language=, type=abuse, work, altid=}, text, abuse@test.net]]"));
     }
 
     @Test
@@ -1431,12 +1431,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entities.get(3).getVCardArray(), hasSize(2));
         assertThat(entities.get(3).getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entities.get(3).getVCardArray().get(1).toString(), is("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, Abuse Contact], " +
-                "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678], " +
-                "[email, {type=abuse}, text, abuse@test.net]]"));
+                "[[version, {pref=, language=, altid=}, text, 4.0], " +
+                "[fn, {pref=, language=, altid=}, text, Abuse Contact], " +
+                "[kind, {pref=, language=, altid=}, text, group], " +
+                "[adr, {pref=, language=, label=Singel 258, type=work, altid=}, text, [, , , , , , ]], " +
+                "[tel, {pref=, language=, type=voice, altid=}, text, +31 6 12345678], " +
+                "[email, {pref=, language=, type=abuse, work, altid=}, text, abuse@test.net]]"));
     }
 
     // organisation entity
@@ -1716,9 +1716,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         final List<Object> vCardArray = entity.getVCardArray();
         assertThat(vCardArray.get(0).toString(), is("vcard"));
         assertThat(vCardArray.get(1).toString(), is("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, OWNER-MNT], " +
-                "[kind, {}, text, individual]]"));
+                "[[version, {pref=, language=, altid=}, text, 4.0], " +
+                "[fn, {pref=, language=, altid=}, text, OWNER-MNT], " +
+                "[kind, {pref=, language=, altid=}, text, individual]]"));
 
         final List<Entity> entities = entity.getEntitySearchResults();
         assertThat(entities, hasSize(2));
@@ -1840,11 +1840,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getVCardArray(), hasSize(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entity.getVCardArray().get(1).toString(), is("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, Organisation One], " +
-                "[kind, {}, text, org], " +
-                "[adr, {label=One Org Street}, text, [, , , , , , ]], " +
-                "[email, {type=email}, text, test@ripe.net]]"));
+                "[[version, {pref=, language=, altid=}, text, 4.0], " +
+                "[fn, {pref=, language=, altid=}, text, Organisation One], " +
+                "[kind, {pref=, language=, altid=}, text, org], " +
+                "[adr, {pref=, language=, label=One Org Street, type=work, altid=}, text, [, , , , , , ]], " +
+                "[email, {pref=, language=, type=email, work, altid=}, text, test@ripe.net]]"));
 
         assertCopyrightLink(entity.getLinks(), "https://rdap.db.ripe.net/entity/ORG-ONE-TEST");
 

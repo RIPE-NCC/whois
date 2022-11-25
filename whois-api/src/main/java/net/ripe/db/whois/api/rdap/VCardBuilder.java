@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rdap;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCardKind;
@@ -34,71 +33,84 @@ public class VCardBuilder {
     private final List<VCardProperty> properties = Lists.newArrayList();
 
     private static final String PARAMETER_KEY = "type";
-    private static final Map ABUSE_MAP = ImmutableMap.of(PARAMETER_KEY,"abuse");
-    private static final Map EMAIL_MAP = ImmutableMap.of(PARAMETER_KEY,"email");
-    private static final Map PHONE_MAP = ImmutableMap.of(PARAMETER_KEY, "voice");
-    private static final Map FAX_MAP = ImmutableMap.of(PARAMETER_KEY, "fax");
-    private static final Map EMPTY_MAP = ImmutableMap.of();
 
     public VCardBuilder addAdr(final Set<CIString> addresses) {
         final String label = "label";
         final String labelType = "type";
         if (!addresses.isEmpty()) {
-            final Map addressMap = new HashMap();
+            final Map<String, String> addressMap = new HashMap<>();
             addressMap.put(label,NEWLINE_JOINER.join(addresses));
             addressMap.put(labelType, WORK.getValue());
 
-            properties.add(new VCardProperty(ADDRESS, addressMap, TEXT, nCopies(7, ""))); //VCard format 7 empty elements for text
+            properties.add(new VCardProperty(ADDRESS, addCommonProperties(addressMap), TEXT, nCopies(7, ""))); //VCard format 7 empty elements for text
         }
         return this;
     }
 
     public VCardBuilder addEmail(final Set<CIString> emails) {
-        emails.forEach( email -> addProperty(EMAIL, EMAIL_MAP, TEXT, email));
+        final Map<String, String> emailMap = new HashMap<>();
+        emailMap.put(PARAMETER_KEY,"email, work");
+
+        emails.forEach( email -> addProperty(EMAIL, addCommonProperties(emailMap), TEXT, email));
         return this;
     }
 
     public VCardBuilder addAbuseMailBox(final CIString abuseMail) {
         if(abuseMail != null) {
-            addProperty(EMAIL, ABUSE_MAP, TEXT, abuseMail);
+            final Map<String, String> abuseMap = new HashMap<>();
+            abuseMap.put(PARAMETER_KEY,"abuse, work");
+
+            addProperty(EMAIL, addCommonProperties(abuseMap), TEXT, abuseMail);
         }
         return this;
     }
 
     public VCardBuilder addFn(final CIString value) {
-        addProperty(FN, EMPTY_MAP, TEXT, value);
+        addProperty(FN, addCommonProperties(new HashMap<>()), TEXT, value);
         return this;
     }
 
     public void addGeo(final Set<CIString> geolocs) {
-        geolocs.forEach( geo -> addProperty(GEO, EMPTY_MAP, URI, geo));
+        geolocs.forEach( geo -> addProperty(GEO, addCommonProperties(new HashMap<>()), URI, geo));
     }
 
     public VCardBuilder addKind(final VCardKind kind) {
-        addProperty(KIND, EMPTY_MAP, TEXT, kind.getValue());
+        addProperty(KIND, addCommonProperties(new HashMap<>()), TEXT, kind.getValue());
         return this;
     }
 
     public VCardBuilder addTel(final Set<CIString> phones) {
-        phones.forEach( phone -> addProperty(TELEPHONE, PHONE_MAP, getTelType(phone), phone));
+        final Map<String, String> telMap = new HashMap<>();
+        telMap.put(PARAMETER_KEY,"voice");
+
+        phones.forEach( phone -> addProperty(TELEPHONE, addCommonProperties(telMap), getTelType(phone), phone));
         return this;
     }
 
     public VCardBuilder addFax(final Set<CIString> faxes) {
-        faxes.forEach( fax -> addProperty(TELEPHONE, FAX_MAP, getTelType(fax), fax));
+        Map<String, String> faxMap = new HashMap<>();
+        faxMap.put(PARAMETER_KEY, "fax");
+        faxes.forEach( fax -> addProperty(TELEPHONE, addCommonProperties(faxMap), getTelType(fax), fax));
         return this;
     }
 
     public VCardBuilder addVersion() {
-        addProperty(VERSION, EMPTY_MAP, TEXT, "4.0");
+        addProperty(VERSION, addCommonProperties(new HashMap<>()), TEXT, "4.0");
         return this;
     }
 
     public VCardBuilder addOrg(final Set<CIString> values) {
-        values.forEach( org-> addProperty(ORG, EMPTY_MAP, TEXT, org));
+        values.forEach( org-> addProperty(ORG, addCommonProperties(new HashMap<>()), TEXT, org));
         return this;
     }
 
+    private Map<String, String> addCommonProperties(Map<String, String> properties){
+        properties.put("language", "");
+        properties.put("altid", "");
+        properties.put("pref", "");
+
+        return properties;
+    }
     private void addProperty(VCardName name, final Map parameters, final VCardType type, final String value) {
         properties.add(new VCardProperty(name, parameters, type, value));
     }
