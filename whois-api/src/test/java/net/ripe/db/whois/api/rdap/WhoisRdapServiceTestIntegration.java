@@ -1074,60 +1074,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(autnum.getStatus(), contains("reserved"));
     }
 
-    @Test
-    public void lookup_as_block_when_no_autnum_found() {
-        final Autnum autnum = createResource("autnum/103")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Autnum.class);
-
-        assertThat(autnum.getHandle(), equalTo("AS100"));
-        assertThat(autnum.getStartAutnum(), equalTo(100L));
-        assertThat(autnum.getEndAutnum(), equalTo(200L));
-        assertThat(autnum.getName(), equalTo("AS100-AS200"));
-        assertThat(autnum.getObjectClassName(), is("autnum"));
-
-        assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("ORG-TEST1-TEST"));
-        assertThat(autnum.getEntitySearchResults().get(0).getRoles(), contains(Role.REGISTRANT));
-    }
-
-    @Test
-    public void lookup_as_block_for_reserved_autnum() {
-        databaseHelper.addObject("" +
-                "as-block:          AS0 - AS6\n" +
-                "descr:             RIPE NCC block\n" +
-                "org:               ORG-TEST1-TEST\n" +
-                "mnt-by:            OWNER-MNT\n" +
-                "created:           2022-08-14T11:48:28Z\n" +
-                "last-modified:     2022-10-25T12:22:39Z\n" +
-                "source:            TEST");
-
-        final Autnum autnum = createResource("autnum/0")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Autnum.class);
-
-        assertThat(autnum.getHandle(), equalTo("AS0"));
-        assertThat(autnum.getStartAutnum(), equalTo(0L));
-        assertThat(autnum.getEndAutnum(), equalTo(6L));
-        assertThat(autnum.getName(), equalTo("AS0-AS6"));
-        assertThat(autnum.getObjectClassName(), is("autnum"));
-        assertThat(autnum.getStatus(), contains("reserved"));
-
-        assertThat(autnum.getEntitySearchResults().get(0).getHandle(), is("ORG-TEST1-TEST"));
-        assertThat(autnum.getEntitySearchResults().get(0).getRoles(), contains(Role.REGISTRANT));
-    }
-
-    @Test
-    public void lookup_asblock_with_rdap_json_content_type() {
-        final Response response = createResource("autnum/103")
-                .request("application/rdap+json")
-                .get();
-
-        assertThat(response.getMediaType(), is(new MediaType("application", "rdap+json")));
-        final String entity = response.readEntity(String.class);
-        assertThat(entity, containsString("\"handle\" : \"AS100\""));
-        assertThat(entity, containsString("\"startAutnum\" : 100"));
-        assertThat(entity, containsString("\"endAutnum\" : 200"));
-    }
 
     @Test
     public void lookup_autnum_with_rdap_json_content_type() {
