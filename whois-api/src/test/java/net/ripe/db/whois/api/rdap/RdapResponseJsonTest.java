@@ -32,7 +32,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -111,17 +110,6 @@ public class RdapResponseJsonTest {
         assertThat(marshal(builder.build()), equalTo("{\n  \"vcard\" : [ [ \"adr\", {\n    \"label\" : \"Suite 1234\"\n  }, \"text\", [ \"\", \"\", \"\", \"\", \"\", \"\", \"\" ] ] ]\n}"));
     }
 
-    private List createName(final String surname, final String given, final String prefix, final String suffix, final List honorifics) {
-        return Lists.newArrayList(surname, given, prefix, suffix, honorifics);
-    }
-
-    private List createHonorifics(final String prefix, final String suffix) {
-        return Lists.newArrayList(prefix, suffix);
-    }
-
-    private List createAddress(final String pobox, final String ext, final String street, final String locality, final String region, final String code, final String country) {
-        return Lists.newArrayList(pobox, ext, street, locality, region, code, country);
-    }
 
     @Test
     public void nameserver_serialization_test() throws Exception {

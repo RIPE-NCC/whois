@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rdap.domain.vcard;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -24,9 +23,6 @@ public class VCardProperty {
         this.values.add(values);
     }
 
-    public VCardProperty() {
-        // required no-arg constructor
-    }
 
     public List<Object> getObjects() {
         return values;

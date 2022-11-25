@@ -1,0 +1,41 @@
+{
+  "vcardArray": [
+    "vcard",
+    [
+      [
+        "version",
+        {},
+        "text",
+        "4.0"
+      ],
+      [
+        "fn",
+        {},
+        "text",
+        "Google LLC"
+      ],
+      [
+        "adr",
+        {
+          "label": "1600 Amphitheatre Parkway\nMountain View\nCA\n94043\nUnited States"
+        },
+        "text",
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      [
+        "kind",
+        {},
+        "text",
+        "org"
+      ]
+    ]
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "vcardArray": [
+    "vcard",
+    [
+      [
+        "version",
+        {},
+        "text",
+        "4.0"
+      ],
+      [
+        "fn",
+        {},
+        "text",
+        "OPTUS IP ADMINISTRATORS"
+      ],
+      [
+        "kind",
+        {},
+        "text",
+        "group"
+      ],
+      [
+        "adr",
+        {
+          "label": "SingTel Optus Pty Ltd\nOptus Macquarie Park (OCS)\n1 Lyonpark Road\nMacquarie Park  NSW 2113\nAUSTRALIA"
+        },
+        "text",
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      [
+        "tel",
+        {
+          "type": "voice"
+        },
+        "text",
+        "+61 2 8082 7800"
+      ],
+      [
+        "tel",
+        {
+          "type": "fax"
+        },
+        "text",
+        "+61 2 8082 7100"
+      ],
+      [
+        "email",
+        {},
+        "text",
+        "ipadmin@optus.net.au"
+      ]
+    ]
+  ]
+}

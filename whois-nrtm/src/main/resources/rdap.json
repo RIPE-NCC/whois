@@ -1,0 +1,73 @@
+{
+  "vcardArray": [
+    "vcard",
+    [
+      [
+        "version",
+        {},
+        "text",
+        "4.0"
+      ],
+      [
+        "fn",
+        {},
+        "text",
+        "RIPE NCC Operations"
+      ],
+      [
+        "kind",
+        {},
+        "text",
+        "group"
+      ],
+      [
+        "adr",
+        {
+          "label": "Stationsplein 11\n1012 AB Amsterdam\nThe Netherlands"
+        },
+        "text",
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      [
+        "tel",
+        {
+          "type": "voice"
+        },
+        "text",
+        "+31 20 535 4444"
+      ],
+      [
+        "tel",
+        {
+          "type": "fax"
+        },
+        "text",
+        "+31 20 535 4445"
+      ],
+      [
+        "email",
+        {
+          "type": "email"
+        },
+        "text",
+        "ops@ripe.net"
+      ],
+      [
+        "email",
+        {
+          "type": "abuse"
+        },
+        "text",
+        "abuse@ripe.net"
+      ]
+    ]
+  ]
+}
