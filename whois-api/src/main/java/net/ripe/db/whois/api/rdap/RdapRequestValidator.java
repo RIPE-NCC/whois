@@ -28,13 +28,14 @@ public class RdapRequestValidator {
 
     public void validateDomain(final String key) {
         if (isEmpty(key)) {
-            throw new BadRequestException("empty lookup term");
+            throw new BadRequestException("400 Bad Request", new Throwable("empty lookup term"));
         }
 
         try {
             Domain.parse(key);
         } catch (AttributeParseException e) {
-            throw new NotFoundException("RIPE NCC does not support forward domain queries.");
+            throw new NotFoundException("404 Not Found", new Throwable("RIPE NCC does not support forward domain " +
+                    "queries."));
         }
     }
 
@@ -42,7 +43,7 @@ public class RdapRequestValidator {
         try {
             IpInterval.parse(key);
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Invalid syntax.");
+            throw new BadRequestException("Invalid syntax.", e);
         }
 
         if (rawUri.contains("//")) {
@@ -61,11 +62,11 @@ public class RdapRequestValidator {
     public void validateEntity(final String key) {
         if (key.toUpperCase().startsWith("ORG-")) {
             if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
-                throw new NotFoundException("Invalid syntax.");
+                throw new BadRequestException("400 Bad Request", new Throwable("Bad organisation or mntner syntax: " + key));
             }
         } else {
             if (!AttributeType.MNTNER.isValidValue(MNTNER, key)) {
-                throw new NotFoundException("Invalid syntax.");
+                throw new BadRequestException("400 Bad Request", new Throwable("Bad organisation or mntner syntax: " + key));
             }
         }
     }
