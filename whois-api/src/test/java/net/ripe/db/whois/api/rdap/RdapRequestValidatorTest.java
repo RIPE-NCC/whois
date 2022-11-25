@@ -7,7 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 public class RdapRequestValidatorTest {
@@ -17,7 +16,7 @@ public class RdapRequestValidatorTest {
 
     @Test
     public void shouldThrowExceptionForInvalidOrganisation() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        Assertions.assertThrows(BadRequestException.class, () -> {
             validator.validateEntity("ORG-Test");
         });
     }
