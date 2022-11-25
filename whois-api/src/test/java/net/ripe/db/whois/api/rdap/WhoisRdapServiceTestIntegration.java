@@ -1341,8 +1341,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            final Entity response = e.getResponse().readEntity(Entity.class);
-            assertThat(response.getErrorTitle(), is("400 Bad Request"));
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "unknown objectType");
+
         }
     }
 
