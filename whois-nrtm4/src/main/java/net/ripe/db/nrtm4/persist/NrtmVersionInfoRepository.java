@@ -71,7 +71,7 @@ public class NrtmVersionInfoRepository {
         jdbcTemplate.update("INSERT INTO source (name) VALUES (?)", source.name());
         final long version = 1L;
         final UUID sessionID = UUID.randomUUID();
-        final NrtmDocumentType type = NrtmDocumentType.snapshot;
+        final NrtmDocumentType type = NrtmDocumentType.SNAPSHOT;
         return save(source, version, sessionID, type, lastSerialId);
     }
 
@@ -94,10 +94,10 @@ public class NrtmVersionInfoRepository {
      * @return A version object which will be used for a snapshot
      */
     public VersionInformation copyAsSnapshotVersion(final VersionInformation version) {
-        if (version.getType() == NrtmDocumentType.snapshot) {
+        if (version.getType() == NrtmDocumentType.SNAPSHOT) {
             throw new IllegalStateException("Cannot copy a snapshot version number - must be a delta version");
         }
-        return save(version.getSource(), version.getVersion(), version.getSessionID(), NrtmDocumentType.snapshot, version.getLastSerialId());
+        return save(version.getSource(), version.getVersion(), version.getSessionID(), NrtmDocumentType.SNAPSHOT, version.getLastSerialId());
     }
 
     private VersionInformation save(

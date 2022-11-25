@@ -33,7 +33,7 @@ public class NotificationFileGenerationService {
             version = lastVersion.get();
             // TODO: don't increment -- just skip it -- no new snapshots if has it not changed
             //       since the last snapshot (see RFC)
-            if (version.getType() == NrtmDocumentType.delta) {
+            if (version.getType() == NrtmDocumentType.DELTA) {
                 version = nrtmVersionInfoRepository.copyAsSnapshotVersion(version);
             }
         }

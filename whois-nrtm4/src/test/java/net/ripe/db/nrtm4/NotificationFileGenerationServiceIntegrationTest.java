@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-import static net.ripe.db.nrtm4.persist.NrtmDocumentType.snapshot;
+import static net.ripe.db.nrtm4.persist.NrtmDocumentType.SNAPSHOT;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -39,7 +39,7 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
             sessionID = publishableSnapshotFile.getSessionID();
             assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
             assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
-            assertThat(publishableSnapshotFile.getType(), is(snapshot));
+            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT));
         }
         {
             final PublishableSnapshotFile publishableSnapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
@@ -47,7 +47,7 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
             assertThat(sessionID, is(publishableSnapshotFile.getSessionID()));
             assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
             assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
-            assertThat(publishableSnapshotFile.getType(), is(snapshot));
+            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT));
         }
         {
             final PublishableSnapshotFile publishableSnapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
@@ -55,7 +55,7 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
             assertThat(sessionID, is(publishableSnapshotFile.getSessionID()));
             assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
             assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
-            assertThat(publishableSnapshotFile.getType(), is(snapshot));
+            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT));
         }
     }
 

@@ -14,7 +14,7 @@ public class RpslObjectSerializer extends StdSerializer<RpslObject> {
         this(null);
     }
 
-    protected RpslObjectSerializer(Class<RpslObject> objectClass) {
+    protected RpslObjectSerializer(final Class<RpslObject> objectClass) {
         super(objectClass);
     }
 
