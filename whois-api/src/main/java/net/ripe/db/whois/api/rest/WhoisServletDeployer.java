@@ -4,9 +4,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import net.ripe.db.whois.api.autocomplete.AutocompleteService;
 import net.ripe.db.whois.api.fulltextsearch.FullTextSearchService;
+import net.ripe.db.whois.api.healthcheck.HealthCheckService;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
-import net.ripe.db.whois.api.healthcheck.HealthCheckService;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.DispatcherType;
+import javax.ws.rs.ext.MessageBodyWriter;
 import java.util.EnumSet;
 
 @Component
@@ -103,6 +105,9 @@ public class WhoisServletDeployer implements ServletDeployer {
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         resourceConfig.register(jaxbJsonProvider);
+
+        final MessageBodyWriter<WhoisResources> customMessageBodyWriter = new CustomMessageBodyWriter();
+        resourceConfig.register(customMessageBodyWriter);
 
         resourceConfig.register(new JaxbMessagingBinder());
 
