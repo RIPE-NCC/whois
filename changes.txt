@@ -1,5 +1,9 @@
 # next
 
+1.105
+
+[update] NWI-19: Change to AS-SET object naming rules
+
 # 1.104
 
 [api] Allow Grouping (-G) flag in Whois Search API (#1077)
