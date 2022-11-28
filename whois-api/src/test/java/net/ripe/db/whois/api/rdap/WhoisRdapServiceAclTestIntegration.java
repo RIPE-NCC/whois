@@ -1,10 +1,8 @@
 package net.ripe.db.whois.api.rdap;
 
 import net.ripe.db.whois.api.rdap.domain.Entity;
-
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +25,7 @@ class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
 
     @Test
-    public void lookup_person_entity_acl_denied() throws Exception {
+    public void lookup_person_entity_acl_denied() {
         try {
             databaseHelper.insertAclIpDenied(LOCALHOST_WITH_PREFIX);
             ipResourceConfiguration.reload();
