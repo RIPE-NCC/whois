@@ -4,7 +4,8 @@ public enum NrtmDocumentType {
     DELTA,
     SNAPSHOT;
 
-    public String nameToLowerCase() {
+    @Override
+    public String toString() {
         return name().toLowerCase();
     }
 }

@@ -4,11 +4,9 @@ import net.ripe.db.nrtm4.persist.DeltaFileModel;
 import net.ripe.db.nrtm4.persist.DeltaFileModelRepository;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.persist.RpslObjectModel;
-import net.ripe.db.nrtm4.persist.SerialModel;
 import net.ripe.db.nrtm4.persist.VersionInformation;
 import net.ripe.db.nrtm4.persist.WhoisSlaveDao;
-import org.javatuples.Pair;
+import net.ripe.db.whois.common.dao.jdbc.SerialRpslObjectTuple;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,11 +59,14 @@ public class NrtmProcessor {
         if (lastVersion.isEmpty()) {
             throw new IllegalStateException("Cannot create a delta without an initial snapshot");
         }
-        final List<Pair<SerialModel, RpslObjectModel>> whoisChanges = whoisSlaveDao.findSerialsAndObjectsSinceSerial(lastVersion.get().getLastSerialId());
+        final List<SerialRpslObjectTuple> whoisChanges = whoisSlaveDao.findSerialsAndObjectsSinceSerial(lastVersion.get().getLastSerialId());
 
         final List<DeltaChange> deltas = deltaProcessor.process(whoisChanges);
         snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
-        final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getValue0().getSerialId();
+        if (whoisChanges.size() < 1) {
+            throw new IllegalStateException("Cannot create a delta when there is no previous snapshot");
+        }
+        final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getSerial().getSerialId();
         final VersionInformation nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
         final PayloadProcessor processor = new PayloadProcessor(deltas.toArray(new DeltaChange[0]));
         return deltaFileModelRepository.save(

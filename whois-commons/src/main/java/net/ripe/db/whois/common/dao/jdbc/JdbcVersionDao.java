@@ -1,6 +1,8 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.dao.RpslObjectModel;
+import net.ripe.db.whois.common.dao.Serial;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.dao.VersionInfo;
@@ -9,11 +11,13 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.dao.jdbc.domain.VersionInfoRowMapper;
 import net.ripe.db.whois.common.domain.Timestamp;
+import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -27,6 +31,33 @@ import java.util.Set;
 @Repository
 public class JdbcVersionDao implements VersionDao {
     private final JdbcTemplate jdbcTemplate;
+
+    final String sqlSerialAndRpslTemplate = "" +
+        "SELECT " +
+        "s.serial_id, s.atlast, s.object_id, s.sequence_id, s.operation, " +
+        "r.object_id, r.sequence_id, r.object_type, r.pkey, r.object, r.timestamp " +
+        "FROM serials s JOIN %s r ON r.object_id = s.object_id and r.sequence_id = s.sequence_id " +
+        "WHERE s.serial_id > ? " +
+        "ORDER BY s.serial_id ASC";
+
+    private final RowMapper<SerialRpslObjectTuple> serialAndRpslObjectMapper = (rs, n) ->
+        new SerialRpslObjectTuple(
+            new Serial(
+                rs.getInt(1),
+                rs.getBoolean(2),
+                rs.getInt(3),
+                rs.getInt(4),
+                Operation.getByCode(rs.getInt(5))
+            ),
+            new RpslObjectModel(
+                rs.getInt(6),
+                rs.getInt(7),
+                ObjectTypeIds.getType(rs.getInt(8)),
+                rs.getString(9),
+                RpslObject.parse(rs.getString(10)),
+                rs.getLong(11)
+            )
+        );
 
     @Autowired
     public JdbcVersionDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource) {
@@ -144,4 +175,15 @@ public class JdbcVersionDao implements VersionDao {
                 "WHERE temp.timestamp=:cutoffTime ", parameters, new VersionInfoRowMapper()));
         return versionInfos;
     }
+
+    public List<SerialRpslObjectTuple> findSerialsInLastSince(final int serialId) {
+        final String sql = String.format(sqlSerialAndRpslTemplate, "last");
+        return jdbcTemplate.query(sql, serialAndRpslObjectMapper, serialId);
+    }
+
+    public List<SerialRpslObjectTuple> findSerialsInHistorySince(final int serialId) {
+        final String sql = String.format(sqlSerialAndRpslTemplate, "history");
+        return jdbcTemplate.query(sql, serialAndRpslObjectMapper, serialId);
+    }
+
 }

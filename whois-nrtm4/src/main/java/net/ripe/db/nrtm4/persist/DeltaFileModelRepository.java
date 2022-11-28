@@ -33,13 +33,6 @@ public class DeltaFileModelRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-//    public Optional<DeltaFileModel> findLastChange() {
-//        final String sql = "" +
-//            "SELECT id, version_id, name, payload, hash, created FROM delta_file " +
-//            "WHERE last_serial_id = (SELECT MAX(last_serial_id) FROM delta_file)";
-//        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper));
-//    }
-
     public DeltaFileModel save(
         final Long versionId,
         final String name,

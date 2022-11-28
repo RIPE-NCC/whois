@@ -1,41 +1,44 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.persist.RpslObjectModel;
-import net.ripe.db.nrtm4.persist.SerialModel;
-import org.javatuples.Pair;
+import net.ripe.db.whois.common.dao.RpslObjectModel;
+import net.ripe.db.whois.common.dao.Serial;
+import net.ripe.db.whois.common.dao.jdbc.SerialRpslObjectTuple;
+import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
+
 
 @Service
 public class DeltaProcessor {
 
-    private final RpslObjectTransformer rpslObjectTransformer;
+    private final DummifierNrtm dummifierNrtm;
 
-    public DeltaProcessor(final RpslObjectTransformer rpslObjectTransformer) {
-        this.rpslObjectTransformer = rpslObjectTransformer;
+    public DeltaProcessor(final DummifierNrtm dummifierNrtm) {
+        this.dummifierNrtm = dummifierNrtm;
     }
 
-    List<DeltaChange> process(final List<Pair<SerialModel, RpslObjectModel>> changes) {
+    List<DeltaChange> process(final List<SerialRpslObjectTuple> changes) {
         return changes.stream()
-            .filter(change -> rpslObjectTransformer.isAllowed(change.getValue1().getObject()))
+            .filter(change -> dummifierNrtm.isAllowed(NRTM_VERSION, change.getRpslObjectModel().getObject()))
             .map(serialRpsl -> {
-                final SerialModel serial = serialRpsl.getValue0();
-                final RpslObjectModel rpslObjectModel = serialRpsl.getValue1();
-                if (serial.isAtlast()) {
+                final Serial serial = serialRpsl.getSerial();
+                final RpslObjectModel rpslObjectModel = serialRpsl.getRpslObjectModel();
+                if (serial.isInLast()) {
                     return new DeltaChange(
-                        DeltaChange.Action.add_modify,
+                        DeltaChange.Action.ADD_MODIFY,
                         rpslObjectModel.getObjectType(),
-                        rpslObjectModel.getPkey(),
-                        rpslObjectTransformer.filter(rpslObjectModel.getObject())
+                        rpslObjectModel.getKey(),
+                        dummifierNrtm.dummify(NRTM_VERSION, rpslObjectModel.getObject())
                     );
                 } else {
                     return new DeltaChange(
-                        DeltaChange.Action.delete,
+                        DeltaChange.Action.DELETE,
                         rpslObjectModel.getObjectType(),
-                        rpslObjectModel.getPkey(),
+                        rpslObjectModel.getKey(),
                         null
                     );
                 }

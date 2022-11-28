@@ -1,15 +1,22 @@
 package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 
 public class DeltaChange {
 
+    @JsonSerialize(using = EnumToStringSerializer.class)
     enum Action {
-        delete,
-        add_modify,
+        DELETE,
+        ADD_MODIFY;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
     }
 
     private final Action action;

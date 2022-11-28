@@ -39,23 +39,16 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
             sessionID = publishableSnapshotFile.getSessionID();
             assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
             assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
-            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT.nameToLowerCase()));
+            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT));
         }
         {
+            // don't increment snapshot version
             final PublishableSnapshotFile publishableSnapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
-            assertThat(publishableSnapshotFile.getVersion(), is(2L));
+            assertThat(publishableSnapshotFile.getVersion(), is(1L));
             assertThat(sessionID, is(publishableSnapshotFile.getSessionID()));
             assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
             assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
-            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT.nameToLowerCase()));
-        }
-        {
-            final PublishableSnapshotFile publishableSnapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
-            assertThat(publishableSnapshotFile.getVersion(), is(3L));
-            assertThat(sessionID, is(publishableSnapshotFile.getSessionID()));
-            assertThat(publishableSnapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
-            assertThat(publishableSnapshotFile.getNrtmVersion(), is(4));
-            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT.nameToLowerCase()));
+            assertThat(publishableSnapshotFile.getType(), is(SNAPSHOT));
         }
     }
 
