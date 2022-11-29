@@ -52,10 +52,6 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
 
     }
 
-    protected void assertErrorDescription(final WebApplicationException exception, final String description) {
-        final Entity entity = exception.getResponse().readEntity(Entity.class);
-        assertThat(entity.getDescription().get(0), is(description));
-    }
     protected void assertErrorTitle(final WebApplicationException exception, final String title) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorTitle(), is(title));
@@ -66,7 +62,7 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
         assertThat(entity.getErrorTitle(), containsString(title));
     }
 
-    protected void assertErrorStatus(final WebApplicationException exception, final int status) {
+    protected void assertErrorStatus(final ClientErrorException exception, final int status) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorCode(), is(status));
     }

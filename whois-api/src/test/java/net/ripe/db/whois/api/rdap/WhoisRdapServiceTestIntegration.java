@@ -437,12 +437,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(mixedCaseEntity.getHandle(), equalTo("gruk-RIPE"));
     }
-    
+
     @Test
     public void lookup_inetnum_not_found() {
         final Ip ip = createResource("ip/193.0.0.0")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Ip.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
 
         assertThat(ip.getHandle(), is("0.0.0.0 - 255.255.255.255"));
         assertThat(ip.getIpVersion(), is("v4"));
@@ -531,7 +531,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (final BadRequestException e) {
             assertErrorTitle(e, "Invalid syntax.");
-            assertErrorDescription(e, "'invalid' is not an IP string literal.");
         }
     }
     // inet6num
@@ -711,8 +710,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void lookup_inet6num_not_found() {
         final Ip ip = createResource("ip/2001:2002:2003::/48")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Ip.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
 
         assertThat(ip.getHandle(), is("::/0"));
         assertThat(ip.getIpVersion(), is("v6"));
@@ -770,9 +769,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (final NotFoundException e) {
-            assertErrorStatus(e, 404);
-            assertErrorTitle(e, "404 Not Found");
-            assertErrorDescription(e, "Requested organisation not found: ORG-BAD1-TEST");
+            final Entity response = e.getResponse().readEntity(Entity.class);
+            assertThat(response.getErrorCode(), is(404));
         }
     }
 
@@ -783,10 +781,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "Bad organisation or mntner syntax: 12345");
+        } catch (NotFoundException e) {
+            final Entity response = e.getResponse().readEntity(Entity.class);
+            assertThat(response.getErrorCode(), is(404));
+            assertThat(response.getErrorTitle(), is("Invalid syntax."));
         }
     }
 
@@ -803,8 +801,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void lookup_entity_logged_in_query_log() {
         createResource("entity/PP1-TEST")
-                        .request()
-                        .get(Entity.class);
+                .request()
+                .get(Entity.class);
 
         assertThat(queryLog.getMessages(), hasSize(1));
         assertThat(queryLog.getMessage(0), containsString(" PW-API-INFO <1+0+0> "));
@@ -871,12 +869,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(domain.getNameservers(), hasSize(2));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
-                    containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
+                containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
-                    containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
+                containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getIpAddresses(), domain.getNameservers().get(1).getIpAddresses()),
-                    containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
-                                        new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
+                containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
+                        new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
 
         assertThat(domain.getSecureDNS().isDelegationSigned(), is(Boolean.TRUE));
         assertThat(domain.getSecureDNS().getDsData(), hasSize(3));
@@ -945,9 +943,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Domain.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorStatus(e, 404);
-            assertErrorTitle(e, "404 Not Found");
-            assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
+            assertErrorTitle(e, "RIPE NCC does not support forward domain queries.");
         }
     }
 
@@ -962,8 +958,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
             fail();
         } catch (NotFoundException e) {
             assertErrorStatus(e, 404);
-            assertErrorTitle(e, "404 Not Found");
-            assertErrorDescription(e, "Requested object not found");
         }
     }
 
@@ -987,8 +981,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Autnum.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "unknown objectType");
+            assertErrorTitle(e, "unknown objectType");
         }
     }
 
@@ -1162,7 +1155,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Autnum.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Redirect URI not found");
+            assertErrorTitle(e, "Redirect URI not found");
         }
     }
 
@@ -1317,7 +1310,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "source:        TEST");
 
         databaseHelper.getInternalsTemplate().update(
-           "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
+                "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
         );
 
         final Autnum autnum = createResource("autnum/102")
@@ -1325,9 +1318,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Autnum.class);
 
         assertThat(
-            autnum.getRemarks().get(0).getDescription(),
-            contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
-                    "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
+                autnum.getRemarks().get(0).getDescription(),
+                contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
+                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
         );
     }
 
@@ -1337,21 +1330,19 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     public void lookup_invalid_type() {
         try {
             createResource("unknown/example.com")
-                .request("application/rdap+json")
-                .get(Entity.class);
+                    .request("application/rdap+json")
+                    .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "unknown objectType");
-
+            final Entity response = e.getResponse().readEntity(Entity.class);
+            assertThat(response.getErrorTitle(), is("unknown objectType"));
         }
     }
 
     @Test
     public void multiple_modification_gives_correct_events() {
         final String response = syncupdate(
-                        "aut-num:   AS102\n" +
+                "aut-num:   AS102\n" +
                         "as-name:   AS-TEST\n" +
                         "descr:     Modified ASN\n" +
                         "admin-c:   TP1-TEST\n" +
@@ -1697,8 +1688,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "404 Not Found");
-            assertErrorDescription(e, "Requested organisation not found: ORG-NONE-TEST");
+            assertErrorTitle(e, "Requested organisation not found: ORG-NONE-TEST");
         }
     }
 
@@ -1709,10 +1699,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
             fail();
-        } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "Bad organisation or mntner syntax: ORG-INVALID");
+        } catch (NotFoundException e) {
+            assertErrorTitle(e, "Invalid syntax.");
         }
     }
 
@@ -1792,8 +1780,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "source:        TEST");
 
         Entity entity = createResource("entity/AZRT")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("AZRT"));
     }
@@ -1921,16 +1909,16 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (ServerErrorException e) {
-            assertErrorStatus(e, 501);
-            assertErrorTitle(e, "501 Not Implemented");
-            assertErrorDescription(e, "Nameserver not supported");
+            final Entity entity = e.getResponse().readEntity(Entity.class);
+            assertThat(entity.getErrorTitle(), is("Nameserver not supported"));
+            assertThat(entity.getErrorCode(), is(501));
         }
     }
 
     @Test
     public void lookup_nameserver_not_found() {
         try {
-              createResource("nameserver/test")
+            createResource("nameserver/test")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
             fail();
@@ -2001,8 +1989,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         try {
             createResource("entities?fn=T%EBst%20Person3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
             // expected - Jetty uses UTF-8 when decoding characters, not latin1
@@ -2028,8 +2016,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         try {
             createResource("entities?fn=Test%20Person3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
             // expected (no character substitution)
@@ -2151,9 +2139,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "The server is not able to process the request");
+            assertErrorTitle(e, "bad request");
         }
     }
 
@@ -2165,9 +2151,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "The server is not able to process the request");
+            assertErrorTitle(e, "bad request");
         }
     }
 
@@ -2179,9 +2163,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "Empty search term");
+            assertErrorTitle(e, "empty search term");
         }
     }
 
@@ -2193,9 +2175,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
-            assertErrorDescription(e, "Empty search term");
+            assertErrorTitle(e, "empty search term");
         }
     }
 
@@ -2208,20 +2188,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(SearchResult.class);
 
         assertThat(
-            result.getEntitySearchResults()
-                .stream()
-                .map(Entity::getHandle)
-                .collect(Collectors.toList()),
-            containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
+                result.getEntitySearchResults()
+                        .stream()
+                        .map(Entity::getHandle)
+                        .collect(Collectors.toList()),
+                containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
         assertThat(
-            result.getEntitySearchResults()
-                .stream()
-                .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
-                .map(RdapObject::getNotices)
-                .flatMap(Collection::stream)
-                .map(Notice::getTitle)
-                .collect(Collectors.toList()),
-            containsInAnyOrder("Source", "Filtered", "Whois Inaccuracy Reporting"));
+                result.getEntitySearchResults()
+                        .stream()
+                        .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
+                        .map(RdapObject::getNotices)
+                        .flatMap(Collection::stream)
+                        .map(Notice::getTitle)
+                        .collect(Collectors.toList()),
+                containsInAnyOrder("Source", "Filtered", "Whois Inaccuracy Reporting"));
         assertThat(result.getNotices(), hasSize(1));
         assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
@@ -2414,5 +2394,4 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
 }
-
 

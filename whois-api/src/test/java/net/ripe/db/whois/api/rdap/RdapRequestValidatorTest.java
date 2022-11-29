@@ -6,6 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
+
 @ExtendWith(MockitoExtension.class)
 public class RdapRequestValidatorTest {
 
@@ -14,7 +17,7 @@ public class RdapRequestValidatorTest {
 
     @Test
     public void shouldThrowExceptionForInvalidOrganisation() {
-        Assertions.assertThrows(RdapException.class, () -> {
+        Assertions.assertThrows(NotFoundException.class, () -> {
             validator.validateEntity("ORG-Test");
         });
     }
@@ -26,14 +29,14 @@ public class RdapRequestValidatorTest {
 
     @Test
     public void shouldThrowExceptionForInvalidAutnum() {
-        Assertions.assertThrows(RdapException.class, () -> {
+        Assertions.assertThrows(BadRequestException.class, () -> {
             validator.validateAutnum("TEST");
         });
     }
 
     @Test
     public void shouldThrowExceptionForInvalidIP() {
-        Assertions.assertThrows(RdapException.class, () -> {
+        Assertions.assertThrows(BadRequestException.class, () -> {
             validator.validateIp("", "invalid");
         });
     }

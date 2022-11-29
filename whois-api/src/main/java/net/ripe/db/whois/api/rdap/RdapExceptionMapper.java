@@ -82,12 +82,6 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).entity(createErrorEntity(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage())).build();
         }
 
-        if (exception instanceof RdapException) {
-            final RdapException rdapException = (RdapException) exception;
-            return Response.status(rdapException.getErrorCode()).entity(createErrorEntity(rdapException.getErrorCode(),
-                    rdapException.getErrorTitle(), rdapException.getErrorDescription() == null? "Unknown error cause" :
-                            rdapException.getErrorDescription())).build();
-        }
 
         LOGGER.error("Unexpected", exception);
         return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).entity(createErrorEntity(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage())).build();
