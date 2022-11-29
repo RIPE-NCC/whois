@@ -249,12 +249,12 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
         assertThat(domain.getNameservers(), hasSize(2));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
-                containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
+                    containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
-                containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
+                    containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getIpAddresses(), domain.getNameservers().get(1).getIpAddresses()),
-                containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
-                        new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
+                    containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
+                                        new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
 
         assertThat(domain.getSecureDNS().isDelegationSigned(), is(Boolean.TRUE));
         assertThat(domain.getSecureDNS().getDsData(), hasSize(3));
@@ -426,8 +426,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
         try {
             createResource("entities?fn=T%EBst%20Person3")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
             // expected - Jetty uses UTF-8 when decoding characters, not latin1
@@ -453,8 +453,8 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
         try {
             createResource("entities?fn=Test%20Person3")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(SearchResult.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
             // expected (no character substitution)
@@ -615,20 +615,20 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 .get(SearchResult.class);
 
         assertThat(
-                result.getEntitySearchResults()
-                        .stream()
-                        .map(Entity::getHandle)
-                        .collect(Collectors.toList()),
-                containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
+            result.getEntitySearchResults()
+                .stream()
+                .map(Entity::getHandle)
+                .collect(Collectors.toList()),
+            containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
         assertThat(
-                result.getEntitySearchResults()
-                        .stream()
-                        .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
-                        .map(RdapObject::getNotices)
-                        .flatMap(Collection::stream)
-                        .map(Notice::getTitle)
-                        .collect(Collectors.toList()),
-                containsInAnyOrder("Source", "Filtered", "Whois Inaccuracy Reporting"));
+            result.getEntitySearchResults()
+                .stream()
+                .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
+                .map(RdapObject::getNotices)
+                .flatMap(Collection::stream)
+                .map(Notice::getTitle)
+                .collect(Collectors.toList()),
+            containsInAnyOrder("Source", "Filtered", "Whois Inaccuracy Reporting"));
         assertThat(result.getNotices(), hasSize(1));
         assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
@@ -666,7 +666,7 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(SearchResult.class);
 
             final int remaining = accessControlListManager.getPersonalObjects(localhost);
-            assertThat(remaining, is(limit - 1));
+            assertThat(remaining, is(limit-1));
 
         } finally {
             ipResourceConfiguration.reload();
