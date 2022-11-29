@@ -130,7 +130,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         queryObject("-rBT as-set as123:As-TEst", "as-set", "AS123:AS-TEST")
     }
 
-    def "create short format name as-set fails"() {
+    def "create top level as-set object fails"() {
         expect:
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
         queryObjectNotFound("-r -T aut-num AS1", "aut-num", "AS1")
