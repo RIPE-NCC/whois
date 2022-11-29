@@ -410,6 +410,15 @@ public class JdbcRpslObjectOperations {
         }
     }
 
+    public static List<SerialEntry> getSerialEntriesSince(final JdbcTemplate jdbcTemplate, final int serialId) {
+        try {
+            return getSerialEntryWithBlobsSinceSerial(jdbcTemplate, serialId);
+        } catch (final EmptyResultDataAccessException e) {
+            LOGGER.debug("SerialDao.getSerialEntriesSince({}) returned no rows", serialId, e);
+            return List.of();
+        }
+    }
+
     @CheckForNull
     public static SerialEntry getSerialEntryForNrtm(final JdbcTemplate jdbcTemplate, final int serialId) {
         try {
@@ -482,6 +491,31 @@ public class JdbcRpslObjectOperations {
                 }
             }
         }, serialId);
+    }
+
+    private static List<SerialEntry> getSerialEntryWithBlobsSinceSerial(final JdbcTemplate jdbcTemplate, final int serialId) {
+        return jdbcTemplate.query("" +
+                "SELECT serials.serial_id,"+
+                "       serials.operation," +
+                "       serials.atlast," +
+                "       serials.object_id," +
+                "       IF(last.sequence_id, last.object, COALESCE(legacy_history.object," +
+                "                                         rdp_history.object)) " +
+                "FROM   serials" +
+                "       LEFT JOIN last" +
+                "              ON last.object_id = serials.object_id" +
+                "       LEFT JOIN history legacy_history" +
+                "              ON legacy_history.object_id = serials.object_id" +
+                "                 AND legacy_history.sequence_id = serials.sequence_id" +
+                "       LEFT JOIN history rdp_history" +
+                "              ON rdp_history.object_id = serials.object_id" +
+                "                 AND rdp_history.sequence_id = serials.sequence_id - 1 " +
+                "WHERE  serials.serial_id > ?", (rs, rowNum) -> new SerialEntry(
+                    rs.getInt(1),
+                    Operation.getByCode(rs.getInt(2)),
+                    rs.getBoolean(3),
+                    rs.getInt(4),
+                    rs.getBytes(5)), serialId);
     }
 
     // exact same, but omit blob lookup for performance reasons

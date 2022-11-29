@@ -5,15 +5,12 @@ import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.persist.RpslObjectDao;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
-import net.ripe.db.whois.common.dao.jdbc.SerialRpslObjectTuple;
 import net.ripe.db.whois.common.domain.Timestamp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.util.List;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
@@ -48,13 +45,6 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
 
     private void insertSnapshot() {
         versionDao.createInitialSnapshot(NrtmSourceHolder.valueOf("TEST"), 0);
-    }
-
-    @Test
-    public void test_whois_slave_dao() {
-        loadSerials("nrtm_sample.sql");
-        final List<SerialRpslObjectTuple> changes = rpslObjectDao.findSerialsAndObjectsSinceSerial(0);
-        assertThat(changes.size(), is(64));
     }
 
     @Test

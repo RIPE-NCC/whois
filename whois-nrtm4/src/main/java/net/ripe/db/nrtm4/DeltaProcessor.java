@@ -1,8 +1,6 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.whois.common.dao.RpslObjectModel;
-import net.ripe.db.whois.common.dao.Serial;
-import net.ripe.db.whois.common.dao.jdbc.SerialRpslObjectTuple;
+import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.springframework.stereotype.Service;
 
@@ -21,24 +19,22 @@ public class DeltaProcessor {
         this.dummifierNrtm = dummifierNrtm;
     }
 
-    List<DeltaChange> process(final List<SerialRpslObjectTuple> changes) {
+    List<DeltaChange> process(final List<SerialEntry> changes) {
         return changes.stream()
-            .filter(change -> dummifierNrtm.isAllowed(NRTM_VERSION, change.getRpslObjectModel().getObject()))
+            .filter(change -> dummifierNrtm.isAllowed(NRTM_VERSION, change.getRpslObject()))
             .map(serialRpsl -> {
-                final Serial serial = serialRpsl.getSerial();
-                final RpslObjectModel rpslObjectModel = serialRpsl.getRpslObjectModel();
-                if (serial.isInLast()) {
+                if (serialRpsl.isAtLast()) {
                     return new DeltaChange(
                         DeltaChange.Action.ADD_MODIFY,
-                        rpslObjectModel.getObjectType(),
-                        rpslObjectModel.getKey(),
-                        dummifierNrtm.dummify(NRTM_VERSION, rpslObjectModel.getObject())
+                        serialRpsl.getRpslObject().getType(),
+                        serialRpsl.getRpslObject().getKey().toString(),
+                        dummifierNrtm.dummify(NRTM_VERSION, serialRpsl.getRpslObject())
                     );
                 } else {
                     return new DeltaChange(
                         DeltaChange.Action.DELETE,
-                        rpslObjectModel.getObjectType(),
-                        rpslObjectModel.getKey(),
+                        serialRpsl.getRpslObject().getType(),
+                        serialRpsl.getRpslObject().getKey().toString(),
                         null
                     );
                 }

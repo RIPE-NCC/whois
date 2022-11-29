@@ -5,8 +5,8 @@ import net.ripe.db.nrtm4.persist.DeltaFileModelRepository;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.persist.VersionInformation;
-import net.ripe.db.nrtm4.persist.RpslObjectDao;
-import net.ripe.db.whois.common.dao.jdbc.SerialRpslObjectTuple;
+import net.ripe.db.whois.common.dao.SerialDao;
+import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,20 +20,20 @@ public class NrtmProcessor {
     private final DeltaProcessor deltaProcessor;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotSynchronizer snapshotSynchronizer;
-    private final RpslObjectDao rpslObjectDao;
+    private final SerialDao serialDao;
 
     public NrtmProcessor(
         final DeltaFileModelRepository deltaFileModelRepository,
         final DeltaProcessor deltaProcessor,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotSynchronizer snapshotSynchronizer,
-        final RpslObjectDao rpslObjectDao
-    ) {
+        final SerialDao serialDao
+        ) {
         this.deltaFileModelRepository = deltaFileModelRepository;
         this.deltaProcessor = deltaProcessor;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotSynchronizer = snapshotSynchronizer;
-        this.rpslObjectDao = rpslObjectDao;
+        this.serialDao = serialDao;
     }
 
     public void initializeSnapshot(final NrtmSource source) {
@@ -59,14 +59,14 @@ public class NrtmProcessor {
         if (lastVersion.isEmpty()) {
             throw new IllegalStateException("Cannot create a delta without an initial snapshot");
         }
-        final List<SerialRpslObjectTuple> whoisChanges = rpslObjectDao.findSerialsAndObjectsSinceSerial(lastVersion.get().getLastSerialId());
+        final List<SerialEntry> whoisChanges = serialDao.getSerialEntriesSince(lastVersion.get().getLastSerialId());
 
         final List<DeltaChange> deltas = deltaProcessor.process(whoisChanges);
         snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
         if (whoisChanges.size() < 1) {
             throw new IllegalStateException("Cannot create a delta when there is no previous snapshot");
         }
-        final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getSerial().getSerialId();
+        final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getSerialId();
         final VersionInformation nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
         final PayloadProcessor processor = new PayloadProcessor(deltas.toArray(new DeltaChange[0]));
         return deltaFileModelRepository.save(
