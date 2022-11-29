@@ -1,11 +1,9 @@
 package net.ripe.db.whois.spec.update
 
-
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import org.junit.jupiter.api.Tag
-import spock.lang.Ignore
 
 @Tag("IntegrationTest")
 class AsSetSpec extends BaseQueryUpdateSpec {
@@ -93,12 +91,11 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 """,
     ]}
 
-    @Ignore("TODO: failing test")
-    def "create top level as-set object"() {
+    def "create hierarchical as-set object"() {
       given:
-        dbfixture(getTransient("AS123"))
+        dbfixture(getTransient("ASN123"))
       expect:
-        queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+        queryObjectNotFound("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
         queryObjectNotFound("-r -T aut-num AS1", "aut-num", "AS1")
 
       when:
@@ -111,11 +108,11 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 members:      AS65536, AS7775535, AS94967295
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
                 source:  TEST
 
-                password: lir
+                password: owner
                 """.stripIndent()
         )
 
@@ -128,12 +125,11 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST"}
+        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
-        queryObject("-rBT as-set As-TEst", "as-set", "AS-TEST")
+        queryObject("-rBT as-set as123:As-TEst", "as-set", "AS123:AS-TEST")
     }
 
-    @Ignore("TODO: failing test")
     def "create short format name as-set fails"() {
         expect:
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
@@ -160,7 +156,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         then:
         def ack = ackFor message
 
-        ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -1580,12 +1575,11 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T as-set AS123:AS-TEST:AS-TEST2", "as-set", "AS123:AS-TEST:AS-TEST2")
     }
 
-    @Ignore("TODO: failing test")
     def "create as-set object with all optional attrs"() {
       given:
-        dbfixture(getTransient("AS123"))
+        dbfixture(getTransient("ASN123"))
       expect:
-        queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+        queryObjectNotFound("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
 
       when:
         def message = send new Message(
@@ -1603,8 +1597,8 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
                 source:  TEST
                 admin-c:      TP3-TEST
                 notify:       unread@ripe.net
@@ -1613,6 +1607,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: owner3
+                password: owner
                 """.stripIndent()
         )
 
@@ -1625,9 +1620,9 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST"}
+        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
-        queryObject("-rBT as-set As-TEst", "as-set", "AS-TEST")
+        queryObject("-rBT as-set as123:As-TEst", "as-set", "AS123:AS-TEST")
     }
 
     def "create 3 level as-set obj, no 2 level parent set exists, grand parent ASN exists, override used"() {
