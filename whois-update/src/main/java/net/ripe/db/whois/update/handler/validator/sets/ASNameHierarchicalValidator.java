@@ -8,7 +8,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,7 +22,7 @@ public class ASNameHierarchicalValidator implements BusinessRuleValidator {
             return;
         }
 
-        if(!StringUtils.contains(update.getUpdatedObject().getKey(),":")) {
+        if(!update.getUpdatedObject().getKey().contains(":")) {
             updateContext.addMessage(update, UpdateMessages.cantCreateShortFormatAsName());
             return;
         }
