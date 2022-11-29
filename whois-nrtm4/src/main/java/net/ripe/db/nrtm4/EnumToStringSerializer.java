@@ -23,7 +23,7 @@ public class EnumToStringSerializer extends StdSerializer<Enum> {
         final JsonGenerator gen,
         final SerializerProvider provider
     ) throws IOException {
-        gen.writeObject(value.toString());
+        gen.writeString(value.toString());
     }
 
 }

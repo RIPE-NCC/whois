@@ -30,34 +30,13 @@ import java.util.Set;
 
 @Repository
 public class JdbcVersionDao implements VersionDao {
+
+    public enum RpslObjectsTableName {
+        HISTORY,
+        LAST
+    }
+
     private final JdbcTemplate jdbcTemplate;
-
-    final String sqlSerialAndRpslTemplate = "" +
-        "SELECT " +
-        "s.serial_id, s.atlast, s.object_id, s.sequence_id, s.operation, " +
-        "r.object_id, r.sequence_id, r.object_type, r.pkey, r.object, r.timestamp " +
-        "FROM serials s JOIN %s r ON r.object_id = s.object_id and r.sequence_id = s.sequence_id " +
-        "WHERE s.serial_id > ? " +
-        "ORDER BY s.serial_id ASC";
-
-    private final RowMapper<SerialRpslObjectTuple> serialAndRpslObjectMapper = (rs, n) ->
-        new SerialRpslObjectTuple(
-            new Serial(
-                rs.getInt(1),
-                rs.getBoolean(2),
-                rs.getInt(3),
-                rs.getInt(4),
-                Operation.getByCode(rs.getInt(5))
-            ),
-            new RpslObjectModel(
-                rs.getInt(6),
-                rs.getInt(7),
-                ObjectTypeIds.getType(rs.getInt(8)),
-                rs.getString(9),
-                RpslObject.parse(rs.getString(10)),
-                rs.getLong(11)
-            )
-        );
 
     @Autowired
     public JdbcVersionDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource) {
@@ -176,13 +155,37 @@ public class JdbcVersionDao implements VersionDao {
         return versionInfos;
     }
 
-    public List<SerialRpslObjectTuple> findSerialsInLastSince(final int serialId) {
-        final String sql = String.format(sqlSerialAndRpslTemplate, "last");
-        return jdbcTemplate.query(sql, serialAndRpslObjectMapper, serialId);
-    }
+    public List<SerialRpslObjectTuple> findSerialsAndRpslObjectsFromTableSinceSerialId(
+        final RpslObjectsTableName tableName,
+        final int serialId
+    ) {
+        final String sqlSerialAndRpslTemplate = "" +
+            "SELECT " +
+            "s.serial_id, s.atlast, s.object_id, s.sequence_id, s.operation, " +
+            "r.object_id, r.sequence_id, r.object_type, r.pkey, r.object, r.timestamp " +
+            "FROM serials s JOIN %s r ON r.object_id = s.object_id and r.sequence_id = s.sequence_id " +
+            "WHERE s.serial_id > ? " +
+            "ORDER BY s.serial_id ASC";
+        final RowMapper<SerialRpslObjectTuple> serialAndRpslObjectMapper = (rs, n) ->
+            new SerialRpslObjectTuple(
+                new Serial(
+                    rs.getInt(1),
+                    rs.getBoolean(2),
+                    rs.getInt(3),
+                    rs.getInt(4),
+                    Operation.getByCode(rs.getInt(5))
+                ),
+                new RpslObjectModel(
+                    rs.getInt(6),
+                    rs.getInt(7),
+                    ObjectTypeIds.getType(rs.getInt(8)),
+                    rs.getString(9),
+                    RpslObject.parse(rs.getString(10)),
+                    rs.getLong(11)
+                )
+            );
 
-    public List<SerialRpslObjectTuple> findSerialsInHistorySince(final int serialId) {
-        final String sql = String.format(sqlSerialAndRpslTemplate, "history");
+        final String sql = String.format(sqlSerialAndRpslTemplate, tableName.name().toLowerCase());
         return jdbcTemplate.query(sql, serialAndRpslObjectMapper, serialId);
     }
 

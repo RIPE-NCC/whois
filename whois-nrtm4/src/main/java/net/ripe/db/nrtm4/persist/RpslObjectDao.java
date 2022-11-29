@@ -8,25 +8,28 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static net.ripe.db.whois.common.dao.jdbc.JdbcVersionDao.RpslObjectsTableName.HISTORY;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcVersionDao.RpslObjectsTableName.LAST;
+
 
 @Service
-public class WhoisSlaveDao {
+public class RpslObjectDao {
 
     private final JdbcVersionDao versionDao;
 
-    public WhoisSlaveDao(
+    public RpslObjectDao(
         final JdbcVersionDao versionDao
     ) {
         this.versionDao = versionDao;
     }
 
     public List<SerialRpslObjectTuple> findSerialsAndObjectsSinceSerial(final int serialId) {
-        final List<SerialRpslObjectTuple> lastObjects = versionDao.findSerialsInLastSince(serialId);
-        final List<SerialRpslObjectTuple> historyObjects = versionDao.findSerialsInHistorySince(serialId);
+        final List<SerialRpslObjectTuple> lastObjects = versionDao.findSerialsAndRpslObjectsFromTableSinceSerialId(LAST, serialId);
+        final List<SerialRpslObjectTuple> historyObjects = versionDao.findSerialsAndRpslObjectsFromTableSinceSerialId(HISTORY, serialId);
         final List<SerialRpslObjectTuple> allObjects = new ArrayList<>(lastObjects.size() + historyObjects.size());
         allObjects.addAll(lastObjects);
         allObjects.addAll(historyObjects);
-        allObjects.sort(Comparator.comparingInt(pair -> pair.getSerial().getSerialId()));
+        allObjects.sort(Comparator.comparingInt(entity -> entity.getSerial().getSerialId()));
         return allObjects;
     }
 

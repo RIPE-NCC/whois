@@ -25,8 +25,6 @@ public class RpslObjectSerializer extends StdSerializer<RpslObject> {
         final SerializerProvider provider
     ) throws IOException {
         jsonGenerator.writeString(object.toString().replace("\\\n", "\\n"));
-        //jsonGenerator.writeStringField("objectType", "bogus");
-        //jsonGenerator.writeEndObject();
     }
 
 }

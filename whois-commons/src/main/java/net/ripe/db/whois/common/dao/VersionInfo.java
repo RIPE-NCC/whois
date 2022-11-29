@@ -43,7 +43,8 @@ public class VersionInfo extends Serial implements Identifiable, Comparable<Vers
 
         final VersionInfo that = (VersionInfo) o;
 
-        return Objects.equals(inLast, that.inLast) &&
+        return Objects.equals(serialId, that.serialId) &&
+            Objects.equals(inLast, that.inLast) &&
             Objects.equals(objectId, that.objectId) &&
             Objects.equals(sequenceId, that.sequenceId) &&
             Objects.equals(operation, that.operation) &&
@@ -52,7 +53,7 @@ public class VersionInfo extends Serial implements Identifiable, Comparable<Vers
 
     @Override
     public int hashCode() {
-        return Objects.hash(inLast, objectId, sequenceId, timestamp, operation);
+        return Objects.hash(serialId, inLast, objectId, sequenceId, timestamp, operation);
     }
 
     @Override
@@ -67,6 +68,7 @@ public class VersionInfo extends Serial implements Identifiable, Comparable<Vers
     @Override
     public String toString() {
         return "VersionInfo{" +
+            "serialId=" + serialId +
             "inLast=" + inLast +
             ", objectId=" + objectId +
             ", sequenceId=" + sequenceId +

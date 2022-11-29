@@ -4,7 +4,7 @@ import net.ripe.db.nrtm4.persist.DeltaFileModel;
 import net.ripe.db.nrtm4.persist.DeltaFileModelRepository;
 import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.persist.WhoisSlaveDao;
+import net.ripe.db.nrtm4.persist.RpslObjectDao;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.SerialRpslObjectTuple;
 import net.ripe.db.whois.common.domain.Timestamp;
@@ -34,7 +34,7 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
     private DeltaFileModelRepository deltaFileModelRepository;
 
     @Autowired
-    private WhoisSlaveDao whoisSlaveDao;
+    private RpslObjectDao rpslObjectDao;
 
     @Autowired
     private NrtmProcessor nrtmProcessor;
@@ -60,7 +60,7 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
     @Test
     public void test_whois_slave_dao() {
         loadSerials("nrtm_sample.sql");
-        final List<SerialRpslObjectTuple> changes = whoisSlaveDao.findSerialsAndObjectsSinceSerial(0);
+        final List<SerialRpslObjectTuple> changes = rpslObjectDao.findSerialsAndObjectsSinceSerial(0);
         assertThat(changes.size(), is(64));
     }
 
