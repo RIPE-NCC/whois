@@ -47,7 +47,7 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
         WebTarget resource = RestTest.target(getPort(), String.format("whois/syncupdates/test"));
         return resource.request()
                 .post(javax.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
-                        MediaType.APPLICATION_FORM_URLENCODED),
+                                MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
 
     }

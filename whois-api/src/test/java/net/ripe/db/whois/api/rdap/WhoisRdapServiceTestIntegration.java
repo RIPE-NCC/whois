@@ -2394,4 +2394,3 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
 }
-
