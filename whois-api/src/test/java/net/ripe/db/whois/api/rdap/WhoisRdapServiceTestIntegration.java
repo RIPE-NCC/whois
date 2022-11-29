@@ -1324,6 +1324,18 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
     @Test
+    public void lookup_as_block_when_no_autnum_found() {
+        try {
+            createResource("autnum/103")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Entity.class);
+            fail();
+        } catch (NotFoundException e){
+            assertErrorStatus(e, 404);
+            assertErrorTitle(e, "404 Not Found");
+        }
+    }
+    @Test
     public void lookup_inetnum_abuse_contact_as_vcard() {
         databaseHelper.addObject("" +
                 "role:          Abuse Contact\n" +
