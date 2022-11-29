@@ -3,7 +3,7 @@ package net.ripe.db.nrtm4;
 import net.ripe.db.whois.common.dao.RpslObjectModel;
 import net.ripe.db.whois.common.dao.Serial;
 import net.ripe.db.whois.common.dao.jdbc.SerialRpslObjectTuple;
-import net.ripe.db.whois.common.rpsl.DummifierNrtm;
+import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +15,9 @@ import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 @Service
 public class DeltaProcessor {
 
-    private final DummifierNrtm dummifierNrtm;
+    private final Dummifier dummifierNrtm;
 
-    public DeltaProcessor(final DummifierNrtm dummifierNrtm) {
+    public DeltaProcessor(final Dummifier dummifierNrtm) {
         this.dummifierNrtm = dummifierNrtm;
     }
 

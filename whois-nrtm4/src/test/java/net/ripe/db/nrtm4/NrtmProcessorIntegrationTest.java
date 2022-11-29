@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.persist.DeltaFileModel;
-import net.ripe.db.nrtm4.persist.DeltaFileModelRepository;
 import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.persist.RpslObjectDao;
@@ -26,12 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
 public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
-
-    @Autowired
-    private DeltaProcessor deltaProcessor;
-
-    @Autowired
-    private DeltaFileModelRepository deltaFileModelRepository;
 
     @Autowired
     private RpslObjectDao rpslObjectDao;

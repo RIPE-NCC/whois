@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-@Component
+@Component("dummifierNrtm")
 public class DummifierNrtm implements Dummifier {
     private static final Logger LOGGER = LoggerFactory.getLogger(DummifierNrtm.class);
 
