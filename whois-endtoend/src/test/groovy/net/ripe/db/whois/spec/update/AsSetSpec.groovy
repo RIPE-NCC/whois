@@ -93,6 +93,8 @@ class AsSetSpec extends BaseQueryUpdateSpec {
     ]}
 
     def "create top level as-set object"() {
+      given:
+        dbfixture(getTransient("AS123"))
       expect:
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
         queryObjectNotFound("-r -T aut-num AS1", "aut-num", "AS1")
@@ -101,7 +103,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-                as-set:       AS-TEST
+                as-set:       AS123:AS-TEST
                 descr:        test as-set
                 members:      AS1, AS2, AS3, AS4
                 members:      AS65536, AS7775535, AS94967295
@@ -111,7 +113,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:  TEST
 
-                override:     denis,override1
+                password: lir
                 """.stripIndent()
         )
 
@@ -127,6 +129,41 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST"}
 
         queryObject("-rBT as-set As-TEst", "as-set", "AS-TEST")
+    }
+
+    def "create short format name as-set fails"() {
+        expect:
+        queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+        queryObjectNotFound("-r -T aut-num AS1", "aut-num", "AS1")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                as-set:       AS-TEST
+                descr:        test as-set
+                members:      AS1, AS2, AS3, AS4
+                members:      AS65536, AS7775535, AS94967295
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:  TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.errorMessagesFor("Create", "[as-set] AS-TEST") == [
+                "Cannot create AS-SET object with a short format name."]
     }
 
     def "create as-set objects with invalid members"() {
@@ -1541,6 +1578,8 @@ class AsSetSpec extends BaseQueryUpdateSpec {
     }
 
     def "create as-set object with all optional attrs"() {
+      given:
+        dbfixture(getTransient("AS123"))
       expect:
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
 
@@ -1548,7 +1587,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-                as-set:       AS-TEST
+                as-set:       AS123:AS-TEST
                 descr:        test as-set
                 members:      AS1, AS2, AS3, AS4:AS-TEST2
                 tech-c:       TP2-TEST
