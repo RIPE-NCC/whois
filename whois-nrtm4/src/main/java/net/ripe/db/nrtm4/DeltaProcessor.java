@@ -27,7 +27,7 @@ public class DeltaProcessor {
                     return new DeltaChange(
                         DeltaChange.Action.ADD_MODIFY,
                         serialRpsl.getRpslObject().getType(),
-                        serialRpsl.getRpslObject().getKey().toString(),
+                        null,
                         dummifierNrtm.dummify(NRTM_VERSION, serialRpsl.getRpslObject())
                     );
                 } else {
