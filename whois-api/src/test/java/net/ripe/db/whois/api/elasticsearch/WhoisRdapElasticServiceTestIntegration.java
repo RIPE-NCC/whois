@@ -657,7 +657,11 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 fail();
             } catch (ClientErrorException e) {
                 assertErrorStatus(e, 429);
-                assertErrorTitleContains(e, "%ERROR:201: access denied for 127.0.0.1");
+                assertErrorTitleContains(e, "429 Too Many Requests");
+                assertErrorDescription(e,"%ERROR:201: access denied for 127.0.0.1\n%\n% Sorry, access from your host " +
+                        "has been permanently\n% denied because of a repeated excessive querying.\n% For more " +
+                        "information, see\n% http://www.ripe" +
+                        ".net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied\n");
             }
         } finally {
             databaseHelper.unban(LOCALHOST_WITH_PREFIX);

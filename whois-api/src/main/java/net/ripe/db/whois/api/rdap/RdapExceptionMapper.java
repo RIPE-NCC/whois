@@ -4,18 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
 import net.ripe.db.whois.common.source.IllegalSourceException;
-import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import net.ripe.db.whois.query.domain.QueryException;
 import org.glassfish.jersey.server.ParamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -51,13 +46,6 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, "400 Bad Request", "unknown " + parameterName)).build();
         }
 
-        if (exception instanceof NotFoundException) {
-            return createErrorResponse(Response.Status.NOT_FOUND.getStatusCode(), exception.getMessage());
-        }
-
-        if (exception instanceof BadRequestException) {
-            return createErrorResponse(Response.Status.BAD_REQUEST.getStatusCode(), exception.getMessage());
-        }
 
         if (exception instanceof WebApplicationException) {
             return createErrorResponse(((WebApplicationException) exception).getResponse().getStatus(), exception.getMessage());
@@ -67,16 +55,6 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
         }
 
-        if (exception instanceof EmptyResultDataAccessException) {
-            return Response.status(HttpServletResponse.SC_NOT_FOUND).entity(createErrorEntity(HttpServletResponse.SC_NOT_FOUND, "404 Not Found")).build();
-        }
-
-        if (exception instanceof QueryException) {
-            if ( ((QueryException) exception).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                return createErrorResponse(Response.Status.TOO_MANY_REQUESTS.getStatusCode(), exception.getMessage());
-            }
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
-        }
 
         if (exception instanceof IllegalStateException) {
             return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).entity(createErrorEntity(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage())).build();
@@ -84,9 +62,9 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
 
         if (exception instanceof RdapException) {
             final RdapException rdapException = (RdapException) exception;
-            return Response.status(rdapException.getErrorCode()).entity(createErrorEntity(rdapException.getErrorCode(),
-                    rdapException.getErrorTitle(), rdapException.getErrorDescription() == null? "Unknown error cause" :
-                            rdapException.getErrorDescription())).build();
+            return createErrorResponse(rdapException.getErrorCode(), rdapException.getErrorTitle(),
+                    rdapException.getErrorDescription() == null? "Unknown error cause" :
+                    rdapException.getErrorDescription());
         }
 
         LOGGER.error("Unexpected", exception);
