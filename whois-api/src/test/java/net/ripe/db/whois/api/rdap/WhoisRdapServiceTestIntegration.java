@@ -851,7 +851,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(notices.get(0).getTitle(), is("Filtered"));
         assertThat(notices.get(1).getTitle(), is("Source"));
 
-        assertTnCNotice(notices.get(2),"https://rdap.db.ripe.net/entity/FR1-TEST");
+        assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/entity/FR1-TEST");
     }
 
     // domain
@@ -1565,6 +1565,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
         assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
     }
+
     @Test
     public void lookup_org_max_inetnum_handle() {
         databaseHelper.addObject("" +
@@ -2257,7 +2258,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET","OPTIONS"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET", "OPTIONS"));
     }
 
     @Test
