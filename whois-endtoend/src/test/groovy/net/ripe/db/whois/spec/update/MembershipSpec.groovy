@@ -825,7 +825,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mbrs-by-ref:  ANY
                 source:  TEST
 
-                password: owner2
+                override:     denis,override1
                 """.stripIndent()
         )
 
@@ -1185,7 +1185,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mbrs-by-ref:  aardvark-mnt
                 source:  TEST
 
-                password: owner2
+                override:     denis,override1
                 """.stripIndent()
         )
 
@@ -1215,7 +1215,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-                as-set:       AS-TEST
+                as-set:       AS1:AS-TEST
                 descr:        test as-set
                 members:      AS1, AS2, AS3, AS4
                 members:      AS65536, AS7775535, AS94967295

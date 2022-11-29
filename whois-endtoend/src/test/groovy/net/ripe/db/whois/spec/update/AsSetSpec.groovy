@@ -111,7 +111,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:  TEST
 
-                password: lir
+                override:     denis,override1
                 """.stripIndent()
         )
 
