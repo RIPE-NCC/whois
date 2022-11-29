@@ -825,7 +825,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mbrs-by-ref:  ANY
                 source:  TEST
 
-                override:     denis,override1
+                password: owner2
                 """.stripIndent()
         )
 
@@ -1169,6 +1169,8 @@ class MembershipSpec extends BaseQueryUpdateSpec {
     }
 
     def "create as-set obj, mbrs-by-ref non existent mntner"() {
+      given:
+        dbfixture(getTransient("AS123"))
       expect:
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
 
@@ -1176,7 +1178,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-                as-set:       AS-TEST
+                as-set:       AS123:AS-TEST
                 descr:        test as-set
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
@@ -1185,7 +1187,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mbrs-by-ref:  aardvark-mnt
                 source:  TEST
 
-                override:     denis,override1
+                password: owner2
                 """.stripIndent()
         )
 
@@ -1206,7 +1208,10 @@ class MembershipSpec extends BaseQueryUpdateSpec {
     }
 
     def "create as-set object with non existent 16 & 32 bit members"() {
-      expect:
+        given:
+        dbfixture(getTransient("AS123"))
+
+        expect:
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
         queryObjectNotFound("-r -T aut-num AS1", "aut-num", "AS1")
         queryObjectNotFound("-r -T aut-num AS94967295", "aut-num", "AS94967295")
@@ -1215,7 +1220,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-                as-set:       AS1:AS-TEST
+                as-set:       AS123:AS-TEST
                 descr:        test as-set
                 members:      AS1, AS2, AS3, AS4
                 members:      AS65536, AS7775535, AS94967295
