@@ -527,7 +527,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:         TEST-MNT
                     mbrs-by-ref:    UPD-MNT
                     source:         TEST
-                    password:       emptypassword
+                    override:     denis,override1
                     """
         def asResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
 

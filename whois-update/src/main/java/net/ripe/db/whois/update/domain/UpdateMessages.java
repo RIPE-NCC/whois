@@ -190,6 +190,10 @@ public final class UpdateMessages {
                 "Please contact \"ncc@ripe.net\" to remove this reference.");
     }
 
+    public static Message cantCreateShortFormatAsName() {
+        return new Message(Type.ERROR, "Cannot create AS-SET object with a short format name.");
+    }
+
     public static Message countryNotRecognised(final CharSequence country) {
         return new Message(Type.ERROR, "Country not recognised: %s", country);
     }
