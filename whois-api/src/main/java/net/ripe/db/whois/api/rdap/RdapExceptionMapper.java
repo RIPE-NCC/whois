@@ -3,20 +3,13 @@ package net.ripe.db.whois.api.rdap;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.common.source.IllegalSourceException;
-import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import net.ripe.db.whois.query.domain.QueryException;
 import org.glassfish.jersey.server.ParamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -38,67 +31,33 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
 
     @Override
     public Response toResponse(final Exception exception) {
-
-        if (exception instanceof IllegalSourceException) {
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
+        if (exception instanceof IllegalArgumentException || exception instanceof JsonProcessingException){
+            return createErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
         }
-
-        if (exception instanceof IllegalArgumentException) {
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
+        if (exception instanceof ParamException){
+            final String parameterName = ((ParamException) exception).getParameterName();
+            return createErrorResponse(HttpServletResponse.SC_BAD_REQUEST, "400 Bad Request",
+                    "unknown " + parameterName);
         }
-
-        if (exception instanceof ParamException) {
-            String parameterName = ((ParamException) exception).getParameterName();
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, "unknown " + parameterName)).build();
-        }
-
-        if (exception instanceof NotFoundException) {
-            return createErrorResponse(Response.Status.NOT_FOUND, exception.getMessage());
-        }
-
-        if (exception instanceof BadRequestException) {
-            return createErrorResponse(Response.Status.BAD_REQUEST, exception.getMessage());
-        }
-
-        if (exception instanceof WebApplicationException) {
-            return createErrorResponse(((WebApplicationException) exception).getResponse().getStatus(), exception.getMessage());
-        }
-
-        if (exception instanceof JsonProcessingException) {
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
-        }
-
-        if (exception instanceof EmptyResultDataAccessException) {
-            return Response.status(HttpServletResponse.SC_NOT_FOUND).entity(createErrorEntity(HttpServletResponse.SC_NOT_FOUND, "not found")).build();
-        }
-
-        if (exception instanceof QueryException) {
-            if ( ((QueryException) exception).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                return createErrorResponse(Response.Status.TOO_MANY_REQUESTS, exception.getMessage());
-            }
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
-        }
-
-        if (exception instanceof IllegalStateException) {
-            return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).entity(createErrorEntity(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage())).build();
+        if (exception instanceof RdapException){
+            final RdapException rdapException = (RdapException) exception;
+            return createErrorResponse(rdapException.getErrorCode(), rdapException.getErrorTitle(),
+                    rdapException.getErrorDescription() == null? "Unknown error cause" :
+                            rdapException.getErrorDescription());
         }
 
         LOGGER.error("Unexpected", exception);
-        return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).entity(createErrorEntity(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage())).build();
+        return createErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage());
+
     }
 
-    private RdapObject createErrorEntity(final int errorCode, final String errorTitle, String ... errorTexts) {
-        return rdapObjectMapper.mapError(errorCode, errorTitle, Lists.newArrayList(errorTexts));
-    }
-
-    private Response createErrorResponse(final Response.Status status, final String errorTitle) {
-        return createErrorResponse(status.getStatusCode(), errorTitle);
-    }
-
-    private Response createErrorResponse(final int status, final String errorTitle) {
+    private Response createErrorResponse(final int status, final String errorTitle, final String ... errorMessage) {
         return Response.status(status)
-                .entity(createErrorEntity(status, errorTitle))
+                .entity(createErrorEntity(status, errorTitle, errorMessage))
                 .header(HttpHeaders.CONTENT_TYPE, "application/rdap+json")
                 .build();
+    }
+    private RdapObject createErrorEntity(final int errorCode, final String errorTitle, final String ... errorTexts) {
+        return rdapObjectMapper.mapError(errorCode, errorTitle, Lists.newArrayList(errorTexts));
     }
 }

@@ -95,7 +95,6 @@ class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
     private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
 
-    private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
 
     private static final Map<AttributeType, Role> CONTACT_ATTRIBUTE_TO_ROLE_NAME = Maps.newHashMap();
 
@@ -153,7 +152,6 @@ class RdapObjectMapper {
             notice.setTitle(String.format("limited search results to %s maximum" , maxResultSize));
             searchResult.getNotices().add(notice);
         }
-
         return mapCommons(searchResult, requestUrl);
     }
 
@@ -186,6 +184,7 @@ class RdapObjectMapper {
             throw new IllegalStateException("title is mandatory");
         }
         final RdapObject rdapObject = mapCommons(new RdapObject(), null);
+
         rdapObject.setErrorCode(errorCode);
         rdapObject.setErrorTitle(errorTitle);
         rdapObject.setDescription(errorDescriptions);
@@ -193,7 +192,9 @@ class RdapObjectMapper {
     }
 
     public RdapObject mapHelp(final String requestUrl) {
-        return mapCommons(new RdapObject(), requestUrl);
+        final RdapObject rdapObject =  mapCommonNoticesLinksAndPort(new RdapObject(), requestUrl);
+        rdapObject.getRdapConformance().addAll(Stream.of(RdapConformance.values()).map(RdapConformance::getValue).collect(Collectors.toList()));
+        return rdapObject;
     }
 
     private List<Ip> filterTopLevelIps(String requestUrl, Stream<RpslObject> inetnumResult,
@@ -222,7 +223,6 @@ class RdapObjectMapper {
             case INETNUM:
             case INET6NUM:
                 rdapResponse = createIp(rpslObject);
-                rdapResponse.getRdapConformance().add("cidr0");
                 break;
             case PERSON:
             case ROLE:
@@ -253,11 +253,13 @@ class RdapObjectMapper {
 
         return rdapResponse;
     }
-
     private RdapObject mapCommons(final RdapObject rdapResponse, final String requestUrl) {
-        rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
+        final RdapObject rdapObject = mapCommonNoticesLinksAndPort(rdapResponse, requestUrl);
+        return mapCommonConformances(rdapObject);
+    }
 
-        rdapResponse.getRdapConformance().addAll(RDAP_CONFORMANCE_LEVEL);
+    private RdapObject mapCommonNoticesLinksAndPort(final RdapObject rdapResponse, final String requestUrl){
+        rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
 
         if (requestUrl != null) {
             rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null));
@@ -266,6 +268,13 @@ class RdapObjectMapper {
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
 
         rdapResponse.setPort43(port43);
+        return rdapResponse;
+    }
+
+
+    private RdapObject mapCommonConformances(final RdapObject rdapResponse) {
+        rdapResponse.getRdapConformance().addAll(List.of(RdapConformance.CIDR_0.getValue(),
+            RdapConformance.LEVEL_0.getValue(), RdapConformance.NRO_PROFILE_0.getValue()));
         return rdapResponse;
     }
 
@@ -469,6 +478,7 @@ class RdapObjectMapper {
         autnum.setStatus(getResourceStatus(rpslObject));
 
         autnum.getEntitySearchResults().addAll(createContactEntities(rpslObject));
+        autnum.getRdapConformance().add(RdapConformance.FLAT_MODEL.getValue());
         return autnum;
     }
 

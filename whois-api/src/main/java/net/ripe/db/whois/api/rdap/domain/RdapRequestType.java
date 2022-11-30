@@ -1,10 +1,10 @@
 package net.ripe.db.whois.api.rdap.domain;
 
 import com.google.common.collect.ImmutableSet;
+import net.ripe.db.whois.api.rdap.RdapException;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import org.eclipse.jetty.http.HttpStatus;
 
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.core.Response;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.AS_BLOCK;
@@ -43,7 +43,7 @@ public enum RdapRequestType {
 
     NAMESERVER {
         public Set<ObjectType> getWhoisObjectTypes(final String key) {
-            throw new ServerErrorException("Nameserver not supported", Response.Status.NOT_IMPLEMENTED);
+            throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
         }
     };
 
