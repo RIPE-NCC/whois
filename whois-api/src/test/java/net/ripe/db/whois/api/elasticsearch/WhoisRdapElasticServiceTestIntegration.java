@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -322,7 +323,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Domain.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorTitle(e, "RIPE NCC does not support forward domain queries.");
+            assertErrorStatus(e, 404);
+            assertErrorTitle(e, "404 Not Found");
+            assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
         }
     }
 
@@ -567,7 +570,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "bad request");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "The server is not able to process the request");
         }
     }
 
@@ -579,7 +584,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "bad request");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "The server is not able to process the request");
         }
     }
 
@@ -591,7 +598,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "empty search term");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "Empty search term");
         }
     }
 
@@ -603,7 +612,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "empty search term");
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Bad Request");
+            assertErrorDescription(e, "Empty search term");
         }
     }
 
@@ -646,7 +657,11 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                 fail();
             } catch (ClientErrorException e) {
                 assertErrorStatus(e, 429);
-                assertErrorTitleContains(e, "%ERROR:201: access denied for 127.0.0.1");
+                assertErrorTitleContains(e, "429 Too Many Requests");
+                assertErrorDescription(e,"%ERROR:201: access denied for 127.0.0.1\n%\n% Sorry, access from your host " +
+                        "has been permanently\n% denied because of a repeated excessive querying.\n% For more " +
+                        "information, see\n% http://www.ripe" +
+                        ".net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied\n");
             }
         } finally {
             databaseHelper.unban(LOCALHOST_WITH_PREFIX);
@@ -719,6 +734,10 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
     }
 
+    protected void assertErrorDescription(final WebApplicationException exception, final String description) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getDescription().get(0), is(description));
+    }
     protected void assertErrorTitle(final ClientErrorException exception, final String title) {
         final Entity entity = exception.getResponse().readEntity(Entity.class);
         assertThat(entity.getErrorTitle(), is(title));
