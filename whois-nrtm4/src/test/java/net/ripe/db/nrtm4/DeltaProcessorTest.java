@@ -33,7 +33,22 @@ public class DeltaProcessorTest {
         );
         final var result = deltaProcessor.process(changes);
         assertThat(result.size(), is(1));
-        assertThat(result.get(0).getPrimaryKey(), is(nullValue()));
+        final var change = result.get(0);
+        assertThat(change.getPrimaryKey(), is(nullValue()));
+        assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
+    }
+
+    @Test
+    void process_single_deleted_row_returns_one_item() {
+        final var deltaProcessor = new DeltaProcessor(dummifier);
+        final var changes = List.of(
+            new SerialEntry(22, Operation.DELETE, false, 101, inetnumObjectBytes)
+        );
+        final var result = deltaProcessor.process(changes);
+        assertThat(result.size(), is(1));
+        final var change = result.get(0);
+        assertThat(change.getPrimaryKey(), is("193.0.0.0 - 193.255.255.255"));
+        assertThat(change.getAction(), is(DeltaChange.Action.DELETE));
     }
 
     private byte[] inetnumObjectBytes = "inetnum: 193.0.0.0 - 193.255.255.255\nsource: TEST".getBytes(StandardCharsets.ISO_8859_1);
