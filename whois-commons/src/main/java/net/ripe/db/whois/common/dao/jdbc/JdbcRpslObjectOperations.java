@@ -465,7 +465,8 @@ public class JdbcRpslObjectOperations {
     // Attention [TP]: this method returns the object version from last even if the input serialId is historical!!!
     private static SerialEntry getSerialEntryWithBlobs(final JdbcTemplate jdbcTemplate, final int serialId) {
         return jdbcTemplate.queryForObject("" +
-                "SELECT serials.operation," +
+                "SELECT serials.serial_id," +
+                "       serials.operation," +
                 "       serials.atlast," +
                 "       serials.object_id," +
                 "       last.timestamp," +
@@ -485,7 +486,7 @@ public class JdbcRpslObjectOperations {
             @Override
             public SerialEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
-                    return new SerialEntry(Operation.getByCode(rs.getInt(1)), rs.getBoolean(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getBytes(6));
+                    return new SerialEntry(rs.getInt(1), Operation.getByCode(rs.getInt(2)), rs.getBoolean(3), rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getBytes(7));
                 } catch (RuntimeException e) {
                     throw new IllegalStateException("Failed at serial_id " + serialId, e);
                 }
@@ -521,7 +522,8 @@ public class JdbcRpslObjectOperations {
     // exact same, but omit blob lookup for performance reasons
     private static SerialEntry getSerialEntryWithoutBlobs(final JdbcTemplate jdbcTemplate, final int serialId) {
         return jdbcTemplate.queryForObject("" +
-                "SELECT serials.operation, " +
+                "SELECT serials.serial_id, " +
+                "       serials.operation, " +
                 "       serials.atlast, " +
                 "       serials.object_id, " +
                 "       last.timestamp, " +
@@ -540,7 +542,7 @@ public class JdbcRpslObjectOperations {
                 "WHERE  serials.serial_id = ? ", new RowMapper<SerialEntry>() {
             @Override
             public SerialEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new SerialEntry(Operation.getByCode(rs.getInt(1)), rs.getBoolean(2), rs.getInt(4), rs.getInt(5));
+                return new SerialEntry(rs.getInt(1), Operation.getByCode(rs.getInt(2)), rs.getBoolean(3), rs.getInt(5), rs.getInt(6));
             }
         }, serialId);
     }
@@ -550,7 +552,8 @@ public class JdbcRpslObjectOperations {
     //        otherwise return the exact version which is either in history or in last
     private static SerialEntry getSerialEntryWithBlobsForNrtm(final JdbcTemplate jdbcTemplate, final int serialId) {
         return jdbcTemplate.queryForObject("" +
-                "SELECT serials.operation, " +
+                "SELECT serials.serial_id, " +
+                "       serials.operation, " +
                 "       serials.atlast, " +
                 "       serials.object_id, " +
                 "       IF(serials.operation = 2, " +
@@ -571,7 +574,7 @@ public class JdbcRpslObjectOperations {
             public SerialEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
                     return SerialEntry.createSerialEntryWithoutTimestamps
-                            (Operation.getByCode(rs.getInt(1)), rs.getBoolean(2), rs.getInt(3), rs.getBytes(4));
+                            (rs.getInt(1), Operation.getByCode(rs.getInt(2)), rs.getBoolean(3), rs.getInt(4), rs.getBytes(5));
                 } catch (RuntimeException e) {
                     throw new IllegalStateException("Failed at serial_id " + serialId, e);
                 }

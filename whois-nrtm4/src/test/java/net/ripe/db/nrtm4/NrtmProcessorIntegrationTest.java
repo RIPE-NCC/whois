@@ -57,10 +57,10 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
 
     @Test
     public void test_delta_file_generation() {
-        loadSerials("nrtm_sample_sm.sql");
         insertSnapshot();
+        loadSerials("nrtm_sample_sm.sql");
         final DeltaFileModel deltas = nrtmProcessor.generateDeltaFile(NrtmSourceHolder.valueOf("TEST"));
-        final String sampleSm = "[{\"action\":\"delete\",\"object_class\":\"AUT_NUM\",\"primary_key\":\"AS6\"},{\"action\":\"add_modify\",\"object\":\"inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Description\\ncountry:        es\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n\",\"object_class\":\"INETNUM\"}]";
+        final String sampleSm = "[{\"action\":\"delete\",\"object_class\":\"AUT_NUM\",\"primary_key\":\"AS6\"},{\"action\":\"add_modify\",\"object\":\"inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Description\\ncountry:        es\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n\"}]";
         assertThat(deltas.getPayload(), is(sampleSm));
     }
 

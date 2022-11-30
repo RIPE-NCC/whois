@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,10 @@ public class DeltaProcessor {
         return changes.stream()
             .filter(change -> dummifierNrtm.isAllowed(NRTM_VERSION, change.getRpslObject()))
             .map(serialRpsl -> {
-                if (serialRpsl.isAtLast()) {
+                if (serialRpsl.getOperation() == Operation.UPDATE) {
                     return new DeltaChange(
                         DeltaChange.Action.ADD_MODIFY,
-                        serialRpsl.getRpslObject().getType(),
+                        null,
                         null,
                         dummifierNrtm.dummify(NRTM_VERSION, serialRpsl.getRpslObject())
                     );

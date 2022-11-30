@@ -3,7 +3,7 @@ package net.ripe.db.nrtm4.persist;
 import java.util.UUID;
 
 
-public class VersionInformation {
+public class NrtmVersionInfo {
 
     private final Long id;
     private final NrtmSource source;
@@ -16,7 +16,7 @@ public class VersionInformation {
     // arbitrary parameters, since they are bound to published versions of the
     // NRTM repo. Consider a private constructor and a builder which the DAO
     // can use.
-    VersionInformation(
+    NrtmVersionInfo(
         final Long id,
         final NrtmSource source,
         final Long version,

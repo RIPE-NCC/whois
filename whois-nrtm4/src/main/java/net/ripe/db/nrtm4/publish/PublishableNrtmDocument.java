@@ -3,7 +3,7 @@ package net.ripe.db.nrtm4.publish;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
-import net.ripe.db.nrtm4.persist.VersionInformation;
+import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
@@ -19,7 +19,7 @@ public abstract class PublishableNrtmDocument {
     private final long version;
 
     PublishableNrtmDocument(
-        final VersionInformation version
+        final NrtmVersionInfo version
     ) {
         this.type = version.getType();
         this.source = version.getSource();

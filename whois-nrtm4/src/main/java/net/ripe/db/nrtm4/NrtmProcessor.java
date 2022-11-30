@@ -4,7 +4,7 @@ import net.ripe.db.nrtm4.persist.DeltaFileModel;
 import net.ripe.db.nrtm4.persist.DeltaFileModelRepository;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.persist.VersionInformation;
+import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.springframework.stereotype.Service;
@@ -55,7 +55,7 @@ public class NrtmProcessor {
     public DeltaFileModel generateDeltaFile(final NrtmSource source) {
 
         // Find changes since the last delta
-        final Optional<VersionInformation> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
+        final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
         if (lastVersion.isEmpty()) {
             throw new IllegalStateException("Cannot create a delta without an initial snapshot");
         }
@@ -67,7 +67,7 @@ public class NrtmProcessor {
             throw new IllegalStateException("Cannot create a delta when there is no previous snapshot");
         }
         final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getSerialId();
-        final VersionInformation nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
+        final NrtmVersionInfo nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
         final PayloadProcessor processor = new PayloadProcessor(deltas.toArray(new DeltaChange[0]));
         return deltaFileModelRepository.save(
             nextVersion.getId(),

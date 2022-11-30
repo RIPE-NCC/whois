@@ -12,7 +12,8 @@ public class SerialEntry {
 
     private RpslObject rpslObject;
 
-    public SerialEntry(final Operation operation, final boolean atLast, final int lastTimestamp, final int historyTimestamp) {
+    public SerialEntry(final int serialId, final Operation operation, final boolean atLast, final int lastTimestamp, final int historyTimestamp) {
+        this.serialId = serialId;
         this.operation = operation;
         this.atLast = atLast;
         this.lastTimestamp = lastTimestamp;
@@ -20,19 +21,19 @@ public class SerialEntry {
         rpslObject = null;
     }
 
-    public SerialEntry(final Operation operation, final boolean atLast, final int objectId, final int lastTimestamp, final int historyTimestamp, final byte[] blob) {
-        this(operation, atLast, lastTimestamp, historyTimestamp);
+    public SerialEntry(final int serialId, final Operation operation, final boolean atLast, final int objectId, final int lastTimestamp, final int historyTimestamp, final byte[] blob) {
+        this(serialId, operation, atLast, lastTimestamp, historyTimestamp);
         rpslObject = RpslObject.parse(objectId, blob);
     }
 
     public SerialEntry(final int serialId, final Operation operation, final boolean atLast, final int objectId, final byte[] blob) {
-        this(operation, atLast, objectId, 0, 0, blob);
+        this(serialId, operation, atLast, objectId, 0, 0, blob);
         rpslObject = RpslObject.parse(objectId, blob);
         this.serialId = serialId;
     }
 
-    public static SerialEntry createSerialEntryWithoutTimestamps(final Operation operation, final boolean atLast, final int objectId, final byte[] blob){
-        return new SerialEntry(operation, atLast, objectId, 0, 0, blob);
+    public static SerialEntry createSerialEntryWithoutTimestamps(final int serialId, final Operation operation, final boolean atLast, final int objectId, final byte[] blob){
+        return new SerialEntry(serialId, operation, atLast, objectId, 0, 0, blob);
     }
 
     public int getSerialId() {

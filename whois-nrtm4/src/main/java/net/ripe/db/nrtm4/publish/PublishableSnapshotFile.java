@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.publish;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
-import net.ripe.db.nrtm4.persist.VersionInformation;
+import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -11,7 +11,7 @@ public class PublishableSnapshotFile extends PublishableNrtmDocument {
     private String objects;
 
     public PublishableSnapshotFile(
-        final VersionInformation version
+        final NrtmVersionInfo version
     ) {
         super(version);
     }

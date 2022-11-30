@@ -23,8 +23,8 @@ public class NrtmVersionInfoRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionInfoRepository.class);
     private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<VersionInformation> rowMapper = (rs, rowNum) ->
-        new VersionInformation(
+    private final RowMapper<NrtmVersionInfo> rowMapper = (rs, rowNum) ->
+        new NrtmVersionInfo(
             rs.getLong(1),
             NrtmSourceHolder.valueOf(rs.getString(2)),
             rs.getLong(3),
@@ -44,7 +44,7 @@ public class NrtmVersionInfoRepository {
      * @param source Find version only for this source
      * @return Optional version object, if one was found
      */
-    public Optional<VersionInformation> findLastVersion(final NrtmSource source) {
+    public Optional<NrtmVersionInfo> findLastVersion(final NrtmSource source) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("" +
                     "SELECT vi.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id " +
@@ -67,7 +67,7 @@ public class NrtmVersionInfoRepository {
      * @param lastSerialId The last serialID from the Whois serials table which is in the snapshot
      * @return An initialized version object filled from the new row in the database
      */
-    public VersionInformation createInitialSnapshot(final NrtmSource source, final int lastSerialId) {
+    public NrtmVersionInfo createInitialSnapshot(final NrtmSource source, final int lastSerialId) {
         jdbcTemplate.update("INSERT INTO source (name) VALUES (?)", source.name());
         final long version = 1L;
         final UUID sessionID = UUID.randomUUID();
@@ -82,7 +82,7 @@ public class NrtmVersionInfoRepository {
      * @param serialId The last serialID from the Whois serials table which is in this version
      * @return An incremented version object
      */
-    public VersionInformation incrementAndSave(final VersionInformation version, final int serialId) {
+    public NrtmVersionInfo incrementAndSave(final NrtmVersionInfo version, final int serialId) {
         return save(version.getSource(), version.getVersion() + 1, version.getSessionID(), version.getType(), serialId);
     }
 
@@ -93,14 +93,14 @@ public class NrtmVersionInfoRepository {
      * @param version A version already in use for a delta
      * @return A version object which will be used for a snapshot
      */
-    public VersionInformation copyAsSnapshotVersion(final VersionInformation version) {
+    public NrtmVersionInfo copyAsSnapshotVersion(final NrtmVersionInfo version) {
         if (version.getType() == NrtmDocumentType.SNAPSHOT) {
             throw new IllegalStateException("Cannot copy a snapshot version number - must be a delta version");
         }
         return save(version.getSource(), version.getVersion(), version.getSessionID(), NrtmDocumentType.SNAPSHOT, version.getLastSerialId());
     }
 
-    private VersionInformation save(
+    private NrtmVersionInfo save(
         final NrtmSource source,
         final long version,
         final UUID sessionID,
@@ -122,7 +122,7 @@ public class NrtmVersionInfoRepository {
                 return pst;
             }, keyHolder
         );
-        return new VersionInformation(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId);
+        return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId);
     }
 
 }

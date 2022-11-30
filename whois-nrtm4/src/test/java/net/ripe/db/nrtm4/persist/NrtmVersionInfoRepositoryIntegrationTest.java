@@ -34,7 +34,7 @@ public class NrtmVersionInfoRepositoryIntegrationTest extends AbstractDatabaseHe
 
     @Test
     public void result_is_not_present_when_source_is_not_populated() {
-        final Optional<VersionInformation> version = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
+        final Optional<NrtmVersionInfo> version = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
         assertThat(version.isPresent(), is(false));
     }
 
@@ -52,7 +52,7 @@ public class NrtmVersionInfoRepositoryIntegrationTest extends AbstractDatabaseHe
     @Test
     public void first_version_is_one() {
         nrtmVersionInfoRepository.createInitialSnapshot(nrtmSourceHolder.getSource(), 1);
-        final Optional<VersionInformation> version = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
+        final Optional<NrtmVersionInfo> version = nrtmVersionInfoRepository.findLastVersion(nrtmSourceHolder.getSource());
         assertThat(version.isPresent(), is(true));
         assertThat(version.get().getSource(), is(nrtmSourceHolder.getSource()));
         assertThat(version.get().getVersion(), is(1L));
