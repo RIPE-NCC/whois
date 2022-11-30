@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.domain.serials;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 public class SerialEntry {
-    private int serialId;
+    private final int serialId;
     private final Operation operation;
     private final boolean atLast;
 
@@ -28,8 +28,6 @@ public class SerialEntry {
 
     public SerialEntry(final int serialId, final Operation operation, final boolean atLast, final int objectId, final byte[] blob) {
         this(serialId, operation, atLast, objectId, 0, 0, blob);
-        rpslObject = RpslObject.parse(objectId, blob);
-        this.serialId = serialId;
     }
 
     public static SerialEntry createSerialEntryWithoutTimestamps(final int serialId, final Operation operation, final boolean atLast, final int objectId, final byte[] blob){
