@@ -106,7 +106,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         resourceConfig.register(jaxbJsonProvider);
 
-        final MessageBodyWriter<WhoisResources> customMessageBodyWriter = new CustomMessageBodyWriter();
+        final MessageBodyWriter<WhoisResources> customMessageBodyWriter = new WhoisResourcesPlainTextWriter();
         resourceConfig.register(customMessageBodyWriter);
 
         resourceConfig.register(new JaxbMessagingBinder());
