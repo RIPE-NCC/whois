@@ -37,7 +37,8 @@ class WhoisRdapServiceAclTestIntegration extends AbstractRdapIntegrationTest {
                 fail();
             } catch (ClientErrorException e) {
                 assertErrorStatus(e, 429);
-                assertErrorTitleContains(e, "%ERROR:201: access denied for 127.0.0.1");
+                assertErrorTitleContains(e, "429 Too Many Requests");
+                assertErrorDescriptionContains(e, "%ERROR:201: access denied for 127.0.0.1");
             }
         } finally {
             databaseHelper.unban(LOCALHOST_WITH_PREFIX);
