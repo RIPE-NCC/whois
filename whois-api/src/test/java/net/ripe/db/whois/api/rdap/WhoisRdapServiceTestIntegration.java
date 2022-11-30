@@ -1935,9 +1935,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .get(Autnum.class);
             fail();
         } catch (ServerErrorException e) {
-            final Entity entity = e.getResponse().readEntity(Entity.class);
-            assertThat(entity.getErrorTitle(), is("Nameserver not supported"));
-            assertThat(entity.getErrorCode(), is(501));
+            assertErrorStatus(e, 501);
+            assertErrorTitle(e, "501 Not Implemented");
+            assertErrorDescription(e, "Nameserver not supported");
         }
     }
 

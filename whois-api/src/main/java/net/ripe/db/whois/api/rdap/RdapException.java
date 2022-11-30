@@ -8,7 +8,7 @@ public class RdapException extends RuntimeException{
 
     private final int errorCode;
 
-    RdapException(final String errorTitle, final String errorDescription, final int errorCode){
+    public RdapException(final String errorTitle, final String errorDescription, final int errorCode){
         this.errorTitle = errorTitle;
         this.errorDescription = errorDescription;
         this.errorCode = errorCode;
