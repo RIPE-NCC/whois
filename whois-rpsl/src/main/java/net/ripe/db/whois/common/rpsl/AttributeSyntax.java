@@ -72,7 +72,9 @@ public interface AttributeSyntax extends Documented {
             "colons \":\".  At least one component of such a name must be\n" +
             "an actual set name (i.e. start with \"as-\").  All the set\n" +
             "name components of a hierarchical as-name have to be as-set\n" +
-            "names. The total length should not exceed 80 characters (octets).\n");
+            "names. The total length should not exceed 80 characters (octets).\n" +
+            "\n" +
+            "Only as-sets with a hierarchical name can be created.\n");
 
     AttributeSyntax AGGR_BNDRY_SYNTAX = new AttributeSyntaxParser(new AggrBndryParser(), "" +
             "[<as-expression>]\n");
