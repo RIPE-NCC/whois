@@ -221,7 +221,7 @@ public class WhoisRdapService {
     }
 
     protected Response lookupForDomain(final HttpServletRequest request, final String key) {
-        Domain domain = Domain.parse(key);
+        final Domain domain = Domain.parse(key);
         final Iterable<RpslObject> domainResult =
                 rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(ObjectType.DOMAIN),
                         key), request).collect(Collectors.toList());
@@ -304,8 +304,8 @@ public class WhoisRdapService {
 
     private Response getDomainResponse(HttpServletRequest request, Iterable<RpslObject> domainResult,
                                        Iterable<RpslObject> inetnumResult) {
-        Iterator<RpslObject> domainIterator = domainResult.iterator();
-        Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
+        final Iterator<RpslObject> domainIterator = domainResult.iterator();
+        final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
         if (!domainIterator.hasNext()) {
             throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
         }

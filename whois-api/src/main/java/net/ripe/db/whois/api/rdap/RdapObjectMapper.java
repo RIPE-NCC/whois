@@ -202,7 +202,7 @@ class RdapObjectMapper {
     }
 
     public RdapObject mapHelp(final String requestUrl) {
-        RdapObject rdapObject =  mapCommonNoticesAndPort(new RdapObject(), requestUrl);
+        final RdapObject rdapObject = mapCommonNoticesAndPort(new RdapObject(), requestUrl);
         mapCommonLinks(rdapObject, requestUrl);
         rdapObject.getRdapConformance().addAll(Stream.of(RdapConformance.values()).map(RdapConformance::getValue).collect(Collectors.toList()));
         return rdapObject;

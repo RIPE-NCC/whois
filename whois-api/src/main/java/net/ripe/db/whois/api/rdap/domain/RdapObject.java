@@ -189,7 +189,7 @@ public class RdapObject implements Serializable {
         this.networks = networks;
     }
 
-    public void setNetwork(Ip network) {
+    public void setNetwork(final Ip network) {
         this.network = network;
     }
 }

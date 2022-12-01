@@ -912,7 +912,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
-        List<Link> links = domain.getLinks();
+        final List<Link> links = domain.getLinks();
         assertThat(links.size(), is(1));
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
@@ -963,7 +963,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork().getHandle(), is("80.179.52.0 - 80.179.55.255"));
 
-        List<Link> links = domain.getLinks();
+        final List<Link> links = domain.getLinks();
         assertThat(links.size(), is(1));
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
@@ -1014,7 +1014,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork().getHandle(), is("2a00:2cce::/32"));
 
-        List<Link> links = domain.getLinks();
+        final List<Link> links = domain.getLinks();
         assertThat(links.size(), is(1));
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
@@ -1064,7 +1064,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(domain.getObjectClassName(), is("domain"));
         assertNull(domain.getNetwork());
 
-        List<Link> links = domain.getLinks();
+        final List<Link> links = domain.getLinks();
         assertThat(links.size(), is(1));
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
@@ -1081,7 +1081,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork().getHandle(), is("0.0.0.0 - 255.255.255.255"));
 
-        List<Link> links = domain.getLinks();
+        final List<Link> links = domain.getLinks();
         assertThat(links.size(), is(1));
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
