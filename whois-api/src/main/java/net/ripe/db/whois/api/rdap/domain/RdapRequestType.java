@@ -25,7 +25,7 @@ public enum RdapRequestType {
 
     DOMAIN {
         public Set<ObjectType> getWhoisObjectTypes(final String key) {
-            return ImmutableSet.of(ObjectType.DOMAIN);
+            return ImmutableSet.of(ObjectType.DOMAIN, INET6NUM, INETNUM);
         }
     },
 

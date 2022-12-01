@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
@@ -125,7 +126,7 @@ public class WhoisRdapService {
             }
             case DOMAIN: {
                 rdapRequestValidator.validateDomain(key);
-                return lookupObject(request, whoisObjectTypes, key);
+                return lookupForDomain(request, key);
             }
             case IP: {
                 rdapRequestValidator.validateIp(request.getRequestURI(), key);
@@ -219,6 +220,16 @@ public class WhoisRdapService {
         return !delegatedStatsService.isMaintainedInRirSpace(source.getName(), objectType, CIString.ciString(key));
     }
 
+    protected Response lookupForDomain(final HttpServletRequest request, final String key) {
+        Domain domain = Domain.parse(key);
+        final Iterable<RpslObject> domainResult =
+                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(ObjectType.DOMAIN),
+                        key), request).collect(Collectors.toList());
+        final Iterable<RpslObject> inetnumResult =
+                rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM),
+                        domain.getReverseIp().toString()), request).collect(Collectors.toList());
+        return getDomainResponse(request, domainResult, inetnumResult);
+    }
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
         final Iterable<RpslObject> result =  rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, key),
                 request).collect(Collectors.toList());
@@ -287,6 +298,28 @@ public class WhoisRdapService {
                         autnumResult, inetnumResult,
                         inet6numResult,
                         maxEntityResultSize))
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
+    }
+
+    private Response getDomainResponse(HttpServletRequest request, Iterable<RpslObject> domainResult,
+                                       Iterable<RpslObject> inetnumResult) {
+        Iterator<RpslObject> domainIterator = domainResult.iterator();
+        Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
+        if (!domainIterator.hasNext()) {
+            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+        }
+        final RpslObject domainObject = domainIterator.next();
+        final RpslObject inetnumObject = inetnumIterator.hasNext() ? inetnumIterator.next() : null;
+
+        if (domainIterator.hasNext() || inetnumIterator.hasNext()) {
+            throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(domainIterator),
+                    HttpStatus.INTERNAL_SERVER_ERROR_500);
+        }
+        return Response.ok(
+                        rdapObjectMapper.mapDomainEntity(
+                                getRequestUrl(request),
+                                domainObject, inetnumObject))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
