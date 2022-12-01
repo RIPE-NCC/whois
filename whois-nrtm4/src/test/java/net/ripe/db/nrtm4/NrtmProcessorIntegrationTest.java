@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.persist.DeltaFileModel;
 import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.persist.RpslObjectDao;
@@ -13,6 +14,8 @@ import org.springframework.test.context.ContextConfiguration;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -52,13 +55,16 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
         );
     }
 
-//    @Test
-//    public void test_delta_file_generation() {
-//        insertSnapshot();
-//        loadSerials("nrtm_sample_sm.sql");
-//        final DeltaFileModel deltas = nrtmProcessor.generateDeltaFile(NrtmSourceHolder.valueOf("TEST"));
-//        final String sampleSm = "[{\"action\":\"delete\",\"object_class\":\"AUT_NUM\",\"primary_key\":\"AS6\"},{\"action\":\"add_modify\",\"object\":\"inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Description\\ncountry:        es\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n\"}]";
-//        assertThat(deltas.getPayload(), is(sampleSm));
-//    }
+    @Test
+    public void test_delta_file_generation() {
+        insertSnapshot();
+        loadSerials("nrtm_sample_sm.sql");
+        final DeltaFileModel deltas = nrtmProcessor.generateDeltaFile(NrtmSourceHolder.valueOf("TEST"));
+        final String sampleSm = "[" +
+            "{\"action\":\"add_modify\",\"object\":\"aut-num:        AS6\\nas-name:        ASNAME\\ndescr:          Description\\norg:            ORG-TEST-RIPE\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nmnt-by:         RIPE-NCC-TEST-MNT\\nmnt-by:         TEST-MNTNR\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n\"}," +
+            "{\"action\":\"add_modify\",\"object\":\"inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Description\\ncountry:        es\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n\"}," +
+            "{\"action\":\"delete\",\"object_class\":\"AUT_NUM\",\"primary_key\":\"AS6\"}]";
+        assertThat(deltas.getPayload(), is(sampleSm));
+    }
 
 }

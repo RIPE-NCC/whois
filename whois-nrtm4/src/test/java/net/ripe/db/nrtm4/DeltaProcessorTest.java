@@ -29,7 +29,7 @@ public class DeltaProcessorTest {
     void process_single_row_returns_one_item() {
         final var deltaProcessor = new DeltaProcessor(dummifier);
         final var changes = List.of(
-            new SerialEntry(22, Operation.UPDATE, true, 101, inetnumObjectBytes)
+            new SerialEntry(22, Operation.UPDATE, true, 101, inetnumObjectBytes, "193.0.0.0 - 193.255.255.255")
         );
         final var result = deltaProcessor.process(changes);
         assertThat(result.size(), is(1));
@@ -42,7 +42,7 @@ public class DeltaProcessorTest {
     void process_single_deleted_row_returns_one_item() {
         final var deltaProcessor = new DeltaProcessor(dummifier);
         final var changes = List.of(
-            new SerialEntry(22, Operation.DELETE, false, 101, inetnumObjectBytes)
+            new SerialEntry(22, Operation.DELETE, false, 101, inetnumObjectBytes, "193.0.0.0 - 193.255.255.255")
         );
         final var result = deltaProcessor.process(changes);
         assertThat(result.size(), is(1));
