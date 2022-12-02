@@ -1,10 +1,10 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.persist.DeltaFileModel;
 import net.ripe.db.nrtm4.persist.DeltaFileModelRepository;
 import net.ripe.db.nrtm4.persist.NrtmSource;
-import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
+import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.springframework.stereotype.Service;
@@ -17,20 +17,20 @@ import java.util.Optional;
 public class NrtmProcessor {
 
     private final DeltaFileModelRepository deltaFileModelRepository;
-    private final DeltaProcessor deltaProcessor;
+    private final DeltaTransformer deltaTransformer;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotSynchronizer snapshotSynchronizer;
     private final SerialDao serialDao;
 
     public NrtmProcessor(
         final DeltaFileModelRepository deltaFileModelRepository,
-        final DeltaProcessor deltaProcessor,
+        final DeltaTransformer deltaTransformer,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotSynchronizer snapshotSynchronizer,
         final SerialDao serialDao
         ) {
         this.deltaFileModelRepository = deltaFileModelRepository;
-        this.deltaProcessor = deltaProcessor;
+        this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotSynchronizer = snapshotSynchronizer;
         this.serialDao = serialDao;
@@ -52,7 +52,7 @@ public class NrtmProcessor {
         // ...or hash?
     }
 
-    public DeltaFileModel generateDeltaFile(final NrtmSource source) {
+    public PublishableDeltaFile processDeltas(final NrtmSource source) {
 
         // Find changes since the last delta
         final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
@@ -60,21 +60,21 @@ public class NrtmProcessor {
             throw new IllegalStateException("Cannot create a delta without an initial snapshot");
         }
         final List<SerialEntry> whoisChanges = serialDao.getSerialEntriesSince(lastVersion.get().getLastSerialId());
-
-        final List<DeltaChange> deltas = deltaProcessor.process(whoisChanges);
-        snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
         if (whoisChanges.size() < 1) {
             throw new IllegalStateException("Cannot create a delta when there is no previous snapshot");
         }
+        final List<DeltaChange> deltas = deltaTransformer.process(whoisChanges);
+        snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
         final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getSerialId();
         final NrtmVersionInfo nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
-        final PayloadProcessor processor = new PayloadProcessor(deltas.toArray(new DeltaChange[0]));
-        return deltaFileModelRepository.save(
+        deltaFileModelRepository.save(
             nextVersion.getId(),
             "nrtm-delta.1.784a2a65aba22e001fd25a1b9e8544e058fbc703.json", // TODO: generate file name for url
-            processor.getJson(),
-            processor.getHash()
+            "0101011011101100011"
         );
+        final PublishableDeltaFile deltaFile = new PublishableDeltaFile(nextVersion);
+        deltaFile.setChanges(deltas);
+        return deltaFile;
     }
 
 }

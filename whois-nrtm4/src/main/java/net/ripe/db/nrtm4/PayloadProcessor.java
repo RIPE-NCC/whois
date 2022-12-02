@@ -17,7 +17,7 @@ public class PayloadProcessor {
 
     private final String json;
 
-    PayloadProcessor(final Object[] payload) {
+    PayloadProcessor(final Object payload) {
         final ObjectMapper objectMapper = JsonMapper.builder()
             .serializationInclusion(JsonInclude.Include.NON_NULL)
 //            .annotationIntrospector(new AnnotationIntrospectorPair(
@@ -41,8 +41,4 @@ public class PayloadProcessor {
         return json;
     }
 
-    public String getHash() {
-        // TODO: calculate hash
-        return "0123456789abcdef0123456789abcdef";
-    }
 }

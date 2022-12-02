@@ -12,11 +12,11 @@ import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
 
 @Service
-public class DeltaProcessor {
+public class DeltaTransformer {
 
     private final Dummifier dummifierNrtm;
 
-    public DeltaProcessor(final Dummifier dummifierNrtm) {
+    public DeltaTransformer(final Dummifier dummifierNrtm) {
         this.dummifierNrtm = dummifierNrtm;
     }
 

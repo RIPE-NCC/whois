@@ -15,11 +15,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 
-public class DeltaProcessorTest {
+public class DeltaTransformerTest {
 
     @Test
     void process_empty_rows_returns_empty_list() {
-        final var deltaProcessor = new DeltaProcessor(dummifier);
+        final var deltaProcessor = new DeltaTransformer(dummifier);
         final var changes = new ArrayList<SerialEntry>();
         final var result = deltaProcessor.process(changes);
         assertThat(result.size(), is(0));
@@ -27,7 +27,7 @@ public class DeltaProcessorTest {
 
     @Test
     void process_single_row_returns_one_item() {
-        final var deltaProcessor = new DeltaProcessor(dummifier);
+        final var deltaProcessor = new DeltaTransformer(dummifier);
         final var changes = List.of(
             new SerialEntry(22, Operation.UPDATE, true, 101, inetnumObjectBytes, "193.0.0.0 - 193.255.255.255")
         );
@@ -40,7 +40,7 @@ public class DeltaProcessorTest {
 
     @Test
     void process_single_deleted_row_returns_one_item() {
-        final var deltaProcessor = new DeltaProcessor(dummifier);
+        final var deltaProcessor = new DeltaTransformer(dummifier);
         final var changes = List.of(
             new SerialEntry(22, Operation.DELETE, false, 101, inetnumObjectBytes, "193.0.0.0 - 193.255.255.255")
         );

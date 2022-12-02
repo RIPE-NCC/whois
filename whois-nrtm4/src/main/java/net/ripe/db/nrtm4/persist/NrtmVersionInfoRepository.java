@@ -76,14 +76,15 @@ public class NrtmVersionInfoRepository {
     }
 
     /**
-     * Using a given version, create a new incremented version number for a serialID.
+     * Using a given version, create a new incremented version number for a serialID. The updated version will always be
+     * a delta (see RFC).
      *
      * @param version Existing version
      * @param serialId The last serialID from the Whois serials table which is in this version
      * @return An incremented version object
      */
     public NrtmVersionInfo incrementAndSave(final NrtmVersionInfo version, final int serialId) {
-        return save(version.getSource(), version.getVersion() + 1, version.getSessionID(), version.getType(), serialId);
+        return save(version.getSource(), version.getVersion() + 1, version.getSessionID(), NrtmDocumentType.DELTA, serialId);
     }
 
     /**
