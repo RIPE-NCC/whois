@@ -842,13 +842,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (NotFoundException e) {
             final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, is(String.format("http://localhost:%s/search?query-string=invalid&source=TEST\n" +
-                    "Severity: Error\n" +
-                    "Text: ERROR:101: no entries found\n" +
-                    "\n" +
-                    "No entries found in source %%s.\n" +
-                    "[TEST]\n" +
-                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+            assertThat(response, containsString(String.format("http://localhost:%s/search?query-string=invalid&source=TEST", getPort())));
+            assertThat(response, containsString("Severity: Error"));
+            assertThat(response, containsString("Text: %ERROR:101: no entries found"));
+            assertThat(response, containsString(String.format("No entries found in source %s.", "TEST")));
+            assertThat(response, containsString("http://www.ripe.net/db/support/db-terms-conditions"));
         }
     }
 
@@ -861,13 +859,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (NotFoundException e) {
             final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, is(String.format("http://localhost:%s/search?query-string=invalid&source=TEST\n" +
-                    "Severity: Error\n" +
-                    "Text: ERROR:101: no entries found\n" +
-                    "\n" +
-                    "No entries found in source %%s.\n" +
-                    "[TEST]\n" +
-                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+            assertThat(response, containsString(String.format("http://localhost:%s/search?query-string=invalid&source=TEST", getPort())));
+            assertThat(response, containsString("Severity: Error"));
+            assertThat(response, containsString("Text: %ERROR:101: no entries found"));
+            assertThat(response, containsString(String.format("No entries found in source %s.", "TEST")));
+            assertThat(response, containsString("http://www.ripe.net/db/support/db-terms-conditions"));
         }
     }
 
