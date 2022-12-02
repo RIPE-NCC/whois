@@ -510,7 +510,8 @@ public class JdbcRpslObjectOperations {
                 "       LEFT JOIN history rdp_history" +
                 "              ON rdp_history.object_id = serials.object_id" +
                 "                 AND rdp_history.sequence_id = serials.sequence_id - 1 " +
-                "WHERE  serials.serial_id > ?", (rs, rowNum) -> new SerialEntry(
+                "WHERE  serials.serial_id > ? " +
+                "ORDER BY serials.serial_id ASC", (rs, rowNum) -> new SerialEntry(
                     rs.getInt(1),
                     Operation.getByCode(rs.getInt(2)),
                     rs.getBoolean(3),
