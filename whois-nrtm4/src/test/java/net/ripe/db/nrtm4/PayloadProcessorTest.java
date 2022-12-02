@@ -48,7 +48,7 @@ public class PayloadProcessorTest {
 
     // TODO: check that the 'expected' strings are correct wrt escaping line feeds!
     // TODO: should object_type be lower? it is in the RFC but it's not specced, it's only in examples.
-    // TODO: test multiline
+    // TODO: test multiline attribute
     private final byte[] inetnumObjectBytes = "inetnum: 193.0.0.0 - 193.255.255.255\nsource: TEST".getBytes(StandardCharsets.ISO_8859_1);
     private final byte[] orgObjectBytes = "organisation:    ORG-XYZ99-RIPE\norg-name:        XYZ B.V.\norg-type:        OTHER\naddress:         XYZ B.V.\naddress:         ÅçÅçstraße 999\naddress:         Zürich\naddress:         NETHERLANDS\nphone:           +31709876543\nfax-no:          +31703456789\nmnt-by:          XYZ-MNT\nmnt-ref:         PQR-MNT\nabuse-c:         XYZ-RIPE\ncreated:         2018-01-01T00:00:00Z\nlast-modified:   2019-12-24T00:00:00Z\nsource:          TEST\n".getBytes(StandardCharsets.ISO_8859_1);
 

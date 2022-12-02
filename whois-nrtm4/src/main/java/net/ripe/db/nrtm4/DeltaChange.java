@@ -1,11 +1,13 @@
 package net.ripe.db.nrtm4;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeltaChange {
 
     enum Action {
