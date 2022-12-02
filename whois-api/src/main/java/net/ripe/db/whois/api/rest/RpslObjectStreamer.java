@@ -71,7 +71,7 @@ public class RpslObjectStreamer {
         return Response.ok(new Streamer(request, query, remoteAddress, parameters, service)).build();
     }
 
-    public class Streamer implements StreamingOutput {
+    private class Streamer implements StreamingOutput {
 
         private final HttpServletRequest request;
         private final Query query;
@@ -129,7 +129,7 @@ public class RpslObjectStreamer {
             }
         }
 
-        public class SearchResponseHandler extends ApiResponseHandler {
+        private class SearchResponseHandler extends ApiResponseHandler {
             private boolean rpslObjectFound;
 
             private final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
