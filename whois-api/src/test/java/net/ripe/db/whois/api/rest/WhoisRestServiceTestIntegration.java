@@ -700,13 +700,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (NotFoundException e) {
             final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, is(String.format("http://localhost:%s/test/person/PP1-TEST\n" +
-                    "Severity: Error\n" +
-                    "Text: ERROR:101: no entries found\n" +
-                    "\n" +
-                    "No entries found in source %%s.\n" +
-                    "[TEST]\n" +
-                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+            assertThat(response, containsString(String.format("http://localhost:%s/test/person/PP1-TEST", getPort())));
+            assertThat(response, containsString("Severity: Error"));
+            assertThat(response, containsString("Text: %ERROR:101: no entries found"));
+            assertThat(response, containsString(String.format("No entries found in source %s.", "TEST")));
+            assertThat(response, containsString("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
         }
     }
 
@@ -719,13 +717,42 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (NotFoundException e) {
             final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, is(String.format("http://localhost:%s/test/person/PP1-TEST\n" +
-                    "Severity: Error\n" +
-                    "Text: ERROR:101: no entries found\n" +
-                    "\n" +
-                    "No entries found in source %%s.\n" +
-                    "[TEST]\n" +
-                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+            assertThat(response, containsString(String.format("http://localhost:%s/test/person/PP1-TEST", getPort())));
+            assertThat(response, containsString("Severity: Error"));
+            assertThat(response, containsString("Text: %ERROR:101: no entries found"));
+            assertThat(response, containsString(String.format("No entries found in source %s.", "TEST")));
+            assertThat(response, containsString("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        }
+    }
+    @Test
+    public void lookup_object_text_plain_bad_source_accept_header() {
+        try {
+            RestTest.target(getPort(), "whois/oez/org/MKQ-RIPE.txt")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, containsString(String.format("http://localhost:%s/oez/org/MKQ-RIPE", getPort())));
+            assertThat(response, containsString("Severity: Error"));
+            assertThat(response, containsString("Text: Invalid source 'oez'"));
+            assertThat(response, containsString("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        }
+    }
+
+    @Test
+    public void lookup_object_text_plain_bad_format_accept_header() {
+        try {
+            RestTest.target(getPort(), "whois/test/org/MKQ-RIPE.txt")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, containsString(String.format("http://localhost:%s/test/org/MKQ-RIPE", getPort())));
+            assertThat(response, containsString("Severity: Error"));
+            assertThat(response, containsString("Text: Invalid object type 'org'"));
+            assertThat(response, containsString("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
         }
     }
 

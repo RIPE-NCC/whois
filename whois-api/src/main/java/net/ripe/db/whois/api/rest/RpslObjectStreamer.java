@@ -71,7 +71,7 @@ public class RpslObjectStreamer {
         return Response.ok(new Streamer(request, query, remoteAddress, parameters, service)).build();
     }
 
-    private class Streamer implements StreamingOutput {
+    public class Streamer implements StreamingOutput {
 
         private final HttpServletRequest request;
         private final Query query;
@@ -79,7 +79,6 @@ public class RpslObjectStreamer {
         private final Parameters parameters;
         private final Service service;
         private StreamingMarshal streamingMarshal;
-
         public Streamer(
                 final HttpServletRequest request,
                 final Query query,
@@ -95,8 +94,8 @@ public class RpslObjectStreamer {
 
         @Override
         public void write(final OutputStream output) throws IOException, WebApplicationException {
-            streamingMarshal = StreamingHelper.getStreamingMarshal(request, output);
             final SearchResponseHandler responseHandler = new SearchResponseHandler();
+            streamingMarshal = StreamingHelper.getStreamingMarshal(request, output);
             try {
                 final int contextId = System.identityHashCode(Thread.currentThread());
                 queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -130,7 +129,7 @@ public class RpslObjectStreamer {
             }
         }
 
-        private class SearchResponseHandler extends ApiResponseHandler {
+        public class SearchResponseHandler extends ApiResponseHandler {
             private boolean rpslObjectFound;
 
             private final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);

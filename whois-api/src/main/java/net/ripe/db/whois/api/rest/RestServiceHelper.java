@@ -25,11 +25,15 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import static net.ripe.db.whois.api.rest.domain.WhoisResources.TERMS_AND_CONDITIONS;
 
 public class RestServiceHelper {
 
@@ -112,8 +116,12 @@ public class RestServiceHelper {
                 DirtySuppressChangedAttributeMapper.class : RegularSuppressChangedAttributeMapper.class;
     }
 
-    public static WhoisResources createErrorEntity(final HttpServletRequest request, final Message... errorMessage) {
-        return createErrorEntity(request, Arrays.asList(errorMessage));
+    public static Object createErrorEntity(final HttpServletRequest request, final Message... errorMessage) {
+        if (MediaType.TEXT_PLAIN.equals(request.getHeader(HttpHeaders.ACCEPT))){
+            return createErrorStringEntity(request, Arrays.asList(errorMessage));
+        } else {
+            return createErrorEntity(request, Arrays.asList(errorMessage));
+        }
     }
 
     public static WhoisResources createErrorEntity(final HttpServletRequest request, final List<Message> errorMessages) {
@@ -125,7 +133,20 @@ public class RestServiceHelper {
         return whoisResources;
     }
 
-
+    public static String createErrorStringEntity(final HttpServletRequest request, final List<Message> errorMessages
+    ) {
+        return getRequestURL(request).replaceFirst("/whois", "") + "\n" +
+                createErrorStringMessages(errorMessages) + "\n" +
+                TERMS_AND_CONDITIONS;
+    }
+    private static String createErrorStringMessages(final List<Message> messages) {
+        StringBuilder sb = new StringBuilder();
+        for (Message message : messages) {
+            sb.append(message.getType() != null ? "Severity: " + message.getType().toString() + '\n' : null);
+            sb.append("Text: ").append(message.getFormattedText());
+        }
+        return sb.toString();
+    }
     public static List<ErrorMessage> createErrorMessages(final List<Message> messages) {
         final List<ErrorMessage> errorMessages = Lists.newArrayList();
 
@@ -166,8 +187,12 @@ public class RestServiceHelper {
             messages.add(QueryMessages.internalErroroccurred());
         }
 
-        if (! messages.isEmpty()) {
-            responseBuilder.entity(createErrorEntity(request, messages));
+        if (!messages.isEmpty()) {
+            if (MediaType.TEXT_PLAIN.equals(request.getHeader(HttpHeaders.ACCEPT))){
+                responseBuilder.entity(createErrorStringEntity(request, messages));
+            } else {
+                responseBuilder.entity(createErrorEntity(request, messages));
+            }
         }
 
         return new WebApplicationException(responseBuilder.build());

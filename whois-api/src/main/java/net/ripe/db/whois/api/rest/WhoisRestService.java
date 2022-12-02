@@ -290,12 +290,19 @@ public class WhoisRestService {
                     .build());
         }
 
-        final QueryBuilder queryBuilder = new QueryBuilder().
-                addFlag(QueryFlag.EXACT).
-                addFlag(QueryFlag.NO_GROUPING).
-                addFlag(QueryFlag.NO_REFERENCED).
-                addCommaList(QueryFlag.SOURCES, source).
-                addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName());
+        final QueryBuilder queryBuilder;
+        try {
+            queryBuilder = new QueryBuilder().
+                    addFlag(QueryFlag.EXACT).
+                    addFlag(QueryFlag.NO_GROUPING).
+                    addFlag(QueryFlag.NO_REFERENCED).
+                    addCommaList(QueryFlag.SOURCES, source).
+                    addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName());
+        } catch (final IllegalArgumentException ex){
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidObjectType(objectType)))
+                    .build());
+        }
 
         if (isQueryParamSet(unfiltered)) {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
@@ -322,6 +329,7 @@ public class WhoisRestService {
                 .resourceHolder(isQueryParamSet(resourceHolder))
                 .abuseContact(isQueryParamSet(abuseContact))
                 .build();
+
         return rpslObjectStreamer.handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, null);
     }
 
