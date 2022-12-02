@@ -25,18 +25,13 @@ public class DeltaTransformer {
             .filter(change -> dummifierNrtm.isAllowed(NRTM_VERSION, change.getRpslObject()))
             .map(serialRpsl -> {
                 if (serialRpsl.getOperation() == Operation.UPDATE) {
-                    return new DeltaChange(
-                        DeltaChange.Action.ADD_MODIFY,
-                        null,
-                        null,
+                    return DeltaChange.addModify(
                         dummifierNrtm.dummify(NRTM_VERSION, serialRpsl.getRpslObject())
                     );
                 } else {
-                    return new DeltaChange(
-                        DeltaChange.Action.DELETE,
+                    return DeltaChange.delete(
                         serialRpsl.getRpslObject().getType(),
-                        serialRpsl.getRpslObject().getKey().toString(),
-                        null
+                        serialRpsl.getRpslObject().getKey().toString()
                     );
                 }
             }).collect(Collectors.toList());
