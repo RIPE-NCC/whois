@@ -28,7 +28,7 @@ public class NrtmVersionInfoRepository {
             rs.getLong(1),
             NrtmSourceHolder.valueOf(rs.getString(2)),
             rs.getLong(3),
-            UUID.fromString(rs.getString(4)),
+            rs.getString(4),
             NrtmDocumentType.valueOf(rs.getString(5)),
             rs.getInt(6)
         );
@@ -70,7 +70,7 @@ public class NrtmVersionInfoRepository {
     public NrtmVersionInfo createInitialSnapshot(final NrtmSource source, final int lastSerialId) {
         jdbcTemplate.update("INSERT INTO source (name) VALUES (?)", source.name());
         final long version = 1L;
-        final UUID sessionID = UUID.randomUUID();
+        final String sessionID = UUID.randomUUID().toString();
         final NrtmDocumentType type = NrtmDocumentType.SNAPSHOT;
         return save(source, version, sessionID, type, lastSerialId);
     }
@@ -104,7 +104,7 @@ public class NrtmVersionInfoRepository {
     private NrtmVersionInfo save(
         final NrtmSource source,
         final long version,
-        final UUID sessionID,
+        final String sessionID,
         final NrtmDocumentType type,
         final int lastSerialId) {
         final Long sourceID = jdbcTemplate.queryForObject("SELECT id FROM source WHERE name = ?",
@@ -117,7 +117,7 @@ public class NrtmVersionInfoRepository {
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pst.setLong(1, sourceID);
                 pst.setLong(2, version);
-                pst.setString(3, sessionID.toString());
+                pst.setString(3, sessionID);
                 pst.setString(4, type.name());
                 pst.setInt(5, lastSerialId);
                 return pst;

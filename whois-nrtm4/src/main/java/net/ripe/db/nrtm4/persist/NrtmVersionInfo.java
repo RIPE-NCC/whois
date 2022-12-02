@@ -1,14 +1,11 @@
 package net.ripe.db.nrtm4.persist;
 
-import java.util.UUID;
-
-
 public class NrtmVersionInfo {
 
     private final Long id;
     private final NrtmSource source;
     private final Long version;
-    private final UUID sessionID;
+    private final String sessionID;
     private final NrtmDocumentType type;
     private final Integer lastSerialId;
 
@@ -20,7 +17,7 @@ public class NrtmVersionInfo {
         final Long id,
         final NrtmSource source,
         final Long version,
-        final UUID sessionID,
+        final String sessionID,
         final NrtmDocumentType type,
         final Integer lastSerialId
     ) {
@@ -44,7 +41,7 @@ public class NrtmVersionInfo {
         return version;
     }
 
-    public UUID getSessionID() {
+    public String getSessionID() {
         return sessionID;
     }
 
