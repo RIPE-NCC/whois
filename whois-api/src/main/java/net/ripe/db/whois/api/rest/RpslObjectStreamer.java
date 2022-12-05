@@ -94,8 +94,8 @@ public class RpslObjectStreamer {
 
         @Override
         public void write(final OutputStream output) throws IOException, WebApplicationException {
-            final SearchResponseHandler responseHandler = new SearchResponseHandler();
             streamingMarshal = StreamingHelper.getStreamingMarshal(request, output);
+            final SearchResponseHandler responseHandler = new SearchResponseHandler();
             try {
                 final int contextId = System.identityHashCode(Thread.currentThread());
                 queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);

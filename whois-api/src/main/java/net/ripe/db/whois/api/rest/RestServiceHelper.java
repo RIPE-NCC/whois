@@ -133,20 +133,6 @@ public class RestServiceHelper {
         return whoisResources;
     }
 
-    public static String createErrorStringEntity(final HttpServletRequest request, final List<Message> errorMessages
-    ) {
-        return getRequestURL(request).replaceFirst("/whois", "") + "\n" +
-                createErrorStringMessages(errorMessages) + "\n" +
-                TERMS_AND_CONDITIONS;
-    }
-    private static String createErrorStringMessages(final List<Message> messages) {
-        StringBuilder sb = new StringBuilder();
-        for (Message message : messages) {
-            sb.append(message.getType() != null ? "Severity: " + message.getType().toString() + '\n' : null);
-            sb.append("Text: ").append(message.getFormattedText());
-        }
-        return sb.toString();
-    }
     public static List<ErrorMessage> createErrorMessages(final List<Message> messages) {
         final List<ErrorMessage> errorMessages = Lists.newArrayList();
 
@@ -188,16 +174,43 @@ public class RestServiceHelper {
         }
 
         if (!messages.isEmpty()) {
-            if (MediaType.TEXT_PLAIN.equals(request.getHeader(HttpHeaders.ACCEPT))){
-                responseBuilder.entity(createErrorStringEntity(request, messages));
-            } else {
-                responseBuilder.entity(createErrorEntity(request, messages));
-            }
+            responseBuilder.entity(createErrorEntity(request, messages));
         }
 
         return new WebApplicationException(responseBuilder.build());
     }
 
+    public static WhoisResources createErrorObjectEntity(final Message ... messages) {
+        return createErrorWhoisEntity(Arrays.asList(messages));
+    }
+
+    // TODO: [AH] no locator URI for error messages
+    public static WhoisResources createErrorWhoisEntity(final Iterable<Message> messages) {
+        final WhoisResources whoisResources = new WhoisResources();
+
+        final List<ErrorMessage> errorMessages = Lists.newArrayList();
+        for (Message message : messages) {
+            errorMessages.add(new ErrorMessage(message));
+        }
+        whoisResources.setErrorMessages(errorMessages);
+        whoisResources.includeTermsAndConditions();
+        return whoisResources;
+    }
+
+    // TODO: [AH] no locator URI for error messages
+    public static String createErrorStringEntity(final HttpServletRequest request, final List<Message> errorMessages) {
+        return getRequestURL(request).replaceFirst("/whois", "") + "\n" +
+                createErrorStringMessages(errorMessages) + "\n" +
+                TERMS_AND_CONDITIONS;
+    }
+    private static String createErrorStringMessages(final List<Message> messages) {
+        StringBuilder sb = new StringBuilder();
+        for (Message message : messages) {
+            sb.append(message.getType() != null ? "Severity: " + message.getType().toString() + '\n' : null);
+            sb.append("Text: ").append(message.getFormattedText());
+        }
+        return sb.toString();
+    }
     private static boolean skipStackTrace(final Exception exception) {
         return SKIP_STACK_TRACE.contains(exception.getClass());
     }

@@ -751,7 +751,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, containsString(String.format("http://localhost:%s/test/org/MKQ-RIPE", getPort())));
             assertThat(response, containsString("Severity: Error"));
-            assertThat(response, containsString("Text: Invalid object type 'org'"));
+            assertThat(response, containsString("Text: Invalid object type: org"));
             assertThat(response, containsString("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
         }
     }

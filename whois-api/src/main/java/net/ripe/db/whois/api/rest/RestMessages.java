@@ -35,9 +35,6 @@ public class RestMessages {
         return new Message(Messages.Type.ERROR, "Invalid source '%s'", source);
     }
 
-    public static Message invalidObjectType(final CharSequence name) {
-        return new Message(Messages.Type.ERROR, "Invalid object type '%s'", name);
-    }
     public static Message queryStringEmpty() {
         return new Message(Messages.Type.ERROR, "Query param 'query-string' cannot be empty");
     }
