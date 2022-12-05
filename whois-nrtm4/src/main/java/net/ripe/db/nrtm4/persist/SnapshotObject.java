@@ -9,8 +9,8 @@ public class SnapshotObject {
     public SnapshotObject(
         final long id,
         final int serialId,
-        final String payload) {
-
+        final String payload
+    ) {
         this.id = id;
         this.serialId = serialId;
         this.payload = payload;

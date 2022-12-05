@@ -6,31 +6,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.springframework.stereotype.Service;
 
 
-public class PayloadProcessor {
+@Service
+public class JsonSerializer {
 
-    private final String json;
+    private final ObjectMapper objectMapper;
 
-    PayloadProcessor(final Object payload) {
-        final ObjectMapper objectMapper = JsonMapper.builder()
+    JsonSerializer() {
+        objectMapper = JsonMapper.builder()
             .build();
         final SimpleModule module = new SimpleModule("RpslObjectSerializer", new Version(1, 0, 0, null, null, null));
         module.addSerializer(RpslObject.class, new RpslObjectSerializer());
         objectMapper.registerModule(module);
+    }
+
+    public String process(final Object payload) {
         try {
-            this.json = objectMapper.writeValueAsString(payload);
+            return objectMapper.writeValueAsString(payload);
         } catch (final JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public String getJson() {
-        return json;
-    }
-
-    public String getHash() {
-        return "1234567abcdef";
     }
 
 }

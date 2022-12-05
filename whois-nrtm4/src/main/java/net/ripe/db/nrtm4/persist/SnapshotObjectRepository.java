@@ -7,6 +7,9 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.stream.Stream;
@@ -21,7 +24,7 @@ public class SnapshotObjectRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public SnapshotObject save(final int serialId, final String payload) {
+    public SnapshotObject insert(final int serialId, final String payload) {
         final String sql = "" +
             "INSERT INTO snapshot_object (serial_id, payload) " +
             "VALUES (?, ?)";
@@ -51,12 +54,34 @@ public class SnapshotObjectRepository {
             "SELECT payload " +
             "FROM snapshot_object " +
             "ORDER BY serial_id";
+        outputStream.add("[");
         jdbcTemplate.query(sql, rs -> {
             outputStream.add(rs.getString(1));
             if (!rs.isLast()) {
                 outputStream.add(",");
             }
         });
+        outputStream.add("]");
+    }
+
+    public void streamPayloads(final OutputStream outputStream) throws IOException {
+        final String sql = "" +
+            "SELECT payload " +
+            "FROM snapshot_object " +
+            "ORDER BY serial_id";
+
+        outputStream.write('[');
+        jdbcTemplate.query(sql, rs -> {
+            try {
+                outputStream.write(rs.getString(1).getBytes(StandardCharsets.UTF_8));
+                if (!rs.isLast()) {
+                    outputStream.write(',');
+                }
+            } catch (final IOException e) {
+                throw new RuntimeException("streamPayloads threw exception", e);
+            }
+        });
+        outputStream.write(']');
     }
 
 }

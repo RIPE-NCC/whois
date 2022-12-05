@@ -28,6 +28,9 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
     @Autowired
     private NrtmVersionInfoRepository versionDao;
 
+    @Autowired
+    private JsonSerializer jsonSerializer;
+
     @BeforeEach
     public void setUp() {
         truncateTables(databaseHelper.getWhoisTemplate());
@@ -68,8 +71,7 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
             "{\"action\":\"add_modify\",\"object\":\"aut-num:        AS6\\nas-name:        ASNAME\\ndescr:          Description\\norg:            ORG-TEST-RIPE\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nmnt-by:         RIPE-NCC-TEST-MNT\\nmnt-by:         TEST-MNTNR\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n\"}," +
             "{\"action\":\"delete\",\"object_class\":\"AUT_NUM\",\"primary_key\":\"AS6\"}" +
             "]}";
-        final var payloadProcessor = new PayloadProcessor(deltaFile);
-        assertThat(payloadProcessor.getJson().replaceFirst("\"session_id\":\"[^\"]+\"", "\"session_id\":\"\""), is(sampleSm));
+        assertThat(jsonSerializer.process(deltaFile).replaceFirst("\"session_id\":\"[^\"]+\"", "\"session_id\":\"\""), is(sampleSm));
     }
 
 }

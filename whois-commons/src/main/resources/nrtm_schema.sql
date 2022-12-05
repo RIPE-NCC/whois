@@ -40,10 +40,10 @@ DROP TABLE IF EXISTS `published_file`;
 create table `published_file`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
-    `version_id` int unsigned    NOT NULL DEFAULT '0',
-    `name`       varchar(256)    NOT NULL DEFAULT '',
-    `hash`       varchar(128)    NOT NULL DEFAULT '',
-    `created`    bigint unsigned not null default unix_timestamp(),
+    `version_id` int unsigned    NOT NULL,
+    `name`       varchar(256)    NOT NULL,
+    `hash`       varchar(128)    NOT NULL,
+    `created`    bigint unsigned NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `published_file__version_fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
 ) ENGINE = InnoDB
