@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.glassfish.jersey.server.internal.LocalizationMessages;
@@ -15,19 +14,16 @@ import org.springframework.stereotype.Component;
 import org.xml.sax.SAXParseException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.UnmarshalException;
-import java.util.List;
 
+import static net.ripe.db.whois.api.rest.RestServiceHelper.createError;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.createErrorObjectEntity;
-import static net.ripe.db.whois.api.rest.RestServiceHelper.createErrorStringEntity;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.createErrorWhoisEntity;
 
 @Provider
@@ -44,12 +40,9 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(final Exception exception) {
 
-        if (exception instanceof IllegalSourceException) {
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(exception.getMessage())).build();
-        }
-
         if (exception instanceof IllegalArgumentException) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(exception.getMessage())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(createError(request,
+                    new Message(Messages.Type.ERROR, exception.getMessage()))).build();
         }
 
         if (exception instanceof WebApplicationException) {
@@ -59,7 +52,6 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
                             createErrorObjectEntity(RestMessages.xmlProcessingError((SAXParseException)exception.getCause().getCause()))).build();
                 }
             }
-
             return ((WebApplicationException) exception).getResponse();
         }
 
@@ -69,14 +61,14 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         if (exception instanceof EmptyResultDataAccessException) {
-            return Response.status(Response.Status.NOT_FOUND).entity(createErrorEntity(Response.Status.NOT_FOUND.toString())).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(createError(request,
+                    new Message(Messages.Type.ERROR, exception.getMessage()))).build();
         }
 
         if (exception instanceof QueryException) {
             if (((QueryException) exception).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
                 return Response.status(Response.Status.TOO_MANY_REQUESTS).entity(createErrorWhoisEntity(((QueryException) exception).getMessages())).build();
             }
-
             return Response.status(Response.Status.BAD_REQUEST).entity(createErrorWhoisEntity(((QueryException) exception).getMessages())).build();
         }
 
@@ -86,14 +78,7 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
             }
         }
         LOGGER.error("Unexpected", exception);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(createErrorEntity(exception.getMessage())).build();
-    }
-
-    // helper methods
-    public Object createErrorEntity(final String message) {
-        if (headers.getAcceptableMediaTypes().contains(MediaType.TEXT_PLAIN_TYPE)){
-            return createErrorStringEntity(request, List.of(new Message(Messages.Type.ERROR, message)));
-        }
-        return createErrorObjectEntity(new Message(Messages.Type.ERROR, message));
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(createError(request,
+                new Message(Messages.Type.ERROR, exception.getMessage()))).build();
     }
 }

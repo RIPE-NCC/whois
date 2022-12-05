@@ -157,7 +157,7 @@ public class WhoisVersionService {
     private void checkForMainSource(final HttpServletRequest request, final String source) {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSource(source)))
+                    .entity(RestServiceHelper.createError(request, RestMessages.invalidSource(source)))
                     .build());
         }
     }

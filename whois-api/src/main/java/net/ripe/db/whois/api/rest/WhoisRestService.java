@@ -286,7 +286,7 @@ public class WhoisRestService {
 
         if (!isValidSource(source)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSource(source)))
+                    .entity(RestServiceHelper.createError(request, RestMessages.invalidSource(source)))
                     .build());
         }
 
@@ -376,7 +376,7 @@ public class WhoisRestService {
         final int size = (whoisResources == null || CollectionUtils.isEmpty(whoisResources.getWhoisObjects())) ? 0 : whoisResources.getWhoisObjects().size();
         if (size != 1) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.singleObjectExpected(size)))
+                    .entity(RestServiceHelper.createError(request, RestMessages.singleObjectExpected(size)))
                     .build());
         }
 
@@ -386,13 +386,13 @@ public class WhoisRestService {
     private void validateSubmittedUpdateObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
         if (!object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.uriMismatch(objectType, key)))
+                    .entity(RestServiceHelper.createError(request, RestMessages.uriMismatch(objectType, key)))
                     .build());
         }
 
         if (!object.getKey().equals(key)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.pkeyMismatch(key)))
+                    .entity(RestServiceHelper.createError(request, RestMessages.pkeyMismatch(key)))
                     .build());
         }
     }
@@ -400,7 +400,7 @@ public class WhoisRestService {
     private void validateSubmittedCreateObject(final HttpServletRequest request, final RpslObject object, final String objectType) {
         if (!object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.uriMismatch(objectType)))
+                    .entity(RestServiceHelper.createError(request, RestMessages.uriMismatch(objectType)))
                     .build());
         }
     }
@@ -413,7 +413,7 @@ public class WhoisRestService {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
             if(!sourceContext.getNonauthSource().getName().toString().equalsIgnoreCase(source)) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                        .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSource(source)))
+                        .entity(RestServiceHelper.createError(request, RestMessages.invalidSource(source)))
                         .build());
             }
         }

@@ -182,19 +182,19 @@ public class WhoisSearchService {
     private void validateSearchKey(final HttpServletRequest request, final String searchKey) {
         if (StringUtils.isBlank(searchKey)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.queryStringEmpty()))
+                    .entity(RestServiceHelper.createError(request, RestMessages.queryStringEmpty()))
                     .build());
         }
 
         try {
             if (QueryParser.hasFlags(searchKey)) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                        .entity(RestServiceHelper.createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString()))
+                        .entity(RestServiceHelper.createError(request, RestMessages.flagsNotAllowedInQueryString()))
                         .build());
             }
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(RestServiceHelper.createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString()))
+                    .entity(RestServiceHelper.createError(request, RestMessages.flagsNotAllowedInQueryString()))
                     .build());
         }
     }
@@ -203,7 +203,7 @@ public class WhoisSearchService {
         for (final String source : sources) {
             if (!sourceContext.isOutOfRegion(source) && !sourceContext.getAllSourceNames().contains(ciString(source))) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                        .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSource(source)))
+                        .entity(RestServiceHelper.createError(request, RestMessages.invalidSource(source)))
                         .build());
             }
         }
@@ -213,7 +213,7 @@ public class WhoisSearchService {
         for (final QueryFlag flag : flags) {
             if (NOT_ALLOWED_SEARCH_QUERY_FLAGS.contains(flag)) {
                 throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                        .entity(RestServiceHelper.createErrorEntity(request, RestMessages.disallowedSearchFlag(flag)))
+                        .entity(RestServiceHelper.createError(request, RestMessages.disallowedSearchFlag(flag)))
                         .build());
             }
         }
@@ -234,7 +234,7 @@ public class WhoisSearchService {
                         separateFlags.add(forShortFlag);
                     } else {
                         throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                                .entity(RestServiceHelper.createErrorEntity(request, RestMessages.invalidSearchFlag(flagParameter, flagString)))
+                                .entity(RestServiceHelper.createError(request, RestMessages.invalidSearchFlag(flagParameter, flagString)))
                                 .build());
                     }
                 }

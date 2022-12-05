@@ -116,7 +116,7 @@ public class RestServiceHelper {
                 DirtySuppressChangedAttributeMapper.class : RegularSuppressChangedAttributeMapper.class;
     }
 
-    public static Object createErrorEntity(final HttpServletRequest request, final Message... errorMessage) {
+    public static Object createError(final HttpServletRequest request, final Message... errorMessage) {
         if (MediaType.TEXT_PLAIN.equals(request.getHeader(HttpHeaders.ACCEPT))){
             return createErrorStringEntity(request, Arrays.asList(errorMessage));
         } else {
