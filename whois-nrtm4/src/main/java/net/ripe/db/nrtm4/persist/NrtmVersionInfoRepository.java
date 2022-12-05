@@ -2,7 +2,6 @@ package net.ripe.db.nrtm4.persist;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,7 +32,6 @@ public class NrtmVersionInfoRepository {
             rs.getInt(6)
         );
 
-    @Autowired
     public NrtmVersionInfoRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
@@ -48,7 +46,7 @@ public class NrtmVersionInfoRepository {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("" +
                     "SELECT vi.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id " +
-                    "FROM version_information vi JOIN source src ON src.id = vi.source_id " +
+                    "FROM version vi JOIN source src ON src.id = vi.source_id " +
                     "WHERE src.name = ? " +
                     "ORDER BY vi.version DESC LIMIT 1",
                 rowMapper,
@@ -112,7 +110,7 @@ public class NrtmVersionInfoRepository {
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
                 final String sql = "" +
-                    "INSERT INTO version_information (source_id, version, session_id, type, last_serial_id) " +
+                    "INSERT INTO version (source_id, version, session_id, type, last_serial_id) " +
                     "VALUES (?, ?, ?, ?, ?)";
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pst.setLong(1, sourceID);

@@ -13,7 +13,7 @@ import java.sql.Statement;
 
 
 @Repository
-public class DeltaFileModelRepository {
+public class PublishedFileRepository {
 
     private final JdbcTemplate jdbcTemplate;
 //    private final RowMapper<DeltaFileModel> rowMapper = (rs, rowNum) ->
@@ -26,11 +26,11 @@ public class DeltaFileModelRepository {
 //        );
 
     @Autowired
-    public DeltaFileModelRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public PublishedFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public DeltaFileModel save(
+    public PublishedFile save(
         final Long versionId,
         final String name,
         final String hash
@@ -39,7 +39,7 @@ public class DeltaFileModelRepository {
         final long now = System.currentTimeMillis();
         jdbcTemplate.update(connection -> {
                 final String sql = "" +
-                    "INSERT INTO delta_file (version_id, name, hash, created) " +
+                    "INSERT INTO published_file (version_id, name, hash, created) " +
                     "VALUES (?, ?, ?, ?)";
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pst.setLong(1, versionId);
@@ -49,7 +49,7 @@ public class DeltaFileModelRepository {
                 return pst;
             }, keyHolder
         );
-        return new DeltaFileModel(keyHolder.getKeyAs(Long.class), versionId, name, hash, now);
+        return new PublishedFile(keyHolder.getKeyAs(Long.class), versionId, name, hash, now);
     }
 
 }

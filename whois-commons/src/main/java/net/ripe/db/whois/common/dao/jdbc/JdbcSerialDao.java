@@ -52,6 +52,12 @@ public class JdbcSerialDao implements SerialDao {
 
     @Override
     @CheckForNull
+    public List<SerialEntry> getSerialEntriesFromLast() {
+        return JdbcRpslObjectOperations.getSerialEntriesFromLast(jdbcTemplate);
+    }
+
+    @Override
+    @CheckForNull
     public Integer getAgeOfExactOrNextExistingSerial(final int serialId) {
         return JdbcRpslObjectOperations.getAgeOfExactOrNextExistingSerial(dateTimeProvider, jdbcTemplate, serialId);
     }

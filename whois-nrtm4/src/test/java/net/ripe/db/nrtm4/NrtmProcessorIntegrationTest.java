@@ -2,7 +2,6 @@ package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.persist.RpslObjectDao;
 import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.domain.Timestamp;
@@ -22,9 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
 public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
-
-    @Autowired
-    private RpslObjectDao rpslObjectDao;
 
     @Autowired
     private NrtmProcessor nrtmProcessor;

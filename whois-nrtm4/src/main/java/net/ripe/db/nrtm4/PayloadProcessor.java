@@ -29,4 +29,8 @@ public class PayloadProcessor {
         return json;
     }
 
+    public String getHash() {
+        return "1234567abcdef";
+    }
+
 }

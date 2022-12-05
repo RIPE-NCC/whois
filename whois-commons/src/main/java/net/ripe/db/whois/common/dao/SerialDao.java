@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.dao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 
+import javax.annotation.CheckForNull;
 import java.util.List;
 
 
@@ -15,6 +16,9 @@ public interface SerialDao {
     SerialEntry getByIdForNrtm(int serialId);
 
     List<SerialEntry> getSerialEntriesSince(int serialId);
+
+    @CheckForNull
+    List<SerialEntry> getSerialEntriesFromLast();
 
     Integer getAgeOfExactOrNextExistingSerial(int serialId);
 }

@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.persist.DeltaFileModelRepository;
+import net.ripe.db.nrtm4.persist.PublishedFileRepository;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
@@ -16,20 +16,20 @@ import java.util.Optional;
 @Service
 public class NrtmProcessor {
 
-    private final DeltaFileModelRepository deltaFileModelRepository;
+    private final PublishedFileRepository publishedFileRepository;
     private final DeltaTransformer deltaTransformer;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotSynchronizer snapshotSynchronizer;
     private final SerialDao serialDao;
 
     public NrtmProcessor(
-        final DeltaFileModelRepository deltaFileModelRepository,
+        final PublishedFileRepository publishedFileRepository,
         final DeltaTransformer deltaTransformer,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotSynchronizer snapshotSynchronizer,
         final SerialDao serialDao
         ) {
-        this.deltaFileModelRepository = deltaFileModelRepository;
+        this.publishedFileRepository = publishedFileRepository;
         this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotSynchronizer = snapshotSynchronizer;
@@ -39,6 +39,8 @@ public class NrtmProcessor {
     public void initializeSnapshot(final NrtmSource source) {
 
         // Find whois objects which are in the 'last' table
+        final List<SerialEntry> allObjects = serialDao.getSerialEntriesFromLast();
+
 
         // Add them to the snapshot table
 
@@ -67,11 +69,6 @@ public class NrtmProcessor {
         snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
         final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getSerialId();
         final NrtmVersionInfo nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
-        deltaFileModelRepository.save(
-            nextVersion.getId(),
-            "nrtm-delta.1.784a2a65aba22e001fd25a1b9e8544e058fbc703.json", // TODO: generate file name for url
-            "0101011011101100011"
-        );
         final PublishableDeltaFile deltaFile = new PublishableDeltaFile(nextVersion);
         deltaFile.setChanges(deltas);
         return deltaFile;
