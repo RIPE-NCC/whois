@@ -16,6 +16,7 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScr
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 
 @Tag("IntegrationTest")
@@ -38,9 +39,12 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
         final String sessionID;
         {
-            final PublishableSnapshotFile snapshotFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource()).get();
+            final Optional<PublishableSnapshotFile> optFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
+            assertThat(optFile.isPresent(), is(true));
+            final PublishableSnapshotFile snapshotFile = optFile.get();
             assertThat(snapshotFile.getVersion(), is(1L));
             sessionID = snapshotFile.getSessionID();
+            assertThat(sessionID, is(notNullValue()));
             assertThat(snapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
             assertThat(snapshotFile.getNrtmVersion(), is(4));
             assertThat(snapshotFile.getType(), is(SNAPSHOT));

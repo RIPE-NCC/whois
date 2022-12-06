@@ -52,9 +52,11 @@ create table `published_file`
 DROP TABLE IF EXISTS `snapshot_object`;
 create table `snapshot_object`
 (
-    `id`        int unsigned NOT NULL AUTO_INCREMENT,
-    `serial_id` int          NOT NULL,
-    `payload`   longtext     NOT NULL,
+    `id`          int unsigned NOT NULL AUTO_INCREMENT,
+    `serial_id`   int          NOT NULL,
+    `object_type` int          NOT NULL,
+    `pkey`        varchar(256) NOT NULL,
+    `payload`     longtext     NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `snapshot_object__serial_id_uk` (`serial_id`)
 ) ENGINE = InnoDB

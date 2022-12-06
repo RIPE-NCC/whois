@@ -1,6 +1,7 @@
 package net.ripe.db.nrtm4.persist;
 
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -30,8 +31,8 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
 
     @Test
     void should_insert_payloads_and_stream_them() throws IOException {
-        snapshotObjectRepository.insert(1, escapedInetnumString);
-        snapshotObjectRepository.insert(2, escapedOrgString);
+        snapshotObjectRepository.insert(1, ObjectType.INETNUM, "193.0.0.0 - 193.255.255.255", escapedInetnumString);
+        snapshotObjectRepository.insert(2, ObjectType.ORGANISATION, "ORG-XYZ99-RIPE", escapedOrgString);
 
         final var outStream = new ByteArrayOutputStream();
         snapshotObjectRepository.streamSnapshot(outStream);
@@ -41,9 +42,9 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
 
     @Test
     void should_insert_and_delete_payloads_and_stream_them() throws IOException {
-        snapshotObjectRepository.insert(1, escapedInetnumString);
-        snapshotObjectRepository.insert(2, escapedOrgString);
-        snapshotObjectRepository.delete(2);
+        snapshotObjectRepository.insert(1, ObjectType.INETNUM, "193.0.0.0 - 193.255.255.255", escapedInetnumString);
+        snapshotObjectRepository.insert(2, ObjectType.ORGANISATION, "ORG-XYZ99-RIPE", escapedOrgString);
+        snapshotObjectRepository.delete(ObjectType.ORGANISATION, "ORG-XYZ99-RIPE");
         final var outStream = new ByteArrayOutputStream();
         snapshotObjectRepository.streamSnapshot(outStream);
         assertThat(outStream.toString(StandardCharsets.UTF_8), is("[\"inetnum:        193.0.0.0 - 193.255.255.255\\nsource:         TEST\\n\"]"));

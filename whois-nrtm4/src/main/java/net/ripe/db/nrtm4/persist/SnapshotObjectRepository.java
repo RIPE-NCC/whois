@@ -1,5 +1,7 @@
 package net.ripe.db.nrtm4.persist;
 
+import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -23,27 +25,31 @@ public class SnapshotObjectRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public SnapshotObject insert(final int serialId, final String payload) {
+    public SnapshotObject insert(final int serialId, final ObjectType objectType, final String primaryKey, final String payload) {
         final String sql = "" +
-            "INSERT INTO snapshot_object (serial_id, payload) " +
-            "VALUES (?, ?)";
+            "INSERT INTO snapshot_object (serial_id, object_type, pkey, payload) " +
+            "VALUES (?, ?, ?, ?)";
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pst.setInt(1, serialId);
-            pst.setString(2, payload);
+            pst.setInt(2, ObjectTypeIds.getId(objectType));
+            pst.setString(3, primaryKey);
+            pst.setString(4, payload);
             return pst;
         }, keyHolder);
-        return new SnapshotObject(keyHolder.getKeyAs(Long.class), serialId, payload);
+        return new SnapshotObject(keyHolder.getKeyAs(Long.class), serialId, objectType, payload);
     }
 
-    public void delete(final int serialId) {
+    public void delete(final ObjectType objectType, final String primaryKey) {
         final String sql = "" +
             "DELETE FROM snapshot_object " +
-            "WHERE serial_id = ?";
+            "WHERE object_type = ? " +
+            "  AND pkey = ?";
         jdbcTemplate.update(connection -> {
             final PreparedStatement pst = connection.prepareStatement(sql);
-            pst.setInt(1, serialId);
+            pst.setInt(1, ObjectTypeIds.getId(objectType));
+            pst.setString(2, primaryKey);
             return pst;
         });
     }
