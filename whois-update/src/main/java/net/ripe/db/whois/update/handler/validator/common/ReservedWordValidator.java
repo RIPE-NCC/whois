@@ -29,7 +29,7 @@ import java.util.Set;
  *       following words are reserved by RPSL, and they can not be used as
  *       names:
  *
- *           any as-any rs-any peerAS
+ *           any as-any rs-any peeras
  *           and or not
  *           atomic from to at action accept announce except refine
  *           networks into inbound outbound

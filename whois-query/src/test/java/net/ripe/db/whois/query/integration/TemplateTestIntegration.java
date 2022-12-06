@@ -292,7 +292,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     letter or a digit.  The following words are reserved by\n" +
                 "     RPSL, and they can not be used as names:\n" +
                 "     \n" +
-                "      any as-any rs-any peerAS and or not atomic from to at\n" +
+                "      any as-any rs-any peeras and or not atomic from to at\n" +
                 "      action accept announce except refine networks into inbound\n" +
                 "      outbound\n" +
                 "     \n" +
@@ -320,7 +320,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     letter or a digit.  The following words are reserved by\n" +
                 "     RPSL, and they can not be used as names:\n" +
                 "     \n" +
-                "      any as-any rs-any peerAS and or not atomic from to at\n" +
+                "      any as-any rs-any peeras and or not atomic from to at\n" +
                 "      action accept announce except refine networks into inbound\n" +
                 "      outbound\n" +
                 "     \n" +
@@ -346,7 +346,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     letter or a digit.  The following words are reserved by\n" +
                 "     RPSL, and they can not be used as names:\n" +
                 "     \n" +
-                "      any as-any rs-any peerAS and or not atomic from to at\n" +
+                "      any as-any rs-any peeras and or not atomic from to at\n" +
                 "      action accept announce except refine networks into inbound\n" +
                 "      outbound\n" +
                 "     \n" +
@@ -464,7 +464,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     letter or a digit.  The following words are reserved by\n" +
                 "     RPSL, and they can not be used as names:\n" +
                 "     \n" +
-                "      any as-any rs-any peerAS and or not atomic from to at\n" +
+                "      any as-any rs-any peeras and or not atomic from to at\n" +
                 "      action accept announce except refine networks into inbound\n" +
                 "      outbound\n" +
                 "     \n" +
@@ -685,7 +685,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     letter or a digit.  The following words are reserved by\n" +
                 "     RPSL, and they can not be used as names:\n" +
                 "     \n" +
-                "      any as-any rs-any peerAS and or not atomic from to at\n" +
+                "      any as-any rs-any peeras and or not atomic from to at\n" +
                 "      action accept announce except refine networks into inbound\n" +
                 "      outbound\n" +
                 "     \n" +
