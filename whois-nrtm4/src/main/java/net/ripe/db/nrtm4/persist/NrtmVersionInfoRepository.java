@@ -45,10 +45,10 @@ public class NrtmVersionInfoRepository {
     public Optional<NrtmVersionInfo> findLastVersion(final NrtmSource source) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("" +
-                    "SELECT vi.id, src.name, vi.version, vi.session_id, vi.type, vi.last_serial_id " +
-                    "FROM version vi JOIN source src ON src.id = vi.source_id " +
+                    "SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id " +
+                    "FROM version v JOIN source src ON src.id = v.source_id " +
                     "WHERE src.name = ? " +
-                    "ORDER BY vi.version DESC LIMIT 1",
+                    "ORDER BY v.version DESC LIMIT 1",
                 rowMapper,
                 source.name())
             );

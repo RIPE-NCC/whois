@@ -51,7 +51,7 @@ public class DeltaTransformerTest {
         assertThat(change.getAction(), is(DeltaChange.Action.DELETE));
     }
 
-    private byte[] inetnumObjectBytes = "inetnum: 193.0.0.0 - 193.255.255.255\nsource: TEST".getBytes(StandardCharsets.ISO_8859_1);
+    private final byte[] inetnumObjectBytes = "inetnum: 193.0.0.0 - 193.255.255.255\nsource: TEST".getBytes(StandardCharsets.ISO_8859_1);
 
     private final Dummifier dummifier = new Dummifier() {
 

@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.util.Optional;
+
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -33,11 +35,12 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
 
     @BeforeEach
     public void setUp() {
+        truncateTables(databaseHelper.getNrtmTemplate());
         truncateTables(databaseHelper.getWhoisTemplate());
     }
 
-    private void loadSerials(final String sampleFile) {
-        loadScripts(whoisTemplate, sampleFile);
+    private void loadSerials() {
+        loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
         whoisTemplate.update("UPDATE last SET timestamp = ?", Timestamp.from(testDateTimeProvider.getCurrentDateTime()).getValue());
         whoisTemplate.update("UPDATE history SET timestamp = ?", Timestamp.from(testDateTimeProvider.getCurrentDateTime()).getValue());
     }
@@ -48,18 +51,22 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
 
     @Test
     public void test_delta_file_cannot_be_generated() {
-        loadSerials("nrtm_sample_sm.sql");
         assertThrows(IllegalStateException.class, () ->
             nrtmProcessor.processDeltas(NrtmSourceHolder.valueOf("TEST"))
         );
+        insertSnapshot();
+        final var deltas = nrtmProcessor.processDeltas(NrtmSourceHolder.valueOf("TEST"));
+        assertThat(deltas.isEmpty(), is(true));
     }
 
     @Test
     public void test_delta_file_generation() {
 
         insertSnapshot();
-        loadSerials("nrtm_sample_sm.sql");
-        final PublishableDeltaFile deltaFile = nrtmProcessor.processDeltas(NrtmSourceHolder.valueOf("TEST"));
+        loadSerials();
+        final Optional<PublishableDeltaFile> optDeltaFile = nrtmProcessor.processDeltas(NrtmSourceHolder.valueOf("TEST"));
+        assertThat(optDeltaFile.isPresent(), is(true));
+        final PublishableDeltaFile deltaFile = optDeltaFile.get();
         final String sampleSm = "{\"nrtm_version\":4," +
             "\"type\":\"delta\"," +
             "\"source\":\"TEST\"," +

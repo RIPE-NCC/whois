@@ -12,7 +12,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.stream.Stream;
 
 
 @Repository
@@ -49,21 +48,6 @@ public class SnapshotObjectRepository {
         });
     }
 
-    public void streamSnapshot(final Stream.Builder<String> outputStream) {
-        final String sql = "" +
-            "SELECT payload " +
-            "FROM snapshot_object " +
-            "ORDER BY serial_id";
-        outputStream.add("[");
-        jdbcTemplate.query(sql, rs -> {
-            outputStream.add(rs.getString(1));
-            if (!rs.isLast()) {
-                outputStream.add(",");
-            }
-        });
-        outputStream.add("]");
-    }
-
     public void streamSnapshot(final OutputStream outputStream) throws IOException {
         final String sql = "" +
             "SELECT payload " +
@@ -73,9 +57,7 @@ public class SnapshotObjectRepository {
         outputStream.write('[');
         jdbcTemplate.query(sql, rs -> {
             try {
-                outputStream.write('{');
                 outputStream.write(rs.getString(1).getBytes(StandardCharsets.UTF_8));
-                outputStream.write('}');
                 if (!rs.isLast()) {
                     outputStream.write(',');
                 }
