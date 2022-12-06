@@ -31,8 +31,7 @@ public class PublishedFileRepository {
     }
 
     public PublishedFile save(
-        final Long versionId,
-        final NrtmDocumentType type,
+        final long versionId,
         final String name,
         final String hash
     ) {
@@ -40,18 +39,17 @@ public class PublishedFileRepository {
         final long now = System.currentTimeMillis();
         jdbcTemplate.update(connection -> {
                 final String sql = "" +
-                    "INSERT INTO published_file (version_id, type, name, hash, created) " +
-                    "VALUES (?, ?, ?, ?, ?)";
+                    "INSERT INTO published_file (version_id, name, hash, created) " +
+                    "VALUES (?, ?, ?, ?)";
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pst.setLong(1, versionId);
-                pst.setString(2, type.name());
-                pst.setString(4, name);
-                pst.setString(5, hash);
-                pst.setLong(5, now);
+                pst.setString(2, name);
+                pst.setString(3, hash);
+                pst.setLong(4, now);
                 return pst;
             }, keyHolder
         );
-        return new PublishedFile(keyHolder.getKeyAs(Long.class), versionId, type, name, hash, now);
+        return new PublishedFile(keyHolder.getKeyAs(Long.class), versionId, name, hash, now);
     }
 
 }

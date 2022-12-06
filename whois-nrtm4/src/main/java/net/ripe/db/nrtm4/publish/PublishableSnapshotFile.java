@@ -1,14 +1,15 @@
 package net.ripe.db.nrtm4.publish;
 
-import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
-
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 
 public class PublishableSnapshotFile extends PublishableNrtmDocument {
 
-    private String objects;
+    @JsonIgnore
+    private String fileName;
+    @JsonIgnore
+    private String sha256hex;
 
     public PublishableSnapshotFile(
         final NrtmVersionInfo version
@@ -16,13 +17,20 @@ public class PublishableSnapshotFile extends PublishableNrtmDocument {
         super(version);
     }
 
-    @JsonRawValue
-    public String getObjects() {
-        return isEmpty(objects) ? "[]" : objects;
+    public void setFileName(final String fileName) {
+        this.fileName = fileName;
     }
 
-    public void setObjectsString(final String objectStr) {
-        objects = objectStr;
+    public void setHash(final String sha256hex) {
+        this.sha256hex = sha256hex;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getSha256hex() {
+        return sha256hex;
     }
 
 }

@@ -12,7 +12,7 @@ import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 public abstract class PublishableNrtmDocument {
 
     @JsonIgnore
-    private final Long id;
+    private final Long versionId;
     @JsonProperty("nrtm_version")
     private final int nrtmVersion = NRTM_VERSION;
     private final NrtmDocumentType type;
@@ -24,15 +24,15 @@ public abstract class PublishableNrtmDocument {
     PublishableNrtmDocument(
         final NrtmVersionInfo version
     ) {
-        this.id = version.getId();
+        this.versionId = version.getId();
         this.type = version.getType();
         this.source = version.getSource();
         this.sessionID = version.getSessionID();
         this.version = version.getVersion();
     }
 
-    public Long getId() {
-        return id;
+    public Long getVersionId() {
+        return versionId;
     }
 
     public int getNrtmVersion() {

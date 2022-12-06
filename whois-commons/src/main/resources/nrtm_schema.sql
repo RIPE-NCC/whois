@@ -42,7 +42,7 @@ create table `published_file`
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
     `version_id` int unsigned    NOT NULL,
     `name`       varchar(256)    NOT NULL,
-    `hash`       varchar(128)    NOT NULL,
+    `hash`       varchar(256)    NOT NULL,
     `created`    bigint unsigned NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `published_file__version_fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)

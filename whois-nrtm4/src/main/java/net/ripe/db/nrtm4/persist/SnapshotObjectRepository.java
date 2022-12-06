@@ -49,7 +49,7 @@ public class SnapshotObjectRepository {
         });
     }
 
-    public void streamPayloads(final Stream.Builder<String> outputStream) {
+    public void streamSnapshot(final Stream.Builder<String> outputStream) {
         final String sql = "" +
             "SELECT payload " +
             "FROM snapshot_object " +
@@ -64,7 +64,7 @@ public class SnapshotObjectRepository {
         outputStream.add("]");
     }
 
-    public void streamPayloads(final OutputStream outputStream) throws IOException {
+    public void streamSnapshot(final OutputStream outputStream) throws IOException {
         final String sql = "" +
             "SELECT payload " +
             "FROM snapshot_object " +
@@ -73,7 +73,9 @@ public class SnapshotObjectRepository {
         outputStream.write('[');
         jdbcTemplate.query(sql, rs -> {
             try {
+                outputStream.write('{');
                 outputStream.write(rs.getString(1).getBytes(StandardCharsets.UTF_8));
+                outputStream.write('}');
                 if (!rs.isLast()) {
                     outputStream.write(',');
                 }

@@ -512,7 +512,8 @@ public class JdbcRpslObjectOperations {
             "       last.pkey " +
             "FROM   serials " +
             "       JOIN last " +
-            "              ON last.object_id = serials.object_id ", (rs, rowNum) -> new SerialEntry(
+            "              ON last.object_id = serials.object_id " +
+            "WHERE serials.atlast = 1", (rs, rowNum) -> new SerialEntry(
             rs.getInt(1),
             Operation.getByCode(rs.getInt(2)),
             rs.getBoolean(3),

@@ -29,5 +29,4 @@ public class JsonSerializer {
             throw new RuntimeException(e);
         }
     }
-
 }
