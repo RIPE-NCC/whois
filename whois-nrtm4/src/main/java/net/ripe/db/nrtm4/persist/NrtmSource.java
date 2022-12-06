@@ -1,5 +1,8 @@
 package net.ripe.db.nrtm4.persist;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
+
 public class NrtmSource {
 
     private final String value;
@@ -8,7 +11,9 @@ public class NrtmSource {
         this.value = value;
     }
 
+    @JsonValue
     public String name() {
         return value;
     }
+
 }
