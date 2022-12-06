@@ -37,15 +37,17 @@ public class SnapshotInitializer {
             throw new IllegalStateException("generateSnapshot() failed because there are no objects in whois");
         }
         final int lastSerial = objects.get(objects.size() - 1).getSerialId();
+        final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialSnapshot(source, lastSerial);
         for (final SerialEntry obj : objects) {
             snapshotObjectRepository.insert(
+                version.getId(),
                 obj.getSerialId(),
                 obj.getRpslObject().getType(),
                 obj.getPrimaryKey(),
                 jsonSerializer.process(obj.getRpslObject())
             );
         }
-        return nrtmVersionInfoRepository.createInitialSnapshot(source, lastSerial);
+        return version;
     }
 
 }

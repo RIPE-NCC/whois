@@ -53,12 +53,14 @@ DROP TABLE IF EXISTS `snapshot_object`;
 create table `snapshot_object`
 (
     `id`          int unsigned NOT NULL AUTO_INCREMENT,
+    `version_id`  int unsigned NOT NULL,
     `serial_id`   int          NOT NULL,
     `object_type` int          NOT NULL,
     `pkey`        varchar(256) NOT NULL,
     `payload`     longtext     NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `snapshot_object__serial_id_uk` (`serial_id`)
+    UNIQUE KEY `snapshot_object__serial_id_uk` (`serial_id`),
+    CONSTRAINT `snapshot_object__version_fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 

@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -23,39 +24,47 @@ public class DeltaChange {
         }
     }
 
+    @JsonIgnore
+    private final int serialId; // Only set if action is ADD_MODIFY
     private final Action action;
     @JsonProperty("object_class")
-    private final ObjectType objectClass;
+    private final ObjectType objectType;
     @JsonProperty("primary_key")
     private final String primaryKey;
     private final RpslObject object;
 
     private DeltaChange(
+        final int serialId,
         final Action action,
-        final ObjectType objectClass,
+        final ObjectType objectType,
         final String primaryKey,
         final RpslObject rpslObject
     ) {
+        this.serialId = serialId;
         this.action = action;
-        this.objectClass = objectClass;
+        this.objectType = objectType;
         this.primaryKey = primaryKey;
         this.object = rpslObject;
     }
 
-    public static DeltaChange addModify(final RpslObject rpslObject) {
-        return new DeltaChange(Action.ADD_MODIFY, null, null, rpslObject);
+    public static DeltaChange addModify(final int serialId, final RpslObject rpslObject) {
+        return new DeltaChange(serialId, Action.ADD_MODIFY, null, null, rpslObject);
     }
 
     public static DeltaChange delete(final ObjectType objectClass, final String primaryKey) {
-        return new DeltaChange(Action.DELETE, objectClass, primaryKey, null);
+        return new DeltaChange(0, Action.DELETE, objectClass, primaryKey, null);
+    }
+
+    public int getSerialId() {
+        return serialId;
     }
 
     public Action getAction() {
         return action;
     }
 
-    public ObjectType getObjectClass() {
-        return objectClass;
+    public ObjectType getObjectType() {
+        return objectType;
     }
 
     public String getPrimaryKey() {

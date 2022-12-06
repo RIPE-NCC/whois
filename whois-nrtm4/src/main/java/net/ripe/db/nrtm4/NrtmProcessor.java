@@ -66,11 +66,11 @@ public class NrtmProcessor {
             return Optional.empty();
         }
         final List<DeltaChange> deltas = deltaTransformer.process(whoisChanges);
-        snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas);
         final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getSerialId();
         final NrtmVersionInfo nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
         final PublishableDeltaFile deltaFile = new PublishableDeltaFile(nextVersion);
         deltaFile.setChanges(deltas);
+        snapshotSynchronizer.synchronizeDeltasToSnapshot(deltaFile);
         return Optional.of(deltaFile);
     }
 

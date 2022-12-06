@@ -1,18 +1,38 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.persist.SnapshotObjectRepository;
+import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 
 @Service
 public class SnapshotSynchronizer {
-    SnapshotSynchronizer() {}
-    void synchronizeDeltasToSnapshot(final List<DeltaChange> changes) {
-        // TODO: apply changes to the snapshot
-        // if 'operation' is '1' (add) then add to snapshot table
-        // if 'operation' is '2' (del) then remove from snapshot table
 
+    private final SnapshotObjectRepository snapshotObjectRepository;
+    private final JsonSerializer serializer;
+
+    SnapshotSynchronizer(
+        final SnapshotObjectRepository snapshotObjectRepository,
+        final JsonSerializer serializer
+    ) {
+        this.snapshotObjectRepository = snapshotObjectRepository;
+        this.serializer = serializer;
+    }
+
+    void synchronizeDeltasToSnapshot(final PublishableDeltaFile deltaFile) {
+        for (final DeltaChange change : deltaFile.getChanges()) {
+            if (change.getAction() == DeltaChange.Action.ADD_MODIFY) {
+                snapshotObjectRepository.insert(
+                    deltaFile.getVersionId(),
+                    change.getSerialId(),
+                    change.getObject().getType(),
+                    change.getObject().getKey().toString(),
+                    serializer.process(change.getObject())
+                );
+            } else if (change.getAction() == DeltaChange.Action.DELETE) {
+                snapshotObjectRepository.delete(change.getObjectType(), change.getPrimaryKey());
+            }
+        }
     }
 
 }

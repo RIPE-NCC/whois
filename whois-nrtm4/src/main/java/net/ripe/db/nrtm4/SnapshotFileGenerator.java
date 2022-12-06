@@ -7,7 +7,7 @@ import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.persist.PublishedFileRepository;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
-import net.ripe.db.nrtm4.publish.SnapshotFileGenerator;
+import net.ripe.db.nrtm4.publish.SnapshotFileStreamer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,24 +20,24 @@ import java.util.Optional;
 
 
 @Service
-public class NotificationFileGenerationService {
+public class SnapshotFileGenerator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationFileGenerationService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
 
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotInitializer snapshotInitializer;
-    private final SnapshotFileGenerator snapshotFileGenerator;
+    private final SnapshotFileStreamer snapshotFileStreamer;
     private final PublishedFileRepository publishedFileRepository;
 
-    public NotificationFileGenerationService(
+    public SnapshotFileGenerator(
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotInitializer snapshotInitializer,
-        final SnapshotFileGenerator snapshotFileGenerator,
+        final SnapshotFileStreamer snapshotFileStreamer,
         final PublishedFileRepository publishedFileRepository
     ) {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotInitializer = snapshotInitializer;
-        this.snapshotFileGenerator = snapshotFileGenerator;
+        this.snapshotFileStreamer = snapshotFileStreamer;
         this.publishedFileRepository = publishedFileRepository;
     }
 
@@ -61,9 +61,9 @@ public class NotificationFileGenerationService {
             }
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
-        final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
         try {
-            snapshotFileGenerator.processSnapshot(snapshotFile, bos);
+            snapshotFileStreamer.processSnapshot(snapshotFile, bos);
             System.out.println(bos.toString(StandardCharsets.UTF_8));
             // todo: calculate random for url
             final String sha256hex = Hashing.sha256()

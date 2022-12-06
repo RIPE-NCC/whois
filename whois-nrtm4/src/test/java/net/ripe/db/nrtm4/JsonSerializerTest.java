@@ -30,7 +30,7 @@ public class JsonSerializerTest {
     @Test
     void payload_processor_can_serialize_delta() {
         final var payloads = new DeltaChange[] {
-            DeltaChange.addModify(RpslObject.parse(inetnumObjectBytes))
+            DeltaChange.addModify(1, RpslObject.parse(inetnumObjectBytes))
         };
         final var payloadProcessor = new JsonSerializer();
         assertThat(payloadProcessor.process(payloads), is("[{\"action\":\"add_modify\",\"object\":\"inetnum:        193.0.0.0 - 193.255.255.255\\nsource:         TEST\\n\"}]"));
@@ -39,7 +39,7 @@ public class JsonSerializerTest {
     @Test
     void payload_processor_can_serialize_delta_with_extended_latin1() {
         final var payloads = new DeltaChange[] {
-            DeltaChange.addModify(RpslObject.parse(orgObjectBytes))
+            DeltaChange.addModify(1, RpslObject.parse(orgObjectBytes))
         };
         final var payloadProcessor = new JsonSerializer();
         assertThat(payloadProcessor.process(payloads), is("[{\"action\":\"add_modify\",\"object\":\"organisation:   ORG-XYZ99-RIPE\\norg-name:       XYZ B.V.\\norg-type:       OTHER\\naddress:        XYZ B.V.\\naddress:        ÅçÅçstraße 999\\naddress:        Zürich\\naddress:        NETHERLANDS\\nphone:          +31709876543\\nfax-no:         +31703456789\\nmnt-by:         XYZ-MNT\\nmnt-ref:        PQR-MNT\\nabuse-c:        XYZ-RIPE\\ncreated:        2018-01-01T00:00:00Z\\nlast-modified:  2019-12-24T00:00:00Z\\nsource:         TEST\\n\"}]"));

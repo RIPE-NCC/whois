@@ -11,27 +11,27 @@ import java.io.OutputStream;
 
 
 @Service
-public class SnapshotFileGenerator {
+public class SnapshotFileStreamer {
 
     private final SnapshotObjectRepository snapshotObjectRepository;
 
-    SnapshotFileGenerator(
+    SnapshotFileStreamer(
         final SnapshotObjectRepository snapshotObjectRepository
     ) {
         this.snapshotObjectRepository = snapshotObjectRepository;
     }
 
     public void processSnapshot(
-        final PublishableSnapshotFile publishableSnapshotFile,
+        final PublishableSnapshotFile snapshotFile,
         final OutputStream outputStream
     ) throws IOException {
         final JsonFactory jfactory = new JsonFactory();
         final JsonGenerator jGenerator = jfactory.createGenerator(outputStream, JsonEncoding.UTF8);
         jGenerator.writeStartObject();
-        jGenerator.writeNumberField("nrtm_version", publishableSnapshotFile.getNrtmVersion());
-        jGenerator.writeStringField("type", publishableSnapshotFile.getType().toString());
-        jGenerator.writeStringField("source", publishableSnapshotFile.getSource().toString());
-        jGenerator.writeNumberField("version", publishableSnapshotFile.getVersion());
+        jGenerator.writeNumberField("nrtm_version", snapshotFile.getNrtmVersion());
+        jGenerator.writeStringField("type", snapshotFile.getType().toString());
+        jGenerator.writeStringField("source", snapshotFile.getSource().toString());
+        jGenerator.writeNumberField("version", snapshotFile.getVersion());
         jGenerator.writeArrayFieldStart("objects");
         snapshotObjectRepository.streamSnapshot(outputStream);
         jGenerator.writeEndArray();

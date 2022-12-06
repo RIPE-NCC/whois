@@ -21,10 +21,10 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
-public class NotificationFileGenerationServiceIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
+public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
 
     @Autowired
-    private NotificationFileGenerationService notificationFileGenerationService;
+    private SnapshotFileGenerator snapshotFileGenerator;
 
     @Autowired
     private NrtmSourceHolder nrtmSourceHolder;
@@ -39,7 +39,7 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
         final String sessionID;
         {
-            final Optional<PublishableSnapshotFile> optFile = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
+            final Optional<PublishableSnapshotFile> optFile = snapshotFileGenerator.generateSnapshot(nrtmSourceHolder.getSource());
             assertThat(optFile.isPresent(), is(true));
             final PublishableSnapshotFile snapshotFile = optFile.get();
             assertThat(snapshotFile.getVersion(), is(1L));
@@ -50,8 +50,8 @@ public class NotificationFileGenerationServiceIntegrationTest extends AbstractDa
             assertThat(snapshotFile.getType(), is(SNAPSHOT));
         }
         {
-            // don't increment snapshot version
-            final Optional<PublishableSnapshotFile> snapshotFileOptional = notificationFileGenerationService.generateSnapshot(nrtmSourceHolder.getSource());
+            // don't generate snapshot version if nothing changed
+            final Optional<PublishableSnapshotFile> snapshotFileOptional = snapshotFileGenerator.generateSnapshot(nrtmSourceHolder.getSource());
             assertThat(snapshotFileOptional.isPresent(), is(false));
         }
     }

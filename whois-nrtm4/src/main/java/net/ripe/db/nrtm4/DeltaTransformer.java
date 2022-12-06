@@ -26,6 +26,7 @@ public class DeltaTransformer {
             .map(serialRpsl -> {
                 if (serialRpsl.getOperation() == Operation.UPDATE) {
                     return DeltaChange.addModify(
+                        serialRpsl.getSerialId(),
                         dummifierNrtm.dummify(NRTM_VERSION, serialRpsl.getRpslObject())
                     );
                 } else {

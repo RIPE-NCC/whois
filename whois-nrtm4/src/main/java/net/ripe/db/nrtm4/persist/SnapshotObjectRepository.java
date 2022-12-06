@@ -25,17 +25,24 @@ public class SnapshotObjectRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public SnapshotObject insert(final int serialId, final ObjectType objectType, final String primaryKey, final String payload) {
+    public SnapshotObject insert(
+        final long versionId,
+        final int serialId,
+        final ObjectType objectType,
+        final String primaryKey,
+        final String payload
+    ) {
         final String sql = "" +
-            "INSERT INTO snapshot_object (serial_id, object_type, pkey, payload) " +
-            "VALUES (?, ?, ?, ?)";
+            "INSERT INTO snapshot_object (version_id, serial_id, object_type, pkey, payload) " +
+            "VALUES (?, ?, ?, ?, ?)";
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            pst.setInt(1, serialId);
-            pst.setInt(2, ObjectTypeIds.getId(objectType));
-            pst.setString(3, primaryKey);
-            pst.setString(4, payload);
+            pst.setLong(1, versionId);
+            pst.setInt(2, serialId);
+            pst.setInt(3, ObjectTypeIds.getId(objectType));
+            pst.setString(4, primaryKey);
+            pst.setString(5, payload);
             return pst;
         }, keyHolder);
         return new SnapshotObject(keyHolder.getKeyAs(Long.class), serialId, objectType, payload);

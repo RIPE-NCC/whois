@@ -24,6 +24,12 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
     @Autowired
     private SnapshotObjectRepository snapshotObjectRepository;
 
+    @Autowired
+    private NrtmVersionInfoRepository nrtmVersionInfoRepository;
+
+    @Autowired
+    private NrtmSourceHolder source;
+
     @BeforeEach
     public void setUp() {
         truncateTables(databaseHelper.getNrtmTemplate());
@@ -31,9 +37,9 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
 
     @Test
     void should_insert_payloads_and_stream_them() throws IOException {
-        snapshotObjectRepository.insert(1, ObjectType.INETNUM, "193.0.0.0 - 193.255.255.255", escapedInetnumString);
-        snapshotObjectRepository.insert(2, ObjectType.ORGANISATION, "ORG-XYZ99-RIPE", escapedOrgString);
-
+        final var version = nrtmVersionInfoRepository.createInitialSnapshot(source.getSource(), 0);
+        snapshotObjectRepository.insert(version.getId(), 1, ObjectType.INETNUM, "193.0.0.0 - 193.255.255.255", escapedInetnumString);
+        snapshotObjectRepository.insert(version.getId(), 2, ObjectType.ORGANISATION, "ORG-XYZ99-RIPE", escapedOrgString);
         final var outStream = new ByteArrayOutputStream();
         snapshotObjectRepository.streamSnapshot(outStream);
         assertThat(outStream.toString(StandardCharsets.UTF_8), is("[\"inetnum:        193.0.0.0 - 193.255.255.255\\nsource:         TEST\\n\"," +
@@ -42,8 +48,9 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
 
     @Test
     void should_insert_and_delete_payloads_and_stream_them() throws IOException {
-        snapshotObjectRepository.insert(1, ObjectType.INETNUM, "193.0.0.0 - 193.255.255.255", escapedInetnumString);
-        snapshotObjectRepository.insert(2, ObjectType.ORGANISATION, "ORG-XYZ99-RIPE", escapedOrgString);
+        final var version = nrtmVersionInfoRepository.createInitialSnapshot(source.getSource(), 0);
+        snapshotObjectRepository.insert(version.getId(), 1, ObjectType.INETNUM, "193.0.0.0 - 193.255.255.255", escapedInetnumString);
+        snapshotObjectRepository.insert(version.getId(), 2, ObjectType.ORGANISATION, "ORG-XYZ99-RIPE", escapedOrgString);
         snapshotObjectRepository.delete(ObjectType.ORGANISATION, "ORG-XYZ99-RIPE");
         final var outStream = new ByteArrayOutputStream();
         snapshotObjectRepository.streamSnapshot(outStream);
