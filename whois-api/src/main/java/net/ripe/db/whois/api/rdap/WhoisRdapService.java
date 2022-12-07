@@ -222,12 +222,12 @@ public class WhoisRdapService {
 
     protected Response lookupForDomain(final HttpServletRequest request, final String key) {
         final Domain domain = Domain.parse(key);
-        final Iterable<RpslObject> domainResult =
+        final Stream<RpslObject> domainResult =
                 rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(ObjectType.DOMAIN),
-                        key), request).collect(Collectors.toList());
-        final Iterable<RpslObject> inetnumResult =
+                        key), request);
+        final Stream<RpslObject> inetnumResult =
                 rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM),
-                        domain.getReverseIp().toString()), request).collect(Collectors.toList());
+                        domain.getReverseIp().toString()), request);
         return getDomainResponse(request, domainResult, inetnumResult);
     }
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
@@ -302,8 +302,8 @@ public class WhoisRdapService {
                 .build();
     }
 
-    private Response getDomainResponse(HttpServletRequest request, Iterable<RpslObject> domainResult,
-                                       Iterable<RpslObject> inetnumResult) {
+    private Response getDomainResponse(HttpServletRequest request, Stream<RpslObject> domainResult,
+                                       Stream<RpslObject> inetnumResult) {
         final Iterator<RpslObject> domainIterator = domainResult.iterator();
         final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
         if (!domainIterator.hasNext()) {

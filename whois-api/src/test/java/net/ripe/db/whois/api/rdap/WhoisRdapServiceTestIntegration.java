@@ -47,7 +47,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -913,7 +912,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
         final List<Link> links = domain.getLinks();
-        assertThat(links.size(), is(1));
+        assertThat(links, hasSize(1));
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
@@ -964,7 +963,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(domain.getNetwork().getHandle(), is("80.179.52.0 - 80.179.55.255"));
 
         final List<Link> links = domain.getLinks();
-        assertThat(links.size(), is(1));
+        assertThat(links, hasSize(1));
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
@@ -1015,7 +1014,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(domain.getNetwork().getHandle(), is("2a00:2cce::/32"));
 
         final List<Link> links = domain.getLinks();
-        assertThat(links.size(), is(1));
+        assertThat(links, hasSize(1));
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
@@ -1062,10 +1061,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(domain.getHandle(), equalTo("52.179.80.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("52.179.80.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
-        assertNull(domain.getNetwork());
+        assertThat(domain.getNetwork(), is(nullValue()));
 
         final List<Link> links = domain.getLinks();
-        assertThat(links.size(), is(1));
+        assertThat(links, hasSize(1));
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
@@ -1082,7 +1081,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(domain.getNetwork().getHandle(), is("0.0.0.0 - 255.255.255.255"));
 
         final List<Link> links = domain.getLinks();
-        assertThat(links.size(), is(1));
+        assertThat(links, hasSize(1));
         assertThat(links.get(0).getRel(), is("copyright"));
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
@@ -1106,9 +1105,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
-        } catch (NotFoundException e) {
-            assertErrorStatus(e, 404);
-            assertErrorTitle(e, "404 Not Found");
+        } catch (BadRequestException e) {
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Not Found");
             assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
         }
     }
