@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
-public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
+public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
 
     @Autowired
-    private NrtmProcessor nrtmProcessor;
+    private DeltaFileGenerator deltaFileGenerator;
 
     @Autowired
     private NrtmVersionInfoRepository versionDao;
@@ -52,10 +52,10 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
     @Test
     public void test_delta_file_cannot_be_generated() {
         assertThrows(IllegalStateException.class, () ->
-            nrtmProcessor.processDeltas(NrtmSourceHolder.valueOf("TEST"))
+            deltaFileGenerator.processDeltas(NrtmSourceHolder.valueOf("TEST"))
         );
         insertSnapshot();
-        final var deltas = nrtmProcessor.processDeltas(NrtmSourceHolder.valueOf("TEST"));
+        final var deltas = deltaFileGenerator.processDeltas(NrtmSourceHolder.valueOf("TEST"));
         assertThat(deltas.isEmpty(), is(true));
     }
 
@@ -64,7 +64,7 @@ public class NrtmProcessorIntegrationTest extends AbstractDatabaseHelperIntegrat
 
         insertSnapshot();
         loadSerials();
-        final Optional<PublishableDeltaFile> optDeltaFile = nrtmProcessor.processDeltas(NrtmSourceHolder.valueOf("TEST"));
+        final Optional<PublishableDeltaFile> optDeltaFile = deltaFileGenerator.processDeltas(NrtmSourceHolder.valueOf("TEST"));
         assertThat(optDeltaFile.isPresent(), is(true));
         final PublishableDeltaFile deltaFile = optDeltaFile.get();
         final String sampleSm = "{\"nrtm_version\":4," +

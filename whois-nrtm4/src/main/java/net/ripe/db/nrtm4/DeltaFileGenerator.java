@@ -1,8 +1,11 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.persist.PublishedFile;
+import net.ripe.db.nrtm4.persist.PublishedFileRepository;
 import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
@@ -15,25 +18,31 @@ import java.util.Optional;
 
 
 @Service
-public class NrtmProcessor {
+public class DeltaFileGenerator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NrtmProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeltaFileGenerator.class);
 
     private final DeltaTransformer deltaTransformer;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotSynchronizer snapshotSynchronizer;
     private final SerialDao serialDao;
+    private final NrtmFileRepo nrtmFileRepo;
+    private final PublishedFileRepository publishedFileRepository;
 
-    public NrtmProcessor(
+    public DeltaFileGenerator(
         final DeltaTransformer deltaTransformer,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotSynchronizer snapshotSynchronizer,
-        final SerialDao serialDao
+        final SerialDao serialDao,
+        final NrtmFileRepo nrtmFileRepo,
+        final PublishedFileRepository publishedFileRepository
     ) {
         this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotSynchronizer = snapshotSynchronizer;
         this.serialDao = serialDao;
+        this.nrtmFileRepo = nrtmFileRepo;
+        this.publishedFileRepository = publishedFileRepository;
     }
 
     public void initializeSnapshot(final NrtmSource source) {
@@ -51,6 +60,30 @@ public class NrtmProcessor {
 
         // Serialize them and compare with what's in the snapshot table -- compare only primary keys?
         // ...or hash?
+    }
+
+    public PublishableDeltaFile processDeltas(
+        final NrtmSource source,
+        final long versionNumber
+    ) {
+        final Optional<NrtmVersionInfo> versionInfoOptional = nrtmVersionInfoRepository.findVersionNumber(source, versionNumber);
+        if (versionInfoOptional.isEmpty()) {
+            throw new IllegalStateException("version has not been published: " + versionNumber);
+        }
+        final NrtmVersionInfo version = versionInfoOptional.get();
+        // see if file exists locally and return it if so
+        final PublishedFile publishedFile = publishedFileRepository.getByTypeAndVersionId(NrtmDocumentType.DELTA, version.getId());
+        if (nrtmFileRepo.checkIfFileExists(publishedFile.getName())) {
+            // get it and return it
+            return null;
+        }
+
+        // otherwise generate a new one
+        final Optional<NrtmVersionInfo> lastVersionInfoOptional = nrtmVersionInfoRepository.findVersionNumber(source, versionNumber - 1);
+        if (lastVersionInfoOptional.isEmpty()) {
+            throw new IllegalStateException("earlier version is missing: " + (versionNumber - 1));
+        }
+        return null;
     }
 
     public Optional<PublishableDeltaFile> processDeltas(final NrtmSource source) {

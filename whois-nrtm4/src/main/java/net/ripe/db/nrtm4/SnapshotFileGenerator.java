@@ -72,6 +72,7 @@ public class SnapshotFileGenerator {
             final String fileName = String.format("nrtm-snapshot.%d.xxxxxxxxxx", version.getVersion());
             publishedFileRepository.save(
                 snapshotFile.getVersionId(),
+                NrtmDocumentType.SNAPSHOT,
                 fileName,
                 sha256hex);
             snapshotFile.setFileName(fileName);

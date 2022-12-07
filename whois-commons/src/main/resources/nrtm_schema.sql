@@ -24,10 +24,10 @@ create table `version`
 (
     `id`             int unsigned NOT NULL AUTO_INCREMENT,
     `source_id`      int unsigned NOT NULL,
-    `version`        int unsigned NOT NULL DEFAULT '0',
-    `session_id`     varchar(128) NOT NULL DEFAULT '',
-    `type`           varchar(128) NOT NULL DEFAULT '',
-    `last_serial_id` int          NOT NULL DEFAULT '0',
+    `version`        int unsigned NOT NULL,
+    `session_id`     varchar(128) NOT NULL,
+    `type`           varchar(128) NOT NULL,
+    `last_serial_id` int          NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `version__source_fk` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
     UNIQUE KEY `version__source__version_uk` (`source_id`, `version`),
@@ -41,6 +41,7 @@ create table `published_file`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
     `version_id` int unsigned    NOT NULL,
+    `type`           varchar(128) NOT NULL,
     `name`       varchar(256)    NOT NULL,
     `hash`       varchar(256)    NOT NULL,
     `created`    bigint unsigned NOT NULL,

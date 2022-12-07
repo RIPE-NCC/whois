@@ -31,6 +31,7 @@ public class NrtmVersionInfoRepository {
             NrtmDocumentType.valueOf(rs.getString(5)),
             rs.getInt(6)
         );
+    private final String versionColumns = "v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id ";
 
     public NrtmVersionInfoRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -45,7 +46,7 @@ public class NrtmVersionInfoRepository {
     public Optional<NrtmVersionInfo> findLastVersion(final NrtmSource source) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("" +
-                    "SELECT v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id " +
+                    "SELECT " + versionColumns +
                     "FROM version v JOIN source src ON src.id = v.source_id " +
                     "WHERE src.name = ? " +
                     "ORDER BY v.version DESC LIMIT 1",
@@ -122,6 +123,15 @@ public class NrtmVersionInfoRepository {
             }, keyHolder
         );
         return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId);
+    }
+
+    public Optional<NrtmVersionInfo> findVersionNumber(final NrtmSource source, final long versionNumber) {
+        final String sql = "" +
+            "SELECT " + versionColumns +
+            "FROM version v " +
+            "JOIN source src ON src.id = v.source_id " +
+            "WHERE v.version = ? AND src.name = ?";
+        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, versionNumber, source));
     }
 
 }
