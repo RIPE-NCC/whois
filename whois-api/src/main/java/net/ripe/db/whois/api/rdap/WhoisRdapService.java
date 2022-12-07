@@ -302,8 +302,8 @@ public class WhoisRdapService {
                 .build();
     }
 
-    private Response getDomainResponse(HttpServletRequest request, Stream<RpslObject> domainResult,
-                                       Stream<RpslObject> inetnumResult) {
+    private Response getDomainResponse(final HttpServletRequest request, final Stream<RpslObject> domainResult,
+                                       final Stream<RpslObject> inetnumResult) {
         final Iterator<RpslObject> domainIterator = domainResult.iterator();
         final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
         if (!domainIterator.hasNext()) {
