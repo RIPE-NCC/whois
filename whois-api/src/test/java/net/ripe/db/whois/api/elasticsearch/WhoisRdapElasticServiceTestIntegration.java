@@ -288,7 +288,11 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
-        assertCopyrightLink(domain.getLinks(), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
+         final List<Link> links= domain.getLinks();
+        assertThat(links, hasSize(1));
+
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -693,19 +697,6 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(object.getPort43(), is("whois.ripe.net"));
         assertThat(object.getRdapConformance(), hasSize(3));
         assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
-    }
-
-    private void assertCopyrightLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(2));
-        Collections.sort(links);
-
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-
-        assertThat(links.get(1).getRel(), is("self"));
-        assertThat(links.get(1).getValue(), is(value));
-        assertThat(links.get(1).getHref(), is(value));
     }
 
     private void assertTnCNotice(final Notice notice, final String value) {
