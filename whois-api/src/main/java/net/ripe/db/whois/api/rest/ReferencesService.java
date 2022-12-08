@@ -132,6 +132,7 @@ public class ReferencesService {
      * @param keyParam
      */
     @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
     public Reference lookup(
             @PathParam("source") final String sourceParam,

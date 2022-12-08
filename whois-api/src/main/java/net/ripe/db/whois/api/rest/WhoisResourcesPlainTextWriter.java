@@ -19,7 +19,7 @@ public class WhoisResourcesPlainTextWriter implements MessageBodyWriter<WhoisRes
 
     @Override
     public boolean isWriteable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-        return aClass == WhoisResources.class && MediaType.TEXT_PLAIN.contains(mediaType.getType());
+        return aClass == WhoisResources.class && MediaType.TEXT_PLAIN_TYPE.equals(mediaType);
     }
 
     @Override

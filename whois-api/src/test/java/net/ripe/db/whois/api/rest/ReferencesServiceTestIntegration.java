@@ -344,7 +344,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_mntner_references_invalid_object_type() {
         try {
             RestTest.target(getPort(), "whois/references/TEST/invalid/OWNER-MNT")
-                .request(MediaType.APPLICATION_JSON_TYPE)
+                .request()
                 .get(String.class);
             fail();
         } catch (BadRequestException e) {
@@ -357,7 +357,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_mntner_references_invalid_primary_key() {
         try {
             RestTest.target(getPort(), "whois/references/TEST/mntner/invalid")
-                .request(MediaType.APPLICATION_JSON_TYPE)
+                .request()
                 .get(String.class);
             fail();
         } catch (NotFoundException e) {
