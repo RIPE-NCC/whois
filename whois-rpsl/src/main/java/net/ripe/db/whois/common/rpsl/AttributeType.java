@@ -180,7 +180,7 @@ public enum AttributeType implements Documented {
             .syntax(DEFAULT_SYNTAX)),
 
     DESCR(new Builder("descr", "de")
-            .doc("A short decription related to the object.")
+            .doc("A short description related to the object.")
             .syntax(FREE_FORM_SYNTAX)),
 
     DOMAIN(new Builder("domain", "dn")
