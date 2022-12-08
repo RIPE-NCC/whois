@@ -168,7 +168,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "descr\n" +
                 "\n" +
-                "   A short decription related to the object.\n" +
+                "   A short description related to the object.\n" +
                 "\n" +
                 "     A sequence of ASCII characters.\n" +
                 "\n" +
@@ -479,7 +479,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "descr\n" +
                 "\n" +
-                "   A short decription related to the object.\n" +
+                "   A short description related to the object.\n" +
                 "\n" +
                 "     A sequence of ASCII characters.\n" +
                 "\n" +

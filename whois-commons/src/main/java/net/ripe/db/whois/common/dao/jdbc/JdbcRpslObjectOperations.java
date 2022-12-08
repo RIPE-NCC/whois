@@ -47,8 +47,6 @@ import java.util.Set;
 public class JdbcRpslObjectOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRpslObjectOperations.class);
 
-    private static final Set<String> UNTRUNCATABLE_TABLES = Sets.newHashSet("version", "forgot_password_audit_log", "email_links");
-
     public static void insertIntoTables(final JdbcTemplate jdbcTemplate, final RpslObjectInfo rpslObjectInfo, final RpslObject rpslObject) {
         final Set<CIString> missing = insertIntoTablesIgnoreMissing(jdbcTemplate, rpslObjectInfo, rpslObject);
         if (!missing.isEmpty()) {
@@ -410,6 +408,15 @@ public class JdbcRpslObjectOperations {
         }
     }
 
+    public static List<SerialEntry> getSerialEntriesSince(final JdbcTemplate jdbcTemplate, final int serialId) {
+        try {
+            return getSerialEntryWithBlobsSinceSerialForNrtm4(jdbcTemplate, serialId);
+        } catch (final EmptyResultDataAccessException e) {
+            LOGGER.debug("SerialDao.getSerialEntriesSince({}) returned no rows", serialId, e);
+            return List.of();
+        }
+    }
+
     @CheckForNull
     public static SerialEntry getSerialEntryForNrtm(final JdbcTemplate jdbcTemplate, final int serialId) {
         try {
@@ -456,13 +463,15 @@ public class JdbcRpslObjectOperations {
     // Attention [TP]: this method returns the object version from last even if the input serialId is historical!!!
     private static SerialEntry getSerialEntryWithBlobs(final JdbcTemplate jdbcTemplate, final int serialId) {
         return jdbcTemplate.queryForObject("" +
-                "SELECT serials.operation," +
+                "SELECT serials.serial_id," +
+                "       serials.operation," +
                 "       serials.atlast," +
                 "       serials.object_id," +
                 "       last.timestamp," +
                 "       COALESCE(legacy_history.timestamp, rdp_history.timestamp)," +
                 "       IF(last.sequence_id, last.object, COALESCE(legacy_history.object," +
-                "                                         rdp_history.object))" +
+                "                                         rdp_history.object)), " +
+                "       COALESCE(last.pkey, rdp_history.pkey, legacy_history.pkey) " +
                 "FROM   serials" +
                 "       LEFT JOIN last" +
                 "              ON last.object_id = serials.object_id" +
@@ -476,7 +485,7 @@ public class JdbcRpslObjectOperations {
             @Override
             public SerialEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
-                    return new SerialEntry(Operation.getByCode(rs.getInt(1)), rs.getBoolean(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getBytes(6));
+                    return new SerialEntry(rs.getInt(1), Operation.getByCode(rs.getInt(2)), rs.getBoolean(3), rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getBytes(7), rs.getString(8));
                 } catch (RuntimeException e) {
                     throw new IllegalStateException("Failed at serial_id " + serialId, e);
                 }
@@ -484,16 +493,46 @@ public class JdbcRpslObjectOperations {
         }, serialId);
     }
 
+    private static List<SerialEntry> getSerialEntryWithBlobsSinceSerialForNrtm4(final JdbcTemplate jdbcTemplate, final int serialId) {
+        return jdbcTemplate.query("" +
+                "SELECT serials.serial_id, "+
+                "       serials.operation, " +
+                "       serials.atlast," +
+                "       serials.object_id," +
+                "       IF(last.sequence_id, last.object, COALESCE(history.object, rdp_history.object))," +
+                "       COALESCE(last.pkey, history.pkey) " +
+                "FROM   serials " +
+                "       LEFT JOIN last " +
+                "              ON last.object_id = serials.object_id " +
+                "       LEFT JOIN history history" +
+                "              ON history.object_id = serials.object_id " +
+                "                 AND history.sequence_id = serials.sequence_id " +
+                "       LEFT JOIN history rdp_history" +
+                "              ON rdp_history.object_id = serials.object_id" +
+                "                 AND rdp_history.sequence_id = serials.sequence_id - 1 " +
+                "WHERE  serials.serial_id > ? " +
+                "ORDER BY serials.serial_id ASC", (rs, rowNum) -> new SerialEntry(
+                    rs.getInt(1),
+                    Operation.getByCode(rs.getInt(2)),
+                    rs.getBoolean(3),
+                    rs.getInt(4),
+                    rs.getBytes(5),
+                    rs.getString(6)
+        ), serialId);
+    }
+
     // exact same, but omit blob lookup for performance reasons
     private static SerialEntry getSerialEntryWithoutBlobs(final JdbcTemplate jdbcTemplate, final int serialId) {
         return jdbcTemplate.queryForObject("" +
-                "SELECT serials.operation, " +
+                "SELECT serials.serial_id, " +
+                "       serials.operation, " +
                 "       serials.atlast, " +
                 "       serials.object_id, " +
                 "       last.timestamp, " +
                 "       COALESCE(legacy_history.timestamp, rdp_history.timestamp), " +
                 "       IF(last.sequence_id, last.object, COALESCE(legacy_history.object, " +
-                "                                         rdp_history.object)) " +
+                "                                         rdp_history.object))," +
+                "       COALESCE(last.pkey, rdp_history.pkey, legacy_history.pkey) " +
                 "FROM   serials " +
                 "       LEFT JOIN last " +
                 "              ON last.object_id = serials.object_id " +
@@ -506,7 +545,7 @@ public class JdbcRpslObjectOperations {
                 "WHERE  serials.serial_id = ? ", new RowMapper<SerialEntry>() {
             @Override
             public SerialEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new SerialEntry(Operation.getByCode(rs.getInt(1)), rs.getBoolean(2), rs.getInt(4), rs.getInt(5));
+                return new SerialEntry(rs.getInt(1), Operation.getByCode(rs.getInt(2)), rs.getBoolean(3), rs.getInt(5), rs.getInt(6), rs.getString(7));
             }
         }, serialId);
     }
@@ -516,12 +555,14 @@ public class JdbcRpslObjectOperations {
     //        otherwise return the exact version which is either in history or in last
     private static SerialEntry getSerialEntryWithBlobsForNrtm(final JdbcTemplate jdbcTemplate, final int serialId) {
         return jdbcTemplate.queryForObject("" +
-                "SELECT serials.operation, " +
+                "SELECT serials.serial_id, " +
+                "       serials.operation, " +
                 "       serials.atlast, " +
                 "       serials.object_id, " +
                 "       IF(serials.operation = 2, " +
                 "                rdp_history.object, " +
-                "                COALESCE(legacy_history.object, last.object)) as object " +
+                "                COALESCE(legacy_history.object, last.object)) as object," +
+                "       COALESCE(last.pkey, rdp_history.pkey, legacy_history.pkey) " +
                 "FROM   serials " +
                 "       LEFT JOIN last " +
                 "              ON last.object_id = serials.object_id" +
@@ -537,7 +578,7 @@ public class JdbcRpslObjectOperations {
             public SerialEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
                     return SerialEntry.createSerialEntryWithoutTimestamps
-                            (Operation.getByCode(rs.getInt(1)), rs.getBoolean(2), rs.getInt(3), rs.getBytes(4));
+                            (rs.getInt(1), Operation.getByCode(rs.getInt(2)), rs.getBoolean(3), rs.getInt(4), rs.getBytes(5), rs.getString(6));
                 } catch (RuntimeException e) {
                     throw new IllegalStateException("Failed at serial_id " + serialId, e);
                 }
