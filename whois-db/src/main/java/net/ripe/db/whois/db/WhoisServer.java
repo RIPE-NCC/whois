@@ -93,10 +93,6 @@ public class WhoisServer {
     }
 
     public void stop() {
-        // This sleep is needed to also prevent other applicationServices from shutting
-        // within the grace period the jetty server indicates to be taken out of the loadbalancer pool
-        //Uninterruptibles.sleepUninterruptibly(preShutdownPause, TimeUnit.SECONDS);
-
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         for (final ApplicationService applicationService : applicationServices) {
@@ -125,6 +121,8 @@ public class WhoisServer {
         context.getBean(ReadinessHealthCheck.class).down();
 
         LOGGER.info("waiting for {} seconds before starting to close spring context", preShutdownPause);
+        // This sleep is needed to also prevent other applicationServices from shutting
+        // within the grace period the jetty server indicates to be taken out of the loadbalancer pool
         Uninterruptibles.sleepUninterruptibly(this.preShutdownPause, TimeUnit.SECONDS);
         LOGGER.info("starting to destroy beans");
     }
