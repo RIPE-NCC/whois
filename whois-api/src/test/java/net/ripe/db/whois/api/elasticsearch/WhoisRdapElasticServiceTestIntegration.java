@@ -326,9 +326,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
-        } catch (NotFoundException e) {
-            assertErrorStatus(e, 404);
-            assertErrorTitle(e, "404 Not Found");
+        } catch (BadRequestException e) {
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Not Found");
             assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
         }
     }
