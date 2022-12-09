@@ -56,8 +56,8 @@ public class StreamingMarshalTextPlain implements StreamingMarshal {
 
     @Override
     public void throwNotFoundError(
-            HttpServletRequest request,
-            List<Message> errorMessages
+            final HttpServletRequest request,
+            final List<Message> errorMessages
     ) {
         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
                 .entity(createErrorStringEntity(request, errorMessages))
