@@ -739,7 +739,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException e) {
             final String response = e.getResponse().readEntity(String.class);
             assertThat(response, is("Severity: Error\n" +
-                    "Text: Invalid source '%s'\n" +
+                    "Text: Invalid source 'oez'\n" +
                     "locator: http://www.ripe.net/db/support/db-terms-conditions.pdf"));
         }
     }

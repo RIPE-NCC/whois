@@ -35,7 +35,7 @@ public class WhoisResourcesPlainTextWriter implements MessageBodyWriter<WhoisRes
                 sb.append("Severity: ").append(errorMessage.getSeverity()).append('\n');
             }
             if (errorMessage.getText() != null){
-                sb.append("Text: ").append(errorMessage.getText()).append('\n');
+                sb.append("Text: ").append(errorMessage).append('\n');
             }
         }
         sb.append(whoisResources.getTermsAndConditions());
