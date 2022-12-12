@@ -66,18 +66,18 @@ public class SnapshotFileGenerator {
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
         try {
+            final String fileName = FileNameGenerator.snapshotFileName(version.getVersion());
             snapshotFileStreamer.processSnapshot(snapshotFile, bos);
-            // todo: calculate random for url
             final String payload = bos.toString(StandardCharsets.UTF_8);
             final String sha256hex = Hashing.sha256()
                 .hashString(payload, StandardCharsets.UTF_8)
                 .toString();
-            final String fileName = String.format("nrtm-snapshot.%d.xxxxxxxxxx", version.getVersion());
             deltaFileRepository.save(
                 snapshotFile.getVersionId(),
                 fileName,
-                payload,
-                sha256hex);
+                sha256hex,
+                payload
+            );
             snapshotFile.setFileName(fileName);
             snapshotFile.setHash(sha256hex);
             return Optional.of(snapshotFile);
