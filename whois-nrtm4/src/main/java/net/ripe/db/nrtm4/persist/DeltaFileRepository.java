@@ -48,10 +48,10 @@ public class DeltaFileRepository {
                     "VALUES (?, ?, ?, ?, ?)";
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pst.setLong(1, versionId);
-                pst.setString(3, name);
-                pst.setString(4, hash);
-                pst.setString(5, payload);
-                pst.setLong(6, now);
+                pst.setString(2, name);
+                pst.setString(3, hash);
+                pst.setString(4, payload);
+                pst.setLong(5, now);
                 return pst;
             }, keyHolder
         );
