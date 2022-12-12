@@ -23,7 +23,6 @@ public class DeltaFileGenerator {
 
     private final DeltaTransformer deltaTransformer;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
-    private final SnapshotSynchronizer snapshotSynchronizer;
     private final SerialDao serialDao;
     private final NrtmFileRepo nrtmFileRepo;
     private final DeltaFileRepository deltaFileRepository;
@@ -31,25 +30,15 @@ public class DeltaFileGenerator {
     public DeltaFileGenerator(
         final DeltaTransformer deltaTransformer,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final SnapshotSynchronizer snapshotSynchronizer,
         final SerialDao serialDao,
         final NrtmFileRepo nrtmFileRepo,
         final DeltaFileRepository deltaFileRepository
     ) {
         this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
-        this.snapshotSynchronizer = snapshotSynchronizer;
         this.serialDao = serialDao;
         this.nrtmFileRepo = nrtmFileRepo;
         this.deltaFileRepository = deltaFileRepository;
-    }
-
-    public void validateSnapshot() {
-
-        // Find whois objects which are in the 'last' table
-
-        // Serialize them and compare with what's in the snapshot table -- compare only primary keys?
-        // ...or hash?
     }
 
     public PublishableDeltaFile createDelta(

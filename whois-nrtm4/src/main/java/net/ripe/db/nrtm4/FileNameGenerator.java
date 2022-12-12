@@ -2,17 +2,22 @@ package net.ripe.db.nrtm4;
 
 import java.util.Random;
 
+import static net.ripe.db.nrtm4.NrtmConstants.DELTA_PREFIX;
+import static net.ripe.db.nrtm4.NrtmConstants.SNAPSHOT_PREFIX;
+
 
 public class FileNameGenerator {
+
+
 
     private static final String chars = "0123456789abcdef";
 
     static String deltaFileName(final long version) {
-        return String.format("nrtm-delta.%d.%s", version, randomHexString());
+        return String.format("%s.%d.%s", DELTA_PREFIX, version, randomHexString());
     }
 
     static String snapshotFileName(final long version) {
-        return String.format("nrtm-snapshot.%d.%s", version, randomHexString());
+        return String.format("%s.%d.%s", SNAPSHOT_PREFIX, version, randomHexString());
     }
 
     static String randomHexString() {

@@ -6,14 +6,14 @@ import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import java.util.List;
 
 
-public class PublishableUpdateNotificationFile extends PublishableNrtmDocument {
+public class PublishableNotificationFile extends PublishableNrtmDocument {
 
     @JsonProperty("next_signing_key")
     private String nextSigningKey;
     private FileRef snapshot;
     private List<FileRef> deltas;
 
-    PublishableUpdateNotificationFile(NrtmVersionInfo version) {
+    PublishableNotificationFile(NrtmVersionInfo version) {
         super(version);
     }
 

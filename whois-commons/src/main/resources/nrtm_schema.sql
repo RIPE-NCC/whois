@@ -41,7 +41,7 @@ create table `notification_file`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
     `version_id` int unsigned    NOT NULL,
-    `name`       varchar(256)    NOT NULL,
+    `payload`    longtext        NOT NULL,
     `created`    bigint unsigned NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `notification_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
@@ -58,6 +58,7 @@ create table `snapshot_file`
     `created`    bigint unsigned NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `snapshot_file__version_id__uk` (`version_id`),
+    UNIQUE KEY `snapshot_file__name__uk` (`name`),
     CONSTRAINT `snapshot_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
@@ -73,6 +74,7 @@ create table `delta_file`
     `created`    bigint unsigned NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `delta_file__version_id__uk` (`version_id`),
+    UNIQUE KEY `delta_file__name__uk` (`name`),
     CONSTRAINT `delta_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;

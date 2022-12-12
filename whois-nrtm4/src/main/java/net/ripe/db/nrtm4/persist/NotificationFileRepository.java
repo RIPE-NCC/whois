@@ -11,57 +11,52 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.Optional;
 
 
 @Repository
-public class SnapshotFileRepository {
+public class NotificationFileRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<SnapshotFile> rowMapper = (rs, rowNum) ->
-        new SnapshotFile(
+    private final RowMapper<NotificationFile> rowMapper = (rs, rowNum) ->
+        new NotificationFile(
             rs.getLong(1),
             rs.getLong(2),
             rs.getString(3),
-            rs.getString(4),
-            rs.getLong(5)
+            rs.getLong(4)
         );
 
-    private final String snapshotFileFields = "id, version_id, name, hash, created ";
+    private final String notificationFileFields = "id, version_id, payload, created ";
 
     @Autowired
-    public SnapshotFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public NotificationFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public SnapshotFile save(
+    public NotificationFile save(
         final long versionId,
-        final String name,
-        final String hash
+        final String payload
     ) {
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         final long now = System.currentTimeMillis();
         jdbcTemplate.update(connection -> {
                 final String sql = "" +
-                    "INSERT INTO snapshot_file (version_id, name, hash, created) " +
-                    "VALUES (?, ?, ?, ?)";
+                    "INSERT INTO notification_file (version_id, payload, created) " +
+                    "VALUES (?, ?, ?)";
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pst.setLong(1, versionId);
-                pst.setString(2, name);
-                pst.setString(3, hash);
-                pst.setLong(4, now);
+                pst.setString(2, payload);
+                pst.setLong(3, now);
                 return pst;
             }, keyHolder
         );
-        return new SnapshotFile(keyHolder.getKeyAs(Long.class), versionId, name, hash, now);
+        return new NotificationFile(keyHolder.getKeyAs(Long.class), versionId, payload, now);
     }
 
-    public Optional<SnapshotFile> getByName(String name) {
+    public NotificationFile getNotificationFile() {
         final String sql = "" +
-            "SELECT " + snapshotFileFields +
-            "FROM snapshot_file " +
-            "WHERE name = ?";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
+            "SELECT " + notificationFileFields +
+            "FROM notification_file " +
+            "WHERE version_id = (SELECT max(version_id) FROM notification_file)";
+        return jdbcTemplate.queryForObject(sql, rowMapper);
     }
-
 }
