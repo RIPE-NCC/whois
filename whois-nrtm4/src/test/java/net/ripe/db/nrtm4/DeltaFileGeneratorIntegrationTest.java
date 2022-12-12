@@ -52,10 +52,10 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
     @Test
     public void test_delta_file_cannot_be_generated() {
         assertThrows(IllegalStateException.class, () ->
-            deltaFileGenerator.processDeltas(NrtmSourceHolder.valueOf("TEST"))
+            deltaFileGenerator.createDelta(NrtmSourceHolder.valueOf("TEST"))
         );
         insertSnapshot();
-        final var deltas = deltaFileGenerator.processDeltas(NrtmSourceHolder.valueOf("TEST"));
+        final var deltas = deltaFileGenerator.createDelta(NrtmSourceHolder.valueOf("TEST"));
         assertThat(deltas.isEmpty(), is(true));
     }
 
@@ -64,7 +64,7 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
 
         insertSnapshot();
         loadSerials();
-        final Optional<PublishableDeltaFile> optDeltaFile = deltaFileGenerator.processDeltas(NrtmSourceHolder.valueOf("TEST"));
+        final Optional<PublishableDeltaFile> optDeltaFile = deltaFileGenerator.createDelta(NrtmSourceHolder.valueOf("TEST"));
         assertThat(optDeltaFile.isPresent(), is(true));
         final PublishableDeltaFile deltaFile = optDeltaFile.get();
         final String sampleSm = "{\"nrtm_version\":4," +

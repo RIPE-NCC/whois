@@ -16,6 +16,8 @@ public interface SerialDao {
 
     List<SerialEntry> getSerialEntriesSince(int serialId);
 
+    List<SerialEntry> getSerialEntriesBetweenInclusive(int serialIdFrom, int serialIdTo);
+
     List<SerialEntry> getSerialEntriesFromLast();
 
     Integer getAgeOfExactOrNextExistingSerial(int serialId);

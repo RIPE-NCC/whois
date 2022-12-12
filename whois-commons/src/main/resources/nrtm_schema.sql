@@ -29,24 +29,51 @@ create table `version`
     `type`           varchar(128) NOT NULL,
     `last_serial_id` int          NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `version__source_fk` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
-    UNIQUE KEY `version__source__version_uk` (`source_id`, `version`),
-    UNIQUE KEY `version__session__version_uk` (`session_id`, `version`),
-    UNIQUE KEY `version__type__last_serial_id_uk` (`type`, `last_serial_id`)
+    CONSTRAINT `version__source__fk` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
+    UNIQUE KEY `version__source__version__uk` (`source_id`, `version`),
+    UNIQUE KEY `version__session__version__uk` (`session_id`, `version`),
+    UNIQUE KEY `version__type__last_serial_id__uk` (`type`, `last_serial_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `published_file`;
-create table `published_file`
+DROP TABLE IF EXISTS `notification_file`;
+create table `notification_file`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
     `version_id` int unsigned    NOT NULL,
-    `type`           varchar(128) NOT NULL,
+    `name`       varchar(256)    NOT NULL,
+    `created`    bigint unsigned NOT NULL,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `notification_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
+
+DROP TABLE IF EXISTS `snapshot_file`;
+create table `snapshot_file`
+(
+    `id`         int unsigned    NOT NULL AUTO_INCREMENT,
+    `version_id` int unsigned    NOT NULL,
     `name`       varchar(256)    NOT NULL,
     `hash`       varchar(256)    NOT NULL,
     `created`    bigint unsigned NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `published_file__version_fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
+    UNIQUE KEY `snapshot_file__version_id__uk` (`version_id`),
+    CONSTRAINT `snapshot_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
+
+DROP TABLE IF EXISTS `delta_file`;
+create table `delta_file`
+(
+    `id`         int unsigned    NOT NULL AUTO_INCREMENT,
+    `version_id` int unsigned    NOT NULL,
+    `name`       varchar(256)    NOT NULL,
+    `hash`       varchar(256)    NOT NULL,
+    `payload`    longtext        NOT NULL,
+    `created`    bigint unsigned NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `delta_file__version_id__uk` (`version_id`),
+    CONSTRAINT `delta_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
@@ -60,8 +87,8 @@ create table `snapshot_object`
     `pkey`        varchar(256) NOT NULL,
     `payload`     longtext     NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `snapshot_object__serial_id_uk` (`serial_id`),
-    CONSTRAINT `snapshot_object__version_fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
+    UNIQUE KEY `snapshot_object__serial_id__uk` (`serial_id`),
+    CONSTRAINT `snapshot_object__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 

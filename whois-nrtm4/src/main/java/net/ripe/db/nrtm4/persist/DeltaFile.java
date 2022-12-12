@@ -1,27 +1,27 @@
 package net.ripe.db.nrtm4.persist;
 
-public class PublishedFile {
+public class DeltaFile {
 
     private final long id;
     private final long versionId;
-    private final NrtmDocumentType type;
     private final String name;
     private final String hash;
+    private final String payload;
     private final long created;
 
-    public PublishedFile(
+    public DeltaFile(
         final long id,
         final long versionId,
-        final NrtmDocumentType type,
         final String name,
         final String hash,
+        final String payload,
         final long created
     ) {
         this.id = id;
         this.versionId = versionId;
-        this.type = type;
         this.name = name;
         this.hash = hash;
+        this.payload = payload;
         this.created = created;
     }
 
@@ -33,16 +33,16 @@ public class PublishedFile {
         return versionId;
     }
 
-    public NrtmDocumentType getType() {
-        return type;
-    }
-
     public String getName() {
         return name;
     }
 
     public String getHash() {
         return hash;
+    }
+
+    public String getPayload() {
+        return payload;
     }
 
     public long getCreated() {

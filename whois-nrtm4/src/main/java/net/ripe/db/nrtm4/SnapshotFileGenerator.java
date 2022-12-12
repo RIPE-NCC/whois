@@ -5,7 +5,7 @@ import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.persist.PublishedFileRepository;
+import net.ripe.db.nrtm4.persist.DeltaFileRepository;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.publish.SnapshotFileStreamer;
 import org.slf4j.Logger;
@@ -27,18 +27,18 @@ public class SnapshotFileGenerator {
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotInitializer snapshotInitializer;
     private final SnapshotFileStreamer snapshotFileStreamer;
-    private final PublishedFileRepository publishedFileRepository;
+    private final DeltaFileRepository deltaFileRepository;
 
     public SnapshotFileGenerator(
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotInitializer snapshotInitializer,
         final SnapshotFileStreamer snapshotFileStreamer,
-        final PublishedFileRepository publishedFileRepository
+        final DeltaFileRepository deltaFileRepository
     ) {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotInitializer = snapshotInitializer;
         this.snapshotFileStreamer = snapshotFileStreamer;
-        this.publishedFileRepository = publishedFileRepository;
+        this.deltaFileRepository = deltaFileRepository;
     }
 
     @Transactional
@@ -60,20 +60,23 @@ public class SnapshotFileGenerator {
                 return Optional.empty();
             }
         }
+        // TODO: apply pending deltas
+        //       - find list of deltas since the last snapshot
+        //       - give each one to the SnapshotSynchronizer to bring snaphot_objects up to date
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
         try {
             snapshotFileStreamer.processSnapshot(snapshotFile, bos);
-            System.out.println(bos.toString(StandardCharsets.UTF_8));
             // todo: calculate random for url
+            final String payload = bos.toString(StandardCharsets.UTF_8);
             final String sha256hex = Hashing.sha256()
-                .hashString(bos.toString(StandardCharsets.UTF_8), StandardCharsets.UTF_8)
+                .hashString(payload, StandardCharsets.UTF_8)
                 .toString();
             final String fileName = String.format("nrtm-snapshot.%d.xxxxxxxxxx", version.getVersion());
-            publishedFileRepository.save(
+            deltaFileRepository.save(
                 snapshotFile.getVersionId(),
-                NrtmDocumentType.SNAPSHOT,
                 fileName,
+                payload,
                 sha256hex);
             snapshotFile.setFileName(fileName);
             snapshotFile.setHash(sha256hex);

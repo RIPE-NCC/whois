@@ -1,11 +1,10 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.persist.NrtmDocumentType;
+import net.ripe.db.nrtm4.persist.DeltaFile;
+import net.ripe.db.nrtm4.persist.DeltaFileRepository;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.persist.PublishedFile;
-import net.ripe.db.nrtm4.persist.PublishedFileRepository;
 import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
@@ -27,7 +26,7 @@ public class DeltaFileGenerator {
     private final SnapshotSynchronizer snapshotSynchronizer;
     private final SerialDao serialDao;
     private final NrtmFileRepo nrtmFileRepo;
-    private final PublishedFileRepository publishedFileRepository;
+    private final DeltaFileRepository deltaFileRepository;
 
     public DeltaFileGenerator(
         final DeltaTransformer deltaTransformer,
@@ -35,23 +34,14 @@ public class DeltaFileGenerator {
         final SnapshotSynchronizer snapshotSynchronizer,
         final SerialDao serialDao,
         final NrtmFileRepo nrtmFileRepo,
-        final PublishedFileRepository publishedFileRepository
+        final DeltaFileRepository deltaFileRepository
     ) {
         this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotSynchronizer = snapshotSynchronizer;
         this.serialDao = serialDao;
         this.nrtmFileRepo = nrtmFileRepo;
-        this.publishedFileRepository = publishedFileRepository;
-    }
-
-    public void initializeSnapshot(final NrtmSource source) {
-
-        // Find whois objects which are in the 'last' table
-        final List<SerialEntry> allObjects = serialDao.getSerialEntriesFromLast();
-
-        // Add them to the snapshot table
-
+        this.deltaFileRepository = deltaFileRepository;
     }
 
     public void validateSnapshot() {
@@ -62,7 +52,7 @@ public class DeltaFileGenerator {
         // ...or hash?
     }
 
-    public PublishableDeltaFile processDeltas(
+    public PublishableDeltaFile createDelta(
         final NrtmSource source,
         final long versionNumber
     ) {
@@ -72,8 +62,8 @@ public class DeltaFileGenerator {
         }
         final NrtmVersionInfo version = versionInfoOptional.get();
         // see if file exists locally and return it if so
-        final PublishedFile publishedFile = publishedFileRepository.getByTypeAndVersionId(NrtmDocumentType.DELTA, version.getId());
-        if (nrtmFileRepo.checkIfFileExists(publishedFile.getName())) {
+        final DeltaFile deltaFile = deltaFileRepository.getByVersionId(version.getId());
+        if (nrtmFileRepo.checkIfFileExists(deltaFile.getName())) {
             // get it and return it
             return null;
         }
@@ -86,7 +76,7 @@ public class DeltaFileGenerator {
         return null;
     }
 
-    public Optional<PublishableDeltaFile> processDeltas(final NrtmSource source) {
+    public Optional<PublishableDeltaFile> createDelta(final NrtmSource source) {
 
         // Find changes since the last delta
         final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
@@ -103,7 +93,6 @@ public class DeltaFileGenerator {
         final NrtmVersionInfo nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
         final PublishableDeltaFile deltaFile = new PublishableDeltaFile(nextVersion);
         deltaFile.setChanges(deltas);
-        snapshotSynchronizer.synchronizeDeltasToSnapshot(deltaFile);
         return Optional.of(deltaFile);
     }
 

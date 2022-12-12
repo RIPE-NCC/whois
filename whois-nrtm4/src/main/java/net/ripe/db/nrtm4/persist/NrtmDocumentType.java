@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum NrtmDocumentType {
     DELTA,
-    SNAPSHOT;
+    SNAPSHOT,
+    NOTIFICATION;
 
     @Override
     @JsonValue
