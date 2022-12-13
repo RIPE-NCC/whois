@@ -27,7 +27,7 @@ public class SnapshotSynchronizer {
                     change.getSerialId(),
                     change.getObject().getType(),
                     change.getObject().getKey().toString(),
-                    serializer.process(change.getObject())
+                    change.getObject().toString()
                 );
             } else if (change.getAction() == DeltaChange.Action.DELETE) {
                 snapshotObjectRepository.delete(change.getObjectType(), change.getPrimaryKey());

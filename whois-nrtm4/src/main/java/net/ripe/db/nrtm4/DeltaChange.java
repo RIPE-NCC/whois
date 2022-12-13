@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
@@ -31,6 +32,7 @@ public class DeltaChange {
     private final ObjectType objectType;
     @JsonProperty("primary_key")
     private final String primaryKey;
+    @JsonSerialize(using = RpslObjectSerializer.class)
     private final RpslObject object;
 
     private DeltaChange(

@@ -10,8 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.stream.Stream;
@@ -62,25 +60,25 @@ public class SnapshotObjectRepository {
         });
     }
 
-    public void streamSnapshot(final OutputStream outputStream) throws IOException {
-        final String sql = "" +
-            "SELECT payload " +
-            "FROM snapshot_object " +
-            "ORDER BY serial_id";
-
-//        outputStream.write('[');
-        jdbcTemplate.query(sql, rs -> {
-            try {
-                outputStream.write(rs.getString(1).getBytes(StandardCharsets.UTF_8));
-                if (!rs.isLast()) {
-                    outputStream.write(',');
-                }
-            } catch (final IOException e) {
-                throw new RuntimeException("streamPayloads threw exception", e);
-            }
-        });
-//        outputStream.write(']');
-    }
+//    public void streamSnapshot(final OutputStream outputStream) throws IOException {
+//        final String sql = "" +
+//            "SELECT payload " +
+//            "FROM snapshot_object " +
+//            "ORDER BY serial_id";
+//
+////        outputStream.write('[');
+//        jdbcTemplate.query(sql, rs -> {
+//            try {
+//                outputStream.write(rs.getString(1).getBytes(StandardCharsets.UTF_8));
+//                if (!rs.isLast()) {
+//                    outputStream.write(',');
+//                }
+//            } catch (final IOException e) {
+//                throw new RuntimeException("streamPayloads threw exception", e);
+//            }
+//        });
+////        outputStream.write(']');
+//    }
 
     public Stream<String> streamSnapshots() throws IOException {
         final String sql = "" +

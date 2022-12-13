@@ -19,15 +19,6 @@ public class JsonSerializerTest {
     }
 
     @Test
-    void payload_processor_can_serialize_simple_inetnum() {
-        final var payloads = new RpslObject[] {
-            RpslObject.parse(inetnumObjectBytes)
-        };
-        final var payloadProcessor = new JsonSerializer();
-        assertThat(payloadProcessor.process(payloads), is("[\"inetnum:        193.0.0.0 - 193.255.255.255\\nsource:         TEST\\n\"]"));
-    }
-
-    @Test
     void payload_processor_can_serialize_delta() {
         final var payloads = new DeltaChange[] {
             DeltaChange.addModify(1, RpslObject.parse(inetnumObjectBytes))
