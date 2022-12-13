@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import static net.ripe.db.nrtm4.persist.NrtmDocumentType.SNAPSHOT;
@@ -29,13 +32,19 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelper
     @Autowired
     private NrtmSourceHolder nrtmSourceHolder;
 
+    @Autowired
+    private NrtmFileService nrtmFileService;
+
+    @Autowired
+    private NrtmFileRepo nrtmFileRepo;
+
     @BeforeEach
     public void setUp() {
         truncateTables(databaseHelper.getNrtmTemplate());
     }
 
     @Test
-    public void snapshot_file_is_generated() {
+    public void snapshot_file_is_generated() throws IOException {
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
         final String sessionID;
         {
@@ -48,6 +57,17 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelper
             assertThat(snapshotFile.getSource(), is(nrtmSourceHolder.getSource()));
             assertThat(snapshotFile.getNrtmVersion(), is(4));
             assertThat(snapshotFile.getType(), is(SNAPSHOT));
+            final var bos = new ByteArrayOutputStream();
+            nrtmFileService.writeFileToStream(snapshotFile.getFileName(), bos);
+            assertThat(bos.toString(StandardCharsets.UTF_8), is("" +
+                "{\"nrtm_version\":4," +
+                "\"type\":\"snapshot\"," +
+                "\"source\":\"TEST\"," +
+                "\"version\":1," +
+                "\"objects\":[" +
+                "\"inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Description\\ncountry:        es\\nadmin-c:        TEST-RIPE\\ntech-c:         TEST-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\n\"," +
+                "\"person:         Test Person\\naddress:        NL\\ne-mail:         test@test.net\\nphone:          +1 234 567 8900\\nnotify:         test@test.net\\nmnt-by:         TEST-MNT\\nnic-hdl:        TEST-RIPE\\nsource:         RIPE\\n\"" +
+                "]}"));
         }
         {
             // don't generate snapshot version if nothing changed

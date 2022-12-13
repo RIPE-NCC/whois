@@ -8,9 +8,8 @@ public enum NrtmDocumentType {
     SNAPSHOT,
     NOTIFICATION;
 
-    @Override
     @JsonValue
-    public String toString() {
+    public String lowerCaseName() {
         return name().toLowerCase();
     }
 }

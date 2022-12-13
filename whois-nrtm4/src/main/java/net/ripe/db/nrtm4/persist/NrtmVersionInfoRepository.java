@@ -134,4 +134,13 @@ public class NrtmVersionInfoRepository {
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, versionNumber, source));
     }
 
+    public Optional<NrtmVersionInfo> findById(final long versionId) {
+        final String sql = "" +
+            "SELECT " + versionColumns +
+            "FROM version v " +
+            "JOIN source src ON src.id = v.source_id " +
+            "WHERE v.id = ?";
+        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, versionId));
+    }
+
 }

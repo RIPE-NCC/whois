@@ -13,11 +13,11 @@ public class FileNameGenerator {
     private static final String chars = "0123456789abcdef";
 
     static String deltaFileName(final long version) {
-        return String.format("%s.%d.%s", DELTA_PREFIX, version, randomHexString());
+        return String.format("%s.%d.%s.json", DELTA_PREFIX, version, randomHexString());
     }
 
     static String snapshotFileName(final long version) {
-        return String.format("%s.%d.%s", SNAPSHOT_PREFIX, version, randomHexString());
+        return String.format("%s.%d.%s.json", SNAPSHOT_PREFIX, version, randomHexString());
     }
 
     static String randomHexString() {

@@ -52,11 +52,11 @@ public class JdbcSerialDao implements SerialDao {
 
     @Override
     @CheckForNull
-    public List<SerialEntry> getSerialEntriesBetweenInclusive(final int serialIdFrom, final int serialIdTo) {
+    public List<SerialEntry> getSerialEntriesBetween(final int serialIdFrom, final int serialIdTo) {
         if (serialIdTo < serialIdFrom) {
             throw new IllegalArgumentException("serialIdTo cannot be less than serialIdFrom");
         }
-        return JdbcRpslObjectOperations.getSerialEntriesBetweenInclusive(jdbcTemplate, serialIdFrom, serialIdTo);
+        return JdbcRpslObjectOperations.getSerialEntriesBetween(jdbcTemplate, serialIdFrom, serialIdTo);
     }
 
     @Override

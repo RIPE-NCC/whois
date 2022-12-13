@@ -1,11 +1,12 @@
 package net.ripe.db.nrtm4;
 
 import com.google.common.hash.Hashing;
+import net.ripe.db.nrtm4.persist.DeltaFileRepository;
 import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.persist.DeltaFileRepository;
+import net.ripe.db.nrtm4.persist.SnapshotFileRepository;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.publish.SnapshotFileStreamer;
 import org.slf4j.Logger;
@@ -28,17 +29,20 @@ public class SnapshotFileGenerator {
     private final SnapshotInitializer snapshotInitializer;
     private final SnapshotFileStreamer snapshotFileStreamer;
     private final DeltaFileRepository deltaFileRepository;
+    private final SnapshotFileRepository snapshotFileRepository;
 
     public SnapshotFileGenerator(
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotInitializer snapshotInitializer,
         final SnapshotFileStreamer snapshotFileStreamer,
-        final DeltaFileRepository deltaFileRepository
+        final DeltaFileRepository deltaFileRepository,
+        final SnapshotFileRepository snapshotFileRepository
     ) {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotInitializer = snapshotInitializer;
         this.snapshotFileStreamer = snapshotFileStreamer;
         this.deltaFileRepository = deltaFileRepository;
+        this.snapshotFileRepository = snapshotFileRepository;
     }
 
     @Transactional
@@ -61,22 +65,23 @@ public class SnapshotFileGenerator {
             }
         }
         // TODO: apply pending deltas
-        //       - find list of deltas since the last snapshot
-        //       - give each one to the SnapshotSynchronizer to bring snaphot_objects up to date
+        //       * if snapshot version > 1...
+        //           - find list of deltas since the last snapshot
+        //           - process them with SnapshotSynchronizer to bring snaphot_objects up to date
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
         try {
             final String fileName = FileNameGenerator.snapshotFileName(version.getVersion());
+            //final OutputStream out = nrtmFileRepo.getFileOutputStream(fileName);
             snapshotFileStreamer.processSnapshot(snapshotFile, bos);
             final String payload = bos.toString(StandardCharsets.UTF_8);
             final String sha256hex = Hashing.sha256()
                 .hashString(payload, StandardCharsets.UTF_8)
                 .toString();
-            deltaFileRepository.save(
+            snapshotFileRepository.save(
                 snapshotFile.getVersionId(),
                 fileName,
-                sha256hex,
-                payload
+                sha256hex
             );
             snapshotFile.setFileName(fileName);
             snapshotFile.setHash(sha256hex);

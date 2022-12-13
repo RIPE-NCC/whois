@@ -56,12 +56,20 @@ public class SnapshotFileRepository {
         return new SnapshotFile(keyHolder.getKeyAs(Long.class), versionId, name, hash, now);
     }
 
-    public Optional<SnapshotFile> getByName(String name) {
+    public Optional<SnapshotFile> getByName(final String name) {
         final String sql = "" +
             "SELECT " + snapshotFileFields +
             "FROM snapshot_file " +
             "WHERE name = ?";
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
+    }
+
+    public Optional<SnapshotFile> getLastSnapshot() {
+        final String sql = "" +
+            "SELECT " + snapshotFileFields +
+            "FROM snapshot_file " +
+            "WHERE id = (SELECT max(id) FROM snapshot_file)";
+        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper));
     }
 
 }

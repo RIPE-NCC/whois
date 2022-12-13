@@ -16,7 +16,10 @@ public interface SerialDao {
 
     List<SerialEntry> getSerialEntriesSince(int serialId);
 
-    List<SerialEntry> getSerialEntriesBetweenInclusive(int serialIdFrom, int serialIdTo);
+    /**
+     * Exclude 'from', include 'to'. Find changes between snapshots.
+     */
+    List<SerialEntry> getSerialEntriesBetween(int serialIdFrom, int serialIdTo);
 
     List<SerialEntry> getSerialEntriesFromLast();
 

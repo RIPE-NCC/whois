@@ -1,5 +1,7 @@
 package net.ripe.db.nrtm4;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
@@ -38,14 +40,19 @@ public class SnapshotInitializer {
         }
         final int lastSerial = objects.get(objects.size() - 1).getSerialId();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialSnapshot(source, lastSerial);
+        final ObjectMapper mapper = new ObjectMapper();
         for (final SerialEntry obj : objects) {
-            snapshotObjectRepository.insert(
-                version.getId(),
-                obj.getSerialId(),
-                obj.getRpslObject().getType(),
-                obj.getPrimaryKey(),
-                jsonSerializer.process(obj.getRpslObject())
-            );
+            try {
+                snapshotObjectRepository.insert(
+                    version.getId(),
+                    obj.getSerialId(),
+                    obj.getRpslObject().getType(),
+                    obj.getPrimaryKey(),
+                    mapper.writeValueAsString(obj.getRpslObject())
+                );
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
         return version;
     }

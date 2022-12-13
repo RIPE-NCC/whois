@@ -13,11 +13,11 @@ public class PublishableNotificationFile extends PublishableNrtmDocument {
     private FileRef snapshot;
     private List<FileRef> deltas;
 
-    PublishableNotificationFile(NrtmVersionInfo version) {
+    PublishableNotificationFile(final NrtmVersionInfo version) {
         super(version);
     }
 
-    private class FileRef {
+    static class FileRef {
 
         private final int version;
         private final String url;

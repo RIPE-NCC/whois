@@ -18,7 +18,7 @@ public class NrtmFileRepo {
     private final String path;
 
     NrtmFileRepo(
-        @Value("${nrtm.file.path:/tmp}") String path
+        @Value("${nrtm.file.path:/tmp}") final String path
     ) {
         this.path = path;
     }

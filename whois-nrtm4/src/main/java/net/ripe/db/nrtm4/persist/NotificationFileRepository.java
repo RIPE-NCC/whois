@@ -52,11 +52,12 @@ public class NotificationFileRepository {
         return new NotificationFile(keyHolder.getKeyAs(Long.class), versionId, payload, now);
     }
 
+    // Assumes the latest notification has the highest ID, which should be ok coz it's autoincrement
     public NotificationFile getNotificationFile() {
         final String sql = "" +
             "SELECT " + notificationFileFields +
             "FROM notification_file " +
-            "WHERE version_id = (SELECT max(version_id) FROM notification_file)";
+            "WHERE id = (SELECT max(id) FROM notification_file)";
         return jdbcTemplate.queryForObject(sql, rowMapper);
     }
 }

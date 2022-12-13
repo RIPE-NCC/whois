@@ -417,11 +417,11 @@ public class JdbcRpslObjectOperations {
         }
     }
 
-    public static List<SerialEntry> getSerialEntriesBetweenInclusive(final JdbcTemplate jdbcTemplate, final int serialIdFrom, final int serialIdTo) {
+    public static List<SerialEntry> getSerialEntriesBetween(final JdbcTemplate jdbcTemplate, final int serialIdFrom, final int serialIdTo) {
         try {
             return getSerialEntryWithBlobsBetweenSerialsForNrtm4(jdbcTemplate, serialIdFrom, serialIdTo);
         } catch (final EmptyResultDataAccessException e) {
-            LOGGER.debug("SerialDao.getSerialEntriesSince({}, {}) returned no rows", serialIdFrom, serialIdTo, e);
+            LOGGER.debug("SerialDao.getSerialEntriesBetween({}, {}) returned no rows", serialIdFrom, serialIdTo, e);
             return List.of();
         }
     }
@@ -577,7 +577,7 @@ public class JdbcRpslObjectOperations {
                 "       LEFT JOIN history rdp_history" +
                 "              ON rdp_history.object_id = serials.object_id" +
                 "                 AND rdp_history.sequence_id = serials.sequence_id - 1 " +
-                "WHERE  serials.serial_id >= ? " +
+                "WHERE  serials.serial_id > ? " +
                 "  AND  serials.serial_id <= ? " +
                 "ORDER BY serials.serial_id ASC", (rs, rowNum) -> new SerialEntry(
                     rs.getInt(1),

@@ -13,7 +13,7 @@ public class NrtmVersionInfo {
     // arbitrary parameters, since they are bound to published versions of the
     // NRTM repo. Consider a private constructor and a builder which the DAO
     // can use.
-    NrtmVersionInfo(
+    public NrtmVersionInfo(
         final Long id,
         final NrtmSource source,
         final Long version,
