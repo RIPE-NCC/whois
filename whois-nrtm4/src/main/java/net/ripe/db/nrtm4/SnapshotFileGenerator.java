@@ -67,7 +67,7 @@ public class SnapshotFileGenerator {
         // TODO: apply pending deltas
         //       * if snapshot version > 1...
         //           - find list of deltas since the last snapshot
-        //           - process them with SnapshotSynchronizer to bring snaphot_objects up to date
+        //           - process them with SnapshotSynchronizer to bring snapshot_objects up to date
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
         try {

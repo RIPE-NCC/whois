@@ -21,7 +21,7 @@ public class DeltaTransformerTest {
     void process_empty_rows_returns_empty_list() {
         final var deltaProcessor = new DeltaTransformer(dummifier);
         final var changes = new ArrayList<SerialEntry>();
-        final var result = deltaProcessor.process(changes);
+        final var result = deltaProcessor.toDeltaChange(changes);
         assertThat(result.size(), is(0));
     }
 
@@ -31,7 +31,7 @@ public class DeltaTransformerTest {
         final var changes = List.of(
             new SerialEntry(22, Operation.UPDATE, true, 101, inetnumObjectBytes, "193.0.0.0 - 193.255.255.255")
         );
-        final var result = deltaProcessor.process(changes);
+        final var result = deltaProcessor.toDeltaChange(changes);
         assertThat(result.size(), is(1));
         final var change = result.get(0);
         assertThat(change.getPrimaryKey(), is(nullValue()));
@@ -44,7 +44,7 @@ public class DeltaTransformerTest {
         final var changes = List.of(
             new SerialEntry(22, Operation.DELETE, false, 101, inetnumObjectBytes, "193.0.0.0 - 193.255.255.255")
         );
-        final var result = deltaProcessor.process(changes);
+        final var result = deltaProcessor.toDeltaChange(changes);
         assertThat(result.size(), is(1));
         final var change = result.get(0);
         assertThat(change.getPrimaryKey(), is("193.0.0.0 - 193.255.255.255"));

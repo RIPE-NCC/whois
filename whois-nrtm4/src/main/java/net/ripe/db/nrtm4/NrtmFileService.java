@@ -34,7 +34,6 @@ public class NrtmFileService {
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final DeltaFileRepository deltaFileRepository;
     private final SnapshotFileRepository snapshotFileRepository;
-    private final SnapshotObjectRepository snapshotObjectRepository;
     private final SnapshotFileStreamer snapshotFileStreamer;
     private final Monitor deltaMutex = new Monitor();
     private final Monitor snapshotMutex = new Monitor();
@@ -45,7 +44,6 @@ public class NrtmFileService {
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final DeltaFileRepository deltaFileRepository,
         final SnapshotFileRepository snapshotFileRepository,
-        final SnapshotObjectRepository snapshotObjectRepository,
         final SnapshotFileStreamer snapshotFileStreamer
     ) {
         this.notificationFileRepository = notificationFileRepository;
@@ -53,7 +51,6 @@ public class NrtmFileService {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.deltaFileRepository = deltaFileRepository;
         this.snapshotFileRepository = snapshotFileRepository;
-        this.snapshotObjectRepository = snapshotObjectRepository;
         this.snapshotFileStreamer = snapshotFileStreamer;
     }
 

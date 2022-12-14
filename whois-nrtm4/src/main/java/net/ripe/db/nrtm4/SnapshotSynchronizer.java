@@ -9,14 +9,11 @@ import org.springframework.stereotype.Service;
 public class SnapshotSynchronizer {
 
     private final SnapshotObjectRepository snapshotObjectRepository;
-    private final JsonSerializer serializer;
 
     SnapshotSynchronizer(
-        final SnapshotObjectRepository snapshotObjectRepository,
-        final JsonSerializer serializer
+        final SnapshotObjectRepository snapshotObjectRepository
     ) {
         this.snapshotObjectRepository = snapshotObjectRepository;
-        this.serializer = serializer;
     }
 
     void synchronizeDeltasToSnapshot(final PublishableDeltaFile deltaFile) {

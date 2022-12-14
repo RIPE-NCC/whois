@@ -20,7 +20,7 @@ public class DeltaTransformer {
         this.dummifierNrtm = dummifierNrtm;
     }
 
-    List<DeltaChange> process(final List<SerialEntry> changes) {
+    List<DeltaChange> toDeltaChange(final List<SerialEntry> changes) {
         return changes.stream()
             .filter(change -> dummifierNrtm.isAllowed(NRTM_VERSION, change.getRpslObject()))
             .map(serialRpsl -> {
