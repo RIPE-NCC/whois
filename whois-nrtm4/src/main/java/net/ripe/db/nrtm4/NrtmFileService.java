@@ -58,7 +58,8 @@ public class NrtmFileService {
             throw new IllegalArgumentException("Invalid NRTM file name");
         }
         if (name.startsWith(NOTIFICATION_PREFIX)) {
-            final NotificationFile notificationFile = notificationFileRepository.getNotificationFile();
+            // TODO: how do we know which source to use when serving a notification request?
+            final NotificationFile notificationFile = notificationFileRepository.getNotificationFile(1);
             out.write(notificationFile.getPayload().getBytes(StandardCharsets.UTF_8));
             return;
         }

@@ -9,7 +9,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.stream.Stream;
@@ -60,17 +59,20 @@ public class SnapshotObjectRepository {
         });
     }
 
-    public Stream<String> streamSnapshots() throws IOException {
+    public Stream<String> streamSnapshots(final NrtmSource source) {
         final String sql = "" +
             "SELECT payload " +
             "FROM snapshot_object " +
-            "ORDER BY serial_id";
+            "JOIN version ON version.id = snapshot_object.version_id " +
+            "JOIN source ON source.id = version.source_id " +
+            "WHERE source.name = ? " +
+            "ORDER BY snapshot_object.serial_id";
 
         final Stream.Builder<String> builder = Stream.builder();
 
         jdbcTemplate.query(sql, rs -> {
             builder.add(rs.getString(1));
-        });
+        }, source.name());
         return builder.build();
     }
 

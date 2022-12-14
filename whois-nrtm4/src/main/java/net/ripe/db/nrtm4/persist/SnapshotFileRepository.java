@@ -64,12 +64,15 @@ public class SnapshotFileRepository {
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
     }
 
-    public Optional<SnapshotFile> getLastSnapshot() {
+    public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
         final String sql = "" +
             "SELECT " + snapshotFileFields +
             "FROM snapshot_file " +
-            "WHERE id = (SELECT max(id) FROM snapshot_file)";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper));
+            "JOIN version ON version.id = snapshot_file.version_id " +
+            "JOIN source ON source.id = version.source_id " +
+            "WHERE source.name = ? " +
+            "ORDER BY version.version DESC LIMIT 1";
+        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.name()));
     }
 
 }

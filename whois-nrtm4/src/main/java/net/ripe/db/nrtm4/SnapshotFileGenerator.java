@@ -8,6 +8,8 @@ import net.ripe.db.nrtm4.persist.SnapshotFileRepository;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.publish.SnapshotFileStreamer;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
+import net.ripe.db.whois.common.dao.SerialDao;
+import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -29,19 +32,22 @@ public class SnapshotFileGenerator {
     private final SnapshotFileStreamer snapshotFileStreamer;
     private final SnapshotFileRepository snapshotFileRepository;
     private final NrtmFileUtil nrtmFileUtil;
+    private final SerialDao serialDao;
 
     public SnapshotFileGenerator(
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotInitializer snapshotInitializer,
         final SnapshotFileStreamer snapshotFileStreamer,
         final SnapshotFileRepository snapshotFileRepository,
-        final NrtmFileUtil nrtmFileUtil
-    ) {
+        final NrtmFileUtil nrtmFileUtil,
+        final SerialDao serialDao
+        ) {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotInitializer = snapshotInitializer;
         this.snapshotFileStreamer = snapshotFileStreamer;
         this.snapshotFileRepository = snapshotFileRepository;
         this.nrtmFileUtil = nrtmFileUtil;
+        this.serialDao = serialDao;
     }
 
     @Transactional
@@ -67,6 +73,11 @@ public class SnapshotFileGenerator {
         //       * if snapshot version > 1...
         //           - find list of deltas since the last snapshot
         //           - process them with SnapshotSynchronizer to bring snapshot_objects up to date
+        if (version.getVersion() > 1) {
+            final NrtmVersionInfo lastSnapshot = nrtmVersionInfoRepository.findLastSnapshotVersion(source);
+            final List<SerialEntry> deltas = serialDao.getSerialEntriesBetween(lastSnapshot.getLastSerialId(), version.getLastSerialId());
+
+        }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
         try {

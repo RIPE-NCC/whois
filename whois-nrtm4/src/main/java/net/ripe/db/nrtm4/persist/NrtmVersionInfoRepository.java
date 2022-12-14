@@ -130,13 +130,15 @@ public class NrtmVersionInfoRepository {
         return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId);
     }
 
-    public Optional<NrtmVersionInfo> findVersionNumber(final NrtmSource source, final long versionNumber) {
+    public NrtmVersionInfo findLastSnapshotVersion(final NrtmSource source) {
         final String sql = "" +
             "SELECT " + versionColumns +
             "FROM version v " +
             "JOIN source src ON src.id = v.source_id " +
-            "WHERE v.version = ? AND src.name = ?";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, versionNumber, source));
+            "JOIN snapshot_file sf ON sf.version_id = v.id " +
+            "WHERE src.name = ? " +
+            "ORDER BY v.version DESC LIMIT 1";
+        return jdbcTemplate.queryForObject(sql, rowMapper, source);
     }
 
     public Optional<NrtmVersionInfo> findById(final long versionId) {
