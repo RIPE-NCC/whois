@@ -31,6 +31,7 @@ public class SnapshotFileGenerator {
     private final SnapshotInitializer snapshotInitializer;
     private final SnapshotFileStreamer snapshotFileStreamer;
     private final SnapshotFileRepository snapshotFileRepository;
+    private final SnapshotSynchronizer snapshotSynchronizer;
     private final NrtmFileUtil nrtmFileUtil;
     private final SerialDao serialDao;
 
@@ -39,13 +40,15 @@ public class SnapshotFileGenerator {
         final SnapshotInitializer snapshotInitializer,
         final SnapshotFileStreamer snapshotFileStreamer,
         final SnapshotFileRepository snapshotFileRepository,
+        final SnapshotSynchronizer snapshotSynchronizer,
         final NrtmFileUtil nrtmFileUtil,
         final SerialDao serialDao
-        ) {
+    ) {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotInitializer = snapshotInitializer;
         this.snapshotFileStreamer = snapshotFileStreamer;
         this.snapshotFileRepository = snapshotFileRepository;
+        this.snapshotSynchronizer = snapshotSynchronizer;
         this.nrtmFileUtil = nrtmFileUtil;
         this.serialDao = serialDao;
     }
@@ -75,8 +78,8 @@ public class SnapshotFileGenerator {
         //           - process them with SnapshotSynchronizer to bring snapshot_objects up to date
         if (version.getVersion() > 1) {
             final NrtmVersionInfo lastSnapshot = nrtmVersionInfoRepository.findLastSnapshotVersion(source);
-            final List<SerialEntry> deltas = serialDao.getSerialEntriesBetween(lastSnapshot.getLastSerialId(), version.getLastSerialId());
-
+            final List<SerialEntry> whoisChanges = serialDao.getSerialEntriesBetween(lastSnapshot.getLastSerialId(), version.getLastSerialId());
+            snapshotSynchronizer.synchronizeDeltasToSnapshot(whoisChanges, version.getId());
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
