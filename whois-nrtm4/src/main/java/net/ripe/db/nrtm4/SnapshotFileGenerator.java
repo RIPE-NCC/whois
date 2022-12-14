@@ -1,7 +1,5 @@
 package net.ripe.db.nrtm4;
 
-import com.google.common.hash.Hashing;
-import net.ripe.db.nrtm4.persist.DeltaFileRepository;
 import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
@@ -9,6 +7,7 @@ import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.persist.SnapshotFileRepository;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.publish.SnapshotFileStreamer;
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,21 +27,21 @@ public class SnapshotFileGenerator {
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotInitializer snapshotInitializer;
     private final SnapshotFileStreamer snapshotFileStreamer;
-    private final DeltaFileRepository deltaFileRepository;
     private final SnapshotFileRepository snapshotFileRepository;
+    private final NrtmFileUtil nrtmFileUtil;
 
     public SnapshotFileGenerator(
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotInitializer snapshotInitializer,
         final SnapshotFileStreamer snapshotFileStreamer,
-        final DeltaFileRepository deltaFileRepository,
-        final SnapshotFileRepository snapshotFileRepository
+        final SnapshotFileRepository snapshotFileRepository,
+        final NrtmFileUtil nrtmFileUtil
     ) {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotInitializer = snapshotInitializer;
         this.snapshotFileStreamer = snapshotFileStreamer;
-        this.deltaFileRepository = deltaFileRepository;
         this.snapshotFileRepository = snapshotFileRepository;
+        this.nrtmFileUtil = nrtmFileUtil;
     }
 
     @Transactional
@@ -71,12 +70,9 @@ public class SnapshotFileGenerator {
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
         try {
-            final String fileName = FileNameGenerator.fileName(snapshotFile);
-            snapshotFileStreamer.writeJsonToOutput(snapshotFile, bos);
-            final String payload = bos.toString(StandardCharsets.UTF_8);
-            final String sha256hex = Hashing.sha256()
-                .hashString(payload, StandardCharsets.UTF_8)
-                .toString();
+            final String fileName = nrtmFileUtil.fileName(snapshotFile);
+            snapshotFileStreamer.writeSnapshotAsJson(snapshotFile, bos);
+            final String sha256hex = nrtmFileUtil.hashString(bos.toString(StandardCharsets.UTF_8));
             snapshotFileRepository.save(
                 snapshotFile.getVersionId(),
                 fileName,

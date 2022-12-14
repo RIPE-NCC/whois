@@ -21,7 +21,7 @@ public class SnapshotFileStreamer {
         this.snapshotObjectRepository = snapshotObjectRepository;
     }
 
-    public void writeJsonToOutput(
+    public void writeSnapshotAsJson(
         final PublishableSnapshotFile snapshotFile,
         final OutputStream outputStream
     ) throws IOException {

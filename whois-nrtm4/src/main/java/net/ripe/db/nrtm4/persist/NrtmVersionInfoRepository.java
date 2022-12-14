@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4.persist;
 
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,7 +15,6 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Optional;
-import java.util.UUID;
 
 
 @Repository
@@ -22,6 +22,7 @@ public class NrtmVersionInfoRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionInfoRepository.class);
     private final JdbcTemplate jdbcTemplate;
+    private final NrtmFileUtil nrtmFileUtil;
     private final RowMapper<NrtmVersionInfo> rowMapper = (rs, rowNum) ->
         new NrtmVersionInfo(
             rs.getLong(1),
@@ -33,8 +34,12 @@ public class NrtmVersionInfoRepository {
         );
     private final String versionColumns = "v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id ";
 
-    public NrtmVersionInfoRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public NrtmVersionInfoRepository(
+        @Qualifier("nrtmDataSource") final DataSource dataSource,
+        final NrtmFileUtil nrtmFileUtil
+    ) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.nrtmFileUtil = nrtmFileUtil;
     }
 
     /**
@@ -69,7 +74,7 @@ public class NrtmVersionInfoRepository {
     public NrtmVersionInfo createInitialSnapshot(final NrtmSource source, final int lastSerialId) {
         jdbcTemplate.update("INSERT INTO source (name) VALUES (?)", source.name());
         final long version = 1L;
-        final String sessionID = UUID.randomUUID().toString();
+        final String sessionID = nrtmFileUtil.sessionId();
         final NrtmDocumentType type = NrtmDocumentType.SNAPSHOT;
         return save(source, version, sessionID, type, lastSerialId);
     }

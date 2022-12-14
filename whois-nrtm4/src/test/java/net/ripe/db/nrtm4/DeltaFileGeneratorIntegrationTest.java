@@ -3,14 +3,19 @@ package net.ripe.db.nrtm4;
 import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.domain.Timestamp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 
+import javax.sql.DataSource;
 import java.util.Optional;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
@@ -19,6 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 
 @Tag("IntegrationTest")
@@ -28,16 +34,25 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
     @Autowired
     private DeltaFileGenerator deltaFileGenerator;
 
-    @Autowired
-    private NrtmVersionInfoRepository versionDao;
 
     @Autowired
     private JsonSerializer jsonSerializer;
+
+    @Autowired
+    @Qualifier("nrtmDataSource")
+    private DataSource dataSource;
+
+    @Mock
+    private NrtmFileUtil nrtmFileUtil;
+
+    private NrtmVersionInfoRepository versionDao;
 
     @BeforeEach
     public void setUp() {
         truncateTables(databaseHelper.getNrtmTemplate());
         truncateTables(databaseHelper.getWhoisTemplate());
+        MockitoAnnotations.openMocks(this);
+        versionDao = new NrtmVersionInfoRepository(dataSource, nrtmFileUtil);
     }
 
     private void loadSerials() {
@@ -47,6 +62,7 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
     }
 
     private void insertFirstVersion() {
+        when(nrtmFileUtil.sessionId()).thenReturn("1234567890");
         versionDao.createInitialSnapshot(NrtmSourceHolder.valueOf("TEST"), 0);
     }
 
@@ -81,7 +97,7 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
             "{\"action\":\"delete\",\"object_class\":\"AUT_NUM\",\"primary_key\":\"AS6\"}" +
             "]}";
         assertThat(jsonSerializer.process(deltaFile).replaceFirst("\"session_id\":\"[^\"]+\"", "\"session_id\":\"\""), is(sampleSm));
-        assertThat(deltaFile.getSha256hex(), is("b0f2c257c45e80a60fd8a4ed9a701ca9c401fa5642f7c42d0ac77809d51c59c4"));
+        assertThat(deltaFile.getSha256hex(), is("c875b8c4eb164a3049f7cee0db494a0504febe11506bc4ceb3f644ef0ea00283"));
         assertThat(deltaFile.getFileName(), startsWith("nrtm-delta.2."));
     }
 

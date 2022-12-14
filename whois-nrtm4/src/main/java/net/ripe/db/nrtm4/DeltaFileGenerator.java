@@ -1,18 +1,17 @@
 package net.ripe.db.nrtm4;
 
-import com.google.common.hash.Hashing;
 import net.ripe.db.nrtm4.persist.DeltaFileRepository;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,19 +26,22 @@ public class DeltaFileGenerator {
     private final SerialDao serialDao;
     private final DeltaFileRepository deltaFileRepository;
     private final JsonSerializer jsonSerializer;
+    private final NrtmFileUtil nrtmFileUtil;
 
     public DeltaFileGenerator(
         final DeltaTransformer deltaTransformer,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SerialDao serialDao,
         final DeltaFileRepository deltaFileRepository,
-        final JsonSerializer jsonSerializer
+        final JsonSerializer jsonSerializer,
+        final NrtmFileUtil nrtmFileUtil
     ) {
         this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.serialDao = serialDao;
         this.deltaFileRepository = deltaFileRepository;
         this.jsonSerializer = jsonSerializer;
+        this.nrtmFileUtil = nrtmFileUtil;
     }
 
     public Optional<PublishableDeltaFile> createDelta(final NrtmSource source) {
@@ -64,10 +66,8 @@ public class DeltaFileGenerator {
         final PublishableDeltaFile deltaFile = new PublishableDeltaFile(nextVersion, deltas);
         final String payload = jsonSerializer.process(deltaFile);
 
-        final String fileName = FileNameGenerator.fileName(deltaFile);
-        final String sha256hex = Hashing.sha256()
-            .hashString(payload, StandardCharsets.UTF_8)
-            .toString();
+        final String fileName = nrtmFileUtil.fileName(deltaFile);
+        final String sha256hex = nrtmFileUtil.hashString(payload);
 
         deltaFileRepository.save(
             nextVersion.getId(),

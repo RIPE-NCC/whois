@@ -96,7 +96,7 @@ public class NrtmFileService {
                             final NrtmVersionInfo version = nrtmVersionInfoRepository.findById(snapshotFile.get().getVersionId()).orElseThrow();
                             final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
                             final FileOutputStream fos = nrtmFileRepo.getFileOutputStream(name);
-                            snapshotFileStreamer.writeJsonToOutput(publishableSnapshotFile, fos);
+                            snapshotFileStreamer.writeSnapshotAsJson(publishableSnapshotFile, fos);
                             fos.close();
                         } else {
                             throw new FileNotFoundException("NRTM has no snapshot files with name: " + name);

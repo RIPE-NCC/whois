@@ -45,7 +45,7 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelper
     }
 
     @Test
-    public void snapshot_file_is_generated() throws IOException {
+    public void initial_snapshot_file_is_generated_and_written_to_disk() throws IOException {
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
         final String sessionID;
         {
@@ -69,7 +69,6 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelper
                 "\"inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Description\\ncountry:        es\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n\"" +
                 "]}"
             ));
-            assertThat(snapshotFile.getSha256hex(), is("c8db3cf3504780c6a6db452845fb740d5f8d2cc7fa2230af3f6217302bb0931d"));
             assertThat(snapshotFile.getFileName(), startsWith("nrtm-snapshot.1."));
         }
         {
