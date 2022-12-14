@@ -17,6 +17,7 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScr
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -80,6 +81,8 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
             "{\"action\":\"delete\",\"object_class\":\"AUT_NUM\",\"primary_key\":\"AS6\"}" +
             "]}";
         assertThat(jsonSerializer.process(deltaFile).replaceFirst("\"session_id\":\"[^\"]+\"", "\"session_id\":\"\""), is(sampleSm));
+        assertThat(deltaFile.getSha256hex(), is("b0f2c257c45e80a60fd8a4ed9a701ca9c401fa5642f7c42d0ac77809d51c59c4"));
+        assertThat(deltaFile.getFileName(), startsWith("nrtm-delta.2."));
     }
 
 }
