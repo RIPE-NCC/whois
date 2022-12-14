@@ -65,9 +65,9 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelper
                 "\"source\":\"TEST\"," +
                 "\"version\":1," +
                 "\"objects\":[" +
-                "\"inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Description\\ncountry:        es\\nadmin-c:        TEST-RIPE\\ntech-c:         TEST-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\n\"," +
-                "\"person:         Test Person\\naddress:        NL\\ne-mail:         test@test.net\\nphone:          +1 234 567 8900\\nnotify:         test@test.net\\nmnt-by:         TEST-MNT\\nnic-hdl:        TEST-RIPE\\nsource:         RIPE\\n\"" +
-                "]}"));
+                "\"inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Description\\ncountry:        es\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n\"" +
+                "]}"
+            ));
         }
         {
             // don't generate snapshot version if nothing changed

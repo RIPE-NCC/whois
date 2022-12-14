@@ -6,9 +6,9 @@ import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 
 public class PublishableSnapshotFile extends PublishableNrtmDocument {
 
-    @JsonIgnore
+    @JsonIgnore // Not used, since snapshots are streamed explicitly
     private String fileName;
-    @JsonIgnore
+    @JsonIgnore // Not used, since snapshots are streamed explicitly
     private String sha256hex;
 
     public PublishableSnapshotFile(
