@@ -64,7 +64,7 @@ public class DeltaFileGenerator {
         final PublishableDeltaFile deltaFile = new PublishableDeltaFile(nextVersion, deltas);
         final String payload = jsonSerializer.process(deltaFile);
 
-        final String fileName = FileNameGenerator.snapshotFileName(nextVersion.getVersion());
+        final String fileName = FileNameGenerator.fileName(deltaFile);
         final String sha256hex = Hashing.sha256()
             .hashString(payload, StandardCharsets.UTF_8)
             .toString();

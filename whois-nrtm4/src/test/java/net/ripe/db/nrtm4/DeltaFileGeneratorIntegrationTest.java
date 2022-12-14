@@ -45,7 +45,7 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
         whoisTemplate.update("UPDATE history SET timestamp = ?", Timestamp.from(testDateTimeProvider.getCurrentDateTime()).getValue());
     }
 
-    private void insertSnapshot() {
+    private void insertFirstVersion() {
         versionDao.createInitialSnapshot(NrtmSourceHolder.valueOf("TEST"), 0);
     }
 
@@ -54,7 +54,7 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
         assertThrows(IllegalStateException.class, () ->
             deltaFileGenerator.createDelta(NrtmSourceHolder.valueOf("TEST"))
         );
-        insertSnapshot();
+        insertFirstVersion();
         final var deltas = deltaFileGenerator.createDelta(NrtmSourceHolder.valueOf("TEST"));
         assertThat(deltas.isEmpty(), is(true));
     }
@@ -62,12 +62,13 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
     @Test
     public void test_delta_file_generation() {
 
-        insertSnapshot();
+        insertFirstVersion();
         loadSerials();
         final Optional<PublishableDeltaFile> optDeltaFile = deltaFileGenerator.createDelta(NrtmSourceHolder.valueOf("TEST"));
         assertThat(optDeltaFile.isPresent(), is(true));
         final PublishableDeltaFile deltaFile = optDeltaFile.get();
-        final String sampleSm = "{\"nrtm_version\":4," +
+        final String sampleSm = "" +
+            "{\"nrtm_version\":4," +
             "\"type\":\"delta\"," +
             "\"source\":\"TEST\"," +
             "\"session_id\":\"\"," +

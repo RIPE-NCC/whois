@@ -1,5 +1,8 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
+import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
+
 import java.util.Random;
 
 import static net.ripe.db.nrtm4.NrtmConstants.DELTA_PREFIX;
@@ -8,16 +11,14 @@ import static net.ripe.db.nrtm4.NrtmConstants.SNAPSHOT_PREFIX;
 
 public class FileNameGenerator {
 
-
-
     private static final String chars = "0123456789abcdef";
 
-    static String deltaFileName(final long version) {
-        return String.format("%s.%d.%s.json", DELTA_PREFIX, version, randomHexString());
+    static String fileName(final PublishableDeltaFile file) {
+        return String.format("%s.%d.%s.json", DELTA_PREFIX, file.getVersion(), randomHexString());
     }
 
-    static String snapshotFileName(final long version) {
-        return String.format("%s.%d.%s.json", SNAPSHOT_PREFIX, version, randomHexString());
+    static String fileName(final PublishableSnapshotFile file) {
+        return String.format("%s.%d.%s.json", SNAPSHOT_PREFIX, file.getVersion(), randomHexString());
     }
 
     static String randomHexString() {

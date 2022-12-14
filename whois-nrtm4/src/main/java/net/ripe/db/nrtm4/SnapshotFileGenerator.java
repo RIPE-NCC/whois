@@ -47,7 +47,7 @@ public class SnapshotFileGenerator {
 
     @Transactional
     // TODO: Add a global lock to ensure that no other instance can run until this method exits
-    public Optional<PublishableSnapshotFile> generateSnapshot(final NrtmSource source) {
+    public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) {
 
         // Get last version from database.
         final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
@@ -71,9 +71,8 @@ public class SnapshotFileGenerator {
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
         try {
-            final String fileName = FileNameGenerator.snapshotFileName(version.getVersion());
-            //final OutputStream out = nrtmFileRepo.getFileOutputStream(fileName);
-            snapshotFileStreamer.processSnapshot(snapshotFile, bos);
+            final String fileName = FileNameGenerator.fileName(snapshotFile);
+            snapshotFileStreamer.writeJsonToOutput(snapshotFile, bos);
             final String payload = bos.toString(StandardCharsets.UTF_8);
             final String sha256hex = Hashing.sha256()
                 .hashString(payload, StandardCharsets.UTF_8)

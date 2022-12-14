@@ -18,9 +18,8 @@ public class DeltaChange {
         DELETE,
         ADD_MODIFY;
 
-        @Override
         @JsonValue
-        public String toString() {
+        public String toLowerCaseName() {
             return name().toLowerCase();
         }
     }
@@ -53,8 +52,8 @@ public class DeltaChange {
         return new DeltaChange(serialId, Action.ADD_MODIFY, null, null, rpslObject);
     }
 
-    public static DeltaChange delete(final ObjectType objectClass, final String primaryKey) {
-        return new DeltaChange(0, Action.DELETE, objectClass, primaryKey, null);
+    public static DeltaChange delete(final ObjectType objectType, final String primaryKey) {
+        return new DeltaChange(0, Action.DELETE, objectType, primaryKey, null);
     }
 
     public int getSerialId() {

@@ -9,7 +9,6 @@ import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.persist.SnapshotFile;
 import net.ripe.db.nrtm4.persist.SnapshotFileRepository;
-import net.ripe.db.nrtm4.persist.SnapshotObjectRepository;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.publish.SnapshotFileStreamer;
 import org.springframework.stereotype.Service;
@@ -97,7 +96,7 @@ public class NrtmFileService {
                             final NrtmVersionInfo version = nrtmVersionInfoRepository.findById(snapshotFile.get().getVersionId()).orElseThrow();
                             final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
                             final FileOutputStream fos = nrtmFileRepo.getFileOutputStream(name);
-                            snapshotFileStreamer.processSnapshot(publishableSnapshotFile, fos);
+                            snapshotFileStreamer.writeJsonToOutput(publishableSnapshotFile, fos);
                             fos.close();
                         } else {
                             throw new FileNotFoundException("NRTM has no snapshot files with name: " + name);

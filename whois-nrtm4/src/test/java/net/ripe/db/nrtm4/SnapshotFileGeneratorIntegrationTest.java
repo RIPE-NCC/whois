@@ -48,7 +48,7 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelper
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
         final String sessionID;
         {
-            final Optional<PublishableSnapshotFile> optFile = snapshotFileGenerator.generateSnapshot(nrtmSourceHolder.getSource());
+            final Optional<PublishableSnapshotFile> optFile = snapshotFileGenerator.createSnapshot(nrtmSourceHolder.getSource());
             assertThat(optFile.isPresent(), is(true));
             final PublishableSnapshotFile snapshotFile = optFile.get();
             assertThat(snapshotFile.getVersion(), is(1L));
@@ -71,7 +71,7 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelper
         }
         {
             // don't generate snapshot version if nothing changed
-            final Optional<PublishableSnapshotFile> snapshotFileOptional = snapshotFileGenerator.generateSnapshot(nrtmSourceHolder.getSource());
+            final Optional<PublishableSnapshotFile> snapshotFileOptional = snapshotFileGenerator.createSnapshot(nrtmSourceHolder.getSource());
             assertThat(snapshotFileOptional.isPresent(), is(false));
         }
     }
