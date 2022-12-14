@@ -34,7 +34,6 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
     @Autowired
     private DeltaFileGenerator deltaFileGenerator;
 
-
     @Autowired
     private JsonSerializer jsonSerializer;
 
