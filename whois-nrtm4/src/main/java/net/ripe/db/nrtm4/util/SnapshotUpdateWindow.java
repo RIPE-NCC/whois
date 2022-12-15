@@ -10,17 +10,15 @@ import java.util.regex.Pattern;
 
 
 @Component
-public class SnapshotWindow {
-
-    private final String REGEX = "(\\d{2}):(\\d{2})-(\\d{2}):(\\d{2})";
+public class SnapshotUpdateWindow {
 
     private final Date startTime;
     private final Date endTime;
 
-    SnapshotWindow(@Value("${nrtm.snapshot.window:00:00-04:00}") final String snapshotWindowString) {
+    SnapshotUpdateWindow(@Value("${nrtm.snapshot.window:00:00-04:00}") final String snapshotWindowString) {
         // parse it into a representation that includes midnight -- so 10:00-06:00 starts at 10am and ends at 6am the following day
-        final Pattern pattern = Pattern.compile(REGEX);
-        final Matcher matcher = pattern.matcher(snapshotWindowString);
+        final Pattern PATTERN = Pattern.compile("(\\d{2}):(\\d{2})-(\\d{2}):(\\d{2})");
+        final Matcher matcher = PATTERN.matcher(snapshotWindowString);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Could not parse: " + snapshotWindowString + " from property nrtm.snapshot.window");
         }

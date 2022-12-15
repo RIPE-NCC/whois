@@ -1,12 +1,11 @@
 package net.ripe.db.nrtm4;
 
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
 import net.ripe.db.nrtm4.persist.SnapshotFile;
 import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
-import net.ripe.db.nrtm4.util.SnapshotWindow;
+import net.ripe.db.nrtm4.util.SnapshotUpdateWindow;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,20 +24,20 @@ public class NrtmFileProcessor {
     private final NrtmFileService nrtmFileService;
     private final NrtmSourceHolder nrtmSourceHolder;
     private final SnapshotFileGenerator snapshotFileGenerator;
-    private final SnapshotWindow snapshotWindow;
+    private final SnapshotUpdateWindow snapshotUpdateWindow;
 
     public NrtmFileProcessor(
         final DeltaFileGenerator deltaFileGenerator,
         final NrtmFileService nrtmFileService,
         final NrtmSourceHolder nrtmSourceHolder,
         final SnapshotFileGenerator snapshotFileGenerator,
-        final SnapshotWindow snapshotWindow
+        final SnapshotUpdateWindow snapshotUpdateWindow
     ) {
         this.deltaFileGenerator = deltaFileGenerator;
         this.nrtmFileService = nrtmFileService;
         this.nrtmSourceHolder = nrtmSourceHolder;
         this.snapshotFileGenerator = snapshotFileGenerator;
-        this.snapshotWindow = snapshotWindow;
+        this.snapshotUpdateWindow = snapshotUpdateWindow;
     }
 
     @Scheduled(fixedDelay = 60 * 1_000)
@@ -49,8 +48,6 @@ public class NrtmFileProcessor {
         //nrtmFileService.syncNrtmFileToFileSystem(name);
     }
 
-    @Scheduled(fixedDelay = 60 * 1_000)
-    @SchedulerLock(name = "NrtmWriteFiles")
     @Transactional
     public void runWrite() {
         LOGGER.info("runWrite() called");
@@ -63,7 +60,7 @@ public class NrtmFileProcessor {
             publishableSnapshotFile = snapshotFileGenerator.createSnapshot(source);
             LOGGER.info("Initialization done.");
         } else {
-            if (snapshotWindow.fileShouldBeUpdated(snapshotFile.get())) {
+            if (snapshotUpdateWindow.fileShouldBeUpdated(snapshotFile.get())) {
                 LOGGER.info("Generating a new snapshot...");
                 publishableSnapshotFile = snapshotFileGenerator.createSnapshot(source);
                 LOGGER.info("Generating snapshot done");
