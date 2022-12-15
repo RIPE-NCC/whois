@@ -4,6 +4,7 @@ import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.persist.SnapshotFile;
 import net.ripe.db.nrtm4.persist.SnapshotFileRepository;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.publish.SnapshotFileStreamer;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -56,7 +56,6 @@ public class SnapshotFileGenerator {
         this.serialDao = serialDao;
     }
 
-    @Transactional
     // TODO: Add a global lock to ensure that no other instance can run until this method exits
     public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) {
 
@@ -108,6 +107,10 @@ public class SnapshotFileGenerator {
             LOGGER.error("Exception thrown when generating snapshot file", e);
             throw new RuntimeException(e);
         }
+    }
+
+    public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
+        return snapshotFileRepository.getLastSnapshot(source);
     }
 
 }

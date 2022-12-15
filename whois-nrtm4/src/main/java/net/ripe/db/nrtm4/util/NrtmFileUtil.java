@@ -16,7 +16,8 @@ import static net.ripe.db.nrtm4.NrtmConstants.SNAPSHOT_PREFIX;
 @Service
 public class NrtmFileUtil {
 
-    private static final String chars = "0123456789abcdef";
+    private static final String CHARS = "0123456789abcdef";
+    private static final int RAND_STRING_LENGTH = 40;
 
     public String fileName(final PublishableDeltaFile file) {
         return String.format("%s.%d.%s.json", DELTA_PREFIX, file.getVersion(), randomHexString());
@@ -38,9 +39,9 @@ public class NrtmFileUtil {
 
     private static String randomHexString() {
         final Random random = new Random();
-        final StringBuilder sb = new StringBuilder(40);
-        for (int i = 0; i < 40; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
+        final StringBuilder sb = new StringBuilder(RAND_STRING_LENGTH);
+        for (int i = 0; i < RAND_STRING_LENGTH; i++) {
+            sb.append(CHARS.charAt(random.nextInt(CHARS.length())));
         }
         return sb.toString();
     }
