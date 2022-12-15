@@ -27,6 +27,7 @@ public class SnapshotFileGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
 
+    private final DeltaTransformer deltaTransformer;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotInitializer snapshotInitializer;
     private final SnapshotFileStreamer snapshotFileStreamer;
@@ -36,6 +37,7 @@ public class SnapshotFileGenerator {
     private final SerialDao serialDao;
 
     public SnapshotFileGenerator(
+        final DeltaTransformer deltaTransformer,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotInitializer snapshotInitializer,
         final SnapshotFileStreamer snapshotFileStreamer,
@@ -44,6 +46,7 @@ public class SnapshotFileGenerator {
         final NrtmFileUtil nrtmFileUtil,
         final SerialDao serialDao
     ) {
+        this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotInitializer = snapshotInitializer;
         this.snapshotFileStreamer = snapshotFileStreamer;
@@ -67,7 +70,7 @@ public class SnapshotFileGenerator {
             if (version.getType() == NrtmDocumentType.DELTA) {
                 version = nrtmVersionInfoRepository.copyAsSnapshotVersion(version);
             } else {
-                LOGGER.info("Not generating snapshot file since there have been no changes since v{} with serialID {}",
+                LOGGER.info("Not generating snapshot file since no deltas have been published since v{} with serialID {}",
                     version.getVersion(), version.getLastSerialId());
                 return Optional.empty();
             }
@@ -79,7 +82,13 @@ public class SnapshotFileGenerator {
         if (version.getVersion() > 1) {
             final NrtmVersionInfo lastSnapshot = nrtmVersionInfoRepository.findLastSnapshotVersion(source);
             final List<SerialEntry> whoisChanges = serialDao.getSerialEntriesBetween(lastSnapshot.getLastSerialId(), version.getLastSerialId());
-            snapshotSynchronizer.synchronizeDeltasToSnapshot(whoisChanges, version.getId());
+            final List<DeltaChange> deltas = deltaTransformer.toDeltaChange(whoisChanges);
+            if (deltas.size() < 1) {
+                LOGGER.error("Changes found but no delta has been published since serialID {}. Now at {}",
+                    lastSnapshot.getLastSerialId(), version.getLastSerialId());
+                return Optional.empty();
+            }
+            snapshotSynchronizer.synchronizeDeltasToSnapshot(deltas, version.getId());
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);

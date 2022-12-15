@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.persist.SnapshotObjectRepository;
-import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +20,7 @@ public class SnapshotSynchronizer {
         this.deltaTransformer = deltaTransformer;
     }
 
-    void synchronizeDeltasToSnapshot(final List<SerialEntry> whoisChanges, final long versionId) {
-        final List<DeltaChange> deltas = deltaTransformer.toDeltaChange(whoisChanges);
+    void synchronizeDeltasToSnapshot(final List<DeltaChange> deltas, final long versionId) {
         for (final DeltaChange change : deltas) {
             if (change.getAction() == DeltaChange.Action.ADD_MODIFY) {
                 snapshotObjectRepository.insert(
