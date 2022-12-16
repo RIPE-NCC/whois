@@ -61,12 +61,12 @@ public class SnapshotObjectRepository {
 
     public Stream<String> streamSnapshots(final NrtmSource source) {
         final String sql = "" +
-            "SELECT payload " +
-            "FROM snapshot_object " +
-            "JOIN version ON version.id = snapshot_object.version_id " +
-            "JOIN source ON source.id = version.source_id " +
-            "WHERE source.name = ? " +
-            "ORDER BY snapshot_object.serial_id";
+            "SELECT so.payload " +
+            "FROM snapshot_object so " +
+            "JOIN version v ON v.id = so.version_id " +
+            "JOIN source src ON src.id = v.source_id " +
+            "WHERE src.name = ? " +
+            "ORDER BY so.serial_id";
 
         final Stream.Builder<String> builder = Stream.builder();
 

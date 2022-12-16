@@ -27,7 +27,7 @@ public class SnapshotFileRepository {
             rs.getLong(5)
         );
 
-    private final String snapshotFileFields = "id, version_id, name, hash, created ";
+    private final String snapshotFileFields = "sf.id, sf.version_id, sf.name, sf.hash, sf.created ";
 
     @Autowired
     public SnapshotFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
@@ -59,19 +59,19 @@ public class SnapshotFileRepository {
     public Optional<SnapshotFile> getByName(final String name) {
         final String sql = "" +
             "SELECT " + snapshotFileFields +
-            "FROM snapshot_file " +
-            "WHERE name = ?";
+            "FROM snapshot_file sf " +
+            "WHERE sf.name = ?";
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
     }
 
     public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
         final String sql = "" +
             "SELECT " + snapshotFileFields +
-            "FROM snapshot_file " +
-            "JOIN version ON version.id = snapshot_file.version_id " +
-            "JOIN source ON source.id = version.source_id " +
-            "WHERE source.name = ? " +
-            "ORDER BY version.version DESC LIMIT 1";
+            "FROM snapshot_file sf " +
+            "JOIN version v ON v.id = sf.version_id " +
+            "JOIN source src ON src.id = v.source_id " +
+            "WHERE src.name = ? " +
+            "ORDER BY v.version DESC LIMIT 1";
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.name()));
     }
 
