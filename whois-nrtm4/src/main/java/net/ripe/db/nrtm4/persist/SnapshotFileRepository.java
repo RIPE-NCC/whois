@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.persist;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -61,7 +62,11 @@ public class SnapshotFileRepository {
             "SELECT " + snapshotFileFields +
             "FROM snapshot_file sf " +
             "WHERE sf.name = ?";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
+        } catch (final EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
     }
 
     public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
@@ -72,7 +77,11 @@ public class SnapshotFileRepository {
             "JOIN source src ON src.id = v.source_id " +
             "WHERE src.name = ? " +
             "ORDER BY v.version DESC LIMIT 1";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.name()));
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, source.name()));
+        } catch (final EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
     }
 
 }
