@@ -54,7 +54,6 @@ public class NrtmFileProcessor {
     public void runWrite() {
         LOGGER.info("runWrite() called");
         final NrtmSource source = nrtmSourceHolder.getSource();
-        final Optional<PublishableDeltaFile> optDelta = deltaFileGenerator.createDelta(source);
         final Optional<SnapshotFile> snapshotFile = snapshotFileGenerator.getLastSnapshot(source);
         Optional<PublishableSnapshotFile> publishableSnapshotFile;
         if (snapshotFile.isEmpty()) {
@@ -62,6 +61,7 @@ public class NrtmFileProcessor {
             publishableSnapshotFile = snapshotFileGenerator.createSnapshot(source);
             LOGGER.info("Initialization done.");
         } else {
+            final Optional<PublishableDeltaFile> optDelta = deltaFileGenerator.createDelta(source);
             if (snapshotUpdateWindow.fileShouldBeUpdated(snapshotFile.get())) {
                 LOGGER.info("Generating a new snapshot...");
                 publishableSnapshotFile = snapshotFileGenerator.createSnapshot(source);
