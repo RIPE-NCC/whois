@@ -34,11 +34,11 @@ public class SnapshotInitializer {
     }
 
     NrtmVersionInfo init(final NrtmSource source) {
-        final List<SerialEntry> objects = serialDao.getSerialEntriesFromLast().stream()
+        final List<SerialEntry> objects = serialDao.getSerialEntriesFromLast()
             .filter((obj) -> dummifierNrtm.isAllowed(NrtmConstants.NRTM_VERSION, obj.getRpslObject()))
             .collect(Collectors.toList());
         if (objects.isEmpty()) {
-            throw new IllegalStateException("generateSnapshot() failed because there are no objects in whois");
+            throw new IllegalStateException("init() failed because there are no objects in whois");
         }
         final int lastSerial = objects.get(objects.size() - 1).getSerialId();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialSnapshot(source, lastSerial);

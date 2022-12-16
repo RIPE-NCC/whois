@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.persist.NrtmDocumentType;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
 import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
@@ -20,12 +21,21 @@ import static org.hamcrest.Matchers.startsWith;
 public class NrtmFileUtilTest {
 
     NrtmFileUtil nrtmFileUtil;
-    private final NrtmVersionInfo testVersion = new NrtmVersionInfo(
+    private final NrtmVersionInfo testSnapshotVersion = new NrtmVersionInfo(
         21L,
         new NrtmSource("TEST"),
         22L,
         "1234567890abcdef",
-        null,
+        NrtmDocumentType.SNAPSHOT,
+        123123
+    );
+
+    private final NrtmVersionInfo testDeltaVersion = new NrtmVersionInfo(
+        21L,
+        new NrtmSource("TEST"),
+        22L,
+        "1234567890abcdef",
+        NrtmDocumentType.DELTA,
         123123
     );
 
@@ -36,14 +46,14 @@ public class NrtmFileUtilTest {
 
     @Test
     void snapshot_file_name_looks_legit() {
-        final var file = new PublishableSnapshotFile(testVersion);
+        final var file = new PublishableSnapshotFile(testSnapshotVersion);
         final var name = nrtmFileUtil.fileName(file);
         assertThat(name, startsWith("nrtm-snapshot.22."));
     }
 
     @Test
     void delta_file_name_looks_legit() {
-        final var file = new PublishableDeltaFile(testVersion, List.of());
+        final var file = new PublishableDeltaFile(testDeltaVersion, List.of());
         final var name = nrtmFileUtil.fileName(file);
         assertThat(name, startsWith("nrtm-delta.22."));
     }

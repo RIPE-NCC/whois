@@ -65,7 +65,7 @@ public class NrtmVersionInfoRepository {
     }
 
     /**
-     * Creates a row in the version_information table for an initial snapshot.
+     * Creates a row in the version table for an initial snapshot.
      *
      * @param source The source which is being initialized
      * @param lastSerialId The last serialID from the Whois serials table which is in the snapshot

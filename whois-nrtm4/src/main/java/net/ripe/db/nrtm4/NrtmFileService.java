@@ -29,7 +29,7 @@ import static net.ripe.db.nrtm4.NrtmConstants.SNAPSHOT_PREFIX;
 public class NrtmFileService {
 
     private final NotificationFileRepository notificationFileRepository;
-    private final NrtmFileRepo nrtmFileRepo;
+    private final NrtmFileStore nrtmFileStore;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final DeltaFileRepository deltaFileRepository;
     private final SnapshotFileRepository snapshotFileRepository;
@@ -39,14 +39,14 @@ public class NrtmFileService {
 
     NrtmFileService(
         final NotificationFileRepository notificationFileRepository,
-        final NrtmFileRepo nrtmFileRepo,
+        final NrtmFileStore nrtmFileStore,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final DeltaFileRepository deltaFileRepository,
         final SnapshotFileRepository snapshotFileRepository,
         final SnapshotFileStreamer snapshotFileStreamer
     ) {
         this.notificationFileRepository = notificationFileRepository;
-        this.nrtmFileRepo = nrtmFileRepo;
+        this.nrtmFileStore = nrtmFileStore;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.deltaFileRepository = deltaFileRepository;
         this.snapshotFileRepository = snapshotFileRepository;
@@ -64,19 +64,19 @@ public class NrtmFileService {
             return;
         }
         syncNrtmFileToFileSystem(name);
-        nrtmFileRepo.streamFromFile(name, out);
+        nrtmFileStore.streamFromFile(name, out);
     }
 
     void syncNrtmFileToFileSystem(final String name) throws IOException {
         if (name.startsWith(DELTA_PREFIX)) {
-            if (!nrtmFileRepo.checkIfFileExists(name)) {
+            if (!nrtmFileStore.checkIfFileExists(name)) {
                 deltaMutex.enter();
                 try {
                     // check again now that the lock is in force
-                    if (!nrtmFileRepo.checkIfFileExists(name)) {
+                    if (!nrtmFileStore.checkIfFileExists(name)) {
                         final Optional<DeltaFile> optDeltaFile = deltaFileRepository.getByName(name);
                         if (optDeltaFile.isPresent()) {
-                            nrtmFileRepo.storeFile(name, optDeltaFile.get().getPayload());
+                            nrtmFileStore.storeFile(name, optDeltaFile.get().getPayload());
                         } else {
                             throw new FileNotFoundException("NRTM has no delta files with name: " + name);
                         }
@@ -86,17 +86,17 @@ public class NrtmFileService {
                 }
             }
         } else if (name.startsWith(SNAPSHOT_PREFIX)) {
-            if (!nrtmFileRepo.checkIfFileExists(name)) {
+            if (!nrtmFileStore.checkIfFileExists(name)) {
                 snapshotMutex.enter();
                 try {
                     // check again now that the lock is in force
-                    if (!nrtmFileRepo.checkIfFileExists(name)) {
+                    if (!nrtmFileStore.checkIfFileExists(name)) {
                         final Optional<SnapshotFile> snapshotFile = snapshotFileRepository.getByName(name);
                         // should always be the last version, since we only maintain the latest snapshot
                         if (snapshotFile.isPresent()) {
                             final NrtmVersionInfo version = nrtmVersionInfoRepository.findById(snapshotFile.get().getVersionId()).orElseThrow();
                             final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
-                            final FileOutputStream fos = nrtmFileRepo.getFileOutputStream(name);
+                            final FileOutputStream fos = nrtmFileStore.getFileOutputStream(name);
                             snapshotFileStreamer.writeSnapshotAsJson(publishableSnapshotFile, fos);
                             fos.close();
                         } else {

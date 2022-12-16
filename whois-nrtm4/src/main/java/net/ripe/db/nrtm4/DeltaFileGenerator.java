@@ -1,5 +1,7 @@
 package net.ripe.db.nrtm4;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import net.ripe.db.nrtm4.persist.DeltaFileRepository;
 import net.ripe.db.nrtm4.persist.NrtmSource;
 import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
@@ -25,7 +27,6 @@ public class DeltaFileGenerator {
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SerialDao serialDao;
     private final DeltaFileRepository deltaFileRepository;
-    private final JsonSerializer jsonSerializer;
     private final NrtmFileUtil nrtmFileUtil;
 
     public DeltaFileGenerator(
@@ -33,14 +34,12 @@ public class DeltaFileGenerator {
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SerialDao serialDao,
         final DeltaFileRepository deltaFileRepository,
-        final JsonSerializer jsonSerializer,
         final NrtmFileUtil nrtmFileUtil
     ) {
         this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.serialDao = serialDao;
         this.deltaFileRepository = deltaFileRepository;
-        this.jsonSerializer = jsonSerializer;
         this.nrtmFileUtil = nrtmFileUtil;
     }
 
@@ -64,7 +63,13 @@ public class DeltaFileGenerator {
         final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getSerialId();
         final NrtmVersionInfo nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
         final PublishableDeltaFile deltaFile = new PublishableDeltaFile(nextVersion, deltas);
-        final String payload = jsonSerializer.process(deltaFile);
+        final JsonMapper objectMapper = JsonMapper.builder().build();
+        final String payload;
+        try {
+            payload = objectMapper.writeValueAsString(deltaFile);
+        } catch (final JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
         final String fileName = nrtmFileUtil.fileName(deltaFile);
         final String sha256hex = nrtmFileUtil.hashString(payload);

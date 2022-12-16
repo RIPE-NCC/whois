@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 
 public interface SerialDao {
@@ -21,7 +22,7 @@ public interface SerialDao {
      */
     List<SerialEntry> getSerialEntriesBetween(int serialIdFrom, int serialIdTo);
 
-    List<SerialEntry> getSerialEntriesFromLast();
+    Stream<SerialEntry> getSerialEntriesFromLast();
 
     Integer getAgeOfExactOrNextExistingSerial(int serialId);
 }

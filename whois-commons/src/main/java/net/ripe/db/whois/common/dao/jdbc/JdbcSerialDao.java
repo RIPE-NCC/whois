@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.CheckForNull;
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 @Repository
@@ -61,7 +62,7 @@ public class JdbcSerialDao implements SerialDao {
 
     @Override
     @CheckForNull
-    public List<SerialEntry> getSerialEntriesFromLast() {
+    public Stream<SerialEntry> getSerialEntriesFromLast() {
         return JdbcRpslObjectOperations.getSerialEntriesFromLast(jdbcTemplate);
     }
 

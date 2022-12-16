@@ -37,7 +37,7 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelper
     private NrtmFileService nrtmFileService;
 
     @Autowired
-    private NrtmFileRepo nrtmFileRepo;
+    private NrtmFileStore nrtmFileStore;
 
     @BeforeEach
     public void setUp() {

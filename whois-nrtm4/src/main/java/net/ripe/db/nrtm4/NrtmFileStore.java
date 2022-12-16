@@ -13,11 +13,11 @@ import java.nio.charset.StandardCharsets;
 
 
 @Service
-public class NrtmFileRepo {
+public class NrtmFileStore {
 
     private final String path;
 
-    NrtmFileRepo(
+    NrtmFileStore(
         @Value("${nrtm.file.path:/tmp}") final String path
     ) {
         this.path = path;
