@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class NrtmFileWriter implements DailyScheduledTask {
+public class NrtmFileWriterScheduledTask implements DailyScheduledTask {
 
     private final NrtmFileProcessor nrtmFileProcessor;
 
-    NrtmFileWriter(final NrtmFileProcessor nrtmFileProcessor) {
+    NrtmFileWriterScheduledTask(final NrtmFileProcessor nrtmFileProcessor) {
         this.nrtmFileProcessor = nrtmFileProcessor;
     }
 
