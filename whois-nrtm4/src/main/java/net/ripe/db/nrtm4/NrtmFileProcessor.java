@@ -9,6 +9,7 @@ import net.ripe.db.nrtm4.util.SnapshotUpdateWindow;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.io.OutputStream;
 import java.util.Optional;
 
 
+@Service
 public class NrtmFileProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmFileProcessor.class);
