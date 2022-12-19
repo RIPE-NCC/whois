@@ -39,7 +39,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
         final var version = nrtmVersionInfoRepository.createInitialSnapshot(source.getSource(), 0);
         snapshotObjectRepository.insert(version.getId(), 1, ObjectType.INETNUM, "193.0.0.0 - 193.255.255.255", escapedInetnumString);
         snapshotObjectRepository.insert(version.getId(), 2, ObjectType.ORGANISATION, "ORG-XYZ99-RIPE", escapedOrgString);
-        final var stream = snapshotObjectRepository.streamSnapshots(source.getSource());
+        final var stream = snapshotObjectRepository.getSnapshotAsStream(source.getSource());
         final var list = stream.collect(Collectors.toList());
         assertThat(list.get(0), is("inetnum:        193.0.0.0 - 193.255.255.255\\nsource:         TEST\\n"));
         assertThat(list.get(1), is("organisation:   ORG-XYZ99-RIPE\\norg-name:       XYZ B.V.\\norg-type:       OTHER\\naddress:        Zürich\\naddress:        NETHERLANDS\\nmnt-by:         XYZ-MNT\\nmnt-ref:        PQR-MNT\\nabuse-c:        XYZ-RIPE\\ncreated:        2018-01-01T00:00:00Z\\nlast-modified:  2019-12-24T00:00:00Z\\nsource:         TEST\\n"));
@@ -51,7 +51,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
         snapshotObjectRepository.insert(version.getId(), 1, ObjectType.INETNUM, "193.0.0.0 - 193.255.255.255", escapedInetnumString);
         snapshotObjectRepository.insert(version.getId(), 2, ObjectType.ORGANISATION, "ORG-XYZ99-RIPE", escapedOrgString);
         snapshotObjectRepository.delete(ObjectType.ORGANISATION, "ORG-XYZ99-RIPE");
-        final var stream = snapshotObjectRepository.streamSnapshots(source.getSource());
+        final var stream = snapshotObjectRepository.getSnapshotAsStream(source.getSource());
         final var list = stream.collect(Collectors.toList());
         assertThat(list.get(0), is("inetnum:        193.0.0.0 - 193.255.255.255\\nsource:         TEST\\n"));
     }

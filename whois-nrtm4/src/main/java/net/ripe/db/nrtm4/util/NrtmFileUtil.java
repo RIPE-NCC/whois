@@ -16,9 +16,6 @@ import static net.ripe.db.nrtm4.NrtmConstants.SNAPSHOT_PREFIX;
 @Component
 public class NrtmFileUtil {
 
-    private static final String CHARS = "0123456789abcdef";
-    private static final int RAND_STRING_LENGTH = 40;
-
     public String fileName(final PublishableNrtmDocument file) {
         final String prefix = file.getType() == NrtmDocumentType.DELTA ? DELTA_PREFIX
             : file.getType() == NrtmDocumentType.SNAPSHOT ? SNAPSHOT_PREFIX
