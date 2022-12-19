@@ -9,14 +9,13 @@ import net.ripe.db.nrtm4.persist.SnapshotFileRepository;
 import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.publish.SnapshotFileStreamer;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
-import net.ripe.db.whois.common.dao.SerialDao;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.OutputStream;
 import java.util.Optional;
 
 
@@ -31,8 +30,8 @@ public class SnapshotFileGenerator {
     private final SnapshotFileStreamer snapshotFileStreamer;
     private final SnapshotFileRepository snapshotFileRepository;
     private final SnapshotSynchronizer snapshotSynchronizer;
+    private final NrtmFileStore nrtmFileStore;
     private final NrtmFileUtil nrtmFileUtil;
-    private final SerialDao serialDao;
 
     public SnapshotFileGenerator(
         final DeltaTransformer deltaTransformer,
@@ -41,8 +40,8 @@ public class SnapshotFileGenerator {
         final SnapshotFileStreamer snapshotFileStreamer,
         final SnapshotFileRepository snapshotFileRepository,
         final SnapshotSynchronizer snapshotSynchronizer,
-        final NrtmFileUtil nrtmFileUtil,
-        final SerialDao serialDao
+        final NrtmFileStore nrtmFileStore,
+        final NrtmFileUtil nrtmFileUtil
     ) {
         this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
@@ -50,8 +49,8 @@ public class SnapshotFileGenerator {
         this.snapshotFileStreamer = snapshotFileStreamer;
         this.snapshotFileRepository = snapshotFileRepository;
         this.snapshotSynchronizer = snapshotSynchronizer;
+        this.nrtmFileStore = nrtmFileStore;
         this.nrtmFileUtil = nrtmFileUtil;
-        this.serialDao = serialDao;
     }
 
     // TODO: Add a global lock to ensure that no other instance can run until this method exits
@@ -83,11 +82,13 @@ public class SnapshotFileGenerator {
             }
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
-        final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
+        //final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
         try {
             final String fileName = nrtmFileUtil.fileName(snapshotFile);
-            snapshotFileStreamer.writeSnapshotAsJson(snapshotFile, bos);
-            final String sha256hex = nrtmFileUtil.hashString(bos.toString(StandardCharsets.UTF_8));
+            final OutputStream out = nrtmFileStore.getFileOutputStream(fileName);
+            snapshotFileStreamer.writeSnapshotAsJson(snapshotFile, out);
+            out.close();
+            final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(fileName));
             snapshotFileRepository.save(
                 snapshotFile.getVersionId(),
                 fileName,

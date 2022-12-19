@@ -45,4 +45,8 @@ public class NrtmFileStore {
         return new FileOutputStream(new File(path, name));
     }
 
+    public FileInputStream getFileInputStream(final String name) throws FileNotFoundException {
+        return new FileInputStream(new File(path, name));
+    }
+
 }
