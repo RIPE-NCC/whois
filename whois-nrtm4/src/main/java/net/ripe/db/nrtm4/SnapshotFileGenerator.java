@@ -82,9 +82,8 @@ public class SnapshotFileGenerator {
             }
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
-        //final ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
+        final String fileName = nrtmFileUtil.fileName(snapshotFile);
         try {
-            final String fileName = nrtmFileUtil.fileName(snapshotFile);
             final OutputStream out = nrtmFileStore.getFileOutputStream(fileName);
             snapshotFileStreamer.writeSnapshotAsJson(snapshotFile, out);
             out.close();
