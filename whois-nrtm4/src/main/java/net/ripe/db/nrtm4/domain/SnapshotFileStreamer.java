@@ -1,10 +1,10 @@
-package net.ripe.db.nrtm4.publish;
+package net.ripe.db.nrtm4.domain;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.ripe.db.nrtm4.persist.NrtmDocumentType;
-import net.ripe.db.nrtm4.persist.SnapshotObjectRepository;
+import net.ripe.db.nrtm4.dao.NrtmDocumentType;
+import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

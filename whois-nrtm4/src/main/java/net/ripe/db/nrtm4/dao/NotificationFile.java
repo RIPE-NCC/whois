@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4.persist;
+package net.ripe.db.nrtm4.dao;
 
 public class NotificationFile {
     private final long id;

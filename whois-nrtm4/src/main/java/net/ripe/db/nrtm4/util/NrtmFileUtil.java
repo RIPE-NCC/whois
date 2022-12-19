@@ -1,7 +1,7 @@
 package net.ripe.db.nrtm4.util;
 
-import net.ripe.db.nrtm4.persist.NrtmDocumentType;
-import net.ripe.db.nrtm4.publish.PublishableNrtmDocument;
+import net.ripe.db.nrtm4.dao.NrtmDocumentType;
+import net.ripe.db.nrtm4.domain.PublishableNrtmDocument;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Component;
 

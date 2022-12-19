@@ -1,6 +1,6 @@
-package net.ripe.db.nrtm4.publish;
+package net.ripe.db.nrtm4.domain;
 
-import net.ripe.db.nrtm4.persist.SnapshotObjectRepository;
+import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;

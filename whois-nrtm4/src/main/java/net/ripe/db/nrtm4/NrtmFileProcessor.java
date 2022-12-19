@@ -1,10 +1,10 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.persist.NrtmSource;
-import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
-import net.ripe.db.nrtm4.persist.SnapshotFile;
-import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
-import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.dao.NrtmSource;
+import net.ripe.db.nrtm4.dao.NrtmSourceHolder;
+import net.ripe.db.nrtm4.dao.SnapshotFile;
+import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
+import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.util.SnapshotUpdateWindow;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;

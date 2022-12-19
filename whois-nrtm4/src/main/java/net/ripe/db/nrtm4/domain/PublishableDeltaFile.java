@@ -1,9 +1,9 @@
-package net.ripe.db.nrtm4.publish;
+package net.ripe.db.nrtm4.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import net.ripe.db.nrtm4.DeltaChange;
-import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
 
 import java.util.List;
 

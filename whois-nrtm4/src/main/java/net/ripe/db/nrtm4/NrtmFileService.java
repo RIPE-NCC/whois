@@ -1,16 +1,16 @@
 package net.ripe.db.nrtm4;
 
 import com.google.common.util.concurrent.Monitor;
-import net.ripe.db.nrtm4.persist.DeltaFile;
-import net.ripe.db.nrtm4.persist.DeltaFileRepository;
-import net.ripe.db.nrtm4.persist.NotificationFile;
-import net.ripe.db.nrtm4.persist.NotificationFileRepository;
-import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
-import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.persist.SnapshotFile;
-import net.ripe.db.nrtm4.persist.SnapshotFileRepository;
-import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
-import net.ripe.db.nrtm4.publish.SnapshotFileStreamer;
+import net.ripe.db.nrtm4.dao.DeltaFile;
+import net.ripe.db.nrtm4.dao.DeltaFileRepository;
+import net.ripe.db.nrtm4.dao.NotificationFile;
+import net.ripe.db.nrtm4.dao.NotificationFileRepository;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.dao.SnapshotFile;
+import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
+import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.domain.SnapshotFileStreamer;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;

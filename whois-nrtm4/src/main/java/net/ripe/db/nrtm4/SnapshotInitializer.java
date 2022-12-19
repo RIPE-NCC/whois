@@ -1,9 +1,9 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.persist.NrtmSource;
-import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
-import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.persist.SnapshotObjectRepository;
+import net.ripe.db.nrtm4.dao.NrtmSource;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.Dummifier;

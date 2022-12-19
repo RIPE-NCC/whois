@@ -2,9 +2,9 @@ package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import net.ripe.db.nrtm4.persist.NrtmSourceHolder;
-import net.ripe.db.nrtm4.persist.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
+import net.ripe.db.nrtm4.dao.NrtmSourceHolder;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.domain.Timestamp;

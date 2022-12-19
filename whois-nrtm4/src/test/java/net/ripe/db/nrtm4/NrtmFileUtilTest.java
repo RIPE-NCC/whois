@@ -1,10 +1,10 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.persist.NrtmDocumentType;
-import net.ripe.db.nrtm4.persist.NrtmSource;
-import net.ripe.db.nrtm4.persist.NrtmVersionInfo;
-import net.ripe.db.nrtm4.publish.PublishableDeltaFile;
-import net.ripe.db.nrtm4.publish.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.dao.NrtmDocumentType;
+import net.ripe.db.nrtm4.dao.NrtmSource;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
+import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
+import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

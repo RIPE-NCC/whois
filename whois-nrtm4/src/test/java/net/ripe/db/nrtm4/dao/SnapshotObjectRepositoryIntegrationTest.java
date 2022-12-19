@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4.persist;
+package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
