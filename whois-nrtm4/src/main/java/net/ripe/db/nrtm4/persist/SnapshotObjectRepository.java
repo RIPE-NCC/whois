@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -128,12 +127,7 @@ public class SnapshotObjectRepository {
             "WHERE src.name = ? " +
             "ORDER BY so.serial_id";
 
-        final Stream.Builder<String> builder = Stream.builder();
-
-        jdbcTemplate.query(sql, rs -> {
-            builder.add(rs.getString(1));
-        }, source.name());
-        return builder.build();
+        return jdbcTemplate.queryForStream(sql, (rs, rn) -> rs.getString(1), source.name());
     }
 
 }
