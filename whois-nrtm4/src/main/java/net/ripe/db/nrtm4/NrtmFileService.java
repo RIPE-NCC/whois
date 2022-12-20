@@ -53,7 +53,7 @@ public class NrtmFileService {
         this.snapshotFileStreamer = snapshotFileStreamer;
     }
 
-    void writeFileToStream(final String name, final OutputStream out) throws IOException {
+    void writeFileToStream(final String sessionId, final String name, final OutputStream out) throws IOException {
         if (name == null || name.length() > 256) {
             throw new IllegalArgumentException("Invalid NRTM file name");
         }
@@ -63,20 +63,20 @@ public class NrtmFileService {
             out.write(notificationFile.getPayload().getBytes(StandardCharsets.UTF_8));
             return;
         }
-        syncNrtmFileToFileSystem(name);
-        nrtmFileStore.streamFromFile(name, out);
+        syncNrtmFileToFileSystem(sessionId, name);
+        nrtmFileStore.streamFromFile(sessionId, name, out);
     }
 
-    void syncNrtmFileToFileSystem(final String name) throws IOException {
+    void syncNrtmFileToFileSystem(final String sessionId, final String name) throws IOException {
         if (name.startsWith(DELTA_PREFIX)) {
-            if (!nrtmFileStore.checkIfFileExists(name)) {
+            if (!nrtmFileStore.checkIfFileExists(sessionId, name)) {
                 deltaMutex.enter();
                 try {
                     // check again now that the lock is in force
-                    if (!nrtmFileStore.checkIfFileExists(name)) {
+                    if (!nrtmFileStore.checkIfFileExists(sessionId, name)) {
                         final Optional<DeltaFile> optDeltaFile = deltaFileRepository.getByName(name);
                         if (optDeltaFile.isPresent()) {
-                            nrtmFileStore.storeFile(name, optDeltaFile.get().getPayload());
+                            nrtmFileStore.storeFile(sessionId, name, optDeltaFile.get().getPayload());
                         } else {
                             throw new FileNotFoundException("NRTM has no delta files with name: " + name);
                         }
@@ -86,17 +86,17 @@ public class NrtmFileService {
                 }
             }
         } else if (name.startsWith(SNAPSHOT_PREFIX)) {
-            if (!nrtmFileStore.checkIfFileExists(name)) {
+            if (!nrtmFileStore.checkIfFileExists(sessionId, name)) {
                 snapshotMutex.enter();
                 try {
                     // check again now that the lock is in force
-                    if (!nrtmFileStore.checkIfFileExists(name)) {
+                    if (!nrtmFileStore.checkIfFileExists(sessionId, name)) {
                         final Optional<SnapshotFile> snapshotFile = snapshotFileRepository.getByName(name);
                         // should always be the last version, since we only maintain the latest snapshot
                         if (snapshotFile.isPresent()) {
                             final NrtmVersionInfo version = nrtmVersionInfoRepository.findById(snapshotFile.get().getVersionId()).orElseThrow();
                             final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
-                            final FileOutputStream fos = nrtmFileStore.getFileOutputStream(name);
+                            final FileOutputStream fos = nrtmFileStore.getFileOutputStream(sessionId, name);
                             snapshotFileStreamer.writeSnapshotAsJson(publishableSnapshotFile, fos);
                             fos.close();
                         } else {

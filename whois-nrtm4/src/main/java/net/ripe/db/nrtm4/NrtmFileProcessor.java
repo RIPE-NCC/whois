@@ -77,7 +77,7 @@ public class NrtmFileProcessor {
 
     // Call this from the controller
     public void writeFileToOutput(final String sessionId, final String fileName, final OutputStream out) throws IOException {
-        nrtmFileService.writeFileToStream(fileName, out);
+        nrtmFileService.writeFileToStream(sessionId, fileName, out);
     }
 
 }

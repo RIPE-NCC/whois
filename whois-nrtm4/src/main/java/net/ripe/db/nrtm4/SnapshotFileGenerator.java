@@ -81,10 +81,10 @@ public class SnapshotFileGenerator {
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final String fileName = nrtmFileUtil.fileName(snapshotFile);
         try {
-            final OutputStream out = nrtmFileStore.getFileOutputStream(fileName);
+            final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
             snapshotFileStreamer.writeSnapshotAsJson(snapshotFile, out);
             out.close();
-            final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(fileName));
+            final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
             snapshotFileRepository.save(
                 snapshotFile.getVersionId(),
                 fileName,

@@ -534,7 +534,7 @@ public class JdbcRpslObjectOperations {
     }
 
     private static Stream<SerialEntry> getSerialEntryWithBlobsBetweenSerialsForNrtm4(final JdbcTemplate jdbcTemplate, final int serialIdFrom, final int serialIdTo) {
-        try (final Stream<SerialEntry> resultStream = jdbcTemplate.queryForStream("" +
+        return jdbcTemplate.queryForStream("" +
             "SELECT serials.serial_id, " +
             "       serials.operation, " +
             "       serials.atlast," +
@@ -559,9 +559,7 @@ public class JdbcRpslObjectOperations {
             rs.getInt(4),
             rs.getBytes(5),
             rs.getString(6)
-        ), serialIdFrom, serialIdTo)) {
-            return resultStream;
-        }
+        ), serialIdFrom, serialIdTo);
     }
 
     // exact same, but omit blob lookup for performance reasons
