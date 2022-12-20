@@ -2,7 +2,6 @@ package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.test.context.ContextConfiguration;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -28,11 +26,6 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
 
     @Autowired
     private NrtmSourceHolder source;
-
-    @BeforeEach
-    public void setUp() {
-        truncateTables(databaseHelper.getNrtmTemplate());
-    }
 
     @Test
     void should_insert_payloads_and_stream_them() throws IOException {

@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Optional;
 
-import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -26,11 +24,6 @@ public class NrtmVersionInfoRepositoryIntegrationTest extends AbstractDatabaseHe
 
     @Autowired
     private NrtmSourceHolder nrtmSourceHolder;
-
-    @BeforeEach
-    public void setUp() {
-        truncateTables(databaseHelper.getNrtmTemplate());
-    }
 
     @Test
     public void result_is_not_present_when_source_is_not_populated() {
