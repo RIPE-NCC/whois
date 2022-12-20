@@ -21,7 +21,6 @@ import javax.sql.DataSource;
 import java.util.Optional;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
-import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
@@ -47,8 +46,6 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
 
     @BeforeEach
     public void setUp() {
-        truncateTables(databaseHelper.getNrtmTemplate());
-        truncateTables(databaseHelper.getWhoisTemplate());
         MockitoAnnotations.openMocks(this);
         versionDao = new NrtmVersionInfoRepository(dataSource, nrtmFileUtil);
     }

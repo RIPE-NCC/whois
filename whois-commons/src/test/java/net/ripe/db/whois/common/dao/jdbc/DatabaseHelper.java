@@ -287,11 +287,16 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupInternalsDatabase();
         setupMailupdatesDatabase();
         setupAclDatabase();
+        setupNrtmDatabase();
     }
 
     public void setupWhoisDatabase(JdbcTemplate jdbcTemplate) {
         truncateTables(jdbcTemplate);
         loadScripts(jdbcTemplate, "whois_data.sql");
+    }
+
+    public void setupNrtmDatabase() {
+        truncateTables(nrtmTemplate);
     }
 
     public void setupAclDatabase() {
