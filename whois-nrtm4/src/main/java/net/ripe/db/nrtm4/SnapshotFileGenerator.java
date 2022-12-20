@@ -53,7 +53,6 @@ public class SnapshotFileGenerator {
         this.nrtmFileUtil = nrtmFileUtil;
     }
 
-    // TODO: Add a global lock to ensure that no other instance can run until this method exits
     public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) {
 
         // Get last version from database.
@@ -71,13 +70,11 @@ public class SnapshotFileGenerator {
                 return Optional.empty();
             }
         }
-        // TODO: apply pending deltas
-        //       * if snapshot version > 1...
-        //           - find list of deltas since the last snapshot
-        //           - process them with SnapshotSynchronizer to bring snapshot_objects up to date
         if (version.getVersion() > 1) {
             final boolean snapshotWasUpdated = snapshotSynchronizer.synchronizeDeltasToSnapshot(source, version);
             if (!snapshotWasUpdated) {
+                LOGGER.warn("Code execution should not reach this point since we've already detected deltas. Version {}, last serial: {}",
+                    version.getVersion(), version.getLastSerialId());
                 return Optional.empty();
             }
         }

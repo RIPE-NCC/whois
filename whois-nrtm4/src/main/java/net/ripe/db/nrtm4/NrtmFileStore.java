@@ -28,15 +28,13 @@ public class NrtmFileStore {
     }
 
     void streamFromFile(final String name, final OutputStream out) throws IOException {
-        final File file = new File(path, name);
-        try (final FileInputStream fis = new FileInputStream(file)) {
+        try (final FileInputStream fis = getFileInputStream(name)) {
             fis.transferTo(out);
         }
     }
 
     public void storeFile(final String name, final String payload) throws IOException {
-        final File file = new File(path, name);
-        try (final FileOutputStream fos = new FileOutputStream(file)) {
+        try (final FileOutputStream fos = getFileOutputStream(name)) {
             fos.write(payload.getBytes(StandardCharsets.UTF_8));
         }
     }

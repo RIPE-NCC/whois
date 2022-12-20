@@ -1,6 +1,7 @@
 package net.ripe.db.nrtm4.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class SnapshotFileRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final DateTimeProvider dateTimeProvider;
     private final RowMapper<SnapshotFile> rowMapper = (rs, rowNum) ->
         new SnapshotFile(
             rs.getLong(1),
@@ -30,18 +32,21 @@ public class SnapshotFileRepository {
 
     private final String snapshotFileFields = "sf.id, sf.version_id, sf.name, sf.hash, sf.created ";
 
-    @Autowired
-    public SnapshotFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
+    public SnapshotFileRepository(
+        @Qualifier("nrtmDataSource") final DataSource dataSource,
+        final DateTimeProvider dateTimeProvider
+    ) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.dateTimeProvider = dateTimeProvider;
     }
 
-    public SnapshotFile save(
+    public void save(
         final long versionId,
         final String name,
         final String hash
     ) {
         final KeyHolder keyHolder = new GeneratedKeyHolder();
-        final long now = System.currentTimeMillis();
+        final long now = JdbcRpslObjectOperations.now(dateTimeProvider);
         jdbcTemplate.update(connection -> {
                 final String sql = "" +
                     "INSERT INTO snapshot_file (version_id, name, hash, created) " +
@@ -54,7 +59,6 @@ public class SnapshotFileRepository {
                 return pst;
             }, keyHolder
         );
-        return new SnapshotFile(keyHolder.getKeyAs(Long.class), versionId, name, hash, now);
     }
 
     public Optional<SnapshotFile> getByName(final String name) {

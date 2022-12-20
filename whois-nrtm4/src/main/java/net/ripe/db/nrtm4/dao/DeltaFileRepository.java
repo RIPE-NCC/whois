@@ -28,8 +28,6 @@ public class DeltaFileRepository {
             rs.getLong(6)
         );
 
-    private final String deltaFileFields = "id, version_id, type, name, hash, payload, created ";
-
     @Autowired
     public DeltaFileRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -59,17 +57,9 @@ public class DeltaFileRepository {
         return new DeltaFile(keyHolder.getKeyAs(Long.class), versionId, name, hash, payload, now);
     }
 
-    public DeltaFile getByVersionId(final long id) {
-        final String sql = "" +
-            "SELECT " + deltaFileFields +
-            "FROM delta_file " +
-            "WHERE version_id = ?";
-        return jdbcTemplate.queryForObject(sql, rowMapper, id);
-    }
-
     public Optional<DeltaFile> getByName(final String name) {
         final String sql = "" +
-            "SELECT " + deltaFileFields +
+            "SELECT id, version_id, type, name, hash, payload, created " +
             "FROM delta_file " +
             "WHERE name = ?";
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
