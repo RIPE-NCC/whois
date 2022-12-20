@@ -7,18 +7,17 @@ import net.ripe.db.nrtm4.dao.SnapshotObject;
 import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
 public class SnapshotSynchronizer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotSynchronizer.class);
+    //private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotSynchronizer.class);
 
     private final DeltaTransformer deltaTransformer;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
@@ -39,7 +38,8 @@ public class SnapshotSynchronizer {
 
     boolean synchronizeDeltasToSnapshot(final NrtmSource source, final NrtmVersionInfo version) {
         final NrtmVersionInfo lastSnapshot = nrtmVersionInfoRepository.findLastSnapshotVersion(source);
-        final List<SerialEntry> whoisChanges = serialDao.getSerialEntriesBetween(lastSnapshot.getLastSerialId(), version.getLastSerialId());
+        final List<SerialEntry> whoisChanges = serialDao.getSerialEntriesBetween(lastSnapshot.getLastSerialId(), version.getLastSerialId())
+            .collect(Collectors.toList());
         final List<DeltaChange> deltas = deltaTransformer.toDeltaChange(whoisChanges);
         if (deltas.size() < 1) {
             return false;

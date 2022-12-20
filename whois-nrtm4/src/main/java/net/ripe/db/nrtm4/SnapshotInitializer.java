@@ -6,11 +6,11 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
+import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Service
@@ -34,23 +34,24 @@ public class SnapshotInitializer {
     }
 
     NrtmVersionInfo init(final NrtmSource source) {
-        final List<SerialEntry> objects = serialDao.getSerialEntriesFromLast()
-            .filter((obj) -> dummifierNrtm.isAllowed(NrtmConstants.NRTM_VERSION, obj.getRpslObject()))
-            .collect(Collectors.toList());
-        if (objects.isEmpty()) {
+        final SerialRange serialRange = serialDao.getSerials();
+        final int lastSerial = serialRange.getEnd();
+        final Stream<SerialEntry> objects = serialDao.getSerialEntriesBetween(0, lastSerial)
+            .filter((obj) -> dummifierNrtm.isAllowed(NrtmConstants.NRTM_VERSION, obj.getRpslObject()));
+        if (objects.findFirst().isEmpty()) {
             throw new IllegalStateException("init() failed because there are no objects in whois");
         }
-        final int lastSerial = objects.get(objects.size() - 1).getSerialId();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialSnapshot(source, lastSerial);
-        for (final SerialEntry obj : objects) {
-            snapshotObjectRepository.insert(
-                version.getId(),
-                obj.getSerialId(),
-                obj.getRpslObject().getType(),
-                obj.getPrimaryKey(),
-                dummifierNrtm.dummify(NrtmConstants.NRTM_VERSION, obj.getRpslObject()).toString()
-            );
-        }
+        objects.forEach(
+            (obj) ->
+                snapshotObjectRepository.insert(
+                    version.getId(),
+                    obj.getSerialId(),
+                    obj.getRpslObject().getType(),
+                    obj.getPrimaryKey(),
+                    dummifierNrtm.dummify(NrtmConstants.NRTM_VERSION, obj.getRpslObject()).toString()
+                )
+        );
         return version;
     }
 

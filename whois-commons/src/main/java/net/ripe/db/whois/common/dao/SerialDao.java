@@ -20,9 +20,7 @@ public interface SerialDao {
     /**
      * Exclude 'from', include 'to'. Find changes between snapshots.
      */
-    List<SerialEntry> getSerialEntriesBetween(int serialIdFrom, int serialIdTo);
-
-    Stream<SerialEntry> getSerialEntriesFromLast();
+    Stream<SerialEntry> getSerialEntriesBetween(int serialIdFrom, int serialIdTo);
 
     Integer getAgeOfExactOrNextExistingSerial(int serialId);
 }

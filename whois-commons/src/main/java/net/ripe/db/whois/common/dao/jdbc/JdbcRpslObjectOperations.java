@@ -420,12 +420,12 @@ public class JdbcRpslObjectOperations {
         }
     }
 
-    public static List<SerialEntry> getSerialEntriesBetween(final JdbcTemplate jdbcTemplate, final int serialIdFrom, final int serialIdTo) {
+    public static Stream<SerialEntry> getSerialEntriesBetween(final JdbcTemplate jdbcTemplate, final int serialIdFrom, final int serialIdTo) {
         try {
             return getSerialEntryWithBlobsBetweenSerialsForNrtm4(jdbcTemplate, serialIdFrom, serialIdTo);
         } catch (final EmptyResultDataAccessException e) {
             LOGGER.debug("SerialDao.getSerialEntriesBetween({}, {}) returned no rows", serialIdFrom, serialIdTo, e);
-            return List.of();
+            return Stream.of();
         }
     }
 
@@ -514,28 +514,6 @@ public class JdbcRpslObjectOperations {
         }, serialId);
     }
 
-//    private static List<SerialEntry> getSerialEntryWithBlobsFromLastForNrtm4(final JdbcTemplate jdbcTemplate) {
-//        return jdbcTemplate.query("" +
-//            "SELECT serials.serial_id, " +
-//            "       serials.operation, " +
-//            "       serials.atlast," +
-//            "       serials.object_id," +
-//            "       last.object," +
-//            "       last.pkey " +
-//            "FROM   serials " +
-//            "       JOIN last " +
-//            "              ON last.object_id = serials.object_id " +
-//            "WHERE serials.atlast = 1 " +
-//            "  AND last.sequence_id > 0", (rs, rowNum) -> new SerialEntry(
-//            rs.getInt(1),
-//            Operation.getByCode(rs.getInt(2)),
-//            rs.getBoolean(3),
-//            rs.getInt(4),
-//            rs.getBytes(5),
-//            rs.getString(6)
-//        ));
-//    }
-
     private static Stream<SerialEntry> fetchStreamOfSerialEntryWithBlobsFromLastForNrtm4(final JdbcTemplate jdbcTemplate) {
         final Stream.Builder<SerialEntry> streamBuilder = Stream.builder();
         jdbcTemplate.queryForStream("" +
@@ -589,8 +567,8 @@ public class JdbcRpslObjectOperations {
         ), serialId);
     }
 
-    private static List<SerialEntry> getSerialEntryWithBlobsBetweenSerialsForNrtm4(final JdbcTemplate jdbcTemplate, final int serialIdFrom, final int serialIdTo) {
-        return jdbcTemplate.query("" +
+    private static Stream<SerialEntry> getSerialEntryWithBlobsBetweenSerialsForNrtm4(final JdbcTemplate jdbcTemplate, final int serialIdFrom, final int serialIdTo) {
+        return jdbcTemplate.queryForStream("" +
             "SELECT serials.serial_id, " +
             "       serials.operation, " +
             "       serials.atlast," +
