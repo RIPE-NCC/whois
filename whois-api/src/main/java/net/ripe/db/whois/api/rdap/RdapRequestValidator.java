@@ -32,8 +32,8 @@ public class RdapRequestValidator {
         try {
             Domain.parse(key);
         } catch (AttributeParseException e) {
-            throw new RdapException("404 Not Found", "RIPE NCC does not support forward domain queries.",
-                    HttpStatus.NOT_FOUND_404);
+            throw new RdapException("400 Not Found", "RIPE NCC does not support forward domain queries.",
+                    HttpStatus.BAD_REQUEST_400);
         }
     }
 

@@ -730,6 +730,35 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_object_text_plain_bad_source_accept_header() {
+        try {
+            RestTest.target(getPort(), "whois/oez/org/MKQ-RIPE.txt")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is("Severity: Error\n" +
+                    "Text: Invalid source 'oez'\n" +
+                    "locator: http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        }
+    }
+
+    @Test
+    public void lookup_object_text_plain_bad_format_accept_header() {
+        try {
+            RestTest.target(getPort(), "whois/test/org/MKQ-RIPE.txt")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is("Severity: Error\n" +
+                    "Text: Invalid object type: org\n" +
+                    "locator: http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        }
+    }
+    @Test
     public void lookup_person_json() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)

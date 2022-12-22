@@ -437,12 +437,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(mixedCaseEntity.getHandle(), equalTo("gruk-RIPE"));
     }
-    
+
     @Test
     public void lookup_inetnum_not_found() {
         final Ip ip = createResource("ip/193.0.0.0")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Ip.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
 
         assertThat(ip.getHandle(), is("0.0.0.0 - 255.255.255.255"));
         assertThat(ip.getIpVersion(), is("v4"));
@@ -711,8 +711,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void lookup_inet6num_not_found() {
         final Ip ip = createResource("ip/2001:2002:2003::/48")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Ip.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
 
         assertThat(ip.getHandle(), is("::/0"));
         assertThat(ip.getIpVersion(), is("v6"));
@@ -803,8 +803,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void lookup_entity_logged_in_query_log() {
         createResource("entity/PP1-TEST")
-                        .request()
-                        .get(Entity.class);
+                .request()
+                .get(Entity.class);
 
         assertThat(queryLog.getMessages(), hasSize(1));
         assertThat(queryLog.getMessage(0), containsString(" PW-API-INFO <1+0+0> "));
@@ -871,12 +871,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(domain.getNameservers(), hasSize(2));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
-                    containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
+                containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
-                    containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
+                containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getIpAddresses(), domain.getNameservers().get(1).getIpAddresses()),
-                    containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
-                                        new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
+                containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
+                        new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
 
         assertThat(domain.getSecureDNS().isDelegationSigned(), is(Boolean.TRUE));
         assertThat(domain.getSecureDNS().getDsData(), hasSize(3));
@@ -889,6 +889,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(domain.getRemarks(), hasSize(1));
         assertThat(domain.getRemarks().get(0).getDescription(), contains("Test domain"));
+        assertThat(domain.getNetwork().getHandle(), is("0.0.0.0 - 255.255.255.255"));
 
         final List<Event> events = domain.getEvents();
         assertThat(events, hasSize(2));
@@ -910,9 +911,163 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
-        assertCopyrightLink(domain.getLinks(), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
+        final List<Link> links = domain.getLinks();
+        assertThat(links, hasSize(1));
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
+    @Test
+    public void lookup_domain_object_inet4num(){
+
+        databaseHelper.addObject("" +
+                "inetnum:       80.179.52.0 - 80.179.55.255\n" +
+                "netname:       SANDBOX11470-IPv4-ALLOCATION\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "country:       EU\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        ALLOCATED PA\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2013-12-10T16:54:20Z\n" +
+                "last-modified: 2013-12-10T16:54:20Z\n" +
+                "source:        RIPE\n");
+
+        databaseHelper.addObject("" +
+                "domain:        52.179.80.in-addr.arpa\n" +
+                "descr:         Test domain\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
+                "notify:        notify@test.net.au\n" +
+                "nserver:       ns1.test.com.au 10.0.0.1\n" +
+                "nserver:       ns2.test.com.au 2001:10::2\n" +
+                "ds-rdata:      52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+                "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
+                "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2011-07-28T00:35:42Z\n" +
+                "last-modified: 2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        ipTreeUpdater.rebuild();
+
+        final Domain domain = createResource("domain/52.179.80.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertCommon(domain);
+        assertThat(domain.getHandle(), equalTo("52.179.80.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("52.179.80.in-addr.arpa."));
+        assertThat(domain.getObjectClassName(), is("domain"));
+        assertThat(domain.getNetwork().getHandle(), is("80.179.52.0 - 80.179.55.255"));
+
+        final List<Link> links = domain.getLinks();
+        assertThat(links, hasSize(1));
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+    }
+
+    @Test
+    public void lookup_domain_object_inet6num(){
+
+        databaseHelper.addObject("" +
+                "inet6num:      2a00:2cce::/32\n" +
+                "netname:       SANDBOX11470-IPv4-ALLOCATION\n" +
+                "org:           ORG-TEST1-TEST\n" +
+                "country:       EU\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "status:        ALLOCATED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:       2013-12-10T16:54:20Z\n" +
+                "last-modified: 2013-12-10T16:54:20Z\n" +
+                "source:        RIPE\n");
+
+        databaseHelper.addObject("" +
+                "domain:        e.c.c.2.0.0.a.2.ip6.arpa\n" +
+                "descr:         Test domain\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
+                "notify:        notify@test.net.au\n" +
+                "nserver:       ns1.test.com.au 10.0.0.1\n" +
+                "nserver:       ns2.test.com.au 2001:10::2\n" +
+                "ds-rdata:      52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+                "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
+                "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2011-07-28T00:35:42Z\n" +
+                "last-modified: 2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        ipTreeUpdater.rebuild();
+
+        final Domain domain = createResource("domain/e.c.c.2.0.0.a.2.ip6.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertCommon(domain);
+        assertThat(domain.getHandle(), equalTo("e.c.c.2.0.0.a.2.ip6.arpa"));
+        assertThat(domain.getLdhName(), equalTo("e.c.c.2.0.0.a.2.ip6.arpa."));
+        assertThat(domain.getObjectClassName(), is("domain"));
+        assertThat(domain.getNetwork().getHandle(), is("2a00:2cce::/32"));
+
+        final List<Link> links = domain.getLinks();
+        assertThat(links, hasSize(1));
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+    }
+
+    @Test
+    public void lookup_domain_object_without_inetnum(){
+
+        databaseHelper.addObject("" +
+                "domain:        52.179.80.in-addr.arpa\n" +
+                "descr:         Test domain\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "zone-c:        TP1-TEST\n" +
+                "notify:        notify@test.net.au\n" +
+                "nserver:       ns1.test.com.au 10.0.0.1\n" +
+                "nserver:       ns2.test.com.au 2001:10::2\n" +
+                "ds-rdata:      52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
+                "ds-rdata:      17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78\n" +
+                "ds-rdata:      17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2011-07-28T00:35:42Z\n" +
+                "last-modified: 2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+
+        databaseHelper.deleteObject(RpslObject.parse("inetnum:        0.0.0.0 - 255.255.255.255\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          The whole IPv4 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST"));
+
+        ipTreeUpdater.rebuild();
+
+        final Domain domain = createResource("domain/52.179.80.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertCommon(domain);
+        assertThat(domain.getHandle(), equalTo("52.179.80.in-addr.arpa"));
+        assertThat(domain.getLdhName(), equalTo("52.179.80.in-addr.arpa."));
+        assertThat(domain.getObjectClassName(), is("domain"));
+        assertThat(domain.getNetwork(), is(nullValue()));
+
+        final List<Link> links = domain.getLinks();
+        assertThat(links, hasSize(1));
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+    }
     @Test
     public void lookup_domain_object_is_case_insensitive() {
         final Domain domain = createResource("domain/31.12.202.IN-AddR.ARPA")       // mixed case in request
@@ -923,6 +1078,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
         assertThat(domain.getObjectClassName(), is("domain"));
+        assertThat(domain.getNetwork().getHandle(), is("0.0.0.0 - 255.255.255.255"));
+
+        final List<Link> links = domain.getLinks();
+        assertThat(links, hasSize(1));
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -944,9 +1105,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
-        } catch (NotFoundException e) {
-            assertErrorStatus(e, 404);
-            assertErrorTitle(e, "404 Not Found");
+        } catch (BadRequestException e) {
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Not Found");
             assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
         }
     }
@@ -1263,7 +1424,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "source:        TEST");
 
         databaseHelper.getInternalsTemplate().update(
-           "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
+                "INSERT INTO abuse_email (address, status, created_at) values (?, ?, ?)", "abuse@test.net", "SUSPECT", LocalDateTime.now()
         );
 
         final Autnum autnum = createResource("autnum/102")
@@ -1271,9 +1432,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Autnum.class);
 
         assertThat(
-            autnum.getRemarks().get(0).getDescription(),
-            contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
-                    "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
+                autnum.getRemarks().get(0).getDescription(),
+                contains("Abuse contact for 'AS102' is 'abuse@test.net'\n" +
+                        "Abuse-mailbox validation failed. Please refer to ORG-TEST1-TEST for further information.\n")
         );
     }
 
@@ -1283,8 +1444,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     public void lookup_invalid_type() {
         try {
             createResource("unknown/example.com")
-                .request("application/rdap+json")
-                .get(Entity.class);
+                    .request("application/rdap+json")
+                    .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
@@ -1297,7 +1458,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void multiple_modification_gives_correct_events() {
         final String response = syncupdate(
-                        "aut-num:   AS102\n" +
+                "aut-num:   AS102\n" +
                         "as-name:   AS-TEST\n" +
                         "descr:     Modified ASN\n" +
                         "admin-c:   TP1-TEST\n" +
@@ -1750,8 +1911,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 "source:        TEST");
 
         Entity entity = createResource("entity/AZRT")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Entity.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
 
         assertThat(entity.getHandle(), equalTo("AZRT"));
     }
@@ -1888,7 +2049,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     @Test
     public void lookup_nameserver_not_found() {
         try {
-              createResource("nameserver/test")
+            createResource("nameserver/test")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Autnum.class);
             fail();
@@ -1959,8 +2120,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         try {
             createResource("entities?fn=T%EBst%20Person3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
             // expected - Jetty uses UTF-8 when decoding characters, not latin1
@@ -1986,8 +2147,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         try {
             createResource("entities?fn=Test%20Person3")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(SearchResult.class);
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
             fail();
         } catch (NotFoundException e) {
             // expected (no character substitution)
@@ -2166,20 +2327,20 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(SearchResult.class);
 
         assertThat(
-            result.getEntitySearchResults()
-                .stream()
-                .map(Entity::getHandle)
-                .collect(Collectors.toList()),
-            containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
+                result.getEntitySearchResults()
+                        .stream()
+                        .map(Entity::getHandle)
+                        .collect(Collectors.toList()),
+                containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
         assertThat(
-            result.getEntitySearchResults()
-                .stream()
-                .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
-                .map(RdapObject::getNotices)
-                .flatMap(Collection::stream)
-                .map(Notice::getTitle)
-                .collect(Collectors.toList()),
-            containsInAnyOrder("Source", "Filtered", "Whois Inaccuracy Reporting"));
+                result.getEntitySearchResults()
+                        .stream()
+                        .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
+                        .map(RdapObject::getNotices)
+                        .flatMap(Collection::stream)
+                        .map(Notice::getTitle)
+                        .collect(Collectors.toList()),
+                containsInAnyOrder("Source", "Filtered", "Whois Inaccuracy Reporting"));
         assertThat(result.getNotices(), hasSize(1));
         assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
@@ -2372,5 +2533,3 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
     }
 
 }
-
-
