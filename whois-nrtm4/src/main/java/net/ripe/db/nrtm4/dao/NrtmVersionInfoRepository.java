@@ -52,7 +52,7 @@ public class NrtmVersionInfoRepository {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject("" +
                     "SELECT " + versionColumns +
-                    "FROM version v JOIN source src ON src.id = v.source_id " +
+                    "FROM version_info v JOIN source src ON src.id = v.source_id " +
                     "WHERE src.name = ? " +
                     "ORDER BY v.version DESC LIMIT 1",
                 rowMapper,
@@ -116,7 +116,7 @@ public class NrtmVersionInfoRepository {
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
                 final String sql = "" +
-                    "INSERT INTO version (source_id, version, session_id, type, last_serial_id) " +
+                    "INSERT INTO version_info (source_id, version, session_id, type, last_serial_id) " +
                     "VALUES (?, ?, ?, ?, ?)";
                 final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pst.setLong(1, sourceID);
@@ -133,7 +133,7 @@ public class NrtmVersionInfoRepository {
     public NrtmVersionInfo findLastSnapshotVersion(final NrtmSource source) {
         final String sql = "" +
             "SELECT " + versionColumns +
-            "FROM version v " +
+            "FROM version_info v " +
             "JOIN source src ON src.id = v.source_id " +
             "JOIN snapshot_file sf ON sf.version_id = v.id " +
             "WHERE src.name = ? " +
@@ -144,7 +144,7 @@ public class NrtmVersionInfoRepository {
     public Optional<NrtmVersionInfo> findById(final long versionId) {
         final String sql = "" +
             "SELECT " + versionColumns +
-            "FROM version v " +
+            "FROM version_info v " +
             "JOIN source src ON src.id = v.source_id " +
             "WHERE v.id = ?";
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, versionId));

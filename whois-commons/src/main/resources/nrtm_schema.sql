@@ -20,7 +20,8 @@ create table `source`
   DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS `version`;
-create table `version`
+DROP TABLE IF EXISTS `version_info`;
+create table `version_info`
 (
     `id`             int unsigned NOT NULL AUTO_INCREMENT,
     `source_id`      int unsigned NOT NULL,
@@ -44,7 +45,7 @@ create table `notification_file`
     `payload`    longtext        NOT NULL,
     `created`    bigint unsigned NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `notification_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
+    CONSTRAINT `notification_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
@@ -59,7 +60,7 @@ create table `snapshot_file`
     PRIMARY KEY (`id`),
     UNIQUE KEY `snapshot_file__version_id__uk` (`version_id`),
     UNIQUE KEY `snapshot_file__name__uk` (`name`),
-    CONSTRAINT `snapshot_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
+    CONSTRAINT `snapshot_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
@@ -75,7 +76,7 @@ create table `delta_file`
     PRIMARY KEY (`id`),
     UNIQUE KEY `delta_file__version_id__uk` (`version_id`),
     UNIQUE KEY `delta_file__name__uk` (`name`),
-    CONSTRAINT `delta_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
+    CONSTRAINT `delta_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
@@ -90,7 +91,7 @@ create table `snapshot_object`
     `payload`     longtext     NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `snapshot_object__serial_id__uk` (`serial_id`),
-    CONSTRAINT `snapshot_object__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version` (`id`)
+    CONSTRAINT `snapshot_object__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 

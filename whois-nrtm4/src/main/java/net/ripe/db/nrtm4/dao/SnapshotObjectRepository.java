@@ -122,7 +122,7 @@ public class SnapshotObjectRepository {
         final String sql = "" +
             "SELECT so.payload " +
             "FROM snapshot_object so " +
-            "JOIN version v ON v.id = so.version_id " +
+            "JOIN version_info v ON v.id = so.version_id " +
             "JOIN source src ON src.id = v.source_id " +
             "WHERE src.name = ? " +
             "ORDER BY so.serial_id";
