@@ -22,7 +22,6 @@ public class NrtmVersionInfoRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmVersionInfoRepository.class);
     private final JdbcTemplate jdbcTemplate;
-    private final NrtmFileUtil nrtmFileUtil;
     private final RowMapper<NrtmVersionInfo> rowMapper = (rs, rowNum) ->
         new NrtmVersionInfo(
             rs.getLong(1),
@@ -35,11 +34,9 @@ public class NrtmVersionInfoRepository {
     private final String versionColumns = "v.id, src.name, v.version, v.session_id, v.type, v.last_serial_id ";
 
     public NrtmVersionInfoRepository(
-        @Qualifier("nrtmDataSource") final DataSource dataSource,
-        final NrtmFileUtil nrtmFileUtil
+        @Qualifier("nrtmDataSource") final DataSource dataSource
     ) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.nrtmFileUtil = nrtmFileUtil;
     }
 
     /**
@@ -74,7 +71,7 @@ public class NrtmVersionInfoRepository {
     public NrtmVersionInfo createInitialSnapshot(final NrtmSource source, final int lastSerialId) {
         jdbcTemplate.update("INSERT INTO source (name) VALUES (?)", source.name());
         final long version = 1L;
-        final String sessionID = nrtmFileUtil.sessionId();
+        final String sessionID = NrtmFileUtil.sessionId();
         final NrtmDocumentType type = NrtmDocumentType.SNAPSHOT;
         return save(source, version, sessionID, type, lastSerialId);
     }

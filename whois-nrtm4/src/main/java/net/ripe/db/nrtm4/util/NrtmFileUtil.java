@@ -2,8 +2,6 @@ package net.ripe.db.nrtm4.util;
 
 import net.ripe.db.nrtm4.dao.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.PublishableNrtmDocument;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.stereotype.Component;
 
 import java.util.Random;
 import java.util.UUID;
@@ -13,21 +11,16 @@ import static net.ripe.db.nrtm4.NrtmConstants.NOTIFICATION_PREFIX;
 import static net.ripe.db.nrtm4.NrtmConstants.SNAPSHOT_PREFIX;
 
 
-@Component
 public class NrtmFileUtil {
 
-    public String fileName(final PublishableNrtmDocument file) {
+    public static String fileName(final PublishableNrtmDocument file) {
         final String prefix = file.getType() == NrtmDocumentType.DELTA ? DELTA_PREFIX
             : file.getType() == NrtmDocumentType.SNAPSHOT ? SNAPSHOT_PREFIX
             : file.getType() == NrtmDocumentType.NOTIFICATION ? NOTIFICATION_PREFIX : "";
         return String.format("%s.%d.%s.json", prefix, file.getVersion(), randomHexString());
     }
 
-    public String hashString(final String payload) {
-        return DigestUtils.sha256Hex(payload);
-    }
-
-    public String sessionId() {
+    public static String sessionId() {
         return UUID.randomUUID().toString();
     }
 

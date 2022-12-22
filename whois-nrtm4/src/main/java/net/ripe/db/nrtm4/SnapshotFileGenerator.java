@@ -24,33 +24,27 @@ public class SnapshotFileGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
 
-    private final DeltaTransformer deltaTransformer;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotInitializer snapshotInitializer;
     private final SnapshotFileStreamer snapshotFileStreamer;
     private final SnapshotFileRepository snapshotFileRepository;
     private final SnapshotSynchronizer snapshotSynchronizer;
     private final NrtmFileStore nrtmFileStore;
-    private final NrtmFileUtil nrtmFileUtil;
 
     public SnapshotFileGenerator(
-        final DeltaTransformer deltaTransformer,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotInitializer snapshotInitializer,
         final SnapshotFileStreamer snapshotFileStreamer,
         final SnapshotFileRepository snapshotFileRepository,
         final SnapshotSynchronizer snapshotSynchronizer,
-        final NrtmFileStore nrtmFileStore,
-        final NrtmFileUtil nrtmFileUtil
+        final NrtmFileStore nrtmFileStore
     ) {
-        this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotInitializer = snapshotInitializer;
         this.snapshotFileStreamer = snapshotFileStreamer;
         this.snapshotFileRepository = snapshotFileRepository;
         this.snapshotSynchronizer = snapshotSynchronizer;
         this.nrtmFileStore = nrtmFileStore;
-        this.nrtmFileUtil = nrtmFileUtil;
     }
 
     public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) {
@@ -79,7 +73,7 @@ public class SnapshotFileGenerator {
             }
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
-        final String fileName = nrtmFileUtil.fileName(snapshotFile);
+        final String fileName = NrtmFileUtil.fileName(snapshotFile);
         try {
             final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
             snapshotFileStreamer.writeSnapshotAsJson(snapshotFile, out);

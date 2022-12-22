@@ -6,7 +6,7 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.startsWith;
 
 public class NrtmFileUtilTest {
 
-    NrtmFileUtil nrtmFileUtil;
     private final NrtmVersionInfo testSnapshotVersion = new NrtmVersionInfo(
         21L,
         new NrtmSource("TEST"),
@@ -39,22 +38,17 @@ public class NrtmFileUtilTest {
         123123
     );
 
-    @BeforeEach
-    void setup() {
-        nrtmFileUtil = new NrtmFileUtil();
-    }
-
     @Test
     void snapshot_file_name_looks_legit() {
         final var file = new PublishableSnapshotFile(testSnapshotVersion);
-        final var name = nrtmFileUtil.fileName(file);
+        final var name = NrtmFileUtil.fileName(file);
         assertThat(name, startsWith("nrtm-snapshot.22."));
     }
 
     @Test
     void delta_file_name_looks_legit() {
         final var file = new PublishableDeltaFile(testDeltaVersion, List.of());
-        final var name = nrtmFileUtil.fileName(file);
+        final var name = NrtmFileUtil.fileName(file);
         assertThat(name, startsWith("nrtm-delta.22."));
     }
 
@@ -62,7 +56,7 @@ public class NrtmFileUtilTest {
     void session_ids_are_unique() {
         final var listOfSessionIds = new ArrayList<>();
         for (int i = 0; i < 50_000; i++) {
-            listOfSessionIds.add(nrtmFileUtil.sessionId());
+            listOfSessionIds.add(NrtmFileUtil.sessionId());
         }
         final var setOfSessionIds = Set.copyOf(listOfSessionIds);
         assertThat(setOfSessionIds.size(), is(listOfSessionIds.size()));
@@ -78,7 +72,7 @@ public class NrtmFileUtilTest {
             "\"objects\":[" +
             "\"inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Description\\ncountry:        es\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n\"" +
             "]}";
-        final var result = nrtmFileUtil.hashString(str);
+        final var result = DigestUtils.sha256Hex(str);
         assertThat(result, is("fc896e4ab60680371e1eec18d544b57339bac463860d8a26c4d075813e61f6fe"));
     }
 

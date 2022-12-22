@@ -10,6 +10,7 @@ import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,20 +28,17 @@ public class DeltaFileGenerator {
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SerialDao serialDao;
     private final DeltaFileRepository deltaFileRepository;
-    private final NrtmFileUtil nrtmFileUtil;
 
     public DeltaFileGenerator(
         final DeltaTransformer deltaTransformer,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SerialDao serialDao,
-        final DeltaFileRepository deltaFileRepository,
-        final NrtmFileUtil nrtmFileUtil
+        final DeltaFileRepository deltaFileRepository
     ) {
         this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.serialDao = serialDao;
         this.deltaFileRepository = deltaFileRepository;
-        this.nrtmFileUtil = nrtmFileUtil;
     }
 
     public Optional<PublishableDeltaFile> createDelta(final NrtmSource source) {
@@ -71,8 +69,8 @@ public class DeltaFileGenerator {
             throw new RuntimeException(e);
         }
 
-        final String fileName = nrtmFileUtil.fileName(deltaFile);
-        final String sha256hex = nrtmFileUtil.hashString(payload);
+        final String fileName = NrtmFileUtil.fileName(deltaFile);
+        final String sha256hex = DigestUtils.sha256Hex(payload);
 
         deltaFileRepository.save(
             nextVersion.getId(),
