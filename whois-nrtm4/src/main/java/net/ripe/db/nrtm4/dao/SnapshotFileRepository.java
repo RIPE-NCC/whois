@@ -61,13 +61,15 @@ public class SnapshotFileRepository {
         );
     }
 
-    public Optional<SnapshotFile> getByName(final String name) {
+    public Optional<SnapshotFile> getByName(final String sessionId, final String name) {
         final String sql = "" +
             "SELECT " + snapshotFileFields +
             "FROM snapshot_file sf " +
-            "WHERE sf.name = ?";
+            "JOIN version_info v ON v.id = sf.version_id " +
+            "WHERE v.session_id = ? " +
+            "  AND sf.name = ?";
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, sessionId, name));
         } catch (final EmptyResultDataAccessException ex) {
             return Optional.empty();
         }

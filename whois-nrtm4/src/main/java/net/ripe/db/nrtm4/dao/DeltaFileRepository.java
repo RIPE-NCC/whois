@@ -57,12 +57,14 @@ public class DeltaFileRepository {
         return new DeltaFile(keyHolder.getKeyAs(Long.class), versionId, name, hash, payload, now);
     }
 
-    public Optional<DeltaFile> getByName(final String name) {
+    public Optional<DeltaFile> getByName(final String sessionId, final String name) {
         final String sql = "" +
-            "SELECT id, version_id, type, name, hash, payload, created " +
-            "FROM delta_file " +
-            "WHERE name = ?";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, name));
+            "SELECT df.id, df.version_id, df.type, df.name, df.hash, df.payload, df.created " +
+            "FROM delta_file df " +
+            "JOIN version_info v ON v.id = df.version_id " +
+            "WHERE v.session_id = ? " +
+            "  AND df.name = ?";
+        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, sessionId, name));
     }
 
 }
