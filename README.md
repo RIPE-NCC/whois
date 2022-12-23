@@ -10,26 +10,28 @@ See: https://raw.github.com/RIPE-NCC/whois/master/LICENSE.md
 Running Integration Tests for Development
 -----------------------------------------
 
-It is preferable to write integration tests during development, and commit them along with any code changes. All dependencies apart from the database are mocked. 
+It is preferable to write integration tests during development, and commit them along with any code changes. All dependencies apart from the database are mocked.
 
 Running Whois Locally For Development
 -------------------------------------
 
 You can run a standalone Whois server locally. Dependencies must be configured in a local properties file.
 
+More information [here](https://apps.db.ripe.net/docs/)
+
 ### Running within an IDE
 
-See [Running whois from within Intellij](https://github.com/RIPE-NCC/whois/wiki/Development#running-whois-from-within-intellij) for instructions.
+See [Running whois from within Intellij](https://apps.db.ripe.net/docs/18.Installation-and-Development/03-Building-whois.html#running-whois-from-within-intellij) for instructions.
 
 ### Running outside an IDE
-- See [Installation instructions](https://github.com/RIPE-NCC/whois/wiki/Installation-instructions).
+- See [Installation instructions](https://apps.db.ripe.net/docs/18.Installation-and-Development/06-Installation-instructions.html#installation-instructions).
 
 Git
 ---
 
 ### Configure pre-commit hooks
 
-Pre-commit hook can be found in `tools/precommitcheck`. This can be optionally configured by running: `ln -fsv tools/precommitcheck .git/hooks/pre-commit` 
+Pre-commit hook can be found in `tools/precommitcheck`. This can be optionally configured by running: `ln -fsv tools/precommitcheck .git/hooks/pre-commit`
 
 Tests
 -----
@@ -58,4 +60,3 @@ You can configure Ajc in the Preferences as follows:
 * Choose "Use Compiler: Ajc"
 * Configure Path to aspectjtools.jar, e.g. ~/.m2/repository/org/aspectj/aspectjtools/1.9.8/aspectjtools-1.9.7.jar
 * Press "Test" to confirm it's working.
-
