@@ -411,6 +411,15 @@ public class JdbcRpslObjectOperations {
         }
     }
 
+    public static Stream<SerialEntry> getSerialEntriesFromLast(final JdbcTemplate jdbcTemplate) {
+        try {
+            return getSerialEntryWithBlobsFromLastForNrtm4(jdbcTemplate);
+        } catch (final EmptyResultDataAccessException e) {
+            LOGGER.debug("SerialDao.getSerialEntriesFromLast() returned no rows", e);
+            return Stream.of();
+        }
+    }
+
     public static List<SerialEntry> getSerialEntriesSince(final JdbcTemplate jdbcTemplate, final int serialId) {
         try {
             return getSerialEntryWithBlobsSinceSerialForNrtm4(jdbcTemplate, serialId);
@@ -503,6 +512,27 @@ public class JdbcRpslObjectOperations {
                 }
             }
         }, serialId);
+    }
+
+    private static Stream<SerialEntry> getSerialEntryWithBlobsFromLastForNrtm4(final JdbcTemplate jdbcTemplate) {
+        return jdbcTemplate.queryForStream("" +
+            "SELECT serials.serial_id, "+
+            "       serials.operation, " +
+            "       serials.atlast," +
+            "       serials.object_id," +
+            "       last.object," +
+            "       last.pkey " +
+            "FROM   serials " +
+            "       JOIN last " +
+            "              ON last.object_id = serials.object_id " +
+            "WHERE serials.atlast = 1", (rs, rowNum) -> new SerialEntry(
+            rs.getInt(1),
+            Operation.getByCode(rs.getInt(2)),
+            rs.getBoolean(3),
+            rs.getInt(4),
+            rs.getBytes(5),
+            rs.getString(6)
+        ));
     }
 
     private static List<SerialEntry> getSerialEntryWithBlobsSinceSerialForNrtm4(final JdbcTemplate jdbcTemplate, final int serialId) {

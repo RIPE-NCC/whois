@@ -47,6 +47,12 @@ public class JdbcSerialDao implements SerialDao {
 
     @Override
     @CheckForNull
+    public Stream<SerialEntry> getSerialEntriesFromLast() {
+        return JdbcRpslObjectOperations.getSerialEntriesFromLast(jdbcTemplate);
+    }
+
+    @Override
+    @CheckForNull
     public List<SerialEntry> getSerialEntriesSince(final int serialId) {
         return JdbcRpslObjectOperations.getSerialEntriesSince(jdbcTemplate, serialId);
     }

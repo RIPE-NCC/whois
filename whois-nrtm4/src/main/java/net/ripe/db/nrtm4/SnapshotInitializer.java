@@ -34,7 +34,7 @@ public class SnapshotInitializer {
         final SerialRange serialRange = serialDao.getSerials();
         final int lastSerial = serialRange.getEnd();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialSnapshot(source, lastSerial);
-        serialDao.getSerialEntriesBetween(0, lastSerial)
+        serialDao.getSerialEntriesFromLast()
             .filter((obj) -> dummifierNrtm.isAllowed(NrtmConstants.NRTM_VERSION, obj.getRpslObject()))
             .forEach(
                 (obj) ->

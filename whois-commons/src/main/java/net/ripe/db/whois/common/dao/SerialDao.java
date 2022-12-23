@@ -15,6 +15,8 @@ public interface SerialDao {
 
     SerialEntry getByIdForNrtm(int serialId);
 
+    Stream<SerialEntry> getSerialEntriesFromLast();
+
     List<SerialEntry> getSerialEntriesSince(int serialId);
 
     /**
