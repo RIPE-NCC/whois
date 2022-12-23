@@ -515,8 +515,8 @@ public class JdbcRpslObjectOperations {
     }
 
     private static Stream<SerialEntry> getSerialEntryWithBlobsFromLastForNrtm4(final JdbcTemplate jdbcTemplate) {
-        return jdbcTemplate.queryForStream("" +
-            "SELECT serials.serial_id, "+
+        final String sql = "" +
+            "SELECT serials.serial_id, " +
             "       serials.operation, " +
             "       serials.atlast," +
             "       serials.object_id," +
@@ -525,14 +525,23 @@ public class JdbcRpslObjectOperations {
             "FROM   serials " +
             "       JOIN last " +
             "              ON last.object_id = serials.object_id " +
-            "WHERE serials.atlast = 1", (rs, rowNum) -> new SerialEntry(
-            rs.getInt(1),
-            Operation.getByCode(rs.getInt(2)),
-            rs.getBoolean(3),
-            rs.getInt(4),
-            rs.getBytes(5),
-            rs.getString(6)
-        ));
+            "WHERE serials.atlast = 1";
+        final Stream.Builder<SerialEntry> stream = Stream.builder();
+        JdbcStreamingHelper.executeStreaming(jdbcTemplate, sql, pstmt -> {
+        }, rs -> {
+            while (rs.next()) {
+                final SerialEntry serialEntry = new SerialEntry(
+                    rs.getInt(1),
+                    Operation.getByCode(rs.getInt(2)),
+                    rs.getBoolean(3),
+                    rs.getInt(4),
+                    rs.getBytes(5),
+                    rs.getString(6));
+                stream.add(serialEntry);
+            }
+            return null;
+        });
+        return stream.build();
     }
 
     private static List<SerialEntry> getSerialEntryWithBlobsSinceSerialForNrtm4(final JdbcTemplate jdbcTemplate, final int serialId) {
