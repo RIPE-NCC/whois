@@ -27,7 +27,6 @@ create table `source`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `version`;
 DROP TABLE IF EXISTS `version_info`;
 create table `version_info`
 (
