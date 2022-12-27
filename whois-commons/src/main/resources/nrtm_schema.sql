@@ -9,6 +9,14 @@
 /*!40101 SET @OLD_SQL_MODE = @@SQL_MODE, SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES = @@SQL_NOTES, SQL_NOTES = 0 */;
 
+DROP TABLE IF EXISTS `version`;
+create table `version`
+(
+    `version` varchar(80)
+);
+
+INSERT INTO version VALUES ('whois-1.104');
+
 DROP TABLE IF EXISTS `source`;
 create table `source`
 (
