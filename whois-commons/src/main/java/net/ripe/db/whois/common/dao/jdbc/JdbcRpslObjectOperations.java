@@ -37,8 +37,10 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -527,8 +529,11 @@ public class JdbcRpslObjectOperations {
             "              ON last.object_id = serials.object_id " +
             "WHERE serials.atlast = 1";
         final Stream.Builder<SerialEntry> stream = Stream.builder();
-        JdbcStreamingHelper.executeStreaming(jdbcTemplate, sql, pstmt -> {
-        }, rs -> {
+        try {
+            final Connection conn = jdbcTemplate.getDataSource().getConnection();
+            final Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            stmt.setFetchSize(1);
+            final ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
                 final SerialEntry serialEntry = new SerialEntry(
                     rs.getInt(1),
@@ -539,9 +544,10 @@ public class JdbcRpslObjectOperations {
                     rs.getString(6));
                 stream.add(serialEntry);
             }
-            return null;
-        });
-        return stream.build();
+            return stream.build();
+        } catch (final SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static List<SerialEntry> getSerialEntryWithBlobsSinceSerialForNrtm4(final JdbcTemplate jdbcTemplate, final int serialId) {
