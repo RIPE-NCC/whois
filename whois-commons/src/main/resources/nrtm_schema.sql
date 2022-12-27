@@ -10,15 +10,16 @@
 /*!40111 SET @OLD_SQL_NOTES = @@SQL_NOTES, SQL_NOTES = 0 */;
 
 DROP TABLE IF EXISTS `version`;
-create table `version`
+CREATE TABLE `version`
 (
     `version` varchar(80)
-);
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
 
 INSERT INTO version VALUES ('whois-1.104');
 
 DROP TABLE IF EXISTS `source`;
-create table `source`
+CREATE TABLE `source`
 (
     `id`   int unsigned NOT NULL AUTO_INCREMENT,
     `name` varchar(40)  NOT NULL DEFAULT '',
@@ -28,7 +29,7 @@ create table `source`
   DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS `version_info`;
-create table `version_info`
+CREATE TABLE `version_info`
 (
     `id`             int unsigned NOT NULL AUTO_INCREMENT,
     `source_id`      int unsigned NOT NULL,
@@ -45,7 +46,7 @@ create table `version_info`
   DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS `notification_file`;
-create table `notification_file`
+CREATE TABLE `notification_file`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
     `version_id` int unsigned    NOT NULL,
@@ -57,7 +58,7 @@ create table `notification_file`
   DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS `snapshot_file`;
-create table `snapshot_file`
+CREATE TABLE `snapshot_file`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
     `version_id` int unsigned    NOT NULL,
@@ -72,7 +73,7 @@ create table `snapshot_file`
   DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS `delta_file`;
-create table `delta_file`
+CREATE TABLE `delta_file`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
     `version_id` int unsigned    NOT NULL,
@@ -88,7 +89,7 @@ create table `delta_file`
   DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS `snapshot_object`;
-create table `snapshot_object`
+CREATE TABLE `snapshot_object`
 (
     `id`          int unsigned NOT NULL AUTO_INCREMENT,
     `version_id`  int unsigned NOT NULL,
