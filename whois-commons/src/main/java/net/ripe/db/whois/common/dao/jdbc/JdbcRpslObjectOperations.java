@@ -409,7 +409,7 @@ public class JdbcRpslObjectOperations {
         try {
             return getSerialEntryWithBlobs(jdbcTemplate, serialId);
         } catch (EmptyResultDataAccessException e) {
-            LOGGER.debug("SerialDao.getById({})", serialId, e);
+            LOGGER.debug("getSerialEntry({})", serialId, e);
             return null;
         }
     }
@@ -421,7 +421,9 @@ public class JdbcRpslObjectOperations {
         try {
             getSerialEntryWithBlobsFromLastForNrtm4(jdbcTemplate, rowCallbackHandler);
         } catch (final EmptyResultDataAccessException e) {
-            LOGGER.debug("SerialDao.getSerialEntriesFromLast() returned no rows", e);
+            LOGGER.debug("getSerialEntriesFromLast() returned no rows", e);
+        } catch (final Exception e) {
+            LOGGER.error("getSerialEntriesFromLast() threw exception", e);
         }
     }
 

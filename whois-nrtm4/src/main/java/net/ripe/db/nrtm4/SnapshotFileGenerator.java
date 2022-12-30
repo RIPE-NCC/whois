@@ -49,11 +49,12 @@ public class SnapshotFileGenerator {
     }
 
     public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) {
-
+        LOGGER.info("createSnapshot entered {}", source.name());
         final long start = System.currentTimeMillis();
         // Get last version from database.
         final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
         NrtmVersionInfo version;
+        LOGGER.info("lastVersion.isEmpty() {}", lastVersion.isEmpty());
         if (lastVersion.isEmpty()) {
             version = snapshotInitializer.init(source);
         } else {
@@ -66,6 +67,7 @@ public class SnapshotFileGenerator {
                 return Optional.empty();
             }
         }
+        LOGGER.info("createSnapshot() version: {}", version);
         if (version.getVersion() > 1) {
             final boolean snapshotWasUpdated = snapshotSynchronizer.synchronizeDeltasToSnapshot(source, version);
             if (!snapshotWasUpdated) {

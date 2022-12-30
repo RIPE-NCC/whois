@@ -47,7 +47,6 @@ public class JdbcSerialDao implements SerialDao {
     }
 
     @Override
-    @CheckForNull
     public void getSerialEntriesFromLast(final RowCallbackHandler rowCallbackHandler) {
         JdbcRpslObjectOperations.getSerialEntriesFromLast(jdbcTemplate, rowCallbackHandler);
     }

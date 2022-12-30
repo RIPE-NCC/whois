@@ -53,4 +53,16 @@ public class NrtmVersionInfo {
         return lastSerialId;
     }
 
+    @Override
+    public String toString() {
+        return "NrtmVersionInfo{" +
+            "id=" + id +
+            ", source=" + source +
+            ", version=" + version +
+            ", sessionID='" + sessionID + '\'' +
+            ", type=" + type +
+            ", lastSerialId=" + lastSerialId +
+            '}';
+    }
+
 }
