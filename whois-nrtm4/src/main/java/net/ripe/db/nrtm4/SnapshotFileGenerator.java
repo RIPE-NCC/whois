@@ -26,25 +26,22 @@ public class SnapshotFileGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotFileGenerator.class);
 
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
-    private final SnapshotInitializer snapshotInitializer;
     private final SnapshotFileStreamer snapshotFileStreamer;
     private final SnapshotFileRepository snapshotFileRepository;
-    private final SnapshotSynchronizer snapshotSynchronizer;
+    private final SnapshotObjectSynchronizer snapshotObjectSynchronizer;
     private final NrtmFileStore nrtmFileStore;
 
     public SnapshotFileGenerator(
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final SnapshotInitializer snapshotInitializer,
         final SnapshotFileStreamer snapshotFileStreamer,
         final SnapshotFileRepository snapshotFileRepository,
-        final SnapshotSynchronizer snapshotSynchronizer,
+        final SnapshotObjectSynchronizer snapshotObjectSynchronizer,
         final NrtmFileStore nrtmFileStore
     ) {
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
-        this.snapshotInitializer = snapshotInitializer;
         this.snapshotFileStreamer = snapshotFileStreamer;
         this.snapshotFileRepository = snapshotFileRepository;
-        this.snapshotSynchronizer = snapshotSynchronizer;
+        this.snapshotObjectSynchronizer = snapshotObjectSynchronizer;
         this.nrtmFileStore = nrtmFileStore;
     }
 
@@ -56,7 +53,7 @@ public class SnapshotFileGenerator {
         NrtmVersionInfo version;
         LOGGER.info("lastVersion.isEmpty() {}", lastVersion.isEmpty());
         if (lastVersion.isEmpty()) {
-            version = snapshotInitializer.init(source);
+            version = snapshotObjectSynchronizer.init(source);
         } else {
             version = lastVersion.get();
             if (version.getType() == NrtmDocumentType.DELTA) {
@@ -69,7 +66,7 @@ public class SnapshotFileGenerator {
         }
         LOGGER.info("createSnapshot() version: {}", version);
         if (version.getVersion() > 1) {
-            final boolean snapshotWasUpdated = snapshotSynchronizer.synchronizeDeltasToSnapshot(source, version);
+            final boolean snapshotWasUpdated = snapshotObjectSynchronizer.synchronizeDeltasToSnapshot(source, version);
             if (!snapshotWasUpdated) {
                 LOGGER.warn("Code execution should not reach this point since we've already detected deltas. Version {}, last serial: {}",
                     version.getVersion(), version.getLastSerialId());
