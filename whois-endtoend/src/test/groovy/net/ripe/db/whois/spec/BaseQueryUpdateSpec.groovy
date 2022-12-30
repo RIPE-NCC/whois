@@ -95,7 +95,7 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
             throw new IllegalArgumentException('No transient for ${key}')
         }
 
-        return s.stripIndent()
+        return s.stripTrailing().stripIndent() + "\n"
     }
 
     def dbfixture(String string) {
