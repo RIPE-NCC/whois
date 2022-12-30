@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.CheckForNull;
@@ -47,8 +48,8 @@ public class JdbcSerialDao implements SerialDao {
 
     @Override
     @CheckForNull
-    public Stream<SerialEntry> getSerialEntriesFromLast() {
-        return JdbcRpslObjectOperations.getSerialEntriesFromLast(jdbcTemplate);
+    public void getSerialEntriesFromLast(final RowCallbackHandler rowCallbackHandler) {
+        JdbcRpslObjectOperations.getSerialEntriesFromLast(jdbcTemplate, rowCallbackHandler);
     }
 
     @Override

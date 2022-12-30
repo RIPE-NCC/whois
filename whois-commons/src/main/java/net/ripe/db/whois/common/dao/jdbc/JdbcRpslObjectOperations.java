@@ -30,6 +30,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
@@ -413,12 +414,14 @@ public class JdbcRpslObjectOperations {
         }
     }
 
-    public static Stream<SerialEntry> getSerialEntriesFromLast(final JdbcTemplate jdbcTemplate) {
+    public static void getSerialEntriesFromLast(
+        final JdbcTemplate jdbcTemplate,
+        final RowCallbackHandler rowCallbackHandler
+    ) {
         try {
-            return getSerialEntryWithBlobsFromLastForNrtm4(jdbcTemplate);
+            getSerialEntryWithBlobsFromLastForNrtm4(jdbcTemplate, rowCallbackHandler);
         } catch (final EmptyResultDataAccessException e) {
             LOGGER.debug("SerialDao.getSerialEntriesFromLast() returned no rows", e);
-            return Stream.of();
         }
     }
 
@@ -516,7 +519,10 @@ public class JdbcRpslObjectOperations {
         }, serialId);
     }
 
-    private static Stream<SerialEntry> getSerialEntryWithBlobsFromLastForNrtm4(final JdbcTemplate jdbcTemplate) {
+    private static void getSerialEntryWithBlobsFromLastForNrtm4(
+        final JdbcTemplate jdbcTemplate,
+        final RowCallbackHandler rowCallbackHandler
+    ) {
         final String sql = "" +
             "SELECT serials.serial_id, " +
             "       serials.operation, " +
@@ -528,23 +534,15 @@ public class JdbcRpslObjectOperations {
             "       JOIN last " +
             "              ON last.object_id = serials.object_id " +
             "WHERE serials.atlast = 1";
-        final Stream.Builder<SerialEntry> stream = Stream.builder();
         try {
             final Connection conn = jdbcTemplate.getDataSource().getConnection();
             final Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             stmt.setFetchSize(1);
             final ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
-                final SerialEntry serialEntry = new SerialEntry(
-                    rs.getInt(1),
-                    Operation.getByCode(rs.getInt(2)),
-                    rs.getBoolean(3),
-                    rs.getInt(4),
-                    rs.getBytes(5),
-                    rs.getString(6));
-                stream.add(serialEntry);
+                rowCallbackHandler.processRow(rs);
             }
-            return stream.build();
+            rs.close();
         } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
