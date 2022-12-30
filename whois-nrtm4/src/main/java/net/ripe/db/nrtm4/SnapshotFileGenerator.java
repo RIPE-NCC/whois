@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
 import java.util.Optional;
 
 
@@ -49,6 +50,7 @@ public class SnapshotFileGenerator {
 
     public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) {
 
+        final long start = System.currentTimeMillis();
         // Get last version from database.
         final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
         NrtmVersionInfo version;
@@ -86,6 +88,9 @@ public class SnapshotFileGenerator {
             );
             snapshotFile.setFileName(fileName);
             snapshotFile.setHash(sha256hex);
+            final long mark = System.currentTimeMillis();
+            final DecimalFormat df = new DecimalFormat("#,###.000");
+            LOGGER.info("Generated snapshot in {}s", df.format((mark - start) / 1000.0));
             return Optional.of(snapshotFile);
         } catch (final IOException e) {
             LOGGER.error("Exception thrown when generating snapshot file", e);
