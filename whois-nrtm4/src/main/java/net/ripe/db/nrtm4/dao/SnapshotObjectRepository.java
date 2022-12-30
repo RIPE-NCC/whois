@@ -1,10 +1,12 @@
 package net.ripe.db.nrtm4.dao;
 
+import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -116,6 +118,21 @@ public class SnapshotObjectRepository {
             pst.setString(2, primaryKey);
             return pst;
         });
+    }
+
+    public void snapshotCallback(final NrtmSource source, final RowCallbackHandler rowCallbackHandler) {
+        final String sql = "" +
+            "SELECT so.payload " +
+            "FROM snapshot_object so " +
+            "JOIN version_info v ON v.id = so.version_id " +
+            "JOIN source src ON src.id = v.source_id " +
+            "WHERE src.name = ? " +
+            "ORDER BY so.serial_id";
+        JdbcStreamingHelper.executeStreaming(
+            jdbcTemplate,
+            sql,
+            pss -> pss.setString(1, source.name()),
+            rowCallbackHandler);
     }
 
     public Stream<String> getSnapshotAsStream(final NrtmSource source) {
