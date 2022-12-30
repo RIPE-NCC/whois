@@ -8,10 +8,14 @@ import net.ripe.db.nrtm4.dao.SnapshotFile;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.domain.SnapshotFileStreamer;
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Optional;
 
 
@@ -60,34 +64,33 @@ public class SnapshotFileGenerator {
                 return Optional.empty();
             }
         }
-        return Optional.empty();
-//        if (version.getVersion() > 1) {
-//            final boolean snapshotWasUpdated = snapshotSynchronizer.synchronizeDeltasToSnapshot(source, version);
-//            if (!snapshotWasUpdated) {
-//                LOGGER.warn("Code execution should not reach this point since we've already detected deltas. Version {}, last serial: {}",
-//                    version.getVersion(), version.getLastSerialId());
-//                return Optional.empty();
-//            }
-//        }
-//        final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
-//        final String fileName = NrtmFileUtil.fileName(snapshotFile);
-//        try {
-//            final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
-//            snapshotFileStreamer.writeSnapshotAsJson(snapshotFile, out);
-//            out.close();
-//            final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
-//            snapshotFileRepository.save(
-//                snapshotFile.getVersionId(),
-//                fileName,
-//                sha256hex
-//            );
-//            snapshotFile.setFileName(fileName);
-//            snapshotFile.setHash(sha256hex);
-//            return Optional.of(snapshotFile);
-//        } catch (final IOException e) {
-//            LOGGER.error("Exception thrown when generating snapshot file", e);
-//            throw new RuntimeException(e);
-//        }
+        if (version.getVersion() > 1) {
+            final boolean snapshotWasUpdated = snapshotSynchronizer.synchronizeDeltasToSnapshot(source, version);
+            if (!snapshotWasUpdated) {
+                LOGGER.warn("Code execution should not reach this point since we've already detected deltas. Version {}, last serial: {}",
+                    version.getVersion(), version.getLastSerialId());
+                return Optional.empty();
+            }
+        }
+        final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
+        final String fileName = NrtmFileUtil.fileName(snapshotFile);
+        try {
+            final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
+            snapshotFileStreamer.writeSnapshotAsJson(snapshotFile, out);
+            out.close();
+            final String sha256hex = DigestUtils.sha256Hex(nrtmFileStore.getFileInputStream(snapshotFile.getSessionID(), fileName));
+            snapshotFileRepository.save(
+                snapshotFile.getVersionId(),
+                fileName,
+                sha256hex
+            );
+            snapshotFile.setFileName(fileName);
+            snapshotFile.setHash(sha256hex);
+            return Optional.of(snapshotFile);
+        } catch (final IOException e) {
+            LOGGER.error("Exception thrown when generating snapshot file", e);
+            throw new RuntimeException(e);
+        }
     }
 
     public Optional<SnapshotFile> getLastSnapshot(final NrtmSource source) {
