@@ -1,0 +1,4 @@
+reviewers:
+  # The default reviewers
+  - team:database # GitHub team
+  - MiguelAHM
