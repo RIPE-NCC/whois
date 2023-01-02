@@ -11,3 +11,5 @@ jobs:
     steps:
       - name: Request review based on files changes and/or groups the author belongs to
         uses: kentaro-m/auto-assign-action@v1.2.4
+        with:
+          configuration-path: '.github/reviewers_list.yml'
