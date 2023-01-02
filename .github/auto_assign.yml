@@ -8,6 +8,8 @@ addAssignees: false
 reviewers:
   # The default reviewers
   - eshryane
+  - team:database # GitHub team
+  - MiguelAHM
 
 # Set 0 to add all the reviewers (default: 0)
 numberOfReviewers: 0
