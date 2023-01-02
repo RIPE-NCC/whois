@@ -83,7 +83,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -112,7 +112,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -143,7 +143,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:    denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -183,7 +183,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -221,7 +221,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -259,7 +259,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mr-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -297,7 +297,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mr-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -335,7 +335,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mr-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -372,7 +372,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -406,7 +406,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 delete:   no origin
 
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -442,7 +442,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 delete:   not needed
 
                 password:   mb-child
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -477,7 +477,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
                 delete:   not needed
 
                 password:   mr-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

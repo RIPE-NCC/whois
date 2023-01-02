@@ -122,7 +122,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -176,7 +176,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -239,7 +239,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -284,7 +284,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -330,7 +330,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -371,7 +371,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -408,7 +408,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -464,7 +464,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-parent
                 password:   mb-origin
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -517,7 +517,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -568,7 +568,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -610,7 +610,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -657,7 +657,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -704,7 +704,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -756,7 +756,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -806,7 +806,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -851,7 +851,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -898,7 +898,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-origin
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -947,7 +947,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-origin
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1003,7 +1003,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-origin
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1054,7 +1054,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1101,7 +1101,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1147,7 +1147,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1192,7 +1192,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1253,7 +1253,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-parent
                 password:   mb-origin
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1297,7 +1297,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 password:   mb-child
                 password:   mb-parent
                 password:   mb-origin
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1324,7 +1324,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1354,7 +1354,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1384,7 +1384,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
     
                     password:   owner
                     password:   owner3
-                    """.stripIndent()
+                    """.stripIndent(true)
             )
 
         then:
@@ -1416,7 +1416,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
     
                     password:   owner
                     password:   owner3
-                    """.stripIndent()
+                    """.stripIndent(true)
             )
 
         then:

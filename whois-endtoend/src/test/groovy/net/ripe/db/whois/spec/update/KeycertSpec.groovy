@@ -192,7 +192,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -251,7 +251,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -344,7 +344,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -433,7 +433,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -537,7 +537,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
                 source:       TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -651,7 +651,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password:    test2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -715,7 +715,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -773,7 +773,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -850,7 +850,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -929,7 +929,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -990,7 +990,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1055,7 +1055,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1122,7 +1122,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1179,7 +1179,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1324,7 +1324,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1428,7 +1428,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1532,7 +1532,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1601,7 +1601,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1662,7 +1662,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1727,7 +1727,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1789,7 +1789,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1850,7 +1850,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1911,7 +1911,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1973,7 +1973,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2029,7 +2029,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2085,7 +2085,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2142,7 +2142,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2198,7 +2198,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2266,7 +2266,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2333,7 +2333,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2537,7 +2537,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2593,7 +2593,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2676,7 +2676,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 delete:  reason
                 password: lir
-            """.stripIndent())
+            """.stripIndent(true))
       then:
         def ack = ackFor message
 
@@ -2726,7 +2726,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def createAck = new AckResponse("", createResponse)
@@ -2775,7 +2775,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def updateAck = new AckResponse("", updateResponse)
@@ -2822,7 +2822,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 delete: reason
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def deleteAck = new AckResponse("", deleteResponse)
@@ -2880,7 +2880,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def createAck = new AckResponse("", createResponse)
@@ -2928,7 +2928,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def createAck = new AckResponse("", createResponse)

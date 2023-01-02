@@ -102,7 +102,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -172,7 +172,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -212,7 +212,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -251,7 +251,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -295,7 +295,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -342,7 +342,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -389,7 +389,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -430,7 +430,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -491,7 +491,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 notify:  dbtest2-nfy@ripe.net
 
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -530,7 +530,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -576,7 +576,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -614,7 +614,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -654,7 +654,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -690,7 +690,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -728,7 +728,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent(),
+                """.stripIndent(true),
             "UTF-8",
             false
         )
@@ -768,7 +768,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -803,7 +803,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:        TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -840,7 +840,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -903,7 +903,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -968,7 +968,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1036,7 +1036,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
