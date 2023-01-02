@@ -1,15 +1,8 @@
-name: Auto Request Review
-
-on:
-  pull_request:
-    types: [opened, ready_for_review, reopened]
+name: 'Auto Assign'
+on: pull_request
 
 jobs:
-  auto-request-review:
-    name: Auto Request Review
+  add-reviews:
     runs-on: ubuntu-latest
     steps:
-      - name: Request review based on files changes and/or groups the author belongs to
-        uses: kentaro-m/auto-assign-action@v1.2.4
-        with:
-          configuration-path: '.github/reviewers_list.yml'
+      - uses: kentaro-m/auto-assign-action@v1.2.4

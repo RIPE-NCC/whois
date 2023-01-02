@@ -1,5 +1,5 @@
 # Set to true to add reviewers to pull requests
-addReviewers:
+addReviewers: true
 
 # Set to true to add assignees to pull requests
 addAssignees: false
