@@ -7,8 +7,7 @@ addAssignees: false
 # A list of reviewers to be added to pull requests (GitHub user name)
 reviewers:
   # The default reviewers
-  - team:database # GitHub team
-  - MiguelAHM
+  - eshryane
 
 # Set 0 to add all the reviewers (default: 0)
 numberOfReviewers: 0
