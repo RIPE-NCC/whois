@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, ready_for_review, reopened]
 
-job:
+jobs:
   auto-request-review:
     name: Auto Request Review
     runs-on: ubuntu-latest
