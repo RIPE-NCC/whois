@@ -1,0 +1,4 @@
+reviewers:
+  # The default reviewers
+  defaults:
+    - team:database # GitHub team
