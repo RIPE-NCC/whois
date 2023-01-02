@@ -1,5 +1,7 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
@@ -12,9 +14,12 @@ import javax.annotation.Nullable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+
 public class JdbcStreamingHelper {
 
-   private JdbcStreamingHelper() {}
+    private static final Logger LOGGER = LoggerFactory.getLogger(JdbcStreamingHelper.class);
+
+    private JdbcStreamingHelper() {}
 
     public static <T> T executeStreaming(final JdbcTemplate jdbcTemplate, final String sql, final PreparedStatementCallback<T> callback) {
         return jdbcTemplate.execute((ConnectionCallback<T>) con -> {
@@ -54,6 +59,7 @@ public class JdbcStreamingHelper {
                 rs = ps.executeQuery();
                 return resultSetExtractor.extractData(rs);
             } finally {
+                LOGGER.info("Closing result set");
                 JdbcUtils.closeResultSet(rs);
             }
         });

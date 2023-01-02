@@ -47,7 +47,7 @@ public class NrtmFileProcessor {
         //nrtmFileService.syncNrtmFileToFileSystem(name);
     }
 
-    @Transactional
+    @Transactional("nrtmTransactionManager")
     public void runWrite() {
         LOGGER.info("runWrite() called");
         final NrtmSource source = nrtmSourceHolder.getSource();

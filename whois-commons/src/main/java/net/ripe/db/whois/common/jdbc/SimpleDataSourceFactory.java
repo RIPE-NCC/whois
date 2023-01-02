@@ -32,6 +32,7 @@ public class SimpleDataSourceFactory implements DataSourceFactory {
             cpds.setMaxIdleTime(7200);
             cpds.setPreferredTestQuery("SELECT 1");
             cpds.setIdleConnectionTestPeriod(15);
+            cpds.setStatementCacheNumDeferredCloseThreads(1);
 
             return cpds;
         } catch (PropertyVetoException e) {
