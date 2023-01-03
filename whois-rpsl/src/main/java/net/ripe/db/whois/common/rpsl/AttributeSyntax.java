@@ -70,7 +70,7 @@ public interface AttributeSyntax extends Documented {
             "An as-set name can also be hierarchical.  A hierarchical set\n" +
             "name is a sequence of set names and AS numbers separated by\n" +
             "colons \":\". The first element of the name must be an ASN\n" +
-            "followed by colons and finishing with as-set (example: AS15562:AS-SNIJDERS)." +
+            "followed by colons and finishing with as-set (example: AS3333:AS-TEST)." +
             "  At least one component of such a name must be\n" +
             "an actual set name (i.e. start with \"as-\").  All the set\n" +
             "name components of a hierarchical as-name have to be as-set\n" +
