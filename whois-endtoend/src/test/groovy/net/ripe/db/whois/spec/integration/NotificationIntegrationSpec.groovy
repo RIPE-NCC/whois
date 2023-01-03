@@ -93,7 +93,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
                     password: update
 
-                """.stripIndent(),
+                """.stripIndent(true),
                 subject: "update"
         )
 
@@ -117,7 +117,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
 
                     password: update
-                """.stripIndent(),
+                """.stripIndent(true),
                 subject: "update"
         )
 
@@ -492,7 +492,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     source: TEST
-                    """.stripIndent()
+                    """.stripIndent(true)
 
       def update = send new Message(body: updates)
 
@@ -585,7 +585,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             ref-nfy:      orgtest@test.net
             source:       TEST
             password:     update
-         """.stripIndent()
+         """.stripIndent(true)
 
         def create = send new Message(body: org)
 
@@ -652,7 +652,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             notify: person@ripe.net
             source: TEST
             password: update
-         """.stripIndent()
+         """.stripIndent(true)
 
         def creates = send new Message(body: objects)
 
@@ -798,7 +798,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             source:       TEST
             password:     update
             delete:       reason
-         """.stripIndent()
+         """.stripIndent(true)
 
         def updates = send new Message(body: objects)
 

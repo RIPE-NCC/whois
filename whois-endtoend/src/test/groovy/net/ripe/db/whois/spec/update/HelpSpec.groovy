@@ -20,7 +20,7 @@ class HelpSpec extends BaseQueryUpdateSpec {
         ack.contents =~ """\
             You have requested Help information from the RIPE NCC Database,
             therefore the body of your message has been ignored.
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "send a HeLp message and check the response"() {
@@ -36,7 +36,7 @@ class HelpSpec extends BaseQueryUpdateSpec {
         ack.contents =~ """\
             You have requested Help information from the RIPE NCC Database,
             therefore the body of your message has been ignored.
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "send a howto message and check the response"() {
@@ -52,7 +52,7 @@ class HelpSpec extends BaseQueryUpdateSpec {
         ack.contents =~ """\
             You have requested Help information from the RIPE NCC Database,
             therefore the body of your message has been ignored.
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "send a hOwTo message and check the response"() {
@@ -68,7 +68,7 @@ class HelpSpec extends BaseQueryUpdateSpec {
         ack.contents =~ """\
             You have requested Help information from the RIPE NCC Database,
             therefore the body of your message has been ignored.
-            """.stripIndent()
+            """.stripIndent(true)
     }
 
     def "send a HeLp and HowTo message and check the response"() {

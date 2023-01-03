@@ -320,7 +320,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -405,7 +405,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -459,7 +459,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -501,7 +501,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -541,7 +541,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -608,7 +608,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -688,7 +688,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -767,7 +767,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -841,7 +841,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:     denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -915,7 +915,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:     denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -962,7 +962,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent());
+                """.stripIndent(true));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1002,7 +1002,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent());
+                """.stripIndent(true));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1042,7 +1042,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent());
+                """.stripIndent(true));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1082,7 +1082,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent());
+                """.stripIndent(true));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1123,7 +1123,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent());
+                """.stripIndent(true));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1164,7 +1164,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent(), status, extra));
+                """.stripIndent(true), status, extra));
 
         expect:
         def ack = new AckResponse("", message)
@@ -1286,7 +1286,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1383,7 +1383,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1484,7 +1484,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1580,7 +1580,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:     denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1671,7 +1671,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1765,7 +1765,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1856,7 +1856,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1957,7 +1957,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2002,7 +2002,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
-                override: denis, override1""".stripIndent())
+                override: denis, override1""".stripIndent(true))
 
         expect:
             queryObject("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2025,7 +2025,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: nccend
                 password: owner3
-                password: hm""".stripIndent())
+                password: hm""".stripIndent(true))
 
         then:
         def ack = new AckResponse("", message)
@@ -2052,7 +2052,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
-                override: denis, override1""".stripIndent())
+                override: denis, override1""".stripIndent(true))
 
         expect:
         queryObject("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2075,7 +2075,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: owner3
                 password: nccend
-                password: hm""".stripIndent())
+                password: hm""".stripIndent(true))
 
         then:
         def ack = new AckResponse("", message)
@@ -2102,7 +2102,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
-                override: denis, override1""".stripIndent())
+                override: denis, override1""".stripIndent(true))
 
         expect:
         queryObject("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2124,7 +2124,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: nccend
                 password: owner3
-                password: hm""".stripIndent())
+                password: hm""".stripIndent(true))
 
         then:
         def ack = new AckResponse("", message)
@@ -2151,7 +2151,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
-                override: denis, override1""".stripIndent())
+                override: denis, override1""".stripIndent(true))
 
         expect:
         queryObject("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2175,7 +2175,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: nccend
                 password: owner3
-                password: hm""".stripIndent())
+                password: hm""".stripIndent(true))
 
         then:
         def ack = new AckResponse("", message)
@@ -2211,7 +2211,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 delete:   testing
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2254,7 +2254,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 delete:   testing
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2339,7 +2339,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2442,7 +2442,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2544,7 +2544,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2649,7 +2649,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2758,7 +2758,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2866,7 +2866,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:    denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2917,7 +2917,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
 
                 password: nccend
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2958,7 +2958,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2998,7 +2998,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3038,7 +3038,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3075,7 +3075,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                     status:         ASSIGNED ANYCAST
                     source:         TEST
                     override:     denis,override1
-                    """.stripIndent())
+                    """.stripIndent(true))
         then:
             def ack = new AckResponse("", message)
 
@@ -3099,7 +3099,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                     mnt-lower:      RIPE-NCC-HM-MNT
                     status:         ASSIGNED ANYCAST
                     source:         TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         then:
             def message = syncUpdate("""\
                     inet6num:       2001:102::/48
@@ -3116,7 +3116,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                     status:         ASSIGNED ANYCAST
                     source:         TEST
                     override:     denis,override1
-                    """.stripIndent())
+                    """.stripIndent(true))
         then:
             def ack = new AckResponse("", message)
 
@@ -3149,7 +3149,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 password: nccend
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3190,7 +3190,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

@@ -115,7 +115,7 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -151,7 +151,7 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -185,7 +185,7 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -219,7 +219,7 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -259,7 +259,7 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -294,7 +294,7 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -331,7 +331,7 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -365,7 +365,7 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -399,7 +399,7 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

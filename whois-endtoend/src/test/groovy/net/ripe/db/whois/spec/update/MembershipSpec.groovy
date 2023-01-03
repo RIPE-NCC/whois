@@ -199,7 +199,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -240,7 +240,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -281,7 +281,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -325,7 +325,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir3
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -365,7 +365,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -411,7 +411,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -462,7 +462,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -521,7 +521,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -584,7 +584,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -655,7 +655,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -703,7 +703,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -746,7 +746,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 delete:      testing
 
                 password: ref
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -789,7 +789,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 delete:      testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -827,7 +827,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -870,7 +870,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -925,7 +925,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -979,7 +979,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1039,7 +1039,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1103,7 +1103,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir3
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1152,7 +1152,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: locked
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1189,7 +1189,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1232,7 +1232,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1279,7 +1279,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1327,7 +1327,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 delete:       testing members
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1375,7 +1375,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 delete:       testing members
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1424,7 +1424,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1483,7 +1483,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1558,7 +1558,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
                 password: owner2
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

@@ -16,7 +16,7 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
 
     def setup() {
         whoisFixture.reset()
-        setupObjects(fixtures.values().collect { RpslObject.parse(it.stripIndent()) })
+        setupObjects(fixtures.values().collect { RpslObject.parse(it.stripIndent(true)) })
     }
 
     abstract Map<String, String> getFixtures()
@@ -26,7 +26,7 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
     }
 
     def deleteObject(String key) {
-        whoisFixture.deleteRpslObject(RpslObject.parse(fixtures.get(key).stripIndent()));
+        whoisFixture.deleteRpslObject(RpslObject.parse(fixtures.get(key).stripIndent(true)));
     }
 
     def dumpSchema() {
