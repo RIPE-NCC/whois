@@ -421,7 +421,7 @@ public class JdbcRpslObjectOperations {
         } catch (final EmptyResultDataAccessException e) {
             LOGGER.debug("getSerialEntriesFromLast() returned no rows", e);
         } catch (final Exception e) {
-            LOGGER.error("getSerialEntriesFromLast() threw exception", e);
+            LOGGER.error("getSerialEntriesFromLast() caught exception", e);
         }
     }
 

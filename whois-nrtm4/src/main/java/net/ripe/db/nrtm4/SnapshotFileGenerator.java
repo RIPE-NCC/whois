@@ -64,11 +64,11 @@ public class SnapshotFileGenerator {
                 return Optional.empty();
             }
         }
-        LOGGER.info("createSnapshot() version: {}", version);
+        LOGGER.info("createSnapshot() now at version: {}", version);
         if (version.getVersion() > 1) {
             final boolean snapshotWasUpdated = snapshotObjectSynchronizer.synchronizeDeltasToSnapshot(source, version);
             if (!snapshotWasUpdated) {
-                LOGGER.warn("Code execution should not reach this point since we've already detected deltas. Version {}, last serial: {}",
+                LOGGER.warn("Code execution should not reach this point since we've already tested for no deltas. Version {}, last serial: {}",
                     version.getVersion(), version.getLastSerialId());
                 return Optional.empty();
             }

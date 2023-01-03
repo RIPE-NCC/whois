@@ -14,7 +14,7 @@ public class SimpleDataSourceFactory implements DataSourceFactory {
     private final String driverClass;
 
     @Autowired
-    public SimpleDataSourceFactory(@Value("${whois.db.driver}") String driverClass) {
+    public SimpleDataSourceFactory(@Value("${whois.db.driver}") final String driverClass) {
         this.driverClass = driverClass;
     }
 
@@ -35,7 +35,7 @@ public class SimpleDataSourceFactory implements DataSourceFactory {
             cpds.setStatementCacheNumDeferredCloseThreads(1);
 
             return cpds;
-        } catch (PropertyVetoException e) {
+        } catch (final PropertyVetoException e) {
             throw new IllegalArgumentException(e);
         }
     }

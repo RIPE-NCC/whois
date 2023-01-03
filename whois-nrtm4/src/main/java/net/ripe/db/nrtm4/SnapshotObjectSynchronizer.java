@@ -10,6 +10,8 @@ import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.Dummifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 public class SnapshotObjectSynchronizer {
 
-    //private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotObjectSynchronizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotObjectSynchronizer.class);
 
     private final DeltaTransformer deltaTransformer;
     private final Dummifier dummifierNrtm;
@@ -43,6 +45,7 @@ public class SnapshotObjectSynchronizer {
     }
 
     NrtmVersionInfo init(final NrtmSource source) {
+        LOGGER.info("getSerialEntriesFromLast() entered");
         final SerialRange serialRange = serialDao.getSerials();
         final int lastSerial = serialRange.getEnd();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialSnapshot(source, lastSerial);
@@ -63,6 +66,7 @@ public class SnapshotObjectSynchronizer {
                     dummifierNrtm.dummify(NrtmConstants.NRTM_VERSION, serialEntry.getRpslObject()).toString());
             }
         });
+        LOGGER.info("getSerialEntriesFromLast() completed");
         return version;
     }
 
