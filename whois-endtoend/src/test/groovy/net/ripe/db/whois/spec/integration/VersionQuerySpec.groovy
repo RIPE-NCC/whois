@@ -875,7 +875,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
             source:      TEST
             remarks:     updated version
             password:    mb-parent
-            """.stripIndent())
+            """.stripIndent(true))
       then:
         updateResponse =~ "SUCCESS"
 

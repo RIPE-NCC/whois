@@ -68,7 +68,7 @@ class GrsQuerySpec extends BaseEndToEndSpec {
 
     def setup () {
         def rpslObjects = Sets.newHashSet();
-        rpslObjects.addAll(grsFixtures.values().collect { RpslObject.parse(it.stripIndent()) })
+        rpslObjects.addAll(grsFixtures.values().collect { RpslObject.parse(it.stripIndent(true)) })
         getDatabaseHelper().addObjects(rpslObjects)
     }
 

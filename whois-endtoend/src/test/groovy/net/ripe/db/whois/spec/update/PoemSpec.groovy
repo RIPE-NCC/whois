@@ -68,7 +68,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 source:         TEST
 
                 password:   lim
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -106,7 +106,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 source:         TEST
 
                 password:   test2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -145,7 +145,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 source:         TEST
 
                 password:   lim
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -187,7 +187,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 source:         TEST
 
                 password:   lim
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -232,7 +232,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 source:         TEST
 
                 password:   lim
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -275,7 +275,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 delete:         test delete
 
                 password:   lim
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
