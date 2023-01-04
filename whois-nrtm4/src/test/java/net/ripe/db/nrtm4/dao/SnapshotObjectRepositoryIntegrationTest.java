@@ -29,7 +29,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
 
     @Test
     void should_insert_payloads_and_stream_them() throws IOException {
-        final var version = nrtmVersionInfoRepository.createInitialSnapshot(source.getSource(), 0);
+        final var version = nrtmVersionInfoRepository.createInitialVersion(source.getSource(), 0);
         snapshotObjectRepository.insert(version.getId(), 1, ObjectType.INETNUM, "193.0.0.0 - 193.255.255.255", escapedInetnumString);
         snapshotObjectRepository.insert(version.getId(), 2, ObjectType.ORGANISATION, "ORG-XYZ99-RIPE", escapedOrgString);
         final var stream = snapshotObjectRepository.getSnapshotAsStream(source.getSource());
@@ -40,7 +40,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
 
     @Test
     void should_insert_and_delete_payloads_and_stream_them() throws IOException {
-        final var version = nrtmVersionInfoRepository.createInitialSnapshot(source.getSource(), 0);
+        final var version = nrtmVersionInfoRepository.createInitialVersion(source.getSource(), 0);
         snapshotObjectRepository.insert(version.getId(), 1, ObjectType.INETNUM, "193.0.0.0 - 193.255.255.255", escapedInetnumString);
         snapshotObjectRepository.insert(version.getId(), 2, ObjectType.ORGANISATION, "ORG-XYZ99-RIPE", escapedOrgString);
         snapshotObjectRepository.delete(ObjectType.ORGANISATION, "ORG-XYZ99-RIPE");

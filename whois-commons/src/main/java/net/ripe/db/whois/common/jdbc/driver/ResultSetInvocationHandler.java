@@ -28,7 +28,7 @@ class ResultSetInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
         final Object result = method.invoke(target, args);
-/*
+
         if (loggingHandler != null) {
             if (method.getName().equals("next") && (Boolean) result) {
                 handleNext();
@@ -37,7 +37,7 @@ class ResultSetInvocationHandler implements InvocationHandler {
                 loggingHandler.log(statementInfo, resultInfo);
             }
         }
-*/
+
         return result;
     }
 

@@ -63,7 +63,7 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
             deltaFileGenerator.createDelta(NrtmSourceHolder.valueOf("TEST"))
         );
         // insertFirstVersion();
-        versionDao.createInitialSnapshot(NrtmSourceHolder.valueOf("TEST"), 0);
+        versionDao.createInitialVersion(NrtmSourceHolder.valueOf("TEST"), 0);
 
         final var deltas = deltaFileGenerator.createDelta(NrtmSourceHolder.valueOf("TEST"));
         assertThat(deltas.isEmpty(), is(true));
@@ -76,7 +76,7 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
             nrtmFileUtil.when(NrtmFileUtil::sessionId).thenReturn("1234567890");
             nrtmFileUtil.when(() -> NrtmFileUtil.fileName(any())).thenReturn("nrtm-delta.2.1234567890");
 
-            versionDao.createInitialSnapshot(NrtmSourceHolder.valueOf("TEST"), 0);
+            versionDao.createInitialVersion(NrtmSourceHolder.valueOf("TEST"), 0);
 
             loadSerials();
             final Optional<PublishableDeltaFile> optDeltaFile = deltaFileGenerator.createDelta(NrtmSourceHolder.valueOf("TEST"));

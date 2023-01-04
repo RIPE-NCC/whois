@@ -68,7 +68,7 @@ public class NrtmVersionInfoRepository {
      * @param lastSerialId The last serialID from the Whois serials table which is in the snapshot
      * @return An initialized version object filled from the new row in the database
      */
-    public NrtmVersionInfo createInitialSnapshot(final NrtmSource source, final int lastSerialId) {
+    public NrtmVersionInfo createInitialVersion(final NrtmSource source, final int lastSerialId) {
         jdbcTemplate.update("INSERT INTO source (name) VALUES (?)", source.name());
         final long version = 1L;
         final String sessionID = NrtmFileUtil.sessionId();
