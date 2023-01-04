@@ -45,7 +45,7 @@ public class WhoisSerialRepository {
                             // invalid object type
                             return null;
                         }
-                    }, fromTimestamp, fromTimestamp)
+                    }, fromTimestamp)
                 .stream()
                 .filter(Objects::nonNull);
         } catch (DataAccessException e) {
