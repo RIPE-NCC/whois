@@ -1,7 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.Timestamp;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
@@ -13,11 +12,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Repository
@@ -36,31 +32,25 @@ public class WhoisSerialRepository {
         JdbcRpslObjectOperations.getSerialEntriesFromLast(jdbcTemplate, rowCallbackHandler);
     }
 
-    public Map<RpslObjectKey, List<ObjectData>> findUpdates(final long fromTimestamp) {
+    public Stream<ObjectData> findUpdates(final long fromTimestamp) {
         try {
             return jdbcTemplate.query(
-                    "(SELECT pkey, object_type, timestamp, object_id, sequence_id FROM history WHERE timestamp > ?) " +
-                        "UNION ALL " +
-                        "(SELECT pkey, object_type, timestamp, object_id, sequence_id FROM last WHERE timestamp > ?)",
+                    "SELECT object_id, sequence_id FROM last WHERE sequence_id > 0 && timestamp > ?",
                     (rs, rowNum) -> {
                         try {
                             return new ObjectData(
-                                rs.getString(1),                        // pkey
-                                ObjectTypeIds.getType(rs.getInt(2)),    // objectType
-                                rs.getLong(3),                          // timestamp
-                                rs.getInt(4),                           // objectId
-                                rs.getInt(5));                          // sequenceId
+                                rs.getInt(1),                           // objectId
+                                rs.getInt(2));                          // sequenceId
                         } catch (IllegalArgumentException e) {
                             // invalid object type
                             return null;
                         }
                     }, fromTimestamp, fromTimestamp)
                 .stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(ObjectData::getKey));
+                .filter(Objects::nonNull);
         } catch (DataAccessException e) {
             LOGGER.warn("Unable to retrieve object versions since {} due to {}", Timestamp.fromSeconds(fromTimestamp).toLocalDateTime(), e.getMessage());
-            return Collections.emptyMap();
+            return Stream.of();
         }
     }
 

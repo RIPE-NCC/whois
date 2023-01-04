@@ -4,7 +4,6 @@ import net.ripe.db.nrtm4.dao.NrtmSource;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.ObjectData;
-import net.ripe.db.nrtm4.dao.RpslObjectKey;
 import net.ripe.db.nrtm4.dao.SnapshotObject;
 import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import net.ripe.db.nrtm4.dao.WhoisSerialRepository;
@@ -17,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Service
@@ -55,8 +54,8 @@ public class SnapshotObjectSynchronizer {
         final SerialRange serialRange = serialDao.getSerials();
         final int lastSerial = serialRange.getEnd();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, lastSerial);
-        final Map<RpslObjectKey, List<ObjectData>> last = whoisSerialRepository.findUpdates(0);
-        LOGGER.info("Found {} objects", last.size());
+        final Stream<ObjectData> last = whoisSerialRepository.findUpdates(0);
+        LOGGER.info("Found {} objects", last.count());
 //        serialDao.getSerialEntriesFromLast(rs -> {
 //            final SerialEntry serialEntry = new SerialEntry(
 //                rs.getInt(1),
