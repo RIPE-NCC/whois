@@ -55,7 +55,7 @@ public class SnapshotObjectSynchronizer {
         final int lastSerial = serialRange.getEnd();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, lastSerial);
         final Stream<ObjectData> last = whoisSerialRepository.findUpdates(0);
-        LOGGER.info("Found {} objects", last.count());
+        LOGGER.info("Found {} objects", last.collect(Collectors.toList()).size());
 //        serialDao.getSerialEntriesFromLast(rs -> {
 //            final SerialEntry serialEntry = new SerialEntry(
 //                rs.getInt(1),
