@@ -1,24 +1,24 @@
 package net.ripe.db.nrtm4;
 
+import net.ripe.db.nrtm4.dao.InitialSnapshotState;
 import net.ripe.db.nrtm4.dao.NrtmSource;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
-import net.ripe.db.nrtm4.dao.ObjectData;
-import net.ripe.db.nrtm4.dao.SnapshotObject;
 import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
-import net.ripe.db.nrtm4.dao.WhoisSerialRepository;
+import net.ripe.db.nrtm4.dao.WhoisDao;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
-import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.Dummifier;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
 
 @Service
@@ -31,31 +31,50 @@ public class SnapshotObjectSynchronizer {
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SerialDao serialDao;
     private final SnapshotObjectRepository snapshotObjectRepository;
-    private final WhoisSerialRepository whoisSerialRepository;
+    private final WhoisDao whoisDao;
 
     SnapshotObjectSynchronizer(
         final DeltaTransformer deltaTransformer,
         final Dummifier dummifierNrtm,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final SerialDao serialDao,
+        @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
         final SnapshotObjectRepository snapshotObjectRepository,
-        final WhoisSerialRepository whoisSerialRepository
+        final WhoisDao whoisDao
     ) {
         this.deltaTransformer = deltaTransformer;
         this.dummifierNrtm = dummifierNrtm;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.serialDao = serialDao;
         this.snapshotObjectRepository = snapshotObjectRepository;
-        this.whoisSerialRepository = whoisSerialRepository;
+        this.whoisDao = whoisDao;
     }
 
-    NrtmVersionInfo init(final NrtmSource source) {
-        LOGGER.info("getSerialEntriesFromLast() entered");
-        final SerialRange serialRange = serialDao.getSerials();
-        final int lastSerial = serialRange.getEnd();
-        final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, lastSerial);
-        final Stream<ObjectData> last = whoisSerialRepository.findUpdates(0);
-        LOGGER.info("Found {} objects", last.collect(Collectors.toList()).size());
+    NrtmVersionInfo initializeSnapshotObjects(final NrtmSource source) {
+        final String method = "initializeSnapshotObjects";
+        long mark = System.currentTimeMillis();
+        LOGGER.info("{} entered", method);
+        final InitialSnapshotState initialState = whoisDao.getInitialSnapshotState();
+        LOGGER.info("{} Found {} objects", method, initialState.objectData().size());
+        LOGGER.info("{} At serial {}", method, initialState.serialId());
+        LOGGER.info("{} mark {}ms", method, (System.currentTimeMillis() - mark));
+        mark = System.currentTimeMillis();
+        final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, initialState.serialId());
+        initialState.objectData().parallelStream().forEach((object) -> {
+                final String rpsl = whoisDao.findRpsl(object.objectId(), object.sequenceId());
+                final RpslObject rpslObject = RpslObject.parse(rpsl);
+                if (!dummifierNrtm.isAllowed(NRTM_VERSION, rpslObject)) {
+                    return;
+                }
+                final RpslObject dummyRpsl = dummifierNrtm.dummify(NRTM_VERSION, rpslObject);
+                snapshotObjectRepository.insert(version.getId(), object.objectId(), object.sequenceId(), dummyRpsl.toString());
+            }
+        );
+        LOGGER.info("Inserted snapshot objects");
+        LOGGER.info("{} mark {}ms", method, (System.currentTimeMillis() - mark));
+
+        // do at the end...
+        // CONSTRAINT `snapshot_object__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
+
 //        serialDao.getSerialEntriesFromLast(rs -> {
 //            final SerialEntry serialEntry = new SerialEntry(
 //                rs.getInt(1),
@@ -86,29 +105,29 @@ public class SnapshotObjectSynchronizer {
             return false;
         }
 
-        for (final DeltaChange change : deltas) {
-            if (change.getAction() == DeltaChange.Action.ADD_MODIFY) {
-                final Optional<SnapshotObject> existing = snapshotObjectRepository.getByObjectTypeAndPrimaryKey(change.getObjectType(), change.getPrimaryKey());
-                if (existing.isPresent()) {
-                    snapshotObjectRepository.update(
-                        version.getId(),
-                        change.getSerialId(),
-                        change.getObject().getKey().toString(),
-                        change.getObject().toString()
-                    );
-                } else {
-                    snapshotObjectRepository.insert(
-                        version.getId(),
-                        change.getSerialId(),
-                        change.getObject().getType(),
-                        change.getObject().getKey().toString(),
-                        change.getObject().toString()
-                    );
-                }
-            } else if (change.getAction() == DeltaChange.Action.DELETE) {
-                snapshotObjectRepository.delete(change.getObjectType(), change.getPrimaryKey());
-            }
-        }
+//        for (final DeltaChange change : deltas) {
+//            if (change.getAction() == DeltaChange.Action.ADD_MODIFY) {
+//                final Optional<SnapshotObject> existing = snapshotObjectRepository.getByObjectTypeAndPrimaryKey(change.getObjectType(), change.getPrimaryKey());
+//                if (existing.isPresent()) {
+//                    snapshotObjectRepository.update(
+//                        version.getId(),
+//                        change.getSerialId(),
+//                        change.getObject().getKey().toString(),
+//                        change.getObject().toString()
+//                    );
+//                } else {
+//                    snapshotObjectRepository.insert(
+//                        version.getId(),
+//                        change.getSerialId(),
+//                        change.getObject().getType(),
+//                        change.getObject().getKey().toString(),
+//                        change.getObject().toString()
+//                    );
+//                }
+//            } else if (change.getAction() == DeltaChange.Action.DELETE) {
+//                snapshotObjectRepository.delete(change.getObjectType(), change.getPrimaryKey());
+//            }
+//        }
         return true;
     }
 

@@ -9,7 +9,6 @@ import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -47,7 +46,6 @@ public class NrtmFileProcessor {
         //nrtmFileService.syncNrtmFileToFileSystem(name);
     }
 
-    @Transactional("nrtmTransactionManager")
     public void runWrite() {
         LOGGER.info("runWrite() called");
         final NrtmSource source = nrtmSourceHolder.getSource();

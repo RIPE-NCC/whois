@@ -1,8 +1,6 @@
 package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
-import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -37,47 +35,42 @@ public class SnapshotObjectRepository {
 
     public SnapshotObject insert(
         final long versionId,
-        final int serialId,
-        final ObjectType objectType,
-        final String primaryKey,
-        final String payload
+        final int objectId,
+        final int sequenceId,
+        final String rpsl
     ) {
         final String sql = "" +
-            "INSERT INTO snapshot_object (version_id, serial_id, object_type, pkey, payload) " +
-            "VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO snapshot_object (version_id, object_id, sequence_id, rpsl) " +
+            "VALUES (?, ?, ?, ?)";
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pst.setLong(1, versionId);
-            pst.setInt(2, serialId);
-            pst.setInt(3, ObjectTypeIds.getId(objectType));
-            pst.setString(4, primaryKey);
-            pst.setString(5, payload);
+            pst.setInt(2, objectId);
+            pst.setInt(3, sequenceId);
+            pst.setString(4, rpsl);
             return pst;
         }, keyHolder);
-        return new SnapshotObject(keyHolder.getKeyAs(Long.class), versionId, serialId, objectType, primaryKey, payload);
+        return new SnapshotObject(keyHolder.getKeyAs(Long.class), versionId, objectId, sequenceId, rpsl);
     }
 
-    public Optional<SnapshotObject> getByObjectTypeAndPrimaryKey(
-        final ObjectType type,
-        final String primaryKey
+    public Optional<SnapshotObject> getByObjectObjectId(
+        final int objectId
     ) {
         final String sql = "" +
             "SELECT " +
-            "id, version_id, serial_id, object_type, pkey, payload " +
+            "id, version_id, object_id, seqeunce_id, rpsl " +
             "FROM snapshot_object " +
-            "WHERE object_type = ? " +
-            "  AND pkey = ? ";
+            "WHERE object_id = ? ";
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(sql, (rs, rn) ->
                 new SnapshotObject(
                     rs.getLong(1),
                     rs.getLong(2),
                     rs.getInt(3),
-                    ObjectTypeIds.getType(rs.getInt(4)),
-                    rs.getString(5),
-                    rs.getString(6)
-                ), ObjectTypeIds.getId(type), primaryKey));
+                    rs.getInt(4),
+                    rs.getString(5)
+                ), objectId));
         } catch (final EmptyResultDataAccessException ex) {
             return Optional.empty();
         }
@@ -85,49 +78,47 @@ public class SnapshotObjectRepository {
 
     public void update(
         final long versionId,
-        final int serialId,
-        final String primaryKey,
-        final String payload
+        final int objectId,
+        final int sequenceId,
+        final String rpsl
     ) {
         final String sql = "" +
             "UPDATE snapshot_object " +
             "SET " +
             "version_id = ?, " +
-            "serial_id = ?, " +
-            "payload = ? " +
-            "WHERE pkey = ?";
+            "sequence_id = ?, " +
+            "rpsl = ? " +
+            "WHERE object_id = ?";
         final KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pst.setLong(1, versionId);
-            pst.setInt(2, serialId);
-            pst.setString(3, payload);
-            pst.setString(4, primaryKey);
+            pst.setInt(2, sequenceId);
+            pst.setString(3, rpsl);
+            pst.setInt(4, objectId);
             return pst;
         }, keyHolder);
     }
 
-    public void delete(final ObjectType objectType, final String primaryKey) {
+    public void delete(final int objectId) {
         final String sql = "" +
             "DELETE FROM snapshot_object " +
-            "WHERE object_type = ? " +
-            "  AND pkey = ?";
+            "WHERE object_id = ? ";
         jdbcTemplate.update(connection -> {
             final PreparedStatement pst = connection.prepareStatement(sql);
-            pst.setInt(1, ObjectTypeIds.getId(objectType));
-            pst.setString(2, primaryKey);
+            pst.setInt(1, objectId);
             return pst;
         });
     }
 
     public void snapshotCallback(final NrtmSource source, final RowCallbackHandler rowCallbackHandler) {
         final String sql = "" +
-            "SELECT so.payload " +
+            "SELECT so.rpsl " +
             "FROM snapshot_object so " +
             "JOIN version_info v ON v.id = so.version_id " +
             "JOIN source src ON src.id = v.source_id " +
             "WHERE src.name = ? " +
-            "ORDER BY so.serial_id";
+            "ORDER BY so.object_id";
         JdbcStreamingHelper.executeStreaming(
             jdbcTemplate,
             sql,
@@ -137,12 +128,12 @@ public class SnapshotObjectRepository {
 
     public Stream<String> getSnapshotAsStream(final NrtmSource source) {
         final String sql = "" +
-            "SELECT so.payload " +
+            "SELECT so.rpsl " +
             "FROM snapshot_object so " +
             "JOIN version_info v ON v.id = so.version_id " +
             "JOIN source src ON src.id = v.source_id " +
             "WHERE src.name = ? " +
-            "ORDER BY so.serial_id";
+            "ORDER BY so.object_id";
 
         return jdbcTemplate.queryForStream(sql, (rs, rn) -> rs.getString(1), source.name());
     }

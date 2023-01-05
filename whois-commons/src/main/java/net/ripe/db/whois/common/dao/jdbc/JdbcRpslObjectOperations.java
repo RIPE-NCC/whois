@@ -30,7 +30,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
@@ -412,19 +411,6 @@ public class JdbcRpslObjectOperations {
         }
     }
 
-    public static void getSerialEntriesFromLast(
-        final JdbcTemplate jdbcTemplate,
-        final RowCallbackHandler rowCallbackHandler
-    ) {
-        try {
-            getSerialEntryWithBlobsFromLastForNrtm4(jdbcTemplate, rowCallbackHandler);
-        } catch (final EmptyResultDataAccessException e) {
-            LOGGER.debug("getSerialEntriesFromLast() returned no rows", e);
-        } catch (final Exception e) {
-            LOGGER.error("getSerialEntriesFromLast() caught exception", e);
-        }
-    }
-
     public static List<SerialEntry> getSerialEntriesSince(final JdbcTemplate jdbcTemplate, final int serialId) {
         try {
             return getSerialEntryWithBlobsSinceSerialForNrtm4(jdbcTemplate, serialId);
@@ -517,24 +503,6 @@ public class JdbcRpslObjectOperations {
                 }
             }
         }, serialId);
-    }
-
-    private static void getSerialEntryWithBlobsFromLastForNrtm4(
-        final JdbcTemplate jdbcTemplate,
-        final RowCallbackHandler rowCallbackHandler
-    ) {
-        final String sql = "" +
-            "SELECT serials.serial_id, " +
-            "       serials.operation, " +
-            "       serials.atlast," +
-            "       serials.object_id," +
-            "       last.object," +
-            "       last.pkey " +
-            "FROM   serials " +
-            "       JOIN last " +
-            "              ON last.object_id = serials.object_id " +
-            "WHERE serials.atlast = 1";
-        JdbcStreamingHelper.executeStreaming(jdbcTemplate, sql, rowCallbackHandler);
     }
 
     private static List<SerialEntry> getSerialEntryWithBlobsSinceSerialForNrtm4(final JdbcTemplate jdbcTemplate, final int serialId) {
