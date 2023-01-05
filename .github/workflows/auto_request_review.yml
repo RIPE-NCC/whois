@@ -5,7 +5,8 @@ jobs:
   add-reviews:
     runs-on: ubuntu-latest
     steps:
-      - uses: sr-caprx/team-request-review@vX.X
+      - name: Team Request Review
+        uses: sr-auto/team-request-review@v1.0
         with:
           config: ".github/auto_assign.yml"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
