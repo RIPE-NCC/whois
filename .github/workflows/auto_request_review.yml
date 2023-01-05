@@ -5,12 +5,7 @@ jobs:
   add-reviews:
     runs-on: ubuntu-latest
     steps:
-      - name: "Assign Team and Persons"
-        uses: rowi1de/auto-assign-review-teams@v1.1.3
+      - uses: sr-caprx/team-request-review@vX.X
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          org: "RIPE-NCC"
-          teams: "RIPE-NCC/database"
-          include-draft: false
-          #skip-with-manual-reviewers: 0
-          pick-one-from-persons-or-team: false
+          config: ".github/auto_assign.yml"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
