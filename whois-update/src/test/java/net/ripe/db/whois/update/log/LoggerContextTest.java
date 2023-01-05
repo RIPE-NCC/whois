@@ -125,17 +125,12 @@ public class LoggerContextTest {
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason/>\n" +
-                "            <paragraph>\n" +
-                "                <![CDATA[mntner: DEV-ROOT-MNT]]>\n" +
-                "            </paragraph>\n" +
-                "            <object>\n" +
-                "                <![CDATA[mntner:         DEV-ROOT-MNT\n"));
+                "            <paragraph><![CDATA[mntner: DEV-ROOT-MNT]]></paragraph>\n" +
+                "            <object><![CDATA[mntner:         DEV-ROOT-MNT\n"));
 
         assertThat(contents, containsString("" +
                 "            <query>\n" +
-                "                <sql>\n" +
-                "                    <![CDATA[sql]]>\n" +
-                "                </sql>\n" +
+                "                <sql><![CDATA[sql]]></sql>\n" +
                 "                <params/>\n" +
                 "                <results/>\n" +
                 "            </query>\n"));
@@ -173,12 +168,9 @@ public class LoggerContextTest {
                 "            <exception>\n" +
                 "                <class>java.lang.NullPointerException</class>\n"));
         assertThat(contents, containsString("" +
-                "                <message>\n" +
-                "                    <![CDATA[null]]>\n" +
-                "                </message>\n"));
+                "                <message><![CDATA[null]]></message>\n"));
         assertThat(contents, containsString("" +
-                "                <stacktrace>\n" +
-                "                    <![CDATA[java.lang.NullPointerException\n"));
+                "                <stacktrace><![CDATA[java.lang.NullPointerException\n"));
     }
 
     @Test

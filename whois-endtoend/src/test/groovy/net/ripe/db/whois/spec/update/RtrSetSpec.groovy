@@ -120,7 +120,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -159,7 +159,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:  TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -204,7 +204,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -238,7 +238,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -278,7 +278,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -316,7 +316,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -354,7 +354,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -393,7 +393,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -429,7 +429,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -469,7 +469,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -506,7 +506,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -542,7 +542,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -582,7 +582,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -619,7 +619,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -655,7 +655,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -696,7 +696,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -737,7 +737,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -776,7 +776,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -814,7 +814,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -864,7 +864,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -912,7 +912,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -951,7 +951,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -991,7 +991,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1032,7 +1032,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1073,7 +1073,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1115,7 +1115,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1155,7 +1155,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1195,7 +1195,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1234,7 +1234,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1274,7 +1274,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1315,7 +1315,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1355,7 +1355,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1397,7 +1397,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1448,7 +1448,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1483,7 +1483,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:  TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

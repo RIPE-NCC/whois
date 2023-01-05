@@ -302,7 +302,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -340,7 +340,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -385,7 +385,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -430,7 +430,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

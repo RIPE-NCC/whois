@@ -59,7 +59,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
     def "delete existing maintainer"() {
       given:
         def update = new SyncUpdate(data: "" +
-                fixtures["UPD-MNT"].stripIndent() +
+                fixtures["UPD-MNT"].stripIndent(true) +
                 "delete: some reason\n" +
                 "password: update")
 
@@ -82,7 +82,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             source: TEST
             delete: some reason
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -102,7 +102,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -122,7 +122,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -133,7 +133,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create maintainer with invalid org reference"() {
       given:
-        def data = fixtures["ADMIN-MNT"].stripIndent() + "org:ORG-ACME-DE\npassword:update"
+        def data = fixtures["ADMIN-MNT"].stripIndent(true) + "org:ORG-ACME-DE\npassword:update"
         def maintainerWithOrg = (data =~ /ADMIN-MNT/).replaceFirst("ORG-MNT")
         def update = new SyncUpdate(data: maintainerWithOrg)
 
@@ -201,7 +201,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -221,7 +221,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             password: update
-            """.stripIndent()))
+            """.stripIndent(true)))
 
         then:
             update =~ /To create the first person\/mntner pair of objects /
@@ -238,7 +238,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             password: update
-            """.stripIndent()))
+            """.stripIndent(true)))
 
       then:
         ! (update =~ /To create the first person\/mntner pair of objects /)
@@ -255,7 +255,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             password: update
-            """.stripIndent()))
+            """.stripIndent(true)))
 
       then:
         ! (update =~ /To create the first person\/mntner pair of objects /)
@@ -272,7 +272,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source:         TEST
             password:       update
-        """.stripIndent()
+        """.stripIndent(true)
       when:
         def create = syncUpdate new SyncUpdate(data: mntner)
       then:
@@ -298,7 +298,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -328,7 +328,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -358,7 +358,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
         when:
         def response = syncUpdate update

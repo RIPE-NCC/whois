@@ -365,7 +365,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -394,7 +394,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 nic-hdl:      AH2-TEST
                 mnt-by:       LIR-MNT
                 source:       TEST
-            """.stripIndent()
+            """.stripIndent(true)
         )
 
         expect:
@@ -417,7 +417,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -444,7 +444,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             referral-by: REFERRALBY-MNT
             source:  TEST
-            """.stripIndent()
+            """.stripIndent(true)
         )
         dbfixture(getTransient("ALLOC-PA"))
 
@@ -469,7 +469,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -512,7 +512,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -550,7 +550,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -586,7 +586,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -675,7 +675,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -725,7 +725,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: owner2
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -762,7 +762,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: owner3
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -797,7 +797,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -835,7 +835,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -869,7 +869,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -907,7 +907,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -945,7 +945,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -985,7 +985,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1026,7 +1026,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1067,7 +1067,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1107,7 +1107,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1147,7 +1147,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1187,7 +1187,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: fred
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1226,7 +1226,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1265,7 +1265,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override: fred
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1350,7 +1350,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1436,7 +1436,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1481,7 +1481,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1525,7 +1525,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1567,7 +1567,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1609,7 +1609,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1651,7 +1651,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1693,7 +1693,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1733,7 +1733,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1774,7 +1774,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1815,7 +1815,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1856,7 +1856,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1898,7 +1898,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1940,7 +1940,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1982,7 +1982,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2024,7 +2024,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2067,7 +2067,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2109,7 +2109,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2145,7 +2145,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2181,7 +2181,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2227,7 +2227,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: lir2
                 password: lir3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2269,7 +2269,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2311,7 +2311,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2353,7 +2353,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2395,7 +2395,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2438,7 +2438,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2481,7 +2481,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2523,7 +2523,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2571,7 +2571,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2613,7 +2613,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2655,7 +2655,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2697,7 +2697,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2740,7 +2740,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2784,7 +2784,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2829,7 +2829,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2870,7 +2870,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2912,7 +2912,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2955,7 +2955,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2998,7 +2998,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3040,7 +3040,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3083,7 +3083,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3126,7 +3126,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3169,7 +3169,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3212,7 +3212,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3254,7 +3254,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3296,7 +3296,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3339,7 +3339,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3382,7 +3382,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3424,7 +3424,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3466,7 +3466,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3508,7 +3508,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3551,7 +3551,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3594,7 +3594,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3637,7 +3637,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3679,7 +3679,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3721,7 +3721,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: end
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3761,7 +3761,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3825,7 +3825,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: end
                 password: test
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3869,7 +3869,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3913,7 +3913,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3957,7 +3957,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4001,7 +4001,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4045,7 +4045,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4102,7 +4102,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4145,7 +4145,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4209,7 +4209,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4261,7 +4261,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4314,7 +4314,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4367,7 +4367,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4420,7 +4420,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4473,7 +4473,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4526,7 +4526,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4582,7 +4582,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4653,7 +4653,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: end
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4734,7 +4734,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4851,7 +4851,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: end
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4896,7 +4896,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: end
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
@@ -4917,7 +4917,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 DELETE:       changing status
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
         then:
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
@@ -4948,7 +4948,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4985,7 +4985,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 delete:  test override
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -5025,7 +5025,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -5063,7 +5063,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         mnt-by:       RIPE-NCC-HM-MNT
         source:       TEST
         override:     denis,override1
-        """.stripIndent())
+        """.stripIndent(true))
 
 
       then:
@@ -5102,7 +5102,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: end
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5142,7 +5142,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -5180,7 +5180,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-DBM-MNT
                 source:       TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -5214,7 +5214,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: end
                 password: owner3
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         def ack = new AckResponse("", message)
 
@@ -5241,7 +5241,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: end
                 password: owner3
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         def updateAck = new AckResponse("", update)
         updateAck.summary.nrFound == 1
@@ -5274,7 +5274,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -5314,7 +5314,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5351,7 +5351,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5415,7 +5415,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5457,7 +5457,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 delete: splitting into 2
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5499,7 +5499,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5527,7 +5527,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
           whoisFixture.reloadTrees()
         when:
           def created = syncUpdate(new SyncUpdate(data: """\
@@ -5541,7 +5541,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password: lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
           created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
         when:
@@ -5556,7 +5556,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password: lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
           modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
@@ -5573,7 +5573,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         whoisFixture.reloadTrees()
         when:
         def created = syncUpdate(new SyncUpdate(data: """\
@@ -5588,7 +5588,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
@@ -5605,7 +5605,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         whoisFixture.reloadTrees()
         when:
         def created = syncUpdate(new SyncUpdate(data: """\
@@ -5620,7 +5620,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         abuse-c:    AH1-TEST
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
         when:
@@ -5635,7 +5635,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
@@ -5652,7 +5652,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         whoisFixture.reloadTrees()
         when:
         def created = syncUpdate(new SyncUpdate(data: """\
@@ -5667,7 +5667,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         created =~ /Create SUCCEEDED: \[inetnum] 192.168.0.0 - 192.168.0.255/
         when:
@@ -5682,7 +5682,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         modified =~ /Modify SUCCEEDED: \[inetnum] 192.168.0.0 - 192.168.0.255/
     }
@@ -5699,7 +5699,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         whoisFixture.reloadTrees()
         when:
         def created = syncUpdate(new SyncUpdate(data: """\
@@ -5714,7 +5714,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
     }
@@ -5731,7 +5731,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         whoisFixture.reloadTrees()
         when:
         def created = syncUpdate(new SyncUpdate(data: """\
@@ -5746,7 +5746,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
     }
@@ -5763,7 +5763,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         whoisFixture.reloadTrees()
         when:
         def created = syncUpdate(new SyncUpdate(data: """\
@@ -5778,7 +5778,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.63/
     }
@@ -5795,7 +5795,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         whoisFixture.reloadTrees()
         when:
         def created = syncUpdate(new SyncUpdate(data: """\
@@ -5811,7 +5811,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
     }
