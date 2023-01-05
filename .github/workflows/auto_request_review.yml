@@ -8,6 +8,7 @@ jobs:
       - name: "Assign Team and Persons"
         uses: rowi1de/auto-assign-review-teams@v1.1.3
         with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           org: "RIPE-NCC"
           teams: "Database"
           include-draft: false
