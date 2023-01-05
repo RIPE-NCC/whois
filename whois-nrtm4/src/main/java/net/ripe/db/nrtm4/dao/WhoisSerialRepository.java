@@ -38,7 +38,7 @@ public class WhoisSerialRepository {
             });
     }
 
-    public String findRpsl(final int objectId, final int sequenceId) {
+    public String findRpslInLast(final int objectId, final int sequenceId) {
         final String sql = "" +
             "SELECT object " +
             "FROM last " +

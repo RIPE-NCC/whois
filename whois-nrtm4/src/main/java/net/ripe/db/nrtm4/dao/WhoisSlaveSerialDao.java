@@ -10,10 +10,10 @@ import javax.sql.DataSource;
 
 
 @Repository
-public class JdbcSlaveSerialDao extends JdbcSerialDao {
+public class WhoisSlaveSerialDao extends JdbcSerialDao {
 
     @Autowired
-    public JdbcSlaveSerialDao(@Qualifier("whoisSlaveDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
+    public WhoisSlaveSerialDao(@Qualifier("whoisSlaveDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
         super(dataSource, dateTimeProvider);
     }
 

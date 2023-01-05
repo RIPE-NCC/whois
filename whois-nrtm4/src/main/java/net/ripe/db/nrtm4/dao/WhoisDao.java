@@ -25,6 +25,6 @@ public class WhoisDao {
     }
 
     public String findRpsl(final int objectId, final int sequenceId) {
-        return whoisSerialRepository.findRpsl(objectId, sequenceId);
+        return whoisSerialRepository.findRpslInLast(objectId, sequenceId);
     }
 }

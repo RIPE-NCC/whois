@@ -37,7 +37,7 @@ public class SnapshotObjectSynchronizer {
         final DeltaTransformer deltaTransformer,
         final Dummifier dummifierNrtm,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
+        @Qualifier("whoisSlaveSerialDao") final SerialDao serialDao,
         final SnapshotObjectRepository snapshotObjectRepository,
         final WhoisDao whoisDao
     ) {
