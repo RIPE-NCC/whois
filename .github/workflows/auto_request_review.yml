@@ -2,11 +2,11 @@ name: 'Auto Assign'
 on: pull_request
 
 jobs:
-  add-reviews:
+  auto-request-review:
     runs-on: ubuntu-latest
     steps:
       - name: Team Request Review
-        uses: sr-auto/team-request-review@v1.0
+        uses: necojackarc/auto-request-review@v0.10.0
         with:
           config: ".github/auto_assign.yml"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}

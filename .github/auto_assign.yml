@@ -1,7 +1,3 @@
-when:
-  - label:
-      nameIs:
-        - App1
-    assign:
-      teams:
-        - database
+reviewers:
+  defaults:
+    - team:database # GitHub team
