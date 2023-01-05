@@ -10,8 +10,7 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           org: "RIPE-NCC"
-          teams: "Database"
-          persons: "eshryane"
+          teams: "database"
           include-draft: false
           #skip-with-manual-reviewers: 0
           pick-one-from-persons-or-team: false
