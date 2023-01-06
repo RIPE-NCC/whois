@@ -45,7 +45,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         last-modified: 2012-05-03T11:23:66Z
         source:        TEST
         password: update
-        """.stripIndent())
+        """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -72,7 +72,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         mnt-by:        TST-MNT
         source:        TEST
         password: update
-        """.stripIndent())
+        """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -97,7 +97,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         last-modified: 2012-05-03T11:23:66Z
         source:        TEST
         password: update
-        """.stripIndent())
+        """.stripIndent(true))
       when:
         def response = syncUpdate update
       then:
@@ -124,7 +124,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             remarks: created
             source:  TEST
             password: update
-            """.stripIndent()))
+            """.stripIndent(true)))
 
         when:
         def created = query("OP1-TEST");
@@ -146,7 +146,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             remarks: updated
             source:  TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
         def response = syncUpdate update
 
@@ -175,7 +175,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  TST-MNT
             source:  TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
       then:
         createResponse =~ /Create SUCCEEDED: \[person\] OP1-TEST   Other Person/
       then:
@@ -192,7 +192,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  TST-MNT
             source:  TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
         then:
           updateResponse =~ /No operation: \[person\] OP1-TEST   Other Person/
     }
@@ -303,7 +303,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:  TST-MNT
                 source:  TEST
                 password: update
-             """.stripIndent())
+             """.stripIndent(true))
       then:
         createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
 
@@ -321,7 +321,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 remarks: testing
                 source:  TEST
                 password: update
-             """.stripIndent())
+             """.stripIndent(true))
       then:
         updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
       then:
@@ -349,7 +349,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:  TST-MNT
                 source:  TEST
                 password: update
-             """.stripIndent())
+             """.stripIndent(true))
       then:
         createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
       when:
@@ -366,7 +366,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 last-modified: 2001-01-01T09:00:00Z
                 source:  TEST
                 password: update
-             """.stripIndent())
+             """.stripIndent(true))
       then:
         updateAck =~ /Modify SUCCEEDED: \[person\] NP1-TEST   New Person/
         updateAck =~ /Warning: Supplied attribute 'created' has been replaced with a generated\n\s+value/
@@ -396,7 +396,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:  TST-MNT
                 source:  TEST
                 password: update
-             """.stripIndent())
+             """.stripIndent(true))
       then:
         createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
       when:
@@ -416,7 +416,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 last-modified: 2001-01-01T09:00:00Z
                 source:  TEST
                 password: update
-             """.stripIndent())
+             """.stripIndent(true))
       then:
         updateAck =~ /Modify SUCCEEDED: \[person\] NP1-TEST   New Person/
         updateAck =~ /Warning: Supplied attribute 'created' has been replaced with a generated\n\s+value/
@@ -451,7 +451,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         update =~ /SUCCESS/
 
@@ -470,7 +470,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 source:        TEST
                 password: update
                 delete:   reason
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         delete =~ /SUCCESS/
@@ -486,7 +486,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         update =~ /SUCCESS/
 
@@ -504,7 +504,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 source:        TEST
                 password: update
                 delete:   reason
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         delete =~ /SUCCESS/
@@ -520,7 +520,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         update =~ /SUCCESS/
 
@@ -542,7 +542,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 source:        TEST
                 password: update
                 delete:   reason
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         delete =~ /SUCCESS/
@@ -560,7 +560,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  TST-MNT
                     source:  TEST
                     password: update
-                 """.stripIndent())
+                 """.stripIndent(true))
       then:
         createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
 
@@ -578,7 +578,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     remarks: testing
                     source:  TEST
                     password: update
-                 """.stripIndent())
+                 """.stripIndent(true))
       then:
         updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
       then:
@@ -608,7 +608,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     source:  TEST
                     password: update
                     delete: reason
-                 """.stripIndent())
+                 """.stripIndent(true))
       then:
         deleteAck.contains("Delete SUCCEEDED: [person] NP1-TEST   New Person")
     }

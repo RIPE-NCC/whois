@@ -9,7 +9,7 @@ class SyncUpdate {
     boolean redirect
 
     def setData(String data) {
-        this.data = data.stripIndent()
+        this.data = data.stripIndent(true)
     }
 
     def setCharset(String charset) {

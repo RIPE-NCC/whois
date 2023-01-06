@@ -113,7 +113,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -150,7 +150,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -194,7 +194,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -240,7 +240,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -280,7 +280,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -321,7 +321,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -362,7 +362,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -399,7 +399,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -439,7 +439,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -477,7 +477,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -515,7 +515,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -554,7 +554,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -590,7 +590,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -630,7 +630,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -667,7 +667,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -703,7 +703,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -743,7 +743,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -780,7 +780,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -816,7 +816,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -857,7 +857,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -898,7 +898,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -937,7 +937,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -975,7 +975,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1025,7 +1025,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1073,7 +1073,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1112,7 +1112,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1152,7 +1152,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1193,7 +1193,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1234,7 +1234,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1276,7 +1276,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1316,7 +1316,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1355,7 +1355,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1393,7 +1393,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1433,7 +1433,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1474,7 +1474,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1514,7 +1514,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1556,7 +1556,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1608,7 +1608,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 password: lir2
                 password: owner3
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1643,7 +1643,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:  TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

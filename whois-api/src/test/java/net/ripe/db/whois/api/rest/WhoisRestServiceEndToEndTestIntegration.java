@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
@@ -11,7 +10,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -35,8 +33,8 @@ import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.Deque;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -663,18 +661,10 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
         }
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_100/000.audit.xml.gz"));
-        final Iterable<String> linesContainingPassword = new IterableTransformer<String>(Splitter.on('\n').split(audit)) {
-            @Override
-            public void apply(String input, Deque<String> result) {
-                if (input.toLowerCase().contains("password")) {
-                    result.add(input.trim());
-                }
-            }
-            // TODO when we add message to ack about which MNTNER authorises update, split pw and SSO into different MNTNERs and check the correct MNTENR authorised the update
-        };
 
+        final List<String> linesContainingPassword = audit.lines().filter( input -> input.toLowerCase().contains("password")).map( input -> input.trim()).collect(Collectors.toList());
         assertThat(linesContainingPassword, contains(
-                "<![CDATA[PUT /whois/test/person/TP2-TEST?password=FILTERED",
+                "<message><![CDATA[PUT /whois/test/person/TP2-TEST?password=FILTERED",
                 "<credential>PasswordCredential</credential>"));
     }
 
