@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,8 +30,8 @@ import static net.ripe.db.nrtm4.util.ListUtil.makeBatches;
 public class SnapshotObjectSynchronizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotObjectSynchronizer.class);
-    private static final int INSERT_BATCH_SIZE = 50;
 
+    private final int batchSize;
     private final DeltaTransformer deltaTransformer;
     private final Dummifier dummifierNrtm;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
@@ -39,6 +40,7 @@ public class SnapshotObjectSynchronizer {
     private final WhoisDao whoisDao;
 
     SnapshotObjectSynchronizer(
+        @Value("${nrtm.snapshot.insert.batchSize}:10") final int batchSize,
         final DeltaTransformer deltaTransformer,
         final Dummifier dummifierNrtm,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
@@ -46,6 +48,7 @@ public class SnapshotObjectSynchronizer {
         final SnapshotObjectRepository snapshotObjectRepository,
         final WhoisDao whoisDao
     ) {
+        this.batchSize = batchSize;
         this.deltaTransformer = deltaTransformer;
         this.dummifierNrtm = dummifierNrtm;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
@@ -63,10 +66,10 @@ public class SnapshotObjectSynchronizer {
         LOGGER.info("{} At serial {}, {}ms", method, initialState.serialId(), (System.currentTimeMillis() - mark));
         mark = System.currentTimeMillis();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, initialState.serialId());
-        makeBatches(initialState.objectData(), INSERT_BATCH_SIZE)
+        makeBatches(initialState.objectData(), batchSize)
             .parallelStream()
             .forEach((objectBatch) -> {
-                    final List<SnapshotObject> batch = new ArrayList<>(INSERT_BATCH_SIZE);
+                    final List<SnapshotObject> batch = new ArrayList<>(batchSize);
                     for (final ObjectData object : objectBatch) {
                         final String rpsl = whoisDao.findRpsl(object.objectId(), object.sequenceId());
                         final RpslObject rpslObject = RpslObject.parse(rpsl);
