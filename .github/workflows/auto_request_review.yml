@@ -1,11 +1,16 @@
- add-reviews:
-     runs-on: ubuntu-latest
-     steps:
-       - name: "Assign Team and Persons"
-         uses: rowi1de/auto-assign-review-teams@v1.1.3
-         with:
-           org: "RIPE-NCC"
-           teams: "Database"
-           include-draft: false
-           skip-with-manual-reviewers: 0
-           pick-one-from-persons-or-team: false
+name: 'Auto Assign'
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+add-reviews:
+  runs-on: ubuntu-latest
+  steps:
+    - name: "Assign Team and Persons"
+      uses: rowi1de/auto-assign-review-teams@v1.1.3
+      with:
+        org: "RIPE-NCC"
+        teams: "Database"
+        include-draft: false
+        skip-with-manual-reviewers: 0
+        pick-one-from-persons-or-team: false
