@@ -3,11 +3,11 @@ on:
   pull_request:
     types: [opened, ready_for_review]
 
-auto-review:
-  runs-on: ubuntu-latest
-  steps:
-    - name: "Assign Team and Persons"
-      uses: delivery-much/actions-assigner@v1
-      with:
-        token: ${{ secrets.PAT_AUTO_REVIEW_ACTION }}
-        team-reviewers: "RIPE-NCC/database"
+jobs:
+  assign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: delivery-much/actions-assigner@v1
+        with:
+          token: ${{ secrets.PAT_AUTO_REVIEW_ACTION }}
+          team-reviewers: "RIPE-NCC/database"
