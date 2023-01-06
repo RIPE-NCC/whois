@@ -1,16 +1,13 @@
 name: 'Auto Assign'
-on: pull_request
+on:
+  pull_request:
+    types: [opened, ready_for_review]
 
-jobs:
-  add-reviews:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Assign Team and Persons"
-        uses: rowi1de/auto-assign-review-teams@v1.1.3
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          org: "RIPE-NCC"
-          teams: "database"
-          include-draft: false
-          #skip-with-manual-reviewers: 0
-          pick-one-from-persons-or-team: false
+auto-review:
+  runs-on: ubuntu-latest
+  steps:
+    - name: "Assign Team and Persons"
+      uses: delivery-much/actions-assigner@v1
+      with:
+        token: ${{ secrets.PAT_AUTO_REVIEW_ACTION }}
+        team-reviewers: "RIPE-NCC/database"
