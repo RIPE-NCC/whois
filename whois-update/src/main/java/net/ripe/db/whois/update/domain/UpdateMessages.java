@@ -191,7 +191,8 @@ public final class UpdateMessages {
     }
 
     public static Message cantCreateShortFormatAsName() {
-        return new Message(Type.ERROR, "Cannot create AS-SET object with a short format name.");
+        return new Message(Type.ERROR, "Cannot create AS-SET object with a short format name. Only hierarchical " +
+                "AS-SET creation is allowed, i.e. at least one ASN must be referenced");
     }
 
     public static Message countryNotRecognised(final CharSequence country) {

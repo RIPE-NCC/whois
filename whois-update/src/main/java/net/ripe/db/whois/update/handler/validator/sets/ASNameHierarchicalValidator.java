@@ -24,7 +24,6 @@ public class ASNameHierarchicalValidator implements BusinessRuleValidator {
 
         if(!update.getUpdatedObject().getKey().contains(":")) {
             updateContext.addMessage(update, UpdateMessages.cantCreateShortFormatAsName());
-            return;
         }
     }
 
