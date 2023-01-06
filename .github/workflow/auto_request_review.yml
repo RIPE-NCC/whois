@@ -3,15 +3,12 @@ on:
   pull_request:
     types: [opened, ready_for_review]
 
- add-reviews:
-     runs-on: ubuntu-latest
-     steps:
-       - name: "Assign Team and Persons"
-         uses: rowi1de/auto-assign-review-teams@v1.1.3
-         with:
-           org: "RIPE-NCC"
-           teams: "database"
-           repo-token: ${{ secrets.PAT_FOR_AUTO_REQUEST_REVIEW }}
-           include-draft: false
-           skip-with-manual-reviewers: 0
-           pick-one-from-persons-or-team: false
+jobs:
+  runs-on: ubuntu-latest
+  steps:
+    - name: "Assign Team and Persons"
+      uses: delivery-much/actions-assigner@v1
+      with:
+        token: ${{ secrets.PAT_AUTO_REVIEW_ACTION }}
+        org: "RIPE-NCC"
+        team-reviewers: "database"
