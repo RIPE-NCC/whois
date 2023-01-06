@@ -69,6 +69,19 @@
             </Policies>
         </RollingFile>
 
+        <RollingFile name="NRTM4LOG"
+                     append="true"
+                     filePattern="var/log/nrtm4/nrtmlog.%d{yyyyMMdd}"
+                     ignoreExceptions="false">
+            <ThresholdFilter level="debug"/>
+            <PatternLayout>
+                <Pattern>%d{yyyyMMdd HH:mm:ss} %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+
         <RollingFile name="REQUESTLOG"
                      append="true"
                      filePattern="var/log/jetty/requestlog.%d{yyyyMMdd}"
@@ -114,6 +127,10 @@
 
         <Logger name="net.ripe.db.whois.nrtm.NrtmLog" level="all" additivity="false">
             <AppenderRef ref="NRTMLOG"/>
+        </Logger>
+
+        <Logger name="net.ripe.db.whois.nrtm4.NrtmLog" level="all" additivity="false">
+            <AppenderRef ref="NRTM4LOG"/>
         </Logger>
 
         <Logger name="org.eclipse.jetty.server.RequestLog" level="all" additivity="false">
