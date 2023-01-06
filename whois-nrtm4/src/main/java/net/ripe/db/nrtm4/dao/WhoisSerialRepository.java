@@ -25,7 +25,7 @@ public class WhoisSerialRepository {
 
     public List<ObjectData> findLastObjects() {
         return jdbcTemplate.query(
-            "SELECT object_id, sequence_id, object FROM last WHERE sequence_id > 0",
+            "SELECT object_id, sequence_id FROM last WHERE sequence_id > 0",
             (rs, rowNum) -> new ObjectData(
                         rs.getInt(1),                           // objectId
                         rs.getInt(2))                           // sequenceId
