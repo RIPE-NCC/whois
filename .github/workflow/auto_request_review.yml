@@ -10,7 +10,8 @@ on:
          uses: rowi1de/auto-assign-review-teams@v1.1.3
          with:
            org: "RIPE-NCC"
-           teams: "@RIPE-NCC/database"
+           teams: "database"
+           repo-token: ${{ secrets.PAT_FOR_AUTO_REQUEST_REVIEW }}
            include-draft: false
            skip-with-manual-reviewers: 0
            pick-one-from-persons-or-team: false
