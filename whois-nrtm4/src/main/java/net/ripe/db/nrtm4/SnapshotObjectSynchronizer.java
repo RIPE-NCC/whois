@@ -4,6 +4,8 @@ import net.ripe.db.nrtm4.dao.InitialSnapshotState;
 import net.ripe.db.nrtm4.dao.NrtmSource;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.dao.ObjectData;
+import net.ripe.db.nrtm4.dao.SnapshotObject;
 import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import net.ripe.db.nrtm4.dao.WhoisDao;
 import net.ripe.db.whois.common.dao.SerialDao;
@@ -15,16 +17,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
+import static net.ripe.db.nrtm4.util.ListUtil.makeBatches;
 
 
 @Service
 public class SnapshotObjectSynchronizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotObjectSynchronizer.class);
+    private static final int INSERT_BATCH_SIZE = 50;
 
     private final DeltaTransformer deltaTransformer;
     private final Dummifier dummifierNrtm;
@@ -55,42 +60,26 @@ public class SnapshotObjectSynchronizer {
         LOGGER.info("{} entered", method);
         final InitialSnapshotState initialState = whoisDao.getInitialSnapshotState();
         LOGGER.info("{} Found {} objects", method, initialState.objectData().size());
-        LOGGER.info("{} At serial {}", method, initialState.serialId());
-        LOGGER.info("{} mark {}ms", method, (System.currentTimeMillis() - mark));
+        LOGGER.info("{} At serial {}, {}ms", method, initialState.serialId(), (System.currentTimeMillis() - mark));
         mark = System.currentTimeMillis();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, initialState.serialId());
-        initialState.objectData().parallelStream().forEach((object) -> {
-                final RpslObject rpslObject = RpslObject.parse(object.rpsl());
-                if (!dummifierNrtm.isAllowed(NRTM_VERSION, rpslObject)) {
-                    return;
+        makeBatches(initialState.objectData(), INSERT_BATCH_SIZE)
+            .parallelStream()
+            .forEach((objectBatch) -> {
+                    final List<SnapshotObject> batch = new ArrayList<>(INSERT_BATCH_SIZE);
+                    for (final ObjectData object : objectBatch) {
+                        final String rpsl = whoisDao.findRpsl(object.objectId(), object.sequenceId());
+                        final RpslObject rpslObject = RpslObject.parse(rpsl);
+                        if (!dummifierNrtm.isAllowed(NRTM_VERSION, rpslObject)) {
+                            continue;
+                        }
+                        final RpslObject dummyRpsl = dummifierNrtm.dummify(NRTM_VERSION, rpslObject);
+                        batch.add(new SnapshotObject(0, version.getId(), object.objectId(), object.sequenceId(), dummyRpsl.toString()));
+                    }
+                    snapshotObjectRepository.batchInsert(batch);
                 }
-                final RpslObject dummyRpsl = dummifierNrtm.dummify(NRTM_VERSION, rpslObject);
-                snapshotObjectRepository.insert(version.getId(), object.objectId(), object.sequenceId(), dummyRpsl.toString());
-            }
-        );
-        LOGGER.info("Inserted snapshot objects");
-        LOGGER.info("{} mark {}ms", method, (System.currentTimeMillis() - mark));
-
-        // do at the end...
-        // CONSTRAINT `snapshot_object__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
-
-//        serialDao.getSerialEntriesFromLast(rs -> {
-//            final SerialEntry serialEntry = new SerialEntry(
-//                rs.getInt(1),
-//                Operation.getByCode(rs.getInt(2)),
-//                rs.getBoolean(3),
-//                rs.getInt(4),
-//                rs.getBytes(5),
-//                rs.getString(6));
-//            if (dummifierNrtm.isAllowed(NrtmConstants.NRTM_VERSION, serialEntry.getRpslObject())) {
-//                snapshotObjectRepository.insert(
-//                    version.getId(),
-//                    serialEntry.getSerialId(),
-//                    serialEntry.getRpslObject().getType(),
-//                    serialEntry.getPrimaryKey(),
-//                    dummifierNrtm.dummify(NrtmConstants.NRTM_VERSION, serialEntry.getRpslObject()).toString());
-//            }
-//        });
+            );
+        LOGGER.info("{} Inserted snapshot objects {}ms", method, (System.currentTimeMillis() - mark));
         LOGGER.info("getSerialEntriesFromLast() completed");
         return version;
     }

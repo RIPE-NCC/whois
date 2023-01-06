@@ -28,8 +28,7 @@ public class WhoisSerialRepository {
             "SELECT object_id, sequence_id, object FROM last WHERE sequence_id > 0",
             (rs, rowNum) -> new ObjectData(
                         rs.getInt(1),                           // objectId
-                        rs.getInt(2),                           // sequenceId
-                        rs.getString(3))                        // object rpsl
+                        rs.getInt(2))                           // sequenceId
             );
     }
 

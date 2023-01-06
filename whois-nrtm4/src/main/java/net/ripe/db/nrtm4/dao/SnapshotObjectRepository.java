@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -31,6 +33,20 @@ public class SnapshotObjectRepository {
 
     public SnapshotObjectRepository(@Qualifier("nrtmDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+
+    public void batchInsert(final List<SnapshotObject> snapshotObjects) {
+        jdbcTemplate.execute("INSERT INTO snapshot_object (version_id, object_id, sequence_id, rpsl) VALUES (?, ?, ?, ?)",
+            (PreparedStatementCallback<Object>) preparedStatement -> {
+                for (final SnapshotObject snapshotObject : snapshotObjects) {
+                    preparedStatement.setLong(1, snapshotObject.versionId());
+                    preparedStatement.setInt(2, snapshotObject.objectId());
+                    preparedStatement.setInt(3, snapshotObject.sequenceId());
+                    preparedStatement.setString(4, snapshotObject.rpsl());
+                    preparedStatement.addBatch();
+                }
+                return preparedStatement.executeBatch();
+            });
     }
 
     public SnapshotObject insert(
