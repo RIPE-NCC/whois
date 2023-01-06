@@ -40,7 +40,7 @@ public class SnapshotObjectSynchronizer {
     private final WhoisDao whoisDao;
 
     SnapshotObjectSynchronizer(
-        @Value("${nrtm.snapshot.insert.batchSize}:10") final int batchSize,
+        @Value("${nrtm.snapshot.insert.batchSize:10}") final int batchSize,
         final DeltaTransformer deltaTransformer,
         final Dummifier dummifierNrtm,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
