@@ -25,17 +25,12 @@ public class WhoisSerialRepository {
 
     public List<ObjectData> findLastObjects() {
         return jdbcTemplate.query(
-            "SELECT object_id, sequence_id FROM last WHERE sequence_id > 0",
-            (rs, rowNum) -> {
-                try {
-                    return new ObjectData(
+            "SELECT object_id, sequence_id, object FROM last WHERE sequence_id > 0",
+            (rs, rowNum) -> new ObjectData(
                         rs.getInt(1),                           // objectId
-                        rs.getInt(2));                          // sequenceId
-                } catch (IllegalArgumentException e) {
-                    // invalid object type
-                    return null;
-                }
-            });
+                        rs.getInt(2),                           // sequenceId
+                        rs.getString(3))                        // object rpsl
+            );
     }
 
     public String findRpslInLast(final int objectId, final int sequenceId) {

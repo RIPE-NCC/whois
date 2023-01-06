@@ -60,8 +60,7 @@ public class SnapshotObjectSynchronizer {
         mark = System.currentTimeMillis();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, initialState.serialId());
         initialState.objectData().parallelStream().forEach((object) -> {
-                final String rpsl = whoisDao.findRpsl(object.objectId(), object.sequenceId());
-                final RpslObject rpslObject = RpslObject.parse(rpsl);
+                final RpslObject rpslObject = RpslObject.parse(object.rpsl());
                 if (!dummifierNrtm.isAllowed(NRTM_VERSION, rpslObject)) {
                     return;
                 }

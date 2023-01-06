@@ -13,7 +13,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,7 +45,7 @@ public class SnapshotFileGenerator {
         this.nrtmFileStore = nrtmFileStore;
     }
 
-    @Transactional("nrtmTransactionManager")
+    //@Transactional("nrtmTransactionManager")
     public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) {
         LOGGER.info("createSnapshot entered {}", source.name());
         final long start = System.currentTimeMillis();

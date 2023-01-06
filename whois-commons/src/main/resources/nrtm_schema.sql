@@ -94,13 +94,12 @@ CREATE TABLE `snapshot_object`
 (
     `id`          int unsigned NOT NULL AUTO_INCREMENT,
     `version_id`  int unsigned NOT NULL,
-    `object_id`   int          NOT NULL,
-    `sequence_id` int          NOT NULL,
+    `object_id`   int unsigned NOT NULL,
+    `sequence_id` int unsigned NOT NULL,
     `rpsl`        longtext     NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY snapshot_object__object_id__uk (`object_id`)/*,
-    UNIQUE KEY `snapshot_object__serial_id__uk` (`serial_id`),
-    CONSTRAINT `snapshot_object__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)*/
+    UNIQUE KEY `snapshot_object__object_id__uk` (`object_id`),
+    CONSTRAINT `snapshot_object__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
