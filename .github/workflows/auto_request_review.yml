@@ -1,7 +1,7 @@
-name: 'Auto Assign'
+name: pull-request
 on:
   pull_request:
-    types: [opened, ready_for_review]
+    types: [opened, reopened]
 
 jobs:
   assign:
@@ -10,4 +10,4 @@ jobs:
       - uses: delivery-much/actions-assigner@v1
         with:
           token: ${{ secrets.PAT_AUTO_REVIEW_ACTION }}
-          team-reviewers: "RIPE-NCC/database"
+          team-reviewers: RIPE-NCC/database
