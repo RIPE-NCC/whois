@@ -3,7 +3,7 @@ on:
   pull_request:
     types: [opened, ready_for_review]
 
-jobs:
+auto-review:
   runs-on: ubuntu-latest
   steps:
     - name: "Assign Team and Persons"
