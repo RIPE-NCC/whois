@@ -10,4 +10,4 @@ jobs:
       - uses: delivery-much/actions-assigner@v1
         with:
           token: ${{ secrets.ACTION_TOKEN }}
-          team-reviewers: RIPE-NCC/database
+          team-reviewers: database
