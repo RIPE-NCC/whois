@@ -1,11 +1,8 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -14,8 +11,6 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 
 /**
@@ -70,28 +65,6 @@ public class SnapshotObjectRepository {
         return new SnapshotObject(keyHolder.getKeyAs(Long.class), versionId, objectId, sequenceId, rpsl);
     }
 
-    public Optional<SnapshotObject> getByObjectObjectId(
-        final int objectId
-    ) {
-        final String sql = "" +
-            "SELECT " +
-            "id, version_id, object_id, seqeunce_id, rpsl " +
-            "FROM snapshot_object " +
-            "WHERE object_id = ? ";
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, (rs, rn) ->
-                new SnapshotObject(
-                    rs.getLong(1),
-                    rs.getLong(2),
-                    rs.getInt(3),
-                    rs.getInt(4),
-                    rs.getString(5)
-                ), objectId));
-        } catch (final EmptyResultDataAccessException ex) {
-            return Optional.empty();
-        }
-    }
-
     public void update(
         final long versionId,
         final int objectId,
@@ -125,33 +98,6 @@ public class SnapshotObjectRepository {
             pst.setInt(1, objectId);
             return pst;
         });
-    }
-
-    public void snapshotCallback(final NrtmSource source, final RowCallbackHandler rowCallbackHandler) {
-        final String sql = "" +
-            "SELECT so.rpsl " +
-            "FROM snapshot_object so " +
-            "JOIN version_info v ON v.id = so.version_id " +
-            "JOIN source src ON src.id = v.source_id " +
-            "WHERE src.name = ? " +
-            "ORDER BY so.object_id";
-        JdbcStreamingHelper.executeStreaming(
-            jdbcTemplate,
-            sql,
-            pss -> pss.setString(1, source.name()),
-            rowCallbackHandler);
-    }
-
-    public Stream<String> getSnapshotAsStream(final NrtmSource source) {
-        final String sql = "" +
-            "SELECT so.rpsl " +
-            "FROM snapshot_object so " +
-            "JOIN version_info v ON v.id = so.version_id " +
-            "JOIN source src ON src.id = v.source_id " +
-            "WHERE src.name = ? " +
-            "ORDER BY so.object_id";
-
-        return jdbcTemplate.queryForStream(sql, (rs, rn) -> rs.getString(1), source.name());
     }
 
 }

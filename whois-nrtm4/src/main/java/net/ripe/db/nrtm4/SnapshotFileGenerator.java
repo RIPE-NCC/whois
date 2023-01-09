@@ -45,14 +45,12 @@ public class SnapshotFileGenerator {
         this.nrtmFileStore = nrtmFileStore;
     }
 
-    //@Transactional("nrtmTransactionManager")
     public Optional<PublishableSnapshotFile> createSnapshot(final NrtmSource source) {
-        LOGGER.info("createSnapshot entered {}", source.name());
-        final long start = System.currentTimeMillis();
+        final String method = "createSnapshot";
         // Get last version from database.
         final Optional<NrtmVersionInfo> lastVersion = nrtmVersionInfoRepository.findLastVersion(source);
         NrtmVersionInfo version;
-        LOGGER.info("lastVersion.isEmpty() {}", lastVersion.isEmpty());
+        LOGGER.info("{} lastVersion.isEmpty() {}", method, lastVersion.isEmpty());
         if (lastVersion.isEmpty()) {
             version = snapshotObjectSynchronizer.initializeSnapshotObjects(source);
         } else {
@@ -60,23 +58,25 @@ public class SnapshotFileGenerator {
             if (version.getType() == NrtmDocumentType.DELTA) {
                 version = nrtmVersionInfoRepository.copyAsSnapshotVersion(version);
             } else {
-                LOGGER.info("Not generating snapshot file since no deltas have been published since v{} with serialID {}",
-                    version.getVersion(), version.getLastSerialId());
+                LOGGER.info("{} Not generating snapshot file since no deltas have been published since v{} with serialID {}",
+                    method, version.getVersion(), version.getLastSerialId());
                 return Optional.empty();
             }
         }
-        LOGGER.info("createSnapshot() now at version: {}", version);
+        LOGGER.info("{} now at version: {}", method, version);
         if (version.getVersion() > 1) {
             final boolean snapshotWasUpdated = snapshotObjectSynchronizer.synchronizeDeltasToSnapshot(source, version);
             if (!snapshotWasUpdated) {
-                LOGGER.warn("Code execution should not reach this point since we've already tested for no deltas. Version {}, last serial: {}",
-                    version.getVersion(), version.getLastSerialId());
+                LOGGER.warn("{} Code execution should not reach this point since we've already tested for no deltas. " +
+                        "Version {}, last serial: {}",
+                    method, version.getVersion(), version.getLastSerialId());
                 return Optional.empty();
             }
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final String fileName = NrtmFileUtil.fileName(snapshotFile);
         try {
+            final long start = System.currentTimeMillis();
             final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);
             snapshotFileStreamer.writeSnapshotAsJson(snapshotFile, out);
             out.close();
@@ -90,7 +90,7 @@ public class SnapshotFileGenerator {
             snapshotFile.setHash(sha256hex);
             final long mark = System.currentTimeMillis();
             final DecimalFormat df = new DecimalFormat("#,###.000");
-            LOGGER.info("Generated snapshot in {}s", df.format((mark - start) / 1000.0));
+            LOGGER.info("{} Generated snapshot file in {} min", method, df.format((mark - start) / 60000.0));
             return Optional.of(snapshotFile);
         } catch (final IOException e) {
             LOGGER.error("Exception thrown when generating snapshot file", e);

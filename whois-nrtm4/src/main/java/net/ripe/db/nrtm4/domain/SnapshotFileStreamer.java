@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.dao.NrtmDocumentType;
-import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
+import net.ripe.db.nrtm4.dao.SnapshotObjectIteratorRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,12 +14,12 @@ import java.io.OutputStream;
 @Service
 public class SnapshotFileStreamer {
 
-    private final SnapshotObjectRepository snapshotObjectRepository;
+    private final SnapshotObjectIteratorRepository snapshotObjectIteratorRepository;
 
     SnapshotFileStreamer(
-        final SnapshotObjectRepository snapshotObjectRepository
+        final SnapshotObjectIteratorRepository snapshotObjectIteratorRepository
     ) {
-        this.snapshotObjectRepository = snapshotObjectRepository;
+        this.snapshotObjectIteratorRepository = snapshotObjectIteratorRepository;
     }
 
     public void writeSnapshotAsJson(
@@ -35,9 +35,9 @@ public class SnapshotFileStreamer {
         jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
         jGenerator.writeNumberField("version", snapshotFile.getVersion());
         jGenerator.writeArrayFieldStart("objects");
-        snapshotObjectRepository.snapshotCallback(snapshotFile.getSource(), rs -> {
+        snapshotObjectIteratorRepository.snapshotCallbackFn(snapshotFile.getSource(), str -> {
             try {
-                jGenerator.writeString(rs.getString(1));
+                jGenerator.writeString(str);
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }

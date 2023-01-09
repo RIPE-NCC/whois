@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -75,9 +76,7 @@ public class SnapshotObjectSynchronizer {
                     final List<SnapshotObject> batch = new ArrayList<>(batchSize);
                     final Map<Integer, String> rpslMap = whoisDao.findRpslMapForObjects(objectBatch);
                     for (final ObjectData object : objectBatch) {
-                        final long start = System.currentTimeMillis();
                         final String rpsl = rpslMap.get(object.objectId());
-                        timeFetchingRpsl.addAndGet(System.currentTimeMillis() - start);
                         final RpslObject rpslObject = RpslObject.parse(rpsl);
                         if (!dummifierNrtm.isAllowed(NRTM_VERSION, rpslObject)) {
                             continue;
@@ -88,9 +87,8 @@ public class SnapshotObjectSynchronizer {
                     snapshotObjectRepository.batchInsert(batch);
                 }
             );
-        LOGGER.info("{} Inserted snapshot objects {}s", method, (System.currentTimeMillis() - mark)/1000);
-        LOGGER.info("{} timeFetchingRpsl {}s", method, timeFetchingRpsl.get()/1000);
-        LOGGER.info("getSerialEntriesFromLast() completed");
+        final DecimalFormat df = new DecimalFormat("#,###.000");
+        LOGGER.info("{} Complete. Initial snapshot objects took {} min", method, df.format((System.currentTimeMillis() - mark)/60000));
         return version;
     }
 
