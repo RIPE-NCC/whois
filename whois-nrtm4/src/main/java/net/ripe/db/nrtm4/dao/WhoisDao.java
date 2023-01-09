@@ -27,6 +27,9 @@ public class WhoisDao {
 
     public Map<Integer, String> findRpslMapForObjects(final List<ObjectData> objects) {
         final Map<Integer, String> results = whoisObjectRepository.findRpslMapForLastObjects(objects);
+        if (objects.size() == results.size()) {
+            return results;
+        }
         for (final ObjectData object : objects) {
             if (!results.containsKey(object.objectId())) {
                 results.put(object.objectId(), whoisObjectRepository.findRpslMapForHistoryObject(object.objectId(), object.sequenceId()));
