@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
@@ -66,12 +68,16 @@ public class SnapshotObjectSynchronizer {
         LOGGER.info("{} At serial {}, {}ms", method, initialState.serialId(), (System.currentTimeMillis() - mark));
         mark = System.currentTimeMillis();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, initialState.serialId());
+        final AtomicLong timeFetchingRpsl = new AtomicLong();
         makeBatches(initialState.objectData(), batchSize)
             .parallelStream()
             .forEach((objectBatch) -> {
                     final List<SnapshotObject> batch = new ArrayList<>(batchSize);
+                    final Map<Integer, String> rpslMap = whoisDao.findRpslMapForObjects(objectBatch);
                     for (final ObjectData object : objectBatch) {
-                        final String rpsl = whoisDao.findRpsl(object.objectId(), object.sequenceId());
+                        final long start = System.currentTimeMillis();
+                        final String rpsl = rpslMap.get(object.objectId());
+                        timeFetchingRpsl.addAndGet(System.currentTimeMillis() - start);
                         final RpslObject rpslObject = RpslObject.parse(rpsl);
                         if (!dummifierNrtm.isAllowed(NRTM_VERSION, rpslObject)) {
                             continue;
@@ -82,7 +88,8 @@ public class SnapshotObjectSynchronizer {
                     snapshotObjectRepository.batchInsert(batch);
                 }
             );
-        LOGGER.info("{} Inserted snapshot objects {}ms", method, (System.currentTimeMillis() - mark));
+        LOGGER.info("{} Inserted snapshot objects {}s", method, (System.currentTimeMillis() - mark)/1000);
+        LOGGER.info("{} timeFetchingRpsl {}s", method, timeFetchingRpsl.get()/1000);
         LOGGER.info("getSerialEntriesFromLast() completed");
         return version;
     }

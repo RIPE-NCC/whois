@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Transactional
@@ -24,7 +25,14 @@ public class WhoisDao {
         return new InitialSnapshotState(lastSerialId, objects);
     }
 
-    public String findRpsl(final int objectId, final int sequenceId) {
-        return whoisSerialRepository.findRpslInLast(objectId, sequenceId);
+    public Map<Integer, String> findRpslMapForObjects(final List<ObjectData> objects) {
+        final Map<Integer, String> results = whoisSerialRepository.findRpslMapForLastObjects(objects);
+        for (final ObjectData object : objects) {
+            if (!results.containsKey(object.objectId())) {
+                results.put(object.objectId(), whoisSerialRepository.findRpslMapForHistoryObject(object.objectId(), object.sequenceId()));
+            }
+        }
+        return results;
     }
+
 }
