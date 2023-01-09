@@ -118,7 +118,7 @@
             <AppenderRef ref="NRTMLOG"/>
         </Logger>
 
-        <Logger name="net.ripe.db.whois.nrtm4.NrtmLog" level="all" additivity="false">
+        <Logger name="net.ripe.db.whois.nrtm4.Nrtm4Log" level="all" additivity="false">
             <AppenderRef ref="NRTM4LOG"/>
         </Logger>
 
