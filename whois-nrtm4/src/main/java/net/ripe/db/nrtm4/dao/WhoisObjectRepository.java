@@ -14,11 +14,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 
 @Repository
-public class WhoisSerialRepository {
+public class WhoisObjectRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    WhoisSerialRepository(@Qualifier("whoisSlaveDataSource") final DataSource dataSource) {
+    WhoisObjectRepository(@Qualifier("whoisSlaveDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

@@ -15,7 +15,7 @@ import static org.hamcrest.Matchers.is;
 
 @Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
-public class WhoisSerialRepositoryIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
+public class WhoisDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
 
     @Autowired
     WhoisDao whoisDao;

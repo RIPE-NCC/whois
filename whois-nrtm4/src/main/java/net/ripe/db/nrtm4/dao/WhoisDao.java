@@ -11,25 +11,25 @@ import java.util.Map;
 @Service
 public class WhoisDao {
 
-    private final WhoisSerialRepository whoisSerialRepository;
+    private final WhoisObjectRepository whoisObjectRepository;
 
     WhoisDao(
-        final WhoisSerialRepository whoisSerialRepository
+        final WhoisObjectRepository whoisObjectRepository
     ) {
-        this.whoisSerialRepository = whoisSerialRepository;
+        this.whoisObjectRepository = whoisObjectRepository;
     }
 
     public InitialSnapshotState getInitialSnapshotState() {
-        final int lastSerialId = whoisSerialRepository.findLastSerialId();
-        final List<ObjectData> objects = whoisSerialRepository.findLastObjects();
+        final int lastSerialId = whoisObjectRepository.findLastSerialId();
+        final List<ObjectData> objects = whoisObjectRepository.findLastObjects();
         return new InitialSnapshotState(lastSerialId, objects);
     }
 
     public Map<Integer, String> findRpslMapForObjects(final List<ObjectData> objects) {
-        final Map<Integer, String> results = whoisSerialRepository.findRpslMapForLastObjects(objects);
+        final Map<Integer, String> results = whoisObjectRepository.findRpslMapForLastObjects(objects);
         for (final ObjectData object : objects) {
             if (!results.containsKey(object.objectId())) {
-                results.put(object.objectId(), whoisSerialRepository.findRpslMapForHistoryObject(object.objectId(), object.sequenceId()));
+                results.put(object.objectId(), whoisObjectRepository.findRpslMapForHistoryObject(object.objectId(), object.sequenceId()));
             }
         }
         return results;
