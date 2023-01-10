@@ -31,9 +31,8 @@
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty.toolchain</groupId>
-            <artifactId>jetty-servlet-api</artifactId>
-            <version>4.0.6</version>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-rewrite</artifactId>
         </dependency>
     </dependencies>
 
