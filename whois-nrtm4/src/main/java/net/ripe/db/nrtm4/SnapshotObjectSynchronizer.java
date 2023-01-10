@@ -1,5 +1,6 @@
 package net.ripe.db.nrtm4;
 
+import com.google.common.collect.Lists;
 import net.ripe.db.nrtm4.dao.InitialSnapshotState;
 import net.ripe.db.nrtm4.dao.NrtmSource;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
@@ -22,11 +23,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
-import static net.ripe.db.nrtm4.util.ListUtil.makeBatches;
 
 
 @Service
@@ -69,8 +68,7 @@ public class SnapshotObjectSynchronizer {
         LOGGER.info("{} At serial {}, {}ms", method, initialState.serialId(), (System.currentTimeMillis() - mark));
         mark = System.currentTimeMillis();
         final NrtmVersionInfo version = nrtmVersionInfoRepository.createInitialVersion(source, initialState.serialId());
-        final AtomicLong timeFetchingRpsl = new AtomicLong();
-        makeBatches(initialState.objectData(), batchSize)
+        Lists.partition(initialState.objectData(), batchSize)
             .parallelStream()
             .forEach((objectBatch) -> {
                     final List<SnapshotObject> batch = new ArrayList<>(batchSize);

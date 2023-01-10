@@ -35,7 +35,7 @@ public class SnapshotFileStreamer {
         jGenerator.writeStringField("session_id", snapshotFile.getSessionID());
         jGenerator.writeNumberField("version", snapshotFile.getVersion());
         jGenerator.writeArrayFieldStart("objects");
-        snapshotObjectIteratorRepository.snapshotCallbackFn(snapshotFile.getSource(), str -> {
+        snapshotObjectIteratorRepository.snapshotCallbackConsumer(snapshotFile.getSource(), str -> {
             try {
                 jGenerator.writeString(str);
             } catch (final IOException e) {

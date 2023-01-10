@@ -35,7 +35,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
         snapshotObjectRepository.insert(version.getId(), 1, 1, escapedInetnumString);
         snapshotObjectRepository.insert(version.getId(), 2, 1, escapedOrgString);
         final var list = new ArrayList<String>();
-        snapshotObjectIteratorRepository.snapshotCallbackFn(source.getSource(), list::add);
+        snapshotObjectIteratorRepository.snapshotCallbackConsumer(source.getSource(), list::add);
         assertThat(list.get(0), is("inetnum:        193.0.0.0 - 193.255.255.255\\nsource:         TEST\\n"));
         assertThat(list.get(1), is("organisation:   ORG-XYZ99-RIPE\\norg-name:       XYZ B.V.\\norg-type:       OTHER\\naddress:        Zürich\\naddress:        NETHERLANDS\\nmnt-by:         XYZ-MNT\\nmnt-ref:        PQR-MNT\\nabuse-c:        XYZ-RIPE\\ncreated:        2018-01-01T00:00:00Z\\nlast-modified:  2019-12-24T00:00:00Z\\nsource:         TEST\\n"));
     }
@@ -47,7 +47,7 @@ public class SnapshotObjectRepositoryIntegrationTest extends AbstractDatabaseHel
         snapshotObjectRepository.insert(version.getId(), 2, 1, escapedOrgString);
         snapshotObjectRepository.delete(2);
         final var list = new ArrayList<String>();
-        snapshotObjectIteratorRepository.snapshotCallbackFn(source.getSource(), list::add);
+        snapshotObjectIteratorRepository.snapshotCallbackConsumer(source.getSource(), list::add);
         assertThat(list.get(0), is("inetnum:        193.0.0.0 - 193.255.255.255\\nsource:         TEST\\n"));
     }
 

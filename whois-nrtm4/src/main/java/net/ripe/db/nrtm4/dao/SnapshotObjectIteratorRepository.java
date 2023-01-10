@@ -3,7 +3,6 @@ package net.ripe.db.nrtm4.dao;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -27,7 +26,7 @@ public class SnapshotObjectIteratorRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void snapshotCallbackFn(final NrtmSource source, final Consumer<String> fn) {
+    public void snapshotCallbackConsumer(final NrtmSource source, final Consumer<String> fn) {
         final String sql = "" +
             "SELECT so.rpsl " +
             "FROM snapshot_object so " +
@@ -42,21 +41,6 @@ public class SnapshotObjectIteratorRepository {
             rs -> {
                 fn.accept(rs.getString(1));
             });
-    }
-
-    public void snapshotCallback(final NrtmSource source, final RowCallbackHandler rowCallbackHandler) {
-        final String sql = "" +
-            "SELECT so.rpsl " +
-            "FROM snapshot_object so " +
-            "JOIN version_info v ON v.id = so.version_id " +
-            "JOIN source src ON src.id = v.source_id " +
-            "WHERE src.name = ? " +
-            "ORDER BY so.object_id";
-        JdbcStreamingHelper.executeStreaming(
-            jdbcTemplate,
-            sql,
-            pss -> pss.setString(1, source.name()),
-            rowCallbackHandler);
     }
 
 }
