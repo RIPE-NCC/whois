@@ -202,7 +202,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 delete: reason
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate delete
@@ -222,7 +222,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute =~ /SUCCESS/
 
@@ -236,7 +236,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             delete: reason
                             password: update
-                    """.stripIndent())
+                    """.stripIndent(true))
 
       then:
         def responseAutnum = syncUpdate deleteAutnum
@@ -253,7 +253,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     delete: reason
                     password: update
-                    """.stripIndent())
+                    """.stripIndent(true))
 
       then:
         def responseRoute = syncUpdate deleteRoute
@@ -272,7 +272,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute =~ /SUCCESS/
 
@@ -286,7 +286,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             delete: reason
                             password: update
-                    """.stripIndent())
+                    """.stripIndent(true))
 
       then:
         def responseAutnum = syncUpdate deleteAutnum
@@ -302,7 +302,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     source: TEST
                     password:update
-                    """.stripIndent())
+                    """.stripIndent(true))
 
       then:
         def responseRoute = syncUpdate modifyRoute
@@ -320,7 +320,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -339,7 +339,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -359,7 +359,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -379,7 +379,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -399,7 +399,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -417,7 +417,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -436,7 +436,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: ROUTES-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -459,7 +459,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -472,7 +472,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -492,7 +492,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -505,7 +505,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: otherpassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -524,7 +524,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -536,7 +536,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -555,7 +555,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insert =~ /SUCCESSFUL/
 
@@ -567,7 +567,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: ROUTES-MNT
                 source: TEST
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -589,7 +589,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -607,7 +607,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -625,7 +625,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: otherpassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -652,7 +652,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -671,7 +671,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 password: otherpassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -689,7 +689,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -707,7 +707,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: wrong
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -733,7 +733,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: emptypassword
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -755,7 +755,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: otherpassword
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -777,7 +777,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: otherpassword
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -799,7 +799,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: otherpassword
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -821,7 +821,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: otherpassword
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -842,7 +842,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: otherpassword
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -863,7 +863,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 password: emptypassword
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create
@@ -885,7 +885,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 export-comps: {194.55.167.0/24}
                 source: TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         response =~ /SUCCESS/
@@ -901,7 +901,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:          TEST-MNT
                     source:          TEST
                     password:        update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         response =~ /No operation: \[route\] 193.254.30.0\/24AS12726/
@@ -917,7 +917,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                     member-of:       RS-BLA123
                     source:          TEST
                     password:        update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         response =~ /Modify FAILED: \[route\] 193.254.30.0\/24AS12726/
@@ -936,7 +936,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         source: TEST
                         password: update
                         password: emptypassword
-                        """.stripIndent())
+                        """.stripIndent(true))
       then:
         response =~ /SUCCESS/
         response =~ /Modify SUCCEEDED: \[route\] 180.0.0.0\/24AS12726/
@@ -952,7 +952,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         pingable: 181.0.0.0
                         source: TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
       then:
         response =~ /FAIL/
         response =~ /Error:   181.0.0.0 is outside the range of this object/
@@ -968,7 +968,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         holes: 181.0.0.0/32
                         source: TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
       then:
         response =~ /FAIL/
         response =~ /Error:   181.0.0.0\/32 is outside the range of this object/
@@ -984,7 +984,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         source: TEST
                         password: update
                         password: emptypassword
-                        """.stripIndent())
+                        """.stripIndent(true))
       expect:
         create =~ /SUCCESS/
 
@@ -996,7 +996,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by: LOWER-MNT
                         source: TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
       then:
         response =~ /Modify SUCCEEDED: \[route\] 194.0.0.0\/24AS123/
     }
@@ -1011,7 +1011,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute =~ /FAIL/
         insertRoute =~ /Automatic creation of route objects of this size in not allowed,
@@ -1028,7 +1028,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute != ~/Automatic creation of route objects of this size in not allowed,
             please contact lir-help@ripe.net for further information./
@@ -1084,7 +1084,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
         expect:
         insertRoute =~ /\nNumber of objects found:\s+0\n/
     }
@@ -1100,7 +1100,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute =~ /SUCCESS/
     }
@@ -1115,7 +1115,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute =~ /SUCCESS/
 
@@ -1135,7 +1135,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
         then:
           updateRoute =~ /SUCCESS/
 
@@ -1152,7 +1152,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: update
                             password: emptypassword
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         insertRoute =~ /SUCCESS/
 
@@ -1168,7 +1168,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def response = syncUpdate create

@@ -87,7 +87,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR2-MNT
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -135,7 +135,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR-MNT
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -185,7 +185,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             notify:         notify@ripe.net          # added
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -228,7 +228,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             notify:         notify@ripe.net          # modified
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -271,7 +271,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR-MNT
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -310,7 +310,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             source:         TEST
             password:       lir
             password:       owner3
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -365,7 +365,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             source:         TEST
             password:       lir
             password:       owner3
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -414,7 +414,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR-MNT
             source:         TEST
             password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -462,7 +462,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR-MNT
             source:         TEST
             override:       denis,override1
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -504,7 +504,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR2-MNT
             source:         TEST
             password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -548,7 +548,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR-MNT
             source:         TEST
             password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -584,7 +584,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         LIR2-MNT                 # added
             source:         TEST
             password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -622,7 +622,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         RIPE-NCC-HM-MNT
             source:         TEST
             password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -655,7 +655,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
             mnt-by:         RIPE-NCC-HM-MNT
             source:         TEST
             password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -710,7 +710,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
                 mnt-by:         LIR-MNT
                 source:         TEST
                 password:       lir
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:
@@ -763,7 +763,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
                 mnt-by:         LIR-MNT
                 source:         TEST
                 password:       hm
-        """.stripIndent()
+        """.stripIndent(true)
         )
 
         then:

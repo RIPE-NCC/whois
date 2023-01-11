@@ -344,7 +344,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -383,7 +383,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -425,7 +425,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -467,7 +467,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -505,7 +505,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -541,7 +541,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -585,7 +585,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -628,7 +628,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -681,7 +681,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -736,7 +736,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -790,7 +790,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -845,7 +845,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 password:   lir
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -890,7 +890,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -931,7 +931,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -973,7 +973,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1014,7 +1014,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1054,7 +1054,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1097,7 +1097,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1139,7 +1139,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1181,7 +1181,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 delete:  unreferenced
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1220,7 +1220,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1257,7 +1257,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1295,7 +1295,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 remarks:      just added
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1333,7 +1333,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1372,7 +1372,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1413,7 +1413,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 abuse-c:      AH1-TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1454,7 +1454,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 remarks:      just added
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1498,7 +1498,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 remarks:      just added
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1540,7 +1540,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1582,7 +1582,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1631,7 +1631,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1669,7 +1669,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
                 source:       TEST
-                password:     hm""".stripIndent())
+                password:     hm""".stripIndent(true))
 
         def roleMessage = syncUpdate("""\
                 role:         Abuse Role
@@ -1684,7 +1684,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1743,7 +1743,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1796,7 +1796,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1848,7 +1848,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1888,7 +1888,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1928,7 +1928,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1968,7 +1968,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2008,7 +2008,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2048,7 +2048,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2088,7 +2088,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2130,7 +2130,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2172,7 +2172,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2214,7 +2214,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2256,7 +2256,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2298,7 +2298,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2336,7 +2336,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2373,7 +2373,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2426,7 +2426,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2468,7 +2468,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2510,7 +2510,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 abuse-c:      TP1-TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2546,7 +2546,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 override:   denis,override1
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2584,7 +2584,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 override:   denis,override1
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2620,7 +2620,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 override:   denis,override1
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2656,7 +2656,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 override:   denis,override1
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2693,7 +2693,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: mb-exact
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2729,7 +2729,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: lir
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

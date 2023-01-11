@@ -98,7 +98,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -144,7 +144,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
 
                 password:     end
                 password:     irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -185,7 +185,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -230,7 +230,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
 
                 password: end
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -268,7 +268,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
 
                 password: end
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -309,7 +309,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 password: end
                 password: irt
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -348,7 +348,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
                     delete:       test deletion
 
                     password: end
-                    """.stripIndent()
+                    """.stripIndent(true)
             )
 
         then:
@@ -389,7 +389,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -430,7 +430,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:     denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -470,7 +470,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -504,7 +504,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 tech-c:        TP1-TEST
                 mnt-by:        OWNER-MNT
                 source:        TEST
-                """.stripIndent());
+                """.stripIndent(true));
         expect:
         queryObject("-r -T irt irt-tesT", "irt", "irt-test")
 
@@ -527,7 +527,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -562,7 +562,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 tech-c:        TP1-TEST
                 mnt-by:        OWNER-MNT
                 source:        TEST
-                """.stripIndent());
+                """.stripIndent(true));
         expect:
         queryObject("-r -T irt irt-tesT", "irt", "irt-test")
 
@@ -584,7 +584,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

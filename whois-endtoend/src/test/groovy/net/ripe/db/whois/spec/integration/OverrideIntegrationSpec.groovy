@@ -76,7 +76,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override with mail update"() {
       when:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def message = send new Message(body: data)
@@ -90,7 +90,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
       when:
         setRipeRanges();
 
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -102,7 +102,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -120,7 +120,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override option invalid id"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "override:user,pw,{oid=11111}"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:user,pw,{oid=11111}"
 
         def update = new SyncUpdate(data: data)
 
@@ -134,7 +134,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override not on update"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "\n\noverride:denis,override1"
+        def data = fixtures["ORG1"].stripIndent(true) + "\n\noverride:denis,override1"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -151,7 +151,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override wrong password"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "override:oops"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:oops"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -166,7 +166,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override wrong password fails overriding business rules"() {
         given:
-        def data = fixtures["ORG1"].stripIndent() + "override:agoston,oops\npassword: update\n"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:agoston,oops\npassword: update\n"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -181,7 +181,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override with spaces"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "override: denis, override1"
+        def data = fixtures["ORG1"].stripIndent(true) + "override: denis, override1"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -200,7 +200,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override specified multiple times"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1\noverride:denis2,override2"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1\noverride:denis2,override2"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -214,7 +214,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override no password"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "override:"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
@@ -238,7 +238,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -249,7 +249,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override is noop on case-sensitive change without "() {
         given:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1"
         data = (data =~ /org-name:     Test Organisation Ltd/).replaceFirst("org-name: test organisation ltd")
 
         def update = new SyncUpdate(data: data)
@@ -265,7 +265,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "add comment is not a noop for whois update"() {
         given:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1"
         data = (data =~ /address:      street 5/).replaceFirst("address:      street 5 #test comment noop")
 
         def update = new SyncUpdate(data: data)
@@ -285,7 +285,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "modify comment is not a noop for whois update"() {
         given:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1"
         data = (data =~ /descr:        test org #comment/).replaceFirst("descr:        test org #updated")
 
         def update = new SyncUpdate(data: data)
@@ -305,7 +305,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "remove comment is not a noop for whois update"() {
         given:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1"
         data = (data =~ /descr:        test org #comment/).replaceFirst("descr:        test org")
 
         def update = new SyncUpdate(data: data)
@@ -325,7 +325,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override is noop on case-sensitive change with update-on-noop set to false"() {
         given:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1, {update-on-noop=false}"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1, {update-on-noop=false}"
         data = (data =~ /org-name:     Test Organisation Ltd/).replaceFirst("org-name: test organisation ltd")
 
         def update = new SyncUpdate(data: data)
@@ -341,7 +341,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override on case-sensitive change with update-on-noop set to true"() {
         given:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1, {update-on-noop=true}"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1, {update-on-noop=true}"
         data = (data =~ /org-name:     Test Organisation Ltd/).replaceFirst("org-name: test organisation ltd")
 
         def update = new SyncUpdate(data: data)
@@ -358,7 +358,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "override on comment changes change with update-on-noop set to true"() {
         given:
-        def data = fixtures["ORG1"].stripIndent() + "override:denis,override1, {update-on-noop=true}"
+        def data = fixtures["ORG1"].stripIndent(true) + "override:denis,override1, {update-on-noop=true}"
         data = (data =~ /org-name:     Test Organisation Ltd/).replaceFirst("org-name:     Test Organisation Ltd #comment")
 
         def update = new SyncUpdate(data: data)
