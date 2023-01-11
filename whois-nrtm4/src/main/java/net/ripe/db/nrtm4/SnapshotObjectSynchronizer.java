@@ -5,12 +5,13 @@ import net.ripe.db.nrtm4.dao.InitialSnapshotState;
 import net.ripe.db.nrtm4.dao.NrtmSource;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.dao.ObjectChangeData;
 import net.ripe.db.nrtm4.dao.ObjectData;
 import net.ripe.db.nrtm4.dao.SnapshotObject;
 import net.ripe.db.nrtm4.dao.SnapshotObjectRepository;
 import net.ripe.db.nrtm4.dao.WhoisDao;
 import net.ripe.db.whois.common.dao.SerialDao;
-import net.ripe.db.whois.common.domain.serials.SerialEntry;
+import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import static net.ripe.db.nrtm4.NrtmConstants.NRTM_VERSION;
 
@@ -80,48 +81,35 @@ public class SnapshotObjectSynchronizer {
                             continue;
                         }
                         final RpslObject dummyRpsl = dummifierNrtm.dummify(NRTM_VERSION, rpslObject);
-                        batch.add(new SnapshotObject(0, version.getId(), object.objectId(), object.sequenceId(), dummyRpsl.toString()));
+                        batch.add(new SnapshotObject(0, version.getId(), object.objectId(), object.sequenceId(), dummyRpsl));
                     }
                     snapshotObjectRepository.batchInsert(batch);
                 }
             );
         final DecimalFormat df = new DecimalFormat("#,###.000");
-        LOGGER.info("{} Complete. Initial snapshot objects took {} min", method, df.format((System.currentTimeMillis() - mark)/60000));
+        LOGGER.info("{} Complete. Initial snapshot objects took {} min", method, df.format((System.currentTimeMillis() - mark) / 60000));
         return version;
     }
 
     boolean synchronizeDeltasToSnapshot(final NrtmSource source, final NrtmVersionInfo version) {
         final NrtmVersionInfo lastSnapshot = nrtmVersionInfoRepository.findLastSnapshotVersion(source);
-        final List<SerialEntry> whoisChanges = serialDao.getSerialEntriesBetween(lastSnapshot.getLastSerialId(), version.getLastSerialId())
-            .collect(Collectors.toList());
-        final List<DeltaChange> deltas = deltaTransformer.toDeltaChange(whoisChanges);
+        final List<ObjectChangeData> whoisChanges = whoisDao.findChangesBetween(lastSnapshot.getLastSerialId(), version.getLastSerialId());
+        final List<DeltaChange> deltas = deltaTransformer.toDeltaChangeStream(whoisChanges).toList();
         if (deltas.size() < 1) {
             return false;
         }
-
-//        for (final DeltaChange change : deltas) {
-//            if (change.getAction() == DeltaChange.Action.ADD_MODIFY) {
-//                final Optional<SnapshotObject> existing = snapshotObjectRepository.getByObjectTypeAndPrimaryKey(change.getObjectType(), change.getPrimaryKey());
-//                if (existing.isPresent()) {
-//                    snapshotObjectRepository.update(
-//                        version.getId(),
-//                        change.getSerialId(),
-//                        change.getObject().getKey().toString(),
-//                        change.getObject().toString()
-//                    );
-//                } else {
-//                    snapshotObjectRepository.insert(
-//                        version.getId(),
-//                        change.getSerialId(),
-//                        change.getObject().getType(),
-//                        change.getObject().getKey().toString(),
-//                        change.getObject().toString()
-//                    );
-//                }
-//            } else if (change.getAction() == DeltaChange.Action.DELETE) {
-//                snapshotObjectRepository.delete(change.getObjectType(), change.getPrimaryKey());
-//            }
-//        }
+        for (final ObjectChangeData change : whoisChanges) {
+            if (change.operation() == Operation.UPDATE) {
+                final Optional<SnapshotObject> existing = snapshotObjectRepository.fetchByObjectId(change.objectId());
+                if (existing.isPresent()) {
+                    snapshotObjectRepository.update(version.getId(), change.objectId(), change.sequenceId(), change.rpslObject());
+                } else {
+                    snapshotObjectRepository.insert(version.getId(), change.objectId(), change.sequenceId(), change.rpslObject());
+                }
+            } else {
+                snapshotObjectRepository.delete(change.objectId());
+            }
+        }
         return true;
     }
 

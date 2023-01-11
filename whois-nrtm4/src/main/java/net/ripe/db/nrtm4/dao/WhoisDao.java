@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 
-@Transactional
 @Service
 public class WhoisDao {
 
@@ -19,6 +18,7 @@ public class WhoisDao {
         this.whoisObjectRepository = whoisObjectRepository;
     }
 
+    @Transactional
     public InitialSnapshotState getInitialSnapshotState() {
         final int lastSerialId = whoisObjectRepository.findLastSerialId();
         final List<ObjectData> objects = whoisObjectRepository.findLastObjects();
@@ -32,10 +32,14 @@ public class WhoisDao {
         }
         for (final ObjectData object : objects) {
             if (!results.containsKey(object.objectId())) {
-                results.put(object.objectId(), whoisObjectRepository.findRpslMapForHistoryObject(object.objectId(), object.sequenceId()));
+                results.put(object.objectId(), whoisObjectRepository.findRpslForHistoryObject(object.objectId(), object.sequenceId()));
             }
         }
         return results;
+    }
+
+    public List<ObjectChangeData> findChangesBetween(final Integer serialFrom, final Integer serialTo) {
+        return whoisObjectRepository.findChangesBetween(serialFrom, serialTo);
     }
 
 }
