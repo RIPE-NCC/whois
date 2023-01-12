@@ -758,6 +758,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "locator: http://www.ripe.net/db/support/db-terms-conditions.pdf"));
         }
     }
+
+    @Test
+    public void lookup_person_utf8_normalised() {
+        try {
+            RestTest.target(getPort(), "whois/test/person/\u03A3-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+            fail();
+        } catch (NotFoundException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("no entries found"));
+        }
+    }
+
     @Test
     public void lookup_person_json() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
