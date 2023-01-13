@@ -30,21 +30,11 @@ public class WhoisObjectRepository {
             (rs, rowNum) -> rs.getInt(1));
     }
 
-//    public List<ObjectChangeData> findObjectsBetween(final int serialFrom, final int serialTo) {
-//        return jdbcTemplate.query(
-//            "SELECT s.object_id, s.sequence_id, s.operation FROM serials s " +
-//                "WHERE s.serial_id > ? " +
-//                "  AND s.serial_id <= ?",
-//            (rs, rowNum) -> new ObjectChangeData(
-//                rs.getInt(1),
-//                rs.getInt(2),
-//                Operation.getByCode(rs.getInt(3))),
-//            serialFrom,
-//            serialTo
-//        );
-//    }
 
     public List<ObjectChangeData> findChangesBetween(final int serialFrom, final int serialTo) {
+        if (serialFrom > serialTo) {
+            throw new IllegalArgumentException("Error fetching changes because 'from' is higher than 'to'");
+        }
         return jdbcTemplate.query(
             "SELECT s.object_id, s.sequence_id, s.operation, COALESCE(l.object,h.object,d.object) " +
                 "FROM serials s " +

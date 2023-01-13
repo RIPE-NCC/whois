@@ -25,6 +25,13 @@ public class WhoisDao {
         return new InitialSnapshotState(lastSerialId, objects);
     }
 
+    @Transactional
+    public DeltaChanges getDeltasSince(final int serialId) {
+        final int lastSerialId = whoisObjectRepository.findLastSerialId();
+        final List<ObjectChangeData> objects = whoisObjectRepository.findChangesBetween(serialId, lastSerialId);
+        return new DeltaChanges(serialId, lastSerialId, objects);
+    }
+
     public Map<Integer, String> findRpslMapForObjects(final List<ObjectData> objects) {
         final Map<Integer, String> results = whoisObjectRepository.findRpslMapForLastObjects(objects);
         if (objects.size() == results.size()) {

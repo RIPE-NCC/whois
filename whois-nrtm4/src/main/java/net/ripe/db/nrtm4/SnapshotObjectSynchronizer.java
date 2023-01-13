@@ -94,7 +94,7 @@ public class SnapshotObjectSynchronizer {
     boolean synchronizeDeltasToSnapshot(final NrtmSource source, final NrtmVersionInfo version) {
         final NrtmVersionInfo lastSnapshot = nrtmVersionInfoRepository.findLastSnapshotVersion(source);
         final List<ObjectChangeData> whoisChanges = whoisDao.findChangesBetween(lastSnapshot.getLastSerialId(), version.getLastSerialId());
-        final List<DeltaChange> deltas = deltaTransformer.toDeltaChangeStream(whoisChanges).toList();
+        final List<DeltaChange> deltas = deltaTransformer.toDeltaChangeList(whoisChanges);
         if (deltas.size() < 1) {
             return false;
         }

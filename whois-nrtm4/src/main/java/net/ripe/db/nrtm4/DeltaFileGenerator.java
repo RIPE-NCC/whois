@@ -2,14 +2,14 @@ package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import net.ripe.db.nrtm4.dao.DeltaChanges;
 import net.ripe.db.nrtm4.dao.DeltaFileRepository;
 import net.ripe.db.nrtm4.dao.NrtmSource;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
+import net.ripe.db.nrtm4.dao.WhoisDao;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
-import net.ripe.db.whois.common.dao.SerialDao;
-import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,19 +27,19 @@ public class DeltaFileGenerator {
 
     private final DeltaTransformer deltaTransformer;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
-    private final SerialDao serialDao;
     private final DeltaFileRepository deltaFileRepository;
+    private final WhoisDao whoisDao;
 
     public DeltaFileGenerator(
+        final DeltaFileRepository deltaFileRepository,
         final DeltaTransformer deltaTransformer,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
-        final SerialDao serialDao,
-        final DeltaFileRepository deltaFileRepository
+        final WhoisDao whoisDao
     ) {
         this.deltaTransformer = deltaTransformer;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
-        this.serialDao = serialDao;
         this.deltaFileRepository = deltaFileRepository;
+        this.whoisDao = whoisDao;
     }
 
     @Transactional("nrtmTransactionManager")
@@ -50,17 +50,19 @@ public class DeltaFileGenerator {
         if (lastVersion.isEmpty()) {
             throw new IllegalStateException("Cannot create a delta without an initial snapshot");
         }
-        final List<SerialEntry> whoisChanges = serialDao.getSerialEntriesSince(lastVersion.get().getLastSerialId());
-        if (whoisChanges.size() < 1) {
+        final DeltaChanges whoisChanges = whoisDao.getDeltasSince(lastVersion.get().getLastSerialId());
+
+        //final List<SerialEntry> whoisChanges = serialDao.getSerialEntriesSince(lastVersion.get().getLastSerialId());
+        if (whoisChanges.list().size() < 1) {
             LOGGER.info("No Whois changes found -- delta file generation skipped");
             return Optional.empty();
         }
-        final List<DeltaChange> deltas = deltaTransformer.toDeltaChange(whoisChanges);
+        final List<DeltaChange> deltas = deltaTransformer.toDeltaChangeList(whoisChanges.list());
         if (deltas.size() < 1) {
             LOGGER.info("Whois changes found but all were filtered");
             return Optional.empty();
         }
-        final int lastSerialId = whoisChanges.get(whoisChanges.size() - 1).getSerialId();
+        final int lastSerialId = whoisChanges.serialIdTo();
         final NrtmVersionInfo nextVersion = nrtmVersionInfoRepository.incrementAndSave(lastVersion.get(), lastSerialId);
         final PublishableDeltaFile deltaFile = new PublishableDeltaFile(nextVersion, deltas);
         final JsonMapper objectMapper = JsonMapper.builder().build();
