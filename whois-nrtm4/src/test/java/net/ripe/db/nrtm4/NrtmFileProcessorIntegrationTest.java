@@ -19,7 +19,7 @@ public class NrtmFileProcessorIntegrationTest extends AbstractDatabaseHelperInte
     @Test
     void run_nrtm_write_job() {
         loadScripts(whoisTemplate, "nrtm_sample_sm.sql");
-        nrtmFileProcessor.runWrite();
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
     }
 
 }

@@ -46,7 +46,7 @@ public class NrtmFileProcessor {
         //nrtmFileService.syncNrtmFileToFileSystem(name);
     }
 
-    public void runWrite() {
+    public void updateNrtmFilesAndPublishNotification() {
         LOGGER.info("runWrite() called");
         final NrtmSource source = nrtmSourceHolder.getSource();
         final Optional<SnapshotFile> snapshotFile = snapshotFileGenerator.getLastSnapshot(source);

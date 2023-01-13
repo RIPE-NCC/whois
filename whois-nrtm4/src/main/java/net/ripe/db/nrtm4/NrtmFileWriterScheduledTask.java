@@ -17,9 +17,9 @@ public class NrtmFileWriterScheduledTask implements DailyScheduledTask {
 
     @Override
     @Scheduled(cron = "0 * * * * ?")
-    @SchedulerLock(name = "NrtmFileWriterScheduledTask")
+    @SchedulerLock(name = "NrtmFilePublisherScheduledTask")
     public void run() {
-        nrtmFileProcessor.runWrite();
+        nrtmFileProcessor.updateNrtmFilesAndPublishNotification();
     }
 
 }

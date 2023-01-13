@@ -2,9 +2,10 @@ package net.ripe.db.nrtm4.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.ripe.db.nrtm4.dao.NrtmVersionInfo;
-import net.ripe.db.whois.common.domain.Timestamp;
+import net.ripe.db.whois.common.FormatHelper;
 
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 
@@ -19,7 +20,9 @@ public class PublishableNotificationFile extends PublishableNrtmDocument {
     PublishableNotificationFile(final NrtmVersionInfo version) {
         super(version);
         deltas = List.of();
-        this.timestamp = Timestamp.from(LocalDateTime.now()).toString();
+        this.timestamp = FormatHelper.dateTimeToUtcString(ZonedDateTime.now(ZoneOffset.UTC));
+        // TODO: replace with this, but how to inject dateTimeProvider?
+        //       FormatHelper.dateTimeToUtcString(dateTimeProvider.getCurrentZonedDateTime())
     }
 
     public String getTimestamp() {
