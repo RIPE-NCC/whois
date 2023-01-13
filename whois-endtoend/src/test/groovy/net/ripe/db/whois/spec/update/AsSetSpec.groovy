@@ -161,7 +161,8 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.errorMessagesFor("Create", "[as-set] AS-TEST") == [
-                "Cannot create AS-SET object with a short format name."]
+                "Cannot create AS-SET object with a short format name. Only hierarchical " +
+                        "AS-SET creation is allowed, i.e. at least one ASN must be referenced"]
     }
 
     def "create as-set objects with invalid members"() {

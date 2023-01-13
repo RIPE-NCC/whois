@@ -12,7 +12,7 @@ CREATE TABLE `default_maintainer_in_progress` (
     UNIQUE KEY `mntner_idx` (`mntner`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO  `default_maintainer` (`org`, `mntner`, `timestamp`, `uuid`,  `email`) select `org`, `mntner`, `timestamp`, `uuid`,  `email` from `default_maintainer_history` where in_progress = 1;
+INSERT INTO  `default_maintainer_in_progress` (`org`, `mntner`, `timestamp`, `uuid`,  `email`) select `org`, `mntner`, `timestamp`, `uuid`,  `email` from `default_maintainer_history` where in_progress = 1;
 
 DROP TABLE IF EXISTS `default_maintainer_sync`;
 CREATE TABLE `default_maintainer_sync` (
