@@ -33,12 +33,12 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -3034,7 +3034,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore
     @Test
     public void create_multibyte_utf8_character_is_substituted() {
         final byte[] entity =
@@ -3044,7 +3043,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "    \"attributes\": {\n" +
                     "       \"attribute\": [\n" +
                     "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
-                    "        { \"name\": \"address\", \"value\": \"Espa\u00F1a\" },\n" +        // n-tilde in unicode (same byte value as latin-1)
+                    "        { \"name\": \"address\", \"value\": \"Espa\u00F1a\" },\n" +        // n-tilde in unicode
                     "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
                     "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
                     "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
@@ -3053,13 +3052,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                     "        ] }\n" +
                     "    }] \n" +
-                    "}}").getBytes(StandardCharsets.UTF_8); // n-tilde will be encoded as UTF-8 (e.g. as 2 bytes 0xc3 0xb1)
+                    "}}").getBytes(StandardCharsets.UTF_8); // n-tilde will be encoded as UTF-8 (e.g. as 2 bytes 0xc3b1)
 
-        RestTest.target(getPort(), "whois/test/person?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
             .request(MediaType.APPLICATION_JSON)
-            .post(Entity.entity(entity, new MediaType("application", "json")), byte[].class);
+            .post(Entity.entity(entity, new MediaType("application", "json")), WhoisResources.class);
 
-        assertThat(queryTelnet("-r PP1-TEST"), containsString("Espa??a"));      // TODO: expecting 2 bytes for n-tilde in database
+        assertThat(queryTelnet("-r PP1-TEST"), containsString("España"));
     }
 
     @Test
