@@ -5,6 +5,7 @@ import net.ripe.db.nrtm4.dao.NrtmSourceHolder;
 import net.ripe.db.nrtm4.dao.SnapshotFile;
 import net.ripe.db.nrtm4.domain.PublishableDeltaFile;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
+import net.ripe.db.nrtm4.jmx.NrtmProcessControl;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,17 +23,20 @@ public class NrtmFileProcessor {
 
     private final DeltaFileGenerator deltaFileGenerator;
     private final NrtmFileService nrtmFileService;
+    private final NrtmProcessControl nrtmProcessControl;
     private final NrtmSourceHolder nrtmSourceHolder;
     private final SnapshotFileGenerator snapshotFileGenerator;
 
     public NrtmFileProcessor(
         final DeltaFileGenerator deltaFileGenerator,
         final NrtmFileService nrtmFileService,
+        final NrtmProcessControl nrtmProcessControl,
         final NrtmSourceHolder nrtmSourceHolder,
         final SnapshotFileGenerator snapshotFileGenerator
     ) {
         this.deltaFileGenerator = deltaFileGenerator;
         this.nrtmFileService = nrtmFileService;
+        this.nrtmProcessControl = nrtmProcessControl;
         this.nrtmSourceHolder = nrtmSourceHolder;
         this.snapshotFileGenerator = snapshotFileGenerator;
     }
@@ -52,9 +56,14 @@ public class NrtmFileProcessor {
         final Optional<SnapshotFile> snapshotFile = snapshotFileGenerator.getLastSnapshot(source);
         Optional<PublishableSnapshotFile> publishableSnapshotFile = Optional.empty();
         if (snapshotFile.isEmpty()) {
-            LOGGER.info("No previous snapshot found. Initializing...");
-            publishableSnapshotFile = snapshotFileGenerator.createSnapshot(source);
-            LOGGER.info("Initialization done.");
+            LOGGER.info("No previous snapshot found");
+            if (nrtmProcessControl.isInitialSnapshotGenerationEnabled()) {
+                LOGGER.info("Initializing...");
+                publishableSnapshotFile = snapshotFileGenerator.createSnapshot(source);
+                LOGGER.info("Initialization complete");
+            } else {
+                LOGGER.info("Initialization skipped because NrtmProcessControl has disabled initial snapshot generation");
+            }
         } else {
             final Optional<PublishableDeltaFile> optDelta = deltaFileGenerator.createDelta(source);
             LOGGER.info("Not doing anything except initial snapshot for now. optDelta present? " + optDelta.isPresent());
