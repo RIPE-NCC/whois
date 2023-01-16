@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-@ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "SnapshotInitializer", description = "Trigger creation of initial snapshot")
+@ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "NrtmProcessControl", description = "Control NRTM file generation processes")
 public class NrtmProcessControlJmx extends JmxBase implements NrtmProcessControl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmProcessControlJmx.class);
