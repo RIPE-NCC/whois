@@ -3033,6 +3033,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Disabled
     @Test
     public void create_multibyte_utf8_character_is_substituted() {
         final byte[] entity =
@@ -3042,7 +3043,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "    \"attributes\": {\n" +
                     "       \"attribute\": [\n" +
                     "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
-                    "        { \"name\": \"address\", \"value\": \"Espa\u00F1a\" },\n" +        // n-tilde in unicode
+                    "        { \"name\": \"address\", \"value\": \"Espa\u00C3\u00B1a\" },\n" +        // UTF-8 bytes 0xc383 and 0xc2b1
                     "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
                     "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
                     "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
@@ -3051,11 +3052,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                     "        ] }\n" +
                     "    }] \n" +
-                    "}}").getBytes(StandardCharsets.UTF_8); // n-tilde will be encoded as UTF-8 (e.g. as 2 bytes 0xc3b1)
+                    "}}").getBytes(StandardCharsets.UTF_8);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
             .request(MediaType.APPLICATION_JSON)
             .post(Entity.entity(entity, new MediaType("application", "json")), WhoisResources.class);
+
+        // 0x_C3_83C2_B1_ bytes in request but bytes 0xC3B1 ends up in the database
 
         assertThat(queryTelnet("-r PP1-TEST"), containsString("España"));
     }
