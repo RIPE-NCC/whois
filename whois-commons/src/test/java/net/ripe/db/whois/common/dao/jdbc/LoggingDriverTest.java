@@ -20,9 +20,9 @@ import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class LoggingDriverTest {
@@ -50,7 +50,7 @@ public class LoggingDriverTest {
 
     @Test
     public void acceptsUrl() {
-        assertTrue(subject.acceptsURL("jdbc:log:mariadb"));
+        assertThat(subject.acceptsURL("jdbc:log:mariadb"), is(true));
         assertFalse(subject.acceptsURL("jdbc:mariadb"));
         assertFalse(subject.acceptsURL(null));
     }

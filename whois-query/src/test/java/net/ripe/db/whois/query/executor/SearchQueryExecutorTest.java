@@ -30,7 +30,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
@@ -61,7 +60,7 @@ public class SearchQueryExecutorTest {
     @Test
     public void all_attributes_handled() {
         for (final AttributeType attributeType : AttributeType.values()) {
-            assertTrue(subject.supports(Query.parse("-i " + attributeType.getName() + " query")));
+            assertThat(subject.supports(Query.parse("-i " + attributeType.getName() + " query")), is(true));
         }
     }
 

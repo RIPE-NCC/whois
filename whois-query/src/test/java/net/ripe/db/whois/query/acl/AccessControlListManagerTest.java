@@ -27,7 +27,6 @@ import static net.ripe.db.whois.query.acl.AccessControlListManager.mask;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -91,8 +90,8 @@ public class AccessControlListManagerTest {
 
     @Test
     public void check_denied_restricted() throws Exception {
-        assertTrue(subject.isDenied(ipv4Restricted));
-        assertTrue(subject.isDenied(ipv6Restricted));
+        assertThat(subject.isDenied(ipv4Restricted), is(true));
+        assertThat(subject.isDenied(ipv6Restricted), is(true));
     }
 
     @Test
@@ -115,8 +114,8 @@ public class AccessControlListManagerTest {
 
     @Test
     public void check_proxy_unrestricted() throws Exception {
-        assertTrue(subject.isAllowedToProxy(ipv4Unrestricted));
-        assertTrue(subject.isAllowedToProxy(ipv6Unrestricted));
+        assertThat(subject.isAllowedToProxy(ipv4Unrestricted), is(true));
+        assertThat(subject.isAllowedToProxy(ipv6Unrestricted), is(true));
     }
 
     @Test
@@ -157,9 +156,9 @@ public class AccessControlListManagerTest {
 
     @Test
     public void requiresAcl_withRipeSource() {
-        assertTrue(subject.requiresAcl(person, Source.slave("RIPE")));
+        assertThat(subject.requiresAcl(person, Source.slave("RIPE")), is(true));
 
-        assertTrue(subject.requiresAcl(role, Source.slave("RIPE")));
+        assertThat(subject.requiresAcl(role, Source.slave("RIPE")), is(true));
         assertFalse(subject.requiresAcl(roleWithAbuseMailbox, Source.slave("RIPE")));
         assertFalse(subject.requiresAcl(autNum, Source.slave("RIPE")));
         assertFalse(subject.requiresAcl(inetnum, Source.slave("RIPE")));
@@ -179,9 +178,9 @@ public class AccessControlListManagerTest {
 
     @Test
     public void requiresAcl_withTest() {
-        assertTrue(subject.requiresAcl(person, Source.slave("TEST")));
+        assertThat(subject.requiresAcl(person, Source.slave("TEST")), is(true));
+        assertThat(subject.requiresAcl(role, Source.slave("TEST")), is(true));
 
-        assertTrue(subject.requiresAcl(role, Source.slave("TEST")));
         assertFalse(subject.requiresAcl(roleWithAbuseMailbox, Source.slave("TEST")));
         assertFalse(subject.requiresAcl(autNum, Source.slave("TEST")));
         assertFalse(subject.requiresAcl(inetnum, Source.slave("TEST")));
@@ -190,7 +189,7 @@ public class AccessControlListManagerTest {
 
     @Test
     public void testMask() throws UnknownHostException {
-        InetAddress subject = Inet6Address.getByName("3ffe:6a88:85a3:98d3:1319:8a2e:9370:7344");
+        final InetAddress subject = Inet6Address.getByName("3ffe:6a88:85a3:98d3:1319:8a2e:9370:7344");
 
         assertThat(mask(subject, 125).getHostAddress(), is("3ffe:6a88:85a3:98d3:1319:8a2e:9370:7340"));
         assertThat(mask(subject, 112).getHostAddress(), is("3ffe:6a88:85a3:98d3:1319:8a2e:9370:0"));

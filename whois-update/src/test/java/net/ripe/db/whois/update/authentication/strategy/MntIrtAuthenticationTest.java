@@ -22,6 +22,7 @@ import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
@@ -64,7 +65,7 @@ public class MntIrtAuthenticationTest {
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0), is(irt));
         verifyNoMoreInteractions(updateContext);
     }

@@ -37,17 +37,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.common.support.DateMatcher.before;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -489,9 +490,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         var notices = ip.getNotices();
         var inaccuracyNotice = notices.get(1);
         assertThat(inaccuracyNotice.getTitle(), is("Whois Inaccuracy Reporting"));
-        assertThat(inaccuracyNotice.getDescription().size(), is(1));
+        assertThat(inaccuracyNotice.getDescription(), hasSize(1));
         assertThat(inaccuracyNotice.getDescription().get(0), is("If you see inaccuracies in the results, please visit:"));
-        assertThat(inaccuracyNotice.getLinks().size(), is(1));
+        assertThat(inaccuracyNotice.getLinks(), hasSize(1));
         assertThat(inaccuracyNotice.getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/192.132.75.165"));
         assertThat(inaccuracyNotice.getLinks().get(0).getRel(), is("inaccuracy-report"));
         assertThat(inaccuracyNotice.getLinks().get(0).getHref(), is("https://www.ripe.net/contact-form?topic=ripe_dbm&show_form=true"));
@@ -569,7 +570,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(ip.getParentHandle(), is("::/0"));
         assertThat(ip.getStatus(), contains("active"));
 
-        assertThat(ip.getCidr0_cidrs().size(), is(1));
+        assertThat(ip.getCidr0_cidrs(), hasSize(1));
         assertThat(ip.getCidr0_cidrs().get(0).getV6prefix(), is("2001:2002:2003::"));
         assertThat(ip.getCidr0_cidrs().get(0).getLength(), is(48));
         assertThat(ip.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0", "nro_rdap_profile_0"));
@@ -731,7 +732,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getHandle(), equalTo("PP1-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
         assertThat(entity.getEntitySearchResults(), hasSize(1));
-        assertThat(entity.getVCardArray().size(), is(2));
+        assertThat(entity.getVCardArray(), hasSize(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entity.getVCardArray().get(1).toString(), equalTo("" +
                 "[[version, {}, text, 4.0], " +
@@ -747,10 +748,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(2));
-        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), before(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
 
-        assertTrue(events.get(1).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), before(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Notice> notices = entity.getNotices();
@@ -822,7 +823,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertCommon(entity);
         assertThat(entity.getHandle(), equalTo("FR1-TEST"));
         assertThat(entity.getRoles(), hasSize(0));
-        assertThat(entity.getVCardArray().size(), is(2));
+        assertThat(entity.getVCardArray(), hasSize(2));
         assertThat(entity.getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entity.getVCardArray().get(1).toString(), equalTo("" +
                 "[[version, {}, text, 4.0], " +
@@ -839,10 +840,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(2));
-        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), before(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
 
-        assertTrue(events.get(1).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), before(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         assertThat(entity.getRemarks(), hasSize(0));
@@ -893,10 +894,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         final List<Event> events = domain.getEvents();
         assertThat(events, hasSize(2));
-        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), before(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
 
-        assertTrue(events.get(1).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), before(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Entity> entities = domain.getEntitySearchResults();
@@ -1182,10 +1183,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         final List<Event> events = autnum.getEvents();
         assertThat(events, hasSize(2));
-        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), before(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
 
-        assertTrue(events.get(1).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), before(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Entity> entities = autnum.getEntitySearchResults();
@@ -1478,10 +1479,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(events, hasSize(2));
 
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
-        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), before(LocalDateTime.now()));
 
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
-        assertTrue(events.get(1).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), before(LocalDateTime.now()));
     }
 
     @Test
@@ -1576,8 +1577,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertTrue(response.getAutnums().isEmpty());
-        assertTrue(response.getNetworks().isEmpty());
+        assertThat(response.getAutnums(), is(empty()));
+        assertThat(response.getNetworks(), is(empty()));
     }
 
     @Test
@@ -1599,8 +1600,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertTrue(response.getNetworks().isEmpty());
-
+        assertThat(response.getNetworks(), is(empty()));
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
     }
 
@@ -1624,8 +1624,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertTrue(response.getAutnums().isEmpty());
-
+        assertThat(response.getAutnums(), is(empty()));
         assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME"));
     }
 
@@ -1651,8 +1650,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertTrue(response.getAutnums().isEmpty());
-
+        assertThat(response.getAutnums(), is(empty()));
         assertThat(response.getNetworks().get(0).getName(), equalTo("RIPE-NCC"));
     }
 
@@ -1738,7 +1736,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .get(Entity.class);
 
         assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertThat(response.getAutnums().size(), equalTo(1));
+        assertThat(response.getAutnums(), hasSize(1));
 
         assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
         assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME-TOP-LEVEL"));
@@ -1801,11 +1799,11 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(response.getHandle(), equalTo("ORG-TEST1-TEST"));
-        assertThat(response.getAutnums().size(), equalTo(1));
+        assertThat(response.getHandle(), is("ORG-TEST1-TEST"));
+        assertThat(response.getAutnums(), hasSize(1));
 
-        assertThat(response.getAutnums().get(0).getName(), equalTo("AS-TEST"));
-        assertThat(response.getNetworks().get(0).getName(), equalTo("TEST-NET-NAME-TOP-LEVEL"));
+        assertThat(response.getAutnums().get(0).getName(), is("AS-TEST"));
+        assertThat(response.getNetworks().get(0).getName(), is("TEST-NET-NAME-TOP-LEVEL"));
     }
 
     @Test
@@ -1946,14 +1944,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(entity.getLang(), is("EN"));
         assertThat(entity.getObjectClassName(), is("entity"));
 
-        assertThat(entity.getEvents().size(), equalTo(2));
+        assertThat(entity.getEvents(), hasSize(2));
         final Event registrationEvent = entity.getEvents().get(0);
-        assertTrue(registrationEvent.getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(registrationEvent.getEventDate(), before(LocalDateTime.now()));
         assertThat(registrationEvent.getEventAction(), equalTo(Action.REGISTRATION));
         assertThat(registrationEvent.getEventActor(), is(nullValue()));
 
         final Event lastUpdateEvent = entity.getEvents().get(1);
-        assertTrue(lastUpdateEvent.getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(lastUpdateEvent.getEventDate(), before(LocalDateTime.now()));
         assertThat(lastUpdateEvent.getEventAction(), equalTo(Action.LAST_CHANGED));
         assertThat(lastUpdateEvent.getEventActor(), is(nullValue()));
 

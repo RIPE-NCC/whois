@@ -76,7 +76,7 @@ public class MntByAuthenticationTest {
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0), is(maintainer));
 
         verifyNoMoreInteractions(updateContext);
@@ -119,7 +119,7 @@ public class MntByAuthenticationTest {
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0), is(mntner));
 
         verifyNoMoreInteractions(updateContext);

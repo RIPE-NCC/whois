@@ -2,10 +2,9 @@ package net.ripe.db.whois.common;
 
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MessageTest {
     @Test
@@ -41,6 +40,7 @@ public class MessageTest {
     @Test
     public void with_marker_long() {
         final Message subject = new Message(Messages.Type.ERROR, "% http://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied\n");
+
         assertThat(subject.toString(), is("% http://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied\n"));
     }
 
@@ -58,6 +58,7 @@ public class MessageTest {
     @Test
     public void with_args() {
         final Message subject = new Message(Messages.Type.INFO, "%%%s %s", "1", "2");
+
         assertThat(subject.toString(), is("%1 2"));
     }
 
@@ -65,11 +66,12 @@ public class MessageTest {
     @Test
     public void Message_equals() {
         final Message subject = new Message(Messages.Type.INFO, "info");
+
         assertFalse(subject.equals(null));
         assertFalse(subject.equals(""));
-        assertTrue(subject.equals(subject));
-        assertTrue(subject.equals(new Message(Messages.Type.INFO, "info")));
-        assertTrue(subject.equals(new Message(Messages.Type.INFO, "info", "")));
+        assertThat(subject, is(subject));
+        assertThat(subject, is(new Message(Messages.Type.INFO, "info")));
+        assertThat(subject, is(new Message(Messages.Type.INFO, "info", "")));
         assertFalse(subject.equals(new Message(Messages.Type.INFO, "info2")));
         assertFalse(subject.equals(new Message(Messages.Type.ERROR, "info")));
         assertFalse(subject.equals(new Message(Messages.Type.ERROR, "info2")));

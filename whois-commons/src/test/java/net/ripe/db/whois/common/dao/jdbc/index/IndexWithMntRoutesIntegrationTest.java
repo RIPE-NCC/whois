@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 
 @Tag("IntegrationTest")
@@ -114,7 +115,7 @@ public class IndexWithMntRoutesIntegrationTest extends IndexIntegrationTestBase 
     public void findInIndex_not_found() throws Exception {
         final List<RpslObjectInfo> results = subject.findInIndex(whoisTemplate, "DEV-MNT");
 
-        assertThat(results.size(), is(0));
+        assertThat(results, hasSize(0));
     }
 
     @Test
@@ -127,7 +128,7 @@ public class IndexWithMntRoutesIntegrationTest extends IndexIntegrationTestBase 
         databaseHelper.addObject(inetnum);
 
         final List<RpslObjectInfo> results = subject.findInIndex(whoisTemplate, "DEV-MNT");
-        assertThat(results.size(), is(1));
+        assertThat(results, hasSize(1));
     }
 
     @Test
@@ -146,7 +147,7 @@ public class IndexWithMntRoutesIntegrationTest extends IndexIntegrationTestBase 
         databaseHelper.addObject(inet6num);
 
         final List<RpslObjectInfo> results = subject.findInIndex(whoisTemplate, "DEV-MNT");
-        assertThat(results.size(), is(2));
+        assertThat(results, hasSize(2));
     }
 
     private int getNrMntRoutes() {

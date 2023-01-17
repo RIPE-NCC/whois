@@ -752,11 +752,11 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
     private void assertUnauthorizedErrorMessage(final NotAuthorizedException exception, final String... args) {
         final WhoisResources whoisResources = exception.getResponse().readEntity(WhoisResources.class);
         final List<ErrorMessage> errorMessages = whoisResources.getErrorMessages();
-        assertThat(errorMessages.size(), is(1));
+        assertThat(errorMessages, hasSize(1));
         assertThat(errorMessages.get(0).getText(), is("Authorisation for [%s] %s failed\n" +
                 "using \"%s:\"\n" +
                 "not authenticated by: %s"));
-        assertThat(errorMessages.get(0).getArgs().size(), is(args.length));
+        assertThat(errorMessages.get(0).getArgs(), hasSize(args.length));
         for (int i = 0; i < args.length; i++) {
             assertThat(errorMessages.get(0).getArgs().get(i).getValue(), is(args[i]));
         }

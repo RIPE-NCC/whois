@@ -10,11 +10,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProxyIterableTest {
     private ProxyIterable<Integer, String> subject;
@@ -65,7 +64,7 @@ public class ProxyIterableTest {
         ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
         subject = new ProxyIterable<>(Arrays.asList(1, 2, 3), proxyLoader, 1);
         final Iterator<String> iterator = subject.iterator();
-        assertTrue(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(true));
         assertNull(iterator.next());
     }
 

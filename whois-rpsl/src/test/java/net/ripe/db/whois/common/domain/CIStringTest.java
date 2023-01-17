@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CIStringTest {
     @Test
@@ -27,11 +26,11 @@ public class CIStringTest {
 
         final CIString ripe = CIString.ciString("RIPE");
         assertFalse(ripe.equals(null));
-        assertTrue(ripe.equals(ripe));
-        assertTrue(ripe.equals(CIString.ciString("RIPE")));
+        assertThat(ripe.equals(ripe), is(true));
+        assertThat(ripe.equals(CIString.ciString("RIPE")), is(true));
 
-        assertTrue(ripe.equals("ripe"));
-        assertTrue(ripe.equals("RIPE"));
+        assertThat(ripe.equals("ripe"), is(true));
+        assertThat(ripe.equals("RIPE"), is(true));
     }
 
     @Test

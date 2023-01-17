@@ -4,9 +4,11 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class IntervalTreeKeyTest {
 
@@ -30,10 +32,10 @@ public class IntervalTreeKeyTest {
         assertFalse(a.equals(null), "null");
         assertFalse(a.equals(new Object()), "different class");
         assertFalse(a.equals(c), "different key");
-        assertTrue(c.equals(d), "same key");
+        assertThat(c, is(d));       // same key
 
-        assertTrue( a.hashCode() == b.hashCode(), "same");
-        assertTrue(c.hashCode() == d.hashCode(), "same");
+        assertThat( a.hashCode(), is(b.hashCode()));    // same
+        assertThat(c.hashCode(), is(d.hashCode()));     // same
         assertFalse(a.hashCode() == c.hashCode(), "different hashcode");
     }
 }

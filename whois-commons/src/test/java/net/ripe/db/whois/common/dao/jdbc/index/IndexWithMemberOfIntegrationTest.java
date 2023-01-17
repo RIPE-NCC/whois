@@ -151,7 +151,7 @@ public class IndexWithMemberOfIntegrationTest extends IndexIntegrationTestBase {
         databaseHelper.addObject("route: 195.10.40.0/29\nmember-of: rs-ripe\nmnt-by: test-mnt\norigin:AS3255");
 
         final List<RpslObjectInfo> result = subject.findInIndex(whoisTemplate, "rs-ripe");
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0).getKey(), is("195.10.40.0/29AS3255"));
     }
 

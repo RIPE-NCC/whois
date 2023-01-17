@@ -16,10 +16,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractComparisonRunner implements ComparisonRunner {
 
@@ -51,8 +50,8 @@ public abstract class AbstractComparisonRunner implements ComparisonRunner {
     public void runCompareTest() throws Exception {
         logger.info("Diffs saved in: {}", targetDir.getAbsolutePath());
         assertFalse(targetDir.exists(), "Dir should not exist: " + targetDir.getAbsolutePath());
-        assertTrue(targetDir.mkdirs(), "Unable to create: " + targetDir.getAbsolutePath());
-        assertTrue(new File(targetDir, "0_deltas_go_here.txt").createNewFile());
+        assertThat(targetDir.mkdirs(), is(true));   // "Unable to create: " + targetDir.getAbsolutePath());
+        assertThat(new File(targetDir, "0_deltas_go_here.txt").createNewFile(), is(true));
 
         preRunHook();
 

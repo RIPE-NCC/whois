@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
@@ -22,7 +24,7 @@ public class DeltaTransformerTest {
         final var deltaProcessor = new DeltaTransformer(dummifier);
         final var changes = new ArrayList<SerialEntry>();
         final var result = deltaProcessor.process(changes);
-        assertThat(result.size(), is(0));
+        assertThat(result, is(empty()));
     }
 
     @Test
@@ -32,7 +34,7 @@ public class DeltaTransformerTest {
             new SerialEntry(22, Operation.UPDATE, true, 101, inetnumObjectBytes, "193.0.0.0 - 193.255.255.255")
         );
         final var result = deltaProcessor.process(changes);
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         final var change = result.get(0);
         assertThat(change.getPrimaryKey(), is(nullValue()));
         assertThat(change.getAction(), is(DeltaChange.Action.ADD_MODIFY));
@@ -45,7 +47,7 @@ public class DeltaTransformerTest {
             new SerialEntry(22, Operation.DELETE, false, 101, inetnumObjectBytes, "193.0.0.0 - 193.255.255.255")
         );
         final var result = deltaProcessor.process(changes);
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         final var change = result.get(0);
         assertThat(change.getPrimaryKey(), is("193.0.0.0 - 193.255.255.255"));
         assertThat(change.getAction(), is(DeltaChange.Action.DELETE));

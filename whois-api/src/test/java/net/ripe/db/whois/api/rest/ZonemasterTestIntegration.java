@@ -13,13 +13,14 @@ import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 public class ZonemasterTestIntegration extends AbstractIntegrationTest {
@@ -84,8 +85,9 @@ public class ZonemasterTestIntegration extends AbstractIntegrationTest {
 
         try {
             zonemasterRestClient.sendRequest(new StartDomainTestRequest(request)).readEntity(StartDomainTestResponse.class);
+            fail();
         } catch (IllegalStateException e){
-            Assertions.assertTrue(e.getMessage().contains("domain:    bad.domain.in-addr.arpa"));
+            assertThat(e.getMessage(), containsString("domain:    bad.domain.in-addr.arpa"));
         }
 
     }

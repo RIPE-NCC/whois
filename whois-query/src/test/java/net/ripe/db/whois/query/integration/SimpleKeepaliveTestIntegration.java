@@ -17,7 +17,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.is;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -72,7 +72,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
         client.sendLine("-k");
         client.waitForClose();
 
-        assertTrue(client.getSuccess());
+        assertThat(client.getSuccess(), is(true));
     }
 
     @Test
@@ -111,7 +111,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
         client.sendLine("-k");
         client.waitForClose();
 
-        assertTrue(client.getSuccess());
+        assertThat(client.getSuccess(), is(true));
     }
 
 

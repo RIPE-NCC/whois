@@ -619,7 +619,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(4));
+        assertThat(paragraphs, hasSize(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
         assertThat(paragraphs.get(1).getContent(), is(""));
         assertThat(paragraphs.get(2).getContent(), is("mntner:two\nsource:RIPE"));
@@ -646,7 +646,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(4));
+        assertThat(paragraphs, hasSize(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
         assertThat(paragraphs.get(1).getContent(), is(""));
         assertThat(paragraphs.get(2).getContent(), is("mntner:two\nsource:RIPE"));
@@ -672,7 +672,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(4));
+        assertThat(paragraphs, hasSize(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
         assertThat(paragraphs.get(1).getContent(), is(""));
         assertThat(paragraphs.get(2).getContent(), is("mntner:two\nsource: RIPE"));
@@ -711,7 +711,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(1));
+        assertThat(paragraphs, hasSize(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
                 "mntner:      SHRYANE-MNT\n" +
                 "descr:       description\n" +
@@ -772,7 +772,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(1));
+        assertThat(paragraphs, hasSize(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
                 "person:  Admin Person\n" +
                 "address: Admin Road\n" +
@@ -845,7 +845,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(1));
+        assertThat(paragraphs, hasSize(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
                 "person:  Admin Person\n" +
                 "address: Admin Road\n" +
@@ -887,7 +887,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(1));
+        assertThat(paragraphs, hasSize(1));
         assertThat(paragraphs.get(0).getContent(), is(content));
         assertThat(paragraphs.get(0).getCredentials().all(), hasSize(0));
     }

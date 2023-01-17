@@ -16,8 +16,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,15 +36,15 @@ public class DummifierNrtmTest {
         for (ObjectType objectType : DummifierNrtm.SKIPPED_OBJECT_TYPES) {
             RpslObject object = createObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"), new RpslAttribute(AttributeType.SOURCE, "TEST"));
 
-            assertTrue(subject.isAllowed(1, object));
-            assertTrue(subject.isAllowed(2, object));
+            assertThat(subject.isAllowed(1, object), is(true));
+            assertThat(subject.isAllowed(2, object), is(true));
 
             if (objectType.equals(ObjectType.ROLE)) {
-                assertEquals(subject.dummify(1, object), DummifierNrtm.getPlaceholderRoleObject());
-                assertEquals(subject.dummify(2, object), DummifierNrtm.getPlaceholderRoleObject());
+                assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderRoleObject()));
+                assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderRoleObject()));
             } else {
-                assertEquals(subject.dummify(1, object), DummifierNrtm.getPlaceholderPersonObject());
-                assertEquals(subject.dummify(2, object), DummifierNrtm.getPlaceholderPersonObject());
+                assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderPersonObject()));
+                assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderPersonObject()));
             }
         }
     }

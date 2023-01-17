@@ -79,7 +79,7 @@ public class JdbcVersionDaoIntegrationTest extends AbstractDaoIntegrationTest {
 
         VersionLookupResult rerun = subject.findByKey(ObjectType.DOMAIN, "test.sk");
         final List<VersionInfo> recreated = rerun.getMostRecentlyCreatedVersions();
-        assertThat(recreated.size(), is(3));
+        assertThat(recreated, hasSize(3));
         for (VersionInfo aRecreated : recreated) {
             assertThat(aRecreated.getOperation(), is(Operation.UPDATE));
         }

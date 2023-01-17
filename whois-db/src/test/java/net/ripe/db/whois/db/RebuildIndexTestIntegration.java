@@ -609,7 +609,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         indexDao.rebuild();
 
         List<Map<String, Object>> result = whoisTemplate.queryForList("select status, object_type from status");
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0).get("status"), is("ASSIGNED PI"));
     }
 

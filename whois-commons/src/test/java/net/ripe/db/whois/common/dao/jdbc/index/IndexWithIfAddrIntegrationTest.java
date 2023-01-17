@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 
 @Tag("IntegrationTest")
@@ -84,7 +85,7 @@ public class IndexWithIfAddrIntegrationTest extends IndexIntegrationTestBase {
 
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, "10.2.3.4");
 
-        assertThat(found.size(), is(1));
+        assertThat(found, hasSize(1));
         final RpslObjectInfo objectInfo = found.get(0);
         assertThat(objectInfo.getObjectId(), is(1));
         assertThat(objectInfo.getObjectType(), is(ObjectType.INET_RTR));
@@ -95,7 +96,7 @@ public class IndexWithIfAddrIntegrationTest extends IndexIntegrationTestBase {
     public void find_in_index_not_found() {
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, "10.2.3.4");
 
-        assertThat(found.size(), is(0));
+        assertThat(found, hasSize(0));
     }
 
     @Test

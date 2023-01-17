@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -33,14 +34,14 @@ public class MemberOfValidatorTest {
 
     @Test
     public void getActions() {
-        assertThat(subject.getActions().size(), is(2));
+        assertThat(subject.getActions(), hasSize(2));
         assertThat(subject.getActions().contains(Action.MODIFY), is(true));
         assertThat(subject.getActions().contains(Action.CREATE), is(true));
     }
 
     @Test
     public void getTypes() {
-        assertThat(subject.getTypes().size(), is(4));
+        assertThat(subject.getTypes(), hasSize(4));
         assertThat(subject.getTypes().contains(ObjectType.AUT_NUM), is(true));
         assertThat(subject.getTypes().contains(ObjectType.ROUTE), is(true));
         assertThat(subject.getTypes().contains(ObjectType.ROUTE6), is(true));

@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test the {@link net.ripe.db.whois.common.etree.NestedIntervalMap} using random data so we can flush out bugs
@@ -44,7 +44,7 @@ public class NestedIntervalMapRandomTest {
             long gapAfter = sizePerChild * random.nextInt(1) / 10L;
             Ipv4Resource child = new Ipv4Resource(start + gapBefore, start + sizePerChild - gapAfter - 1);
             start += sizePerChild;
-            assertTrue( parent.contains(child), "generated child not inside parent (seed = " + seed + ")");
+            assertThat(parent.contains(child), is(true)); //  "generated child not inside parent (seed = " + seed + ")");
             if (!parent.equals(child)) {
                 result.add(child);
             }
@@ -145,8 +145,7 @@ public class NestedIntervalMapRandomTest {
                 if (parent != null) {
                     copy.remove(interval);
                     List<Ipv4Resource> actual = copy.findFirstMoreSpecific(parent);
-                    assertTrue(actual.containsAll(childrenByParent.get(interval)), "interval " + interval + " did not move all children to parent " + parent + " on deletion (seed = " + seed + "): "
-                            + actual);
+                    assertThat(actual.containsAll(childrenByParent.get(interval)), is(true));   // "interval " + interval + " did not move all children to parent " + parent + " on deletion (seed = " + seed + "): " + actual);
                     ++i;
                 }
             }
@@ -160,7 +159,7 @@ public class NestedIntervalMapRandomTest {
             Ipv4Resource range = randomIpv4Interval();
             List<Ipv4Resource> actual = subject.findFirstMoreSpecific(range);
             List<Ipv4Resource> allMoreSpecific = subject.findAllMoreSpecific(range);
-            assertTrue(allMoreSpecific.containsAll(actual), "first more specific is subset of all more specific");
+            assertThat(allMoreSpecific.containsAll(actual), is(true));  // "first more specific is subset of all more specific"
             for (Ipv4Resource moreSpecific : allMoreSpecific) {
                 boolean covered = false;
                 for (Ipv4Resource firstMoreSpecific : actual) {
@@ -169,7 +168,7 @@ public class NestedIntervalMapRandomTest {
                         break;
                     }
                 }
-                assertTrue( covered, "All more specific " + moreSpecific + " must be contained by first more specific");
+                assertThat(covered, is(true)); //  "All more specific " + moreSpecific + " must be contained by first more specific"
             }
         }
     }

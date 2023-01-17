@@ -288,8 +288,8 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         final List<Map<String, Object>> response = query("ww", "admin-c", "person", "created");
 
-        assertThat(response.size(), is(1));
-        assertThat(response.get(0).size(), is(4));
+        assertThat(response, hasSize(1));
+        assertThat(response.get(0), is(4));
         assertThat(getValues(response, "key"), contains("ww1-test"));
         assertThat(getValues(response, "type"), contains("person"));
         assertThat(getValues(response, "person"), contains("person test"));
@@ -348,7 +348,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         final List<String> keys = getValues(query("AUTH", "mnt-by"), "key");
 
-        assertThat(keys.size(), is(3));
+        assertThat(keys, hasSize(3));
         assertThat(keys.get(0), is("AUTH"));
     }
 
@@ -362,7 +362,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         final List<String> keys = getValues(query("telecom", "mnt-by"), "key");
 
-        assertThat(keys.size(), is(4));
+        assertThat(keys, hasSize(4));
         assertThat(keys.get(0), is("telecom"));
         assertThat(keys.get(1), is("AB-TELECOM-MNT"));
         assertThat(keys.get(2), is("ADM-RUS-TELECOM"));

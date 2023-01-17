@@ -306,7 +306,7 @@ public class RpslObjectTest {
                 "source:          RIPE";
 
         RpslObject ro = parse(multiMnt);
-        assertThat(ro.getAttributes().size(), is(3));
+        assertThat(ro.getAttributes(), hasSize(3));
     }
 
     @Test

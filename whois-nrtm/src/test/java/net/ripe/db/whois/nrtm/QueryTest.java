@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class QueryTest {
@@ -63,7 +62,7 @@ public class QueryTest {
     public void flag_q_source() {
         Query subject = new Query(SOURCE, "-q SouRCEs");
 
-        assertTrue(subject.isInfoQuery());
+        assertThat(subject.isInfoQuery(), is(true));
         assertThat(subject.getQueryOption(), is(Query.QueryArgument.SOURCES));
     }
 
@@ -71,7 +70,7 @@ public class QueryTest {
     public void flag_q_version() {
         Query subject = new Query(SOURCE, "-q veRsION");
 
-        assertTrue(subject.isInfoQuery());
+        assertThat(subject.isInfoQuery(), is(true));
         assertThat(subject.getQueryOption(), is(Query.QueryArgument.VERSION));
     }
 
@@ -149,7 +148,7 @@ public class QueryTest {
     public void flag_g_ok() {
         Query subject = new Query(SOURCE, "-g RIPE:3:0-" + Integer.MAX_VALUE);
 
-        assertTrue(subject.isMirrorQuery());
+        assertThat(subject.isMirrorQuery(), is(true));
         assertFalse(subject.isKeepalive());
 
         assertThat(subject.getSerialBegin(), is(0));
@@ -160,15 +159,15 @@ public class QueryTest {
     public void flag_g_ok_with_flag_k() {
         Query subject = new Query(SOURCE, "-k -g RIPE:3:0-" + Integer.MAX_VALUE);
 
-        assertTrue(subject.isMirrorQuery());
-        assertTrue(subject.isKeepalive());
+        assertThat(subject.isMirrorQuery(), is(true));
+        assertThat(subject.isKeepalive(), is(true));
     }
 
     @Test
     public void flag_g_end_is_LAST() {
         Query subject = new Query(SOURCE, "-g RIPE:3:0-LaSt");
 
-        assertTrue(subject.isMirrorQuery());
+        assertThat(subject.isMirrorQuery(), is(true));
 
         assertThat(subject.getSerialBegin(), is(0));
         assertThat(subject.getSerialEnd(), is(-1));

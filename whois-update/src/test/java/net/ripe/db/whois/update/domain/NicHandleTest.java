@@ -10,10 +10,10 @@ import java.util.Set;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class NicHandleTest {
@@ -139,31 +139,31 @@ public class NicHandleTest {
     @Test
     public void equal_null() {
         final NicHandle nicHandle = NicHandle.parse("DW", source, countryCodes);
-        assertFalse(nicHandle.equals(null));
+        assertThat(nicHandle, not(equalTo(null)));
     }
 
     @Test
     public void equal_otherClass() {
         final NicHandle nicHandle = NicHandle.parse("DW", source, countryCodes);
-        assertFalse(nicHandle.equals(""));
+        assertThat(nicHandle, not(equalTo("")));
     }
 
     @Test
     public void equal_self() {
         final NicHandle nicHandle = NicHandle.parse("DW", source, countryCodes);
-        assertTrue(nicHandle.equals(nicHandle));
+        assertThat(nicHandle, equalTo(nicHandle));
     }
 
     @Test
     public void equal_same() {
         final NicHandle nicHandle = NicHandle.parse("DW", source, countryCodes);
-        assertTrue(nicHandle.equals(NicHandle.parse("DW", source, countryCodes)));
+        assertThat(nicHandle, equalTo(NicHandle.parse("DW", source, countryCodes)));
     }
 
     @Test
     public void equal_different() {
         final NicHandle nicHandle = NicHandle.parse("DW", source, countryCodes);
-        assertFalse(nicHandle.equals(NicHandle.parse("AB", source, countryCodes)));
+        assertThat(nicHandle, not(equalTo(NicHandle.parse("AB", source, countryCodes))));
     }
 
     @Test

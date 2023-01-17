@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Ipv6ResourceTest {
     private Ipv6Resource subject;
@@ -128,10 +127,10 @@ public class Ipv6ResourceTest {
 
     @Test
     public void maxRangeContainsEverything() {
-        assertTrue(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.begin(), Ipv6Resource.MAX_RANGE.begin())));
-        assertTrue(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.end(), Ipv6Resource.MAX_RANGE.end())));
-        assertTrue(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.begin(), Ipv6Resource.MAX_RANGE.end())));
-        assertTrue(Ipv6Resource.MAX_RANGE.contains(resource(1231250, 123097120)));
+        assertThat(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.begin(), Ipv6Resource.MAX_RANGE.begin())), is(true));
+        assertThat(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.end(), Ipv6Resource.MAX_RANGE.end())), is(true));
+        assertThat(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.begin(), Ipv6Resource.MAX_RANGE.end())), is(true));
+        assertThat(Ipv6Resource.MAX_RANGE.contains(resource(1231250, 123097120)), is(true));
     }
 
     @Test
@@ -175,26 +174,26 @@ public class Ipv6ResourceTest {
     public void verifyIntersects() {
         subject = resource(10, 20);
 
-        assertTrue(subject.intersects(subject));
-        assertTrue(subject.intersects(Ipv6Resource.MAX_RANGE));
+        assertThat(subject.intersects(subject), is(true));
+        assertThat(subject.intersects(Ipv6Resource.MAX_RANGE), is(true));
 
         assertFalse(subject.intersects(resource(9, 9)));
-        assertTrue(subject.intersects(resource(9, 10)));
-        assertTrue(subject.intersects(resource(9, 15)));
-        assertTrue(subject.intersects(resource(9, 20)));
-        assertTrue(subject.intersects(resource(9, 21)));
+        assertThat(subject.intersects(resource(9, 10)), is(true));
+        assertThat(subject.intersects(resource(9, 15)), is(true));
+        assertThat(subject.intersects(resource(9, 20)), is(true));
+        assertThat(subject.intersects(resource(9, 21)), is(true));
 
-        assertTrue(subject.intersects(resource(10, 10)));
-        assertTrue(subject.intersects(resource(10, 15)));
-        assertTrue(subject.intersects(resource(10, 20)));
-        assertTrue(subject.intersects(resource(10, 21)));
+        assertThat(subject.intersects(resource(10, 10)), is(true));
+        assertThat(subject.intersects(resource(10, 15)), is(true));
+        assertThat(subject.intersects(resource(10, 20)), is(true));
+        assertThat(subject.intersects(resource(10, 21)), is(true));
 
-        assertTrue(subject.intersects(resource(15, 15)));
-        assertTrue(subject.intersects(resource(15, 20)));
-        assertTrue(subject.intersects(resource(15, 21)));
+        assertThat(subject.intersects(resource(15, 15)), is(true));
+        assertThat(subject.intersects(resource(15, 20)), is(true));
+        assertThat(subject.intersects(resource(15, 21)), is(true));
 
-        assertTrue(subject.intersects(resource(20, 20)));
-        assertTrue(subject.intersects(resource(20, 21)));
+        assertThat(subject.intersects(resource(20, 20)), is(true));
+        assertThat(subject.intersects(resource(20, 21)), is(true));
 
         assertFalse(subject.intersects(resource(21, 21)));
     }
@@ -203,7 +202,7 @@ public class Ipv6ResourceTest {
     public void verifyEquals() {
         subject = Ipv6Resource.parse("2001::/64");
 
-        assertTrue(subject.equals(subject));
+        assertThat(subject.equals(subject), is(true));
         assertFalse(subject.equals(Ipv6Resource.MAX_RANGE));
         assertFalse(subject.equals(null));
         assertFalse(subject.equals("Random object"));

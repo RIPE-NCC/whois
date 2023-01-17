@@ -16,7 +16,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("IntegrationTest")
 @Transactional
@@ -32,7 +31,7 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     @Test
     public void claimSpecified_twice() {
         final NicHandle nicHandle = new NicHandle("DW", 0, "RIPE");
-        assertTrue(subject.claimSpecified(nicHandle));
+        assertThat(subject.claimSpecified(nicHandle), is(true));
         assertRows(1);
 
         assertFalse(subject.claimSpecified(nicHandle));
