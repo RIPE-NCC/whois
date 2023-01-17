@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.httpserver;
 
 import org.apache.commons.lang.reflect.FieldUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -14,7 +14,7 @@ public class FilteredPasswordSlf4jRequestLogWriterTest {
     private Logger logger;
     private FilteredPasswordSlf4RequestLogWriter subject;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         this.logger = mock(Logger.class);
         this.subject = new FilteredPasswordSlf4RequestLogWriter();

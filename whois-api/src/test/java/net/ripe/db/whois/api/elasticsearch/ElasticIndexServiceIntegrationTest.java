@@ -10,9 +10,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @Tag("ElasticSearchTest")
 public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchIntegrationTest {
@@ -66,18 +67,18 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
         deleteAll();
         Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
 
-        ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "RIPE");
+        ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "TEST");
         assertNull(elasticIndexService.getMetadata());
         elasticIndexService.updateMetadata(elasticIndexMetadata);
         ElasticIndexMetadata retrievedMetaData = elasticIndexService.getMetadata();
         assertEquals(1L, retrievedMetaData.getSerial().longValue());
-        assertEquals("RIPE", retrievedMetaData.getSource());
+        assertEquals("TEST", retrievedMetaData.getSource());
     }
 
     @Test
     public void should_not_throw_error_invalid_objectType_history() throws IOException {
         elasticIndexService.addEntry(RPSL_MNT_PERSON);
-        ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "RIPE");
+        ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "TEST");
         elasticIndexService.updateMetadata(elasticIndexMetadata);
 
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
@@ -99,7 +100,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
                 + " VALUES "
                 + " (1880251, 1, 8,'limerick:     LIM-WEBUPDATES\n" +
                                     "changed:      limerick-dbm@ripe.net 20021107\n" +
-                                    "source:       RIPE', 'LIM-WEBUPDATES')");
+                                    "source:       TEST', 'LIM-WEBUPDATES')");
 
         rebuildIndex();
         assertEquals(elasticIndexService.getWhoisDocCount(), 1);

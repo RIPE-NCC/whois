@@ -16,3 +16,4 @@ pom.xml.*Backup
 *qrylog*
 logs
 *-local.properties
+whois-db/dependency-reduced-pom.xml
