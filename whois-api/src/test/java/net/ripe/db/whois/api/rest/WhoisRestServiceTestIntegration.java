@@ -3033,11 +3033,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Disabled
+    @Disabled("TODO: [ES] testcase for multibyte UTF-8")
     @Test
     public void create_multibyte_utf8_character_is_substituted() {
-        final byte[] entity =
-                   ("{ \"objects\": {\n" +
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity("" +
+                    "{ \"objects\": {\n" +
                     "   \"object\": [ {\n" +
                     "    \"source\": { \"id\": \"RIPE\" }, \n" +
                     "    \"attributes\": {\n" +
@@ -3052,13 +3054,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                     "        ] }\n" +
                     "    }] \n" +
-                    "}}").getBytes(StandardCharsets.UTF_8);
-
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
-            .request(MediaType.APPLICATION_JSON)
-            .post(Entity.entity(entity, new MediaType("application", "json")), WhoisResources.class);
+                    "}}", new MediaType("application", "json", StandardCharsets.UTF_8.displayName())), String.class);
 
         // 0x_C3_83C2_B1_ bytes in request but bytes 0xC3B1 ends up in the database
+        final String hexObject = whoisTemplate.queryForObject("SELECT hex(object) FROM last WHERE pkey = 'PP1-TEST'", String.class);
+        assertThat(hexObject, containsString("45737061C3B161"));    // Espa(0xC3B1)a
 
         assertThat(queryTelnet("-r PP1-TEST"), containsString("España"));
     }
