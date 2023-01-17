@@ -9,9 +9,9 @@ public interface NrtmProcessControl {
     boolean isInitialSnapshotGenerationEnabled();
 
     @ManagedOperation(description = "Enable JMX initial snapshot generation")
-    void enableInitialSnapshotGeneration();
+    String enableInitialSnapshotGeneration();
 
     @ManagedOperation(description = "Disable JMX initial snapshot generation")
-    void disableInitialSnapshotGeneration();
+    String disableInitialSnapshotGeneration();
 
 }

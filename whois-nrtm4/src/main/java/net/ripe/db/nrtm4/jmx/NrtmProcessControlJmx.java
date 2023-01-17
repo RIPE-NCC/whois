@@ -27,14 +27,20 @@ public class NrtmProcessControlJmx extends JmxBase implements NrtmProcessControl
 
     @Override
     @ManagedOperation(description = "Enable JMX initial snapshot generation")
-    public void enableInitialSnapshotGeneration() {
+    public String enableInitialSnapshotGeneration() {
+        final String msg = "Initial snapshot generation enabled";
+        LOGGER.info(msg);
         this.initialSnapshotGenerationIsEnabled = true;
+        return msg;
     }
 
     @Override
     @ManagedOperation(description = "Disable JMX initial snapshot generation")
-    public void disableInitialSnapshotGeneration() {
+    public String disableInitialSnapshotGeneration() {
+        final String msg = "Initial snapshot generation disabled";
+        LOGGER.info(msg);
         this.initialSnapshotGenerationIsEnabled = false;
+        return msg;
     }
 
 }

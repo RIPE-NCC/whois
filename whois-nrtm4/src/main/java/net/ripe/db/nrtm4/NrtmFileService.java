@@ -36,6 +36,7 @@ public class NrtmFileService {
         }
         if (name.startsWith(NOTIFICATION_PREFIX)) {
             // TODO: how do we know which source to use when serving a notification request?
+            //       Probably better to put it in url and create a separate method for writing notification.
             final NotificationFile notificationFile = notificationFileRepository.getNotificationFile(1);
             out.write(notificationFile.getPayload().getBytes(StandardCharsets.UTF_8));
             return;

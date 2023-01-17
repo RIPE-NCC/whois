@@ -53,9 +53,9 @@ public class NrtmFileProcessor {
     public void updateNrtmFilesAndPublishNotification() {
         LOGGER.info("runWrite() called");
         final NrtmSource source = nrtmSourceHolder.getSource();
-        final Optional<SnapshotFile> snapshotFile = snapshotFileGenerator.getLastSnapshot(source);
+        final Optional<SnapshotFile> lastSnapshot = snapshotFileGenerator.getLastSnapshot(source);
         Optional<PublishableSnapshotFile> publishableSnapshotFile = Optional.empty();
-        if (snapshotFile.isEmpty()) {
+        if (lastSnapshot.isEmpty()) {
             LOGGER.info("No previous snapshot found");
             if (nrtmProcessControl.isInitialSnapshotGenerationEnabled()) {
                 LOGGER.info("Initializing...");
@@ -63,6 +63,7 @@ public class NrtmFileProcessor {
                 LOGGER.info("Initialization complete");
             } else {
                 LOGGER.info("Initialization skipped because NrtmProcessControl has disabled initial snapshot generation");
+                return;
             }
         } else {
             final Optional<PublishableDeltaFile> optDelta = deltaFileGenerator.createDelta(source);
