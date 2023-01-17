@@ -24,7 +24,7 @@ CREATE TABLE `default_maintainer_sync` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO  `default_maintainer_sync` (`org`, `mntner`, `timestamp`, `email`) select `org`, `mntner`, `timestamp`,  `email` from `default_maintainer_sync_history`  where is_synchronised = 1;
+INSERT INTO  `default_maintainer_sync` (`org`, `mntner`, `timestamp`, `email`) select `org`, `mntner`, `timestamp`,  `email`  from default_maintainer_sync_history where id in (select t1.id  from default_maintainer_sync_history t1 left join default_maintainer_sync_history t2 on t1.mntner = t2.mntner and t1.timestamp >t2. timestamp where  t2.mntner  is null) and is_synchronised=1;
 
 TRUNCATE version;
 INSERT INTO version VALUES ('internals-1.101');
