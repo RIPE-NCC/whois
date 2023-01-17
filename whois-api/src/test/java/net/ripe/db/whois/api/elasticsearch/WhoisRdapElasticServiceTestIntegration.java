@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -46,7 +47,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
@@ -271,9 +271,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
         final List<Event> events = domain.getEvents();
         assertThat(events, hasSize(2));
-        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
-        assertTrue(events.get(1).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Entity> entities = domain.getEntitySearchResults();

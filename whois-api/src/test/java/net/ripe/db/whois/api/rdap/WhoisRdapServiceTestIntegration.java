@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.common.support.DateMatcher.before;
+import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
@@ -748,10 +748,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(2));
-        assertThat(events.get(0).getEventDate(), before(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
 
-        assertThat(events.get(1).getEventDate(), before(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Notice> notices = entity.getNotices();
@@ -840,10 +840,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         final List<Event> events = entity.getEvents();
         assertThat(events, hasSize(2));
-        assertThat(events.get(0).getEventDate(), before(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
 
-        assertThat(events.get(1).getEventDate(), before(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         assertThat(entity.getRemarks(), hasSize(0));
@@ -894,10 +894,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         final List<Event> events = domain.getEvents();
         assertThat(events, hasSize(2));
-        assertThat(events.get(0).getEventDate(), before(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
 
-        assertThat(events.get(1).getEventDate(), before(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Entity> entities = domain.getEntitySearchResults();
@@ -1183,10 +1183,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         final List<Event> events = autnum.getEvents();
         assertThat(events, hasSize(2));
-        assertThat(events.get(0).getEventDate(), before(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
 
-        assertThat(events.get(1).getEventDate(), before(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Entity> entities = autnum.getEntitySearchResults();
@@ -1479,10 +1479,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
         assertThat(events, hasSize(2));
 
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
-        assertThat(events.get(0).getEventDate(), before(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), isBefore(LocalDateTime.now()));
 
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
-        assertThat(events.get(1).getEventDate(), before(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), isBefore(LocalDateTime.now()));
     }
 
     @Test
@@ -1946,12 +1946,12 @@ public class WhoisRdapServiceTestIntegration extends AbstractRdapIntegrationTest
 
         assertThat(entity.getEvents(), hasSize(2));
         final Event registrationEvent = entity.getEvents().get(0);
-        assertThat(registrationEvent.getEventDate(), before(LocalDateTime.now()));
+        assertThat(registrationEvent.getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(registrationEvent.getEventAction(), equalTo(Action.REGISTRATION));
         assertThat(registrationEvent.getEventActor(), is(nullValue()));
 
         final Event lastUpdateEvent = entity.getEvents().get(1);
-        assertThat(lastUpdateEvent.getEventDate(), before(LocalDateTime.now()));
+        assertThat(lastUpdateEvent.getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(lastUpdateEvent.getEventAction(), equalTo(Action.LAST_CHANGED));
         assertThat(lastUpdateEvent.getEventActor(), is(nullValue()));
 
