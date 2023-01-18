@@ -59,7 +59,6 @@ public class DeltaFileGenerator {
         }
         final List<DeltaChange> deltas = deltaTransformer.toDeltaChangeList(whoisChanges.list());
         if (deltas.size() < 1) {
-            LOGGER.info("Whois changes found but all were filtered");
             return Optional.empty();
         }
         final int lastSerialId = whoisChanges.serialIdTo();
