@@ -7,10 +7,10 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Ipv4RouteEntryTest {
     @Test
@@ -125,14 +125,14 @@ public class Ipv4RouteEntryTest {
     public void test_equals_null() {
         final Ipv4RouteEntry entry = Ipv4RouteEntry.parse("10.0.0.0/32 AS1234", 11);
 
-        assertFalse(entry.equals(null));
+        assertThat(entry, not(equalTo(null)));
     }
 
     @Test
     public void test_equals_other() {
         final Ipv4RouteEntry entry = Ipv4RouteEntry.parse("10.0.0.0/32 AS1234", 11);
 
-        assertFalse(entry.equals(new Ipv4Entry(Ipv4Resource.parse("10.0.0.0/32"), 11)));
+        assertThat(entry, not(equalTo(new Ipv4Entry(Ipv4Resource.parse("10.0.0.0/32"), 11))));
     }
 
     @Test

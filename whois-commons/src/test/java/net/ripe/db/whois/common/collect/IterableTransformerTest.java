@@ -9,7 +9,6 @@ import java.util.Iterator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class IterableTransformerTest {
@@ -20,7 +19,7 @@ public class IterableTransformerTest {
 
         final Iterator<Integer> iterator = subject.iterator();
 
-        assertFalse(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(false));
     }
 
     @Test
@@ -38,7 +37,7 @@ public class IterableTransformerTest {
         assertThat(iterator.next(), is(3));
         assertThat(iterator.hasNext(), is(true));
         assertThat(iterator.next(), is(4));
-        assertFalse(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(false));
     }
 
     @Test
@@ -56,7 +55,7 @@ public class IterableTransformerTest {
             assertThat(iterator.next(), is(2));
             assertThat(iterator.hasNext(), is(true));
             assertNull(iterator.next());
-            assertFalse(iterator.hasNext());
+            assertThat(iterator.hasNext(), is(false));
         });
     }
 
@@ -72,7 +71,7 @@ public class IterableTransformerTest {
         assertThat(iterator.next(), is(2));
         assertThat(iterator.hasNext(), is(true));
         assertThat(iterator.next(), is(3));
-        assertFalse(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(false));
     }
 
     @Test
@@ -90,7 +89,7 @@ public class IterableTransformerTest {
         assertThat(iterator.next(), is(2));
         assertThat(iterator.hasNext(), is(true));
         assertThat(iterator.next(), is(3));
-        assertFalse(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(false));
     }
 
     @Test
@@ -101,7 +100,7 @@ public class IterableTransformerTest {
 
         assertThat(iterator.hasNext(), is(true));
         assertThat(iterator.next(), is(2));
-        assertFalse(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(false));
     }
 
     @Test
@@ -114,7 +113,7 @@ public class IterableTransformerTest {
         assertThat(iterator.next(), is(2));
         assertThat(iterator.hasNext(), is(true));
         assertThat(iterator.next(), is(2));
-        assertFalse(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(false));
     }
 
     private IterableTransformer<Integer> getSimpleIterable(Integer... values) {

@@ -3,8 +3,9 @@ package net.ripe.db.whois.common;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.Matchers.not;
 
 public class MessageTest {
     @Test
@@ -67,13 +68,13 @@ public class MessageTest {
     public void Message_equals() {
         final Message subject = new Message(Messages.Type.INFO, "info");
 
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals(""));
+        assertThat(subject, not(equalTo(null)));
+        assertThat(subject, not(equalTo("")));
         assertThat(subject, is(subject));
         assertThat(subject, is(new Message(Messages.Type.INFO, "info")));
         assertThat(subject, is(new Message(Messages.Type.INFO, "info", "")));
-        assertFalse(subject.equals(new Message(Messages.Type.INFO, "info2")));
-        assertFalse(subject.equals(new Message(Messages.Type.ERROR, "info")));
-        assertFalse(subject.equals(new Message(Messages.Type.ERROR, "info2")));
+        assertThat(subject, not(equalTo(new Message(Messages.Type.INFO, "info2"))));
+        assertThat(subject, not(equalTo(new Message(Messages.Type.ERROR, "info"))));
+        assertThat(subject, not(equalTo(new Message(Messages.Type.ERROR, "info2"))));
     }
 }

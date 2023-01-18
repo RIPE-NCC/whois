@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class AttributeMatcherTest {
 
@@ -22,7 +21,7 @@ public class AttributeMatcherTest {
     public void searchKeyTypesOrganisationId() {
         assertThat(AttributeMatcher.fetchableBy(AttributeType.ORGANISATION, Query.parse("ORG-AX1-RIPE")), is(true));
         assertThat(AttributeMatcher.fetchableBy(AttributeType.ORGANISATION, Query.parse("oRg-aX1-rIPe")), is(true));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.ORGANISATION, Query.parse("name")));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.ORGANISATION, Query.parse("name")), is(false));
     }
 
     @Test
@@ -43,32 +42,32 @@ public class AttributeMatcherTest {
     public void searchInetnum() {
         assertThat(AttributeMatcher.fetchableBy(AttributeType.ROUTE, Query.parse("10.11.12.0/24")), is(true));
         assertThat(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("10.11.12.0/24")), is(true));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("10.11.12.0/24")));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.ROUTE6, Query.parse("10.11.12.0/24")));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("10.11.12.0/24")), is(false));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.ROUTE6, Query.parse("10.11.12.0/24")), is(false));
     }
 
     @Test
     public void searchInet6num() {
         assertThat(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("2001::/32")), is(true));
         assertThat(AttributeMatcher.fetchableBy(AttributeType.ROUTE6, Query.parse("2001::/32")), is(true));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.ROUTE, Query.parse("2001::/32")));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("2001::/32")));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.ROUTE, Query.parse("2001::/32")), is(false));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("2001::/32")), is(false));
     }
 
     @Test
     public void searchRoute() {
         assertThat(AttributeMatcher.fetchableBy(AttributeType.ROUTE, Query.parse("10.11.12.0/24AS3333")), is(true));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("10.11.12.0/24AS3333")));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("10.11.12.0/24AS3333")));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.ROUTE6, Query.parse("10.11.12.0/24AS3333")));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("10.11.12.0/24AS3333")), is(false));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("10.11.12.0/24AS3333")), is(false));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.ROUTE6, Query.parse("10.11.12.0/24AS3333")), is(false));
     }
 
     @Test
     public void searchRoute6() {
         assertThat(AttributeMatcher.fetchableBy(AttributeType.ROUTE6, Query.parse("2001::/32AS3333")), is(true));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.ROUTE, Query.parse("2001::/32AS3333")));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("2001::/32AS3333")));
-        assertFalse(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("2001::/32AS3333")));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.ROUTE, Query.parse("2001::/32AS3333")), is(false));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.INETNUM, Query.parse("2001::/32AS3333")), is(false));
+        assertThat(AttributeMatcher.fetchableBy(AttributeType.INET6NUM, Query.parse("2001::/32AS3333")), is(false));
     }
 
     @Test

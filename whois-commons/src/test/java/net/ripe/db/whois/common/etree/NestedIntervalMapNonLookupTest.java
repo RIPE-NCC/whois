@@ -10,12 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NestedIntervalMapNonLookupTest {
 
@@ -323,9 +324,9 @@ public class NestedIntervalMapNonLookupTest {
 
         add(node(4));
 
-        assertFalse(original.equals(subject));
-        assertFalse(original.equals(null));
-        assertFalse(original.equals("foo"));
+        assertThat(original, not(equalTo(subject)));
+        assertThat(original, not(equalTo(null)));
+        assertThat(original, not(equalTo("foo")));
     }
 
     /* Test intersects */

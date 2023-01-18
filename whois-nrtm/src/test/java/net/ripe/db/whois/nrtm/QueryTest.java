@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class QueryTest {
@@ -149,7 +148,7 @@ public class QueryTest {
         Query subject = new Query(SOURCE, "-g RIPE:3:0-" + Integer.MAX_VALUE);
 
         assertThat(subject.isMirrorQuery(), is(true));
-        assertFalse(subject.isKeepalive());
+        assertThat(subject.isKeepalive(), is(false));
 
         assertThat(subject.getSerialBegin(), is(0));
         assertThat(subject.getSerialEnd(), is(Integer.MAX_VALUE));

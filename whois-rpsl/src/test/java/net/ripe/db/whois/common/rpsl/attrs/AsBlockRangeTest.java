@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
 public class AsBlockRangeTest {
@@ -25,19 +24,19 @@ public class AsBlockRangeTest {
         assertThat(AsBlockRange.parse("AS100-AS200").contains(AsBlockRange.parse("AS110-AS130")), is(true));
         assertThat(AsBlockRange.parse("AS100-AS200").contains(AsBlockRange.parse("AS100-AS130")), is(true));
         assertThat(AsBlockRange.parse("AS100-AS200").contains(AsBlockRange.parse("AS100-AS200")), is(true));
-        assertFalse(AsBlockRange.parse("AS10-AS20").contains(AsBlockRange.parse("AS2-AS50")));
+        assertThat(AsBlockRange.parse("AS10-AS20").contains(AsBlockRange.parse("AS2-AS50")), is(false));
         assertThat(AsBlockRange.parse("AS100-AS200").contains(AsBlockRange.parse("AS150-AS200")), is(true));
-        assertFalse(AsBlockRange.parse("AS100-AS200").contains(AsBlockRange.parse("AS201-AS300")));
-        assertFalse(AsBlockRange.parse("AS10-AS20").contains(AsBlockRange.parse("AS1 - AS4294967295")));
+        assertThat(AsBlockRange.parse("AS100-AS200").contains(AsBlockRange.parse("AS201-AS300")), is(false));
+        assertThat(AsBlockRange.parse("AS10-AS20").contains(AsBlockRange.parse("AS1 - AS4294967295")), is(false));
         assertThat(AsBlockRange.parse("AS1 - AS4294967295").contains(AsBlockRange.parse("AS2-AS50")), is(true));
     }
 
     @Test
     public void validAsBlockEquals() {
         assertThat(AsBlockRange.parse("AS100-AS200").equals(AsBlockRange.parse("AS100-AS200")), is(true));
-        assertFalse(AsBlockRange.parse("AS100-AS200").equals(AsBlockRange.parse("AS100-AS201")));
-        assertFalse(AsBlockRange.parse("AS150-AS250").equals(AsBlockRange.parse("AS100-AS200")));
-        assertFalse(AsBlockRange.parse("AS101-AS200").equals(AsBlockRange.parse("AS100-AS200")));
+        assertThat(AsBlockRange.parse("AS100-AS200").equals(AsBlockRange.parse("AS100-AS201")), is(false));
+        assertThat(AsBlockRange.parse("AS150-AS250").equals(AsBlockRange.parse("AS100-AS200")), is(false));
+        assertThat(AsBlockRange.parse("AS101-AS200").equals(AsBlockRange.parse("AS100-AS200")), is(false));
         assertThat(AsBlockRange.parse("AS1 - AS4294967295").equals(AsBlockRange.parse("AS1 - AS4294967295")), is(true));
     }
 

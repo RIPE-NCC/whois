@@ -18,7 +18,6 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -50,7 +49,7 @@ public class NrtmServerChannelInitializerIntegrationTest extends AbstractNrtmInt
             final ChannelHandler.Sharable annotation = AnnotationUtils.findAnnotation(channelHandler.getClass(), ChannelHandler.Sharable.class);
             final boolean handlerIsShared = pipeline2.get(channelHandler.getClass()) == channelHandler;
             if (annotation == null) {
-                assertFalse(handlerIsShared, "Handler is not sharable, but reused: " + channelHandler);
+                assertThat(handlerIsShared, is(false)); // "Handler is not sharable, but reused: " + channelHandler);
             } else {
                 assertThat(handlerIsShared, is(true));  //"Handler is sharable, but not reused: " + channelHandler);
             }

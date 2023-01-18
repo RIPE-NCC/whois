@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class Ipv6ResourceTest {
     private Ipv6Resource subject;
@@ -177,7 +177,7 @@ public class Ipv6ResourceTest {
         assertThat(subject.intersects(subject), is(true));
         assertThat(subject.intersects(Ipv6Resource.MAX_RANGE), is(true));
 
-        assertFalse(subject.intersects(resource(9, 9)));
+        assertThat(subject.intersects(resource(9, 9)), is(false));
         assertThat(subject.intersects(resource(9, 10)), is(true));
         assertThat(subject.intersects(resource(9, 15)), is(true));
         assertThat(subject.intersects(resource(9, 20)), is(true));
@@ -195,17 +195,17 @@ public class Ipv6ResourceTest {
         assertThat(subject.intersects(resource(20, 20)), is(true));
         assertThat(subject.intersects(resource(20, 21)), is(true));
 
-        assertFalse(subject.intersects(resource(21, 21)));
+        assertThat(subject.intersects(resource(21, 21)), is(false));
     }
 
     @Test
     public void verifyEquals() {
         subject = Ipv6Resource.parse("2001::/64");
 
-        assertThat(subject.equals(subject), is(true));
-        assertFalse(subject.equals(Ipv6Resource.MAX_RANGE));
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals("Random object"));
+        assertThat(subject, equalTo(subject));
+        assertThat(subject, not(equalTo(Ipv6Resource.MAX_RANGE)));
+        assertThat(subject, not(equalTo(null)));
+        assertThat(subject, not(equalTo("Random object")));
         assertThat(subject, not(Ipv6Resource.parse("ffce::/64")));
 
         assertThat(subject, is(Ipv6Resource.parse("2001:0:0:0:0:1:2:3/64")));

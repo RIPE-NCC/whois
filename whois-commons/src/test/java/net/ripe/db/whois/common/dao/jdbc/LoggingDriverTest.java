@@ -21,7 +21,6 @@ import java.util.Properties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,8 +50,8 @@ public class LoggingDriverTest {
     @Test
     public void acceptsUrl() {
         assertThat(subject.acceptsURL("jdbc:log:mariadb"), is(true));
-        assertFalse(subject.acceptsURL("jdbc:mariadb"));
-        assertFalse(subject.acceptsURL(null));
+        assertThat(subject.acceptsURL("jdbc:mariadb"), is(false));
+        assertThat(subject.acceptsURL(null), is(false));
     }
 
     @Test
@@ -92,14 +91,13 @@ public class LoggingDriverTest {
 
     @Test
     public void jdbcCompliant() {
-        assertFalse(subject.jdbcCompliant());
+        assertThat(subject.jdbcCompliant(), is(false));
     }
 
     @Test
     public void getPropertyInfo() {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> {
             subject.getPropertyInfo("jdbc:log:mariadb://localhost;driver=org.mariadb.jdbc.Driver;logger=" + TestLoggingHandler.class.getName(), properties);
-
         });
     }
 

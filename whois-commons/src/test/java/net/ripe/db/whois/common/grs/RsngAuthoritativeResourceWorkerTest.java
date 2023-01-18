@@ -19,7 +19,6 @@ import java.util.concurrent.Executors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -78,7 +77,7 @@ public class RsngAuthoritativeResourceWorkerTest {
     public void load()  {
         final AuthoritativeResource authoritativeResource = new RsngAuthoritativeResourceWorker(logger, "rsngBaseUrl", client, Executors.newCachedThreadPool(), "apikey").load();
 
-        assertFalse(authoritativeResource.isEmpty());
+        assertThat(authoritativeResource.isEmpty(), is(false));
         assertThat(authoritativeResource.getNrAutNums(), is(1));
         assertThat(authoritativeResource.getNrInet6nums(), is(1));
         assertThat(authoritativeResource.getNrInetnums(), is(1));

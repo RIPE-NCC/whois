@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 public class InternalNodeTest {
 
@@ -23,19 +25,19 @@ public class InternalNodeTest {
 
     @Test
     public void test_equals_and_hashcode() {
-        assertFalse(a.equals(null));
-        assertFalse(a.equals(new Object()));
-        assertEquals(a, a);
-        assertEquals(a, b);
-        assertEquals(c, c);
-        assertFalse(a.equals(c));
-        assertFalse(c.equals(a));
-        assertFalse(c.equals(d));
+        assertThat(a, not(equalTo(null)));
+        assertThat(a, not(equalTo(new Object())));
+        assertThat(a, equalTo(a));
+        assertThat(a, equalTo(b));
+        assertThat(c, equalTo(c));
+        assertThat(a, not(equalTo(c)));
+        assertThat(c, not(equals(a)));
+        assertThat(c, not(equalTo(d)));
 
-        assertEquals(a.hashCode(), a.hashCode());
-        assertEquals(a.hashCode(), b.hashCode());
-        assertFalse(a.hashCode() == c.hashCode());
-        assertFalse(c.hashCode() == d.hashCode());
+        assertThat(a.hashCode(), equalTo(a.hashCode()));
+        assertThat(a.hashCode(), equalTo(b.hashCode()));
+        assertThat(a.hashCode(), is(not(c.hashCode())));
+        assertThat(c.hashCode(), is(not(d.hashCode())));
     }
 
     @Test

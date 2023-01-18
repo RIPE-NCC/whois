@@ -35,7 +35,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -125,7 +124,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final Iterator<RpslObject> iterator = result.iterator();
         assertThat(iterator.hasNext(), is(true));
         final RpslObject rpslObject = iterator.next();
-        assertFalse(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(false));
         assertThat(rpslObject.getKey().toUpperCase(), is("AS102"));
     }
 

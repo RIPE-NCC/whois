@@ -23,7 +23,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -89,21 +88,21 @@ public class QueryTest {
     public void non_filtered() {
         parse("-B foo");
 
-        assertFalse(subject.isFiltered());
+        assertThat(subject.isFiltered(), is(false));
     }
 
     @Test
     public void non_grouping() {
         parse("-G foo");
 
-        assertFalse(subject.isGrouping());
+        assertThat(subject.isGrouping(), is(false));
     }
 
     @Test
     public void non_recursive() {
         parse("-r foo");
 
-        assertFalse(subject.isReturningReferencedObjects());
+        assertThat(subject.isReturningReferencedObjects(), is(false));
     }
 
     @Test
@@ -118,7 +117,7 @@ public class QueryTest {
         parse("-F foo");
 
         assertThat(subject.isShortHand(), is(true));
-        assertFalse(subject.isReturningReferencedObjects());
+        assertThat(subject.isReturningReferencedObjects(), is(false));
     }
 
     @Test
@@ -249,7 +248,7 @@ public class QueryTest {
 
         assertThat(subject.hasObjectTypeFilter(ObjectType.INETNUM), is(true));
         assertThat(subject.hasObjectTypeFilter(ObjectType.INET6NUM), is(true));
-        assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.hasObjectTypeFilter(ObjectType.AUT_NUM), is(false));
         assertThat(subject.getSuppliedObjectTypes(), containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM));
     }
 
@@ -273,8 +272,8 @@ public class QueryTest {
         parse("-T in,rT,An foo");
 
         assertThat(subject.hasObjectTypeFilter(ObjectType.INETNUM), is(true));
-        assertFalse(subject.hasObjectTypeFilter(ObjectType.ROUTE));
-        assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.hasObjectTypeFilter(ObjectType.ROUTE), is(false));
+        assertThat(subject.hasObjectTypeFilter(ObjectType.AUT_NUM), is(false));
         assertThat(subject.getSuppliedObjectTypes(), containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.ROUTE));
     }
 
@@ -308,7 +307,7 @@ public class QueryTest {
     public void type_with_clustered_options() {
         parse("-rT inetnum dont_care");
 
-        assertFalse(subject.isReturningReferencedObjects());
+        assertThat(subject.isReturningReferencedObjects(), is(false));
         assertThat(subject.hasObjectTypeFilter(ObjectType.INETNUM), is(true));
         assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.INETNUM));
     }
@@ -317,7 +316,7 @@ public class QueryTest {
     public void type_with_clustered_options_and_no_space() {
         parse("-rTinetnum dont_care");
 
-        assertFalse(subject.isReturningReferencedObjects());
+        assertThat(subject.isReturningReferencedObjects(), is(false));
         assertThat(subject.hasObjectTypeFilter(ObjectType.INETNUM), is(true));
         assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.INETNUM));
     }
@@ -341,7 +340,7 @@ public class QueryTest {
         parse("-Vone foo");
 
         assertThat(subject.isProxyValid(), is(true));
-        assertFalse(subject.hasProxyWithIp());
+        assertThat(subject.hasProxyWithIp(), is(false));
         assertThat(subject.getProxyIp(), nullValue());
     }
 
@@ -546,7 +545,7 @@ public class QueryTest {
     public void not_lookupBothDirections() {
         final Query query = Query.parse("10.0.0.0");
 
-        assertFalse(query.isLookupInBothDirections());
+        assertThat(query.isLookupInBothDirections(), is(false));
     }
 
     @Test
@@ -569,7 +568,7 @@ public class QueryTest {
     public void not_isReturningIrt() {
         final Query query = Query.parse("10.0.0.0");
 
-        assertFalse(query.isReturningIrt());
+        assertThat(query.isReturningIrt(), is(false));
     }
 
     @Test
@@ -591,7 +590,7 @@ public class QueryTest {
     public void not_hasSources() {
         final Query query = Query.parse("10.0.0.0");
 
-        assertFalse(query.hasSources());
+        assertThat(query.hasSources(), is(false));
     }
 
     @Test
@@ -605,21 +604,21 @@ public class QueryTest {
     public void isPrimaryObjectsOnly_grouping() {
         final Query query = Query.parse("-r 10.0.0.0");
 
-        assertFalse(query.isPrimaryObjectsOnly());
+        assertThat(query.isPrimaryObjectsOnly(), is(false));
     }
 
     @Test
     public void isPrimaryObjectsOnly_relatedTo() {
         final Query query = Query.parse("-G 10.0.0.0");
 
-        assertFalse(query.isPrimaryObjectsOnly());
+        assertThat(query.isPrimaryObjectsOnly(), is(false));
     }
 
     @Test
     public void isPrimaryObjectsOnly_irt() {
         final Query query = Query.parse("-rGc 10.0.0.0");
 
-        assertFalse(query.isPrimaryObjectsOnly());
+        assertThat(query.isPrimaryObjectsOnly(), is(false));
     }
 
     @Test

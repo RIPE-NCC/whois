@@ -9,12 +9,13 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class NestedIntervalMapTest {
@@ -138,13 +139,13 @@ public class NestedIntervalMapTest {
 
     @Test
     public void test_equals_hashcode() {
-        assertFalse(subject.equals(null));
+        assertThat(subject, not(equalTo(null)));
         assertEquals(subject, subject);
-        assertFalse(subject.equals(new Object()));
-        assertFalse(subject.equals(new NestedIntervalMap<Ipv4Resource, Ipv4Resource>()));
+        assertThat(subject, not(equalTo(new Object())));
+        assertThat(subject, not(equalTo(new NestedIntervalMap<Ipv4Resource, Ipv4Resource>())));
 
         assertEquals(subject.hashCode(), subject.hashCode());
-        assertFalse(subject.hashCode() == new NestedIntervalMap<Ipv4Resource, Ipv4Resource>().hashCode());
+        assertThat(subject.hashCode(), is(not(new NestedIntervalMap<Ipv4Resource, Ipv4Resource>().hashCode())));
     }
 
     @Test

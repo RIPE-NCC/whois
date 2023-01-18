@@ -32,7 +32,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -71,7 +70,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.UNSPECIFIED));
         assertThat(update.getDeleteReasons(), hasSize(0));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
         assertThat(update.getParagraph().getContent(), is(MNTNER_DEV_MNT));
         verify(updateContext, never()).ignore(any(Paragraph.class));
@@ -100,7 +99,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
         assertThat(update.getDeleteReasons(), contains("reason"));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
 
         verify(updateContext, never()).ignore(any(Paragraph.class));
@@ -117,7 +116,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
         assertThat(update.getDeleteReasons(), contains("reason"));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
 
         verify(updateContext, never()).ignore(any(Paragraph.class));
@@ -142,7 +141,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
         assertThat(update.getDeleteReasons(), contains("reason"));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse("" +
                 "mntner: UPD-MNT\n" +
                 "descr: description\n" +
@@ -166,7 +165,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
         assertThat(update.getDeleteReasons(), contains("reason1", "reason2"));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
     }
 
@@ -182,7 +181,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.UNSPECIFIED));
         assertThat(update.getDeleteReasons(), hasSize(0));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(input)));
     }
 

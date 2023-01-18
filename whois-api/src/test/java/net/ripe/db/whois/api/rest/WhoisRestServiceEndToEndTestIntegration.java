@@ -44,7 +44,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ActiveProfiles(profiles = WhoisProfile.TEST, inheritProfiles = false)
@@ -495,7 +494,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
             assertThat(errorMessage.getText(), is("Deprecated attribute \"changed\". This attribute has been removed."));
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
-            assertFalse(whoisResources.getWhoisObjects().get(0).getAttributes().contains(AttributeType.CHANGED));
+            assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), not(contains(AttributeType.CHANGED)));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         }
@@ -543,7 +542,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
             assertThat(errorMessage.getText(), is("Deprecated attribute \"changed\". This attribute has been removed."));
             assertThat(whoisResources.getWhoisObjects(), hasSize(1));
             assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.255.255"));
-            assertFalse(whoisResources.getWhoisObjects().get(0).getAttributes().contains(AttributeType.CHANGED));
+            assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), not(contains(AttributeType.CHANGED)));
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         }

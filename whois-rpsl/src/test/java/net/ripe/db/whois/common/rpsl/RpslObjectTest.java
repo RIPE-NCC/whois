@@ -12,11 +12,11 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class RpslObjectTest {
@@ -246,8 +246,8 @@ public class RpslObjectTest {
         assertThat(subject, is(subject));
         assertThat(subject.hashCode(), is(subject.hashCode()));
 
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals(1));
+        assertThat(subject, not(equalTo(null)));
+        assertThat(subject, not(equalTo(1)));
 
         final RpslObject subject2 = parse(subject.toString());
         assertThat(subject, is(subject2));

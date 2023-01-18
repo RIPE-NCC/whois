@@ -20,6 +20,7 @@ import static net.ripe.db.whois.update.handler.validator.organisation.LirAttribu
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.NON_LIR_ORG;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -40,8 +41,7 @@ public class LirMntByAttributeCountValidatorTest {
     @Test
     public void getActions() {
         assertThat(subject.getActions(), hasSize(2));
-        assertThat(subject.getActions(), contains(Action.CREATE));
-        assertThat(subject.getActions(), contains(Action.MODIFY));
+        assertThat(subject.getActions(), containsInAnyOrder(Action.CREATE, Action.MODIFY));
     }
 
     @Test

@@ -10,10 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,14 +61,14 @@ public class QueryCompletedEventTest {
 
         assertThat(subject, is(notNullValue()));
         assertThat(subject, not(is("")));
-        assertThat(subject.equals(subject), is(true));
+        assertThat(subject, equalTo(subject));
 
         final QueryCompletedEvent queryCompletedEvent = new QueryCompletedEvent(channel, completionInfo);
-        assertThat(subject.equals(queryCompletedEvent), is(true));
+        assertThat(subject, equalTo(queryCompletedEvent));
         assertThat(subject.hashCode(), is(queryCompletedEvent.hashCode()));
 
-        assertFalse(subject.equals(new QueryCompletedEvent(Mockito.mock(Channel.class), completionInfo)));
-        assertFalse(subject.equals(new QueryCompletedEvent(channel, QueryCompletionInfo.PARAMETER_ERROR)));
+        assertThat(subject, not(equalTo(new QueryCompletedEvent(Mockito.mock(Channel.class), completionInfo))));
+        assertThat(subject, not(equalTo(new QueryCompletedEvent(channel, QueryCompletionInfo.PARAMETER_ERROR))));
     }
 
     @Test
@@ -77,12 +77,12 @@ public class QueryCompletedEventTest {
 
         assertThat(subject, is(notNullValue()));
         assertThat(subject, not(is("")));
-        assertThat(subject.equals(subject), is(true));
+        assertThat(subject, equalTo(subject));
 
         final QueryCompletedEvent queryCompletedEvent = new QueryCompletedEvent(channel);
-        assertThat(subject.equals(queryCompletedEvent), is(true));
+        assertThat(subject, equalTo(queryCompletedEvent));
         assertThat(subject.hashCode(), is(queryCompletedEvent.hashCode()));
 
-        assertFalse(subject.equals(new QueryCompletedEvent(Mockito.mock(Channel.class))));
+        assertThat(subject, not(equalTo(new QueryCompletedEvent(Mockito.mock(Channel.class)))));
     }
 }

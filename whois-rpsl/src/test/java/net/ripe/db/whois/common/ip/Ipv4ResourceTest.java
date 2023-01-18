@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class Ipv4ResourceTest {
 
@@ -260,12 +260,12 @@ public class Ipv4ResourceTest {
         assertThat(subject.intersects(subject), is(true));
         assertThat(subject.intersects(Ipv4Resource.MAX_RANGE), is(true));
 
-        assertFalse(subject.intersects(new Ipv4Resource(9, 9)));
+        assertThat(subject.intersects(new Ipv4Resource(9, 9)), is(false));
         assertThat(subject.intersects(new Ipv4Resource(9, 10)), is(true));
         assertThat(subject.intersects(new Ipv4Resource(10, 11)), is(true));
         assertThat(subject.intersects(new Ipv4Resource(5, 15)), is(true));
 
-        assertFalse(subject.intersects(new Ipv4Resource(21, 21)));
+        assertThat(subject.intersects(new Ipv4Resource(21, 21)), is(false));
         assertThat(subject.intersects(new Ipv4Resource(19, 20)), is(true));
         assertThat(subject.intersects(new Ipv4Resource(20, 21)), is(true));
         assertThat(subject.intersects(new Ipv4Resource(15, 25)), is(true));
@@ -275,10 +275,10 @@ public class Ipv4ResourceTest {
     public void verifyEquals() {
         subject = Ipv4Resource.parse("212.219.1.0/24");
 
-        assertThat(subject.equals(subject), is(true));
-        assertFalse(subject.equals(Ipv4Resource.MAX_RANGE));
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals("Random object"));
+        assertThat(subject, equalTo(subject));
+        assertThat(subject, not(equalTo(Ipv4Resource.MAX_RANGE)));
+        assertThat(subject, not(equalTo(null)));
+        assertThat(subject, not(equalTo("Random object")));
         assertThat(subject, not(Ipv4Resource.parse("212.218.1.0/24")));
 
         assertThat(subject, is(Ipv4Resource.parse("212.219.1.0 - 212.219.1.255")));

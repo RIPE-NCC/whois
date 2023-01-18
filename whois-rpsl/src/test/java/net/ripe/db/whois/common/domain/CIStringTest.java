@@ -6,10 +6,11 @@ import org.junit.jupiter.api.Test;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CIStringTest {
@@ -25,12 +26,12 @@ public class CIStringTest {
         assertThat(ciString("ABC"), is(ciString("aBc")));
 
         final CIString ripe = CIString.ciString("RIPE");
-        assertFalse(ripe.equals(null));
-        assertThat(ripe.equals(ripe), is(true));
-        assertThat(ripe.equals(CIString.ciString("RIPE")), is(true));
+        assertThat(ripe, not(equalTo(null)));
+        assertThat(ripe, equalTo(ripe));
+        assertThat(ripe, equalTo(CIString.ciString("RIPE")));
 
-        assertThat(ripe.equals("ripe"), is(true));
-        assertThat(ripe.equals("RIPE"), is(true));
+        assertThat(ripe, equalTo("ripe"));
+        assertThat(ripe, equalTo("RIPE"));
     }
 
     @Test

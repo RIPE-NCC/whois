@@ -4,9 +4,8 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class IpRangesTest {
 
@@ -45,6 +44,6 @@ public class IpRangesTest {
     public void empty_file() throws Exception {
         subject.setTrusted();
 
-        assertFalse(subject.isTrusted(IpInterval.parse("127.0.0.1")));
+        assertThat(subject.isTrusted(IpInterval.parse("127.0.0.1")), is(false));
     }
 }

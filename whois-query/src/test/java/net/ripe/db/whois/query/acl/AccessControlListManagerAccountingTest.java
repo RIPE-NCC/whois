@@ -16,7 +16,6 @@ import java.net.InetAddress;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,7 +57,7 @@ public class AccessControlListManagerAccountingTest {
         assertThat(subject.canQueryPersonalObjects(ipv4Address), is(true));
 
         subject.accountPersonalObjects(ipv4Address, 1);
-        assertFalse(subject.canQueryPersonalObjects(ipv4Address));
+        assertThat(subject.canQueryPersonalObjects(ipv4Address), is(false));
     }
 
     @Test
@@ -67,7 +66,7 @@ public class AccessControlListManagerAccountingTest {
         assertThat(subject.canQueryPersonalObjects(ipv4Address), is(true));
 
         subject.accountPersonalObjects(ipv4Address, 1);
-        assertFalse(subject.canQueryPersonalObjects(ipv4Address));
+        assertThat(subject.canQueryPersonalObjects(ipv4Address), is(false));
     }
 
     private void setPersonalLimit(int count) {
