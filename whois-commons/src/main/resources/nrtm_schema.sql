@@ -19,7 +19,13 @@ CREATE TABLE `version`
 INSERT INTO version
 VALUES ('whois-1.104');
 
+DROP TABLE IF EXISTS `notification_file`;
+DROP TABLE IF EXISTS `delta_file`;
+DROP TABLE IF EXISTS `snapshot_file`;
+DROP TABLE IF EXISTS `snapshot_object`;
+DROP TABLE IF EXISTS `version_info`;
 DROP TABLE IF EXISTS `source`;
+
 CREATE TABLE `source`
 (
     `id`   int unsigned NOT NULL AUTO_INCREMENT,
@@ -29,7 +35,6 @@ CREATE TABLE `source`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `version_info`;
 CREATE TABLE `version_info`
 (
     `id`             int unsigned NOT NULL AUTO_INCREMENT,
@@ -46,19 +51,19 @@ CREATE TABLE `version_info`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `notification_file`;
-CREATE TABLE `notification_file`
+CREATE TABLE `snapshot_object`
 (
-    `id`         int unsigned    NOT NULL AUTO_INCREMENT,
-    `version_id` int unsigned    NOT NULL,
-    `payload`    longtext        NOT NULL,
-    `created`    bigint unsigned NOT NULL,
+    `id`          int unsigned NOT NULL AUTO_INCREMENT,
+    `version_id`  int unsigned NOT NULL,
+    `object_id`   int unsigned NOT NULL,
+    `sequence_id` int unsigned NOT NULL,
+    `rpsl`        longtext     NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `notification_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
+    UNIQUE KEY `snapshot_object__object_id__uk` (`object_id`),
+    CONSTRAINT `snapshot_object__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `snapshot_file`;
 CREATE TABLE `snapshot_file`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
@@ -73,7 +78,6 @@ CREATE TABLE `snapshot_file`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `delta_file`;
 CREATE TABLE `delta_file`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
@@ -89,17 +93,14 @@ CREATE TABLE `delta_file`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
-DROP TABLE IF EXISTS `snapshot_object`;
-CREATE TABLE `snapshot_object`
+CREATE TABLE `notification_file`
 (
-    `id`          int unsigned NOT NULL AUTO_INCREMENT,
-    `version_id`  int unsigned NOT NULL,
-    `object_id`   int unsigned NOT NULL,
-    `sequence_id` int unsigned NOT NULL,
-    `rpsl`        longtext     NOT NULL,
+    `id`         int unsigned    NOT NULL AUTO_INCREMENT,
+    `version_id` int unsigned    NOT NULL,
+    `payload`    longtext        NOT NULL,
+    `created`    bigint unsigned NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `snapshot_object__object_id__uk` (`object_id`),
-    CONSTRAINT `snapshot_object__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
+    CONSTRAINT `notification_file__version_id__fk` FOREIGN KEY (`version_id`) REFERENCES `version_info` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
