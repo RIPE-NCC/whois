@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
@@ -98,17 +97,17 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
     public void outOfRangeUsingRangeQuery() {
         databaseHelper.addObject("as-block:AS31066 - AS31244");
 
-        assertNull(subject.findAsBlock(31066, 31299));
+        assertThat(subject.findAsBlock(31066, 31299), is(nullValue()));
     }
 
     @Test
     public void nonexistentUsingSingleAsBlockQuery() {
-        assertNull(subject.findAsBlock(1, 1));
+        assertThat(subject.findAsBlock(1, 1), is(nullValue()));
     }
 
     @Test
     public void nonexistentUsingAsBlockQuery() {
-        assertNull(subject.findAsBlock(0, 1));
+        assertThat(subject.findAsBlock(0, 1), is(nullValue()));
     }
 
     /*

@@ -22,7 +22,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -141,28 +140,28 @@ public class QueryTest {
     public void match_operations_default_inetnum() {
         parse("-T inetnum 10.0.0.0");
 
-        assertNull(subject.matchOperation());
+        assertThat(subject.matchOperation(), is(nullValue()));
     }
 
     @Test
     public void match_operations_default_inet6num() {
         parse("-T inet6num ::0/0");
 
-        assertNull(subject.matchOperation());
+        assertThat(subject.matchOperation(), is(nullValue()));
     }
 
     @Test
     public void match_operations_no_default_for_maintainer() {
         parse("-T mntner foo");
 
-        assertNull(subject.matchOperation());
+        assertThat(subject.matchOperation(), is(nullValue()));
     }
 
     @Test
     public void match_operations_empty() {
         parse("foo");
 
-        assertNull(subject.matchOperation());
+        assertThat(subject.matchOperation(), is(nullValue()));
     }
 
     @Test
@@ -418,7 +417,7 @@ public class QueryTest {
         assertThat(query.isInverse(), is(true));
         assertThat(query.getAttributeTypes(), containsInAnyOrder(AttributeType.MNT_BY));
         assertThat(query.getSearchValue(), is("aardvark-mnt"));
-        assertNull(query.matchOperation());
+        assertThat(query.matchOperation(), is(nullValue()));
     }
 
     @Test
@@ -428,7 +427,7 @@ public class QueryTest {
         assertThat(query.isInverse(), is(true));
         assertThat(query.getAttributeTypes(), containsInAnyOrder(AttributeType.MNT_BY));
         assertThat(query.getSearchValue(), is("aardvark-mnt"));
-        assertNull(query.matchOperation());
+        assertThat(query.matchOperation(), is(nullValue()));
     }
 
     @Test

@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ProxyIterableTest {
@@ -65,7 +65,7 @@ public class ProxyIterableTest {
         subject = new ProxyIterable<>(Arrays.asList(1, 2, 3), proxyLoader, 1);
         final Iterator<String> iterator = subject.iterator();
         assertThat(iterator.hasNext(), is(true));
-        assertNull(iterator.next());
+        assertThat(iterator.next(), is(nullValue()));
     }
 
     private void testWithPrefetch(final int prefetch) {

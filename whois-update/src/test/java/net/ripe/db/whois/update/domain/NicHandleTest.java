@@ -12,7 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -62,7 +62,7 @@ public class NicHandleTest {
 
         assertThat(nicHandle.getSpace(), is("DW"));
         assertThat(nicHandle.getIndex(), is(0));
-        assertNull(nicHandle.getSuffix());
+        assertThat(nicHandle.getSuffix(), is(nullValue()));
         assertThat(nicHandle.toString(), is("DW"));
     }
 
@@ -86,7 +86,7 @@ public class NicHandleTest {
 
         assertThat(nicHandle.getSpace(), is("DW"));
         assertThat(nicHandle.getIndex(), is(123));
-        assertNull(nicHandle.getSuffix());
+        assertThat(nicHandle.getSuffix(), is(nullValue()));
         assertThat(nicHandle.toString(), is("DW123"));
     }
 

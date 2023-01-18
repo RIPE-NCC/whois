@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NServerTest {
@@ -29,8 +29,8 @@ public class NServerTest {
     public void hostname_only() {
         final NServer nServer = NServer.parse("dns.comcor.ru");
         assertThat(nServer.getHostname(), is(ciString("dns.comcor.ru")));
-        assertNull(nServer.getIpInterval());
-        assertNull(nServer.getGlue());
+        assertThat(nServer.getIpInterval(), is(nullValue()));
+        assertThat(nServer.getGlue(), is(nullValue()));
         assertThat(nServer.toString(), is("dns.comcor.ru"));
     }
 
@@ -38,8 +38,8 @@ public class NServerTest {
     public void hostname_trailing_dot() {
         final NServer nServer = NServer.parse("dns.comcor.ru.");
         assertThat(nServer.getHostname(), is(ciString("dns.comcor.ru")));
-        assertNull(nServer.getIpInterval());
-        assertNull(nServer.getGlue());
+        assertThat(nServer.getIpInterval(), is(nullValue()));
+        assertThat(nServer.getGlue(), is(nullValue()));
         assertThat(nServer.toString(), is("dns.comcor.ru"));
     }
 
@@ -88,8 +88,8 @@ public class NServerTest {
     public void ipv4_only() {
         final NServer nServer = NServer.parse("194.0.0.0");
         assertThat(nServer.getHostname(), is(ciString("194.0.0.0")));
-        assertNull(nServer.getIpInterval());
-        assertNull(nServer.getGlue());
+        assertThat(nServer.getIpInterval(), is(nullValue()));
+        assertThat(nServer.getGlue(), is(nullValue()));
         assertThat(nServer.toString(), is("194.0.0.0"));
     }
 

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class SearchKeyTest {
     private SearchKey subject;
@@ -84,7 +83,7 @@ public class SearchKeyTest {
     public void comma_in_search_key() {
         subject = new SearchKey("10,10");
 
-        assertNull(subject.getIpKeyOrNull());
+        assertThat(subject.getIpKeyOrNull(), is(nullValue()));
     }
 
     @Test
@@ -92,7 +91,7 @@ public class SearchKeyTest {
         final SearchKey searchKey = new SearchKey("::ffff:0.0.0.0");
         final IpInterval<?> ipKeyOrNull = searchKey.getIpKeyOrNull();
 
-        assertNull(ipKeyOrNull);
+        assertThat(ipKeyOrNull, is(nullValue()));
     }
 
     @Test
@@ -100,6 +99,6 @@ public class SearchKeyTest {
         final SearchKey searchKey = new SearchKey("::ffff:0.0.0.0/72");
         final IpInterval<?> ipKeyOrNull = searchKey.getIpKeyOrNull();
 
-        assertNull(ipKeyOrNull);
+        assertThat(ipKeyOrNull, is(nullValue()));
     }
 }

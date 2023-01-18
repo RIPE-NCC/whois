@@ -10,13 +10,13 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CIStringTest {
     @Test
     public void create_null() {
-        assertNull(ciString(null));
+        assertThat(ciString(null), is(nullValue()));
     }
 
     @Test

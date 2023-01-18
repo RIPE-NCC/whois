@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 
 @ExtendWith(MockitoExtension.class)
 public class QueryCompletedEventTest {
@@ -29,7 +29,7 @@ public class QueryCompletedEventTest {
         assertThat(subject.getChannel(), is(channel));
         assertThat(subject.getFuture().channel(), is(channel));
         assertThat(subject.isForceClose(), is(false));
-        assertNull(subject.getCompletionInfo());
+        assertThat(subject.getCompletionInfo(), is(nullValue()));
         assertThat(subject.toString(), containsString("null"));
     }
 

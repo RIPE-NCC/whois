@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DomainTest {
@@ -191,7 +191,7 @@ public class DomainTest {
     public void enum_domain() {
         final Domain domain = Domain.parse("2.1.2.1.5.5.5.2.0.2.1.e164.arpa");
         assertThat(domain.getValue(), is(ciString("2.1.2.1.5.5.5.2.0.2.1.e164.arpa")));
-        assertNull(domain.getReverseIp());
+        assertThat(domain.getReverseIp(), is(nullValue()));
         assertThat(domain.getType(), is(Domain.Type.E164));
     }
 }

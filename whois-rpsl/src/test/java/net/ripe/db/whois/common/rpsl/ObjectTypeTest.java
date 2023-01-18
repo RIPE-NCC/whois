@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ObjectTypeTest {
@@ -31,6 +31,6 @@ public class ObjectTypeTest {
 
     @Test
     public void getByNameOrNull_unknown() {
-        assertNull(ObjectType.getByNameOrNull("UNKNOWN"));
+        assertThat(ObjectType.getByNameOrNull("UNKNOWN"), is(nullValue()));
     }
 }

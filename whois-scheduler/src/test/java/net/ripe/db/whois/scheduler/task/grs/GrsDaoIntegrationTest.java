@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DirtiesContext
@@ -72,7 +72,7 @@ public class GrsDaoIntegrationTest extends AbstractSchedulerIntegrationTest {
 
     @Test
     public void find_not_existing_object() {
-        assertNull(subject.find("DEV-MNT", ObjectType.MNTNER));
+        assertThat(subject.find("DEV-MNT", ObjectType.MNTNER), is(nullValue()));
     }
 
     @Test

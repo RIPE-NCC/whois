@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ChangedTest {
@@ -47,8 +47,8 @@ public class ChangedTest {
         final Changed subject = Changed.parse("foo@provider.com");
 
         assertThat(subject.getEmail(), is("foo@provider.com"));
-        assertNull(subject.getDateString());
-        assertNull(subject.getDate());
+        assertThat(subject.getDateString(), is(nullValue()));
+        assertThat(subject.getDate(), is(nullValue()));
         assertThat(subject.toString(), is("foo@provider.com"));
     }
 

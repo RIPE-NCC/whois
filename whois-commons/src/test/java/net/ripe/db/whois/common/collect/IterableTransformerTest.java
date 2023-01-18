@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class IterableTransformerTest {
@@ -50,11 +50,11 @@ public class IterableTransformerTest {
             assertThat(iterator.hasNext(), is(true));
             assertThat(iterator.next(), is(1));
             assertThat(iterator.hasNext(), is(true));
-            assertNull(iterator.next());
+            assertThat(iterator.next(), is(nullValue()));
             assertThat(iterator.hasNext(), is(true));
             assertThat(iterator.next(), is(2));
             assertThat(iterator.hasNext(), is(true));
-            assertNull(iterator.next());
+            assertThat(iterator.next(), is(nullValue()));
             assertThat(iterator.hasNext(), is(false));
         });
     }

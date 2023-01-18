@@ -19,8 +19,8 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
@@ -89,7 +89,7 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
     public void claimMessage_none() {
         final String messageId = subject.claimMessage();
 
-        assertNull(messageId);
+        assertThat(messageId, is(nullValue()));
         assertThat(getAllMessages(), hasSize(0));
     }
 
@@ -108,7 +108,7 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
         }
 
         final String messageId = subject.claimMessage();
-        assertNull(messageId);
+        assertThat(messageId, is(nullValue()));
 
         final List<Map<String, Object>> list = getAllMessages();
         assertThat(list, hasSize(nrMessages));

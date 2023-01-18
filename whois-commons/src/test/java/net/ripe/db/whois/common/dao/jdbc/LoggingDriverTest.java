@@ -20,7 +20,7 @@ import java.util.Properties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -75,8 +75,9 @@ public class LoggingDriverTest {
         });
     }
 
+    @Test
     public void connect_unsupported_url() throws SQLException {
-        assertNull(subject.connect(null, new Properties()));
+        assertThat(subject.connect(null, new Properties()), is(nullValue()));
     }
 
     @Test
