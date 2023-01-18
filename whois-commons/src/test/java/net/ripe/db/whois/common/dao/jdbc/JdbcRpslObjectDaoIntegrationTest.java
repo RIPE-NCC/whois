@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -28,6 +27,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest {
@@ -127,7 +127,7 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
 
     @Test
      public void nonexistentIrtLookup() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             subject.getByKey(ObjectType.IRT, "nonexistent");
         });
     }
@@ -163,7 +163,7 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
 
     @Test
     public void nonexistentMaintainerLookup() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             subject.getByKey(ObjectType.MNTNER, "nonexistent");
         });
     }
@@ -183,7 +183,7 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
 
     @Test
     public void nonexistentPoeticFormLookup() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             subject.getByKey(ObjectType.POETIC_FORM, "nonexistent");
         });
     }
@@ -203,7 +203,7 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
 
     @Test
     public void nonexistentPoemLookup() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             subject.getByKey(ObjectType.POEM, "nonexistent");
         });
     }
@@ -223,7 +223,7 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
 
     @Test
     public void nonexistentKeyCertLookup() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             subject.getByKey(ObjectType.KEY_CERT, "nonexistent");
         });
     }
@@ -243,7 +243,7 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
 
     @Test
     public void nonexistentAutNumQuery() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             subject.getByKey(ObjectType.AUT_NUM, "nonexistent");
         });
     }
@@ -302,7 +302,7 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
 
     @Test
     public void nonexistentInetRtrQuery() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             subject.getByKey(ObjectType.INET_RTR, "nonexistent");
         });
     }
@@ -335,14 +335,14 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
 
     @Test
     public void nonexistentRoleQuery() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             subject.getByKey(ObjectType.ROLE, "nonexistent");
         });
     }
 
     @Test
     public void test_get_unknown_object() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             int objectId = -1;
             subject.getById(objectId);
         });

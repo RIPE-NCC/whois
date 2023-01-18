@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +23,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -80,7 +80,7 @@ public class MntIrtAuthenticationTest {
         lenient().when(rpslObjectDao.getByKeys(ObjectType.IRT, ciSet("IRT-MNT"))).thenReturn(irts);
         when(credentialValidators.authenticate(eq(update), eq(updateContext), anyCollection(), eq(MntIrtAuthentication.class))).thenReturn(Lists.<RpslObject>newArrayList());
 
-        Assertions.assertThrows(AuthenticationFailedException.class, () -> {
+        assertThrows(AuthenticationFailedException.class, () -> {
             subject.authenticate(update, updateContext);
         });
     }

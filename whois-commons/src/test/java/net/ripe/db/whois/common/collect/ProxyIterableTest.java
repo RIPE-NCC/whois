@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.collect;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -14,6 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ProxyIterableTest {
     private ProxyIterable<Integer, String> subject;
@@ -21,29 +21,29 @@ public class ProxyIterableTest {
     private ProxyLoader<Integer, String> loader;
 
     @Test
-    public void test_load_single_fetch() throws Exception {
+    public void test_load_single_fetch() {
         testWithPrefetch(100);
     }
 
     @Test
-    public void test_load_exact_fetch() throws Exception {
+    public void test_load_exact_fetch() {
         testWithPrefetch(6);
     }
 
     @Test
-    public void test_load_proxy_multiple_fetches() throws Exception {
+    public void test_load_proxy_multiple_fetches() {
         testWithPrefetch(2);
     }
 
     @Test
-    public void test_load_proxy_all_fetches() throws Exception {
+    public void test_load_proxy_all_fetches() {
         testWithPrefetch(1);
     }
 
     @Test
     public void test_remove() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
+        assertThrows(UnsupportedOperationException.class, () -> {
+            final ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
             subject = new ProxyIterable<>(Collections.<Integer>emptyList(), proxyLoader, 1);
             subject.iterator().remove();
         });
@@ -51,8 +51,8 @@ public class ProxyIterableTest {
 
     @Test
     public void test_empty_next() {
-        Assertions.assertThrows(NoSuchElementException.class, () -> {
-            ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
+        assertThrows(NoSuchElementException.class, () -> {
+            final ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
             subject = new ProxyIterable<>(Collections.<Integer>emptyList(), proxyLoader, 1);
             subject.iterator().next();
         });
@@ -61,7 +61,7 @@ public class ProxyIterableTest {
 
     @Test
     public void test_load_empty() {
-        ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
+        final ProxyLoader<Integer, String> proxyLoader = Mockito.mock(ProxyLoader.class);
         subject = new ProxyIterable<>(Arrays.asList(1, 2, 3), proxyLoader, 1);
         final Iterator<String> iterator = subject.iterator();
         assertThat(iterator.hasNext(), is(true));

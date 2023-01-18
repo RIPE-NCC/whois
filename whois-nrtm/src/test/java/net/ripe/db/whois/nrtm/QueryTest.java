@@ -1,12 +1,12 @@
 package net.ripe.db.whois.nrtm;
 
 import joptsimple.OptionException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class QueryTest {
@@ -16,7 +16,7 @@ public class QueryTest {
 
     @Test
     public void null_argument() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new Query(SOURCE, null);
         });
 
@@ -24,35 +24,35 @@ public class QueryTest {
 
     @Test
     public void empty() {
-        Assertions.assertThrows(NrtmException.class, () -> {
+        assertThrows(NrtmException.class, () -> {
             new Query(SOURCE, "");
         });
     }
 
     @Test
     public void all_args() {
-        Assertions.assertThrows(NrtmException.class, () -> {
+        assertThrows(NrtmException.class, () -> {
             new Query(SOURCE, "-q -g -k");
         });
     }
 
     @Test
     public void flag_k_no_flag_g() {
-        Assertions.assertThrows(NrtmException.class, () -> {
+        assertThrows(NrtmException.class, () -> {
             new Query(SOURCE, "-k");
         });
     }
 
     @Test
     public void flag_q_no_arg() {
-        Assertions.assertThrows(OptionException.class, () -> {
+        assertThrows(OptionException.class, () -> {
             new Query(SOURCE, "-q");
         });
     }
 
     @Test
     public void flag_q_unknown() {
-        Assertions.assertThrows(NrtmException.class, () -> {
+        assertThrows(NrtmException.class, () -> {
             new Query(SOURCE, "-q foo");
         });
     }

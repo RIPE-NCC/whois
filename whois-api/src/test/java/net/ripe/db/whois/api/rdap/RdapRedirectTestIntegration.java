@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -21,6 +20,7 @@ import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -89,7 +89,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void autnum_resource_not_found() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), String.format("rdap/%s", "autnum/101"))
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(String.class);
@@ -98,7 +98,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void autnum_empty_redirect_property() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), String.format("rdap/%s", "autnum/200"))
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(String.class);
@@ -107,7 +107,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void autnum_no_redirect_property() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), String.format("rdap/%s", "autnum/300"))
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(String.class);

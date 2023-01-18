@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.etree;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class InternalNodeTest {
 
@@ -42,14 +42,14 @@ public class InternalNodeTest {
 
     @Test
     public void test_intersect_insert_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             c.addChild(e);
         });
     }
 
     @Test
     public void test_intersect_remove_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             c.removeChild(e.getInterval());
         });
     }

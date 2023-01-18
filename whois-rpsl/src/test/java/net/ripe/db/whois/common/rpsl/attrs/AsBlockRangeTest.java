@@ -1,10 +1,10 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class AsBlockRangeTest {
@@ -42,42 +42,42 @@ public class AsBlockRangeTest {
 
     @Test
     public void invalidRange() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AsBlockRange.parse("AS2 - AS1");
         });
     }
 
     @Test
     public void nonNumericAsBlockSingleArgument() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AsBlockRange.parse("ASx");
         });
     }
 
     @Test
     public void singleAsBlockWithSeparator() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AsBlockRange.parse("AS1-");
         });
     }
 
     @Test
     public void nonNumericAsBlockRangeFirstArgument() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AsBlockRange.parse("ASx-AS1");
         });
     }
 
     @Test
     public void nonNumericAsBlockRangeSecondArgument() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AsBlockRange.parse("AS1-ASx");
         });
     }
 
     @Test
     public void asBlockRangeThirdArgument() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AsBlockRange.parse("AS1-AS2-AS3");
         });
 
@@ -85,7 +85,7 @@ public class AsBlockRangeTest {
 
     @Test
     public void asBlockArgumentWithoutPrefix() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AsBlockRange.parse("1-2");
         });
 
@@ -93,7 +93,7 @@ public class AsBlockRangeTest {
 
     @Test
     public void emptyAsBlockRangeString() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AsBlockRange.parse("");
         });
     }

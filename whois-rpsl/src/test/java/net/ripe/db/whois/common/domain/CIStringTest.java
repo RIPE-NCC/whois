@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.domain;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
@@ -12,6 +11,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CIStringTest {
     @Test
@@ -134,14 +134,14 @@ public class CIStringTest {
 
     @Test
     public void toInt_empty() {
-        Assertions.assertThrows(NumberFormatException.class, () -> {
+        assertThrows(NumberFormatException.class, () -> {
             ciString("").toInt();
         });
     }
 
     @Test
     public void toInt_invalid() {
-        Assertions.assertThrows(NumberFormatException.class, () -> {
+        assertThrows(NumberFormatException.class, () -> {
             ciString("a").toInt();
         });
     }

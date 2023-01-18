@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -15,6 +14,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 public class IndexWithInetnumIntegrationTest extends IndexIntegrationTestBase {
@@ -62,7 +62,7 @@ public class IndexWithInetnumIntegrationTest extends IndexIntegrationTestBase {
 
     @Test
     public void add_invalid_inet() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             RpslObjectInfo rpslObjectInfo1 = new RpslObjectInfo(1, ObjectType.INETNUM, "10.0.0.129 - 10.0.0.0");
 
             subject.addToIndex(whoisTemplate, rpslObjectInfo1, RpslObject.parse("inetnum:10.0.0.129 - 10.0.0.0\nnetname:netname"), "ignoredValue");

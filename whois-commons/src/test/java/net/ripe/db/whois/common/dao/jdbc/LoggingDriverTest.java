@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.jdbc.driver.LoggingHandler;
 import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class LoggingDriverTest {
@@ -56,21 +56,21 @@ public class LoggingDriverTest {
 
     @Test
     public void connect_no_driver() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject.connect("jdbc:log:mariadb://localhost;logger=" + TestLoggingHandler.class.getName(), new Properties());
         });
     }
 
     @Test
     public void connect_unknown_driver() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             connection = subject.connect("jdbc:log:mariadb://localhost;driver=SomeUnknownDriver;logger=" + TestLoggingHandler.class.getName(), new Properties());
         });
     }
 
     @Test
     public void connect_invalid_driver(){
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             connection = subject.connect("jdbc:log:mariadb://localhost;driver=java.lang.String;logger=" + TestLoggingHandler.class.getName(), new Properties());
         });
     }
@@ -96,7 +96,7 @@ public class LoggingDriverTest {
 
     @Test
     public void getPropertyInfo() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+        assertThrows(UnsupportedOperationException.class, () -> {
             subject.getPropertyInfo("jdbc:log:mariadb://localhost;driver=org.mariadb.jdbc.Driver;logger=" + TestLoggingHandler.class.getName(), properties);
         });
     }

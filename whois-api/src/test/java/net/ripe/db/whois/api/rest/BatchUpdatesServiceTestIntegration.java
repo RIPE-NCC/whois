@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -29,6 +28,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -400,7 +400,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void batch_update_no_valid_authentication() {
-        Assertions.assertThrows(NotAuthorizedException.class, () -> {
+        assertThrows(NotAuthorizedException.class, () -> {
             final WhoisResources whoisResources =
                     mapRpslObjects(
                             RpslObject.parse(

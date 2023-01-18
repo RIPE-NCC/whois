@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.collect;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Deque;
@@ -10,6 +9,7 @@ import java.util.Iterator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class IterableTransformerTest {
 
@@ -42,7 +42,7 @@ public class IterableTransformerTest {
 
     @Test
     public void null_test() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             final Iterable<Integer> subject = getSimpleIterable(1, null, 2, null);
 
             final Iterator<Integer> iterator = subject.iterator();

@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -12,6 +11,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BlockEventsTest {
 
@@ -26,7 +26,7 @@ public class BlockEventsTest {
 
     @Test
     public void test_events_null() {
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             final BlockEvents blockEvents = new BlockEvents(prefix, null);
             blockEvents.getTemporaryBlockCount();
         });

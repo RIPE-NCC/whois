@@ -40,6 +40,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -159,7 +160,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
     @Test
     public void undelete_basicObject_not_deleted() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             final RpslObject mntnerObject = makeObject(ObjectType.MNTNER, "TEST");
             final RpslObjectUpdateInfo created = subject.createObject(mntnerObject);
 
@@ -169,7 +170,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
     @Test
     public void undelete_basicObject_twice() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             final RpslObject mntnerObject = makeObject(ObjectType.MNTNER, "TEST");
             final RpslObjectUpdateInfo created = subject.createObject(mntnerObject);
             final RpslObjectUpdateInfo deleted = subject.deleteObject(created.getObjectId(), created.getKey());
@@ -267,7 +268,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
     @Test
     public void create_object_twice() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
+        assertThrows(IllegalStateException.class, () -> {
             final RpslObjectUpdateInfo person = subject.createObject(new RpslObject(1, ImmutableList.of(new RpslAttribute("person", "first person name"), new RpslAttribute("nic-hdl", "P1"))));
             assertThat(person.getKey(), is("P1"));
 
@@ -394,7 +395,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
     @Test
     public void delete_nonexistant_object() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             subject.deleteObject(999, "");
         });
     }

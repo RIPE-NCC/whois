@@ -2,7 +2,6 @@ package net.ripe.db.whois.scheduler.task.export;
 
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +20,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class ExportFileWriterFactoryTest {
@@ -43,7 +43,7 @@ public class ExportFileWriterFactoryTest {
     public void createExportFileWriters_existing_dir() throws IOException {
         Files.createDirectories(folder.resolve("dbase"));
 
-        Assertions.assertThrows(IllegalStateException.class, () -> {
+        assertThrows(IllegalStateException.class, () -> {
             subject.createExportFileWriters(folder.toFile(), LAST_SERIAL);
         });
     }

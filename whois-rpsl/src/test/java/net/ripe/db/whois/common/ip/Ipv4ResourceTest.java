@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.ip;
 
 import org.hamcrest.Matcher;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -9,6 +8,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Ipv4ResourceTest {
 
@@ -57,42 +57,42 @@ public class Ipv4ResourceTest {
 
     @Test
     public void ipv4_with_prefix_21_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("151.64.0.1/21\r\n");
         });
     }
 
     @Test
     public void ipv4_with_prefix_23_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("109.73.65.0/23\r\n");
         });
     }
 
     @Test
     public void ipv4_with_prefix_28_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("62.219.43.72/28\r\n");
         });
     }
 
     @Test
     public void ipv4_with_huge_prefix_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("128.0.0.0/0\r\n");
         });
     }
 
     @Test
     public void ipv4_with_tiny_prefix_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("192.192.192.1/31\r\n");
         });
     }
 
     @Test
     public void ipv4_with_prefix_21() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("151.64.0.1/21\r\n");
         });
     }
@@ -171,21 +171,21 @@ public class Ipv4ResourceTest {
 
     @Test
     public void invalidResource() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parse("invalid resource");
         });
     }
 
     @Test
     public void invalidResourceType() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parse("::0");
         });
     }
 
     @Test
     public void createWithBeginEndBeforeBeginFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = new Ipv4Resource(2, 1);
         });
 
@@ -193,14 +193,14 @@ public class Ipv4ResourceTest {
 
     @Test
     public void createWithBeginOutOfBoundsFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = new Ipv4Resource(Long.MIN_VALUE, 1);
         });
     }
 
     @Test
     public void createWithEndOutOfBoundsFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = new Ipv4Resource(1, Long.MAX_VALUE);
         });
     }
@@ -316,56 +316,56 @@ public class Ipv4ResourceTest {
 
     @Test
     public void reverse_empty() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("");
         });
     }
 
     @Test
     public void reverse_null() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain(null);
         });
     }
 
     @Test
     public void reverse_no_inaddrarpa() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("1.2.3.4");
         });
     }
 
     @Test
     public void reverse_no_octets() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain(".in-addr.arpa");
         });
     }
 
     @Test
     public void reverse_more_than_four_octets() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("8.7.6.5.4.3.2.1.in-addr.arpa");
         });
     }
 
     @Test
     public void reverse_dash_not_in_fourth_octet() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("1-1.1.1.in-addr.arpa");
         });
     }
 
     @Test
     public void reverse_non_numeric_input() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("1-1.b.a.in-addr.arpa");
         });
     }
 
     @Test
     public void reverse_multiple_dashes() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("1-1.2-2.3-3.4-4.in-addr.arpa");
         });
     }
@@ -393,7 +393,7 @@ public class Ipv4ResourceTest {
 
     @Test
     public void reverse_inverse_range() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("80-28.79.198.195.in-addr.arpa");
         });
     }

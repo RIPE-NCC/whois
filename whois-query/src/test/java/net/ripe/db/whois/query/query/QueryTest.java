@@ -8,7 +8,6 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -24,6 +23,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class QueryTest {
@@ -330,7 +330,7 @@ public class QueryTest {
 
     @Test
     public void proxied_for_invalid() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             parse("-VclientId,ipAddress");
         });
     }
@@ -354,14 +354,14 @@ public class QueryTest {
 
     @Test
     public void proxy_with_invalid_ip() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             parse("-Vone,two");
         });
     }
 
     @Test
     public void proxy_with_more_than_two_elements() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             parse("-Vone,two,10.1.1.1");
         });
     }
@@ -399,7 +399,7 @@ public class QueryTest {
 
     @Test
     public void invalidProxyShouldThrowException() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             Query.parse("-Vone,two,three -Tperson DW-RIPE");
         });
     }
@@ -512,7 +512,7 @@ public class QueryTest {
 
     @Test
     public void multiple_proxies() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             Query.parse("-V ripews,188.111.4.162   -V 85.25.132.61");
         });
     }
@@ -623,7 +623,7 @@ public class QueryTest {
 
     @Test
     public void system_info_invalid_option() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             Query query = Query.parse("-q invalid");
             query.getSystemInfoOption();
         });
@@ -631,7 +631,7 @@ public class QueryTest {
 
     @Test
     public void system_info_with_multiple_arguments() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             Query query = Query.parse("-q version -q invalid");
             query.getSystemInfoOption();
         });
@@ -639,7 +639,7 @@ public class QueryTest {
 
     @Test
     public void system_info_multiple_flags_no_arguments() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             Query query = Query.parse("-q -q");
             query.getSystemInfoOption();
         });
@@ -762,7 +762,7 @@ public class QueryTest {
 
     @Test
     public void templateQueryMultipleArguments() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             Query query = Query.parse("-t person -t role");
             query.getTemplateOption();
         });
@@ -780,7 +780,7 @@ public class QueryTest {
 
     @Test
     public void verboseTemplateQueryMultipleArguments() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             Query query = Query.parse("-v person -v role");
             query.getVerboseOption();
         });

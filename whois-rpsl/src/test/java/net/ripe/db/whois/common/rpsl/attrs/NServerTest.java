@@ -2,25 +2,25 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NServerTest {
     @Test
     public void empty() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             NServer.parse("");
         });
     }
 
     @Test
     public void hostname_invalid() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             NServer.parse("$");
         });
     }
@@ -54,7 +54,7 @@ public class NServerTest {
 
     @Test
     public void hostname_and_ipv4_range_24() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             NServer.parse("dns.comcor.ru 194.0.0.0/24");
         });
     }
@@ -79,7 +79,7 @@ public class NServerTest {
 
     @Test
     public void hostname_and_ipv4_list() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             NServer.parse("dns.comcor.ru 194.0.0.0 194.0.0.0");
         });
     }
@@ -104,7 +104,7 @@ public class NServerTest {
 
     @Test
     public void hostname_and_invalid_ip() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             NServer.parse("dns.comcor.ru dns.comcor.ru");
         });
     }

@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.domain;
 
 import net.ripe.db.whois.common.domain.CIString;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +13,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class NicHandleTest {
@@ -68,14 +68,14 @@ public class NicHandleTest {
 
     @Test
     public void parse_space_too_long() {
-        Assertions.assertThrows(NicHandleParseException.class, () -> {
+        assertThrows(NicHandleParseException.class, () -> {
             NicHandle.parse("SPACE", source, countryCodes);
         });
     }
 
     @Test
     public void parse_suffix_too_long() {
-        Assertions.assertThrows(NicHandleParseException.class, () -> {
+        assertThrows(NicHandleParseException.class, () -> {
             NicHandle.parse("DW-VERYLONGSUFFIX", source, countryCodes);
         });
     }
@@ -131,7 +131,7 @@ public class NicHandleTest {
 
     @Test
     public void parse_suffix_invalid() {
-        Assertions.assertThrows(NicHandleParseException.class, () -> {
+        assertThrows(NicHandleParseException.class, () -> {
             NicHandle.parse("DW-SOMETHING", source, countryCodes);
         });
     }

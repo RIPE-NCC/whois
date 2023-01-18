@@ -10,7 +10,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -28,6 +27,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @Tag("IntegrationTest")
@@ -206,7 +206,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void versions_no_versions_found() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
                     .request(MediaType.APPLICATION_XML)
                     .get(String.class);
@@ -224,7 +224,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
@@ -242,7 +242,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/inetnum/AS102/versions/1")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
@@ -337,7 +337,7 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject(autnum);
         databaseHelper.deleteObject(autnum);
 
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);

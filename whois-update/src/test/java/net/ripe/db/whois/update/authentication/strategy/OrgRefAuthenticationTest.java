@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +23,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.eq;
@@ -80,7 +80,7 @@ public class OrgRefAuthenticationTest {
 
         when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(emptyList());
 
-        Assertions.assertThrows(AuthenticationFailedException.class, () -> {
+        assertThrows(AuthenticationFailedException.class, () -> {
             subject.authenticate(update, updateContext);
         });
     }
@@ -96,7 +96,7 @@ public class OrgRefAuthenticationTest {
 
         when(credentialValidators.authenticate(eq(update), eq(updateContext), anyList(), eq(OrgRefAuthentication.class))).thenReturn(emptyList());
 
-        Assertions.assertThrows(AuthenticationFailedException.class, () -> {
+        assertThrows(AuthenticationFailedException.class, () -> {
             subject.authenticate(update, updateContext);
         });
     }

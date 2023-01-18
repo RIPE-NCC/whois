@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.ip;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +10,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Ipv6ResourceTest {
     private Ipv6Resource subject;
@@ -70,49 +70,49 @@ public class Ipv6ResourceTest {
 
     @Test
     public void parseIpv6MappedIpv4Fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv6Resource.parse("::ffff:192.0.2.128");
         });
     }
 
     @Test
     public void invalidResource() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("invalid resource");
         });
     }
 
     @Test
     public void invalidResourceType() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("12.0.0.1");
         });
     }
 
     @Test
     public void Ipv6RangeThrowsIllegalArgumentException() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("2001:: - 2020::");
         });
     }
 
     @Test
     public void createWithBeginEndBeforeBeginFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = resource(2, 1);
         });
     }
 
     @Test
     public void createWithBeginOutOfBoundsFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = resource(Long.MIN_VALUE, 1);
         });
     }
 
     @Test
     public void createWithEndOutOfBoundsFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = new Ipv6Resource(BigInteger.ONE, BigInteger.ONE.shiftLeft(128));
         });
     }
@@ -386,49 +386,49 @@ public class Ipv6ResourceTest {
 
     @Test
     public void reverse_empty() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain("");
         });
     }
 
     @Test
     public void reverse_null() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain(null);
         });
     }
 
     @Test
     public void reverse_no_ip6arpa() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain("1.2.3.4");
         });
     }
 
     @Test
     public void reverse_no_octets() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain(".ip6.arpa");
         });
     }
 
     @Test
     public void reverse_more_than_four_octets() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain("8.7.6.5.4.3.2.1.in-addr.arpa");
         });
     }
 
     @Test
     public void reverse_invalid_nibbles_dash() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain("1-1.1.a.ip6.arpa");
         });
 
     }
     @Test
     public void reverse_invalid_nibbles_non_hex() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain("g.ip6.arpa");
         });
     }
@@ -445,7 +445,7 @@ public class Ipv6ResourceTest {
 
     @Test
     public void invalid_prefix_length() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("2001::/129");
         });
     }
@@ -462,14 +462,14 @@ public class Ipv6ResourceTest {
 
     @Test
     public void test_brackets_invalid_prefix_length() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("[2001:67c:2e8:1::c100:13b/64]");
         });
     }
 
     @Test
     public void test_brackets_with_port_number() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("[2001:db8::1]:80");
         });
     }
