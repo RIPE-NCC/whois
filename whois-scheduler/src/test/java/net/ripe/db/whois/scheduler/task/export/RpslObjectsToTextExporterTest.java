@@ -139,11 +139,11 @@ public class RpslObjectsToTextExporterTest {
 
         Mockito.doThrow(IOException.class).when(exportFileWriter).write(rpslObject1);
 
-
         try {
             subject.export();
-            Assertions.fail("Expected exception");
+            fail("Expected exception");
         } catch (RuntimeException ignored) {
+            // expected
         }
 
         Mockito.verify(exportFileWriter).write(rpslObject1);
@@ -183,8 +183,9 @@ public class RpslObjectsToTextExporterTest {
         try {
             startLatch.await(5, TimeUnit.SECONDS);
             subject.export();
-            Assertions.fail("Expected exception");
+            fail("Expected exception");
         } catch (IllegalStateException ignored) {
+            // expected
         } finally {
             waitLatch.countDown();
         }

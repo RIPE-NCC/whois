@@ -21,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
 public class ExportFileWriterFactoryTest {
@@ -61,7 +62,7 @@ public class ExportFileWriterFactoryTest {
             if (! (file.getAbsolutePath().endsWith("internal")
                     || file.getAbsolutePath().endsWith("dbase")
                     || file.getAbsolutePath().endsWith("dbase_new"))) {
-                Assertions.fail("Unexpected folder: " + file.getAbsolutePath());
+                fail("Unexpected folder: " + file.getAbsolutePath());
             }
         }
     }
