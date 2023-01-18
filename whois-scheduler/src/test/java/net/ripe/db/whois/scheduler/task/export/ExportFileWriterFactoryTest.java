@@ -19,7 +19,8 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -55,7 +56,7 @@ public class ExportFileWriterFactoryTest {
         assertThat(exportFileWriters.isEmpty(), is(false));
 
         final File[] files = folder.toFile().listFiles();
-        assertNotNull(files);
+        assertThat(files, not(nullValue()));
         assertThat(files.length, is(3));
 
         for (final File file : files) {
