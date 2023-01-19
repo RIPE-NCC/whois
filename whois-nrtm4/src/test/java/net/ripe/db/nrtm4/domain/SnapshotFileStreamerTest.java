@@ -45,10 +45,20 @@ public class SnapshotFileStreamerTest {
         );
         final var file = new PublishableSnapshotFile(version);
         final var out = new ByteArrayOutputStream();
-        doNothing().when(snapshotObjectIteratorRepository).snapshotCallbackConsumer(source, s -> {});
+        doNothing().when(snapshotObjectIteratorRepository).snapshotCallbackConsumer(source, s -> {
+        });
         serializer.writeSnapshotAsJson(file, out);
         out.close();
-        assertThat(out.toString(StandardCharsets.UTF_8), is("{\"nrtm_version\":4,\"type\":\"snapshot\",\"source\":\"TEST\",\"session_id\":\"abcdef123\",\"version\":26,\"objects\":[]}"));
+        final var expected = """
+            {
+              "nrtm_version" : 4,
+              "type" : "snapshot",
+              "source" : "TEST",
+              "session_id" : "abcdef123",
+              "version" : 26,
+              "objects" : [ ]
+            }""";
+        assertThat(out.toString(StandardCharsets.UTF_8), is(expected));
     }
 
 }
