@@ -76,32 +76,6 @@ public class NrtmVersionInfoRepository {
         return save(source, version, sessionID, type, lastSerialId);
     }
 
-    /**
-     * Using a given version, create a new incremented version number for a serialID. The updated version will always be
-     * a delta (see RFC).
-     *
-     * @param version Existing version
-     * @param serialId The last serialID from the Whois serials table which is in this version
-     * @return An incremented version object
-     */
-    public NrtmVersionInfo incrementAndSave(final NrtmVersionInfo version, final int serialId) {
-        return save(version.getSource(), version.getVersion() + 1, version.getSessionID(), NrtmDocumentType.DELTA, serialId);
-    }
-
-    /**
-     * Makes a copy of an existing delta version object so it can be used for a snapshot. If the input version
-     * was used for a snapshot, throws an IllegalStateException
-     *
-     * @param version A version already in use for a delta
-     * @return A version object which will be used for a snapshot
-     */
-    public NrtmVersionInfo copyAsSnapshotVersion(final NrtmVersionInfo version) {
-        if (version.getType() == NrtmDocumentType.SNAPSHOT) {
-            throw new IllegalStateException("Cannot copy a snapshot version number - must be a delta version");
-        }
-        return save(version.getSource(), version.getVersion(), version.getSessionID(), NrtmDocumentType.SNAPSHOT, version.getLastSerialId());
-    }
-
     private NrtmVersionInfo save(
         final NrtmSource source,
         final long version,

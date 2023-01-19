@@ -1,17 +1,13 @@
 package net.ripe.db.nrtm4;
 
-import net.ripe.db.nrtm4.dao.NotificationFile;
-import net.ripe.db.nrtm4.dao.NotificationFileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 import static net.ripe.db.nrtm4.NrtmConstants.DELTA_PREFIX;
-import static net.ripe.db.nrtm4.NrtmConstants.NOTIFICATION_PREFIX;
 import static net.ripe.db.nrtm4.NrtmConstants.SNAPSHOT_PREFIX;
 
 
@@ -22,16 +18,13 @@ public class NrtmFileService {
 
     public static final int MAX_LENGTH_SESSION_ID = 256;
     public static final int MAX_LENGTH_FILE_NAME = 256;
-    private final NotificationFileRepository notificationFileRepository;
     private final NrtmFileStore nrtmFileStore;
     private final NrtmFileSync nrtmFileSync;
 
     NrtmFileService(
-        final NotificationFileRepository notificationFileRepository,
         final NrtmFileStore nrtmFileStore,
         final NrtmFileSync nrtmFileSync
     ) {
-        this.notificationFileRepository = notificationFileRepository;
         this.nrtmFileStore = nrtmFileStore;
         this.nrtmFileSync = nrtmFileSync;
     }
@@ -39,13 +32,6 @@ public class NrtmFileService {
     void writeFileToStream(final String sessionId, final String name, final OutputStream out) throws IOException {
         if (sessionId == null || name == null || sessionId.length() > MAX_LENGTH_SESSION_ID || name.length() > MAX_LENGTH_FILE_NAME) {
             throw new IllegalArgumentException("Invalid NRTM sessionID / file name");
-        }
-        if (name.startsWith(NOTIFICATION_PREFIX)) {
-            // TODO: how do we know which source to use when serving a notification request?
-            //       Probably better to put it in url and create a separate method for writing notification.
-            final NotificationFile notificationFile = notificationFileRepository.getNotificationFile(1);
-            out.write(notificationFile.getPayload().getBytes(StandardCharsets.UTF_8));
-            return;
         }
         syncNrtmFileToFileSystem(sessionId, name);
         nrtmFileStore.streamFromFile(sessionId, name, out);

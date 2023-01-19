@@ -1,7 +1,5 @@
 package net.ripe.db.nrtm4.dao;
 
-import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
@@ -28,29 +26,6 @@ public class WhoisObjectRepository {
         return jdbcTemplate.queryForObject(
             "SELECT MAX(serial_id) FROM serials",
             (rs, rowNum) -> rs.getInt(1));
-    }
-
-
-    public List<ObjectChangeData> findChangesBetween(final int serialFrom, final int serialTo) {
-        if (serialFrom > serialTo) {
-            throw new IllegalArgumentException("Error fetching changes because 'from' is higher than 'to'");
-        }
-        return jdbcTemplate.query(
-            "SELECT s.object_id, s.sequence_id, s.operation, COALESCE(l.object,h.object,d.object) " +
-                "FROM serials s " +
-                "LEFT JOIN last l ON l.object_id = s.object_id AND l.sequence_id = s.sequence_id " +
-                "LEFT JOIN history h ON h.object_id = s.object_id AND h.sequence_id = s.sequence_id " +
-                "LEFT JOIN history d ON d.object_id = s.object_id AND d.sequence_id = s.sequence_id-1 " +
-                "WHERE s.serial_id > ? " +
-                "  AND s.serial_id <= ?",
-            (rs, rowNum) -> new ObjectChangeData(
-                rs.getInt(1),
-                rs.getInt(2),
-                Operation.getByCode(rs.getInt(3)),
-                RpslObject.parse(rs.getString(4))),
-            serialFrom,
-            serialTo
-        );
     }
 
     public List<ObjectData> findLastObjects() {

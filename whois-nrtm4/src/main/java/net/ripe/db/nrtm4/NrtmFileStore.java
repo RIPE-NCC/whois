@@ -11,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 
 @Service
@@ -35,12 +34,6 @@ public class NrtmFileStore {
     void streamFromFile(final String sessionId, final String name, final OutputStream out) throws IOException {
         try (final FileInputStream fis = getFileInputStream(sessionId, name)) {
             fis.transferTo(out);
-        }
-    }
-
-    public void storeFile(final String sessionId, final String name, final String payload) throws IOException {
-        try (final FileOutputStream fos = getFileOutputStream(sessionId, name)) {
-            fos.write(payload.getBytes(StandardCharsets.UTF_8));
         }
     }
 

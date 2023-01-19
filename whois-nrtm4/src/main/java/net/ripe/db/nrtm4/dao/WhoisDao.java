@@ -38,8 +38,4 @@ public class WhoisDao {
         return results;
     }
 
-    public List<ObjectChangeData> findChangesBetween(final Integer serialFrom, final Integer serialTo) {
-        return whoisObjectRepository.findChangesBetween(serialFrom, serialTo);
-    }
-
 }

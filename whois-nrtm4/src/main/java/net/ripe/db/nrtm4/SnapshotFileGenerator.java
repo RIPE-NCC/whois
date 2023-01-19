@@ -56,7 +56,8 @@ public class SnapshotFileGenerator {
         } else {
             version = lastVersion.get();
             if (version.getType() == NrtmDocumentType.DELTA) {
-                version = nrtmVersionInfoRepository.copyAsSnapshotVersion(version);
+                LOGGER.info("Not generating snapshot file yet");
+                return Optional.empty();
             } else {
                 LOGGER.info("{} Not generating snapshot file since no deltas have been published since v{} with serialID {}",
                     method, version.getVersion(), version.getLastSerialId());
@@ -66,13 +67,7 @@ public class SnapshotFileGenerator {
         LOGGER.info("{} now at version: {}", method, version);
         if (version.getVersion() > 1) {
             LOGGER.debug("not syncing deltas to snapshot");
-//            final boolean snapshotWasUpdated = snapshotObjectSynchronizer.synchronizeDeltasToSnapshot(source, version);
-//            if (!snapshotWasUpdated) {
-//                LOGGER.warn("{} Code execution should not reach this point since we've already tested for no deltas. " +
-//                        "Version {}, last serial: {}",
-//                    method, version.getVersion(), version.getLastSerialId());
-//                return Optional.empty();
-//            }
+            return Optional.empty();
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
         final String fileName = NrtmFileUtil.newFileName(snapshotFile);

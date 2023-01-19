@@ -7,7 +7,6 @@ import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
 import net.ripe.db.nrtm4.jmx.NrtmProcessControl;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -35,15 +34,6 @@ public class NrtmFileProcessor {
         this.nrtmProcessControl = nrtmProcessControl;
         this.nrtmSourceHolder = nrtmSourceHolder;
         this.snapshotFileGenerator = snapshotFileGenerator;
-    }
-
-    @Scheduled(fixedDelay = 60 * 1_000)
-    public void runRead() {
-        LOGGER.info("runRead doesn't do anything yet");
-        // get latest notification
-
-        // call this for each file referenced...
-        //nrtmFileService.syncNrtmFileToFileSystem(name);
     }
 
     public void updateNrtmFilesAndPublishNotification() {

@@ -71,30 +71,6 @@ public class SnapshotObjectRepository {
         return new SnapshotObject(keyHolder.getKeyAs(Long.class), versionId, objectId, sequenceId, rpslObject);
     }
 
-    public void update(
-        final long versionId,
-        final int objectId,
-        final int sequenceId,
-        final RpslObject rpslObject
-    ) {
-        final String sql = "" +
-            "UPDATE snapshot_object " +
-            "SET " +
-            "version_id = ?, " +
-            "sequence_id = ?, " +
-            "rpsl = ? " +
-            "WHERE object_id = ?";
-        final KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            final PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            pst.setLong(1, versionId);
-            pst.setInt(2, sequenceId);
-            pst.setString(3, rpslObject.toString());
-            pst.setInt(4, objectId);
-            return pst;
-        }, keyHolder);
-    }
-
     public void delete(final int objectId) {
         final String sql = "" +
             "DELETE FROM snapshot_object " +
