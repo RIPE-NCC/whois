@@ -27,34 +27,34 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
     public void addThenCountAndThenDeleteByEntry() throws IOException {
         long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
-        assertThat(whoisDocCount, is(0));
+        assertThat(whoisDocCount, is(0L));
         elasticIndexService.addEntry(RPSL_MNT_PERSON);
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // one document after adding
-        assertThat(whoisDocCount, is(1));
+        assertThat(whoisDocCount, is(1L));
         elasticIndexService.deleteEntry(RPSL_MNT_PERSON.getObjectId());
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // no document in index after deleting
-        assertThat(whoisDocCount, is(0));
+        assertThat(whoisDocCount, is(0L));
     }
 
     @Test
     public void addThenCountAndThenDeleteAll() throws IOException {
         long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
-        assertThat(whoisDocCount, is(0));
+        assertThat(whoisDocCount, is(0L));
         elasticIndexService.addEntry(RPSL_MNT_PERSON);
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // one document after adding
-        assertThat(whoisDocCount, is(1));
+        assertThat(whoisDocCount, is(1L));
         elasticIndexService.deleteAll();
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // no document in index after deleting
-        assertThat(whoisDocCount, is(0));
+        assertThat(whoisDocCount, is(0L));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
 
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         // one document after adding
-        assertThat(elasticIndexService.getWhoisDocCount(), is(1));
+        assertThat(elasticIndexService.getWhoisDocCount(), is(1L));
 
          whoisTemplate.update("INSERT INTO serials "
                         + " (serial_id, object_id, sequence_id, atlast, operation) "
@@ -104,7 +104,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
                                     "source:       TEST', 'LIM-WEBUPDATES')");
 
         rebuildIndex();
-        assertThat(elasticIndexService.getWhoisDocCount(), is(1));
+        assertThat(elasticIndexService.getWhoisDocCount(), is(1L));
     }
 
     @Override
