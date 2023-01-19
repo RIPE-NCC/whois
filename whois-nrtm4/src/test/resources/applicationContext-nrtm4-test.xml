@@ -11,8 +11,6 @@
 
     <import resource="applicationContext-nrtm4.xml"/>
 
-    <context:component-scan base-package="net.ripe.db.nrtm4"/>
-
     <context:property-placeholder
             location="classpath:whois.version.properties,classpath:whois.properties"
             system-properties-mode="OVERRIDE"/>

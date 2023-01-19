@@ -27,4 +27,14 @@
         <property name="password" value="${nrtm.database.password}"/>
     </bean>
 
+    <bean id="nrtmSlaveDataSource" parent="abstractDataSource">
+        <property name="jdbcUrl" value="${nrtm.slave.database.url}"/>
+        <property name="user" value="${nrtm.slave.database.username}"/>
+        <property name="password" value="${nrtm.slave.database.password}"/>
+    </bean>
+
+    <bean id="nrtmTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="nrtmDataSource"/>
+    </bean>
+
 </beans>
