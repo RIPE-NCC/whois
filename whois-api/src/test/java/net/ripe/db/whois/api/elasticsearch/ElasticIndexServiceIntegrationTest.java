@@ -68,6 +68,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
         Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
 
         ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "TEST");
+
         assertThat(elasticIndexService.getMetadata(), is(nullValue()));
         elasticIndexService.updateMetadata(elasticIndexMetadata);
         ElasticIndexMetadata retrievedMetaData = elasticIndexService.getMetadata();
