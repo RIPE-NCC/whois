@@ -289,7 +289,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         final List<Map<String, Object>> response = query("ww", "admin-c", "person", "created");
 
         assertThat(response, hasSize(1));
-        assertThat(response.get(0), is(4));
+        assertThat(response.get(0).size(), is(4));
         assertThat(getValues(response, "key"), contains("ww1-test"));
         assertThat(getValues(response, "type"), contains("person"));
         assertThat(getValues(response, "person"), contains("person test"));

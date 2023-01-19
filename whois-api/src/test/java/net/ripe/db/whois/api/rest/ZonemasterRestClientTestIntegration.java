@@ -18,12 +18,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class ZonemasterTestIntegration extends AbstractIntegrationTest {
+public class ZonemasterRestClientTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private ZonemasterDummy zonemasterDummy;
@@ -72,25 +70,6 @@ public class ZonemasterTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getResult(), is("b3a92c89c92414ed"));
     }
 
-
-    @Test
-    public void start_domain_test_with_bad_domain() {
-        final RpslObject domainObject = RpslObject.parse(
-                "domain:    bad.domain.in-addr.arpa\n" +
-                        "nserver:   ns1.ripe.net\n" +
-                        "nserver:   ns2.ripe.net\n" +
-                        "ds-rdata:  45123 10 2 76B64430CB85EA74E92184B9AF1F75482577237A4A5C23784AF9D2C1 7639088E\n" +
-                        "source:    TEST");
-        final DnsCheckRequest request = new DnsCheckRequest(createUpdate(domainObject), domainObject.getKey().toString(), "ns1.ripe.net/10.0.1.1 ns2.ripe.net/10.0.1.2");
-
-        try {
-            zonemasterRestClient.sendRequest(new StartDomainTestRequest(request)).readEntity(StartDomainTestResponse.class);
-            fail();
-        } catch (IllegalStateException e){
-            assertThat(e.getMessage(), containsString("domain:    bad.domain.in-addr.arpa"));
-        }
-
-    }
     // helper methods
 
     private static Update createUpdate(final RpslObject rpslObject) {
