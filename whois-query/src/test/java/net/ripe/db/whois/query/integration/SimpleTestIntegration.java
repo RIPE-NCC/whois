@@ -29,11 +29,11 @@ import static net.ripe.db.whois.query.support.PatternCountMatcher.matchesPattern
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Tag("IntegrationTest")
 public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
@@ -487,8 +487,8 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
         int i = 1;
         for (RpslObjectVersions.Entry entry : entries) {
-            assertEquals(entry.getVersion(), i);
-            assertEquals(entry.getOperation(), RpslObjectVersions.Operation.ADD_UPDATE);
+            assertThat(entry.getVersion(), equalTo(i));
+            assertThat(entry.getOperation(), equalTo(RpslObjectVersions.Operation.ADD_UPDATE));
             i++;
         }
     }

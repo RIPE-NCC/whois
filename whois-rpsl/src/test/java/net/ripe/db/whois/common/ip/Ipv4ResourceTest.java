@@ -7,7 +7,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Ipv4ResourceTest {
@@ -223,14 +222,14 @@ public class Ipv4ResourceTest {
 
     @Test
     public void compareUpperBounds() {
-        assertEquals(0, Ipv4Resource.MAX_RANGE.compareUpperBound(Ipv4Resource.MAX_RANGE));
-        assertEquals(-1, Ipv4Resource.parse("127.0.0.0/8").compareUpperBound(Ipv4Resource.MAX_RANGE));
-        assertEquals(1, Ipv4Resource.MAX_RANGE.compareUpperBound(Ipv4Resource.parse("127.0.0.0/8")));
+        assertThat(Ipv4Resource.MAX_RANGE.compareUpperBound(Ipv4Resource.MAX_RANGE), is(0));
+        assertThat(Ipv4Resource.parse("127.0.0.0/8").compareUpperBound(Ipv4Resource.MAX_RANGE), is(-1));
+        assertThat(Ipv4Resource.MAX_RANGE.compareUpperBound(Ipv4Resource.parse("127.0.0.0/8")), is(1));
     }
 
     @Test
     public void singletonIntervalAtLowerBound() {
-        assertEquals(Ipv4Resource.parse("127.0.0.0/32"), Ipv4Resource.parse("127.0.0.0/8").singletonIntervalAtLowerBound());
+        assertThat(Ipv4Resource.parse("127.0.0.0/8").singletonIntervalAtLowerBound(), equalTo(Ipv4Resource.parse("127.0.0.0/32")));
     }
 
     @Test

@@ -36,9 +36,9 @@ import java.util.Optional;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
@@ -125,7 +125,7 @@ public class RpslResponseDecoratorTest {
 
         final String response = execute("-r -F -G -B -T mntner FOO-MNT", RpslObject.parse(1, "mntner: FOO-MNT\n"));
 
-        assertEquals("*mt: FOO-MNT\n\n", response);
+        assertThat(response, equalTo("*mt: FOO-MNT\n\n"));
     }
 
     @Test
@@ -181,7 +181,7 @@ public class RpslResponseDecoratorTest {
                 RpslObject.parse(1, "organisation: FOO-ORG\nsource: RIPE\n"),
                 RpslObject.parse(1, "organisation: BAR-ORG\nsource: RIPE\n"));
 
-        assertEquals("" +
+        assertThat(response, equalTo(
                 QueryMessages.outputFilterNotice() +
                 "\n" +
                 "organisation:   FOO-ORG\n" +
@@ -189,7 +189,7 @@ public class RpslResponseDecoratorTest {
                 "\n" +
                 "organisation:   BAR-ORG\n" +
                 "source:         RIPE\n" +
-                "\n", response);
+                "\n"));
     }
 
     @Test
@@ -201,13 +201,13 @@ public class RpslResponseDecoratorTest {
                 RpslObject.parse(1, "organisation: FOO-ORG\nsource: RIPE\n"),
                 RpslObject.parse(1, "organisation: BAR-ORG\nsource: RIPE\n"));
 
-        assertEquals("" +
+        assertThat(response, equalTo(
                 "organisation:   FOO-ORG\n" +
                 "source:         RIPE\n" +
                 "\n" +
                 "organisation:   BAR-ORG\n" +
                 "source:         RIPE\n" +
-                "\n", response);
+                "\n"));
     }
 
     @Test
@@ -219,13 +219,13 @@ public class RpslResponseDecoratorTest {
                 RpslObject.parse(1, "organisation: FOO-ORG\nsource: APNIC-GRS\n"),
                 RpslObject.parse(1, "organisation: BAR-ORG\nsource: APNIC-GRS\n"));
 
-        assertEquals("" +
+        assertThat(response, equalTo(
                 "organisation:   FOO-ORG\n" +
                 "source:         APNIC-GRS\n" +
                 "\n" +
                 "organisation:   BAR-ORG\n" +
                 "source:         APNIC-GRS\n" +
-                "\n", response);
+                "\n"));
     }
 
     @Test

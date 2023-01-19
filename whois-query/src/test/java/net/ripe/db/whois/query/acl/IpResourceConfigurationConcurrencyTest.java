@@ -4,10 +4,9 @@ import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetAddress;
@@ -20,7 +19,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,7 +62,7 @@ public class IpResourceConfigurationConcurrencyTest {
         }
 
         for (Future<Exception> f : result) {
-            assertEquals(null, f.get());
+            assertThat(f.get(), is(nullValue()));
         }
     }
 

@@ -16,12 +16,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -324,7 +324,7 @@ public class QueryTest {
     public void proxied_for() {
         parse("-VclientId,10.0.0.0 foo");
 
-        assertEquals("clientId,10.0.0.0", subject.getProxy());
+        assertThat(subject.getProxy(), equalTo("clientId,10.0.0.0"));
     }
 
     @Test
@@ -369,7 +369,7 @@ public class QueryTest {
     public void to_string_returns_input() {
         parse("-r -GBTinetnum dont_care");
 
-        assertEquals("-r -GBTinetnum dont_care", subject.toString());
+        assertThat(subject.toString(), equalTo("-r -GBTinetnum dont_care"));
     }
 
     @Test

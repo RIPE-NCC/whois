@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class IntervalTreeKeyTest {
@@ -17,8 +16,8 @@ public class IntervalTreeKeyTest {
 
     @Test
     public void should_contain_inetnum_and_object_id() {
-        assertEquals(Ipv4Resource.parse("127.0.0.0/8"), subject.getKey(), "key");
-        assertEquals(1, subject.getObjectId(), "objectId");
+        assertThat(subject.getKey(), equalTo(Ipv4Resource.parse("127.0.0.0/8")));
+        assertThat(subject.getObjectId(), equalTo(1));
     }
 
     @Test
@@ -28,8 +27,8 @@ public class IntervalTreeKeyTest {
         Ipv4Entry c = new Ipv4Entry(Ipv4Resource.parse("10.0.0.0/8"), 1);
         Ipv4Entry d = new Ipv4Entry(Ipv4Resource.parse("10.0.0.0/8"), 7);
 
-        assertEquals(a, a, "same");
-        assertEquals(a, b, "equal");
+        assertThat(a, equalTo(a));
+        assertThat(a, equalTo(b));
         assertThat(a, not(equalTo(null)));
         assertThat(a, not(equalTo(new Object())));  // different class
         assertThat(a, not(equalTo(c))); //  different key

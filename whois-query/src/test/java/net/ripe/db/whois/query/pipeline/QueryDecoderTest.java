@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +57,7 @@ public class QueryDecoderTest {
 
         subject.decode(channelHandlerContextMock, queryString, actualQuery);
 
-        assertEquals(expectedQuery, actualQuery.get(0));
+        assertThat(actualQuery.get(0), equalTo(expectedQuery));
     }
 
     @Test

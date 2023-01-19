@@ -9,7 +9,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Ipv6ResourceTest {
@@ -135,14 +134,14 @@ public class Ipv6ResourceTest {
 
     @Test
     public void compareUpperBounds() {
-        assertEquals(0, Ipv6Resource.MAX_RANGE.compareUpperBound(Ipv6Resource.MAX_RANGE));
-        assertEquals(-1, Ipv6Resource.parse("2001:ffce::/32").compareUpperBound(Ipv6Resource.MAX_RANGE));
-        assertEquals(1, Ipv6Resource.MAX_RANGE.compareUpperBound(Ipv6Resource.parse("2001:ffce::/32")));
+        assertThat(Ipv6Resource.MAX_RANGE.compareUpperBound(Ipv6Resource.MAX_RANGE), is(0));
+        assertThat(Ipv6Resource.parse("2001:ffce::/32").compareUpperBound(Ipv6Resource.MAX_RANGE), is(-1));
+        assertThat(Ipv6Resource.MAX_RANGE.compareUpperBound(Ipv6Resource.parse("2001:ffce::/32")), is(1));
     }
 
     @Test
     public void singletonIntervalAtLowerBound() {
-        assertEquals(Ipv6Resource.parse("2001::/128"), Ipv6Resource.parse("2001::/77").singletonIntervalAtLowerBound());
+        assertThat(Ipv6Resource.parse("2001::/77").singletonIntervalAtLowerBound(), is(Ipv6Resource.parse("2001::/128")));
     }
 
     @Test
@@ -381,7 +380,7 @@ public class Ipv6ResourceTest {
     public void parse_from_strings_124() {
         Ipv6Resource ipv6Resource = Ipv6Resource.parse("2a02:27d0:116:fffe:fffe:fffe:1671::/124");
         Ipv6Resource parsedFromStrings = Ipv6Resource.parseFromStrings(Long.toString(Ipv6Resource.msb(ipv6Resource.begin())), Long.toString(Ipv6Resource.lsb(ipv6Resource.begin())), ipv6Resource.getPrefixLength());
-        assertEquals(ipv6Resource, parsedFromStrings);
+        assertThat(parsedFromStrings, equalTo(ipv6Resource));
     }
 
     @Test

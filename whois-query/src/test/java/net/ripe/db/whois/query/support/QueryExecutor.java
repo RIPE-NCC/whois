@@ -21,7 +21,9 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 
 public class QueryExecutor {
     private static final byte[] DOUBLE_NEWLINE = new byte[]{'\n', '\n'};
@@ -133,8 +135,8 @@ public class QueryExecutor {
     @Test
     public void byteArrayIndexOfTest() {
         byte[] res = new byte[]{1, '\n', '\n', 2, '\n', '\r', '\n', '\r', 3};
-        assertEquals(1, ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 0, STUPID_NEWLINE));
-        assertEquals(4, ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 3, STUPID_NEWLINE));
-        assertEquals(-1, ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 6, STUPID_NEWLINE));
+        assertThat(ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 0, STUPID_NEWLINE), is(1));
+        assertThat(ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 3, STUPID_NEWLINE), is(4));
+        assertThat(ByteArrayContains.indexOfIgnoring(res, DOUBLE_NEWLINE, 6, STUPID_NEWLINE), is(-1));
     }
 }
