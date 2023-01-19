@@ -16,6 +16,8 @@ import static net.ripe.db.nrtm4.NrtmConstants.SNAPSHOT_PREFIX;
 @Service
 public class NrtmFileService {
 
+    public static final int MAX_LENGTH_SESSION_ID = 256;
+    public static final int MAX_LENGTH_FILE_NAME = 256;
     private final NotificationFileRepository notificationFileRepository;
     private final NrtmFileStore nrtmFileStore;
     private final NrtmFileSync nrtmFileSync;
@@ -31,8 +33,8 @@ public class NrtmFileService {
     }
 
     void writeFileToStream(final String sessionId, final String name, final OutputStream out) throws IOException {
-        if (sessionId == null || name == null || sessionId.length() > 256 || name.length() > 256) {
-            throw new IllegalArgumentException("Invalid NRTM file name");
+        if (sessionId == null || name == null || sessionId.length() > MAX_LENGTH_SESSION_ID || name.length() > MAX_LENGTH_FILE_NAME) {
+            throw new IllegalArgumentException("Invalid NRTM sessionID / file name");
         }
         if (name.startsWith(NOTIFICATION_PREFIX)) {
             // TODO: how do we know which source to use when serving a notification request?

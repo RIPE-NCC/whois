@@ -13,7 +13,7 @@ import static net.ripe.db.nrtm4.NrtmConstants.SNAPSHOT_PREFIX;
 
 public class NrtmFileUtil {
 
-    public static String fileName(final PublishableNrtmDocument file) {
+    public static String newFileName(final PublishableNrtmDocument file) {
         final String prefix = file.getType() == NrtmDocumentType.DELTA ? DELTA_PREFIX
             : file.getType() == NrtmDocumentType.SNAPSHOT ? SNAPSHOT_PREFIX
             : file.getType() == NrtmDocumentType.NOTIFICATION ? NOTIFICATION_PREFIX : "";

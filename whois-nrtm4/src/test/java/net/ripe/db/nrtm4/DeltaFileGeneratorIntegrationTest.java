@@ -74,7 +74,7 @@ public class DeltaFileGeneratorIntegrationTest extends AbstractDatabaseHelperInt
 
         try (final MockedStatic<NrtmFileUtil> nrtmFileUtil = Mockito.mockStatic(NrtmFileUtil.class)) {
             nrtmFileUtil.when(NrtmFileUtil::sessionId).thenReturn("1234567890");
-            nrtmFileUtil.when(() -> NrtmFileUtil.fileName(any())).thenReturn("nrtm-delta.2.1234567890");
+            nrtmFileUtil.when(() -> NrtmFileUtil.newFileName(any())).thenReturn("nrtm-delta.2.1234567890");
 
             versionDao.createInitialVersion(NrtmSourceHolder.valueOf("TEST"), 0);
 

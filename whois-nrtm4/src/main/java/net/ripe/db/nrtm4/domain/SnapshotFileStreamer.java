@@ -2,8 +2,8 @@ package net.ripe.db.nrtm4.domain;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import net.ripe.db.nrtm4.dao.NrtmDocumentType;
 import net.ripe.db.nrtm4.dao.SnapshotObjectIteratorRepository;
 import org.springframework.stereotype.Service;
@@ -27,8 +27,8 @@ public class SnapshotFileStreamer {
         final PublishableSnapshotFile snapshotFile,
         final OutputStream outputStream
     ) throws IOException {
-        final ObjectWriter mapper = new ObjectMapper().writerWithDefaultPrettyPrinter();
-        final JsonGenerator jGenerator = mapper.getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
+        final JsonGenerator jGenerator = new ObjectMapper().getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
+        jGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
         jGenerator.writeStartObject();
         jGenerator.writeNumberField("nrtm_version", snapshotFile.getNrtmVersion());
         jGenerator.writeStringField("type", NrtmDocumentType.SNAPSHOT.lowerCaseName());

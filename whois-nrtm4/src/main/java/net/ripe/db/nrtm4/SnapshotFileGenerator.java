@@ -74,7 +74,7 @@ public class SnapshotFileGenerator {
             }
         }
         final PublishableSnapshotFile snapshotFile = new PublishableSnapshotFile(version);
-        final String fileName = NrtmFileUtil.fileName(snapshotFile);
+        final String fileName = NrtmFileUtil.newFileName(snapshotFile);
         try {
             final long start = System.currentTimeMillis();
             final OutputStream out = nrtmFileStore.getFileOutputStream(snapshotFile.getSessionID(), fileName);

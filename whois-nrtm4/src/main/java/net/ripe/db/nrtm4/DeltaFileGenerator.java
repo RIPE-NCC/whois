@@ -72,7 +72,7 @@ public class DeltaFileGenerator {
             throw new RuntimeException(e);
         }
 
-        final String fileName = NrtmFileUtil.fileName(deltaFile);
+        final String fileName = NrtmFileUtil.newFileName(deltaFile);
         final String sha256hex = DigestUtils.sha256Hex(payload);
 
         deltaFileRepository.save(

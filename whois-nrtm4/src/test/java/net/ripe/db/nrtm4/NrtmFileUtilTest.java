@@ -41,14 +41,14 @@ public class NrtmFileUtilTest {
     @Test
     void snapshot_file_name_looks_legit() {
         final var file = new PublishableSnapshotFile(testSnapshotVersion);
-        final var name = NrtmFileUtil.fileName(file);
+        final var name = NrtmFileUtil.newFileName(file);
         assertThat(name, startsWith("nrtm-snapshot.22."));
     }
 
     @Test
     void delta_file_name_looks_legit() {
         final var file = new PublishableDeltaFile(testDeltaVersion, List.of());
-        final var name = NrtmFileUtil.fileName(file);
+        final var name = NrtmFileUtil.newFileName(file);
         assertThat(name, startsWith("nrtm-delta.22."));
     }
 
