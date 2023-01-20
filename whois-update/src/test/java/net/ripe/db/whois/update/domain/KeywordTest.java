@@ -2,9 +2,10 @@ package net.ripe.db.whois.update.domain;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 public class KeywordTest {
 
@@ -21,7 +22,7 @@ public class KeywordTest {
     @Test
     public void getAction() {
         for (final Keyword keyword : Keyword.values()) {
-            assertNotNull(keyword.getAction());
+            assertThat(keyword.getAction(), not(nullValue()));
         }
     }
 }

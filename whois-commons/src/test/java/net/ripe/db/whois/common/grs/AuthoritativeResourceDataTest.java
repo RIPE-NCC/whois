@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.grs;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.source.IllegalSourceException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +15,7 @@ import java.io.File;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -70,7 +70,7 @@ public class AuthoritativeResourceDataTest {
 
     @Test
     public void nonexistant_source_throws_exception() {
-        Assertions.assertThrows(IllegalSourceException.class, () -> {
+        assertThrows(IllegalSourceException.class, () -> {
             authoritativeResourceData.getAuthoritativeResource(ciString("BLAH"));
         });
     }

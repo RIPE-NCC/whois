@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.source;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.DataSourceFactory;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +18,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -75,7 +75,7 @@ public class SourceContextTest {
 
     @Test
     public void setCurrent_unknown_source() {
-        Assertions.assertThrows(IllegalSourceException.class, () -> {
+        assertThrows(IllegalSourceException.class, () -> {
             subject.setCurrent(Source.slave("UNKNOWN-GRS"));
         });
     }

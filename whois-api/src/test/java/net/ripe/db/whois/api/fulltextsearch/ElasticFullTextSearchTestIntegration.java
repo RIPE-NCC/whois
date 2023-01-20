@@ -47,7 +47,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
     private static final String WHOIS_INDEX = "whois_fulltext";
     private static final String METADATA_INDEX = "metadata_fulltext";
 
-  
+
     @Autowired TestPersonalObjectAccounting testPersonalObjectAccounting;
     @Autowired JdbcAccessControlListDao jdbcAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
@@ -215,7 +215,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults().getNumFound(), is(3L));
         final List<FacetField> facets = queryResponse.getFacetFields();
-        assertThat(facets.size(), is(1));
+        assertThat(facets, hasSize(1));
         final FacetField facet = facets.get(0);
         assertThat(facet.getName(), is("object-type"));
         assertThat(facet.getValueCount(), is(2));
@@ -258,7 +258,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
 
 
         final List<FacetField> facets = queryResponse.getFacetFields();
-        assertThat(facets.size(), is(1));
+        assertThat(facets, hasSize(1));
 
         //will show true count
         final FacetField facet = facets.get(0);
@@ -327,7 +327,7 @@ public class ElasticFullTextSearchTestIntegration  extends AbstractElasticSearch
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         final List<FacetField> facets = queryResponse.getFacetFields();
-        assertThat(facets.size(), is(1));
+        assertThat(facets, hasSize(1));
         final FacetField facet = facets.get(0);
         assertThat(facet.getName(), is("object-type"));
         assertThat(facet.getValueCount(), is(1));

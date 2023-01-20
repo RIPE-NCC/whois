@@ -1,12 +1,12 @@
 package net.ripe.db.whois.update.dao;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CountryCodeRepositoryTest {
     CountryCodeRepository subject;
@@ -23,7 +23,7 @@ public class CountryCodeRepositoryTest {
 
     @Test
     public void getCountryCodes_immutable() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+        assertThrows(UnsupportedOperationException.class, () -> {
             subject.getCountryCodes().add(ciString("DE"));
         });
     }

@@ -30,7 +30,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
@@ -338,7 +337,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
         final String result = RestTest.target(getPort(), "whois/autocomplete?field=inetnum&query=81.26.54.100+-+").request().get(String.class);
 
-        assertTrue(result.contains("81.26.54.100 - 81.26.54.107"));
+        assertThat(result, containsString("81.26.54.100 - 81.26.54.107"));
     }
 
     @Test
@@ -350,7 +349,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
         final List<String> keys = getValues(query("AUTH", "mnt-by"), "key");
 
-        assertThat(keys.size(), is(3));
+        assertThat(keys, hasSize(3));
         assertThat(keys.get(0), is("AUTH"));
     }
 
@@ -364,7 +363,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
         final List<String> keys = getValues(query("telecom", "mnt-by"), "key");
 
-        assertThat(keys.size(), is(4));
+        assertThat(keys, hasSize(4));
         assertThat(keys.get(0), is("telecom"));
         assertThat(keys.get(1), is("AB-TELECOM-MNT"));
         assertThat(keys.get(2), is("ADM-RUS-TELECOM"));

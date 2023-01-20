@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 public class JdbcUserDaoIntegrationTest extends AbstractDaoIntegrationTest {
@@ -23,7 +23,7 @@ public class JdbcUserDaoIntegrationTest extends AbstractDaoIntegrationTest {
 
     @Test
     public void getOverrideUser_not_found() {
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             subject.getOverrideUser("unexist");
         });
     }

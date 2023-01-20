@@ -26,8 +26,6 @@ import java.time.LocalDate;
 import static net.ripe.db.whois.query.acl.AccessControlListManager.mask;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -91,38 +89,38 @@ public class AccessControlListManagerTest {
 
     @Test
     public void check_denied_restricted() throws Exception {
-        assertTrue(subject.isDenied(ipv4Restricted));
-        assertTrue(subject.isDenied(ipv6Restricted));
+        assertThat(subject.isDenied(ipv4Restricted), is(true));
+        assertThat(subject.isDenied(ipv6Restricted), is(true));
     }
 
     @Test
     public void check_denied_unrestricted() throws Exception {
-        assertFalse(subject.isDenied(ipv4Unrestricted));
-        assertFalse(subject.isDenied(ipv6Unrestricted));
+        assertThat(subject.isDenied(ipv4Unrestricted), is(false));
+        assertThat(subject.isDenied(ipv6Unrestricted),is(false));
     }
 
     @Test
     public void check_denied_unknown() throws Exception {
-        assertFalse(subject.isDenied(ipv4Unknown));
-        assertFalse(subject.isDenied(ipv6Unknown));
+        assertThat(subject.isDenied(ipv4Unknown), is(false));
+        assertThat(subject.isDenied(ipv6Unknown), is(false));
     }
 
     @Test
     public void check_proxy_restricted() throws Exception {
-        assertFalse(subject.isAllowedToProxy(ipv4Restricted));
-        assertFalse(subject.isAllowedToProxy(ipv6Restricted));
+        assertThat(subject.isAllowedToProxy(ipv4Restricted), is(false));
+        assertThat(subject.isAllowedToProxy(ipv6Restricted), is(false));
     }
 
     @Test
     public void check_proxy_unrestricted() throws Exception {
-        assertTrue(subject.isAllowedToProxy(ipv4Unrestricted));
-        assertTrue(subject.isAllowedToProxy(ipv6Unrestricted));
+        assertThat(subject.isAllowedToProxy(ipv4Unrestricted), is(true));
+        assertThat(subject.isAllowedToProxy(ipv6Unrestricted), is(true));
     }
 
     @Test
     public void check_proxy_unknown() throws Exception {
-        assertFalse(subject.isAllowedToProxy(ipv4Unknown));
-        assertFalse(subject.isAllowedToProxy(ipv6Unknown));
+        assertThat(subject.isAllowedToProxy(ipv4Unknown), is(false));
+        assertThat(subject.isAllowedToProxy(ipv6Unknown), is(false));
     }
 
     @Test
@@ -157,40 +155,40 @@ public class AccessControlListManagerTest {
 
     @Test
     public void requiresAcl_withRipeSource() {
-        assertTrue(subject.requiresAcl(person, Source.slave("RIPE")));
+        assertThat(subject.requiresAcl(person, Source.slave("RIPE")), is(true));
 
-        assertTrue(subject.requiresAcl(role, Source.slave("RIPE")));
-        assertFalse(subject.requiresAcl(roleWithAbuseMailbox, Source.slave("RIPE")));
-        assertFalse(subject.requiresAcl(autNum, Source.slave("RIPE")));
-        assertFalse(subject.requiresAcl(inetnum, Source.slave("RIPE")));
-        assertFalse(subject.requiresAcl(domain, Source.slave("RIPE")));
+        assertThat(subject.requiresAcl(role, Source.slave("RIPE")), is(true));
+        assertThat(subject.requiresAcl(roleWithAbuseMailbox, Source.slave("RIPE")), is(false));
+        assertThat(subject.requiresAcl(autNum, Source.slave("RIPE")), is(false));
+        assertThat(subject.requiresAcl(inetnum, Source.slave("RIPE")), is(false));
+        assertThat(subject.requiresAcl(domain, Source.slave("RIPE")), is(false));
     }
 
     @Test
     public void requiresAcl_withNonRipeSource() {
-        assertFalse(subject.requiresAcl(autNum, Source.slave("APNIC-GRS")));
-        assertFalse(subject.requiresAcl(person, Source.slave("APNIC-GRS")));
-        assertFalse(subject.requiresAcl(role, Source.slave("AFRINIC-GRS")));
-        assertFalse(subject.requiresAcl(person, Source.slave("AFRINIC-GRS")));
-        assertFalse(subject.requiresAcl(role, Source.slave("JPIRR-GRS")));
-        assertFalse(subject.requiresAcl(inetnum, Source.slave("JPIRR-GRS")));
-        assertFalse(subject.requiresAcl(autNum, Source.slave("RADB-GRS")));
+        assertThat(subject.requiresAcl(autNum, Source.slave("APNIC-GRS")), is(false));
+        assertThat(subject.requiresAcl(person, Source.slave("APNIC-GRS")), is(false));
+        assertThat(subject.requiresAcl(role, Source.slave("AFRINIC-GRS")), is(false));
+        assertThat(subject.requiresAcl(person, Source.slave("AFRINIC-GRS")), is(false));
+        assertThat(subject.requiresAcl(role, Source.slave("JPIRR-GRS")), is(false));
+        assertThat(subject.requiresAcl(inetnum, Source.slave("JPIRR-GRS")), is(false));
+        assertThat(subject.requiresAcl(autNum, Source.slave("RADB-GRS")), is(false));
     }
 
     @Test
     public void requiresAcl_withTest() {
-        assertTrue(subject.requiresAcl(person, Source.slave("TEST")));
+        assertThat(subject.requiresAcl(person, Source.slave("TEST")), is(true));
+        assertThat(subject.requiresAcl(role, Source.slave("TEST")), is(true));
 
-        assertTrue(subject.requiresAcl(role, Source.slave("TEST")));
-        assertFalse(subject.requiresAcl(roleWithAbuseMailbox, Source.slave("TEST")));
-        assertFalse(subject.requiresAcl(autNum, Source.slave("TEST")));
-        assertFalse(subject.requiresAcl(inetnum, Source.slave("TEST")));
-        assertFalse(subject.requiresAcl(domain, Source.slave("TEST")));
+        assertThat(subject.requiresAcl(roleWithAbuseMailbox, Source.slave("TEST")), is(false));
+        assertThat(subject.requiresAcl(autNum, Source.slave("TEST")), is(false));
+        assertThat(subject.requiresAcl(inetnum, Source.slave("TEST")), is(false));
+        assertThat(subject.requiresAcl(domain, Source.slave("TEST")), is(false));
     }
 
     @Test
     public void testMask() throws UnknownHostException {
-        InetAddress subject = Inet6Address.getByName("3ffe:6a88:85a3:98d3:1319:8a2e:9370:7344");
+        final InetAddress subject = Inet6Address.getByName("3ffe:6a88:85a3:98d3:1319:8a2e:9370:7344");
 
         assertThat(mask(subject, 125).getHostAddress(), is("3ffe:6a88:85a3:98d3:1319:8a2e:9370:7340"));
         assertThat(mask(subject, 112).getHostAddress(), is("3ffe:6a88:85a3:98d3:1319:8a2e:9370:0"));

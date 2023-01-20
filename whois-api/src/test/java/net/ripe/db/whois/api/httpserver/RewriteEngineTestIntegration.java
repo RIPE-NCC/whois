@@ -36,7 +36,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -143,7 +142,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
                 .put(javax.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertTrue(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS));
+        assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
     }
 
     @Test
@@ -161,7 +160,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
                 .post(javax.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertTrue(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS));
+        assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
     }
 
     @Test
@@ -234,7 +233,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .get(String.class);
 
-        assertTrue(result.contains("abuse@test.net"));
+        assertThat(result, containsString("abuse@test.net"));
     }
 
     @Test

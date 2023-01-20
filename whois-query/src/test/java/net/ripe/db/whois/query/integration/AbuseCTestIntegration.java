@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Tag("IntegrationTest")
 public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
@@ -249,7 +248,7 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
                 "source:        NON-TEST"));
 
         final String responseNoAbuseC = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
-        assertFalse(responseNoAbuseC.contains("Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
+        assertThat(responseNoAbuseC, not(containsString("Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'")));
 
         databaseHelper.updateObject(RpslObject.parse( "inetnum:       173.0.0.0 - 173.255.255.255\n" +
                 "org:           ORG-TEST-1\n" +

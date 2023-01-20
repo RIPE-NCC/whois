@@ -200,7 +200,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults().getNumFound(), is(3L));
         final List<FacetField> facets = queryResponse.getFacetFields();
-        assertThat(facets.size(), is(1));
+        assertThat(facets, hasSize(1));
         final FacetField facet = facets.get(0);
         assertThat(facet.getName(), is("object-type"));
         assertThat(facet.getValueCount(), is(2));
@@ -243,7 +243,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
 
 
         final List<FacetField> facets = queryResponse.getFacetFields();
-        assertThat(facets.size(), is(1));
+        assertThat(facets, hasSize(1));
 
         //will show true count
         final FacetField facet = facets.get(0);
@@ -312,7 +312,7 @@ public class FullTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getResults(), hasSize(1));
         final List<FacetField> facets = queryResponse.getFacetFields();
-        assertThat(facets.size(), is(1));
+        assertThat(facets, hasSize(1));
         final FacetField facet = facets.get(0);
         assertThat(facet.getName(), is("object-type"));
         assertThat(facet.getValueCount(), is(1));

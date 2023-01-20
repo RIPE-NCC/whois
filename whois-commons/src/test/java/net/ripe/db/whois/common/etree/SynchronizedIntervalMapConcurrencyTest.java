@@ -13,9 +13,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class SynchronizedIntervalMapConcurrencyTest {
     private final IntervalMap<Ipv4Resource, Ipv4Entry> subject = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv4Resource, Ipv4Entry>());
@@ -46,7 +47,7 @@ public class SynchronizedIntervalMapConcurrencyTest {
             executor.shutdown();
         }
         for (Future<Exception> f : result) {
-            assertEquals(null, f.get());
+            assertThat(f.get(), is(nullValue()));
         }
     }
 

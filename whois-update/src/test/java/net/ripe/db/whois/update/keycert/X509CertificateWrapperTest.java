@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.keycert;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +17,7 @@ import java.time.LocalDateTime;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -107,7 +107,7 @@ public class X509CertificateWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST");
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             X509CertificateWrapper.parse(keycert);
         });
     }
@@ -124,7 +124,7 @@ public class X509CertificateWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST");
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             X509CertificateWrapper.parse(keycert);
         });
     }
@@ -142,7 +142,7 @@ public class X509CertificateWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST");
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             X509CertificateWrapper.parse(keycert);
         });
     }
@@ -157,7 +157,7 @@ public class X509CertificateWrapperTest {
                 "mnt-by:          UPD-MNT\n" +
                 "source:          TEST");
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             X509CertificateWrapper.parse(keycert);
         });
     }

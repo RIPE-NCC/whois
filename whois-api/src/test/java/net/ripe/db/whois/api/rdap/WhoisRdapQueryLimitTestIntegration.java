@@ -175,7 +175,7 @@ public class WhoisRdapQueryLimitTestIntegration extends AbstractRdapIntegrationT
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(response.getDomainSearchResults().size(), equalTo(2));
+        assertThat(response.getDomainSearchResults(), hasSize(2));
         assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("17.45.212.in-addr.arpa"));
         assertThat(response.getDomainSearchResults().get(1).getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(response.getNotices(), hasSize(2));

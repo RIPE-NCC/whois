@@ -1,10 +1,11 @@
 package net.ripe.db.whois.api.rdap;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class RdapRequestValidatorTest {
@@ -14,7 +15,7 @@ public class RdapRequestValidatorTest {
 
     @Test
     public void shouldThrowExceptionForInvalidOrganisation() {
-        Assertions.assertThrows(RdapException.class, () -> {
+        assertThrows(RdapException.class, () -> {
             validator.validateEntity("ORG-Test");
         });
     }
@@ -26,14 +27,14 @@ public class RdapRequestValidatorTest {
 
     @Test
     public void shouldThrowExceptionForInvalidAutnum() {
-        Assertions.assertThrows(RdapException.class, () -> {
+        assertThrows(RdapException.class, () -> {
             validator.validateAutnum("TEST");
         });
     }
 
     @Test
     public void shouldThrowExceptionForInvalidIP() {
-        Assertions.assertThrows(RdapException.class, () -> {
+        assertThrows(RdapException.class, () -> {
             validator.validateIp("", "invalid");
         });
     }

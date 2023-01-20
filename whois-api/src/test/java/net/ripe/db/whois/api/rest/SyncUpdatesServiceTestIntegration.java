@@ -42,8 +42,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -166,8 +164,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
-        assertNotNull(getMessage("noreply@ripe.net"));
-        assertFalse(anyMoreMessages());
+        assertThat(getMessage("noreply@ripe.net"), not(nullValue()));
+        assertThat(anyMoreMessages(), is(false));
     }
 
     @Test
@@ -181,7 +179,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("Modify SUCCEEDED: [mntner] mntner"));
-        assertNotNull(getMessage("noreply@ripe.net"));
+        assertThat(getMessage("noreply@ripe.net"), not(nullValue()));
         assertThat(anyMoreMessages(), is(false));
     }
 
