@@ -2,6 +2,8 @@ package net.ripe.db.nrtm4.domain;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.dao.NrtmDocumentType;
 import net.ripe.db.nrtm4.dao.SnapshotObjectIteratorRepository;
@@ -27,7 +29,9 @@ public class SnapshotFileSerializer {
         final OutputStream outputStream
     ) throws IOException {
         final JsonGenerator jGenerator = new ObjectMapper().getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
-        //jGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
+        final DefaultPrettyPrinter pp = new DefaultPrettyPrinter();
+        pp.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+        jGenerator.setPrettyPrinter(pp);
         jGenerator.writeStartObject();
         jGenerator.writeNumberField("nrtm_version", snapshotFile.getNrtmVersion());
         jGenerator.writeStringField("type", NrtmDocumentType.SNAPSHOT.lowerCaseName());
@@ -47,4 +51,7 @@ public class SnapshotFileSerializer {
         jGenerator.close();
     }
 
+    static class PrettyPrinterWithObjectOnNewLine extends DefaultPrettyPrinter {
+
+    }
 }

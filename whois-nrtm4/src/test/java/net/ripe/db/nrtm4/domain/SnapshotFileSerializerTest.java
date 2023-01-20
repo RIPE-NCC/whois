@@ -50,7 +50,14 @@ public class SnapshotFileSerializerTest {
         serializer.writeSnapshotAsJson(file, out);
         out.close();
         final var expected = """
-            {"nrtm_version":4,"type":"snapshot","source":"TEST","session_id":"abcdef123","version":26,"objects":[]}""";
+            {
+              "nrtm_version" : 4,
+              "type" : "snapshot",
+              "source" : "TEST",
+              "session_id" : "abcdef123",
+              "version" : 26,
+              "objects" : [ ]
+            }""";
         assertThat(out.toString(StandardCharsets.UTF_8), is(expected));
     }
 
