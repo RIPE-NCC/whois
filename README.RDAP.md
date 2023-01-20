@@ -16,9 +16,9 @@ Multiple organisation e-mail and phone attributes are returned, but not with pre
 ----------------------------------------------------------------------------------------
 Preferences are not assigned to multiple e-mail or phone elements.
 
-Flat Model
+Flat AS Model
 ----------------------------------------
-Not Found (404) is throwed if AS number is not found.
+Not Found (404) is thrown if AS number is not found.
 
 Custom "ZONE" role for domain objects
 -------------------------------------
