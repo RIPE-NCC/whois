@@ -16,13 +16,9 @@ Multiple organisation e-mail and phone attributes are returned, but not with pre
 ----------------------------------------------------------------------------------------
 Preferences are not assigned to multiple e-mail or phone elements.
 
-AS block returned if AS number not found
+Flat Model
 ----------------------------------------
-If an AS number is allocated to the RIPE region, that is returned.
-
-If an AS number is allocated to a different region, a redirect is returned.
-
-If an AS number is not allocated to any region, the parent AS block is returned. This includes reserved AS numbers.
+Not Found (404) is throwed if AS number is not found.
 
 Custom "ZONE" role for domain objects
 -------------------------------------
