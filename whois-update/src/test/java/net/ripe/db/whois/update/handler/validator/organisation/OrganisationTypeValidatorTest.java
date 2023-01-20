@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
@@ -43,14 +44,14 @@ public class OrganisationTypeValidatorTest {
 
     @Test
     public void getActions() {
-        assertThat(subject.getActions().size(), is(2));
+        assertThat(subject.getActions(), hasSize(2));
         assertThat(subject.getActions().contains(Action.MODIFY), is(true));
         assertThat(subject.getActions().contains(Action.CREATE), is(true));
     }
 
     @Test
     public void getTypes() {
-        assertThat(subject.getTypes().size(), is(1));
+        assertThat(subject.getTypes(), hasSize(1));
         assertThat(subject.getTypes().get(0), is(ObjectType.ORGANISATION));
     }
 

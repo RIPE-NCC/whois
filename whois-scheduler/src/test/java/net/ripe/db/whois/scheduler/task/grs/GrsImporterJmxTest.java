@@ -2,16 +2,15 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -47,7 +46,7 @@ public class GrsImporterJmxTest {
         final String result = subject.grsImport("ARIN-GRS,APNIC-GRS", "comment");
 
         verify(grsImporter).grsImport("ARIN-GRS,APNIC-GRS", false);
-        assertNull(result);
+        assertThat(result, is(nullValue()));
     }
 
     @Test
@@ -71,6 +70,6 @@ public class GrsImporterJmxTest {
         final String result = subject.grsRebuild("ARIN-GRS,APNIC-GRS", "grsrebuildnow", "comment");
 
         verify(grsImporter).grsImport("ARIN-GRS,APNIC-GRS", true);
-        assertNull(result);
+        assertThat(result, is(nullValue()));
     }
 }

@@ -57,6 +57,7 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
                 .header(HttpHeaders.CONTENT_TYPE, "application/rdap+json")
                 .build();
     }
+
     private RdapObject createErrorEntity(final int errorCode, final String errorTitle, final String ... errorTexts) {
         return rdapObjectMapper.mapError(errorCode, errorTitle, Lists.newArrayList(errorTexts));
     }

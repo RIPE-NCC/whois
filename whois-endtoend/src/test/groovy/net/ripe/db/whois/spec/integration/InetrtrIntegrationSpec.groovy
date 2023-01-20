@@ -118,7 +118,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             password:        emptypassword
             password:        update
         """
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
       then:
         createResponse =~ /Create SUCCEEDED: \[inet-rtr\] test.ripe.net/
     }
@@ -139,7 +139,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             password:        emptypassword
         """
 
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       then:
         createResponse =~ /SUCCESS/
@@ -161,7 +161,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             password:        emptypassword
         """
 
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       then:
         createResponse =~ /FAIL/
@@ -182,7 +182,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          TEST-MNT
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       expect:
         createResponse =~ /SUCCESS/
@@ -199,7 +199,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          REF-MNT
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       then:
         updateResponse =~ /SUCCESS/
@@ -217,7 +217,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          TEST-MNT
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       expect:
         createResponse =~ /SUCCESS/
@@ -235,7 +235,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             member-of:       rtrs-ripetest
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       then:
         updateResponse =~ /SUCCESS/
@@ -253,7 +253,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          TEST-MNT
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       expect:
         createResponse =~ /SUCCESS/
@@ -271,7 +271,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             member-of:       rtrs-no-mbrsbyref
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       then:
         updateResponse =~ /FAIL/
@@ -291,7 +291,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: AP1-TEST
                 mnt-by: TEST-MNT
                 source: TEST
-            """.stripIndent()
+            """.stripIndent(true)
         def insertResponse = syncUpdate(new SyncUpdate(data: inetrtr + "password: emptypassword"))
 
       expect:
@@ -318,7 +318,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             password:        emptypassword
             password:        update
         """
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       then:
         createResponse =~ /Create SUCCEEDED: \[inet-rtr\] test.ripe.net/

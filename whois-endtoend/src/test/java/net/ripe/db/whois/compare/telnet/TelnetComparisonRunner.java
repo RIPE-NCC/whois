@@ -15,7 +15,8 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 public class TelnetComparisonRunner extends AbstractComparisonRunner {
     private final ComparisonExecutor executor1;
@@ -40,7 +41,8 @@ public class TelnetComparisonRunner extends AbstractComparisonRunner {
 
         final Long serial1 = TelnetClientUtils.getLatestSerialId(executor1.getExecutorConfig());
         final Long serial2 = TelnetClientUtils.getLatestSerialId(executor2.getExecutorConfig());
-        assertEquals(serial1, serial2, "Serials must be the same");
+
+        assertThat("Serials must be the same", serial1, equalTo(serial2));
     }
 
     @Override

@@ -2,24 +2,24 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AddressPrefixRangeTest {
 
     @Test
     public void empty() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AddressPrefixRange.parse("");
         });
     }
 
     @Test
     public void invalid_address() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AddressPrefixRange.parse("300.104.182.0/12");
         });
     }
@@ -27,14 +27,14 @@ public class AddressPrefixRangeTest {
     @Test
     public void range_too_long() {
 
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AddressPrefixRange.parse("194.104.182.0/33");
         });
     }
 
     @Test
     public void range_too_long_ipv6() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AddressPrefixRange.parse("2a00:c00::/129");
         });
 
@@ -105,7 +105,7 @@ public class AddressPrefixRangeTest {
 
     @Test
     public void operation_range_ipv4_too_long() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AddressPrefixRange.parse("193.151.47.0/24^24-33");
         });
 
@@ -113,7 +113,7 @@ public class AddressPrefixRangeTest {
 
     @Test
     public void operation_range_ipv4_invalid_order() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AddressPrefixRange.parse("193.151.47.0/24^24-12");
         });
 
@@ -130,7 +130,7 @@ public class AddressPrefixRangeTest {
 
     @Test
     public void operation_length_too_long() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AddressPrefixRange.parse("77.74.152.0/23^33");
         });
 
@@ -138,7 +138,7 @@ public class AddressPrefixRangeTest {
 
     @Test
     public void n_lower_than_prefix_range() {
-        Assertions.assertThrows(AttributeParseException.class, () -> {
+        assertThrows(AttributeParseException.class, () -> {
             AddressPrefixRange.parse("77.74.152.0/23^22");
         });
     }

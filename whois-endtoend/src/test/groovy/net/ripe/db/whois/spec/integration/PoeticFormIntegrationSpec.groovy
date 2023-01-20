@@ -53,7 +53,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          RIPE-DBM-MNT
             source:          TEST
             password:        update2
-            """.stripIndent())
+            """.stripIndent(true))
 
         def response = syncUpdate update
 
@@ -70,7 +70,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          UPD-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -88,7 +88,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          UPD-MNT
             source:          TEST
             password:        update2
-            """.stripIndent())
+            """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -107,7 +107,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          RIPE-DBM-MNT
             source:          TEST
             password:        update2
-            """.stripIndent())
+            """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -126,7 +126,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          RIPE-DBM-MNT
             source:          TEST
             password:        update2
-            """.stripIndent())
+            """.stripIndent(true))
 
         def createResponse = syncUpdate create
 
@@ -144,7 +144,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          RIPE-DBM-MNT
             source:          TEST
             password:        update2
-            """.stripIndent())
+            """.stripIndent(true))
 
         def updateResponse = syncUpdate update
 
@@ -162,7 +162,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          RIPE-DBM-MNT
             source:          TEST
             password:        update2
-            """.stripIndent())
+            """.stripIndent(true))
 
         def createResponse = syncUpdate create
 
@@ -179,7 +179,7 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             source:          TEST
             password:        update2
             delete:          test
-            """.stripIndent())
+            """.stripIndent(true))
 
         def deleteResponse = syncUpdate delete
 

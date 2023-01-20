@@ -190,7 +190,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -233,7 +233,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -277,7 +277,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -318,7 +318,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -358,7 +358,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -402,7 +402,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -446,7 +446,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: sub
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -487,7 +487,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -530,7 +530,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -573,7 +573,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -613,7 +613,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -654,7 +654,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -695,7 +695,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -734,7 +734,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -775,7 +775,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -816,7 +816,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -856,7 +856,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -896,7 +896,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 override: denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -941,7 +941,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -985,7 +985,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: sub
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1026,7 +1026,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1069,7 +1069,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1110,7 +1110,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1150,7 +1150,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1191,7 +1191,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1232,7 +1232,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1271,7 +1271,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1312,7 +1312,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1354,7 +1354,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1395,7 +1395,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1436,7 +1436,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1480,7 +1480,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1525,7 +1525,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: sub
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1558,7 +1558,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
             password: hm
             password: lir
-            """.stripIndent())  // <--- TODO needs bug fix for assigned PI creation
+            """.stripIndent(true))  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.199.0 - 192.168.200.255", "inetnum", "192.168.199.0 - 192.168.200.255")
 
       expect:
@@ -1581,7 +1581,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1625,7 +1625,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1666,7 +1666,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1708,7 +1708,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1750,7 +1750,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1792,7 +1792,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1836,7 +1836,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1880,7 +1880,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1925,7 +1925,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1964,7 +1964,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2007,7 +2007,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2049,7 +2049,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: sub
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2087,7 +2087,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2131,7 +2131,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2172,7 +2172,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2214,7 +2214,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2256,7 +2256,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2298,7 +2298,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2342,7 +2342,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2386,7 +2386,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2430,7 +2430,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2470,7 +2470,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: hm
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2511,7 +2511,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2556,7 +2556,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: lir
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2600,7 +2600,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: sub
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2641,7 +2641,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2684,7 +2684,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2724,7 +2724,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2768,7 +2768,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2808,7 +2808,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: hm
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2852,7 +2852,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: lir
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2896,7 +2896,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: sub
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2937,7 +2937,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2979,7 +2979,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3022,7 +3022,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3062,7 +3062,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3107,7 +3107,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3146,7 +3146,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3189,7 +3189,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3234,7 +3234,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: sub
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3281,7 +3281,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: end
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3324,7 +3324,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3368,7 +3368,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3409,7 +3409,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3451,7 +3451,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3493,7 +3493,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3535,7 +3535,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3579,7 +3579,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3623,7 +3623,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3713,7 +3713,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password:  lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3765,7 +3765,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: end
                 password: sub
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3800,7 +3800,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 source:       TEST
-                """.stripIndent())
+                """.stripIndent(true))
       expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
 
@@ -3818,7 +3818,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
                 password: end
                 password: sub
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

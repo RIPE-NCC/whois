@@ -65,7 +65,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -103,7 +103,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -143,7 +143,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:       denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -184,7 +184,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -227,7 +227,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -267,7 +267,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -308,7 +308,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -344,7 +344,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: test2
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -383,7 +383,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -421,7 +421,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -464,7 +464,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -497,7 +497,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -539,7 +539,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -581,7 +581,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -629,7 +629,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 delete:         reason
 
                 password:   dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -657,7 +657,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -684,7 +684,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -721,7 +721,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -765,7 +765,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -809,7 +809,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -851,7 +851,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -884,7 +884,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -912,7 +912,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -940,7 +940,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -968,7 +968,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:

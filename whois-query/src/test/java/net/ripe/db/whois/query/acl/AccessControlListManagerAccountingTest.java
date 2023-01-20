@@ -6,17 +6,16 @@ import net.ripe.db.whois.query.dao.AccessControlListDao;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,31 +42,31 @@ public class AccessControlListManagerAccountingTest {
     @Test
     public void unlimited() throws Exception {
         setPersonalLimit(-1);
-        assertTrue(subject.canQueryPersonalObjects(ipv4Address));
+        assertThat(subject.canQueryPersonalObjects(ipv4Address), is(true));
 
         subject.accountPersonalObjects(ipv4Address, 1000);
-        assertTrue(subject.canQueryPersonalObjects(ipv4Address));
+        assertThat(subject.canQueryPersonalObjects(ipv4Address), is(true));
     }
 
     @Test
     public void limited() throws Exception {
         setPersonalLimit(1);
-        assertTrue(subject.canQueryPersonalObjects(ipv4Address));
+        assertThat(subject.canQueryPersonalObjects(ipv4Address), is(true));
 
         subject.accountPersonalObjects(ipv4Address, 1);
-        assertTrue(subject.canQueryPersonalObjects(ipv4Address));
+        assertThat(subject.canQueryPersonalObjects(ipv4Address), is(true));
 
         subject.accountPersonalObjects(ipv4Address, 1);
-        assertFalse(subject.canQueryPersonalObjects(ipv4Address));
+        assertThat(subject.canQueryPersonalObjects(ipv4Address), is(false));
     }
 
     @Test
     public void limit_zero() throws Exception {
         setPersonalLimit(0);
-        assertTrue(subject.canQueryPersonalObjects(ipv4Address));
+        assertThat(subject.canQueryPersonalObjects(ipv4Address), is(true));
 
         subject.accountPersonalObjects(ipv4Address, 1);
-        assertFalse(subject.canQueryPersonalObjects(ipv4Address));
+        assertThat(subject.canQueryPersonalObjects(ipv4Address), is(false));
     }
 
     private void setPersonalLimit(int count) {

@@ -2,7 +2,6 @@ package net.ripe.db.whois.scheduler.task.export;
 
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +19,10 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
 public class ExportFileWriterFactoryTest {
@@ -43,7 +45,7 @@ public class ExportFileWriterFactoryTest {
     public void createExportFileWriters_existing_dir() throws IOException {
         Files.createDirectories(folder.resolve("dbase"));
 
-        Assertions.assertThrows(IllegalStateException.class, () -> {
+        assertThrows(IllegalStateException.class, () -> {
             subject.createExportFileWriters(folder.toFile(), LAST_SERIAL);
         });
     }
@@ -54,14 +56,14 @@ public class ExportFileWriterFactoryTest {
         assertThat(exportFileWriters.isEmpty(), is(false));
 
         final File[] files = folder.toFile().listFiles();
-        assertNotNull(files);
+        assertThat(files, not(nullValue()));
         assertThat(files.length, is(3));
 
         for (final File file : files) {
             if (! (file.getAbsolutePath().endsWith("internal")
                     || file.getAbsolutePath().endsWith("dbase")
                     || file.getAbsolutePath().endsWith("dbase_new"))) {
-                Assertions.fail("Unexpected folder: " + file.getAbsolutePath());
+                fail("Unexpected folder: " + file.getAbsolutePath());
             }
         }
     }

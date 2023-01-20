@@ -231,7 +231,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -267,7 +267,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -304,7 +304,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -340,7 +340,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -381,7 +381,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -424,7 +424,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -467,7 +467,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -518,7 +518,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -570,7 +570,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:  check address format
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -614,7 +614,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -654,7 +654,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -694,7 +694,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -734,7 +734,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -773,7 +773,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -809,7 +809,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -843,7 +843,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -884,7 +884,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -929,7 +929,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -965,7 +965,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1003,7 +1003,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       old status
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1043,7 +1043,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       ass
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1084,7 +1084,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       ass
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1125,7 +1125,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       ass
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1163,7 +1163,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       ass
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1203,7 +1203,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       ass
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1239,7 +1239,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 delete:       alloc
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1281,7 +1281,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1319,7 +1319,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1361,7 +1361,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: lir2
                 password: lir3
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1402,7 +1402,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1441,7 +1441,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1497,7 +1497,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1554,7 +1554,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1613,7 +1613,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1688,7 +1688,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1733,7 +1733,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1775,7 +1775,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1817,7 +1817,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1859,7 +1859,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1904,7 +1904,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1948,7 +1948,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1991,7 +1991,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2034,7 +2034,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2077,7 +2077,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2152,7 +2152,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: lir
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2195,7 +2195,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2232,7 +2232,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2266,7 +2266,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent())
+                """.stripIndent(true))
         then:
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -2296,7 +2296,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent())
+                """.stripIndent(true))
         then:
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -2328,7 +2328,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent())
+                """.stripIndent(true))
         then:
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -2360,7 +2360,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent())
+                """.stripIndent(true))
         then:
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -2393,7 +2393,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent())
+                """.stripIndent(true))
         then:
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)

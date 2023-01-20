@@ -139,6 +139,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(updateLog.getMessage(0), not(containsString(OVERRIDE_PASSWORD)));
     }
 
+    @Test
     public void rest_create_gets_logged() {
         final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
         restClient.request()

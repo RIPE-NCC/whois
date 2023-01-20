@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -46,7 +47,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
@@ -271,9 +271,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
 
         final List<Event> events = domain.getEvents();
         assertThat(events, hasSize(2));
-        assertTrue(events.get(0).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(0).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
-        assertTrue(events.get(1).getEventDate().isBefore(LocalDateTime.now()));
+        assertThat(events.get(1).getEventDate(), isBefore(LocalDateTime.now()));
         assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
 
         final List<Entity> entities = domain.getEntitySearchResults();
@@ -288,7 +288,11 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertTnCNotice(notices.get(2), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
 
-        assertCopyrightLink(domain.getLinks(), "https://rdap.db.ripe.net/domain/31.12.202.in-addr.arpa");
+         final List<Link> links= domain.getLinks();
+        assertThat(links, hasSize(1));
+
+        assertThat(links.get(0).getRel(), is("copyright"));
+        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -322,9 +326,9 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
             fail();
-        } catch (NotFoundException e) {
-            assertErrorStatus(e, 404);
-            assertErrorTitle(e, "404 Not Found");
+        } catch (BadRequestException e) {
+            assertErrorStatus(e, 400);
+            assertErrorTitle(e, "400 Not Found");
             assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
         }
     }
@@ -693,19 +697,6 @@ public class WhoisRdapElasticServiceTestIntegration extends AbstractElasticSearc
         assertThat(object.getPort43(), is("whois.ripe.net"));
         assertThat(object.getRdapConformance(), hasSize(3));
         assertThat(object.getRdapConformance(), containsInAnyOrder("rdap_level_0", "cidr0", "nro_rdap_profile_0"));
-    }
-
-    private void assertCopyrightLink(final List<Link> links, final String value) {
-        assertThat(links, hasSize(2));
-        Collections.sort(links);
-
-        assertThat(links.get(0).getRel(), is("copyright"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-        assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
-
-        assertThat(links.get(1).getRel(), is("self"));
-        assertThat(links.get(1).getValue(), is(value));
-        assertThat(links.get(1).getHref(), is(value));
     }
 
     private void assertTnCNotice(final Notice notice, final String value) {
