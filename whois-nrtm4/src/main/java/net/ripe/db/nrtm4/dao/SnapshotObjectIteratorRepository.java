@@ -9,14 +9,6 @@ import javax.sql.DataSource;
 import java.util.function.Consumer;
 
 
-/**
- * `id`          int unsigned NOT NULL AUTO_INCREMENT,
- * `version_id`  int unsigned NOT NULL,
- * `serial_id`   int          NOT NULL,
- * `object_type` int          NOT NULL,
- * `pkey`        varchar(256) NOT NULL,
- * `payload`     longtext     NOT NULL,
- */
 @Repository
 public class SnapshotObjectIteratorRepository {
 
@@ -27,13 +19,14 @@ public class SnapshotObjectIteratorRepository {
     }
 
     public void snapshotCallbackConsumer(final NrtmSource source, final Consumer<String> fn) {
-        final String sql = "" +
-            "SELECT so.rpsl " +
-            "FROM snapshot_object so " +
-            "JOIN version_info v ON v.id = so.version_id " +
-            "JOIN source src ON src.id = v.source_id " +
-            "WHERE src.name = ? " +
-            "ORDER BY so.object_id";
+        final String sql = """
+            SELECT so.rpsl
+            FROM snapshot_object so
+            JOIN version_info v ON v.id = so.version_id
+            JOIN source src ON src.id = v.source_id
+            WHERE src.name = ?
+            ORDER BY so.object_id
+            """;
         JdbcStreamingHelper.executeStreaming(
             jdbcTemplate,
             sql,

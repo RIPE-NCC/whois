@@ -54,15 +54,8 @@ public class SnapshotFileGeneratorIntegrationTest extends AbstractDatabaseHelper
             final var bos = new ByteArrayOutputStream();
             nrtmFileService.writeFileToStream(snapshotFile.getSessionID(), snapshotFile.getFileName(), bos);
             final var expected = """
-{
-  "nrtm_version" : 4,
-  "type" : "snapshot",
-  "source" : "TEST",
-  "session_id" : "",
-  "version" : 1,
-  "objects" : [ "inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Description\\ncountry:        es\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n" ]
-}""";
-            assertThat(bos.toString(StandardCharsets.UTF_8).replaceFirst("\"session_id\" : \"[^\"]+\"", "\"session_id\" : \"\""), is(expected));
+{"nrtm_version":4,"type":"snapshot","source":"TEST","session_id":"","version":1,"objects":["inetnum:        195.77.187.144 - 195.77.187.151\\nnetname:        Netname\\ndescr:          Descrip-\\\\ntion\\ncountry:        es\\nadmin-c:        DUMY-RIPE\\ntech-c:         DUMY-RIPE\\nstatus:         ASSIGNED PA\\nmnt-by:         MAINT-AS3352\\nsource:         RIPE\\nremarks:        ****************************\\nremarks:        * THIS OBJECT IS MODIFIED\\nremarks:        * Please note that all data that is generally regarded as personal\\nremarks:        * data has been removed from this object.\\nremarks:        * To view the original object, please query the RIPE Database at:\\nremarks:        * http://www.ripe.net/whois\\nremarks:        ****************************\\n"]}""";
+            assertThat(bos.toString(StandardCharsets.UTF_8).replaceFirst("\"session_id\":\"[^\"]+\"", "\"session_id\":\"\""), is(expected));
             assertThat(snapshotFile.getFileName(), startsWith("nrtm-snapshot.1."));
         }
         {

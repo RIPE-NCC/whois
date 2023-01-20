@@ -6,7 +6,7 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoRepository;
 import net.ripe.db.nrtm4.dao.SnapshotFile;
 import net.ripe.db.nrtm4.dao.SnapshotFileRepository;
 import net.ripe.db.nrtm4.domain.PublishableSnapshotFile;
-import net.ripe.db.nrtm4.domain.SnapshotFileStreamer;
+import net.ripe.db.nrtm4.domain.SnapshotFileSerializer;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -23,18 +23,18 @@ public class NrtmFileSync {
     private final NrtmFileStore nrtmFileStore;
     private final NrtmVersionInfoRepository nrtmVersionInfoRepository;
     private final SnapshotFileRepository snapshotFileRepository;
-    private final SnapshotFileStreamer snapshotFileStreamer;
+    private final SnapshotFileSerializer snapshotFileSerializer;
 
     NrtmFileSync(
         final NrtmFileStore nrtmFileStore,
         final NrtmVersionInfoRepository nrtmVersionInfoRepository,
         final SnapshotFileRepository snapshotFileRepository,
-        final SnapshotFileStreamer snapshotFileStreamer
+        final SnapshotFileSerializer snapshotFileSerializer
     ) {
         this.nrtmFileStore = nrtmFileStore;
         this.nrtmVersionInfoRepository = nrtmVersionInfoRepository;
         this.snapshotFileRepository = snapshotFileRepository;
-        this.snapshotFileStreamer = snapshotFileStreamer;
+        this.snapshotFileSerializer = snapshotFileSerializer;
     }
 
     void syncSnapshotFromDbToDisk(final String sessionId, final String name) throws IOException {
@@ -52,7 +52,7 @@ public class NrtmFileSync {
             final NrtmVersionInfo version = nrtmVersionInfoRepository.findById(snapshotFile.get().getVersionId()).orElseThrow();
             final PublishableSnapshotFile publishableSnapshotFile = new PublishableSnapshotFile(version);
             final FileOutputStream fos = nrtmFileStore.getFileOutputStream(sessionId, name);
-            snapshotFileStreamer.writeSnapshotAsJson(publishableSnapshotFile, fos);
+            snapshotFileSerializer.writeSnapshotAsJson(publishableSnapshotFile, fos);
             fos.close();
         } finally {
             snapshotMutex.leave();
